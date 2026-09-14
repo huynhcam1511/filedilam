@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Phần Mềm Quản Lý Công Nợ - VIP PRO</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">
+                    <i class="fa-solid fa-file-invoice-dollar"></i>
+                    <span>CÔNG NỢ VIP</span>
+                </div>
+            </div>
+            <nav class="sidebar-nav">
+                <button class="nav-btn active" data-view="dashboard">
+                    <i class="fa-solid fa-chart-pie"></i> Tổng Quan
+                </button>
+                <button class="nav-btn" data-view="partners">
+                    <i class="fa-solid fa-users"></i> Danh Mục Đối Tác
+                </button>
+                <button class="nav-btn" data-view="transactions">
+                    <i class="fa-solid fa-money-bill-transfer"></i> Phát Sinh Công Nợ
+                </button>
+            </nav>
+            <div class="sidebar-footer">
+                <div class="user-profile">
+                    <div class="avatar">
+                        <i class="fa-solid fa-user-tie"></i>
+                    </div>
+                    <div class="user-info">
+                        <p class="name">Admin Kinh Doanh</p>
+                        <p class="role">Quản lý cấp cao</p>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <header class="top-header">
+                <div class="header-search">
+                    <i class="fa-solid fa-search"></i>
+                    <input type="text" placeholder="Tìm kiếm đối tác, giao dịch..." id="globalSearch">
+                </div>
+                <div class="header-actions">
+                    <button class="action-btn" title="Thông báo"><i class="fa-regular fa-bell"></i></button>
+                    <button class="action-btn" title="Cài đặt"><i class="fa-solid fa-gear"></i></button>
+                </div>
+            </header>
+
+            <div id="viewContainer" class="view-container">
+                <!-- Views will be injected here via JavaScript -->
+            </div>
+        </main>
+    </div>
+
+    <!-- Modals Container (Injected via JS) -->
+    <div id="modalContainer"></div>
+
+    <!-- Scripts -->
+    <script src="app.js"></script>
+    <script src="dashboard.js"></script>
+    <script src="partners.js"></script>
+    <script src="transactions.js"></script>
+</body>
+</html>

@@ -1,0 +1,50 @@
+{
+  "id": "neutral_beige_soft",
+  "name": "Neutral Beige Mềm",
+  "palette_strategy": {
+    "harmony_model": "neutral_beige_with_muted_sage_support",
+    "core_family": ["beige", "taupe", "sage"],
+    "accent_family": ["warm_sand"]
+  },
+  "colors": {
+    "brand_rose": "#B79B84",
+    "brand_rose_soft": "#EFE3D9",
+    "brand_lavender": "#D3C6B8",
+    "brand_lavender_soft": "#F7F1EB",
+    "brand_mint": "#BECDBA",
+    "brand_mint_soft": "#EDF3EC",
+    "brand_butter": "#E8D7B6",
+    "brand_butter_soft": "#FBF5EA",
+    "brand_mist": "#D9D3CB",
+    "brand_mist_soft": "#F7F5F2",
+    "background": "#FFFCF8",
+    "surface": "#FFFFFF",
+    "border": "#E6DDD4",
+    "text": "#5B5148",
+    "muted_text": "#8B8178",
+    "primary": "#B79B84",
+    "secondary": "#D3C6B8",
+    "accent": "#E8D7B6",
+    "input_fill": "#FCF2E9",
+    "formula_fill": "#F2F6F0",
+    "guide_fill": "#FBF5EA",
+    "muted_fill": "#EFE3D9",
+    "white": "#FFFFFF",
+    "danger": "#DAB7A7",
+    "success": "#B7CFBF",
+    "info": "#D9D3CB",
+    "lavender": "#D3C6B8"
+  },
+  "sheet_tabs": {
+    "setup": "#B79B84",
+    "orders": "#C8B19A",
+    "cashbook": "#D7C5A8",
+    "cod": "#BECDBA",
+    "dashboard": "#D3C6B8",
+    "metadata": "#DDD4CC"
+  },
+  "fonts": {
+    "display_name": "Aptos Display",
+    "body_name": "Aptos"
+  }
+}

@@ -1,0 +1,71 @@
+{
+  "template_id": "shop_online_mini",
+  "workbook_path": "outputs/shop_online_mini/file_di_lam_shop_online_mini__v1_2_0__20260703_124000.xlsx",
+  "summary": {
+    "passed": true,
+    "total_checks": 12,
+    "passed_checks": 12
+  },
+  "checks": [
+    {
+      "name": "expected_sheets",
+      "passed": true,
+      "detail": "Actual sheets: ['0_BẮT_ĐẦU', '1_ĐƠN_HÀNG', '2_THU_CHI', '3_THEO_DÕI_COD', '4_TỔNG_QUAN', '5_DANH_MỤC', '6_HỆ_THỐNG']"
+    },
+    {
+      "name": "metadata_version",
+      "passed": true,
+      "detail": "Metadata version: 1.2.0"
+    },
+    {
+      "name": "metadata_timestamp",
+      "passed": true,
+      "detail": "Metadata timestamp: 2026-07-03T12:40:00"
+    },
+    {
+      "name": "sample_orders_present",
+      "passed": true,
+      "detail": "First order cell B4: SO-260601-001"
+    },
+    {
+      "name": "sample_cashbook_present",
+      "passed": true,
+      "detail": "First cashbook cell B4: CF-260601-001"
+    },
+    {
+      "name": "order_formula_column",
+      "passed": true,
+      "detail": "Orders K4 formula: =IF(G4<>\"COD\",0,IF(F4=\"\", \"\", F4))"
+    },
+    {
+      "name": "cod_formula_column",
+      "passed": true,
+      "detail": "COD G4 formula: =IF(A4=\"\",\"\",MAX(E4-F4,0))"
+    },
+    {
+      "name": "setup_shop_name_present",
+      "passed": true,
+      "detail": "Setup B4: Luna Studio"
+    },
+    {
+      "name": "dashboard_charts",
+      "passed": true,
+      "detail": "Dashboard charts: 3"
+    },
+    {
+      "name": "lists_sheet_hidden",
+      "passed": true,
+      "detail": "Lists sheet state: hidden"
+    },
+    {
+      "name": "metadata_sheet_hidden",
+      "passed": true,
+      "detail": "Metadata sheet state: hidden"
+    },
+    {
+      "name": "filename_version_timestamp",
+      "passed": true,
+      "detail": "Workbook file: file_di_lam_shop_online_mini__v1_2_0__20260703_124000.xlsx"
+    }
+  ]
+}

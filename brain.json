@@ -1,0 +1,87 @@
+{
+  "product_quality_standard": {
+    "sources": [
+      "FILE_DI_LAM_BRAND.json",
+      "PIPELINE_FILE_DI_LAM_FACTORY.md",
+      "PRODUCT_ROADMAP_CUA_HANG_NHO.md"
+    ],
+    "minimum_requirements": [
+      "Trang Bắt đầu hướng dẫn người mới làm được: thiết lập, nhập thử, kiểm tra kết quả và biết bước tiếp theo; không dồn hướng dẫn lên dashboard",
+      "Ít ô nhập, phân biệt rõ vùng nhập và vùng tự tính, không buộc khách sửa công thức",
+      "Công thức và giả định tính đúng, có thể truy ngược và kiểm tra",
+      "Thiết kế thương mại đồng bộ, dễ đọc; bảo vệ công thức và vùng hệ thống",
+      "Có trang tổng quan riêng với ít nhất 4 KPI và 6 biểu đồ khác chức năng, có bộ lọc phù hợp, số liệu truy ngược được; không thêm biểu đồ vô nghĩa để đủ số",
+      "Dropdown phải đẹp và dễ hiểu: ô chọn có màu/trạng thái nhất quán, nhãn và lựa chọn ngắn rõ, cảnh báo chọn sai, danh mục nguồn dễ sửa; validation phủ đến dòng cuối ở mọi sheet khai báo/nhập liệu",
+      "Định dạng và công thức phải phủ sẵn toàn bộ số dòng nhập dự kiến, kể cả các dòng trống cuối vùng; thêm dữ liệu không được phải kéo công thức",
+      "Vùng nhập dùng màu nhất quán; vùng tự tính, hướng dẫn và cảnh báo có màu phân biệt rõ, dễ đọc",
+      "Chỉ mở khóa ô khách cần nhập; khóa công thức, dashboard, danh mục hệ thống và các vùng không nhập; kiểm tra lại bằng thao tác thực tế",
+      "Có kiểm tra chất lượng tự động gồm công thức, dữ liệu, dropdown đến dòng cuối, bảo vệ ô, dashboard và hiệu năng; có phiên bản, manifest, bản sạch và bản demo trước khi phát hành"
+    ],
+    "row_capacity_rule": "Mỗi sản phẩm phải công bố sức chứa theo từng sheet; chuẩn bị sẵn toàn bộ dòng trong sức chứa đó với dropdown, công thức, định dạng và bảo vệ. Không dùng vài dòng mẫu để giả làm file hoàn chỉnh.",
+    "dashboard_chart_minimum": 6,
+    "dashboard_kpi_minimum": 4,
+    "sheet_roles": {
+      "start": "BẮT ĐẦU là trang hướng dẫn thao tác: mục đích file, 3 bước nhập, thiết lập ban đầu, một ví dụ hoàn chỉnh, chú giải màu và liên kết tới nơi nhập/xem kết quả; có chỉ dẫn khi dữ liệu chưa đủ.",
+      "overview": "TỔNG QUAN là dashboard chỉ xem: KPI, biểu đồ, bộ lọc và các cảnh báo/insight giúp ra quyết định; không chứa bài hướng dẫn dài hoặc ô nhập nghiệp vụ.",
+      "dropdowns": "Thiết kế đẹp ở ô chọn và giá trị đã chọn bằng màu, căn lề, định dạng và cảnh báo; danh sách chọn gọn, không viết nhãn mơ hồ. Kiểm thử trên ứng dụng đích vì giao diện popup dropdown phụ thuộc Excel/Google Sheets."
+    },
+    "benchmark_product": {
+      "file": "outputs/shop_online_mini/file_di_lam_shop_online_mini__v1_3_0__20260818_031500.xlsx",
+      "name": "Shop Online Mini v1.3.0 (bản Excel cục bộ; chưa xác nhận trùng bản Google Sheets đang bán)",
+      "observed": [
+        "7 sheet gồm Bắt đầu, Đơn hàng, Thu chi, Theo dõi COD, Tổng quan, Danh mục và Hệ thống ẩn",
+        "4 KPI và 6 biểu đồ trên Tổng quan",
+        "200 dòng Đơn hàng và 200 dòng Thu chi đã có dropdown/công thức đến dòng cuối",
+        "Ô nhập mở khóa, ô công thức và dashboard khóa; có màu vùng nhập/tự tính",
+        "QC cục bộ đạt 13/13, nhưng chưa kiểm tra đầy đủ các thao tác ở dòng cuối và bản Google Sheets đang bán"
+      ],
+      "known_gap": "Danh mục chỉ có vài dòng; sản phẩm mới phải chuẩn bị đủ dòng khai báo/danh mục, không chỉ dòng giao dịch."
+    },
+    "release_gate": "Không gọi file là bản bán nếu thiếu bất kỳ yêu cầu tối thiểu nào. Kiểm tra thực tế bằng file xuất cuối, không chỉ đọc config hoặc mã tạo file.",
+    "cost_product_upgrade_plan": "KE_HOACH_NANG_CAP_FILE_COST_DA_NGANH.md",
+    "cost_prototype_status": "outputs/tinh_cost_da_nganh_v1.xlsx là prototype kỹ thuật; v2 không đạt chuẩn thiết kế. outputs/tinh_cost_da_nganh_v3.xlsx là bản làm lại để chủ sản phẩm xem xét: hồng pastel, font Arial, 45 đầu vào và 45 thành phẩm mẫu, cột nghiệp vụ bổ sung, 4 KPI/6 biểu đồ có nhãn/trục/series, dropdown phủ cuối vùng nhập, định dạng số và conditional formatting. Đã QC bằng Microsoft Excel: 0 lỗi công thức, test thay giá/đơn vị/dòng cuối qua; chưa niêm yết hoặc phát hành bản bán.",
+    "cost_design_feedback_2026_09_14": {
+      "status": "Yêu cầu bắt buộc cho bản sửa kế tiếp; v2 chưa được duyệt về thẩm mỹ và trải nghiệm sử dụng.",
+      "audience_and_palette": "Tệp khách hàng hiện tại của chủ sản phẩm là nữ. Dùng bảng màu hồng/pastel dịu, nhất quán, dễ tiếp cận; giữ độ tương phản đủ cao để đọc rõ, tránh màu trang trí lấn át dữ liệu.",
+      "typography": "Thay font hiện tại bằng font hỗ trợ tiếng Việt, dễ đọc trên màn hình; thiết lập cấp bậc rõ cho tiêu đề trang, tiêu đề mục, nhãn bảng, số liệu và chú thích; không để chữ bị che, cắt hoặc quá nhỏ.",
+      "dashboard_charts": "Làm lại toàn bộ biểu đồ ở TỔNG QUAN. Tiêu đề đặt phía trên vùng vẽ, không căn giữa trong plot và không chồng lên dữ liệu. Hiển thị rõ nhãn hàng/dòng (category), trục, chú giải series, màu phân biệt từng chuỗi; có lưới/đường phân định và khoảng trắng hợp lý. Mỗi biểu đồ phải có mục đích phân tích, dễ xem tại mức zoom sử dụng thực tế.",
+      "input_tables": "Điền 40–50 dòng dữ liệu mẫu có nghĩa, đa dạng ở các bảng mã/đầu vào quan trọng để người mua nhìn được cách vận hành. Đây là số dòng mẫu được điền, tách biệt với sức chứa đã chuẩn bị sẵn cho hàng trăm hoặc hàng nghìn dòng. Bổ sung các cột nghiệp vụ thật sự hữu ích cho tính cost nhiều ngành, lấy F&B pha chế và thức ăn làm ca kiểm tra khó nhất; không thêm cột chỉ để tăng độ rộng.",
+      "dropdown_and_colors": "Dropdown phải có nhãn ngắn rõ, nguồn danh mục đầy đủ và validation phủ tới dòng cuối. Thiết kế màu ô chọn/giá trị chọn đẹp, đồng bộ; dùng conditional formatting để phân biệt loại nguyên liệu, trạng thái, cảnh báo thiếu dữ liệu và giá trị bất thường. Kiểm tra giao diện chọn thực tế trong Excel/Google Sheets vì popup là của ứng dụng.",
+      "number_format": "Mọi giá tiền, số lượng và kết quả tính phải dùng định dạng số nhất quán, có dấu phân tách hàng nghìn; số thập phân và phần trăm đúng đơn vị, không hiện số thô khó đọc.",
+      "visual_release_gate": "Xuất và xem trực tiếp từng sheet, đặc biệt TỔNG QUAN, ở kích thước màn hình thường dùng. Chỉ coi là đạt khi font, bảng màu, chart title, nhãn/series, đường phân định, dropdown, conditional formatting, số mẫu và dấu phân tách hàng nghìn đều được kiểm tra trên file cuối."
+    },
+    "cost_google_redesign_2026_09_15": {
+      "sheet_url": "https://docs.google.com/spreadsheets/d/1aoVxMvNw6BCStmvnxb9m56pJB1tWNUfuMhq9XCNwZ7I/edit",
+      "status": "Bản thử giao diện và nhật ký mua, chưa đạt chuẩn phát hành",
+      "audience": "Chủ quán/shop rất ít dùng máy tính; hướng dẫn theo 4 việc: ghi món, ghi nguyên liệu, ghi cách làm, xem tiền vốn",
+      "purchase_batches": "Có nhật ký mua 200 dòng, mỗi lần mua một dòng, giá đơn vị theo từng lô; chưa nối xuất kho FIFO hoặc cost thực tế theo ngày",
+      "release_gap": "Cần xây FIFO gắn với lượng bán/xuất dùng, kiểm tra biểu đồ và giao diện thật trên Google Sheets trước khi bán"
+    }
+  },
+  "marketing_learnings": [
+    {
+      "topic": "Hook video TikTok giới thiệu file quản lý đơn hàng, thu chi, COD",
+      "observed_on": "2026-09-14",
+      "context": "Video dài 32 giây. Chủ tài khoản cho biết đã chạy TikTok Promote để đạt khoảng 10.000 lượt xem và lượt thích; tổng lượt xem sau đó lên khoảng 11.000. Vì vậy không xem số view và like là kết quả organic.",
+      "observed_metrics": {
+        "views_approx": 11000,
+        "likes": 459,
+        "comments": 11,
+        "saves": 39,
+        "new_followers": 15,
+        "average_watch_seconds": 5.02,
+        "completion_rate_percent": 2.8,
+        "traffic_from_recommendations_percent": 77.7,
+        "traffic_from_search_percent": 19.9
+      },
+      "audience_signal": "Có bình luận và tin nhắn chủ động xin file, cùng lượt lưu; đây là tín hiệu quan tâm thực tế, nhưng chưa có số liệu tải file hoặc chuyển đổi mua hàng.",
+      "hook_learning": "Phần mở đầu hiện tại chưa giữ chân tốt: TikTok báo nhiều người dừng xem ở giây 0:01. Ở video tiếp theo, thử cho thấy ngay kết quả cụ thể của file trong 1-2 giây đầu (ví dụ đơn hàng, thu chi và COD tự tổng hợp), sau đó mới giải thích cách dùng. Đây là giả thuyết cần thử nghiệm, chưa phải kết luận đã được chứng minh.",
+      "search_terms_seen": [
+        "quản lý đơn hàng",
+        "file quản lý bán hàng",
+        "file quản lý thu chi miễn phí",
+        "phần mềm quản lý bán hàng"
+      ]
+    }
+  ]
+}

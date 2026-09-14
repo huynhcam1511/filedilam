@@ -1,0 +1,73 @@
+<!doctype html>
+<html>
+<head>
+  <base target="_top">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <style>
+    :root{--green:#047857;--mint:#d1fae5;--soft:#ecfdf5;--text:#1f2937;--muted:#6b7280;--line:#d1d5db;--danger:#b91c1c;--amber:#f59e0b}
+    *{box-sizing:border-box}body{font-family:Inter,Arial,sans-serif;margin:0;color:var(--text);background:#f8fafc}.app{padding:14px}.brand{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}.brand h1{font-size:17px;margin:0;color:var(--green)}.badge{font-size:11px;background:var(--mint);color:var(--green);padding:4px 8px;border-radius:99px;font-weight:700}.tabs{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:12px}.tab{border:1px solid var(--line);background:white;border-radius:8px;padding:8px 4px;font-weight:700;color:var(--muted);cursor:pointer}.tab.active{background:var(--green);color:white;border-color:var(--green)}.panel{display:none}.panel.active{display:block}.cards{display:grid;grid-template-columns:1fr 1fr;gap:8px}.card{background:white;border:1px solid #e5e7eb;border-radius:10px;padding:10px}.card span{display:block;color:var(--muted);font-size:11px}.card strong{display:block;color:var(--green);font-size:19px;margin-top:4px}.section{background:white;border:1px solid #e5e7eb;border-radius:12px;padding:12px;margin-top:10px}.section h2{font-size:14px;margin:0 0 10px}.field{margin-bottom:10px}.field label{display:block;font-size:12px;font-weight:700;margin-bottom:5px}.field input,.field select,.field textarea{width:100%;border:1px solid var(--line);border-radius:8px;padding:9px;background:white;font:inherit}.field textarea{min-height:62px;resize:vertical}.stock{background:var(--soft);padding:8px;border-radius:8px;font-size:12px;margin:-3px 0 10px;color:var(--green);font-weight:700}.btn{width:100%;border:0;border-radius:9px;padding:10px;background:var(--green);color:white;font-weight:800;cursor:pointer}.btn.secondary{background:white;color:var(--green);border:1px solid var(--green);margin-top:7px}.btn:disabled{opacity:.55;cursor:wait}.alert{padding:9px;border-radius:8px;background:#fff7ed;border-left:4px solid var(--amber);margin-bottom:7px;font-size:12px}.alert strong{display:block}.empty{color:var(--muted);font-size:12px}.toast{position:fixed;left:14px;right:14px;bottom:14px;padding:10px;background:#111827;color:white;border-radius:9px;display:none;font-size:12px}.toast.error{background:var(--danger)}.loading{padding:30px;text-align:center;color:var(--muted)}
+  </style>
+</head>
+<body>
+  <div class="app">
+    <div class="brand"><h1>📦 Kho Mini Smart</h1><span class="badge" id="version">Đang tải</span></div>
+    <div class="tabs">
+      <button class="tab active" data-tab="home">Tổng quan</button>
+      <button class="tab" data-tab="in">Nhập kho</button>
+      <button class="tab" data-tab="out">Xuất kho</button>
+    </div>
+    <div id="loading" class="loading">Đang tải dữ liệu kho…</div>
+    <section id="home" class="panel active">
+      <div class="cards">
+        <div class="card"><span>Sản phẩm</span><strong id="productCount">0</strong></div>
+        <div class="card"><span>Tổng tồn</span><strong id="totalStock">0</strong></div>
+        <div class="card"><span>Giá trị tồn</span><strong id="inventoryValue">0đ</strong></div>
+        <div class="card"><span>Cần nhập</span><strong id="lowStockCount">0</strong></div>
+      </div>
+      <div class="section"><h2>Cảnh báo tồn kho</h2><div id="alerts"></div></div>
+      <div class="section"><button class="btn secondary" onclick="refresh()">Làm mới dữ liệu</button><button class="btn secondary" onclick="sendReport(this)">Gửi báo cáo PDF</button></div>
+    </section>
+    <section id="in" class="panel">
+      <form onsubmit="submitForm(event,'IN')" class="section">
+        <h2>Nhập hàng nhanh</h2>
+        <div class="field"><label>Sản phẩm</label><select class="product" name="sku" required onchange="showStock(this)"></select></div>
+        <div class="stock">Tồn hiện tại: <span class="stockValue">0</span></div>
+        <div class="field"><label>Số lượng nhập</label><input name="quantity" type="number" min="1" required></div>
+        <div class="field"><label>Đơn giá nhập</label><input name="unitPrice" type="number" min="0"></div>
+        <div class="field"><label>Nhà cung cấp</label><input name="partner" placeholder="Tên nhà cung cấp"></div>
+        <div class="field"><label>Ghi chú</label><textarea name="note"></textarea></div>
+        <button class="btn" type="submit">Xác nhận nhập kho</button>
+      </form>
+    </section>
+    <section id="out" class="panel">
+      <form onsubmit="submitForm(event,'OUT')" class="section">
+        <h2>Xuất hàng nhanh</h2>
+        <div class="field"><label>Sản phẩm</label><select class="product" name="sku" required onchange="showStock(this)"></select></div>
+        <div class="stock">Tồn hiện tại: <span class="stockValue">0</span></div>
+        <div class="field"><label>Số lượng xuất</label><input name="quantity" type="number" min="1" required></div>
+        <div class="field"><label>Lý do xuất</label><select name="reason"><option>Bán hàng</option><option>Hàng hỏng</option><option>Tặng mẫu</option><option>Điều chỉnh</option></select></div>
+        <div class="field"><label>Mã đơn</label><input name="orderCode" placeholder="Nếu có"></div>
+        <div class="field"><label>Kênh bán</label><select name="channel"><option>TikTok Shop</option><option>Shopee</option><option>Facebook</option><option>Instagram</option><option>Zalo</option></select></div>
+        <button class="btn" type="submit">Xác nhận xuất kho</button>
+      </form>
+    </section>
+  </div>
+  <div id="toast" class="toast"></div>
+  <script>
+    let products=[];
+    document.querySelectorAll('.tab').forEach(btn=>btn.addEventListener('click',()=>{document.querySelectorAll('.tab,.panel').forEach(el=>el.classList.remove('active'));btn.classList.add('active');document.getElementById(btn.dataset.tab).classList.add('active')}));
+    google.script.run.withSuccessHandler(init).withFailureHandler(fail).getSmartBootstrap();
+    function init(data){document.getElementById('loading').style.display='none';document.getElementById('version').textContent='Smart v'+data.version;products=data.products||[];fillProducts();renderDashboard(data.dashboard)}
+    function fillProducts(){document.querySelectorAll('.product').forEach(select=>{select.innerHTML='<option value="">Chọn sản phẩm…</option>'+products.map(p=>`<option value="${safe(p.sku)}" data-stock="${p.stock}">${safe(p.sku)} – ${safe(p.name)}</option>`).join('')})}
+    function showStock(select){select.closest('form').querySelector('.stockValue').textContent=select.selectedOptions[0]?.dataset.stock||0}
+    function renderDashboard(d){productCount.textContent=d.productCount;totalStock.textContent=d.totalStock;inventoryValue.textContent=new Intl.NumberFormat('vi-VN').format(d.inventoryValue)+'đ';lowStockCount.textContent=d.lowStockCount;alerts.innerHTML=d.lowStock.length?d.lowStock.map(x=>`<div class="alert"><strong>${safe(x.sku)} – ${safe(x.name)}</strong>Còn ${x.stock}, mức tối thiểu ${x.minimum}</div>`).join(''):'<div class="empty">Kho đang ở mức an toàn.</div>'}
+    function submitForm(event,type){event.preventDefault();const form=event.target,button=form.querySelector('button[type=submit]');button.disabled=true;const payload=Object.fromEntries(new FormData(form));payload.type=type;google.script.run.withSuccessHandler(result=>{button.disabled=false;form.reset();form.querySelector('.stockValue').textContent='0';renderDashboard(result.dashboard);show(result.message+' – '+result.code);refreshProducts()}).withFailureHandler(err=>{button.disabled=false;fail(err)}).submitMovement(payload)}
+    function refresh(){google.script.run.withSuccessHandler(data=>{renderDashboard(data);show('Đã làm mới dữ liệu')}).withFailureHandler(fail).getDashboardData()}
+    function refreshProducts(){google.script.run.withSuccessHandler(data=>{products=data;fillProducts()}).withFailureHandler(fail).searchProducts('')}
+    function sendReport(button){button.disabled=true;google.script.run.withSuccessHandler(()=>{button.disabled=false;show('Đã gửi báo cáo PDF')}).withFailureHandler(err=>{button.disabled=false;fail(err)}).sendInventoryReport()}
+    function show(message,error=false){const el=document.getElementById('toast');el.textContent=message;el.className='toast'+(error?' error':'');el.style.display='block';setTimeout(()=>el.style.display='none',3500)}
+    function fail(error){document.getElementById('loading').style.display='none';show(error.message||String(error),true)}
+    function safe(value){return String(value??'').replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]))}
+  </script>
+</body>
+</html>

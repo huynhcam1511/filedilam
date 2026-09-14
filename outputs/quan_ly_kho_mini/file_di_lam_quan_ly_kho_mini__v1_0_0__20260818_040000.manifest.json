@@ -1,0 +1,9 @@
+{
+  "template_id": "quan_ly_kho_mini",
+  "template_name": "Quản Lý Kho Mini",
+  "version": "1.0.0",
+  "build_timestamp": "2026-08-18T04:00:00",
+  "workbook_path": "outputs/quan_ly_kho_mini/file_di_lam_quan_ly_kho_mini__v1_0_0__20260818_040000.xlsx",
+  "qc_path": "outputs/quan_ly_kho_mini/file_di_lam_quan_ly_kho_mini__v1_0_0__20260818_040000.qc.json",
+  "qc_passed": true
+}

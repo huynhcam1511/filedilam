@@ -1,0 +1,18 @@
+{
+  "storefront": {
+    "id": "quan-ly-kho-mini",
+    "categoryId": "quan-ly-kho",
+    "name": "Quản Lý Kho Mini",
+    "price": 89000,
+    "tag": "Mới",
+    "accent": "mint",
+    "previewImageUrl": "",
+    "description": "Theo dõi nhập kho, xuất kho, tồn hiện tại, giá trị tồn và cảnh báo hàng sắp hết trong một file dễ dùng.",
+    "suitableFor": "Shop nhỏ bán trên TikTok Shop, Shopee, Facebook, Instagram hoặc Zalo.",
+    "delivery": "Nhận link tải file ngay sau khi hệ thống xác nhận thanh toán.",
+    "usageGuide": "Khai báo sản phẩm, ghi từng lần nhập và xuất; tồn kho, cảnh báo và dashboard sẽ tự động cập nhật.",
+    "fileCount": 1,
+    "sheets": ["Bắt đầu", "Sản phẩm", "Nhập kho", "Xuất kho", "Tồn kho", "Cảnh báo", "Tổng quan", "Danh mục"],
+    "highlights": ["Tồn kho và giá trị tồn tự tính", "Cảnh báo sản phẩm sắp hết", "Dashboard có biểu đồ sức khỏe kho"]
+  }
+}

@@ -1,0 +1,61 @@
+{
+  "template_id": "shop_online_mini",
+  "workbook_path": "outputs/shop_online_mini/file_di_lam_shop_online_mini__v1_0_0__20260703_090000.xlsx",
+  "summary": {
+    "passed": false,
+    "total_checks": 10,
+    "passed_checks": 8
+  },
+  "checks": [
+    {
+      "name": "expected_sheets",
+      "passed": true,
+      "detail": "Actual sheets: ['0_HUONG_DAN', '1_DON_HANG', '2_THU_CHI', '3_CONG_NO_COD', '4_DASHBOARD', '5_DANH_MUC', '6_METADATA']"
+    },
+    {
+      "name": "metadata_version",
+      "passed": false,
+      "detail": "Metadata version: File di lam"
+    },
+    {
+      "name": "metadata_timestamp",
+      "passed": false,
+      "detail": "Metadata timestamp: shop_online_mini"
+    },
+    {
+      "name": "sample_orders_present",
+      "passed": true,
+      "detail": "First order cell B4: SO-260601-001"
+    },
+    {
+      "name": "sample_cashbook_present",
+      "passed": true,
+      "detail": "First cashbook cell B4: CF-260601-001"
+    },
+    {
+      "name": "order_formula_column",
+      "passed": true,
+      "detail": "Orders I4 formula: =IF(OR(G4=\"\",H4=\"\"),\"\",G4*H4)"
+    },
+    {
+      "name": "cod_formula_column",
+      "passed": true,
+      "detail": "COD F4 formula: =IF(A4=\"\",\"\",MAX(D4-E4,0))"
+    },
+    {
+      "name": "dashboard_charts",
+      "passed": true,
+      "detail": "Dashboard charts: 3"
+    },
+    {
+      "name": "lists_sheet_hidden",
+      "passed": true,
+      "detail": "Lists sheet state: hidden"
+    },
+    {
+      "name": "filename_version_timestamp",
+      "passed": true,
+      "detail": "Workbook file: file_di_lam_shop_online_mini__v1_0_0__20260703_090000.xlsx"
+    }
+  ]
+}

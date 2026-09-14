@@ -1,0 +1,125 @@
+{
+  "template_id": "shop_online_mini",
+  "template_name": "Shop Online Mini - Quản lý đơn hàng, thu chi, COD",
+  "brand": "File đi làm",
+  "version": "1.3.0",
+  "design_system": "pastel_feminine_spring",
+  "file_stem": "file_di_lam_shop_online_mini",
+  "storefront": {
+    "id": "shop-online-mini",
+    "categoryId": "ban-hang-online",
+    "name": "Shop Online Mini",
+    "price": 79000,
+    "tag": "Bán chạy",
+    "accent": "mint",
+    "previewImageUrl": "",
+    "description": "Quản lý đơn hàng, thu chi, công nợ COD và dashboard 6 biểu đồ trong một file dễ dùng.",
+    "suitableFor": "Shop nhỏ và người bán hàng trên TikTok Shop, Facebook, Instagram hoặc Zalo.",
+    "delivery": "Nhận link tải file ngay sau khi hệ thống xác nhận thanh toán.",
+    "usageGuide": "Điền thông tin shop, sửa danh mục sản phẩm, nhập đơn và thu chi; các báo cáo còn lại được tự động tổng hợp.",
+    "fileCount": 1,
+    "sheets": ["Bắt đầu", "Đơn hàng", "Thu chi", "Theo dõi COD", "Tổng quan", "Danh mục"],
+    "highlights": ["Ô hồng là ô nhập, ô xanh là ô tự tính", "Mã đơn và mã giao dịch tự tạo", "Có dashboard và theo dõi COD"]
+  },
+  "max_input_rows": 200,
+  "sheets": {
+    "guide": "0_BẮT_ĐẦU",
+    "orders": "1_ĐƠN_HÀNG",
+    "cashbook": "2_THU_CHI",
+    "cod": "3_THEO_DÕI_COD",
+    "dashboard": "4_TỔNG_QUAN",
+    "lists": "5_DANH_MỤC",
+    "metadata": "6_HỆ_THỐNG"
+  },
+  "guide": {
+    "title": "SHOP ONLINE MINI",
+    "subtitle": "Bản pastel gọn gàng cho shop nhỏ, dễ nhập, dễ hiểu, dễ demo",
+    "quick_start": [
+      "Bước 1: vào sheet 0_BẮT_ĐẦU, điền tên shop, hotline, kênh liên hệ và dán logo nếu có.",
+      "Bước 2: sang sheet 5_DANH_MỤC để sửa sản phẩm và danh mục thu chi nếu shop của bạn khác mẫu sẵn.",
+      "Bước 3: nhập đơn tại 1_ĐƠN_HÀNG. Các cột bên trái là cột nhập. Các cột bên phải là cột tự tính.",
+      "Bước 4: ghi thu chi tại 2_THU_CHI. Mã giao dịch sẽ tự hiện, bạn chỉ cần chọn đúng danh mục.",
+      "Bước 5: xem báo cáo nhanh tại 4_TỔNG_QUAN để biết doanh thu, tiền COD chờ về và dòng tiền."
+    ],
+    "detail_steps": [
+      "Nếu em thấy ô màu hồng nhạt thì em được gõ vào đó.",
+      "Nếu em thấy ô màu xanh nhạt thì em không cần gõ, file sẽ tự làm.",
+      "Nếu em bấm vào một ô có mũi tên nhỏ thì em chỉ cần chọn trong danh sách.",
+      "Nếu em nhập ngày trước thì mã đơn và mã giao dịch sẽ tự hiện ra.",
+      "Nếu em đổi tên sản phẩm trong sheet danh mục thì file sẽ tự cập nhật chỗ chọn sản phẩm.",
+      "Nếu em không biết sửa mã sản phẩm thì không cần sửa, file tự tạo sẵn mã.",
+      "Nếu em nhập sai, cứ xóa ô đó rồi nhập lại từ đầu."
+    ],
+    "legend": [
+      {
+        "label": "Ô hồng nhạt",
+        "meaning": "Vùng nhập liệu, bạn được phép sửa"
+      },
+      {
+        "label": "Ô xanh nhạt",
+        "meaning": "Vùng công thức tự tính, không cần sửa"
+      },
+      {
+        "label": "Chip màu",
+        "meaning": "Danh sách chọn và trạng thái được tô màu để nhìn nhanh như nút chọn"
+      }
+    ],
+    "sheet_purpose": [
+      ["0_BẮT_ĐẦU", "Điền thông tin shop và đọc hướng dẫn nhanh"],
+      ["1_ĐƠN_HÀNG", "Nhập đơn gọn, tập trung đúng các cột cần dùng"],
+      ["2_THU_CHI", "Ghi tiền vào, tiền ra và các khoản COD đã nhận"],
+      ["3_THEO_DÕI_COD", "Xem COD đã nhận, COD chờ về và COD quá hạn"],
+      ["4_TỔNG_QUAN", "Xem chỉ số chính và 6 biểu đồ dễ hiểu"],
+      ["5_DANH_MỤC", "Xem danh mục sản phẩm, nền tảng, thu chi và các lựa chọn có sẵn"]
+    ]
+  },
+  "setup_fields": [
+    {"label": "Tên shop", "key": "shop_name"},
+    {"label": "Hotline", "key": "shop_hotline"},
+    {"label": "Zalo / Instagram", "key": "shop_social"},
+    {"label": "Địa chỉ / kho", "key": "shop_address"},
+    {"label": "Mô tả ngắn của shop", "key": "brand_note"}
+  ],
+  "orders_columns": [
+    {"key": "order_date", "header": "Ngày đơn", "type": "date", "editable": true, "width": 12},
+    {"key": "channel", "header": "Kênh bán", "type": "text", "editable": true, "width": 14},
+    {"key": "customer_name", "header": "Khách hàng", "type": "text", "editable": true, "width": 20},
+    {"key": "product_name", "header": "Sản phẩm", "type": "text", "editable": true, "width": 24},
+    {"key": "order_total", "header": "Tổng đơn", "type": "currency", "editable": true, "width": 13},
+    {"key": "payment_method", "header": "Thanh toán", "type": "text", "editable": true, "width": 12},
+    {"key": "carrier", "header": "Vận chuyển", "type": "text", "editable": true, "width": 14},
+    {"key": "expected_payout", "header": "Ngày tiền về", "type": "date", "editable": true, "width": 13},
+    {"key": "order_status", "header": "Trạng thái đơn", "type": "text", "editable": true, "width": 15},
+    {"key": "notes", "header": "Ghi chú", "type": "text", "editable": true, "width": 22},
+    {"key": "order_id", "header": "Mã đơn tự tạo", "type": "text", "editable": false, "width": 16},
+    {"key": "cod_expected", "header": "Tiền COD tự tính", "type": "currency", "editable": false, "width": 15},
+    {"key": "cod_status", "header": "Trạng thái COD tự tính", "type": "text", "editable": false, "width": 18}
+  ],
+  "cashbook_columns": [
+    {"key": "txn_date", "header": "Ngày", "type": "date", "editable": true, "width": 12},
+    {"key": "flow_type", "header": "Thu / Chi", "type": "text", "editable": true, "width": 11},
+    {"key": "category", "header": "Danh mục thu chi", "type": "text", "editable": true, "width": 20},
+    {"key": "amount", "header": "Số tiền", "type": "currency", "editable": true, "width": 13},
+    {"key": "related_order", "header": "Mã đơn", "type": "text", "editable": true, "width": 16},
+    {"key": "note", "header": "Diễn giải", "type": "text", "editable": true, "width": 28}
+    ,{"key": "txn_id", "header": "Mã giao dịch tự tạo", "type": "text", "editable": false, "width": 17}
+  ],
+  "cod_columns": [
+    {"key": "order_id", "header": "Mã đơn", "type": "text", "editable": false, "width": 16},
+    {"key": "customer_name", "header": "Khách hàng", "type": "text", "editable": false, "width": 20},
+    {"key": "carrier", "header": "Đơn vị giao", "type": "text", "editable": false, "width": 14},
+    {"key": "expected_payout", "header": "Ngày tiền về", "type": "date", "editable": false, "width": 13},
+    {"key": "cod_expected", "header": "Tiền COD", "type": "currency", "editable": false, "width": 13},
+    {"key": "cod_received", "header": "Đã nhận", "type": "currency", "editable": false, "width": 13},
+    {"key": "cod_outstanding", "header": "Còn chờ", "type": "currency", "editable": false, "width": 13},
+    {"key": "cod_health", "header": "Tình trạng", "type": "text", "editable": false, "width": 15}
+  ],
+  "dashboard": {
+    "cards": [
+      {"title": "Tổng đơn", "cell": "B6", "metric": "order_count", "format": "number"},
+      {"title": "Doanh thu", "cell": "F6", "metric": "total_revenue", "format": "currency"},
+      {"title": "COD chờ về", "cell": "J6", "metric": "cod_outstanding", "format": "currency"},
+      {"title": "Dòng tiền ròng", "cell": "N6", "metric": "net_cashflow", "format": "currency"}
+    ]
+  }
+}

@@ -1,0 +1,8 @@
+.env
+data/*
+reports/*
+logs/*
+!data/.gitkeep
+!reports/.gitkeep
+!logs/.gitkeep
+

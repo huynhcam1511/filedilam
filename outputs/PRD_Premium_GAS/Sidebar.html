@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <base target="_top">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+      :root {
+        --primary: #059669; /* Emerald 600 */
+        --primary-hover: #047857;
+        --surface: #ffffff;
+        --background: #f8fafc;
+        --text-main: #0f172a;
+        --text-muted: #64748b;
+        --border: #e2e8f0;
+      }
+      
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+        font-family: 'Inter', sans-serif;
+      }
+      
+      body {
+        background-color: var(--background);
+        padding: 16px;
+        color: var(--text-main);
+      }
+      
+      .container {
+        background: var(--surface);
+        padding: 20px;
+        border-radius: 12px;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+      }
+      
+      .header {
+        text-align: center;
+        margin-bottom: 20px;
+        padding-bottom: 12px;
+        border-bottom: 1px solid var(--border);
+      }
+      
+      .header h2 {
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: var(--primary);
+      }
+      
+      .form-group {
+        margin-bottom: 16px;
+      }
+      
+      label {
+        display: block;
+        font-size: 0.85rem;
+        font-weight: 500;
+        margin-bottom: 6px;
+        color: var(--text-muted);
+      }
+      
+      select, input, textarea {
+        width: 100%;
+        padding: 10px 12px;
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        font-size: 0.95rem;
+        transition: all 0.2s;
+        background: var(--background);
+      }
+      
+      select:focus, input:focus, textarea:focus {
+        outline: none;
+        border-color: var(--primary);
+        box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.1);
+        background: var(--surface);
+      }
+      
+      .btn-primary {
+        width: 100%;
+        background-color: var(--primary);
+        color: white;
+        border: none;
+        padding: 12px;
+        border-radius: 8px;
+        font-size: 0.95rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background 0.2s;
+        margin-top: 8px;
+      }
+      
+      .btn-primary:hover {
+        background-color: var(--primary-hover);
+      }
+      
+      .btn-primary:disabled {
+        background-color: #94a3b8;
+        cursor: not-allowed;
+      }
+      
+      #status {
+        margin-top: 12px;
+        text-align: center;
+        font-size: 0.85rem;
+        font-weight: 500;
+        min-height: 20px;
+      }
+      
+      .success { color: #059669; }
+      .error { color: #ef4444; }
+      
+      /* Spinner */
+      .loader {
+        border: 3px solid #f3f3f3;
+        border-top: 3px solid var(--primary);
+        border-radius: 50%;
+        width: 16px;
+        height: 16px;
+        animation: spin 1s linear infinite;
+        display: inline-block;
+        vertical-align: middle;
+        margin-right: 8px;
+      }
+      
+      @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="header">
+        <h2>NHẬP GIAO DỊCH NỘI BỘ</h2>
+      </div>
+      
+      <form id="transactionForm">
+        <div class="form-group">
+          <label>Khách hàng / NCC</label>
+          <select id="partnerSelect" name="partnerId" required>
+            <option value="">Đang tải danh sách...</option>
+          </select>
+          <input type="hidden" id="partnerName" name="partnerName">
+        </div>
+        
+        <div class="form-group">
+          <label>Loại Giao Dịch</label>
+          <select id="transactionType" name="transactionType" required>
+            <option value="Bán hàng (Ghi nợ KH)">Bán hàng (Ghi nợ KH)</option>
+            <option value="Thu tiền KH">Thu tiền KH (Giảm nợ)</option>
+            <option value="Nhập hàng (Ghi nợ NCC)">Nhập hàng (Ghi nợ NCC)</option>
+            <option value="Trả tiền NCC">Trả tiền NCC (Giảm nợ)</option>
+          </select>
+        </div>
+        
+        <div class="form-group">
+          <label>Số Tiền (VNĐ)</label>
+          <input type="text" id="amountDisplay" placeholder="VD: 5,000,000" required>
+          <input type="hidden" id="amount" name="amount">
+        </div>
+        
+        <div class="form-group">
+          <label>Diễn Giải / Ghi Chú</label>
+          <textarea id="note" name="note" rows="3" placeholder="Nhập số hóa đơn, tên vật tư..."></textarea>
+        </div>
+        
+        <button type="submit" id="submitBtn" class="btn-primary">Lưu Giao Dịch</button>
+      </form>
+      
+      <div id="status"></div>
+    </div>
+
+    <script>
+      // HỖ TRỢ XEM TRƯỚC (PREVIEW LÊN TRÌNH DUYỆT LOCAL)
+      if (typeof google === 'undefined') {
+        window.google = {
+          script: {
+            run: {
+              withSuccessHandler: function(callback) {
+                return {
+                  withFailureHandler: function() { return this; },
+                  getPartners: function() {
+                    setTimeout(function() {
+                      callback([
+                        {id: "KH001", name: "Cửa hàng VLXD Phát Đạt"},
+                        {id: "KH002", name: "Đại lý Tạp hóa Cô Ba (Preview)"}
+                      ]);
+                    }, 500);
+                  },
+                  addTransaction: function(data) {
+                    setTimeout(function() {
+                      callback({success: true, message: "Đã ghi nhận thành công (chế độ xem trước)!"});
+                    }, 800);
+                  }
+                };
+              },
+              withFailureHandler: function() { return this; }
+            }
+          }
+        };
+      }
+
+      // Khởi tạo: Tải danh sách đối tác từ Google Sheets
+      google.script.run.withSuccessHandler(populatePartners).getPartners();
+      
+      function populatePartners(partners) {
+        var select = document.getElementById('partnerSelect');
+        select.innerHTML = '<option value="">-- Chọn Khách Hàng / Đối tác --</option>';
+        
+        partners.forEach(function(p) {
+          var option = document.createElement('option');
+          option.value = p.id;
+          option.text = p.name;
+          select.appendChild(option);
+        });
+      }
+      
+      // Tự động gán tên partner khi chọn ID
+      document.getElementById('partnerSelect').addEventListener('change', function() {
+        var sel = document.getElementById('partnerSelect');
+        var nameField = document.getElementById('partnerName');
+        if (sel.selectedIndex > 0) {
+          nameField.value = sel.options[sel.selectedIndex].text;
+        } else {
+          nameField.value = '';
+        }
+      });
+      
+      // Xử lý định dạng số tiền (thêm dấu phẩy)
+      var amountDisplay = document.getElementById('amountDisplay');
+      var amountRaw = document.getElementById('amount');
+      
+      amountDisplay.addEventListener('input', function(e) {
+        // Loại bỏ mọi ký tự không phải số
+        var value = this.value.replace(/[^0-9]/g, '');
+        if (value) {
+          amountRaw.value = value;
+          this.value = parseInt(value, 10).toLocaleString('vi-VN');
+        } else {
+          amountRaw.value = '';
+          this.value = '';
+        }
+      });
+      
+      // Xử lý Submit Form
+      document.getElementById('transactionForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        var btn = document.getElementById('submitBtn');
+        var status = document.getElementById('status');
+        
+        btn.disabled = true;
+        btn.innerHTML = '<div class="loader"></div> Đang xử lý...';
+        status.innerHTML = '';
+        status.className = '';
+        
+        var formObject = {
+          partnerId: document.getElementById('partnerSelect').value,
+          partnerName: document.getElementById('partnerName').value,
+          transactionType: document.getElementById('transactionType').value,
+          amount: document.getElementById('amount').value,
+          note: document.getElementById('note').value
+        };
+        
+        google.script.run
+          .withSuccessHandler(function(response) {
+            btn.disabled = false;
+            btn.innerHTML = 'Lưu Giao Dịch';
+            if (response.success) {
+              status.innerHTML = '✔️ ' + response.message;
+              status.className = 'success';
+              // Reset form fields
+              document.getElementById('amountDisplay').value = '';
+              document.getElementById('amount').value = '';
+              document.getElementById('note').value = '';
+              
+              setTimeout(function(){ status.innerHTML = ''; }, 3000);
+            } else {
+              status.innerHTML = '❌ ' + response.message;
+              status.className = 'error';
+            }
+          })
+          .withFailureHandler(function(error) {
+            btn.disabled = false;
+            btn.innerHTML = 'Lưu Giao Dịch';
+            status.innerHTML = '❌ Lỗi kết nối!';
+            status.className = 'error';
+          })
+          .addTransaction(formObject);
+      });
+    </script>
+  </body>
+</html>

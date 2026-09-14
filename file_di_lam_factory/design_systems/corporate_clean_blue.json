@@ -1,0 +1,51 @@
+{
+  "id": "corporate_clean_blue",
+  "name": "Corporate Sạch Xanh",
+  "palette_strategy": {
+    "harmony_model": "monochromatic_blue_with_teal_support",
+    "core_family": ["navy", "blue", "mist"],
+    "accent_family": ["teal"]
+  },
+  "colors": {
+    "brand_rose": "#2F5D8C",
+    "brand_rose_soft": "#DCE7F4",
+    "brand_lavender": "#AFC6E9",
+    "brand_lavender_soft": "#EDF4FD",
+    "brand_mint": "#A7D8D0",
+    "brand_mint_soft": "#E7F7F4",
+    "brand_butter": "#C8E1FF",
+    "brand_butter_soft": "#F2F8FF",
+    "brand_mist": "#C9D7EA",
+    "brand_mist_soft": "#F4F7FB",
+    "background": "#FCFDFF",
+    "surface": "#FFFFFF",
+    "border": "#D8E0EA",
+    "text": "#334155",
+    "muted_text": "#64748B",
+    "primary": "#2F5D8C",
+    "secondary": "#AFC6E9",
+    "accent": "#A7D8D0",
+    "input_fill": "#F2F8FF",
+    "formula_fill": "#EAF6F4",
+    "guide_fill": "#EDF4FD",
+    "muted_fill": "#DCE7F4",
+    "white": "#FFFFFF",
+    "danger": "#E8B4BC",
+    "success": "#8FC7B8",
+    "info": "#C9D7EA",
+    "lavender": "#AFC6E9"
+  },
+  "sheet_tabs": {
+    "setup": "#2F5D8C",
+    "orders": "#5E84B2",
+    "cashbook": "#7BA7C7",
+    "cod": "#89C2B7",
+    "dashboard": "#93B5D9",
+    "metadata": "#B8CBE0"
+  },
+  "fonts": {
+    "display_name": "Aptos Display",
+    "body_name": "Aptos"
+  }
+}
+

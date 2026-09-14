@@ -1,0 +1,38 @@
+{
+  "project": "file_di_lam",
+  "brand_source": "../../FILE_DI_LAM_BRAND.json",
+  "primary_platform": "tiktok",
+  "default_lookback_days": 14,
+  "report_top_n": 6,
+  "request_timeout_seconds": 360,
+  "pause_between_jobs_seconds": 3,
+  "max_jobs_per_run": 2,
+  "max_estimated_items_per_run": 96,
+  "jobs": [
+    {"id": "tiktok_finance_accounting", "enabled": false, "platform": "tiktok", "market": "Vietnam", "actor_id": "clockworks~tiktok-scraper", "input": {"hashtags": ["daotaoketoan", "sothuchi", "quanlydongtien", "quanlycongno", "ketoandoanhnghiep", "baocaotaichinh"], "resultsPerPage": 8, "shouldDownloadVideos": false, "shouldDownloadCovers": false}},
+    {"id": "tiktok_hr_payroll", "enabled": false, "platform": "tiktok", "market": "Vietnam", "actor_id": "clockworks~tiktok-scraper", "input": {"hashtags": ["quanlynhansu", "chamcong", "tinhluong", "kpi", "hanhchinhnhansu"], "resultsPerPage": 8, "shouldDownloadVideos": false, "shouldDownloadCovers": false}},
+    {"id": "tiktok_administration_office", "enabled": false, "platform": "tiktok", "market": "Vietnam", "actor_id": "clockworks~tiktok-scraper", "input": {"hashtags": ["hanhchinhvanphong", "bieumau", "quanlycongviec", "quanlyhoso", "danhchovanphong"], "resultsPerPage": 8, "shouldDownloadVideos": false, "shouldDownloadCovers": false}},
+    {"id": "tiktok_sales_crm", "enabled": false, "platform": "tiktok", "market": "Vietnam", "actor_id": "clockworks~tiktok-scraper", "input": {"hashtags": ["quanlybanhang", "crm", "chamsockhachhang", "quanlylead", "quanlydonhang", "kynangsales"], "resultsPerPage": 8, "shouldDownloadVideos": false, "shouldDownloadCovers": false}},
+    {"id": "tiktok_marketing", "enabled": false, "platform": "tiktok", "market": "Vietnam", "actor_id": "clockworks~tiktok-scraper", "input": {"hashtags": ["contentplan", "kehoachmarketing", "baocaomarketing", "quanlycontent", "marketingchosme"], "resultsPerPage": 8, "shouldDownloadVideos": false, "shouldDownloadCovers": false}},
+    {"id": "tiktok_inventory_procurement", "enabled": false, "platform": "tiktok", "market": "Vietnam", "actor_id": "clockworks~tiktok-scraper", "input": {"hashtags": ["quanlykho", "nhapxuatton", "kiemke", "quanlynhacungcap", "muahang", "quanlysanpham"], "resultsPerPage": 8, "shouldDownloadVideos": false, "shouldDownloadCovers": false}},
+    {"id": "tiktok_project_reporting", "enabled": false, "platform": "tiktok", "market": "Vietnam", "actor_id": "clockworks~tiktok-scraper", "input": {"hashtags": ["quanlyduan", "quanlytiendo", "dashboard", "baocaoquantri", "kpi", "lapkehoach"], "resultsPerPage": 8, "shouldDownloadVideos": false, "shouldDownloadCovers": false}},
+    {"id": "tiktok_sop_forms", "enabled": false, "platform": "tiktok", "market": "Vietnam", "actor_id": "clockworks~tiktok-scraper", "input": {"hashtags": ["sop", "quytrinh", "checklist", "bieumau", "quanlychatluong", "daotaonhanvien"], "resultsPerPage": 8, "shouldDownloadVideos": false, "shouldDownloadCovers": false}},
+    {"id": "tiktok_industry_solutions", "enabled": false, "platform": "tiktok", "market": "Vietnam", "actor_id": "clockworks~tiktok-scraper", "input": {"hashtags": ["quanlycuahang", "quanlyquanan", "tinhlailo", "tinhgiacost", "quanlysme", "congcuvanhanh"], "resultsPerPage": 8, "shouldDownloadVideos": false, "shouldDownloadCovers": false}},
+    {"id": "tiktok_excel_sheets_apps", "enabled": false, "platform": "tiktok", "market": "Vietnam", "actor_id": "clockworks~tiktok-scraper", "input": {"hashtags": ["excel", "googlesheets", "appsscript", "webapp", "meoexcel", "tudonghoa"], "resultsPerPage": 8, "shouldDownloadVideos": false, "shouldDownloadCovers": false}}
+  ],
+  "research_topics": {
+    "finance_accounting": ["kế toán", "tài chính", "thu chi", "dòng tiền", "lãi lỗ", "công nợ", "đối soát"],
+    "hr_payroll": ["nhân sự", "chấm công", "ca làm", "tính lương", "hoa hồng", "kpi", "nghỉ phép"],
+    "administration_office": ["hành chính", "văn phòng", "công văn", "tài sản", "hồ sơ", "biên bản", "phê duyệt"],
+    "sales_crm": ["sales", "crm", "lead", "khách hàng", "chăm sóc khách", "báo giá", "đơn hàng", "doanh số"],
+    "marketing": ["marketing", "content", "lịch đăng", "campaign", "quảng cáo", "lead marketing", "báo cáo marketing"],
+    "inventory_procurement": ["kho", "nhập kho", "xuất kho", "tồn kho", "kiểm kê", "nhà cung cấp", "mua hàng"],
+    "project_management": ["dự án", "công việc", "task", "tiến độ", "timeline", "nguồn lực", "nghiệm thu"],
+    "management_reporting": ["báo cáo quản trị", "dashboard", "kpi", "mục tiêu", "thực hiện", "phân tích"],
+    "sop_forms": ["sop", "quy trình", "checklist", "biểu mẫu", "hướng dẫn công việc", "bàn giao"],
+    "industry_solutions": ["bán lẻ", "ăn uống", "thời trang", "dịch vụ", "sản xuất", "giá cost", "chuyên ngành"],
+    "tool_formats": ["excel", "google sheets", "apps script", "web app", "template", "tự động hóa"]
+  },
+  "relevance_exclude_phrases": ["đầu tư chứng khoán", "mua cổ phiếu", "giá cổ phiếu", "crypto", "forex", "lãi suất tiết kiệm", "congolaise", "congo tiktok", "remix", "lyrics"],
+  "relevance_anchor_phrases": ["doanh nghiệp", "sme", "cửa hàng", "kinh doanh", "quản lý", "file", "excel", "google sheets", "template", "báo cáo", "theo dõi", "quy trình", "công việc", "nhân viên", "khách hàng", "kế toán", "nhân sự", "sales", "marketing", "kho", "dự án", "dashboard", "web app"]
+}

@@ -1,0 +1,2 @@
+"""Template registry package."""
+

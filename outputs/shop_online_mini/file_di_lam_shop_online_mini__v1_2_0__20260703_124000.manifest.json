@@ -1,0 +1,10 @@
+{
+  "template_id": "shop_online_mini",
+  "template_name": "Shop Online Mini - Quản lý đơn hàng, thu chi, COD",
+  "design_system_id": "pastel_feminine_spring",
+  "version": "1.2.0",
+  "build_timestamp": "2026-07-03T12:40:00",
+  "workbook_path": "outputs/shop_online_mini/file_di_lam_shop_online_mini__v1_2_0__20260703_124000.xlsx",
+  "qc_path": "outputs/shop_online_mini/file_di_lam_shop_online_mini__v1_2_0__20260703_124000.qc.json",
+  "qc_passed": true
+}

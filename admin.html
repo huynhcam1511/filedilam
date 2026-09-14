@@ -1,0 +1,268 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Dashboard - File Đi Làm</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./storefront.css" />
+  <style>
+    body { background-color: #f3f4f6; margin: 0; }
+    .hidden { display: none !important; }
+    .form-group { margin-bottom: 20px; }
+    .form-group label { display: block; margin-bottom: 6px; font-weight: 600; font-size: 0.9rem; color: #374151; }
+    .form-group input[type="text"], .form-group input[type="number"], .form-group select, .form-group textarea { 
+      width: 100%; padding: 12px; border: 1px solid #d1d5db; border-radius: 8px; font-family: inherit; font-size: 0.95rem; transition: border-color 0.2s, box-shadow 0.2s; background: #f9fafb;
+    }
+    .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+      outline: none; border-color: var(--mint-strong); box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1); background: white;
+    }
+    .form-group textarea { resize: vertical; min-height: 120px; }
+    
+    .file-input-wrapper {
+      position: relative; overflow: hidden; display: inline-block; width: 100%;
+    }
+    .file-input-wrapper input[type=file] {
+      font-size: 100px; position: absolute; left: 0; top: 0; opacity: 0; cursor: pointer; height: 100%;
+    }
+    .file-input-btn {
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+      border: 2px dashed #d1d5db; background: #f9fafb; color: #6b7280; border-radius: 8px; padding: 16px; font-weight: 500; text-align: center; pointer-events: none; transition: all 0.2s;
+    }
+    .file-input-wrapper:hover .file-input-btn { border-color: var(--mint-strong); color: var(--mint-strong); background: #f0fdf4; }
+    
+    .dashboard-wrapper { display: flex; min-height: calc(100vh - 64px); }
+    .sidebar { width: 240px; background: white; border-right: 1px solid var(--line); padding: 24px 0; flex-shrink: 0; }
+    .sidebar-menu { list-style: none; padding: 0; margin: 0; }
+    .sidebar-menu li { padding: 12px 24px; cursor: pointer; border-left: 3px solid transparent; font-weight: 500; color: var(--muted); transition: all 0.2s; }
+    .sidebar-menu li:hover { background: #f9fafb; color: #111; }
+    .sidebar-menu li.active { border-left-color: var(--mint-strong); color: var(--mint-strong); background: #f0fdf4; }
+    
+    .main-content { flex: 1; padding: 40px; overflow-y: auto; background: #f3f4f6; }
+    .tab-pane { display: none; animation: fadeIn 0.3s; }
+    .tab-pane.active { display: block; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+    .data-table-container { background: white; border-radius: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); overflow-x: auto; }
+    .data-table { width: 100%; border-collapse: collapse; min-width: 700px; }
+    .data-table th, .data-table td { padding: 16px; border-bottom: 1px solid var(--line); text-align: left; font-size: 0.95rem; }
+    .data-table th { background: #f9fafb; font-size: 0.85rem; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; }
+    .data-table tr:last-child td { border-bottom: none; }
+    .data-table tbody tr:hover { background: #f9fafb; }
+    
+    .action-btn { background: transparent; border: none; cursor: pointer; font-weight: 600; padding: 6px 10px; border-radius: 4px; transition: background 0.2s; }
+    .action-btn:hover { background: #e5e7eb; }
+    .action-btn.danger { color: #ef4444; }
+    .action-btn.danger:hover { background: #fef2f2; }
+    
+    .login-box { text-align: center; padding: 60px 20px; max-width: 400px; margin: 60px auto; background: white; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
+    
+    #toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: #333; color: white; padding: 12px 24px; border-radius: 8px; z-index: 1000; opacity: 0; transition: opacity 0.3s; pointer-events: none; font-weight: 500; box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
+    #toast.show { opacity: 1; }
+    
+    .admin-form { max-width: 650px; background: white; padding: 40px; border-radius: 16px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05), 0 2px 4px -1px rgba(0,0,0,0.03); }
+
+  </style>
+</head>
+<body>
+  
+  <header class="top-nav">
+    <div class="nav-container">
+      <div class="nav-logo">
+        <strong>Admin | File Đi Làm</strong>
+      </div>
+      <div class="nav-actions">
+        <a href="/" class="button-secondary" style="text-decoration: none; margin-right: 12px; padding: 6px 12px; border-radius: 20px; font-size: 0.9rem;">Về cửa hàng</a>
+        <button id="logoutBtn" class="button-secondary hidden" style="padding: 6px 12px; border-radius: 20px; font-size: 0.9rem;">Đăng xuất</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Login Section -->
+  <div id="loginSection" class="dashboard-wrapper" style="display: block;">
+    <div class="login-box">
+      <h2>Khu vực Quản trị</h2>
+      <p style="color: var(--muted); margin-bottom: 32px;">Đăng nhập bằng tài khoản Admin.</p>
+      <button id="loginBtn" class="button-primary button-full" style="height: 48px;">Đăng nhập bằng Google</button>
+    </div>
+  </div>
+
+  <!-- Admin Dashboard Section -->
+  <div id="adminSection" class="dashboard-wrapper hidden">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <ul class="sidebar-menu">
+        <li class="active" data-tab="productsTab">Danh sách sản phẩm</li>
+        <li data-tab="addTab">Thêm sản phẩm mới</li>
+        <li data-tab="ordersTab">Đơn hàng (Sắp ra mắt)</li>
+        <li data-tab="statsTab">Thống kê (Sắp ra mắt)</li>
+      </ul>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      
+      <!-- Product List Tab -->
+      <div id="productsTab" class="tab-pane active">
+        <div class="data-table-container">
+          <div style="display: flex; justify-content: space-between; align-items: center; padding: 24px 32px; border-bottom: 1px solid var(--line);">
+            <div>
+              <h2 style="margin: 0; font-size: 1.4rem; color: #111;">Danh sách sản phẩm</h2>
+              <p style="margin: 6px 0 0 0; color: var(--muted); font-size: 0.9rem;">Quản lý toàn bộ các file đang được đăng bán trên cửa hàng.</p>
+            </div>
+            <button class="button-primary" id="goAddProductBtn">
+              <svg style="margin-right: 6px;" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"></path></svg>
+              Thêm sản phẩm
+            </button>
+          </div>
+          
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th style="width: 80px;">Ảnh</th>
+                <th>Tên sản phẩm</th>
+                <th>Danh mục</th>
+                <th>Giá bán</th>
+                <th style="text-align: right;">Hành động</th>
+              </tr>
+            </thead>
+            <tbody id="productListBody">
+              <tr>
+                <td colspan="5" style="text-align: center; padding: 32px; color: var(--muted);">Đang tải dữ liệu...</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Add Product Tab -->
+      <div id="addTab" class="tab-pane">
+        <div class="admin-form">
+          <div style="border-bottom: 1px solid var(--line); padding-bottom: 20px; margin-bottom: 24px;">
+            <h2 id="formTitle" style="margin: 0; font-size: 1.4rem; color: #111;">Thêm Sản Phẩm Mới</h2>
+            <p id="formDescription" style="margin: 6px 0 0 0; color: var(--muted); font-size: 0.9rem;">Điền đầy đủ thông tin để đăng bán một file Excel hoặc Google Sheets mới.</p>
+          </div>
+          <form id="productForm">
+            <input type="hidden" id="editingProductId" value="">
+            <div class="form-group">
+              <label for="productName">Tên sản phẩm *</label>
+              <input type="text" id="productName" required placeholder="VD: Quản lý kho Mini">
+            </div>
+            
+            <div class="form-group">
+              <label for="productCategory">Danh mục *</label>
+              <select id="productCategory" required>
+                <option value="ban-hang-online">Bán hàng online</option>
+                <option value="cong-no">Công nợ</option>
+                <option value="quan-ly-kho">Quản lý kho</option>
+                <option value="combo">Combo tiết kiệm</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label for="productFormat">Loại file cung cấp *</label>
+              <select id="productFormat" required>
+                <option value="google_sheets">Google Sheets · Tự động tạo bản sao</option>
+                <option value="excel">File Excel (.xlsx) · Tải file trực tiếp</option>
+                <option value="combo">Combo Tiết Kiệm (Folder Drive / File Zip)</option>
+              </select>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+              <div class="form-group">
+                <label for="productPrice">Giá bán khuyến mãi (VNĐ) *</label>
+                <input type="text" id="productPrice" required placeholder="VD: 44,500">
+              </div>
+              <div class="form-group">
+                <label for="productOriginalPrice">Giá gốc niêm yết (VNĐ)</label>
+                <input type="text" id="productOriginalPrice" placeholder="VD: 99,000 (Để gạch ngang)">
+              </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+              <div class="form-group">
+                <label for="productTag">Huy hiệu nổi bật (Badge)</label>
+                <input type="text" id="productTag" placeholder="VD: Bán chạy, Khuyên dùng, -30%">
+              </div>
+              <div class="form-group">
+                <label for="productSuitableFor">Đối tượng phù hợp</label>
+                <input type="text" id="productSuitableFor" placeholder="VD: Shop online TikTok, Shopee, người mới khởi nghiệp">
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="productDescription">Mô tả ngắn *</label>
+              <textarea id="productDescription" required placeholder="Nhập mô tả sản phẩm..."></textarea>
+            </div>
+
+            <div class="form-group">
+              <label for="productFeatures">Tính năng chính (mỗi dòng 1 tính năng)</label>
+              <textarea id="productFeatures" placeholder="- Tính năng 1&#10;- Tính năng 2"></textarea>
+            </div>
+
+            <div class="form-group">
+              <label>Ảnh bìa sản phẩm (Image) *</label>
+              <div class="file-input-wrapper">
+                <div class="file-input-btn" id="imageBtnText">
+                  <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                  Chọn file ảnh
+                </div>
+                <input type="file" id="productImage" accept="image/*" required onchange="document.getElementById('imageBtnText').innerHTML = 'Đã chọn: ' + this.files[0].name">
+              </div>
+            </div>
+
+            <div class="form-group" id="sheetUrlGroup">
+              <label for="productSheetUrl">Link Google Sheets hoặc Thư mục Google Drive</label>
+              <input type="url" id="productSheetUrl" placeholder="https://docs.google.com/spreadsheets/d/... hoặc link folder Drive">
+              <small style="color: var(--muted); display: block; margin-top: 4px;">Khách hàng sẽ nhận link tạo bản sao vào Google Drive cá nhân của họ.</small>
+            </div>
+
+            <div class="form-group" id="fileUploadGroup">
+              <label>File đính kèm (.xlsx, .zip)</label>
+              <div class="file-input-wrapper">
+                <div class="file-input-btn" id="fileBtnText">
+                  <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"></path></svg>
+                  Chọn file đính kèm
+                </div>
+                <input type="file" id="productFile" onchange="if(this.files[0]) document.getElementById('fileBtnText').innerHTML = 'Đã chọn: ' + this.files[0].name; else document.getElementById('fileBtnText').innerHTML = 'Chọn file đính kèm'">
+              </div>
+              <small style="color: var(--muted); display: block; margin-top: 4px;">Dành cho file Excel hoặc file nén .zip chứa combo nhiều file.</small>
+            </div>
+
+            <button type="submit" class="button-primary button-full" id="submitBtn" style="margin-top: 24px; height: 50px; font-size: 1rem; border-radius: 8px;">Tải lên & Đăng bán</button>
+          </form>
+        </div>
+      </div>
+
+      <!-- Placeholder Tabs -->
+      <div id="ordersTab" class="tab-pane">
+        <h2 style="margin-top: 0; margin-bottom: 24px;">Quản lý Đơn hàng</h2>
+        <div class="admin-form" style="text-align: center; padding: 60px;">
+          <h3>Tính năng đang phát triển</h3>
+          <p style="color: var(--muted);">Phần quản lý đơn hàng sẽ sớm được cập nhật.</p>
+        </div>
+      </div>
+      <div id="statsTab" class="tab-pane">
+        <h2 style="margin-top: 0; margin-bottom: 24px;">Thống kê Doanh thu</h2>
+        <div class="admin-form" style="text-align: center; padding: 60px;">
+          <h3>Tính năng đang phát triển</h3>
+          <p style="color: var(--muted);">Bảng điều khiển thống kê sẽ sớm được cập nhật.</p>
+        </div>
+      </div>
+
+    </main>
+  </div>
+
+  <div id="toast">Thông báo</div>
+
+  <script src="/__/firebase/10.7.1/firebase-app-compat.js"></script>
+  <script src="/__/firebase/10.7.1/firebase-auth-compat.js"></script>
+  <script src="/__/firebase/10.7.1/firebase-firestore-compat.js"></script>
+  <script src="/__/firebase/10.7.1/firebase-storage-compat.js"></script>
+  <script src="/__/firebase/init.js"></script>
+  
+  <script src="./admin.js?v=4"></script>
+</body>
+</html>

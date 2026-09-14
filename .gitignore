@@ -1,0 +1,33 @@
+﻿# Dependencies
+node_modules/
+**/node_modules/
+venv/
+**/venv/
+__pycache__/
+*.pyc
+*.pyo
+
+# Firebase
+.firebase/
+firebase-debug.log*
+firestore-debug.log*
+ui-debug.log*
+
+# Secrets & Credentials
+client_secret*.json
+credentials.json
+token.pickle
+token_sheets.pickle
+serviceAccountKey.json
+*service-account*.json
+.env
+.env.local
+*.pem
+*.key
+
+# Editor & OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+desktop.ini

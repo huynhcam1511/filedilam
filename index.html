@@ -1,0 +1,667 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>File Đi Làm | Kho File Quản Lý Tự Động</title>
+    <meta name="description" content="Mua file Excel, Google Sheets tự động." />
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="./storefront.css?v=32" />
+  </head>
+  <body>
+    <!-- Top Navigation Bar -->
+    <header class="top-nav">
+      <div class="nav-container">
+        <div class="nav-logo">
+          <strong id="navBrand">File Đi Làm</strong>
+        </div>
+        <div class="nav-search">
+          <input id="searchInput" type="search" placeholder="Tìm kiếm file quản lý..." />
+        </div>
+        <div class="nav-actions" style="display: flex; align-items: center;">
+          <button id="registerButton" class="button-primary" type="button" style="margin-right: 8px; padding: 6px 12px; font-size: 0.9rem; border-radius: 20px;">Đăng ký</button>
+          <button id="loginButton" class="button-secondary" type="button" style="margin-right: 12px; padding: 6px 12px; font-size: 0.9rem; border-radius: 20px;">Đăng nhập</button>
+          <div id="userProfile" style="display: none; margin-right: 12px; align-items: center; gap: 12px;">
+            <button id="myPurchasesBtn" type="button" style="background: transparent; border: none; padding: 6px 0; font-size: 0.9rem; font-weight: 600; color: var(--mint-strong); display: flex; align-items: center; gap: 4px; cursor: pointer;">
+              <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path></svg>
+              <span>File của tôi</span>
+            </button>
+            <div style="display: flex; align-items: center; gap: 8px; border-left: 1px solid var(--line); padding-left: 12px;">
+              <span id="userNameDisplay" class="hide-on-mobile" style="font-weight: 500; font-size: 0.9rem;"></span>
+              <a href="/admin.html" id="adminDashboardBtn" style="display: none; background: var(--mint-strong); color: white; padding: 4px 10px; border-radius: 4px; font-size: 0.8rem; text-decoration: none; font-weight: 600;">Admin</a>
+              <button id="logoutButton" class="icon-button" type="button" aria-label="Đăng xuất" title="Đăng xuất" style="width: 32px; height: 32px; color: var(--muted);">
+                <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>
+              </button>
+            </div>
+          </div>
+          <button class="cart-button" id="openCartNav" type="button" aria-label="Giỏ hàng">
+            <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
+            <span class="cart-badge" id="cartCount">0</span>
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <div class="page-layout">
+      <!-- Sidebar Categories -->
+      <aside class="sidebar">
+        <div class="sidebar-section">
+          <ul class="category-list" id="folderGrid">
+            <!-- Categories rendered here -->
+          </ul>
+        </div>
+        
+        <div class="sidebar-section">
+          <ul class="category-list" id="priceGrid">
+            <li class="category-item active" data-price-id="all">Tất cả</li>
+            <li class="category-item" data-price-id="under_50">Dưới 50k</li>
+            <li class="category-item" data-price-id="50_150">50k - 150k</li>
+            <li class="category-item" data-price-id="over_150">Trên 150k</li>
+          </ul>
+        </div>
+      </aside>
+
+      <!-- Main Product Area -->
+      <main class="main-content">
+
+        <div class="product-grid" id="productGrid">
+          <!-- Products rendered here -->
+        </div>
+      </main>
+    </div>
+
+    <!-- Cart Drawer -->
+    <aside class="cart-drawer" id="cartDrawer" aria-hidden="true">
+      <div class="drawer-header">
+        <h3>Giỏ hàng của bạn</h3>
+        <button class="icon-button" id="closeCart" type="button" aria-label="Đóng">×</button>
+      </div>
+      <div class="drawer-body" id="cartItems"></div>
+      <div class="drawer-footer">
+        <div class="cart-total">
+          <span>Tổng thanh toán</span>
+          <strong id="cartTotal">0đ</strong>
+        </div>
+        <button class="button-primary button-full" id="checkoutButton" type="button">Tiến hành thanh toán</button>
+      </div>
+    </aside>
+
+    <!-- My Purchases Drawer -->
+    <aside class="cart-drawer" id="purchasesDrawer" aria-hidden="true" style="z-index: 10001;">
+      <div class="drawer-header">
+        <h3>File của tôi</h3>
+        <button class="icon-button" id="closePurchases" type="button" aria-label="Đóng">×</button>
+      </div>
+      <div class="drawer-body" id="purchasesItems">
+        <div class="empty-state">Đang tải dữ liệu...</div>
+      </div>
+    </aside>
+
+    <!-- Auth Fullpage Modal -->
+    <div class="modal-backdrop" id="authModal" aria-hidden="true" style="z-index: 10002;">
+      <div class="modal-card" style="max-width: 400px; width: 100%; border-radius: 12px; overflow: hidden; margin: 20px;">
+        <div class="drawer-header">
+          <h3 id="authModalTitle">Đăng nhập</h3>
+          <button class="icon-button" id="closeAuth" type="button" aria-label="Đóng">×</button>
+        </div>
+        <div class="modal-body" style="padding: 24px;">
+          <button class="button-secondary button-full" id="btnGoogleLogin" type="button" style="display:flex; align-items:center; justify-content:center; gap:8px; margin-bottom: 24px;">
+            <svg width="18" height="18" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
+            Tiếp tục với Google
+          </button>
+          
+          <div style="display:flex; align-items:center; text-align:center; margin-bottom:24px;">
+            <div style="flex:1; border-bottom: 1px solid var(--line);"></div>
+            <span style="padding: 0 10px; color: var(--muted); font-size: 0.9rem;">Hoặc</span>
+            <div style="flex:1; border-bottom: 1px solid var(--line);"></div>
+          </div>
+
+          <form id="authForm">
+            <div class="form-group">
+              <label id="authAccountLabel">Số điện thoại hoặc Email</label>
+              <input id="authEmail" type="text" placeholder="Nhập số điện thoại hoặc email" required />
+            </div>
+            <div class="form-group">
+              <label>Mật khẩu</label>
+              <input id="authPassword" type="password" placeholder="Nhập mật khẩu" required minlength="6" />
+            </div>
+            <div class="form-group" id="authPhoneGroup" style="display:none;">
+              <label>Số điện thoại/Zalo</label>
+              <input id="authPhone" type="tel" inputmode="tel" placeholder="Ví dụ: 0912345678" />
+            </div>
+            <button class="button-primary button-full" id="authSubmitBtn" type="submit" style="margin-top: 16px;">Đăng nhập</button>
+          </form>
+          
+          <div style="text-align:center; margin-top: 16px; font-size: 0.9rem;">
+            <span id="authToggleText">Chưa có tài khoản?</span>
+            <a href="#" id="authToggleLink" style="color: var(--mint-strong); font-weight: 500; text-decoration: none;">Đăng ký ngay</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+    <!-- Product Detail Modal -->
+    <div class="modal-backdrop" id="detailModal" aria-hidden="true" style="z-index: 10005;">
+      <div class="modal-card">
+        <div class="drawer-header">
+          <h3 id="detailTitle">Chi tiết file</h3>
+          <button class="icon-button" id="closeDetail" type="button" aria-label="Đóng">×</button>
+        </div>
+        <div class="modal-body" id="detailBody"></div>
+        <div class="modal-footer" id="detailFooter"></div>
+      </div>
+    </div>
+
+    <!-- Checkout Modal (Unified Quick Buy & VietQR) -->
+    <div class="modal-backdrop" id="checkoutModal" aria-hidden="true" style="z-index: 10006;">
+      <div class="modal-card checkout-card" style="max-width: 520px; width: 100%;">
+        <div class="drawer-header">
+          <h3 id="checkoutModalTitle">Thanh toán & Nhận file</h3>
+          <button class="icon-button" id="closeCheckout" type="button" aria-label="Đóng">×</button>
+        </div>
+
+        <!-- Order Summary Bar (Always visible) -->
+        <div id="checkoutSummaryBar" style="background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 10px; padding: 12px 18px; margin: 16px 20px 0 20px; display: flex; align-items: center; justify-content: space-between; gap: 12px;">
+          <div style="min-width: 0;">
+            <div id="checkoutSummaryName" style="font-weight: 700; font-size: 0.95rem; color: #166534; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Thông tin đơn hàng</div>
+            <div id="checkoutSummaryBadge" style="font-size: 0.78rem; color: #15803d; margin-top: 2px;">⚡ Kích hoạt link tải tự động sau khi thanh toán</div>
+          </div>
+          <div style="text-align: right; flex-shrink: 0;">
+            <div id="checkoutSummaryPrice" style="font-weight: 700; font-size: 1.2rem; color: var(--mint-strong);">0đ</div>
+            <div id="checkoutSummaryOriginal" style="font-size: 0.8rem; color: var(--muted); text-decoration: line-through;"></div>
+          </div>
+        </div>
+
+        <!-- STEP 1: Quick Customer Info / Auth Step (shown when not logged in) -->
+        <div id="checkoutAuthStep" class="modal-body" style="padding: 20px;">
+          <!-- 1-Tap Google Button -->
+          <button class="button-secondary button-full" id="btnGoogleCheckout" type="button" style="display:flex; align-items:center; justify-content:center; gap:10px; height: 46px; font-weight: 600; font-size: 0.95rem; background: #ffffff; border: 1px solid #cbd5e1; box-shadow: 0 1px 3px rgba(0,0,0,0.06); margin-bottom: 16px;">
+            <svg width="18" height="18" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
+            Tiếp tục nhanh bằng Google
+          </button>
+
+          <div style="display:flex; align-items:center; text-align:center; margin-bottom: 16px;">
+            <div style="flex:1; border-bottom: 1px solid var(--line);"></div>
+            <span id="checkoutDividerText" style="padding: 0 12px; color: var(--muted); font-size: 0.85rem; font-weight: 500;">Hoặc đặt mua bằng Số điện thoại</span>
+            <div style="flex:1; border-bottom: 1px solid var(--line);"></div>
+          </div>
+
+          <form id="quickBuyForm">
+            <!-- First-time buyer fields -->
+            <div class="form-group" style="margin-bottom: 12px;">
+              <label id="quickPhoneLabel" style="display: flex; justify-content: space-between; font-weight: 600; font-size: 0.9rem;">
+                <span>Số điện thoại / Zalo <strong style="color: #ef4444;">*</strong></span>
+                <span style="font-weight: normal; font-size: 0.8rem; color: var(--muted);">Dùng để nhận hỗ trợ & tra cứu</span>
+              </label>
+              <input id="quickPhone" type="text" placeholder="Ví dụ: 0912345678" required style="height: 44px; font-size: 0.95rem;" />
+            </div>
+
+            <div class="form-group" id="quickPassGroup" style="margin-bottom: 12px;">
+              <label style="display: flex; justify-content: space-between; font-weight: 600; font-size: 0.9rem;">
+                <span>Mật khẩu tự chọn <strong style="color: #ef4444;">*</strong></span>
+                <span style="font-weight: normal; font-size: 0.8rem; color: var(--muted);">Tối thiểu 6 ký tự</span>
+              </label>
+              <input id="quickPassword" type="password" placeholder="Nhập mật khẩu để sau này tải lại file" minlength="6" required style="height: 44px;" />
+            </div>
+
+            <div class="form-group" id="quickEmailGroup" style="margin-bottom: 16px;">
+              <label style="display: flex; justify-content: space-between; font-weight: 600; font-size: 0.9rem;">
+                <span>Gmail nhận file</span>
+                <span style="font-weight: normal; font-size: 0.8rem; color: var(--muted);">Không bắt buộc</span>
+              </label>
+              <input id="quickEmail" type="email" placeholder="Ví dụ: yourname@gmail.com" style="height: 44px;" />
+            </div>
+
+            <button class="button-primary button-full" id="btnQuickSubmit" type="submit" style="height: 48px; font-size: 1rem; font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 8px;">
+              <span id="btnQuickSubmitText">Tiếp tục nhận mã QR thanh toán ➔</span>
+            </button>
+          </form>
+
+          <div style="text-align: center; margin-top: 14px; font-size: 0.88rem;">
+            <span id="quickToggleText">Đã từng mua file trước đây?</span>
+            <a href="#" id="quickToggleLink" style="color: var(--mint-strong); font-weight: 600; text-decoration: none; margin-left: 4px;">Đăng nhập ngay</a>
+          </div>
+        </div>
+
+        <!-- STEP 2: VietQR Payment Step (shown after auth or when already logged in) -->
+        <div id="checkoutPaymentStep" class="modal-body" style="display: none; padding: 16px 20px 24px 20px;">
+          <div class="bank-box" style="padding: 16px; border-radius: 12px; background: #f8fafc; border: 1px solid var(--line);">
+            <div style="display:flex; align-items:center; justify-content:center; gap: 8px; margin-bottom: 12px;">
+              <span style="display:inline-block; width: 10px; height: 10px; border-radius: 50%; background: #10b981;"></span>
+              <h4 style="margin: 0; font-size: 1rem; color: #1e293b; font-weight: 700;">Quét mã QR để thanh toán</h4>
+            </div>
+
+            <div class="qr-box" id="qrBox" style="min-height: 220px; display: flex; align-items: center; justify-content: center; margin-bottom: 12px;">
+              <div class="empty-state">Đang tạo mã VietQR...</div>
+            </div>
+
+            <!-- Quick Mobile Actions -->
+            <div class="qr-action-buttons" id="qrActionButtons">
+              <button class="btn-qr-action btn-save-qr" id="saveQrBtn" type="button" title="Tải mã QR về máy">
+                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                <span>Tải ảnh QR</span>
+              </button>
+              <button class="btn-qr-action btn-open-bank" id="openBankBtn" type="button" title="Mở ứng dụng ngân hàng">
+                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="3" y1="9" x2="21" y2="9"></line><line x1="9" y1="21" x2="9" y2="9"></line></svg>
+                <span>Mở App Bank</span>
+              </button>
+            </div>
+
+            <div class="bank-details" style="text-align: left; margin-top: 12px;">
+              <div class="bank-detail-row">
+                <span class="detail-label">Ngân hàng:</span>
+                <span class="detail-val" id="bankName"></span>
+              </div>
+              <div class="bank-detail-row">
+                <span class="detail-label">Chủ TK:</span>
+                <span class="detail-val" id="bankOwner"></span>
+              </div>
+              <div class="bank-detail-row highlight-row">
+                <span class="detail-label">Số TK:</span>
+                <span class="detail-val font-mono" id="bankNumber"></span>
+                <button class="btn-copy-mini" id="copyBankNumberBtn" type="button" title="Sao chép Số tài khoản">Sao chép</button>
+              </div>
+              <div class="bank-detail-row highlight-row">
+                <span class="detail-label">Nội dung CK:</span>
+                <span class="detail-val font-mono" id="bankTransferNote"></span>
+                <button class="btn-copy-mini" id="copyTransferNoteBtn" type="button" title="Sao chép Nội dung">Sao chép</button>
+              </div>
+            </div>
+
+            <div style="margin-top: 14px; padding: 10px 12px; background: #ecfdf5; border: 1px solid #a7f3d0; border-radius: 8px; font-size: 0.85rem; color: #065f46; display: flex; align-items: center; gap: 8px; text-align: left;">
+              <span style="font-size: 1.1rem; flex-shrink: 0;">⚡</span>
+              <span>Hệ thống tự động kích hoạt file và hiển thị nút tải ngay sau khi nhận tiền (1-3 giây).</span>
+            </div>
+          </div>
+          
+          <div style="display: flex; gap: 10px; margin-top: 16px;">
+            <button class="button-secondary" id="backToInfoBtn" type="button" style="padding: 10px 16px;">Đổi thông tin</button>
+            <button class="button-primary" id="confirmPayment" type="button" style="flex: 1; height: 44px;">Tôi đã chuyển khoản xong</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bank App Picker Modal -->
+    <div class="modal-backdrop" id="bankPickerModal" aria-hidden="true" style="z-index: 10008;">
+      <div class="modal-card bank-picker-card">
+        <div class="drawer-header">
+          <h3>Chọn ứng dụng ngân hàng</h3>
+          <button class="icon-button" id="closeBankPicker" type="button" aria-label="Đóng">×</button>
+        </div>
+        <div class="modal-body bank-picker-body">
+          <div class="bank-search-wrap">
+            <input type="search" id="bankSearchInput" class="bank-search-input" placeholder="🔍 Tìm nhanh ngân hàng (VCB, MB, ACB, MoMo...)" />
+          </div>
+          <div class="bank-grid" id="bankGrid">
+            <!-- 1. Vietcombank -->
+            <button type="button" class="bank-item" data-app-id="vcb" data-scheme="vietcombankmobile://" data-name="Vietcombank" data-search="vcb vietcombank ng n ha ng tmcp ngoa i th  ng vi  t nam">
+              <div class="bank-logo-wrap">
+                <img src="https://cdn.vietqr.io/img/VCB.png" alt="Vietcombank" class="bank-logo-img" loading="lazy" />
+              </div>
+              <span class="bank-label">Vietcombank</span>
+            </button>
+            <!-- 2. MB Bank -->
+            <button type="button" class="bank-item" data-app-id="mb" data-scheme="mbmobile://" data-name="MB Bank" data-search="mb mb bank ng n h ng tmcp qu n   i">
+              <div class="bank-logo-wrap">
+                <img src="https://cdn.vietqr.io/img/MB.png" alt="MB Bank" class="bank-logo-img" loading="lazy" />
+              </div>
+              <span class="bank-label">MB Bank</span>
+            </button>
+            <!-- 3. Techcombank -->
+            <button type="button" class="bank-item" data-app-id="tcb" data-scheme="tcb://" data-name="Techcombank" data-search="tcb techcombank ng n h ng tmcp k  th  ng vi t nam">
+              <div class="bank-logo-wrap">
+                <img src="https://cdn.vietqr.io/img/TCB.png" alt="Techcombank" class="bank-logo-img" loading="lazy" />
+              </div>
+              <span class="bank-label">Techcombank</span>
+            </button>
+            <!-- 4. TPBank -->
+            <button type="button" class="bank-item" data-app-id="tpb" data-scheme="hydro://" data-name="TPBank" data-search="tpb tpbank ng n h ng tmcp ti n phong">
+              <div class="bank-logo-wrap">
+                <img src="https://cdn.vietqr.io/img/TPB.png" alt="TPBank" class="bank-logo-img" loading="lazy" />
+              </div>
+              <span class="bank-label">TPBank</span>
+            </button>
+            <!-- 5. VPBank -->
+            <button type="button" class="bank-item" data-app-id="vpb" data-scheme="vpbankneo://" data-name="VPBank" data-search="vpb vpbank ng n h ng tmcp vi t nam th nh v  ng">
+              <div class="bank-logo-wrap">
+                <img src="https://cdn.vietqr.io/img/VPB.png" alt="VPBank" class="bank-logo-img" loading="lazy" />
+              </div>
+              <span class="bank-label">VPBank</span>
+            </button>
+            <!-- 6. ACB -->
+            <button type="button" class="bank-item" data-app-id="acb" data-scheme="acbapp://" data-name="ACB" data-search="acb acb ng n h ng tmcp   ch u">
+              <div class="bank-logo-wrap">
+                <img src="https://cdn.vietqr.io/img/ACB.png" alt="ACB" class="bank-logo-img" loading="lazy" />
+              </div>
+              <span class="bank-label">ACB</span>
+            </button>
+            <!-- 7. BIDV -->
+            <button type="button" class="bank-item" data-app-id="bidv" data-scheme="bidvsmartbanking://" data-name="BIDV" data-search="bidv bidv ng n h ng tmcp   u t  v  ph t tri n vi t nam">
+              <div class="bank-logo-wrap">
+                <img src="https://cdn.vietqr.io/img/BIDV.png" alt="BIDV" class="bank-logo-img" loading="lazy" />
+              </div>
+              <span class="bank-label">BIDV</span>
+            </button>
+            <!-- 8. VietinBank -->
+            <button type="button" class="bank-item" data-app-id="icb" data-scheme="vietinbankmobile://" data-name="VietinBank" data-search="icb vietinbank ng n h ng tmcp c ng th  ng vi t nam">
+              <div class="bank-logo-wrap">
+                <img src="https://cdn.vietqr.io/img/ICB.png" alt="VietinBank" class="bank-logo-img" loading="lazy" />
+              </div>
+              <span class="bank-label">VietinBank</span>
+            </button>
+            <!-- 9. Agribank -->
+            <button type="button" class="bank-item" data-app-id="vba" data-scheme="agribankmobile://" data-name="Agribank" data-search="vba agribank ng n h ng n ng nghi p v  ph t tri n n ng th n vi t nam">
+              <div class="bank-logo-wrap">
+                <img src="https://cdn.vietqr.io/img/VBA.png" alt="Agribank" class="bank-logo-img" loading="lazy" />
+              </div>
+              <span class="bank-label">Agribank</span>
+            </button>
+            <!-- 10. Sacombank -->
+            <button type="button" class="bank-item" data-app-id="stb" data-scheme="sacombankmobile://" data-name="Sacombank" data-search="stb sacombank ng n h ng tmcp s i g n th  ng t n">
+              <div class="bank-logo-wrap">
+                <img src="https://cdn.vietqr.io/img/STB.png" alt="Sacombank" class="bank-logo-img" loading="lazy" />
+              </div>
+              <span class="bank-label">Sacombank</span>
+            </button>
+            <!-- 11. VIB -->
+            <button type="button" class="bank-item" data-app-id="vib-2" data-scheme="myvib2://" data-name="VIB" data-search="vib vib ng n ha ng tmcp qu c t  vi t nam">
+              <div class="bank-logo-wrap">
+                <img src="https://cdn.vietqr.io/img/VIB.png" alt="VIB" class="bank-logo-img" loading="lazy" />
+              </div>
+              <span class="bank-label">VIB</span>
+            </button>
+            <!-- 12. Ví MoMo -->
+            <button type="button" class="bank-item" data-app-id="momo" data-scheme="momo://" data-name="Ví MoMo" data-search="momo vi momo ctcp dich vu di dong truc tuyen">
+              <div class="bank-logo-wrap">
+                <img src="https://cdn.vietqr.io/img/momo.png" alt="Ví MoMo" class="bank-logo-img" loading="lazy" />
+              </div>
+              <span class="bank-label">Ví MoMo</span>
+            </button>
+            <!-- 13. Ví ZaloPay -->
+            <button type="button" class="bank-item" data-app-id="zalopay" data-scheme="zalopay://" data-name="Ví ZaloPay" data-search="zalopay v  zalopay v   i n t  zalopay">
+              <div class="bank-logo-wrap">
+                <img src="https://cdn.haitrieu.com/wp-content/uploads/2022/10/Logo-ZaloPay-Square.png" alt="Ví ZaloPay" class="bank-logo-img" loading="lazy" />
+              </div>
+              <span class="bank-label">Ví ZaloPay</span>
+            </button>
+            <!-- 14. HDBank -->
+            <button type="button" class="bank-item" data-app-id="hdb" data-scheme="hdbankmobile://" data-name="HDBank" data-search="hdb hdbank ng n h ng tmcp ph t tri n th nh ph  h  ch  minh">
+              <div class="bank-logo-wrap">
+                <img src="https://cdn.vietqr.io/img/HDB.png" alt="HDBank" class="bank-logo-img" loading="lazy" />
+              </div>
+              <span class="bank-label">HDBank</span>
+            </button>
+            <!-- 15. SHB -->
+            <button type="button" class="bank-item" data-app-id="shb" data-scheme="shbmobile://" data-name="SHB" data-search="shb shb ng n h ng tmcp s i g n   h  n i">
+              <div class="bank-logo-wrap">
+                <img src="https://cdn.vietqr.io/img/SHB.png" alt="SHB" class="bank-logo-img" loading="lazy" />
+              </div>
+              <span class="bank-label">SHB</span>
+            </button>
+            <!-- 16. MSB -->
+            <button type="button" class="bank-item" data-app-id="msb" data-scheme="msbmobile://" data-name="MSB" data-search="msb msb ng n ha ng tmcp ha ng ha i vi t nam">
+              <div class="bank-logo-wrap">
+                <img src="https://cdn.vietqr.io/img/MSB.png" alt="MSB" class="bank-logo-img" loading="lazy" />
+              </div>
+              <span class="bank-label">MSB</span>
+            </button>
+            <!-- 17. OCB -->
+            <button type="button" class="bank-item" data-app-id="ocb" data-scheme="omniapp://" data-name="OCB" data-search="ocb ocb ng n h ng tmcp ph  ng   ng">
+              <div class="bank-logo-wrap">
+                <img src="https://cdn.vietqr.io/img/OCB.png" alt="OCB" class="bank-logo-img" loading="lazy" />
+              </div>
+              <span class="bank-label">OCB</span>
+            </button>
+            <!-- 18. SeABank -->
+            <button type="button" class="bank-item" data-app-id="seab" data-scheme="seabankmobile://" data-name="SeABank" data-search="seab seabank ng n ha ng tmcp   ng nam a ">
+              <div class="bank-logo-wrap">
+                <img src="https://cdn.vietqr.io/img/SEAB.png" alt="SeABank" class="bank-logo-img" loading="lazy" />
+              </div>
+              <span class="bank-label">SeABank</span>
+            </button>
+            <!-- 19. LPBank -->
+            <button type="button" class="bank-item" data-app-id="lpb" data-scheme="lv24h://" data-name="LPBank" data-search="lpb lpbank ng n h ng tmcp l c ph t vi t nam">
+              <div class="bank-logo-wrap">
+                <img src="https://cdn.vietqr.io/img/LPB.png" alt="LPBank" class="bank-logo-img" loading="lazy" />
+              </div>
+              <span class="bank-label">LPBank</span>
+            </button>
+            <!-- 20. Viettel Money -->
+            <button type="button" class="bank-item" data-app-id="viettelmoney" data-scheme="viettelpay://" data-name="Viettel Money" data-search="viettelmoney viettel money d ch v  t i ch nh s  viettel money">
+              <div class="bank-logo-wrap">
+                <img src="https://cdn.haitrieu.com/wp-content/uploads/2022/10/Icon-Viettel-Money.png" alt="Viettel Money" class="bank-logo-img" loading="lazy" />
+              </div>
+              <span class="bank-label">Viettel Money</span>
+            </button>
+            <!-- 21. Cake by VPBank -->
+            <button type="button" class="bank-item" data-app-id="cake" data-scheme="cake.vn://" data-name="Cake by VPBank" data-search="cake cake by vpbank tmcp vi t nam th nh v  ng   ng n h ng s  cake by vpbank">
+              <div class="bank-logo-wrap">
+                <img src="https://cdn.vietqr.io/img/CAKE.png" alt="Cake by VPBank" class="bank-logo-img" loading="lazy" />
+              </div>
+              <span class="bank-label">Cake by VPBank</span>
+            </button>
+            <!-- 22. Shinhan Bank -->
+            <button type="button" class="bank-item" data-app-id="shbvn" data-scheme="shinhanglbvnbank://" data-name="Shinhan Bank" data-search="shbvn shinhan bank ng n h ng tnhh mtv shinhan vi t nam">
+              <div class="bank-logo-wrap">
+                <img src="https://cdn.vietqr.io/img/SHBVN.png" alt="Shinhan Bank" class="bank-logo-img" loading="lazy" />
+              </div>
+              <span class="bank-label">Shinhan Bank</span>
+            </button>
+            <!-- 23. Eximbank -->
+            <button type="button" class="bank-item" data-app-id="eib" data-scheme="eximbankmobile://" data-name="Eximbank" data-search="eib eximbank ng n h ng tmcp xu t nh p kh u vi t nam">
+              <div class="bank-logo-wrap">
+                <img src="https://cdn.vietqr.io/img/EIB.png" alt="Eximbank" class="bank-logo-img" loading="lazy" />
+              </div>
+              <span class="bank-label">Eximbank</span>
+            </button>
+            <!-- 24. Nam A Bank -->
+            <button type="button" class="bank-item" data-app-id="nab" data-scheme="deeplinkapp://" data-name="Nam A Bank" data-search="nab nam a bank ng n h ng tmcp nam  ">
+              <div class="bank-logo-wrap">
+                <img src="https://cdn.vietqr.io/img/NAB.png" alt="Nam A Bank" class="bank-logo-img" loading="lazy" />
+              </div>
+              <span class="bank-label">Nam A Bank</span>
+            </button>
+            <!-- 25. ABBank -->
+            <button type="button" class="bank-item" data-app-id="abb" data-scheme="abbankmobile://" data-name="ABBank" data-search="abb abbank ng n h ng tmcp an b nh">
+              <div class="bank-logo-wrap">
+                <img src="https://cdn.vietqr.io/img/ABB.png" alt="ABBank" class="bank-logo-img" loading="lazy" />
+              </div>
+              <span class="bank-label">ABBank</span>
+            </button>
+            <!-- 26. BVBank -->
+            <button type="button" class="bank-item" data-app-id="timo" data-scheme="bvbankdigimi://" data-name="BVBank" data-search="vccb bvbank ng n ha ng tmcp ba n vi  t">
+              <div class="bank-logo-wrap">
+                <img src="https://cdn.vietqr.io/img/VCCB.png" alt="BVBank" class="bank-logo-img" loading="lazy" />
+              </div>
+              <span class="bank-label">BVBank</span>
+            </button>
+            <!-- 27. VietABank -->
+            <button type="button" class="bank-item" data-app-id="vab" data-scheme="vabmobilebanking://" data-name="VietABank" data-search="vab vietabank ng n h ng tmcp vi t  ">
+              <div class="bank-logo-wrap">
+                <img src="https://cdn.vietqr.io/img/VAB.png" alt="VietABank" class="bank-logo-img" loading="lazy" />
+              </div>
+              <span class="bank-label">VietABank</span>
+            </button>
+            <!-- 28. KienlongBank -->
+            <button type="button" class="bank-item" data-app-id="klb" data-scheme="kienlongbankmobilebanking://" data-name="KienlongBank" data-search="klb kienlongbank ng n h ng tmcp ki n long">
+              <div class="bank-logo-wrap">
+                <img src="https://cdn.vietqr.io/img/KLB.png" alt="KienlongBank" class="bank-logo-img" loading="lazy" />
+              </div>
+              <span class="bank-label">KienlongBank</span>
+            </button>
+            <!-- 29. BaoViet Bank -->
+            <button type="button" class="bank-item" data-app-id="bvb" data-scheme="baovietmobile://" data-name="BaoViet Bank" data-search="bvb baoviet bank ng n h ng tmcp b o vi t">
+              <div class="bank-logo-wrap">
+                <img src="https://cdn.vietqr.io/img/BVB.png" alt="BaoViet Bank" class="bank-logo-img" loading="lazy" />
+              </div>
+              <span class="bank-label">BaoViet Bank</span>
+            </button>
+            <!-- 30. SCB -->
+            <button type="button" class="bank-item" data-app-id="scb" data-scheme="scbmobilebanking://" data-name="SCB" data-search="scb scb ng n h ng tmcp s i g n">
+              <div class="bank-logo-wrap">
+                <img src="https://cdn.vietqr.io/img/SCB.png" alt="SCB" class="bank-logo-img" loading="lazy" />
+              </div>
+              <span class="bank-label">SCB</span>
+            </button>
+            <!-- 31. NCB -->
+            <button type="button" class="bank-item" data-app-id="ncb" data-scheme="izimobile://" data-name="NCB" data-search="ncb ncb ng n h ng tmcp qu c d n">
+              <div class="bank-logo-wrap">
+                <img src="https://cdn.vietqr.io/img/NCB.png" alt="NCB" class="bank-logo-img" loading="lazy" />
+              </div>
+              <span class="bank-label">NCB</span>
+            </button>
+            <!-- 32. Vietbank -->
+            <button type="button" class="bank-item" data-app-id="vietbank" data-scheme="vietbankdigital://" data-name="Vietbank" data-search="vietbank vietbank ng n h ng tmcp vi t nam th  ng t n">
+              <div class="bank-logo-wrap">
+                <img src="https://cdn.vietqr.io/img/VIETBANK.png" alt="Vietbank" class="bank-logo-img" loading="lazy" />
+              </div>
+              <span class="bank-label">Vietbank</span>
+            </button>
+            <!-- 33. UOB -->
+            <button type="button" class="bank-item" data-app-id="uob" data-scheme="uobmighty://" data-name="UOB" data-search="uob uob ng n h ng united overseas   chi nh nh tp  h  ch  minh">
+              <div class="bank-logo-wrap">
+                <img src="https://cdn.vietqr.io/img/UOB.png" alt="UOB" class="bank-logo-img" loading="lazy" />
+              </div>
+              <span class="bank-label">UOB</span>
+            </button>
+            <!-- 34. CIMB -->
+            <button type="button" class="bank-item" data-app-id="cimb" data-scheme="cimb://" data-name="CIMB" data-search="cimb cimb ng n h ng tnhh mtv cimb vi t nam">
+              <div class="bank-logo-wrap">
+                <img src="https://cdn.vietqr.io/img/CIMB.png" alt="CIMB" class="bank-logo-img" loading="lazy" />
+              </div>
+              <span class="bank-label">CIMB</span>
+            </button>
+            <!-- 35. Woori Bank -->
+            <button type="button" class="bank-item" data-app-id="wvn" data-scheme="wooriwonvietnam://" data-name="Woori Bank" data-search="wvn woori bank ng n h ng tnhh mtv woori vi t nam">
+              <div class="bank-logo-wrap">
+                <img src="https://cdn.vietqr.io/img/WVN.png" alt="Woori Bank" class="bank-logo-img" loading="lazy" />
+              </div>
+              <span class="bank-label">Woori Bank</span>
+            </button>
+            <!-- 36. Public Bank -->
+            <button type="button" class="bank-item" data-app-id="pbvn" data-scheme="pbvn://" data-name="Public Bank" data-search="pbvn public bank ng n h ng tnhh mtv public vi t nam">
+              <div class="bank-logo-wrap">
+                <img src="https://cdn.vietqr.io/img/PBVN.png" alt="Public Bank" class="bank-logo-img" loading="lazy" />
+              </div>
+              <span class="bank-label">Public Bank</span>
+            </button>
+            <!-- 37. Co-opBank -->
+            <button type="button" class="bank-item" data-app-id="coopbank" data-scheme="coopbank://" data-name="Co-opBank" data-search="coopbank co opbank ng n h ng h p t c x  vi t nam">
+              <div class="bank-logo-wrap">
+                <img src="https://cdn.vietqr.io/img/COOPBANK.png" alt="Co-opBank" class="bank-logo-img" loading="lazy" />
+              </div>
+              <span class="bank-label">Co-opBank</span>
+            </button>
+            <!-- 38. VRB -->
+            <button type="button" class="bank-item" data-app-id="vrb" data-scheme="vrb://" data-name="VRB" data-search="vrb vrb ng n h ng li n doanh vi t   nga">
+              <div class="bank-logo-wrap">
+                <img src="https://cdn.vietqr.io/img/VRB.png" alt="VRB" class="bank-logo-img" loading="lazy" />
+              </div>
+              <span class="bank-label">VRB</span>
+            </button>
+            <!-- 39. Indovina Bank -->
+            <button type="button" class="bank-item" data-app-id="ivb" data-scheme="ivb://" data-name="Indovina Bank" data-search="ivb indovina bank ng n h ng tnhh indovina">
+              <div class="bank-logo-wrap">
+                <img src="https://cdn.vietqr.io/img/IVB.png" alt="Indovina Bank" class="bank-logo-img" loading="lazy" />
+              </div>
+              <span class="bank-label">Indovina Bank</span>
+            </button>
+            <!-- 40. HSBC -->
+            <button type="button" class="bank-item" data-app-id="hsbc" data-scheme="hsbc://" data-name="HSBC" data-search="hsbc hsbc ng n h ng tnhh mtv hsbc  vi t nam ">
+              <div class="bank-logo-wrap">
+                <img src="https://cdn.vietqr.io/img/HSBC.png" alt="HSBC" class="bank-logo-img" loading="lazy" />
+              </div>
+              <span class="bank-label">HSBC</span>
+            </button>
+            <!-- 41. Standard Chartered -->
+            <button type="button" class="bank-item" data-app-id="scvn" data-scheme="scvn://" data-name="Standard Chartered" data-search="scvn standard chartered ng n h ng tnhh mtv standard chartered bank vi t nam">
+              <div class="bank-logo-wrap">
+                <img src="https://cdn.vietqr.io/img/SCVN.png" alt="Standard Chartered" class="bank-logo-img" loading="lazy" />
+              </div>
+              <span class="bank-label">Standard Chartered</span>
+            </button>
+            <!-- 42. Citibank -->
+            <button type="button" class="bank-item" data-app-id="citibank" data-scheme="citibank://" data-name="Citibank" data-search="citibank citibank ng n h ng citibank  n a    chi nh nh h  n i">
+              <div class="bank-logo-wrap">
+                <img src="https://cdn.vietqr.io/img/CITIBANK.png" alt="Citibank" class="bank-logo-img" loading="lazy" />
+              </div>
+              <span class="bank-label">Citibank</span>
+            </button>
+            <!-- 43. KBank -->
+            <button type="button" class="bank-item" data-app-id="kbank" data-scheme="kbank://" data-name="KBank" data-search="kbank kbank ng n h ng   i ch ng tnhh kasikornbank">
+              <div class="bank-logo-wrap">
+                <img src="https://cdn.vietqr.io/img/KBANK.png" alt="KBank" class="bank-logo-img" loading="lazy" />
+              </div>
+              <span class="bank-label">KBank</span>
+            </button>
+            <!-- 44. DBS Bank -->
+            <button type="button" class="bank-item" data-app-id="dbs" data-scheme="dbs://" data-name="DBS Bank" data-search="dbs dbs bank dbs bank ltd   chi nh nh th nh ph  h  ch  minh">
+              <div class="bank-logo-wrap">
+                <img src="https://cdn.vietqr.io/img/DBS.png" alt="DBS Bank" class="bank-logo-img" loading="lazy" />
+              </div>
+              <span class="bank-label">DBS Bank</span>
+            </button>
+            <!-- 45. Hong Leong -->
+            <button type="button" class="bank-item" data-app-id="hlbvn" data-scheme="hlbvn://" data-name="Hong Leong" data-search="hlbvn hong leong ng n h ng tnhh mtv hong leong vi t nam">
+              <div class="bank-logo-wrap">
+                <img src="https://cdn.vietqr.io/img/HLBVN.png" alt="Hong Leong" class="bank-logo-img" loading="lazy" />
+              </div>
+              <span class="bank-label">Hong Leong</span>
+            </button>
+            <!-- 46. PGBank -->
+            <button type="button" class="bank-item" data-app-id="pgb" data-scheme="pgbank://" data-name="PGBank" data-search="pgb pgbank ng n h ng tmcp th nh v  ng v  ph t tri n">
+              <div class="bank-logo-wrap">
+                <img src="https://cdn.vietqr.io/img/PGB.png" alt="PGBank" class="bank-logo-img" loading="lazy" />
+              </div>
+              <span class="bank-label">PGBank</span>
+            </button>
+            <!-- 47. Ubank -->
+            <button type="button" class="bank-item" data-app-id="ubank" data-scheme="ubank://" data-name="Ubank" data-search="ubank ubank tmcp vi t nam th nh v  ng   ng n h ng s  ubank by vpbank">
+              <div class="bank-logo-wrap">
+                <img src="https://cdn.vietqr.io/img/UBANK.png" alt="Ubank" class="bank-logo-img" loading="lazy" />
+              </div>
+              <span class="bank-label">Ubank</span>
+            </button>
+            <!-- 48. OceanBank -->
+            <button type="button" class="bank-item" data-app-id="ojb" data-scheme="oceanbankmobile://" data-name="OceanBank" data-search="ojb oceanbank ngan hang tm tnhh mtv dai duong">
+              <div class="bank-logo-wrap">
+                <img src="https://cdn.vietqr.io/img/OCEANBANK.png" alt="OceanBank" class="bank-logo-img" loading="lazy" />
+              </div>
+              <span class="bank-label">OceanBank</span>
+            </button>
+            <!-- 49. VNPTMoney -->
+            <button type="button" class="bank-item" data-app-id="vnptmoney" data-scheme="vnptmoney://" data-name="VNPTMoney" data-search="vnptmoney vnptmoney vnpt money">
+              <div class="bank-logo-wrap">
+                <img src="https://cdn.vietqr.io/img/VNPTMONEY.png" alt="VNPTMoney" class="bank-logo-img" loading="lazy" />
+              </div>
+              <span class="bank-label">VNPTMoney</span>
+            </button>
+            <!-- 50. SaigonBank -->
+            <button type="button" class="bank-item" data-app-id="sgicb" data-scheme="sgicb://" data-name="SaigonBank" data-search="sgicb saigonbank ng n h ng tmcp s i g n c ng th  ng">
+              <div class="bank-logo-wrap">
+                <img src="https://cdn.vietqr.io/img/SGICB.png" alt="SaigonBank" class="bank-logo-img" loading="lazy" />
+              </div>
+              <span class="bank-label">SaigonBank</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="toast" id="toast"></div>
+    <script src="/__/firebase/10.7.1/firebase-app-compat.js"></script>
+    <script src="/__/firebase/10.7.1/firebase-auth-compat.js"></script>
+    <script src="/__/firebase/10.7.1/firebase-firestore-compat.js"></script>
+    <script src="/__/firebase/init.js"></script>
+    <script src="./storefront-data.js?v=12"></script>
+    <script src="./storefront-products.generated.js?v=6"></script>
+    <script src="storefront.js?v=45"></script>
+  </body>
+</html>

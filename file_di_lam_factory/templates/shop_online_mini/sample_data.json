@@ -1,0 +1,91 @@
+{
+  "shop_profile": {
+    "shop_name": "Luna Studio",
+    "shop_hotline": "0903 123 456",
+    "shop_social": "@lunastudio.vn",
+    "shop_address": "45 Nguyễn Trãi, Q1, TP.HCM",
+    "brand_note": "Phong cách pastel, hàng chỉnh chu, giao nhanh",
+    "logo_image_path": ""
+  },
+  "platforms": [
+    {"name": "Shopee", "chip_bg": "#FFE1CC", "chip_font": "#9A3412", "note": "Cam nhạt"},
+    {"name": "TikTok Shop", "chip_bg": "#2B2B2B", "chip_font": "#FFFFFF", "note": "Đen"},
+    {"name": "Facebook", "chip_bg": "#DCEBFF", "chip_font": "#1D4ED8", "note": "Xanh Facebook"},
+    {"name": "Instagram", "chip_bg": "#FFE0EF", "chip_font": "#BE185D", "note": "Hồng nhạt"},
+    {"name": "Zalo", "chip_bg": "#DFF4FF", "chip_font": "#0284C7", "note": "Xanh lợt"},
+    {"name": "Website", "chip_bg": "#F7EBD8", "chip_font": "#8A6A3D", "note": "Be nhạt"}
+  ],
+  "products_catalog": [
+    {"code": "SP01", "name": "Serum phục hồi 30ml", "group": "Skincare", "default_price": 185000, "status": "Đang bán", "label": "SP01 - Serum phục hồi 30ml"},
+    {"code": "SP02", "name": "Kem chống nắng SPF50", "group": "Skincare", "default_price": 215000, "status": "Đang bán", "label": "SP02 - Kem chống nắng SPF50"},
+    {"code": "SP03", "name": "Set skincare mini", "group": "Combo", "default_price": 249000, "status": "Đang bán", "label": "SP03 - Set skincare mini"},
+    {"code": "SP04", "name": "Sổ tay planner A5", "group": "Lifestyle", "default_price": 129000, "status": "Đang bán", "label": "SP04 - Sổ tay planner A5"},
+    {"code": "SP05", "name": "Bình nước inox 500ml", "group": "Lifestyle", "default_price": 159000, "status": "Đang bán", "label": "SP05 - Bình nước inox 500ml"},
+    {"code": "SP06", "name": "Khóa học Canva cơ bản", "group": "Digital", "default_price": 499000, "status": "Đang bán", "label": "SP06 - Khóa học Canva cơ bản"}
+  ],
+  "cashflow_categories": [
+    {"code": "T01", "flow_type": "Thu", "name": "Nhận COD", "label": "T01 - Nhận COD"},
+    {"code": "T02", "flow_type": "Thu", "name": "Nhận chuyển khoản", "label": "T02 - Nhận chuyển khoản"},
+    {"code": "C01", "flow_type": "Chi", "name": "Nhập hàng", "label": "C01 - Nhập hàng"},
+    {"code": "C02", "flow_type": "Chi", "name": "Quảng cáo", "label": "C02 - Quảng cáo"},
+    {"code": "C03", "flow_type": "Chi", "name": "Đóng gói", "label": "C03 - Đóng gói"},
+    {"code": "C04", "flow_type": "Chi", "name": "Vận hành", "label": "C04 - Vận hành"},
+    {"code": "C05", "flow_type": "Chi", "name": "Phí sàn", "label": "C05 - Phí sàn"}
+  ],
+  "lists": {
+    "channels": ["Shopee", "TikTok Shop", "Facebook", "Instagram", "Zalo", "Website"],
+    "products": [
+      "SP01 - Serum phục hồi 30ml",
+      "SP02 - Kem chống nắng SPF50",
+      "SP03 - Set skincare mini",
+      "SP04 - Sổ tay planner A5",
+      "SP05 - Bình nước inox 500ml",
+      "SP06 - Khóa học Canva cơ bản"
+    ],
+    "payment_methods": ["COD", "Chuyển khoản", "Tiền mặt"],
+    "carriers": ["GHN", "GHTK", "Shopee Express", "J&T Express", "Viettel Post", "Nội bộ"],
+    "order_statuses": ["Mới", "Đang giao", "Hoàn thành", "Hoàn", "Hủy"],
+    "flow_types": ["Thu", "Chi"],
+    "cashbook_categories": [
+      "T01 - Nhận COD",
+      "T02 - Nhận chuyển khoản",
+      "C01 - Nhập hàng",
+      "C02 - Quảng cáo",
+      "C03 - Đóng gói",
+      "C04 - Vận hành",
+      "C05 - Phí sàn"
+    ]
+  },
+  "orders": [
+    {"order_date": "2026-06-01", "order_id": "DH-260601-001", "channel": "Shopee", "customer_name": "Nguyễn Lê Trúc", "product_name": "SP01 - Serum phục hồi 30ml", "order_total": 392000, "payment_method": "COD", "carrier": "Shopee Express", "expected_payout": "2026-06-05", "order_status": "Hoàn thành", "notes": "Khách mua lại lần 2"},
+    {"order_date": "2026-06-01", "order_id": "DH-260601-002", "channel": "TikTok Shop", "customer_name": "Trần Thu Hà", "product_name": "SP03 - Set skincare mini", "order_total": 267000, "payment_method": "COD", "carrier": "GHN", "expected_payout": "2026-06-06", "order_status": "Hoàn thành", "notes": "Đơn livestream tối"},
+    {"order_date": "2026-06-02", "order_id": "DH-260602-003", "channel": "Facebook", "customer_name": "Phạm Mỹ Linh", "product_name": "SP04 - Sổ tay planner A5", "order_total": 387000, "payment_method": "Chuyển khoản", "carrier": "GHTK", "expected_payout": "2026-06-04", "order_status": "Hoàn thành", "notes": "Khách chuyển khoản trước"},
+    {"order_date": "2026-06-02", "order_id": "DH-260602-004", "channel": "Instagram", "customer_name": "Lê Hồng Anh", "product_name": "SP02 - Kem chống nắng SPF50", "order_total": 455000, "payment_method": "COD", "carrier": "J&T Express", "expected_payout": "2026-06-07", "order_status": "Đang giao", "notes": "Đơn combo với coupon"},
+    {"order_date": "2026-06-03", "order_id": "DH-260603-005", "channel": "Website", "customer_name": "Đỗ Quốc Duy", "product_name": "SP06 - Khóa học Canva cơ bản", "order_total": 499000, "payment_method": "Chuyển khoản", "carrier": "Nội bộ", "expected_payout": "2026-06-03", "order_status": "Hoàn thành", "notes": "Sản phẩm số"},
+    {"order_date": "2026-06-03", "order_id": "DH-260603-006", "channel": "TikTok Shop", "customer_name": "Võ Gia Hân", "product_name": "SP05 - Bình nước inox 500ml", "order_total": 337000, "payment_method": "COD", "carrier": "GHN", "expected_payout": "2026-06-09", "order_status": "Hoàn thành", "notes": "Khách xin giao giờ hành chính"},
+    {"order_date": "2026-06-04", "order_id": "DH-260604-007", "channel": "Shopee", "customer_name": "Bùi Khánh Ngân", "product_name": "SP03 - Set skincare mini", "order_total": 516000, "payment_method": "COD", "carrier": "Shopee Express", "expected_payout": "2026-06-10", "order_status": "Hoàn thành", "notes": "Flash sale đầu tháng"},
+    {"order_date": "2026-06-04", "order_id": "DH-260604-008", "channel": "Facebook", "customer_name": "Trần Thành Nam", "product_name": "SP01 - Serum phục hồi 30ml", "order_total": 215000, "payment_method": "Tiền mặt", "carrier": "Viettel Post", "expected_payout": "2026-06-04", "order_status": "Hoàn thành", "notes": "Nhận tại cửa hàng"},
+    {"order_date": "2026-06-05", "order_id": "DH-260605-009", "channel": "Zalo", "customer_name": "Nguyễn Phương Mai", "product_name": "SP04 - Sổ tay planner A5", "order_total": 551000, "payment_method": "COD", "carrier": "GHTK", "expected_payout": "2026-06-11", "order_status": "Hoàn thành", "notes": "Khách corporate đặt tặng nhân viên"},
+    {"order_date": "2026-06-06", "order_id": "DH-260606-010", "channel": "Instagram", "customer_name": "Hoàng Anh Thu", "product_name": "SP02 - Kem chống nắng SPF50", "order_total": 240000, "payment_method": "COD", "carrier": "J&T Express", "expected_payout": "2026-06-12", "order_status": "Hoàn", "notes": "Khách không nhận hàng"},
+    {"order_date": "2026-06-07", "order_id": "DH-260607-011", "channel": "TikTok Shop", "customer_name": "Lê Minh Châu", "product_name": "SP01 - Serum phục hồi 30ml", "order_total": 577000, "payment_method": "COD", "carrier": "GHN", "expected_payout": "2026-06-13", "order_status": "Hoàn thành", "notes": "Đơn được boost từ affiliate"},
+    {"order_date": "2026-06-08", "order_id": "DH-260608-012", "channel": "Website", "customer_name": "Phạm Đức Khang", "product_name": "SP06 - Khóa học Canva cơ bản", "order_total": 998000, "payment_method": "Chuyển khoản", "carrier": "Nội bộ", "expected_payout": "2026-06-08", "order_status": "Hoàn thành", "notes": "Mua 2 slot cho team"},
+    {"order_date": "2026-06-09", "order_id": "DH-260609-013", "channel": "Shopee", "customer_name": "Tạ Bảo Ngọc", "product_name": "SP05 - Bình nước inox 500ml", "order_total": 340000, "payment_method": "COD", "carrier": "Shopee Express", "expected_payout": "2026-06-15", "order_status": "Đang giao", "notes": "Pre-order màu mới"},
+    {"order_date": "2026-06-10", "order_id": "DH-260610-014", "channel": "Facebook", "customer_name": "Nguyễn Thanh Tú", "product_name": "SP03 - Set skincare mini", "order_total": 277000, "payment_method": "COD", "carrier": "GHN", "expected_payout": "2026-06-16", "order_status": "Hủy", "notes": "Khách đổi ý"}
+  ],
+  "cashbook": [
+    {"txn_date": "2026-06-01", "txn_id": "PC-260601-001", "flow_type": "Chi", "category": "C01 - Nhập hàng", "amount": 3500000, "related_order": "", "note": "Nhập lô serum và kem chống nắng"},
+    {"txn_date": "2026-06-02", "txn_id": "PC-260602-002", "flow_type": "Chi", "category": "C02 - Quảng cáo", "amount": 1200000, "related_order": "", "note": "TikTok Ads 3 ngày"},
+    {"txn_date": "2026-06-03", "txn_id": "PT-260603-003", "flow_type": "Thu", "category": "T02 - Nhận chuyển khoản", "amount": 387000, "related_order": "DH-260602-003", "note": "Khách Facebook chuyển khoản"},
+    {"txn_date": "2026-06-03", "txn_id": "PT-260603-004", "flow_type": "Thu", "category": "T02 - Nhận chuyển khoản", "amount": 499000, "related_order": "DH-260603-005", "note": "Thu khóa học website"},
+    {"txn_date": "2026-06-04", "txn_id": "PC-260604-005", "flow_type": "Chi", "category": "C03 - Đóng gói", "amount": 320000, "related_order": "", "note": "Hộp carton, túi, bill"},
+    {"txn_date": "2026-06-05", "txn_id": "PT-260605-006", "flow_type": "Thu", "category": "T01 - Nhận COD", "amount": 392000, "related_order": "DH-260601-001", "note": "Tiền COD về từ Shopee Express"},
+    {"txn_date": "2026-06-06", "txn_id": "PT-260606-007", "flow_type": "Thu", "category": "T01 - Nhận COD", "amount": 267000, "related_order": "DH-260601-002", "note": "Tiền COD về từ GHN"},
+    {"txn_date": "2026-06-07", "txn_id": "PC-260607-008", "flow_type": "Chi", "category": "C05 - Phí sàn", "amount": 280000, "related_order": "", "note": "Phí sàn Shopee và TikTok"},
+    {"txn_date": "2026-06-08", "txn_id": "PT-260608-009", "flow_type": "Thu", "category": "T01 - Nhận COD", "amount": 337000, "related_order": "DH-260603-006", "note": "Tiền COD về từ GHN"},
+    {"txn_date": "2026-06-09", "txn_id": "PT-260609-010", "flow_type": "Thu", "category": "T01 - Nhận COD", "amount": 516000, "related_order": "DH-260604-007", "note": "Tiền COD về từ Shopee Express"},
+    {"txn_date": "2026-06-10", "txn_id": "PT-260610-011", "flow_type": "Thu", "category": "T02 - Nhận chuyển khoản", "amount": 998000, "related_order": "DH-260608-012", "note": "Team course website"},
+    {"txn_date": "2026-06-10", "txn_id": "PC-260610-012", "flow_type": "Chi", "category": "C04 - Vận hành", "amount": 650000, "related_order": "", "note": "Trả công admin và ship nội thành"},
+    {"txn_date": "2026-06-11", "txn_id": "PT-260611-013", "flow_type": "Thu", "category": "T01 - Nhận COD", "amount": 551000, "related_order": "DH-260605-009", "note": "Tiền COD về từ GHTK"},
+    {"txn_date": "2026-06-12", "txn_id": "PC-260612-014", "flow_type": "Chi", "category": "C02 - Quảng cáo", "amount": 980000, "related_order": "", "note": "Boost Facebook post"}
+  ]
+}

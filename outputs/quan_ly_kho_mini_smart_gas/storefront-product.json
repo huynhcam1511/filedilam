@@ -1,0 +1,25 @@
+{
+  "storefront": {
+    "id": "quan-ly-kho-mini-google-sheets-smart",
+    "categoryId": "quan-ly-kho",
+    "name": "Quản Lý Kho Mini – Google Sheets Smart",
+    "price": 249000,
+    "type": "google_sheets",
+    "delivery_link": "https://docs.google.com/spreadsheets/d/1xir1M-ieP0zqmGE5J4m1rGbxuzTIUaDw7aFoM7GEeZo/copy",
+    "tag": "SMART",
+    "accent": "mint",
+    "previewImageUrl": "",
+    "description": "Bộ quản lý kho trên Google Sheets, đi kèm Web App toàn màn hình để vận hành như một ứng dụng: nhập kho, xuất kho, tra cứu tồn, xem cảnh báo và gửi báo cáo.",
+    "suitableFor": "Shop nhỏ muốn dùng Google Drive, thao tác nhanh bằng form và không muốn trả phí phần mềm hằng tháng.",
+    "delivery": "Nhận link tạo bản sao Google Sheets ngay sau khi xác nhận thanh toán; kích hoạt giao diện thông minh một lần trên Drive cá nhân.",
+    "usageGuide": "Tạo bản sao, chọn menu 📦 Kho Mini Smart, kích hoạt tự động hóa một lần rồi bấm Mở ứng dụng quản lý kho. Khách thao tác hằng ngày trên Web App; Google Sheets lưu dữ liệu phía sau.",
+    "fileCount": 1,
+    "sheets": ["Sản phẩm", "Nhập kho", "Xuất kho", "Tồn kho", "Cảnh báo", "Dashboard", "Cấu hình", "Nhật ký"],
+    "highlights": [
+      "Đi kèm Web App toàn màn hình với 8 khu vực chức năng",
+      "Form nhập/xuất có kiểm tra tồn kho",
+      "Cảnh báo tự động, gửi email và báo cáo PDF",
+      "Dữ liệu nằm trong Google Drive của người mua"
+    ]
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "product": "Tính Giá Cost đa ngành",
+  "version": "2.0",
+  "workbook": "outputs/tinh_cost_da_nganh_v2.xlsx",
+  "qc": "outputs/tinh_cost_da_nganh_v2.qc.json",
+  "capacity": {
+    "inputs": 1000,
+    "recipe_lines": 5000,
+    "preps": 200,
+    "prep_lines": 1000,
+    "products": 500,
+    "overhead_groups": 100
+  },
+  "status": "candidate_for_review_not_published"
+}

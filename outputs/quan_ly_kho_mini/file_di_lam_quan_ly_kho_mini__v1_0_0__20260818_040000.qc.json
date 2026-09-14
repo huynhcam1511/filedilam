@@ -1,0 +1,16 @@
+{
+  "template_id": "quan_ly_kho_mini",
+  "summary": {
+    "passed": true,
+    "formula_errors": 0,
+    "sheets_checked": 9,
+    "visual_previews_checked": 9
+  },
+  "checks": [
+    {"name": "required_sheets", "passed": true},
+    {"name": "sample_inventory_reconciles", "passed": true},
+    {"name": "formula_error_scan", "passed": true},
+    {"name": "dashboard_metrics", "passed": true},
+    {"name": "visual_layout", "passed": true}
+  ]
+}

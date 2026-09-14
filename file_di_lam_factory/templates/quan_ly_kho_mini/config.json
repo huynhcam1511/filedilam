@@ -1,0 +1,25 @@
+{
+  "template_id": "quan_ly_kho_mini",
+  "template_name": "Quản Lý Kho Mini",
+  "brand": "File Đi Làm",
+  "version": "1.0.0",
+  "design_system": "pastel_feminine_spring",
+  "file_stem": "file_di_lam_quan_ly_kho_mini",
+  "required_sheets": ["0_BẮT_ĐẦU", "1_SẢN_PHẨM", "2_NHẬP_KHO", "3_XUẤT_KHO", "4_TỒN_KHO", "5_CẢNH_BÁO", "6_TỔNG_QUAN", "7_DANH_MỤC", "8_HỆ_THỐNG"],
+  "storefront": {
+    "id": "quan-ly-kho-mini",
+    "categoryId": "quan-ly-kho",
+    "name": "Quản Lý Kho Mini",
+    "price": 89000,
+    "tag": "Mới",
+    "accent": "mint",
+    "previewImageUrl": "",
+    "description": "Theo dõi nhập kho, xuất kho, tồn hiện tại, giá trị tồn và cảnh báo hàng sắp hết trong một file dễ dùng.",
+    "suitableFor": "Shop nhỏ bán trên TikTok Shop, Shopee, Facebook, Instagram hoặc Zalo.",
+    "delivery": "Nhận link tải file ngay sau khi hệ thống xác nhận thanh toán.",
+    "usageGuide": "Khai báo sản phẩm, ghi từng lần nhập và xuất; tồn kho, cảnh báo và dashboard sẽ tự động cập nhật.",
+    "fileCount": 1,
+    "sheets": ["Bắt đầu", "Sản phẩm", "Nhập kho", "Xuất kho", "Tồn kho", "Cảnh báo", "Tổng quan", "Danh mục"],
+    "highlights": ["Tồn kho và giá trị tồn tự tính", "Cảnh báo sản phẩm sắp hết", "Dashboard có biểu đồ sức khỏe kho"]
+  }
+}

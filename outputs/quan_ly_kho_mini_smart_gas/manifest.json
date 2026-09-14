@@ -1,0 +1,15 @@
+{
+  "product_id": "quan-ly-kho-mini-google-sheets-smart",
+  "product_name": "Quản Lý Kho Mini – Google Sheets Smart",
+  "version": "2.0.0",
+  "price": 249000,
+  "spreadsheet_id": "1xir1M-ieP0zqmGE5J4m1rGbxuzTIUaDw7aFoM7GEeZo",
+  "spreadsheet_url": "https://docs.google.com/spreadsheets/d/1xir1M-ieP0zqmGE5J4m1rGbxuzTIUaDw7aFoM7GEeZo/edit",
+  "delivery_link": "https://docs.google.com/spreadsheets/d/1xir1M-ieP0zqmGE5J4m1rGbxuzTIUaDw7aFoM7GEeZo/copy",
+  "script_id": "1B_p_Ex5BfU5sWqAxcZj1ftsiPoZZ3h4LQ-rsJ4Lx9R7YSK0MVBH6eWr1",
+  "apps_script_files": ["Code.gs", "Sidebar.html", "WebApp.html", "appsscript.json"],
+  "deployment_id": "AKfycbwwUxPVwUkcrp5QZLMiK8ooLgAKR8DhLmN5sEbXdHoPgPcugOh_TR3brer5-iWj66TP",
+  "web_app_url": "https://script.google.com/macros/s/AKfycbwwUxPVwUkcrp5QZLMiK8ooLgAKR8DhLmN5sEbXdHoPgPcugOh_TR3brer5-iWj66TP/exec",
+  "status": "SMART_2_PRIMARY_WEB_APP_ACTIVE_V4",
+  "first_run_authorization_required": true
+}

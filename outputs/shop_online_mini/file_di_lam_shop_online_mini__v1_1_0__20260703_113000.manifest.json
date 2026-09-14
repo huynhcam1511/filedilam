@@ -1,0 +1,10 @@
+{
+  "template_id": "shop_online_mini",
+  "template_name": "Shop Online Mini - Quan ly don hang, thu chi, cong no COD",
+  "design_system_id": "file_di_lam_default",
+  "version": "1.1.0",
+  "build_timestamp": "2026-07-03T11:30:00",
+  "workbook_path": "outputs/shop_online_mini/file_di_lam_shop_online_mini__v1_1_0__20260703_113000.xlsx",
+  "qc_path": "outputs/shop_online_mini/file_di_lam_shop_online_mini__v1_1_0__20260703_113000.qc.json",
+  "qc_passed": true
+}

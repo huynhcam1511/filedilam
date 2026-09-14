@@ -1,0 +1,20 @@
+{
+  "product": "Tính Giá Cost đa ngành",
+  "version": "3.0",
+  "workbook": "outputs/tinh_cost_da_nganh_v3.xlsx",
+  "capacity": {
+    "inputs": 1000,
+    "recipe_lines": 5000,
+    "preps": 200,
+    "prep_lines": 1000,
+    "products": 500,
+    "overhead_groups": 100
+  },
+  "sample_rows": {
+    "inputs": 45,
+    "products": 45
+  },
+  "status": "candidate_for_review_not_published",
+  "note": "Giá và định mức mẫu chỉ để minh họa; cần thay bằng dữ liệu thực tế.",
+  "qc": "outputs/tinh_cost_da_nganh_v3.qc.json"
+}

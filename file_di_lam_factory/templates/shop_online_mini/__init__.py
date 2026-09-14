@@ -1,0 +1,2 @@
+"""Shop Online Mini template."""
+

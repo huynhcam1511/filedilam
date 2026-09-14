@@ -1,0 +1,185 @@
+{
+  "template_id": "cong_no_premium",
+  "template_name": "Phần Mềm Quản Lý Công Nợ Pro",
+  "brand": "File đi làm",
+  "version": "2.0.0",
+  "design_system": "corporate_clean_blue",
+  "file_stem": "Phan_Mem_Quan_Ly_Cong_No_Pro",
+  "max_input_rows": 1000,
+  "sheets": {
+    "guide": "0_BẮT_ĐẦU",
+    "transactions": "1_PHÁT_SINH_CÔNG_NỢ",
+    "details": "2_SỔ_CHI_TIẾT",
+    "summary": "3_TỔNG_HỢP_CÔNG_NỢ",
+    "dashboard": "4_DASHBOARD_PHÂN_TÍCH",
+    "lists": "5_DANH_MỤC_ĐỐI_TÁC",
+    "metadata": "6_HỆ_THỐNG"
+  },
+  "guide": {
+    "title": "QUẢN LÝ CÔNG NỢ PRO",
+    "subtitle": "Bản Premium: Quản lý khách hàng, nhà cung cấp, phân tích tuổi nợ",
+    "quick_start": [
+      "Bước 1: Khai báo Danh mục Khách hàng/Nhà cung cấp tại sheet 5_DANH_MỤC_ĐỐI_TÁC.",
+      "Bước 2: Ghi nhận các khoản nợ mới, thu nợ, thanh toán tại 1_PHÁT_SINH_CÔNG_NỢ.",
+      "Bước 3: Xem Sổ chi tiết của từng đối tác tại sheet 2_SỔ_CHI_TIẾT.",
+      "Bước 4: Xem bảng Tổng hợp công nợ cuối kỳ tại 3_TỔNG_HỢP_CÔNG_NỢ.",
+      "Bước 5: Xem Dashboard báo cáo trực quan tại 4_DASHBOARD_PHÂN_TÍCH."
+    ],
+    "detail_steps": [],
+    "legend": [],
+    "sheet_purpose": []
+  },
+  "setup_fields": [
+    {
+      "label": "Tên công ty",
+      "key": "company_name"
+    },
+    {
+      "label": "Người lập biểu",
+      "key": "creator_name"
+    },
+    {
+      "label": "SĐT Liên hệ",
+      "key": "company_phone"
+    }
+  ],
+  "transactions_columns": [
+    {
+      "key": "txn_date",
+      "header": "Ngày",
+      "type": "date",
+      "editable": true,
+      "width": 12
+    },
+    {
+      "key": "partner_id",
+      "header": "Mã Đối Tác",
+      "type": "text",
+      "editable": true,
+      "width": 15
+    },
+    {
+      "key": "partner_name",
+      "header": "Tên Đối Tác",
+      "type": "text",
+      "editable": false,
+      "width": 25
+    },
+    {
+      "key": "txn_type",
+      "header": "Loại Giao Dịch",
+      "type": "text",
+      "editable": true,
+      "width": 18
+    },
+    {
+      "key": "amount",
+      "header": "Số Tiền",
+      "type": "currency",
+      "editable": true,
+      "width": 15
+    },
+    {
+      "key": "notes",
+      "header": "Ghi chú",
+      "type": "text",
+      "editable": true,
+      "width": 30
+    },
+    {
+      "key": "txn_id",
+      "header": "Mã Giao Dịch",
+      "type": "text",
+      "editable": false,
+      "width": 15
+    }
+  ],
+  "lists_columns": [
+    {
+      "key": "partner_id",
+      "header": "Mã Đối Tác",
+      "type": "text",
+      "editable": true,
+      "width": 15
+    },
+    {
+      "key": "partner_name",
+      "header": "Tên Đối Tác",
+      "type": "text",
+      "editable": true,
+      "width": 25
+    },
+    {
+      "key": "partner_type",
+      "header": "Loại (KH/NCC)",
+      "type": "text",
+      "editable": true,
+      "width": 15
+    },
+    {
+      "key": "phone",
+      "header": "Số điện thoại",
+      "type": "text",
+      "editable": true,
+      "width": 15
+    },
+    {
+      "key": "email",
+      "header": "Email Kế toán",
+      "type": "text",
+      "editable": true,
+      "width": 20
+    },
+    {
+      "key": "opening_balance",
+      "header": "Nợ đầu kỳ",
+      "type": "currency",
+      "editable": true,
+      "width": 15
+    }
+  ],
+  "summary_columns": [
+    {
+      "key": "partner_id",
+      "header": "Mã Đối Tác",
+      "type": "text",
+      "editable": false,
+      "width": 15
+    },
+    {
+      "key": "partner_name",
+      "header": "Tên Đối Tác",
+      "type": "text",
+      "editable": false,
+      "width": 25
+    },
+    {
+      "key": "opening_balance",
+      "header": "Dư nợ đầu kỳ",
+      "type": "currency",
+      "editable": false,
+      "width": 15
+    },
+    {
+      "key": "increase",
+      "header": "Phát sinh tăng",
+      "type": "currency",
+      "editable": false,
+      "width": 15
+    },
+    {
+      "key": "decrease",
+      "header": "Phát sinh giảm",
+      "type": "currency",
+      "editable": false,
+      "width": 15
+    },
+    {
+      "key": "ending_balance",
+      "header": "Dư nợ cuối kỳ",
+      "type": "currency",
+      "editable": false,
+      "width": 15
+    }
+  ]
+}

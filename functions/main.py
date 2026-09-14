@@ -1,0 +1,184 @@
+from firebase_functions import https_fn, options
+from firebase_admin import initialize_app, firestore, auth
+import random
+import string
+from datetime import datetime, timezone
+import json
+
+initialize_app()
+
+def get_db():
+    return firestore.client()
+
+def generate_order_id():
+    return "DH" + "".join(random.choices(string.digits, k=6))
+
+def cors_headers():
+    return {
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Headers": "Content-Type, Authorization",
+        "Access-Control-Allow-Methods": "POST, GET, PUT, OPTIONS",
+    }
+
+def json_response(payload, status=200):
+    return https_fn.Response(json.dumps(payload, default=str), status=status, content_type="application/json", headers=cors_headers())
+
+def require_user(req):
+    header = req.headers.get("Authorization", "")
+    if not header.startswith("Bearer "):
+        return None
+    try:
+        return auth.verify_id_token(header.split(" ", 1)[1])
+    except Exception:
+        return None
+
+@https_fn.on_request()
+def api(req: https_fn.Request) -> https_fn.Response:
+    db = get_db()
+    path = req.path
+    method = req.method
+    
+    if method == "OPTIONS":
+        return https_fn.Response(status=204, headers=cors_headers())
+
+    if path == "/profile" and method in ("GET", "PUT"):
+        user = require_user(req)
+        if not user:
+            return json_response({"error": "AUTH_REQUIRED"}, 401)
+        profile_ref = db.collection("customer_profiles").document(user["uid"])
+        if method == "GET":
+            profile_doc = profile_ref.get()
+            if not profile_doc.exists:
+                return json_response({"error": "PROFILE_NOT_FOUND"}, 404)
+            return json_response(profile_doc.to_dict())
+
+        data = req.get_json(silent=True) or {}
+        phone = "".join(ch for ch in str(data.get("phone", "")) if ch.isdigit())
+        if len(phone) < 9 or len(phone) > 11:
+            return json_response({"error": "INVALID_PHONE"}, 400)
+        now = datetime.now(timezone.utc)
+        existing = profile_ref.get()
+        payload = {
+            "user_id": user["uid"],
+            "email": user.get("email", ""),
+            "phone": phone,
+            "auth_provider": data.get("auth_provider", "unknown"),
+            "updated_at": now,
+        }
+        if not existing.exists:
+            payload["created_at"] = now
+        profile_ref.set(payload, merge=True)
+        return json_response(payload)
+
+    if path == "/orders" and method == "POST":
+        user = require_user(req)
+        if not user:
+            return json_response({"error": "AUTH_REQUIRED"}, 401)
+        data = req.get_json(silent=True) or {}
+        profile_ref = db.collection("customer_profiles").document(user["uid"])
+        profile_doc = profile_ref.get()
+        
+        phone = ""
+        if profile_doc.exists:
+            profile = profile_doc.to_dict()
+            phone = "".join(ch for ch in str(profile.get("phone", "")) if ch.isdigit())
+        
+        if len(phone) < 9 or len(phone) > 11:
+            req_phone = "".join(ch for ch in str(data.get("customer_phone", "")) if ch.isdigit())
+            if 9 <= len(req_phone) <= 11:
+                phone = req_phone
+                now = datetime.now(timezone.utc)
+                profile_payload = {
+                    "user_id": user["uid"],
+                    "email": data.get("customer_email") or user.get("email", ""),
+                    "phone": phone,
+                    "auth_provider": data.get("auth_provider", "quick_checkout"),
+                    "updated_at": now,
+                    "created_at": now,
+                }
+                profile_ref.set(profile_payload, merge=True)
+            else:
+                return json_response({"error": "PROFILE_REQUIRED"}, 400)
+
+        customer_email = data.get("customer_email") or user.get("email", "")
+        order_id = generate_order_id()
+        while db.collection("orders").document(order_id).get().exists:
+            order_id = generate_order_id()
+            
+        doc_ref = db.collection("orders").document(order_id)
+        doc_ref.set({
+            "id": order_id,
+            "customer_email": customer_email,
+            "customer_phone": phone,
+            "user_id": user["uid"],
+            "product_id": data.get("product_id", ""),
+            "product_name": data.get("product_name", ""),
+            "product_file_url": data.get("product_file_url", ""),
+            "product_type": data.get("product_type", "excel"),
+            "amount": data.get("amount", 0),
+            "status": "PENDING",
+            "created_at": datetime.now(timezone.utc)
+        })
+        
+        return json_response({
+            "order_id": order_id,
+            "amount": data.get("amount", 0),
+            "transfer_note": order_id,
+        })
+        
+    elif path.startswith("/orders/") and method == "GET":
+        user = require_user(req)
+        if not user:
+            return json_response({"error": "AUTH_REQUIRED"}, 401)
+        order_id = path.split("/")[-1]
+        doc = db.collection("orders").document(order_id).get()
+        if not doc.exists:
+            return json_response({"error": "ORDER_NOT_FOUND"}, 404)
+        
+        order_data = doc.to_dict()
+        if order_data.get("user_id") != user["uid"]:
+            return json_response({"error": "FORBIDDEN"}, 403)
+        return json_response({
+            "order_id": order_data.get("id"),
+            "status": order_data.get("status"),
+            "product_id": order_data.get("product_id", ""),
+            "product_type": order_data.get("product_type", "excel"),
+            "product_file_url": order_data.get("product_file_url") if order_data.get("status") == "PAID" else None
+        })
+        
+    elif path == "/my-orders" and method == "GET":
+        user = require_user(req)
+        if not user:
+            return json_response({"error": "AUTH_REQUIRED"}, 401)
+        
+        docs = db.collection("orders").where("user_id", "==", user["uid"]).where("status", "==", "PAID").stream()
+        orders = []
+        for doc in docs:
+            order_data = doc.to_dict()
+            orders.append({
+                "order_id": order_data.get("id"),
+                "product_id": order_data.get("product_id", ""),
+                "product_name": order_data.get("product_name"),
+                "product_file_url": order_data.get("product_file_url"),
+                "product_type": order_data.get("product_type", "excel"),
+                "amount": order_data.get("amount")
+            })
+            
+        return json_response(orders)
+        
+    elif path == "/webhooks/sepay" and method == "POST":
+        payload = req.get_json(silent=True)
+        if payload and payload.get("transferType") == "in":
+            content = str(payload.get("content", "")).upper()
+            amount_paid = int(payload.get("transferAmount", 0))
+            
+            orders_ref = db.collection("orders").where("status", "==", "PENDING").stream()
+            for doc in orders_ref:
+                order = doc.to_dict()
+                if order.get("id") in content and amount_paid >= order.get("amount", 0):
+                    doc.reference.update({"status": "PAID"})
+                    print(f"Kich hoat file {order.get('product_file_url')} cho {order.get('customer_email')}")
+                    break
+        return json_response({"success": True})
+
+    return json_response({"error": "NOT_FOUND"}, 404)

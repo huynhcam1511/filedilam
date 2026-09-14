@@ -1,0 +1,34 @@
+[
+  {
+    "platform": "tiktok",
+    "source_job": "tiktok_sales_crm",
+    "market": "Vietnam",
+    "author": "Shop mẫu A",
+    "title": "Quản lý đơn ship COD và biết lời lỗ mỗi ngày",
+    "text": "Chủ shop quản lý đơn hàng thường thất thoát vì chưa đối soát COD và quên tính phần phí ship shop hỗ trợ. Comment để nhận file Excel mẫu.",
+    "url": "https://example.com/sample-1",
+    "published_at": "2026-08-18T10:00:00Z",
+    "views": 12500,
+    "likes": 630,
+    "comments": 84,
+    "shares": 112,
+    "price": null,
+    "currency": "VND"
+  },
+  {
+    "platform": "tiktok",
+    "source_job": "tiktok_industry_solutions",
+    "market": "Vietnam",
+    "author": "Quán mẫu B",
+    "title": "Tính giá cost một ly nước như thế nào?",
+    "text": "File tính giá cost: cần tính nguyên vật liệu, ly nắp, hao hụt và chi phí chung trước khi đặt giá bán.",
+    "url": "https://example.com/sample-2",
+    "published_at": "2026-08-19T08:30:00Z",
+    "views": 4200,
+    "likes": 240,
+    "comments": 51,
+    "shares": 37,
+    "price": 99000,
+    "currency": "VND"
+  }
+]

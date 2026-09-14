@@ -1,0 +1,57 @@
+{
+  "_meta": {
+    "document": "FILE_DI_LAM_BRAND",
+    "version": "1.0.0",
+    "status": "canonical",
+    "purpose": "Kim chỉ nam thương hiệu, danh mục sản phẩm và nghiên cứu thị trường cho File Đi Làm",
+    "updated_at": "2026-08-21"
+  },
+  "brand": {
+    "name": "File Đi Làm",
+    "category": "Hệ sinh thái công cụ vận hành thực dụng cho SME và người đi làm",
+    "mission": "Đóng gói nghiệp vụ và kinh nghiệm làm việc thành các công cụ dễ dùng, giúp cá nhân, cửa hàng nhỏ và SME làm việc rõ ràng, ít sai sót và ra quyết định nhanh hơn.",
+    "positioning": "Không chỉ bán file Excel. File Đi Làm tạo các bộ công cụ vận hành có thể dùng ngay, từ template đơn giản đến Google Sheets, Apps Script và Web App.",
+    "promise": "Mở ra là hiểu, nhập ít, tự tính đúng, báo cáo rõ và có hướng dẫn sử dụng.",
+    "principles": [
+      "Giải quyết một công việc thật, không làm file để trang trí",
+      "Dễ dùng cho người không rành Excel hoặc công nghệ",
+      "Tách rõ khu nhập liệu và khu tự tính",
+      "Công thức và giả định phải kiểm tra, truy ngược được",
+      "Dashboard phải giúp ra quyết định, không chỉ đẹp",
+      "Có dữ liệu mẫu, hướng dẫn và kiểm tra chất lượng",
+      "Sản phẩm có thể phát triển theo bậc Excel, Google Sheets, Apps Script và Web App",
+      "Nghiên cứu thị trường trước khi quyết định làm sản phẩm"
+    ]
+  },
+  "audiences": [
+    "Chủ cửa hàng và hộ kinh doanh",
+    "Doanh nghiệp SME",
+    "Nhân viên văn phòng và người đi làm",
+    "Freelancer và nhóm dịch vụ nhỏ",
+    "Admin, kế toán, nhân sự, sales, marketing, kho và vận hành",
+    "Đơn vị có nghiệp vụ chuyên ngành cần số hóa nhẹ"
+  ],
+  "product_domains": [
+    {"id": "finance_accounting", "name": "Kế toán, tài chính và công nợ", "topics": ["thu chi", "dòng tiền", "lãi lỗ", "ngân sách", "công nợ", "báo giá", "hóa đơn", "đối soát"]},
+    {"id": "hr_payroll", "name": "Nhân sự, chấm công và lương", "topics": ["hồ sơ nhân sự", "chấm công", "ca làm", "tính lương", "hoa hồng", "KPI", "phép", "đánh giá nhân viên"]},
+    {"id": "administration_office", "name": "Hành chính và văn phòng", "topics": ["công văn", "tài sản", "cấp phát", "lịch công việc", "biên bản", "đề nghị", "phê duyệt", "lưu trữ hồ sơ"]},
+    {"id": "sales_crm", "name": "Sales và CRM", "topics": ["lead", "khách hàng", "pipeline", "chăm sóc khách", "báo giá", "đơn hàng", "doanh số", "hoa hồng sales"]},
+    {"id": "marketing", "name": "Marketing", "topics": ["content plan", "lịch đăng", "campaign", "ngân sách quảng cáo", "lead marketing", "hiệu quả nội dung", "báo cáo marketing"]},
+    {"id": "inventory_procurement", "name": "Kho và mua hàng", "topics": ["sản phẩm", "nhập kho", "xuất kho", "tồn kho", "kiểm kê", "nhà cung cấp", "đơn mua hàng", "lô hạn sử dụng"]},
+    {"id": "project_management", "name": "Quản lý dự án và công việc", "topics": ["kế hoạch", "task", "tiến độ", "timeline", "nguồn lực", "rủi ro", "nghiệm thu", "báo cáo dự án"]},
+    {"id": "management_reporting", "name": "Báo cáo quản trị", "topics": ["KPI", "dashboard", "báo cáo tuần", "báo cáo tháng", "mục tiêu", "thực hiện", "phân tích", "ra quyết định"]},
+    {"id": "sop_forms", "name": "SOP, checklist và biểu mẫu", "topics": ["quy trình", "SOP", "checklist", "biểu mẫu", "hướng dẫn công việc", "kiểm soát chất lượng", "bàn giao", "đào tạo"]},
+    {"id": "industry_solutions", "name": "Giải pháp chuyên ngành", "topics": ["bán lẻ", "ăn uống", "thời trang", "dịch vụ", "sản xuất nhỏ", "giá cost", "phòng thí nghiệm", "y tế"]}
+  ],
+  "delivery_ladder": [
+    {"level": "Mini", "formats": ["Excel", "Google Sheets"], "purpose": "Giải quyết một nghiệp vụ rõ ràng, dễ mua và dễ dùng"},
+    {"level": "Smart", "formats": ["Google Sheets", "Apps Script"], "purpose": "Có form, tự động hóa, email, PDF và thao tác thuận tiện hơn"},
+    {"level": "Web App", "formats": ["Web App", "Database", "Automation"], "purpose": "Trải nghiệm giống phần mềm cho nghiệp vụ cần nhiều người hoặc nhiều bước"},
+    {"level": "Chuyên ngành", "formats": ["Excel", "Google Sheets", "Apps Script", "Web App"], "purpose": "Giải quyết nghiệp vụ sâu đã được khảo sát và kiểm chứng"}
+  ],
+  "market_research": {
+    "primary_channel": "TikTok",
+    "decision_rule": "Không dùng một video viral để kết luận nhu cầu. Ưu tiên vấn đề lặp lại qua nhiều creator, nhiều nhóm người dùng và có tín hiệu sẵn sàng trả tiền.",
+    "required_outputs": ["Nỗi đau và công việc cần giải quyết", "Nhóm người dùng", "Sản phẩm hoặc giải pháp đang được nhắc tới", "Tính năng được quan tâm", "Phản đối và điểm chưa hài lòng", "Mức độ cạnh tranh", "Ý tưởng sản phẩm nên thẩm định tiếp", "Bằng chứng và URL gốc"]
+  }
+}

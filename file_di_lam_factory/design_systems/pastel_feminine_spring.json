@@ -1,0 +1,52 @@
+{
+  "id": "pastel_feminine_spring",
+  "name": "Pastel Nữ Tính Mùa Xuân",
+  "palette_strategy": {
+    "harmony_model": "analogous_cool_pastel_with_soft_warm_accent",
+    "core_family": ["rose", "lavender", "mint"],
+    "accent_family": ["butter"],
+    "support_family": ["mist_blue"]
+  },
+  "colors": {
+    "brand_rose": "#C88FA1",
+    "brand_rose_soft": "#F5DCE4",
+    "brand_lavender": "#CFC5E9",
+    "brand_lavender_soft": "#EEE8FA",
+    "brand_mint": "#B9E1D6",
+    "brand_mint_soft": "#E5F5F0",
+    "brand_butter": "#F7E7AE",
+    "brand_butter_soft": "#FFF8DB",
+    "brand_mist": "#CDE5F1",
+    "brand_mist_soft": "#EEF7FC",
+    "background": "#FFFDFB",
+    "surface": "#FFFFFF",
+    "border": "#E8DDE4",
+    "text": "#64555D",
+    "muted_text": "#8D7B84",
+    "primary": "#C88FA1",
+    "secondary": "#CFC5E9",
+    "accent": "#F7E7AE",
+    "input_fill": "#FFF3F7",
+    "formula_fill": "#EEF7FC",
+    "guide_fill": "#FFF8DB",
+    "muted_fill": "#F5DCE4",
+    "white": "#FFFFFF",
+    "danger": "#D9A0AA",
+    "success": "#A7D4C5",
+    "info": "#CDE5F1",
+    "lavender": "#CFC5E9"
+  },
+  "sheet_tabs": {
+    "setup": "#C88FA1",
+    "orders": "#D9A7B5",
+    "cashbook": "#F0D99A",
+    "cod": "#B9E1D6",
+    "dashboard": "#CFC5E9",
+    "metadata": "#D9CFE8"
+  },
+  "fonts": {
+    "display_name": "Aptos Display",
+    "body_name": "Aptos"
+  }
+}
+

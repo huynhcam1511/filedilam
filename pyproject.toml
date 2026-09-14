@@ -1,0 +1,6 @@
+[project]
+name = "file-di-lam-factory"
+version = "0.1.0"
+description = "Config-driven Excel template factory for File Di Lam commercial workbooks."
+requires-python = ">=3.10"
+

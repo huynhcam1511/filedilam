@@ -1,0 +1,3211 @@
+{
+  "setup": {
+    "company_name": "Công ty Cổ phần Đại Phát",
+    "creator_name": "Kế toán viên Lê Thị A",
+    "company_phone": "1900 1234"
+  },
+  "lists": [
+    {
+      "partner_id": "KH001",
+      "partner_name": "Công ty TNHH Khách hàng 1",
+      "partner_type": "Khách hàng",
+      "phone": "0905936498",
+      "email": "ketoan1@congty1.vn",
+      "opening_balance": 12500000
+    },
+    {
+      "partner_id": "KH002",
+      "partner_name": "Công ty TNHH Khách hàng 2",
+      "partner_type": "Khách hàng",
+      "phone": "0901376537",
+      "email": "ketoan2@congty2.vn",
+      "opening_balance": 22200000
+    },
+    {
+      "partner_id": "KH003",
+      "partner_name": "Công ty TNHH Khách hàng 3",
+      "partner_type": "Khách hàng",
+      "phone": "0908377799",
+      "email": "ketoan3@congty3.vn",
+      "opening_balance": 47600000
+    },
+    {
+      "partner_id": "KH004",
+      "partner_name": "Công ty TNHH Khách hàng 4",
+      "partner_type": "Khách hàng",
+      "phone": "0904457870",
+      "email": "ketoan4@congty4.vn",
+      "opening_balance": 46200000
+    },
+    {
+      "partner_id": "KH005",
+      "partner_name": "Công ty TNHH Khách hàng 5",
+      "partner_type": "Khách hàng",
+      "phone": "0906299585",
+      "email": "ketoan5@congty5.vn",
+      "opening_balance": 3900000
+    },
+    {
+      "partner_id": "KH006",
+      "partner_name": "Công ty TNHH Khách hàng 6",
+      "partner_type": "Khách hàng",
+      "phone": "0905754658",
+      "email": "ketoan6@congty6.vn",
+      "opening_balance": 48400000
+    },
+    {
+      "partner_id": "KH007",
+      "partner_name": "Công ty TNHH Khách hàng 7",
+      "partner_type": "Khách hàng",
+      "phone": "0909122717",
+      "email": "ketoan7@congty7.vn",
+      "opening_balance": 30900000
+    },
+    {
+      "partner_id": "KH008",
+      "partner_name": "Công ty TNHH Khách hàng 8",
+      "partner_type": "Khách hàng",
+      "phone": "0904396580",
+      "email": "ketoan8@congty8.vn",
+      "opening_balance": 29800000
+    },
+    {
+      "partner_id": "KH009",
+      "partner_name": "Công ty TNHH Khách hàng 9",
+      "partner_type": "Khách hàng",
+      "phone": "0909101696",
+      "email": "ketoan9@congty9.vn",
+      "opening_balance": 48600000
+    },
+    {
+      "partner_id": "KH010",
+      "partner_name": "Công ty TNHH Khách hàng 10",
+      "partner_type": "Khách hàng",
+      "phone": "0904075415",
+      "email": "ketoan10@congty10.vn",
+      "opening_balance": 25800000
+    },
+    {
+      "partner_id": "KH011",
+      "partner_name": "Công ty TNHH Khách hàng 11",
+      "partner_type": "Khách hàng",
+      "phone": "0901823295",
+      "email": "ketoan11@congty11.vn",
+      "opening_balance": 18700000
+    },
+    {
+      "partner_id": "KH012",
+      "partner_name": "Công ty TNHH Khách hàng 12",
+      "partner_type": "Khách hàng",
+      "phone": "0908218675",
+      "email": "ketoan12@congty12.vn",
+      "opening_balance": 23100000
+    },
+    {
+      "partner_id": "KH013",
+      "partner_name": "Công ty TNHH Khách hàng 13",
+      "partner_type": "Khách hàng",
+      "phone": "0907184010",
+      "email": "ketoan13@congty13.vn",
+      "opening_balance": 48800000
+    },
+    {
+      "partner_id": "KH014",
+      "partner_name": "Công ty TNHH Khách hàng 14",
+      "partner_type": "Khách hàng",
+      "phone": "0908702944",
+      "email": "ketoan14@congty14.vn",
+      "opening_balance": 49400000
+    },
+    {
+      "partner_id": "KH015",
+      "partner_name": "Công ty TNHH Khách hàng 15",
+      "partner_type": "Khách hàng",
+      "phone": "0906811758",
+      "email": "ketoan15@congty15.vn",
+      "opening_balance": 47600000
+    },
+    {
+      "partner_id": "KH016",
+      "partner_name": "Công ty TNHH Khách hàng 16",
+      "partner_type": "Khách hàng",
+      "phone": "0909483854",
+      "email": "ketoan16@congty16.vn",
+      "opening_balance": 3400000
+    },
+    {
+      "partner_id": "KH017",
+      "partner_name": "Công ty TNHH Khách hàng 17",
+      "partner_type": "Khách hàng",
+      "phone": "0906883001",
+      "email": "ketoan17@congty17.vn",
+      "opening_balance": 31700000
+    },
+    {
+      "partner_id": "KH018",
+      "partner_name": "Công ty TNHH Khách hàng 18",
+      "partner_type": "Khách hàng",
+      "phone": "0901601809",
+      "email": "ketoan18@congty18.vn",
+      "opening_balance": 14100000
+    },
+    {
+      "partner_id": "KH019",
+      "partner_name": "Công ty TNHH Khách hàng 19",
+      "partner_type": "Khách hàng",
+      "phone": "0909397962",
+      "email": "ketoan19@congty19.vn",
+      "opening_balance": 4400000
+    },
+    {
+      "partner_id": "KH020",
+      "partner_name": "Công ty TNHH Khách hàng 20",
+      "partner_type": "Khách hàng",
+      "phone": "0908718353",
+      "email": "ketoan20@congty20.vn",
+      "opening_balance": 13600000
+    },
+    {
+      "partner_id": "KH021",
+      "partner_name": "Công ty TNHH Khách hàng 21",
+      "partner_type": "Khách hàng",
+      "phone": "0903514926",
+      "email": "ketoan21@congty21.vn",
+      "opening_balance": 24700000
+    },
+    {
+      "partner_id": "KH022",
+      "partner_name": "Công ty TNHH Khách hàng 22",
+      "partner_type": "Khách hàng",
+      "phone": "0905982640",
+      "email": "ketoan22@congty22.vn",
+      "opening_balance": 12000000
+    },
+    {
+      "partner_id": "KH023",
+      "partner_name": "Công ty TNHH Khách hàng 23",
+      "partner_type": "Khách hàng",
+      "phone": "0909325269",
+      "email": "ketoan23@congty23.vn",
+      "opening_balance": 4000000
+    },
+    {
+      "partner_id": "KH024",
+      "partner_name": "Công ty TNHH Khách hàng 24",
+      "partner_type": "Khách hàng",
+      "phone": "0909886693",
+      "email": "ketoan24@congty24.vn",
+      "opening_balance": 30700000
+    },
+    {
+      "partner_id": "KH025",
+      "partner_name": "Công ty TNHH Khách hàng 25",
+      "partner_type": "Khách hàng",
+      "phone": "0907184112",
+      "email": "ketoan25@congty25.vn",
+      "opening_balance": 42800000
+    },
+    {
+      "partner_id": "KH026",
+      "partner_name": "Công ty TNHH Khách hàng 26",
+      "partner_type": "Khách hàng",
+      "phone": "0909407953",
+      "email": "ketoan26@congty26.vn",
+      "opening_balance": 2400000
+    },
+    {
+      "partner_id": "KH027",
+      "partner_name": "Công ty TNHH Khách hàng 27",
+      "partner_type": "Khách hàng",
+      "phone": "0901094672",
+      "email": "ketoan27@congty27.vn",
+      "opening_balance": 26400000
+    },
+    {
+      "partner_id": "KH028",
+      "partner_name": "Công ty TNHH Khách hàng 28",
+      "partner_type": "Khách hàng",
+      "phone": "0901427886",
+      "email": "ketoan28@congty28.vn",
+      "opening_balance": 47800000
+    },
+    {
+      "partner_id": "KH029",
+      "partner_name": "Công ty TNHH Khách hàng 29",
+      "partner_type": "Khách hàng",
+      "phone": "0908746353",
+      "email": "ketoan29@congty29.vn",
+      "opening_balance": 24700000
+    },
+    {
+      "partner_id": "KH030",
+      "partner_name": "Công ty TNHH Khách hàng 30",
+      "partner_type": "Khách hàng",
+      "phone": "0901435138",
+      "email": "ketoan30@congty30.vn",
+      "opening_balance": 18600000
+    },
+    {
+      "partner_id": "KH031",
+      "partner_name": "Công ty TNHH Khách hàng 31",
+      "partner_type": "Khách hàng",
+      "phone": "0907846687",
+      "email": "ketoan31@congty31.vn",
+      "opening_balance": 31900000
+    },
+    {
+      "partner_id": "KH032",
+      "partner_name": "Công ty TNHH Khách hàng 32",
+      "partner_type": "Khách hàng",
+      "phone": "0905624286",
+      "email": "ketoan32@congty32.vn",
+      "opening_balance": 30300000
+    },
+    {
+      "partner_id": "KH033",
+      "partner_name": "Công ty TNHH Khách hàng 33",
+      "partner_type": "Khách hàng",
+      "phone": "0909993884",
+      "email": "ketoan33@congty33.vn",
+      "opening_balance": 11100000
+    },
+    {
+      "partner_id": "KH034",
+      "partner_name": "Công ty TNHH Khách hàng 34",
+      "partner_type": "Khách hàng",
+      "phone": "0904213684",
+      "email": "ketoan34@congty34.vn",
+      "opening_balance": 19500000
+    },
+    {
+      "partner_id": "KH035",
+      "partner_name": "Công ty TNHH Khách hàng 35",
+      "partner_type": "Khách hàng",
+      "phone": "0907168189",
+      "email": "ketoan35@congty35.vn",
+      "opening_balance": 44300000
+    },
+    {
+      "partner_id": "NCC036",
+      "partner_name": "Công ty TNHH Đối tác 36",
+      "partner_type": "Nhà cung cấp",
+      "phone": "0908908593",
+      "email": "ketoan36@congty36.vn",
+      "opening_balance": 18500000
+    },
+    {
+      "partner_id": "NCC037",
+      "partner_name": "Công ty TNHH Đối tác 37",
+      "partner_type": "Nhà cung cấp",
+      "phone": "0901025662",
+      "email": "ketoan37@congty37.vn",
+      "opening_balance": 2700000
+    },
+    {
+      "partner_id": "NCC038",
+      "partner_name": "Công ty TNHH Đối tác 38",
+      "partner_type": "Nhà cung cấp",
+      "phone": "0903680279",
+      "email": "ketoan38@congty38.vn",
+      "opening_balance": 31700000
+    },
+    {
+      "partner_id": "NCC039",
+      "partner_name": "Công ty TNHH Đối tác 39",
+      "partner_type": "Nhà cung cấp",
+      "phone": "0903782090",
+      "email": "ketoan39@congty39.vn",
+      "opening_balance": 19800000
+    },
+    {
+      "partner_id": "NCC040",
+      "partner_name": "Công ty TNHH Đối tác 40",
+      "partner_type": "Nhà cung cấp",
+      "phone": "0906226340",
+      "email": "ketoan40@congty40.vn",
+      "opening_balance": 42800000
+    },
+    {
+      "partner_id": "NCC041",
+      "partner_name": "Công ty TNHH Đối tác 41",
+      "partner_type": "Nhà cung cấp",
+      "phone": "0902446465",
+      "email": "ketoan41@congty41.vn",
+      "opening_balance": 33900000
+    },
+    {
+      "partner_id": "NCC042",
+      "partner_name": "Công ty TNHH Đối tác 42",
+      "partner_type": "Nhà cung cấp",
+      "phone": "0909067936",
+      "email": "ketoan42@congty42.vn",
+      "opening_balance": 35200000
+    },
+    {
+      "partner_id": "NCC043",
+      "partner_name": "Công ty TNHH Đối tác 43",
+      "partner_type": "Nhà cung cấp",
+      "phone": "0903622341",
+      "email": "ketoan43@congty43.vn",
+      "opening_balance": 44800000
+    },
+    {
+      "partner_id": "NCC044",
+      "partner_name": "Công ty TNHH Đối tác 44",
+      "partner_type": "Nhà cung cấp",
+      "phone": "0907803627",
+      "email": "ketoan44@congty44.vn",
+      "opening_balance": 3300000
+    },
+    {
+      "partner_id": "NCC045",
+      "partner_name": "Công ty TNHH Đối tác 45",
+      "partner_type": "Nhà cung cấp",
+      "phone": "0906489409",
+      "email": "ketoan45@congty45.vn",
+      "opening_balance": 26900000
+    },
+    {
+      "partner_id": "NCC046",
+      "partner_name": "Công ty TNHH Đối tác 46",
+      "partner_type": "Nhà cung cấp",
+      "phone": "0904258130",
+      "email": "ketoan46@congty46.vn",
+      "opening_balance": 900000
+    },
+    {
+      "partner_id": "NCC047",
+      "partner_name": "Công ty TNHH Đối tác 47",
+      "partner_type": "Nhà cung cấp",
+      "phone": "0909203493",
+      "email": "ketoan47@congty47.vn",
+      "opening_balance": 44400000
+    },
+    {
+      "partner_id": "NCC048",
+      "partner_name": "Công ty TNHH Đối tác 48",
+      "partner_type": "Nhà cung cấp",
+      "phone": "0909790606",
+      "email": "ketoan48@congty48.vn",
+      "opening_balance": 4300000
+    },
+    {
+      "partner_id": "NCC049",
+      "partner_name": "Công ty TNHH Đối tác 49",
+      "partner_type": "Nhà cung cấp",
+      "phone": "0909606112",
+      "email": "ketoan49@congty49.vn",
+      "opening_balance": 20300000
+    },
+    {
+      "partner_id": "NCC050",
+      "partner_name": "Công ty TNHH Đối tác 50",
+      "partner_type": "Nhà cung cấp",
+      "phone": "0907165382",
+      "email": "ketoan50@congty50.vn",
+      "opening_balance": 23900000
+    }
+  ],
+  "transactions": [
+    {
+      "txn_date": "2025-01-01",
+      "partner_id": "KH014",
+      "txn_type": "Bán hàng (Ghi nợ)",
+      "amount": 37500000,
+      "notes": "Giao dịch số 25"
+    },
+    {
+      "txn_date": "2025-01-01",
+      "partner_id": "KH006",
+      "txn_type": "Bán hàng (Ghi nợ)",
+      "amount": 37500000,
+      "notes": "Giao dịch số 140"
+    },
+    {
+      "txn_date": "2025-01-01",
+      "partner_id": "KH020",
+      "txn_type": "Bán hàng (Ghi nợ)",
+      "amount": 32000000,
+      "notes": "Giao dịch số 380"
+    },
+    {
+      "txn_date": "2025-01-02",
+      "partner_id": "NCC041",
+      "txn_type": "Thanh toán cho NCC",
+      "amount": 24500000,
+      "notes": "Giao dịch số 219"
+    },
+    {
+      "txn_date": "2025-01-02",
+      "partner_id": "NCC040",
+      "txn_type": "Thanh toán cho NCC",
+      "amount": 1000000,
+      "notes": "Giao dịch số 375"
+    },
+    {
+      "txn_date": "2025-01-03",
+      "partner_id": "KH030",
+      "txn_type": "Bán hàng (Ghi nợ)",
+      "amount": 18500000,
+      "notes": "Giao dịch số 192"
+    },
+    {
+      "txn_date": "2025-01-04",
+      "partner_id": "KH005",
+      "txn_type": "Chiết khấu",
+      "amount": 48000000,
+      "notes": "Giao dịch số 172"
+    },
+    {
+      "txn_date": "2025-01-04",
+      "partner_id": "KH023",
+      "txn_type": "Khách thanh toán",
+      "amount": 32500000,
+      "notes": "Giao dịch số 362"
+    },
+    {
+      "txn_date": "2025-01-05",
+      "partner_id": "NCC044",
+      "txn_type": "Mua hàng (Ghi nợ)",
+      "amount": 18500000,
+      "notes": "Giao dịch số 328"
+    },
+    {
+      "txn_date": "2025-01-06",
+      "partner_id": "KH024",
+      "txn_type": "Bán hàng (Ghi nợ)",
+      "amount": 31500000,
+      "notes": "Giao dịch số 396"
+    },
+    {
+      "txn_date": "2025-01-07",
+      "partner_id": "KH023",
+      "txn_type": "Khách thanh toán",
+      "amount": 44500000,
+      "notes": "Giao dịch số 163"
+    },
+    {
+      "txn_date": "2025-01-07",
+      "partner_id": "KH029",
+      "txn_type": "Khách thanh toán",
+      "amount": 2500000,
+      "notes": "Giao dịch số 201"
+    },
+    {
+      "txn_date": "2025-01-07",
+      "partner_id": "KH027",
+      "txn_type": "Chiết khấu",
+      "amount": 41500000,
+      "notes": "Giao dịch số 300"
+    },
+    {
+      "txn_date": "2025-01-07",
+      "partner_id": "KH004",
+      "txn_type": "Chiết khấu",
+      "amount": 19000000,
+      "notes": "Giao dịch số 372"
+    },
+    {
+      "txn_date": "2025-01-08",
+      "partner_id": "NCC043",
+      "txn_type": "Thanh toán cho NCC",
+      "amount": 26500000,
+      "notes": "Giao dịch số 158"
+    },
+    {
+      "txn_date": "2025-01-08",
+      "partner_id": "KH029",
+      "txn_type": "Chiết khấu",
+      "amount": 42000000,
+      "notes": "Giao dịch số 357"
+    },
+    {
+      "txn_date": "2025-01-09",
+      "partner_id": "NCC036",
+      "txn_type": "Mua hàng (Ghi nợ)",
+      "amount": 30500000,
+      "notes": "Giao dịch số 263"
+    },
+    {
+      "txn_date": "2025-01-09",
+      "partner_id": "KH028",
+      "txn_type": "Khách thanh toán",
+      "amount": 25500000,
+      "notes": "Giao dịch số 398"
+    },
+    {
+      "txn_date": "2025-01-10",
+      "partner_id": "KH012",
+      "txn_type": "Chiết khấu",
+      "amount": 12500000,
+      "notes": "Giao dịch số 188"
+    },
+    {
+      "txn_date": "2025-01-10",
+      "partner_id": "KH032",
+      "txn_type": "Khách thanh toán",
+      "amount": 29500000,
+      "notes": "Giao dịch số 226"
+    },
+    {
+      "txn_date": "2025-01-11",
+      "partner_id": "KH034",
+      "txn_type": "Bán hàng (Ghi nợ)",
+      "amount": 10000000,
+      "notes": "Giao dịch số 32"
+    },
+    {
+      "txn_date": "2025-01-11",
+      "partner_id": "KH001",
+      "txn_type": "Khách thanh toán",
+      "amount": 25000000,
+      "notes": "Giao dịch số 85"
+    },
+    {
+      "txn_date": "2025-01-11",
+      "partner_id": "KH013",
+      "txn_type": "Bán hàng (Ghi nợ)",
+      "amount": 8000000,
+      "notes": "Giao dịch số 177"
+    },
+    {
+      "txn_date": "2025-01-11",
+      "partner_id": "KH011",
+      "txn_type": "Khách thanh toán",
+      "amount": 41500000,
+      "notes": "Giao dịch số 256"
+    },
+    {
+      "txn_date": "2025-01-11",
+      "partner_id": "KH030",
+      "txn_type": "Khách thanh toán",
+      "amount": 13500000,
+      "notes": "Giao dịch số 283"
+    },
+    {
+      "txn_date": "2025-01-12",
+      "partner_id": "KH030",
+      "txn_type": "Bán hàng (Ghi nợ)",
+      "amount": 29500000,
+      "notes": "Giao dịch số 197"
+    },
+    {
+      "txn_date": "2025-01-12",
+      "partner_id": "NCC045",
+      "txn_type": "Thanh toán cho NCC",
+      "amount": 32000000,
+      "notes": "Giao dịch số 214"
+    },
+    {
+      "txn_date": "2025-01-12",
+      "partner_id": "NCC039",
+      "txn_type": "Mua hàng (Ghi nợ)",
+      "amount": 48500000,
+      "notes": "Giao dịch số 353"
+    },
+    {
+      "txn_date": "2025-01-12",
+      "partner_id": "KH016",
+      "txn_type": "Khách thanh toán",
+      "amount": 4000000,
+      "notes": "Giao dịch số 388"
+    },
+    {
+      "txn_date": "2025-01-13",
+      "partner_id": "NCC050",
+      "txn_type": "Mua hàng (Ghi nợ)",
+      "amount": 3500000,
+      "notes": "Giao dịch số 125"
+    },
+    {
+      "txn_date": "2025-01-13",
+      "partner_id": "KH024",
+      "txn_type": "Chiết khấu",
+      "amount": 14000000,
+      "notes": "Giao dịch số 204"
+    },
+    {
+      "txn_date": "2025-01-14",
+      "partner_id": "KH022",
+      "txn_type": "Bán hàng (Ghi nợ)",
+      "amount": 27500000,
+      "notes": "Giao dịch số 28"
+    },
+    {
+      "txn_date": "2025-01-14",
+      "partner_id": "KH011",
+      "txn_type": "Bán hàng (Ghi nợ)",
+      "amount": 4500000,
+      "notes": "Giao dịch số 71"
+    },
+    {
+      "txn_date": "2025-01-14",
+      "partner_id": "NCC043",
+      "txn_type": "Thanh toán cho NCC",
+      "amount": 34500000,
+      "notes": "Giao dịch số 182"
+    },
+    {
+      "txn_date": "2025-01-15",
+      "partner_id": "NCC047",
+      "txn_type": "Mua hàng (Ghi nợ)",
+      "amount": 22000000,
+      "notes": "Giao dịch số 31"
+    },
+    {
+      "txn_date": "2025-01-15",
+      "partner_id": "KH033",
+      "txn_type": "Khách thanh toán",
+      "amount": 17000000,
+      "notes": "Giao dịch số 184"
+    },
+    {
+      "txn_date": "2025-01-15",
+      "partner_id": "KH024",
+      "txn_type": "Khách thanh toán",
+      "amount": 17000000,
+      "notes": "Giao dịch số 274"
+    },
+    {
+      "txn_date": "2025-01-15",
+      "partner_id": "NCC042",
+      "txn_type": "Thanh toán cho NCC",
+      "amount": 48000000,
+      "notes": "Giao dịch số 313"
+    },
+    {
+      "txn_date": "2025-01-16",
+      "partner_id": "NCC050",
+      "txn_type": "Mua hàng (Ghi nợ)",
+      "amount": 18000000,
+      "notes": "Giao dịch số 100"
+    },
+    {
+      "txn_date": "2025-01-16",
+      "partner_id": "KH029",
+      "txn_type": "Khách thanh toán",
+      "amount": 2000000,
+      "notes": "Giao dịch số 121"
+    },
+    {
+      "txn_date": "2025-01-16",
+      "partner_id": "NCC047",
+      "txn_type": "Thanh toán cho NCC",
+      "amount": 2000000,
+      "notes": "Giao dịch số 132"
+    },
+    {
+      "txn_date": "2025-01-16",
+      "partner_id": "NCC047",
+      "txn_type": "Mua hàng (Ghi nợ)",
+      "amount": 26000000,
+      "notes": "Giao dịch số 200"
+    },
+    {
+      "txn_date": "2025-01-17",
+      "partner_id": "NCC048",
+      "txn_type": "Thanh toán cho NCC",
+      "amount": 24000000,
+      "notes": "Giao dịch số 94"
+    },
+    {
+      "txn_date": "2025-01-17",
+      "partner_id": "NCC041",
+      "txn_type": "Thanh toán cho NCC",
+      "amount": 31000000,
+      "notes": "Giao dịch số 275"
+    },
+    {
+      "txn_date": "2025-01-18",
+      "partner_id": "KH008",
+      "txn_type": "Khách thanh toán",
+      "amount": 4000000,
+      "notes": "Giao dịch số 241"
+    },
+    {
+      "txn_date": "2025-01-18",
+      "partner_id": "NCC040",
+      "txn_type": "Thanh toán cho NCC",
+      "amount": 10000000,
+      "notes": "Giao dịch số 262"
+    },
+    {
+      "txn_date": "2025-01-18",
+      "partner_id": "KH008",
+      "txn_type": "Bán hàng (Ghi nợ)",
+      "amount": 28000000,
+      "notes": "Giao dịch số 282"
+    },
+    {
+      "txn_date": "2025-01-18",
+      "partner_id": "KH031",
+      "txn_type": "Chiết khấu",
+      "amount": 1000000,
+      "notes": "Giao dịch số 323"
+    },
+    {
+      "txn_date": "2025-01-20",
+      "partner_id": "KH025",
+      "txn_type": "Bán hàng (Ghi nợ)",
+      "amount": 11000000,
+      "notes": "Giao dịch số 90"
+    },
+    {
+      "txn_date": "2025-01-21",
+      "partner_id": "NCC049",
+      "txn_type": "Thanh toán cho NCC",
+      "amount": 39000000,
+      "notes": "Giao dịch số 42"
+    },
+    {
+      "txn_date": "2025-01-21",
+      "partner_id": "KH025",
+      "txn_type": "Bán hàng (Ghi nợ)",
+      "amount": 37500000,
+      "notes": "Giao dịch số 63"
+    },
+    {
+      "txn_date": "2025-01-21",
+      "partner_id": "KH019",
+      "txn_type": "Khách thanh toán",
+      "amount": 29500000,
+      "notes": "Giao dịch số 339"
+    },
+    {
+      "txn_date": "2025-01-21",
+      "partner_id": "NCC043",
+      "txn_type": "Thanh toán cho NCC",
+      "amount": 48500000,
+      "notes": "Giao dịch số 378"
+    },
+    {
+      "txn_date": "2025-01-22",
+      "partner_id": "KH027",
+      "txn_type": "Bán hàng (Ghi nợ)",
+      "amount": 50000000,
+      "notes": "Giao dịch số 21"
+    },
+    {
+      "txn_date": "2025-01-22",
+      "partner_id": "KH020",
+      "txn_type": "Chiết khấu",
+      "amount": 26500000,
+      "notes": "Giao dịch số 116"
+    },
+    {
+      "txn_date": "2025-01-22",
+      "partner_id": "KH015",
+      "txn_type": "Khách thanh toán",
+      "amount": 19500000,
+      "notes": "Giao dịch số 123"
+    },
+    {
+      "txn_date": "2025-01-22",
+      "partner_id": "KH035",
+      "txn_type": "Bán hàng (Ghi nợ)",
+      "amount": 33500000,
+      "notes": "Giao dịch số 231"
+    },
+    {
+      "txn_date": "2025-01-22",
+      "partner_id": "KH002",
+      "txn_type": "Bán hàng (Ghi nợ)",
+      "amount": 35000000,
+      "notes": "Giao dịch số 277"
+    },
+    {
+      "txn_date": "2025-01-23",
+      "partner_id": "KH014",
+      "txn_type": "Chiết khấu",
+      "amount": 48500000,
+      "notes": "Giao dịch số 383"
+    },
+    {
+      "txn_date": "2025-01-24",
+      "partner_id": "KH011",
+      "txn_type": "Khách thanh toán",
+      "amount": 21000000,
+      "notes": "Giao dịch số 112"
+    },
+    {
+      "txn_date": "2025-01-24",
+      "partner_id": "KH021",
+      "txn_type": "Khách thanh toán",
+      "amount": 38500000,
+      "notes": "Giao dịch số 202"
+    },
+    {
+      "txn_date": "2025-01-25",
+      "partner_id": "KH018",
+      "txn_type": "Bán hàng (Ghi nợ)",
+      "amount": 41500000,
+      "notes": "Giao dịch số 326"
+    },
+    {
+      "txn_date": "2025-01-26",
+      "partner_id": "KH018",
+      "txn_type": "Bán hàng (Ghi nợ)",
+      "amount": 24500000,
+      "notes": "Giao dịch số 62"
+    },
+    {
+      "txn_date": "2025-01-27",
+      "partner_id": "KH007",
+      "txn_type": "Bán hàng (Ghi nợ)",
+      "amount": 18500000,
+      "notes": "Giao dịch số 144"
+    },
+    {
+      "txn_date": "2025-01-27",
+      "partner_id": "KH001",
+      "txn_type": "Chiết khấu",
+      "amount": 14500000,
+      "notes": "Giao dịch số 386"
+    },
+    {
+      "txn_date": "2025-01-27",
+      "partner_id": "KH014",
+      "txn_type": "Khách thanh toán",
+      "amount": 41500000,
+      "notes": "Giao dịch số 399"
+    },
+    {
+      "txn_date": "2025-01-28",
+      "partner_id": "KH014",
+      "txn_type": "Bán hàng (Ghi nợ)",
+      "amount": 42000000,
+      "notes": "Giao dịch số 110"
+    },
+    {
+      "txn_date": "2025-01-28",
+      "partner_id": "NCC038",
+      "txn_type": "Thanh toán cho NCC",
+      "amount": 1500000,
+      "notes": "Giao dịch số 215"
+    },
+    {
+      "txn_date": "2025-01-29",
+      "partner_id": "KH021",
+      "txn_type": "Bán hàng (Ghi nợ)",
+      "amount": 43500000,
+      "notes": "Giao dịch số 381"
+    },
+    {
+      "txn_date": "2025-01-29",
+      "partner_id": "KH026",
+      "txn_type": "Bán hàng (Ghi nợ)",
+      "amount": 38000000,
+      "notes": "Giao dịch số 387"
+    },
+    {
+      "txn_date": "2025-01-30",
+      "partner_id": "KH013",
+      "txn_type": "Khách thanh toán",
+      "amount": 46500000,
+      "notes": "Giao dịch số 55"
+    },
+    {
+      "txn_date": "2025-01-30",
+      "partner_id": "NCC036",
+      "txn_type": "Mua hàng (Ghi nợ)",
+      "amount": 36500000,
+      "notes": "Giao dịch số 161"
+    },
+    {
+      "txn_date": "2025-01-31",
+      "partner_id": "KH030",
+      "txn_type": "Bán hàng (Ghi nợ)",
+      "amount": 50000000,
+      "notes": "Giao dịch số 38"
+    },
+    {
+      "txn_date": "2025-01-31",
+      "partner_id": "KH006",
+      "txn_type": "Bán hàng (Ghi nợ)",
+      "amount": 14500000,
+      "notes": "Giao dịch số 233"
+    },
+    {
+      "txn_date": "2025-01-31",
+      "partner_id": "KH029",
+      "txn_type": "Khách thanh toán",
+      "amount": 40500000,
+      "notes": "Giao dịch số 276"
+    },
+    {
+      "txn_date": "2025-01-31",
+      "partner_id": "KH008",
+      "txn_type": "Khách thanh toán",
+      "amount": 48000000,
+      "notes": "Giao dịch số 331"
+    },
+    {
+      "txn_date": "2025-02-01",
+      "partner_id": "KH005",
+      "txn_type": "Bán hàng (Ghi nợ)",
+      "amount": 43500000,
+      "notes": "Giao dịch số 229"
+    },
+    {
+      "txn_date": "2025-02-03",
+      "partner_id": "NCC046",
+      "txn_type": "Thanh toán cho NCC",
+      "amount": 25000000,
+      "notes": "Giao dịch số 119"
+    },
+    {
+      "txn_date": "2025-02-06",
+      "partner_id": "KH027",
+      "txn_type": "Khách thanh toán",
+      "amount": 47500000,
+      "notes": "Giao dịch số 162"
+    },
+    {
+      "txn_date": "2025-02-06",
+      "partner_id": "KH005",
+      "txn_type": "Bán hàng (Ghi nợ)",
+      "amount": 15000000,
+      "notes": "Giao dịch số 298"
+    },
+    {
+      "txn_date": "2025-02-07",
+      "partner_id": "NCC043",
+      "txn_type": "Mua hàng (Ghi nợ)",
+      "amount": 13500000,
+      "notes": "Giao dịch số 93"
+    },
+    {
+      "txn_date": "2025-02-08",
+      "partner_id": "KH020",
+      "txn_type": "Bán hàng (Ghi nợ)",
+      "amount": 2000000,
+      "notes": "Giao dịch số 26"
+    },
+    {
+      "txn_date": "2025-02-08",
+      "partner_id": "NCC046",
+      "txn_type": "Mua hàng (Ghi nợ)",
+      "amount": 16000000,
+      "notes": "Giao dịch số 136"
+    },
+    {
+      "txn_date": "2025-02-08",
+      "partner_id": "KH020",
+      "txn_type": "Khách thanh toán",
+      "amount": 12500000,
+      "notes": "Giao dịch số 266"
+    },
+    {
+      "txn_date": "2025-02-08",
+      "partner_id": "KH004",
+      "txn_type": "Khách thanh toán",
+      "amount": 29000000,
+      "notes": "Giao dịch số 336"
+    },
+    {
+      "txn_date": "2025-02-09",
+      "partner_id": "KH014",
+      "txn_type": "Bán hàng (Ghi nợ)",
+      "amount": 34000000,
+      "notes": "Giao dịch số 43"
+    },
+    {
+      "txn_date": "2025-02-09",
+      "partner_id": "KH034",
+      "txn_type": "Bán hàng (Ghi nợ)",
+      "amount": 22500000,
+      "notes": "Giao dịch số 315"
+    },
+    {
+      "txn_date": "2025-02-09",
+      "partner_id": "KH010",
+      "txn_type": "Chiết khấu",
+      "amount": 24500000,
+      "notes": "Giao dịch số 321"
+    },
+    {
+      "txn_date": "2025-02-10",
+      "partner_id": "KH033",
+      "txn_type": "Chiết khấu",
+      "amount": 47500000,
+      "notes": "Giao dịch số 45"
+    },
+    {
+      "txn_date": "2025-02-10",
+      "partner_id": "KH002",
+      "txn_type": "Bán hàng (Ghi nợ)",
+      "amount": 44000000,
+      "notes": "Giao dịch số 50"
+    },
+    {
+      "txn_date": "2025-02-10",
+      "partner_id": "KH035",
+      "txn_type": "Khách thanh toán",
+      "amount": 8000000,
+      "notes": "Giao dịch số 52"
+    },
+    {
+      "txn_date": "2025-02-13",
+      "partner_id": "NCC042",
+      "txn_type": "Thanh toán cho NCC",
+      "amount": 40500000,
+      "notes": "Giao dịch số 238"
+    },
+    {
+      "txn_date": "2025-02-14",
+      "partner_id": "NCC038",
+      "txn_type": "Thanh toán cho NCC",
+      "amount": 29000000,
+      "notes": "Giao dịch số 35"
+    },
+    {
+      "txn_date": "2025-02-14",
+      "partner_id": "KH004",
+      "txn_type": "Khách thanh toán",
+      "amount": 11000000,
+      "notes": "Giao dịch số 352"
+    },
+    {
+      "txn_date": "2025-02-15",
+      "partner_id": "KH013",
+      "txn_type": "Bán hàng (Ghi nợ)",
+      "amount": 38000000,
+      "notes": "Giao dịch số 134"
+    },
+    {
+      "txn_date": "2025-02-15",
+      "partner_id": "KH024",
+      "txn_type": "Bán hàng (Ghi nợ)",
+      "amount": 4000000,
+      "notes": "Giao dịch số 224"
+    },
+    {
+      "txn_date": "2025-02-15",
+      "partner_id": "KH028",
+      "txn_type": "Bán hàng (Ghi nợ)",
+      "amount": 2000000,
+      "notes": "Giao dịch số 235"
+    },
+    {
+      "txn_date": "2025-02-15",
+      "partner_id": "KH002",
+      "txn_type": "Khách thanh toán",
+      "amount": 49500000,
+      "notes": "Giao dịch số 350"
+    },
+    {
+      "txn_date": "2025-02-15",
+      "partner_id": "KH015",
+      "txn_type": "Khách thanh toán",
+      "amount": 6500000,
+      "notes": "Giao dịch số 374"
+    },
+    {
+      "txn_date": "2025-02-16",
+      "partner_id": "NCC049",
+      "txn_type": "Thanh toán cho NCC",
+      "amount": 23000000,
+      "notes": "Giao dịch số 18"
+    },
+    {
+      "txn_date": "2025-02-16",
+      "partner_id": "KH011",
+      "txn_type": "Bán hàng (Ghi nợ)",
+      "amount": 44500000,
+      "notes": "Giao dịch số 101"
+    },
+    {
+      "txn_date": "2025-02-17",
+      "partner_id": "KH006",
+      "txn_type": "Khách thanh toán",
+      "amount": 15000000,
+      "notes": "Giao dịch số 286"
+    },
+    {
+      "txn_date": "2025-02-18",
+      "partner_id": "KH028",
+      "txn_type": "Khách thanh toán",
+      "amount": 21000000,
+      "notes": "Giao dịch số 27"
+    },
+    {
+      "txn_date": "2025-02-18",
+      "partner_id": "KH033",
+      "txn_type": "Bán hàng (Ghi nợ)",
+      "amount": 47500000,
+      "notes": "Giao dịch số 392"
+    },
+    {
+      "txn_date": "2025-02-19",
+      "partner_id": "KH019",
+      "txn_type": "Bán hàng (Ghi nợ)",
+      "amount": 36500000,
+      "notes": "Giao dịch số 151"
+    },
+    {
+      "txn_date": "2025-02-20",
+      "partner_id": "KH018",
+      "txn_type": "Bán hàng (Ghi nợ)",
+      "amount": 22000000,
+      "notes": "Giao dịch số 74"
+    },
+    {
+      "txn_date": "2025-02-20",
+      "partner_id": "KH032",
+      "txn_type": "Bán hàng (Ghi nợ)",
+      "amount": 45500000,
+      "notes": "Giao dịch số 265"
+    },
+    {
+      "txn_date": "2025-02-20",
+      "partner_id": "KH004",
+      "txn_type": "Bán hàng (Ghi nợ)",
+      "amount": 19500000,
+      "notes": "Giao dịch số 308"
+    },
+    {
+      "txn_date": "2025-02-20",
+      "partner_id": "KH006",
+      "txn_type": "Chiết khấu",
+      "amount": 24500000,
+      "notes": "Giao dịch số 322"
+    },
+    {
+      "txn_date": "2025-02-21",
+      "partner_id": "KH012",
+      "txn_type": "Chiết khấu",
+      "amount": 36500000,
+      "notes": "Giao dịch số 17"
+    },
+    {
+      "txn_date": "2025-02-21",
+      "partner_id": "NCC043",
+      "txn_type": "Thanh toán cho NCC",
+      "amount": 32500000,
+      "notes": "Giao dịch số 41"
+    },
+    {
+      "txn_date": "2025-02-21",
+      "partner_id": "KH011",
+      "txn_type": "Bán hàng (Ghi nợ)",
+      "amount": 7000000,
+      "notes": "Giao dịch số 146"
+    },
+    {
+      "txn_date": "2025-02-22",
+      "partner_id": "KH019",
+      "txn_type": "Chiết khấu",
+      "amount": 41500000,
+      "notes": "Giao dịch số 291"
+    },
+    {
+      "txn_date": "2025-02-23",
+      "partner_id": "KH007",
+      "txn_type": "Bán hàng (Ghi nợ)",
+      "amount": 6500000,
+      "notes": "Giao dịch số 170"
+    },
+    {
+      "txn_date": "2025-02-23",
+      "partner_id": "KH028",
+      "txn_type": "Khách thanh toán",
+      "amount": 24000000,
+      "notes": "Giao dịch số 285"
+    },
+    {
+      "txn_date": "2025-02-23",
+      "partner_id": "KH001",
+      "txn_type": "Khách thanh toán",
+      "amount": 8500000,
+      "notes": "Giao dịch số 390"
+    },
+    {
+      "txn_date": "2025-02-24",
+      "partner_id": "NCC043",
+      "txn_type": "Mua hàng (Ghi nợ)",
+      "amount": 15000000,
+      "notes": "Giao dịch số 15"
+    },
+    {
+      "txn_date": "2025-02-24",
+      "partner_id": "NCC044",
+      "txn_type": "Mua hàng (Ghi nợ)",
+      "amount": 23500000,
+      "notes": "Giao dịch số 150"
+    },
+    {
+      "txn_date": "2025-02-24",
+      "partner_id": "NCC042",
+      "txn_type": "Mua hàng (Ghi nợ)",
+      "amount": 47000000,
+      "notes": "Giao dịch số 273"
+    },
+    {
+      "txn_date": "2025-02-24",
+      "partner_id": "KH007",
+      "txn_type": "Khách thanh toán",
+      "amount": 27500000,
+      "notes": "Giao dịch số 360"
+    },
+    {
+      "txn_date": "2025-02-25",
+      "partner_id": "NCC041",
+      "txn_type": "Thanh toán cho NCC",
+      "amount": 39500000,
+      "notes": "Giao dịch số 280"
+    },
+    {
+      "txn_date": "2025-02-26",
+      "partner_id": "NCC044",
+      "txn_type": "Thanh toán cho NCC",
+      "amount": 21500000,
+      "notes": "Giao dịch số 261"
+    },
+    {
+      "txn_date": "2025-02-27",
+      "partner_id": "KH003",
+      "txn_type": "Bán hàng (Ghi nợ)",
+      "amount": 47500000,
+      "notes": "Giao dịch số 149"
+    },
+    {
+      "txn_date": "2025-02-27",
+      "partner_id": "KH027",
+      "txn_type": "Khách thanh toán",
+      "amount": 45500000,
+      "notes": "Giao dịch số 367"
+    },
+    {
+      "txn_date": "2025-02-28",
+      "partner_id": "KH011",
+      "txn_type": "Bán hàng (Ghi nợ)",
+      "amount": 33500000,
+      "notes": "Giao dịch số 164"
+    },
+    {
+      "txn_date": "2025-02-28",
+      "partner_id": "KH019",
+      "txn_type": "Khách thanh toán",
+      "amount": 38000000,
+      "notes": "Giao dịch số 258"
+    },
+    {
+      "txn_date": "2025-03-01",
+      "partner_id": "KH020",
+      "txn_type": "Khách thanh toán",
+      "amount": 1500000,
+      "notes": "Giao dịch số 64"
+    },
+    {
+      "txn_date": "2025-03-01",
+      "partner_id": "KH035",
+      "txn_type": "Bán hàng (Ghi nợ)",
+      "amount": 21000000,
+      "notes": "Giao dịch số 320"
+    },
+    {
+      "txn_date": "2025-03-02",
+      "partner_id": "KH013",
+      "txn_type": "Bán hàng (Ghi nợ)",
+      "amount": 22500000,
+      "notes": "Giao dịch số 91"
+    },
+    {
+      "txn_date": "2025-03-02",
+      "partner_id": "NCC046",
+      "txn_type": "Thanh toán cho NCC",
+      "amount": 5500000,
+      "notes": "Giao dịch số 154"
+    },
+    {
+      "txn_date": "2025-03-02",
+      "partner_id": "KH008",
+      "txn_type": "Bán hàng (Ghi nợ)",
+      "amount": 20000000,
+      "notes": "Giao dịch số 160"
+    },
+    {
+      "txn_date": "2025-03-03",
+      "partner_id": "NCC042",
+      "txn_type": "Thanh toán cho NCC",
+      "amount": 30500000,
+      "notes": "Giao dịch số 16"
+    },
+    {
+      "txn_date": "2025-03-03",
+      "partner_id": "KH028",
+      "txn_type": "Bán hàng (Ghi nợ)",
+      "amount": 44000000,
+      "notes": "Giao dịch số 208"
+    },
+    {
+      "txn_date": "2025-03-03",
+      "partner_id": "KH008",
+      "txn_type": "Khách thanh toán",
+      "amount": 11000000,
+      "notes": "Giao dịch số 228"
+    },
+    {
+      "txn_date": "2025-03-03",
+      "partner_id": "NCC042",
+      "txn_type": "Mua hàng (Ghi nợ)",
+      "amount": 7500000,
+      "notes": "Giao dịch số 270"
+    },
+    {
+      "txn_date": "2025-03-04",
+      "partner_id": "NCC040",
+      "txn_type": "Thanh toán cho NCC",
+      "amount": 4500000,
+      "notes": "Giao dịch số 104"
+    },
+    {
+      "txn_date": "2025-03-04",
+      "partner_id": "NCC036",
+      "txn_type": "Mua hàng (Ghi nợ)",
+      "amount": 2000000,
+      "notes": "Giao dịch số 137"
+    },
+    {
+      "txn_date": "2025-03-04",
+      "partner_id": "KH015",
+      "txn_type": "Khách thanh toán",
+      "amount": 18500000,
+      "notes": "Giao dịch số 242"
+    },
+    {
+      "txn_date": "2025-03-06",
+      "partner_id": "KH003",
+      "txn_type": "Chiết khấu",
+      "amount": 6500000,
+      "notes": "Giao dịch số 72"
+    },
+    {
+      "txn_date": "2025-03-07",
+      "partner_id": "NCC050",
+      "txn_type": "Mua hàng (Ghi nợ)",
+      "amount": 3500000,
+      "notes": "Giao dịch số 120"
+    },
+    {
+      "txn_date": "2025-03-08",
+      "partner_id": "KH033",
+      "txn_type": "Khách thanh toán",
+      "amount": 47000000,
+      "notes": "Giao dịch số 216"
+    },
+    {
+      "txn_date": "2025-03-09",
+      "partner_id": "NCC041",
+      "txn_type": "Mua hàng (Ghi nợ)",
+      "amount": 26000000,
+      "notes": "Giao dịch số 181"
+    },
+    {
+      "txn_date": "2025-03-10",
+      "partner_id": "KH004",
+      "txn_type": "Bán hàng (Ghi nợ)",
+      "amount": 30000000,
+      "notes": "Giao dịch số 307"
+    },
+    {
+      "txn_date": "2025-03-11",
+      "partner_id": "KH033",
+      "txn_type": "Bán hàng (Ghi nợ)",
+      "amount": 31500000,
+      "notes": "Giao dịch số 14"
+    },
+    {
+      "txn_date": "2025-03-11",
+      "partner_id": "KH012",
+      "txn_type": "Chiết khấu",
+      "amount": 2000000,
+      "notes": "Giao dịch số 206"
+    },
+    {
+      "txn_date": "2025-03-12",
+      "partner_id": "KH020",
+      "txn_type": "Khách thanh toán",
+      "amount": 6500000,
+      "notes": "Giao dịch số 370"
+    },
+    {
+      "txn_date": "2025-03-13",
+      "partner_id": "KH027",
+      "txn_type": "Bán hàng (Ghi nợ)",
+      "amount": 19000000,
+      "notes": "Giao dịch số 143"
+    },
+    {
+      "txn_date": "2025-03-13",
+      "partner_id": "NCC050",
+      "txn_type": "Thanh toán cho NCC",
+      "amount": 18500000,
+      "notes": "Giao dịch số 156"
+    },
+    {
+      "txn_date": "2025-03-13",
+      "partner_id": "KH013",
+      "txn_type": "Bán hàng (Ghi nợ)",
+      "amount": 13000000,
+      "notes": "Giao dịch số 185"
+    },
+    {
+      "txn_date": "2025-03-13",
+      "partner_id": "NCC045",
+      "txn_type": "Thanh toán cho NCC",
+      "amount": 28000000,
+      "notes": "Giao dịch số 279"
+    },
+    {
+      "txn_date": "2025-03-14",
+      "partner_id": "KH009",
+      "txn_type": "Khách thanh toán",
+      "amount": 24000000,
+      "notes": "Giao dịch số 99"
+    },
+    {
+      "txn_date": "2025-03-14",
+      "partner_id": "KH018",
+      "txn_type": "Chiết khấu",
+      "amount": 48000000,
+      "notes": "Giao dịch số 314"
+    },
+    {
+      "txn_date": "2025-03-15",
+      "partner_id": "KH013",
+      "txn_type": "Khách thanh toán",
+      "amount": 16000000,
+      "notes": "Giao dịch số 127"
+    },
+    {
+      "txn_date": "2025-03-15",
+      "partner_id": "KH034",
+      "txn_type": "Bán hàng (Ghi nợ)",
+      "amount": 28000000,
+      "notes": "Giao dịch số 203"
+    },
+    {
+      "txn_date": "2025-03-17",
+      "partner_id": "NCC045",
+      "txn_type": "Mua hàng (Ghi nợ)",
+      "amount": 18000000,
+      "notes": "Giao dịch số 361"
+    },
+    {
+      "txn_date": "2025-03-18",
+      "partner_id": "KH013",
+      "txn_type": "Bán hàng (Ghi nợ)",
+      "amount": 8000000,
+      "notes": "Giao dịch số 319"
+    },
+    {
+      "txn_date": "2025-03-19",
+      "partner_id": "KH031",
+      "txn_type": "Khách thanh toán",
+      "amount": 21000000,
+      "notes": "Giao dịch số 126"
+    },
+    {
+      "txn_date": "2025-03-20",
+      "partner_id": "KH014",
+      "txn_type": "Chiết khấu",
+      "amount": 2000000,
+      "notes": "Giao dịch số 377"
+    },
+    {
+      "txn_date": "2025-03-21",
+      "partner_id": "KH016",
+      "txn_type": "Bán hàng (Ghi nợ)",
+      "amount": 14000000,
+      "notes": "Giao dịch số 97"
+    },
+    {
+      "txn_date": "2025-03-22",
+      "partner_id": "KH033",
+      "txn_type": "Bán hàng (Ghi nợ)",
+      "amount": 46000000,
+      "notes": "Giao dịch số 145"
+    },
+    {
+      "txn_date": "2025-03-22",
+      "partner_id": "NCC040",
+      "txn_type": "Mua hàng (Ghi nợ)",
+      "amount": 35000000,
+      "notes": "Giao dịch số 253"
+    },
+    {
+      "txn_date": "2025-03-23",
+      "partner_id": "KH033",
+      "txn_type": "Khách thanh toán",
+      "amount": 27500000,
+      "notes": "Giao dịch số 305"
+    },
+    {
+      "txn_date": "2025-03-23",
+      "partner_id": "KH020",
+      "txn_type": "Chiết khấu",
+      "amount": 9500000,
+      "notes": "Giao dịch số 312"
+    },
+    {
+      "txn_date": "2025-03-23",
+      "partner_id": "NCC046",
+      "txn_type": "Thanh toán cho NCC",
+      "amount": 42500000,
+      "notes": "Giao dịch số 316"
+    },
+    {
+      "txn_date": "2025-03-24",
+      "partner_id": "KH015",
+      "txn_type": "Khách thanh toán",
+      "amount": 18500000,
+      "notes": "Giao dịch số 196"
+    },
+    {
+      "txn_date": "2025-03-25",
+      "partner_id": "NCC049",
+      "txn_type": "Mua hàng (Ghi nợ)",
+      "amount": 16500000,
+      "notes": "Giao dịch số 30"
+    },
+    {
+      "txn_date": "2025-03-25",
+      "partner_id": "KH031",
+      "txn_type": "Khách thanh toán",
+      "amount": 21000000,
+      "notes": "Giao dịch số 198"
+    },
+    {
+      "txn_date": "2025-03-25",
+      "partner_id": "KH021",
+      "txn_type": "Bán hàng (Ghi nợ)",
+      "amount": 500000,
+      "notes": "Giao dịch số 264"
+    },
+    {
+      "txn_date": "2025-03-26",
+      "partner_id": "KH035",
+      "txn_type": "Khách thanh toán",
+      "amount": 48000000,
+      "notes": "Giao dịch số 78"
+    },
+    {
+      "txn_date": "2025-03-27",
+      "partner_id": "KH021",
+      "txn_type": "Bán hàng (Ghi nợ)",
+      "amount": 12500000,
+      "notes": "Giao dịch số 267"
+    },
+    {
+      "txn_date": "2025-03-28",
+      "partner_id": "KH029",
+      "txn_type": "Khách thanh toán",
+      "amount": 41000000,
+      "notes": "Giao dịch số 124"
+    },
+    {
+      "txn_date": "2025-03-28",
+      "partner_id": "KH022",
+      "txn_type": "Bán hàng (Ghi nợ)",
+      "amount": 35000000,
+      "notes": "Giao dịch số 251"
+    },
+    {
+      "txn_date": "2025-03-29",
+      "partner_id": "NCC043",
+      "txn_type": "Thanh toán cho NCC",
+      "amount": 13500000,
+      "notes": "Giao dịch số 227"
+    },
+    {
+      "txn_date": "2025-03-30",
+      "partner_id": "NCC048",
+      "txn_type": "Mua hàng (Ghi nợ)",
+      "amount": 42000000,
+      "notes": "Giao dịch số 5"
+    },
+    {
+      "txn_date": "2025-03-30",
+      "partner_id": "KH009",
+      "txn_type": "Chiết khấu",
+      "amount": 36500000,
+      "notes": "Giao dịch số 337"
+    },
+    {
+      "txn_date": "2025-03-31",
+      "partner_id": "KH007",
+      "txn_type": "Bán hàng (Ghi nợ)",
+      "amount": 44500000,
+      "notes": "Giao dịch số 87"
+    },
+    {
+      "txn_date": "2025-03-31",
+      "partner_id": "KH022",
+      "txn_type": "Chiết khấu",
+      "amount": 41000000,
+      "notes": "Giao dịch số 292"
+    },
+    {
+      "txn_date": "2025-04-01",
+      "partner_id": "KH015",
+      "txn_type": "Khách thanh toán",
+      "amount": 25500000,
+      "notes": "Giao dịch số 65"
+    },
+    {
+      "txn_date": "2025-04-01",
+      "partner_id": "NCC049",
+      "txn_type": "Thanh toán cho NCC",
+      "amount": 35000000,
+      "notes": "Giao dịch số 115"
+    },
+    {
+      "txn_date": "2025-04-01",
+      "partner_id": "KH006",
+      "txn_type": "Bán hàng (Ghi nợ)",
+      "amount": 4500000,
+      "notes": "Giao dịch số 118"
+    },
+    {
+      "txn_date": "2025-04-01",
+      "partner_id": "NCC042",
+      "txn_type": "Mua hàng (Ghi nợ)",
+      "amount": 14500000,
+      "notes": "Giao dịch số 306"
+    },
+    {
+      "txn_date": "2025-04-01",
+      "partner_id": "NCC049",
+      "txn_type": "Thanh toán cho NCC",
+      "amount": 4500000,
+      "notes": "Giao dịch số 309"
+    },
+    {
+      "txn_date": "2025-04-01",
+      "partner_id": "KH008",
+      "txn_type": "Khách thanh toán",
+      "amount": 29500000,
+      "notes": "Giao dịch số 376"
+    },
+    {
+      "txn_date": "2025-04-02",
+      "partner_id": "KH035",
+      "txn_type": "Khách thanh toán",
+      "amount": 10000000,
+      "notes": "Giao dịch số 10"
+    },
+    {
+      "txn_date": "2025-04-02",
+      "partner_id": "NCC050",
+      "txn_type": "Thanh toán cho NCC",
+      "amount": 35000000,
+      "notes": "Giao dịch số 176"
+    },
+    {
+      "txn_date": "2025-04-02",
+      "partner_id": "KH030",
+      "txn_type": "Bán hàng (Ghi nợ)",
+      "amount": 29000000,
+      "notes": "Giao dịch số 269"
+    },
+    {
+      "txn_date": "2025-04-03",
+      "partner_id": "KH030",
+      "txn_type": "Khách thanh toán",
+      "amount": 4500000,
+      "notes": "Giao dịch số 247"
+    },
+    {
+      "txn_date": "2025-04-03",
+      "partner_id": "KH010",
+      "txn_type": "Khách thanh toán",
+      "amount": 29500000,
+      "notes": "Giao dịch số 290"
+    },
+    {
+      "txn_date": "2025-04-05",
+      "partner_id": "KH033",
+      "txn_type": "Bán hàng (Ghi nợ)",
+      "amount": 40500000,
+      "notes": "Giao dịch số 210"
+    },
+    {
+      "txn_date": "2025-04-05",
+      "partner_id": "KH010",
+      "txn_type": "Bán hàng (Ghi nợ)",
+      "amount": 42000000,
+      "notes": "Giao dịch số 294"
+    },
+    {
+      "txn_date": "2025-04-06",
+      "partner_id": "KH004",
+      "txn_type": "Khách thanh toán",
+      "amount": 35000000,
+      "notes": "Giao dịch số 311"
+    },
+    {
+      "txn_date": "2025-04-07",
+      "partner_id": "KH002",
+      "txn_type": "Khách thanh toán",
+      "amount": 2500000,
+      "notes": "Giao dịch số 148"
+    },
+    {
+      "txn_date": "2025-04-07",
+      "partner_id": "KH012",
+      "txn_type": "Chiết khấu",
+      "amount": 29500000,
+      "notes": "Giao dịch số 246"
+    },
+    {
+      "txn_date": "2025-04-07",
+      "partner_id": "NCC047",
+      "txn_type": "Thanh toán cho NCC",
+      "amount": 48500000,
+      "notes": "Giao dịch số 348"
+    },
+    {
+      "txn_date": "2025-04-08",
+      "partner_id": "NCC041",
+      "txn_type": "Thanh toán cho NCC",
+      "amount": 11000000,
+      "notes": "Giao dịch số 129"
+    },
+    {
+      "txn_date": "2025-04-09",
+      "partner_id": "NCC044",
+      "txn_type": "Mua hàng (Ghi nợ)",
+      "amount": 29500000,
+      "notes": "Giao dịch số 103"
+    },
+    {
+      "txn_date": "2025-04-09",
+      "partner_id": "KH015",
+      "txn_type": "Khách thanh toán",
+      "amount": 27500000,
+      "notes": "Giao dịch số 130"
+    },
+    {
+      "txn_date": "2025-04-09",
+      "partner_id": "KH009",
+      "txn_type": "Khách thanh toán",
+      "amount": 9000000,
+      "notes": "Giao dịch số 133"
+    },
+    {
+      "txn_date": "2025-04-09",
+      "partner_id": "KH028",
+      "txn_type": "Bán hàng (Ghi nợ)",
+      "amount": 7500000,
+      "notes": "Giao dịch số 338"
+    },
+    {
+      "txn_date": "2025-04-09",
+      "partner_id": "KH025",
+      "txn_type": "Khách thanh toán",
+      "amount": 10000000,
+      "notes": "Giao dịch số 354"
+    },
+    {
+      "txn_date": "2025-04-10",
+      "partner_id": "KH012",
+      "txn_type": "Khách thanh toán",
+      "amount": 43500000,
+      "notes": "Giao dịch số 24"
+    },
+    {
+      "txn_date": "2025-04-10",
+      "partner_id": "NCC043",
+      "txn_type": "Mua hàng (Ghi nợ)",
+      "amount": 4000000,
+      "notes": "Giao dịch số 77"
+    },
+    {
+      "txn_date": "2025-04-10",
+      "partner_id": "KH029",
+      "txn_type": "Khách thanh toán",
+      "amount": 35000000,
+      "notes": "Giao dịch số 89"
+    },
+    {
+      "txn_date": "2025-04-10",
+      "partner_id": "KH009",
+      "txn_type": "Khách thanh toán",
+      "amount": 35000000,
+      "notes": "Giao dịch số 187"
+    },
+    {
+      "txn_date": "2025-04-10",
+      "partner_id": "KH030",
+      "txn_type": "Khách thanh toán",
+      "amount": 28000000,
+      "notes": "Giao dịch số 400"
+    },
+    {
+      "txn_date": "2025-04-11",
+      "partner_id": "KH001",
+      "txn_type": "Bán hàng (Ghi nợ)",
+      "amount": 36500000,
+      "notes": "Giao dịch số 141"
+    },
+    {
+      "txn_date": "2025-04-11",
+      "partner_id": "NCC043",
+      "txn_type": "Mua hàng (Ghi nợ)",
+      "amount": 26500000,
+      "notes": "Giao dịch số 194"
+    },
+    {
+      "txn_date": "2025-04-11",
+      "partner_id": "KH008",
+      "txn_type": "Khách thanh toán",
+      "amount": 40500000,
+      "notes": "Giao dịch số 342"
+    },
+    {
+      "txn_date": "2025-04-12",
+      "partner_id": "KH004",
+      "txn_type": "Khách thanh toán",
+      "amount": 26000000,
+      "notes": "Giao dịch số 84"
+    },
+    {
+      "txn_date": "2025-04-12",
+      "partner_id": "KH017",
+      "txn_type": "Khách thanh toán",
+      "amount": 21000000,
+      "notes": "Giao dịch số 234"
+    },
+    {
+      "txn_date": "2025-04-12",
+      "partner_id": "KH006",
+      "txn_type": "Chiết khấu",
+      "amount": 33500000,
+      "notes": "Giao dịch số 240"
+    },
+    {
+      "txn_date": "2025-04-12",
+      "partner_id": "KH024",
+      "txn_type": "Khách thanh toán",
+      "amount": 15500000,
+      "notes": "Giao dịch số 244"
+    },
+    {
+      "txn_date": "2025-04-13",
+      "partner_id": "KH026",
+      "txn_type": "Bán hàng (Ghi nợ)",
+      "amount": 40000000,
+      "notes": "Giao dịch số 22"
+    },
+    {
+      "txn_date": "2025-04-13",
+      "partner_id": "KH030",
+      "txn_type": "Chiết khấu",
+      "amount": 16000000,
+      "notes": "Giao dịch số 47"
+    },
+    {
+      "txn_date": "2025-04-13",
+      "partner_id": "NCC038",
+      "txn_type": "Mua hàng (Ghi nợ)",
+      "amount": 22000000,
+      "notes": "Giao dịch số 153"
+    },
+    {
+      "txn_date": "2025-04-14",
+      "partner_id": "KH017",
+      "txn_type": "Khách thanh toán",
+      "amount": 29500000,
+      "notes": "Giao dịch số 131"
+    },
+    {
+      "txn_date": "2025-04-14",
+      "partner_id": "KH011",
+      "txn_type": "Khách thanh toán",
+      "amount": 15500000,
+      "notes": "Giao dịch số 250"
+    },
+    {
+      "txn_date": "2025-04-14",
+      "partner_id": "KH034",
+      "txn_type": "Chiết khấu",
+      "amount": 27000000,
+      "notes": "Giao dịch số 281"
+    },
+    {
+      "txn_date": "2025-04-14",
+      "partner_id": "NCC043",
+      "txn_type": "Mua hàng (Ghi nợ)",
+      "amount": 9500000,
+      "notes": "Giao dịch số 334"
+    },
+    {
+      "txn_date": "2025-04-16",
+      "partner_id": "KH017",
+      "txn_type": "Bán hàng (Ghi nợ)",
+      "amount": 19500000,
+      "notes": "Giao dịch số 168"
+    },
+    {
+      "txn_date": "2025-04-16",
+      "partner_id": "NCC044",
+      "txn_type": "Mua hàng (Ghi nợ)",
+      "amount": 34500000,
+      "notes": "Giao dịch số 393"
+    },
+    {
+      "txn_date": "2025-04-17",
+      "partner_id": "KH034",
+      "txn_type": "Khách thanh toán",
+      "amount": 26000000,
+      "notes": "Giao dịch số 92"
+    },
+    {
+      "txn_date": "2025-04-17",
+      "partner_id": "KH018",
+      "txn_type": "Bán hàng (Ghi nợ)",
+      "amount": 500000,
+      "notes": "Giao dịch số 173"
+    },
+    {
+      "txn_date": "2025-04-17",
+      "partner_id": "KH002",
+      "txn_type": "Khách thanh toán",
+      "amount": 31500000,
+      "notes": "Giao dịch số 295"
+    },
+    {
+      "txn_date": "2025-04-17",
+      "partner_id": "KH019",
+      "txn_type": "Bán hàng (Ghi nợ)",
+      "amount": 16000000,
+      "notes": "Giao dịch số 394"
+    },
+    {
+      "txn_date": "2025-04-18",
+      "partner_id": "NCC039",
+      "txn_type": "Mua hàng (Ghi nợ)",
+      "amount": 4000000,
+      "notes": "Giao dịch số 70"
+    },
+    {
+      "txn_date": "2025-04-18",
+      "partner_id": "KH004",
+      "txn_type": "Bán hàng (Ghi nợ)",
+      "amount": 6000000,
+      "notes": "Giao dịch số 102"
+    },
+    {
+      "txn_date": "2025-04-19",
+      "partner_id": "KH008",
+      "txn_type": "Bán hàng (Ghi nợ)",
+      "amount": 18500000,
+      "notes": "Giao dịch số 75"
+    },
+    {
+      "txn_date": "2025-04-19",
+      "partner_id": "KH030",
+      "txn_type": "Chiết khấu",
+      "amount": 1000000,
+      "notes": "Giao dịch số 113"
+    },
+    {
+      "txn_date": "2025-04-20",
+      "partner_id": "KH011",
+      "txn_type": "Khách thanh toán",
+      "amount": 12500000,
+      "notes": "Giao dịch số 117"
+    },
+    {
+      "txn_date": "2025-04-20",
+      "partner_id": "NCC042",
+      "txn_type": "Mua hàng (Ghi nợ)",
+      "amount": 42500000,
+      "notes": "Giao dịch số 397"
+    },
+    {
+      "txn_date": "2025-04-21",
+      "partner_id": "KH034",
+      "txn_type": "Chiết khấu",
+      "amount": 5500000,
+      "notes": "Giao dịch số 67"
+    },
+    {
+      "txn_date": "2025-04-21",
+      "partner_id": "KH030",
+      "txn_type": "Khách thanh toán",
+      "amount": 34500000,
+      "notes": "Giao dịch số 76"
+    },
+    {
+      "txn_date": "2025-04-21",
+      "partner_id": "KH017",
+      "txn_type": "Khách thanh toán",
+      "amount": 46500000,
+      "notes": "Giao dịch số 382"
+    },
+    {
+      "txn_date": "2025-04-22",
+      "partner_id": "KH011",
+      "txn_type": "Khách thanh toán",
+      "amount": 5000000,
+      "notes": "Giao dịch số 49"
+    },
+    {
+      "txn_date": "2025-04-22",
+      "partner_id": "KH001",
+      "txn_type": "Chiết khấu",
+      "amount": 2500000,
+      "notes": "Giao dịch số 189"
+    },
+    {
+      "txn_date": "2025-04-23",
+      "partner_id": "KH023",
+      "txn_type": "Bán hàng (Ghi nợ)",
+      "amount": 27000000,
+      "notes": "Giao dịch số 95"
+    },
+    {
+      "txn_date": "2025-04-23",
+      "partner_id": "KH003",
+      "txn_type": "Chiết khấu",
+      "amount": 23000000,
+      "notes": "Giao dịch số 165"
+    },
+    {
+      "txn_date": "2025-04-23",
+      "partner_id": "NCC045",
+      "txn_type": "Thanh toán cho NCC",
+      "amount": 48500000,
+      "notes": "Giao dịch số 213"
+    },
+    {
+      "txn_date": "2025-04-23",
+      "partner_id": "KH034",
+      "txn_type": "Chiết khấu",
+      "amount": 21000000,
+      "notes": "Giao dịch số 271"
+    },
+    {
+      "txn_date": "2025-04-23",
+      "partner_id": "KH024",
+      "txn_type": "Chiết khấu",
+      "amount": 22000000,
+      "notes": "Giao dịch số 293"
+    },
+    {
+      "txn_date": "2025-04-23",
+      "partner_id": "KH017",
+      "txn_type": "Bán hàng (Ghi nợ)",
+      "amount": 10500000,
+      "notes": "Giao dịch số 379"
+    },
+    {
+      "txn_date": "2025-04-24",
+      "partner_id": "KH018",
+      "txn_type": "Bán hàng (Ghi nợ)",
+      "amount": 21500000,
+      "notes": "Giao dịch số 13"
+    },
+    {
+      "txn_date": "2025-04-24",
+      "partner_id": "KH033",
+      "txn_type": "Chiết khấu",
+      "amount": 15000000,
+      "notes": "Giao dịch số 59"
+    },
+    {
+      "txn_date": "2025-04-24",
+      "partner_id": "KH018",
+      "txn_type": "Chiết khấu",
+      "amount": 12000000,
+      "notes": "Giao dịch số 373"
+    },
+    {
+      "txn_date": "2025-04-25",
+      "partner_id": "KH009",
+      "txn_type": "Khách thanh toán",
+      "amount": 49000000,
+      "notes": "Giao dịch số 296"
+    },
+    {
+      "txn_date": "2025-04-25",
+      "partner_id": "KH011",
+      "txn_type": "Khách thanh toán",
+      "amount": 27000000,
+      "notes": "Giao dịch số 302"
+    },
+    {
+      "txn_date": "2025-04-26",
+      "partner_id": "KH006",
+      "txn_type": "Bán hàng (Ghi nợ)",
+      "amount": 32000000,
+      "notes": "Giao dịch số 96"
+    },
+    {
+      "txn_date": "2025-04-26",
+      "partner_id": "NCC049",
+      "txn_type": "Thanh toán cho NCC",
+      "amount": 23000000,
+      "notes": "Giao dịch số 343"
+    },
+    {
+      "txn_date": "2025-04-27",
+      "partner_id": "KH027",
+      "txn_type": "Khách thanh toán",
+      "amount": 34000000,
+      "notes": "Giao dịch số 66"
+    },
+    {
+      "txn_date": "2025-04-27",
+      "partner_id": "NCC044",
+      "txn_type": "Thanh toán cho NCC",
+      "amount": 21500000,
+      "notes": "Giao dịch số 180"
+    },
+    {
+      "txn_date": "2025-04-27",
+      "partner_id": "NCC037",
+      "txn_type": "Mua hàng (Ghi nợ)",
+      "amount": 46500000,
+      "notes": "Giao dịch số 259"
+    },
+    {
+      "txn_date": "2025-04-28",
+      "partner_id": "KH003",
+      "txn_type": "Bán hàng (Ghi nợ)",
+      "amount": 33000000,
+      "notes": "Giao dịch số 44"
+    },
+    {
+      "txn_date": "2025-04-28",
+      "partner_id": "NCC036",
+      "txn_type": "Thanh toán cho NCC",
+      "amount": 12500000,
+      "notes": "Giao dịch số 175"
+    },
+    {
+      "txn_date": "2025-04-28",
+      "partner_id": "NCC049",
+      "txn_type": "Thanh toán cho NCC",
+      "amount": 46000000,
+      "notes": "Giao dịch số 389"
+    },
+    {
+      "txn_date": "2025-04-29",
+      "partner_id": "KH032",
+      "txn_type": "Khách thanh toán",
+      "amount": 3500000,
+      "notes": "Giao dịch số 232"
+    },
+    {
+      "txn_date": "2025-04-30",
+      "partner_id": "KH030",
+      "txn_type": "Khách thanh toán",
+      "amount": 20500000,
+      "notes": "Giao dịch số 245"
+    },
+    {
+      "txn_date": "2025-04-30",
+      "partner_id": "NCC048",
+      "txn_type": "Mua hàng (Ghi nợ)",
+      "amount": 20000000,
+      "notes": "Giao dịch số 359"
+    },
+    {
+      "txn_date": "2025-05-01",
+      "partner_id": "NCC036",
+      "txn_type": "Thanh toán cho NCC",
+      "amount": 45500000,
+      "notes": "Giao dịch số 218"
+    },
+    {
+      "txn_date": "2025-05-01",
+      "partner_id": "KH016",
+      "txn_type": "Khách thanh toán",
+      "amount": 3500000,
+      "notes": "Giao dịch số 243"
+    },
+    {
+      "txn_date": "2025-05-03",
+      "partner_id": "NCC037",
+      "txn_type": "Thanh toán cho NCC",
+      "amount": 31000000,
+      "notes": "Giao dịch số 73"
+    },
+    {
+      "txn_date": "2025-05-03",
+      "partner_id": "KH003",
+      "txn_type": "Khách thanh toán",
+      "amount": 6000000,
+      "notes": "Giao dịch số 191"
+    },
+    {
+      "txn_date": "2025-05-03",
+      "partner_id": "KH012",
+      "txn_type": "Chiết khấu",
+      "amount": 34000000,
+      "notes": "Giao dịch số 395"
+    },
+    {
+      "txn_date": "2025-05-04",
+      "partner_id": "NCC048",
+      "txn_type": "Thanh toán cho NCC",
+      "amount": 41000000,
+      "notes": "Giao dịch số 230"
+    },
+    {
+      "txn_date": "2025-05-05",
+      "partner_id": "KH019",
+      "txn_type": "Bán hàng (Ghi nợ)",
+      "amount": 5000000,
+      "notes": "Giao dịch số 33"
+    },
+    {
+      "txn_date": "2025-05-05",
+      "partner_id": "KH015",
+      "txn_type": "Bán hàng (Ghi nợ)",
+      "amount": 23000000,
+      "notes": "Giao dịch số 98"
+    },
+    {
+      "txn_date": "2025-05-06",
+      "partner_id": "KH008",
+      "txn_type": "Chiết khấu",
+      "amount": 9000000,
+      "notes": "Giao dịch số 60"
+    },
+    {
+      "txn_date": "2025-05-06",
+      "partner_id": "KH032",
+      "txn_type": "Chiết khấu",
+      "amount": 17500000,
+      "notes": "Giao dịch số 105"
+    },
+    {
+      "txn_date": "2025-05-06",
+      "partner_id": "KH011",
+      "txn_type": "Khách thanh toán",
+      "amount": 1500000,
+      "notes": "Giao dịch số 109"
+    },
+    {
+      "txn_date": "2025-05-07",
+      "partner_id": "NCC042",
+      "txn_type": "Mua hàng (Ghi nợ)",
+      "amount": 39500000,
+      "notes": "Giao dịch số 12"
+    },
+    {
+      "txn_date": "2025-05-07",
+      "partner_id": "KH026",
+      "txn_type": "Bán hàng (Ghi nợ)",
+      "amount": 46500000,
+      "notes": "Giao dịch số 369"
+    },
+    {
+      "txn_date": "2025-05-08",
+      "partner_id": "NCC038",
+      "txn_type": "Thanh toán cho NCC",
+      "amount": 26000000,
+      "notes": "Giao dịch số 371"
+    },
+    {
+      "txn_date": "2025-05-09",
+      "partner_id": "KH027",
+      "txn_type": "Khách thanh toán",
+      "amount": 42000000,
+      "notes": "Giao dịch số 8"
+    },
+    {
+      "txn_date": "2025-05-09",
+      "partner_id": "NCC037",
+      "txn_type": "Thanh toán cho NCC",
+      "amount": 19500000,
+      "notes": "Giao dịch số 40"
+    },
+    {
+      "txn_date": "2025-05-09",
+      "partner_id": "KH015",
+      "txn_type": "Bán hàng (Ghi nợ)",
+      "amount": 47500000,
+      "notes": "Giao dịch số 358"
+    },
+    {
+      "txn_date": "2025-05-10",
+      "partner_id": "KH017",
+      "txn_type": "Khách thanh toán",
+      "amount": 6500000,
+      "notes": "Giao dịch số 178"
+    },
+    {
+      "txn_date": "2025-05-10",
+      "partner_id": "KH020",
+      "txn_type": "Bán hàng (Ghi nợ)",
+      "amount": 47500000,
+      "notes": "Giao dịch số 209"
+    },
+    {
+      "txn_date": "2025-05-11",
+      "partner_id": "NCC045",
+      "txn_type": "Thanh toán cho NCC",
+      "amount": 27000000,
+      "notes": "Giao dịch số 2"
+    },
+    {
+      "txn_date": "2025-05-11",
+      "partner_id": "KH012",
+      "txn_type": "Chiết khấu",
+      "amount": 33500000,
+      "notes": "Giao dịch số 332"
+    },
+    {
+      "txn_date": "2025-05-12",
+      "partner_id": "NCC038",
+      "txn_type": "Mua hàng (Ghi nợ)",
+      "amount": 43500000,
+      "notes": "Giao dịch số 29"
+    },
+    {
+      "txn_date": "2025-05-13",
+      "partner_id": "KH031",
+      "txn_type": "Bán hàng (Ghi nợ)",
+      "amount": 40000000,
+      "notes": "Giao dịch số 81"
+    },
+    {
+      "txn_date": "2025-05-13",
+      "partner_id": "NCC045",
+      "txn_type": "Thanh toán cho NCC",
+      "amount": 14500000,
+      "notes": "Giao dịch số 217"
+    },
+    {
+      "txn_date": "2025-05-14",
+      "partner_id": "KH015",
+      "txn_type": "Bán hàng (Ghi nợ)",
+      "amount": 1000000,
+      "notes": "Giao dịch số 147"
+    },
+    {
+      "txn_date": "2025-05-14",
+      "partner_id": "KH028",
+      "txn_type": "Khách thanh toán",
+      "amount": 8500000,
+      "notes": "Giao dịch số 167"
+    },
+    {
+      "txn_date": "2025-05-14",
+      "partner_id": "NCC037",
+      "txn_type": "Thanh toán cho NCC",
+      "amount": 2000000,
+      "notes": "Giao dịch số 260"
+    },
+    {
+      "txn_date": "2025-05-15",
+      "partner_id": "NCC042",
+      "txn_type": "Thanh toán cho NCC",
+      "amount": 38000000,
+      "notes": "Giao dịch số 23"
+    },
+    {
+      "txn_date": "2025-05-15",
+      "partner_id": "KH027",
+      "txn_type": "Chiết khấu",
+      "amount": 3500000,
+      "notes": "Giao dịch số 39"
+    },
+    {
+      "txn_date": "2025-05-15",
+      "partner_id": "KH006",
+      "txn_type": "Bán hàng (Ghi nợ)",
+      "amount": 13500000,
+      "notes": "Giao dịch số 139"
+    },
+    {
+      "txn_date": "2025-05-15",
+      "partner_id": "KH022",
+      "txn_type": "Khách thanh toán",
+      "amount": 47000000,
+      "notes": "Giao dịch số 142"
+    },
+    {
+      "txn_date": "2025-05-15",
+      "partner_id": "KH026",
+      "txn_type": "Chiết khấu",
+      "amount": 21500000,
+      "notes": "Giao dịch số 166"
+    },
+    {
+      "txn_date": "2025-05-15",
+      "partner_id": "NCC047",
+      "txn_type": "Mua hàng (Ghi nợ)",
+      "amount": 45000000,
+      "notes": "Giao dịch số 171"
+    },
+    {
+      "txn_date": "2025-05-15",
+      "partner_id": "KH018",
+      "txn_type": "Khách thanh toán",
+      "amount": 37000000,
+      "notes": "Giao dịch số 335"
+    },
+    {
+      "txn_date": "2025-05-15",
+      "partner_id": "NCC037",
+      "txn_type": "Mua hàng (Ghi nợ)",
+      "amount": 5000000,
+      "notes": "Giao dịch số 363"
+    },
+    {
+      "txn_date": "2025-05-16",
+      "partner_id": "KH032",
+      "txn_type": "Chiết khấu",
+      "amount": 2000000,
+      "notes": "Giao dịch số 183"
+    },
+    {
+      "txn_date": "2025-05-17",
+      "partner_id": "KH032",
+      "txn_type": "Khách thanh toán",
+      "amount": 27000000,
+      "notes": "Giao dịch số 3"
+    },
+    {
+      "txn_date": "2025-05-17",
+      "partner_id": "KH009",
+      "txn_type": "Khách thanh toán",
+      "amount": 49000000,
+      "notes": "Giao dịch số 37"
+    },
+    {
+      "txn_date": "2025-05-17",
+      "partner_id": "NCC048",
+      "txn_type": "Mua hàng (Ghi nợ)",
+      "amount": 15500000,
+      "notes": "Giao dịch số 57"
+    },
+    {
+      "txn_date": "2025-05-17",
+      "partner_id": "NCC041",
+      "txn_type": "Thanh toán cho NCC",
+      "amount": 17000000,
+      "notes": "Giao dịch số 223"
+    },
+    {
+      "txn_date": "2025-05-17",
+      "partner_id": "NCC042",
+      "txn_type": "Thanh toán cho NCC",
+      "amount": 39000000,
+      "notes": "Giao dịch số 268"
+    },
+    {
+      "txn_date": "2025-05-17",
+      "partner_id": "KH008",
+      "txn_type": "Bán hàng (Ghi nợ)",
+      "amount": 24500000,
+      "notes": "Giao dịch số 324"
+    },
+    {
+      "txn_date": "2025-05-17",
+      "partner_id": "NCC048",
+      "txn_type": "Mua hàng (Ghi nợ)",
+      "amount": 22500000,
+      "notes": "Giao dịch số 391"
+    },
+    {
+      "txn_date": "2025-05-18",
+      "partner_id": "NCC046",
+      "txn_type": "Thanh toán cho NCC",
+      "amount": 44500000,
+      "notes": "Giao dịch số 195"
+    },
+    {
+      "txn_date": "2025-05-18",
+      "partner_id": "KH032",
+      "txn_type": "Bán hàng (Ghi nợ)",
+      "amount": 42000000,
+      "notes": "Giao dịch số 346"
+    },
+    {
+      "txn_date": "2025-05-19",
+      "partner_id": "KH029",
+      "txn_type": "Chiết khấu",
+      "amount": 16500000,
+      "notes": "Giao dịch số 34"
+    },
+    {
+      "txn_date": "2025-05-20",
+      "partner_id": "KH009",
+      "txn_type": "Chiết khấu",
+      "amount": 30500000,
+      "notes": "Giao dịch số 68"
+    },
+    {
+      "txn_date": "2025-05-20",
+      "partner_id": "KH024",
+      "txn_type": "Khách thanh toán",
+      "amount": 16500000,
+      "notes": "Giao dịch số 255"
+    },
+    {
+      "txn_date": "2025-05-22",
+      "partner_id": "KH016",
+      "txn_type": "Bán hàng (Ghi nợ)",
+      "amount": 25000000,
+      "notes": "Giao dịch số 225"
+    },
+    {
+      "txn_date": "2025-05-23",
+      "partner_id": "KH005",
+      "txn_type": "Bán hàng (Ghi nợ)",
+      "amount": 1000000,
+      "notes": "Giao dịch số 9"
+    },
+    {
+      "txn_date": "2025-05-24",
+      "partner_id": "KH023",
+      "txn_type": "Chiết khấu",
+      "amount": 2500000,
+      "notes": "Giao dịch số 1"
+    },
+    {
+      "txn_date": "2025-05-24",
+      "partner_id": "NCC045",
+      "txn_type": "Mua hàng (Ghi nợ)",
+      "amount": 40000000,
+      "notes": "Giao dịch số 56"
+    },
+    {
+      "txn_date": "2025-05-24",
+      "partner_id": "KH031",
+      "txn_type": "Khách thanh toán",
+      "amount": 24500000,
+      "notes": "Giao dịch số 107"
+    },
+    {
+      "txn_date": "2025-05-25",
+      "partner_id": "KH034",
+      "txn_type": "Bán hàng (Ghi nợ)",
+      "amount": 42000000,
+      "notes": "Giao dịch số 36"
+    },
+    {
+      "txn_date": "2025-05-25",
+      "partner_id": "KH014",
+      "txn_type": "Khách thanh toán",
+      "amount": 31000000,
+      "notes": "Giao dịch số 304"
+    },
+    {
+      "txn_date": "2025-05-26",
+      "partner_id": "KH019",
+      "txn_type": "Bán hàng (Ghi nợ)",
+      "amount": 46000000,
+      "notes": "Giao dịch số 152"
+    },
+    {
+      "txn_date": "2025-05-26",
+      "partner_id": "NCC041",
+      "txn_type": "Thanh toán cho NCC",
+      "amount": 37500000,
+      "notes": "Giao dịch số 211"
+    },
+    {
+      "txn_date": "2025-05-27",
+      "partner_id": "KH016",
+      "txn_type": "Bán hàng (Ghi nợ)",
+      "amount": 24500000,
+      "notes": "Giao dịch số 11"
+    },
+    {
+      "txn_date": "2025-05-28",
+      "partner_id": "NCC045",
+      "txn_type": "Thanh toán cho NCC",
+      "amount": 38000000,
+      "notes": "Giao dịch số 4"
+    },
+    {
+      "txn_date": "2025-05-28",
+      "partner_id": "NCC043",
+      "txn_type": "Mua hàng (Ghi nợ)",
+      "amount": 12000000,
+      "notes": "Giao dịch số 7"
+    },
+    {
+      "txn_date": "2025-05-28",
+      "partner_id": "KH032",
+      "txn_type": "Chiết khấu",
+      "amount": 10000000,
+      "notes": "Giao dịch số 138"
+    },
+    {
+      "txn_date": "2025-05-28",
+      "partner_id": "KH028",
+      "txn_type": "Bán hàng (Ghi nợ)",
+      "amount": 17500000,
+      "notes": "Giao dịch số 207"
+    },
+    {
+      "txn_date": "2025-05-28",
+      "partner_id": "KH021",
+      "txn_type": "Khách thanh toán",
+      "amount": 9500000,
+      "notes": "Giao dịch số 239"
+    },
+    {
+      "txn_date": "2025-05-28",
+      "partner_id": "KH017",
+      "txn_type": "Bán hàng (Ghi nợ)",
+      "amount": 3000000,
+      "notes": "Giao dịch số 284"
+    },
+    {
+      "txn_date": "2025-05-29",
+      "partner_id": "KH024",
+      "txn_type": "Bán hàng (Ghi nợ)",
+      "amount": 45500000,
+      "notes": "Giao dịch số 257"
+    },
+    {
+      "txn_date": "2025-05-29",
+      "partner_id": "NCC041",
+      "txn_type": "Mua hàng (Ghi nợ)",
+      "amount": 38500000,
+      "notes": "Giao dịch số 303"
+    },
+    {
+      "txn_date": "2025-05-30",
+      "partner_id": "KH011",
+      "txn_type": "Bán hàng (Ghi nợ)",
+      "amount": 8500000,
+      "notes": "Giao dịch số 155"
+    },
+    {
+      "txn_date": "2025-05-30",
+      "partner_id": "KH010",
+      "txn_type": "Khách thanh toán",
+      "amount": 4000000,
+      "notes": "Giao dịch số 252"
+    },
+    {
+      "txn_date": "2025-05-30",
+      "partner_id": "KH024",
+      "txn_type": "Khách thanh toán",
+      "amount": 29000000,
+      "notes": "Giao dịch số 272"
+    },
+    {
+      "txn_date": "2025-05-30",
+      "partner_id": "KH013",
+      "txn_type": "Chiết khấu",
+      "amount": 13000000,
+      "notes": "Giao dịch số 347"
+    },
+    {
+      "txn_date": "2025-05-31",
+      "partner_id": "KH020",
+      "txn_type": "Khách thanh toán",
+      "amount": 23500000,
+      "notes": "Giao dịch số 20"
+    },
+    {
+      "txn_date": "2025-05-31",
+      "partner_id": "NCC038",
+      "txn_type": "Thanh toán cho NCC",
+      "amount": 22500000,
+      "notes": "Giao dịch số 330"
+    },
+    {
+      "txn_date": "2025-06-02",
+      "partner_id": "KH007",
+      "txn_type": "Khách thanh toán",
+      "amount": 8000000,
+      "notes": "Giao dịch số 6"
+    },
+    {
+      "txn_date": "2025-06-02",
+      "partner_id": "KH028",
+      "txn_type": "Bán hàng (Ghi nợ)",
+      "amount": 23000000,
+      "notes": "Giao dịch số 351"
+    },
+    {
+      "txn_date": "2025-06-03",
+      "partner_id": "NCC039",
+      "txn_type": "Mua hàng (Ghi nợ)",
+      "amount": 4000000,
+      "notes": "Giao dịch số 53"
+    },
+    {
+      "txn_date": "2025-06-03",
+      "partner_id": "KH018",
+      "txn_type": "Bán hàng (Ghi nợ)",
+      "amount": 49000000,
+      "notes": "Giao dịch số 365"
+    },
+    {
+      "txn_date": "2025-06-04",
+      "partner_id": "KH014",
+      "txn_type": "Bán hàng (Ghi nợ)",
+      "amount": 30500000,
+      "notes": "Giao dịch số 48"
+    },
+    {
+      "txn_date": "2025-06-04",
+      "partner_id": "KH015",
+      "txn_type": "Chiết khấu",
+      "amount": 32500000,
+      "notes": "Giao dịch số 108"
+    },
+    {
+      "txn_date": "2025-06-04",
+      "partner_id": "KH031",
+      "txn_type": "Bán hàng (Ghi nợ)",
+      "amount": 17000000,
+      "notes": "Giao dịch số 122"
+    },
+    {
+      "txn_date": "2025-06-04",
+      "partner_id": "KH027",
+      "txn_type": "Chiết khấu",
+      "amount": 32500000,
+      "notes": "Giao dịch số 193"
+    },
+    {
+      "txn_date": "2025-06-05",
+      "partner_id": "KH009",
+      "txn_type": "Chiết khấu",
+      "amount": 46000000,
+      "notes": "Giao dịch số 159"
+    },
+    {
+      "txn_date": "2025-06-05",
+      "partner_id": "KH004",
+      "txn_type": "Khách thanh toán",
+      "amount": 29000000,
+      "notes": "Giao dịch số 221"
+    },
+    {
+      "txn_date": "2025-06-05",
+      "partner_id": "KH013",
+      "txn_type": "Chiết khấu",
+      "amount": 13000000,
+      "notes": "Giao dịch số 356"
+    },
+    {
+      "txn_date": "2025-06-06",
+      "partner_id": "KH007",
+      "txn_type": "Bán hàng (Ghi nợ)",
+      "amount": 33500000,
+      "notes": "Giao dịch số 254"
+    },
+    {
+      "txn_date": "2025-06-06",
+      "partner_id": "NCC036",
+      "txn_type": "Mua hàng (Ghi nợ)",
+      "amount": 15500000,
+      "notes": "Giao dịch số 278"
+    },
+    {
+      "txn_date": "2025-06-07",
+      "partner_id": "KH016",
+      "txn_type": "Bán hàng (Ghi nợ)",
+      "amount": 50000000,
+      "notes": "Giao dịch số 345"
+    },
+    {
+      "txn_date": "2025-06-08",
+      "partner_id": "KH009",
+      "txn_type": "Khách thanh toán",
+      "amount": 45500000,
+      "notes": "Giao dịch số 169"
+    },
+    {
+      "txn_date": "2025-06-08",
+      "partner_id": "KH010",
+      "txn_type": "Khách thanh toán",
+      "amount": 44500000,
+      "notes": "Giao dịch số 325"
+    },
+    {
+      "txn_date": "2025-06-08",
+      "partner_id": "KH016",
+      "txn_type": "Chiết khấu",
+      "amount": 8000000,
+      "notes": "Giao dịch số 333"
+    },
+    {
+      "txn_date": "2025-06-08",
+      "partner_id": "KH014",
+      "txn_type": "Chiết khấu",
+      "amount": 42500000,
+      "notes": "Giao dịch số 364"
+    },
+    {
+      "txn_date": "2025-06-09",
+      "partner_id": "KH019",
+      "txn_type": "Bán hàng (Ghi nợ)",
+      "amount": 28500000,
+      "notes": "Giao dịch số 317"
+    },
+    {
+      "txn_date": "2025-06-09",
+      "partner_id": "KH005",
+      "txn_type": "Chiết khấu",
+      "amount": 40000000,
+      "notes": "Giao dịch số 368"
+    },
+    {
+      "txn_date": "2025-06-09",
+      "partner_id": "NCC042",
+      "txn_type": "Thanh toán cho NCC",
+      "amount": 2000000,
+      "notes": "Giao dịch số 384"
+    },
+    {
+      "txn_date": "2025-06-10",
+      "partner_id": "KH002",
+      "txn_type": "Khách thanh toán",
+      "amount": 50000000,
+      "notes": "Giao dịch số 82"
+    },
+    {
+      "txn_date": "2025-06-10",
+      "partner_id": "NCC040",
+      "txn_type": "Mua hàng (Ghi nợ)",
+      "amount": 43500000,
+      "notes": "Giao dịch số 83"
+    },
+    {
+      "txn_date": "2025-06-11",
+      "partner_id": "KH020",
+      "txn_type": "Bán hàng (Ghi nợ)",
+      "amount": 9000000,
+      "notes": "Giao dịch số 128"
+    },
+    {
+      "txn_date": "2025-06-11",
+      "partner_id": "KH013",
+      "txn_type": "Khách thanh toán",
+      "amount": 32000000,
+      "notes": "Giao dịch số 344"
+    },
+    {
+      "txn_date": "2025-06-13",
+      "partner_id": "KH020",
+      "txn_type": "Bán hàng (Ghi nợ)",
+      "amount": 46500000,
+      "notes": "Giao dịch số 299"
+    },
+    {
+      "txn_date": "2025-06-13",
+      "partner_id": "KH005",
+      "txn_type": "Bán hàng (Ghi nợ)",
+      "amount": 50000000,
+      "notes": "Giao dịch số 327"
+    },
+    {
+      "txn_date": "2025-06-13",
+      "partner_id": "NCC039",
+      "txn_type": "Mua hàng (Ghi nợ)",
+      "amount": 2500000,
+      "notes": "Giao dịch số 355"
+    },
+    {
+      "txn_date": "2025-06-14",
+      "partner_id": "KH008",
+      "txn_type": "Khách thanh toán",
+      "amount": 20500000,
+      "notes": "Giao dịch số 51"
+    },
+    {
+      "txn_date": "2025-06-14",
+      "partner_id": "NCC038",
+      "txn_type": "Thanh toán cho NCC",
+      "amount": 45000000,
+      "notes": "Giao dịch số 199"
+    },
+    {
+      "txn_date": "2025-06-15",
+      "partner_id": "NCC045",
+      "txn_type": "Thanh toán cho NCC",
+      "amount": 17500000,
+      "notes": "Giao dịch số 46"
+    },
+    {
+      "txn_date": "2025-06-15",
+      "partner_id": "KH015",
+      "txn_type": "Khách thanh toán",
+      "amount": 2000000,
+      "notes": "Giao dịch số 287"
+    },
+    {
+      "txn_date": "2025-06-16",
+      "partner_id": "KH020",
+      "txn_type": "Khách thanh toán",
+      "amount": 47000000,
+      "notes": "Giao dịch số 212"
+    },
+    {
+      "txn_date": "2025-06-16",
+      "partner_id": "NCC036",
+      "txn_type": "Thanh toán cho NCC",
+      "amount": 20000000,
+      "notes": "Giao dịch số 289"
+    },
+    {
+      "txn_date": "2025-06-16",
+      "partner_id": "KH016",
+      "txn_type": "Khách thanh toán",
+      "amount": 12500000,
+      "notes": "Giao dịch số 301"
+    },
+    {
+      "txn_date": "2025-06-16",
+      "partner_id": "KH011",
+      "txn_type": "Khách thanh toán",
+      "amount": 31000000,
+      "notes": "Giao dịch số 318"
+    },
+    {
+      "txn_date": "2025-06-17",
+      "partner_id": "KH011",
+      "txn_type": "Khách thanh toán",
+      "amount": 23500000,
+      "notes": "Giao dịch số 69"
+    },
+    {
+      "txn_date": "2025-06-17",
+      "partner_id": "KH035",
+      "txn_type": "Bán hàng (Ghi nợ)",
+      "amount": 2500000,
+      "notes": "Giao dịch số 86"
+    },
+    {
+      "txn_date": "2025-06-17",
+      "partner_id": "NCC043",
+      "txn_type": "Thanh toán cho NCC",
+      "amount": 28000000,
+      "notes": "Giao dịch số 236"
+    },
+    {
+      "txn_date": "2025-06-18",
+      "partner_id": "KH014",
+      "txn_type": "Chiết khấu",
+      "amount": 10500000,
+      "notes": "Giao dịch số 79"
+    },
+    {
+      "txn_date": "2025-06-18",
+      "partner_id": "KH019",
+      "txn_type": "Chiết khấu",
+      "amount": 43000000,
+      "notes": "Giao dịch số 220"
+    },
+    {
+      "txn_date": "2025-06-18",
+      "partner_id": "KH035",
+      "txn_type": "Khách thanh toán",
+      "amount": 39500000,
+      "notes": "Giao dịch số 237"
+    },
+    {
+      "txn_date": "2025-06-18",
+      "partner_id": "KH001",
+      "txn_type": "Khách thanh toán",
+      "amount": 13500000,
+      "notes": "Giao dịch số 297"
+    },
+    {
+      "txn_date": "2025-06-19",
+      "partner_id": "NCC039",
+      "txn_type": "Mua hàng (Ghi nợ)",
+      "amount": 8500000,
+      "notes": "Giao dịch số 19"
+    },
+    {
+      "txn_date": "2025-06-19",
+      "partner_id": "KH027",
+      "txn_type": "Khách thanh toán",
+      "amount": 47500000,
+      "notes": "Giao dịch số 54"
+    },
+    {
+      "txn_date": "2025-06-19",
+      "partner_id": "KH011",
+      "txn_type": "Khách thanh toán",
+      "amount": 42500000,
+      "notes": "Giao dịch số 340"
+    },
+    {
+      "txn_date": "2025-06-20",
+      "partner_id": "KH008",
+      "txn_type": "Bán hàng (Ghi nợ)",
+      "amount": 44500000,
+      "notes": "Giao dịch số 106"
+    },
+    {
+      "txn_date": "2025-06-20",
+      "partner_id": "KH026",
+      "txn_type": "Khách thanh toán",
+      "amount": 32000000,
+      "notes": "Giao dịch số 157"
+    },
+    {
+      "txn_date": "2025-06-20",
+      "partner_id": "KH015",
+      "txn_type": "Chiết khấu",
+      "amount": 45000000,
+      "notes": "Giao dịch số 329"
+    },
+    {
+      "txn_date": "2025-06-21",
+      "partner_id": "NCC039",
+      "txn_type": "Thanh toán cho NCC",
+      "amount": 49000000,
+      "notes": "Giao dịch số 179"
+    },
+    {
+      "txn_date": "2025-06-21",
+      "partner_id": "KH015",
+      "txn_type": "Bán hàng (Ghi nợ)",
+      "amount": 17500000,
+      "notes": "Giao dịch số 249"
+    },
+    {
+      "txn_date": "2025-06-22",
+      "partner_id": "KH027",
+      "txn_type": "Bán hàng (Ghi nợ)",
+      "amount": 29000000,
+      "notes": "Giao dịch số 205"
+    },
+    {
+      "txn_date": "2025-06-23",
+      "partner_id": "KH001",
+      "txn_type": "Bán hàng (Ghi nợ)",
+      "amount": 44500000,
+      "notes": "Giao dịch số 58"
+    },
+    {
+      "txn_date": "2025-06-23",
+      "partner_id": "NCC046",
+      "txn_type": "Thanh toán cho NCC",
+      "amount": 14000000,
+      "notes": "Giao dịch số 114"
+    },
+    {
+      "txn_date": "2025-06-23",
+      "partner_id": "KH025",
+      "txn_type": "Khách thanh toán",
+      "amount": 7000000,
+      "notes": "Giao dịch số 135"
+    },
+    {
+      "txn_date": "2025-06-23",
+      "partner_id": "NCC040",
+      "txn_type": "Mua hàng (Ghi nợ)",
+      "amount": 1500000,
+      "notes": "Giao dịch số 288"
+    },
+    {
+      "txn_date": "2025-06-24",
+      "partner_id": "KH015",
+      "txn_type": "Bán hàng (Ghi nợ)",
+      "amount": 35500000,
+      "notes": "Giao dịch số 88"
+    },
+    {
+      "txn_date": "2025-06-24",
+      "partner_id": "KH035",
+      "txn_type": "Khách thanh toán",
+      "amount": 45000000,
+      "notes": "Giao dịch số 222"
+    },
+    {
+      "txn_date": "2025-06-25",
+      "partner_id": "KH009",
+      "txn_type": "Khách thanh toán",
+      "amount": 15500000,
+      "notes": "Giao dịch số 186"
+    },
+    {
+      "txn_date": "2025-06-25",
+      "partner_id": "NCC037",
+      "txn_type": "Thanh toán cho NCC",
+      "amount": 18500000,
+      "notes": "Giao dịch số 366"
+    },
+    {
+      "txn_date": "2025-06-26",
+      "partner_id": "KH008",
+      "txn_type": "Bán hàng (Ghi nợ)",
+      "amount": 5500000,
+      "notes": "Giao dịch số 61"
+    },
+    {
+      "txn_date": "2025-06-26",
+      "partner_id": "NCC036",
+      "txn_type": "Thanh toán cho NCC",
+      "amount": 48000000,
+      "notes": "Giao dịch số 80"
+    },
+    {
+      "txn_date": "2025-06-26",
+      "partner_id": "NCC041",
+      "txn_type": "Thanh toán cho NCC",
+      "amount": 38500000,
+      "notes": "Giao dịch số 190"
+    },
+    {
+      "txn_date": "2025-06-26",
+      "partner_id": "NCC041",
+      "txn_type": "Thanh toán cho NCC",
+      "amount": 36500000,
+      "notes": "Giao dịch số 310"
+    },
+    {
+      "txn_date": "2025-06-27",
+      "partner_id": "KH025",
+      "txn_type": "Bán hàng (Ghi nợ)",
+      "amount": 12500000,
+      "notes": "Giao dịch số 248"
+    },
+    {
+      "txn_date": "2025-06-27",
+      "partner_id": "KH024",
+      "txn_type": "Bán hàng (Ghi nợ)",
+      "amount": 39000000,
+      "notes": "Giao dịch số 349"
+    },
+    {
+      "txn_date": "2025-06-28",
+      "partner_id": "KH019",
+      "txn_type": "Bán hàng (Ghi nợ)",
+      "amount": 7000000,
+      "notes": "Giao dịch số 111"
+    },
+    {
+      "txn_date": "2025-06-28",
+      "partner_id": "KH032",
+      "txn_type": "Khách thanh toán",
+      "amount": 47000000,
+      "notes": "Giao dịch số 341"
+    },
+    {
+      "txn_date": "2025-06-30",
+      "partner_id": "NCC044",
+      "txn_type": "Thanh toán cho NCC",
+      "amount": 33500000,
+      "notes": "Giao dịch số 174"
+    },
+    {
+      "txn_date": "2025-06-30",
+      "partner_id": "KH014",
+      "txn_type": "Bán hàng (Ghi nợ)",
+      "amount": 40000000,
+      "notes": "Giao dịch số 385"
+    }
+  ]
+}
