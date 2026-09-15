@@ -367,6 +367,57 @@ body.cart-drawer-open .page-layout {
   overflow: hidden;
 }
 
+.product-card-actions {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 6px;
+  padding-top: 8px;
+  border-top: 1px dashed var(--line);
+}
+
+.btn-card-buy {
+  flex: 1;
+  height: 34px;
+  background: var(--mint-strong);
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  font-weight: 600;
+  font-size: 0.85rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s ease, transform 0.1s ease;
+}
+
+.btn-card-buy:hover {
+  background: var(--mint);
+  transform: translateY(-1px);
+}
+
+.btn-card-cart {
+  width: 34px;
+  height: 34px;
+  background: #f8fafc;
+  color: var(--mint-strong);
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  padding: 0;
+  transition: all 0.2s ease;
+}
+
+.btn-card-cart:hover {
+  background: var(--mint-light);
+  border-color: var(--mint-strong);
+}
+
 /* Buttons */
 .button-primary, .button-secondary {
   border: none;
@@ -430,7 +481,7 @@ body.cart-drawer-open .page-layout {
   right: 0;
   width: min(400px, 100%);
   height: calc(100vh - 70px);
-  z-index: 55;
+  z-index: 10003;
   background: var(--surface);
   border-left: 1px solid var(--line);
   box-shadow: -4px 0 15px rgba(0,0,0,0.05);
@@ -1362,22 +1413,35 @@ body.cart-drawer-open .page-layout {
     box-shadow: none !important;
   }
   
-  #registerButton {
-    display: none !important;
-  }
-
+  body.is-logged-in #registerButton,
   body.is-logged-in #loginButton {
     display: none !important;
   }
 
-  body:not(.is-logged-in) #loginButton {
+  body:not(.is-logged-in) #registerButton {
     display: inline-flex !important;
     padding: 5px 12px !important;
     font-size: 0.82rem !important;
     font-weight: 600 !important;
     border-radius: 16px !important;
     white-space: nowrap !important;
+    margin-right: 6px !important;
+    background: var(--mint-strong) !important;
+    color: #ffffff !important;
+    border: none !important;
+  }
+
+  body:not(.is-logged-in) #loginButton {
+    display: inline-flex !important;
+    padding: 5px 10px !important;
+    font-size: 0.82rem !important;
+    font-weight: 500 !important;
+    border-radius: 16px !important;
+    white-space: nowrap !important;
     margin: 0 !important;
+    background: #f1f5f9 !important;
+    border: 1px solid #cbd5e1 !important;
+    color: #334155 !important;
   }
   
   body:not(.is-logged-in) #userProfile {

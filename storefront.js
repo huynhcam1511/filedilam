@@ -150,28 +150,40 @@
   }
 
   function bindEvents() {
-    searchInput.addEventListener("input", function (event) {
-      state.searchTerm = event.target.value.trim().toLowerCase();
-      renderProducts();
-    });
+    if (searchInput) {
+      searchInput.addEventListener("input", function (event) {
+        state.searchTerm = event.target.value.trim().toLowerCase();
+        renderProducts();
+      });
+    }
 
-    openCartButton.addEventListener("click", openCart);
-    document.getElementById("closeCart").addEventListener("click", closeCart);
-    document.getElementById("checkoutButton").addEventListener("click", openCheckout);
-    document.getElementById("closeCheckout").addEventListener("click", closeCheckout);
-    document.getElementById("backToCart").addEventListener("click", function () {
-      closeCheckout();
-      openCart();
-    });
-    if (document.getElementById("closeDetail")) {
-      document.getElementById("closeDetail").addEventListener("click", closeDetail);
+    if (openCartButton) openCartButton.addEventListener("click", openCart);
+    var elCloseCart = document.getElementById("closeCart");
+    if (elCloseCart) elCloseCart.addEventListener("click", closeCart);
+
+    var elCheckoutButton = document.getElementById("checkoutButton");
+    if (elCheckoutButton) elCheckoutButton.addEventListener("click", openCheckout);
+
+    var elCloseCheckout = document.getElementById("closeCheckout");
+    if (elCloseCheckout) elCloseCheckout.addEventListener("click", closeCheckout);
+
+    var elBackToCart = document.getElementById("backToCart");
+    if (elBackToCart) {
+      elBackToCart.addEventListener("click", function () {
+        closeCheckout();
+        openCart();
+      });
     }
-    if (document.getElementById("copyBankInfo")) {
-      document.getElementById("copyBankInfo").addEventListener("click", copyTransferNote);
-    }
-    if (document.getElementById("confirmPayment")) {
-      document.getElementById("confirmPayment").addEventListener("click", handleConfirmPaymentClicked);
-    }
+
+    var elCloseDetail = document.getElementById("closeDetail");
+    if (elCloseDetail) elCloseDetail.addEventListener("click", closeDetail);
+
+    var elCopyBankInfo = document.getElementById("copyBankInfo");
+    if (elCopyBankInfo) elCopyBankInfo.addEventListener("click", copyTransferNote);
+
+    var elConfirmPayment = document.getElementById("confirmPayment");
+    if (elConfirmPayment) elConfirmPayment.addEventListener("click", handleConfirmPaymentClicked);
+
     if (saveQrBtn) saveQrBtn.addEventListener("click", saveQrImage);
     if (openBankBtn) openBankBtn.addEventListener("click", openBankPickerModal);
     if (closeBankPicker) closeBankPicker.addEventListener("click", closeBankPickerModal);
@@ -183,12 +195,12 @@
     }
     if (copyBankNumberBtn) {
       copyBankNumberBtn.addEventListener("click", function () {
-        copyTextToClipboard(bankNumber.textContent.trim(), copyBankNumberBtn, "Đã sao chép Số tài khoản");
+        copyTextToClipboard(bankNumber ? bankNumber.textContent.trim() : "", copyBankNumberBtn, "Đã sao chép Số tài khoản");
       });
     }
     if (copyTransferNoteBtn) {
       copyTransferNoteBtn.addEventListener("click", function () {
-        copyTextToClipboard(bankTransferNote.textContent.trim(), copyTransferNoteBtn, "Đã sao chép Nội dung CK");
+        copyTextToClipboard(bankTransferNote ? bankTransferNote.textContent.trim() : "", copyTransferNoteBtn, "Đã sao chép Nội dung CK");
       });
     }
     if (loginButton) loginButton.addEventListener("click", openAuthModal);
@@ -282,29 +294,35 @@
   }
 
   function openAuthModal() {
-    isRegisterMode = false;
+    isRegisterMode = true;
     updateAuthUI();
-    authModal.classList.add("is-open");
-    authModal.setAttribute("aria-hidden", "false");
-    document.body.classList.add("drawer-open");
+    if (authModal) {
+      authModal.classList.add("is-open");
+      authModal.setAttribute("aria-hidden", "false");
+      document.body.classList.add("drawer-open");
+    }
   }
 
   function openRegisterModal() {
     isRegisterMode = true;
     updateAuthUI();
-    authModal.classList.add("is-open");
-    authModal.setAttribute("aria-hidden", "false");
-    document.body.classList.add("drawer-open");
+    if (authModal) {
+      authModal.classList.add("is-open");
+      authModal.setAttribute("aria-hidden", "false");
+      document.body.classList.add("drawer-open");
+    }
   }
 
   function closeAuthModal() {
-    authModal.classList.remove("is-open");
-    authModal.setAttribute("aria-hidden", "true");
+    if (authModal) {
+      authModal.classList.remove("is-open");
+      authModal.setAttribute("aria-hidden", "true");
+    }
     unlockBodyIfNeeded();
   }
 
   function toggleAuthMode(e) {
-    e.preventDefault();
+    if (e) e.preventDefault();
     isRegisterMode = !isRegisterMode;
     updateAuthUI();
   }
@@ -317,17 +335,17 @@
     var accountLabel = document.getElementById("authAccountLabel");
 
     if (isRegisterMode) {
-      if (title) title.textContent = "Đăng ký tài khoản";
-      if (submitBtn) submitBtn.textContent = "Đăng ký";
+      if (title) title.textContent = "Đăng ký tài khoản (Người mua lần đầu)";
+      if (submitBtn) submitBtn.textContent = "Đăng ký tài khoản";
       if (toggleText) toggleText.textContent = "Đã có tài khoản?";
-      if (toggleLink) toggleLink.textContent = "Đăng nhập";
+      if (toggleLink) toggleLink.textContent = "Đăng nhập ngay";
       if (accountLabel) accountLabel.textContent = "Số điện thoại / Zalo";
       if (authPhoneGroup) authPhoneGroup.style.display = "none";
     } else {
-      if (title) title.textContent = "Đăng nhập";
+      if (title) title.textContent = "Đăng nhập tài khoản cũ";
       if (submitBtn) submitBtn.textContent = "Đăng nhập";
-      if (toggleText) toggleText.textContent = "Chưa có tài khoản?";
-      if (toggleLink) toggleLink.textContent = "Đăng ký ngay";
+      if (toggleText) toggleText.textContent = "Người mua lần đầu?";
+      if (toggleLink) toggleLink.textContent = "Đăng ký nhanh";
       if (accountLabel) accountLabel.textContent = "Số điện thoại hoặc Email";
       if (authPhoneGroup) authPhoneGroup.style.display = "none";
     }
@@ -671,15 +689,42 @@
                   : '') +
                 '<div class="product-current-val">' + formatCurrency(product.price) + '</div>' +
               '</div>' +
+              '<div class="product-card-actions">' +
+                '<button class="btn-card-buy" type="button" data-buy-id="' + escapeHtml(product.id) + '">Mua ngay</button>' +
+                '<button class="btn-card-cart" type="button" data-cart-id="' + escapeHtml(product.id) + '" title="Thêm vào giỏ hàng">' +
+                  '<svg width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>' +
+                '</button>' +
+              '</div>' +
             '</div>' +
           '</div>'
         );
       })
       .join("");
 
-    Array.prototype.forEach.call(productGrid.querySelectorAll("[data-detail-id]"), function (button) {
-      button.addEventListener("click", function () {
-        openDetail(button.getAttribute("data-detail-id"));
+    Array.prototype.forEach.call(productGrid.querySelectorAll(".product-card"), function (card) {
+      card.addEventListener("click", function (e) {
+        if (e.target.closest("[data-buy-id]") || e.target.closest("[data-cart-id]")) {
+          return;
+        }
+        var prodId = card.getAttribute("data-detail-id");
+        if (prodId) openDetail(prodId);
+      });
+    });
+
+    Array.prototype.forEach.call(productGrid.querySelectorAll("[data-buy-id]"), function (btn) {
+      btn.addEventListener("click", function (e) {
+        e.stopPropagation();
+        var prodId = btn.getAttribute("data-buy-id");
+        addToCart(prodId, { openDrawer: false });
+        openCheckout();
+      });
+    });
+
+    Array.prototype.forEach.call(productGrid.querySelectorAll("[data-cart-id]"), function (btn) {
+      btn.addEventListener("click", function (e) {
+        e.stopPropagation();
+        var prodId = btn.getAttribute("data-cart-id");
+        addToCart(prodId, { openDrawer: true });
       });
     });
   }
@@ -700,39 +745,45 @@
       })
       .filter(Boolean);
 
-    if (!detailedCart.length) {
-      cartItems.innerHTML =
-        '<div class="empty-state">Giỏ hàng đang trống. Bấm vào file rồi thêm vào giỏ nhé.</div>';
-    } else {
-      cartItems.innerHTML = detailedCart
-        .map(function (item) {
-          return (
-            '<div class="drawer-item">' +
-              '<div class="drawer-item-info">' +
-                '<span class="drawer-item-title">' + escapeHtml(item.product.name) + '</span>' +
-                '<span class="drawer-item-price">' + formatCurrency(item.total) + '</span>' +
-
-              '</div>' +
-              '<button class="icon-button" type="button" data-remove-id="' + escapeHtml(item.product.id) + '" title="Bỏ khỏi giỏ">🗑️</button>' +
-            '</div>'
-          );
-        })
-        .join("");
+    if (cartItems) {
+      if (!detailedCart.length) {
+        cartItems.innerHTML =
+          '<div class="empty-state">Giỏ hàng đang trống. Bấm vào file rồi thêm vào giỏ nhé.</div>';
+      } else {
+        cartItems.innerHTML = detailedCart
+          .map(function (item) {
+            return (
+              '<div class="drawer-item">' +
+                '<div class="drawer-item-info">' +
+                  '<span class="drawer-item-title">' + escapeHtml(item.product.name) + '</span>' +
+                  '<span class="drawer-item-price">' + formatCurrency(item.total) + '</span>' +
+                '</div>' +
+                '<button class="icon-button" type="button" data-remove-id="' + escapeHtml(item.product.id) + '" title="Bỏ khỏi giỏ">🗑️</button>' +
+              '</div>'
+            );
+          })
+          .join("");
+      }
     }
 
-    cartTotal.textContent = formatCurrency(getCartTotal());
-    checkoutTotal.textContent = formatCurrency(getCartTotal());
-    cartCount.textContent = String(getCartCount());
+    if (cartTotal) cartTotal.textContent = formatCurrency(getCartTotal());
+    if (checkoutTotal) checkoutTotal.textContent = formatCurrency(getCartTotal());
+    if (cartCount) cartCount.textContent = String(getCartCount());
+    var checkoutSummaryPrice = document.getElementById("checkoutSummaryPrice");
+    if (checkoutSummaryPrice) checkoutSummaryPrice.textContent = formatCurrency(getCartTotal());
     renderCheckoutSummary(detailedCart);
 
-    Array.prototype.forEach.call(cartItems.querySelectorAll("[data-remove-id]"), function (button) {
-      button.addEventListener("click", function () {
-        removeFromCart(button.getAttribute("data-remove-id"));
+    if (cartItems) {
+      Array.prototype.forEach.call(cartItems.querySelectorAll("[data-remove-id]"), function (button) {
+        button.addEventListener("click", function () {
+          removeFromCart(button.getAttribute("data-remove-id"));
+        });
       });
-    });
+    }
   }
 
   function renderCheckoutSummary(detailedCart) {
+    if (!checkoutItems) return;
     if (!detailedCart.length) {
       checkoutItems.innerHTML =
         '<div class="empty-state">Chưa có file nào trong giỏ hàng.</div>';
@@ -833,15 +884,22 @@
           '</div>' +
         '</div>';
 
-      document.getElementById("detailAddToCart").addEventListener("click", function () {
-        addToCart(product.id);
-      });
+      var btnDetailAdd = document.getElementById("detailAddToCart");
+      if (btnDetailAdd) {
+        btnDetailAdd.addEventListener("click", function () {
+          closeDetail();
+          addToCart(product.id, { openDrawer: true });
+        });
+      }
 
-      document.getElementById("detailBuyNow").addEventListener("click", function () {
-        addToCart(product.id, { openDrawer: false });
-        closeDetail();
-        openCheckout();
-      });
+      var btnDetailBuy = document.getElementById("detailBuyNow");
+      if (btnDetailBuy) {
+        btnDetailBuy.addEventListener("click", function () {
+          closeDetail();
+          addToCart(product.id, { openDrawer: false });
+          openCheckout();
+        });
+      }
     }
 
     detailModal.style.setProperty("top", "0px", "important");
@@ -921,7 +979,7 @@
   function updateQuickUI() {
     if (!quickBuyForm) return;
     if (isQuickLoginMode) {
-      if (checkoutModalTitle) checkoutModalTitle.textContent = "Đăng nhập để thanh toán";
+      if (checkoutModalTitle) checkoutModalTitle.textContent = "Đăng nhập tài khoản cũ";
       if (quickPhoneLabel) {
         quickPhoneLabel.innerHTML = '<span>Số điện thoại hoặc Email <strong style="color:#ef4444;">*</strong></span><span style="font-weight:normal;font-size:0.8rem;color:var(--muted);">Đã dùng khi mua file</span>';
       }
@@ -930,16 +988,16 @@
       if (quickPassword) quickPassword.placeholder = "Nhập mật khẩu";
       if (quickEmailGroup) quickEmailGroup.style.display = "none";
       if (btnQuickSubmitText) btnQuickSubmitText.textContent = "Đăng nhập & Nhận mã QR ➔";
-      if (quickToggleText) quickToggleText.textContent = "Chưa từng mua file?";
-      if (quickToggleLink) quickToggleLink.textContent = "Mua lần đầu (Đăng ký nhanh)";
+      if (quickToggleText) quickToggleText.textContent = "Người mua lần đầu?";
+      if (quickToggleLink) quickToggleLink.textContent = "Đăng ký nhanh";
     } else {
-      if (checkoutModalTitle) checkoutModalTitle.textContent = "Thanh toán & Nhận file";
+      if (checkoutModalTitle) checkoutModalTitle.textContent = "Đăng ký mua file (Người mua lần đầu)";
       if (quickPhoneLabel) {
         quickPhoneLabel.innerHTML = '<span>Số điện thoại / Zalo <strong style="color:#ef4444;">*</strong></span><span style="font-weight:normal;font-size:0.8rem;color:var(--muted);">Dùng để nhận hỗ trợ & tra cứu</span>';
       }
       if (quickPhone) quickPhone.placeholder = "Ví dụ: 0912345678";
       if (quickPassGroup) quickPassGroup.style.display = "block";
-      if (quickPassword) quickPassword.placeholder = "Nhập mật khẩu để sau này tải lại file";
+      if (quickPassword) quickPassword.placeholder = "Nhập mật khẩu tự chọn (tối thiểu 6 ký tự)";
       if (quickEmailGroup) quickEmailGroup.style.display = "block";
       if (btnQuickSubmitText) btnQuickSubmitText.textContent = "Tiếp tục nhận mã QR thanh toán ➔";
       if (quickToggleText) quickToggleText.textContent = "Đã từng mua file trước đây?";
@@ -1198,20 +1256,18 @@
       return entry.productId === productId;
     });
 
-    if (existing) {
-      showToast("Sản phẩm đã có trong giỏ hàng.");
-      return;
-    } else {
+    if (!existing) {
       state.cart.push({ productId: productId, quantity: 1 });
     }
 
     persistCart();
     renderCart();
+
     if (options.openDrawer === true) {
       openCart();
-    } else {
+    } else if (options.openDrawer !== false) {
       pulseCart();
-      showToast("Đã thêm vào giỏ hàng.");
+      showToast(existing ? "Sản phẩm đã có trong giỏ hàng." : "Đã thêm vào giỏ hàng.");
     }
   }
 
