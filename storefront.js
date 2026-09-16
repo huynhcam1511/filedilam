@@ -1674,7 +1674,7 @@
     if (hint) {
       hint.style.display = "block";
     }
-    showToast("Đã lưu ảnh QR. Hãy mở App Bank để quét từ thư viện ảnh!");
+    showToast("Đã chuẩn bị ảnh QR. Hãy chọn 'Lưu hình ảnh' để lưu vào Album ảnh!");
   }
 
   function resetQrActions() {
@@ -1696,17 +1696,68 @@
       showToast("Chưa có mã QR để tải.");
       return;
     }
-    showToast("Đang tải ảnh mã QR...");
+    showToast("Đang chuẩn bị ảnh mã QR...");
+
+    function handleQrBlob(blob) {
+      var filename = "ma-qr-filedilam.png";
+      // 1. Ưu tiên Web Share API trên iOS/Android để người dùng chọn 'Lưu hình ảnh' thẳng vào Album ảnh
+      try {
+        var file = new File([blob], filename, { type: "image/png" });
+        if (navigator.canShare && navigator.canShare({ files: [file] })) {
+          navigator.share({
+            files: [file],
+            title: "Mã VietQR thanh toán",
+            text: "Lưu hình ảnh để quét trên ứng dụng ngân hàng"
+          })
+          .then(function() {
+            onQrDownloaded();
+            showToast("Đã mở bảng chia sẻ. Bấm 'Lưu hình ảnh' để lưu vào Album ảnh.");
+          })
+          .catch(function(err) {
+            if (err && err.name === "AbortError") {
+              onQrDownloaded();
+            } else {
+              downloadBlobDirectly(blob, filename);
+            }
+          });
+          return;
+        }
+      } catch (e) {
+        console.warn("Web Share API fallback:", e);
+      }
+
+      // 2. Fallback trên Desktop hoặc trình duyệt không hỗ trợ Web Share API
+      downloadBlobDirectly(blob, filename);
+    }
+
     fetch(currentQrImageUrl)
       .then(function (res) {
         if (!res.ok) throw new Error("Network error");
         return res.blob();
       })
       .then(function (blob) {
-        downloadBlobDirectly(blob, "ma-qr-filedilam.png");
+        handleQrBlob(blob);
       })
       .catch(function () {
-        downloadViaImgElement("ma-qr-filedilam.png");
+        try {
+          var img = qrBox ? qrBox.querySelector("img") : null;
+          if (img && img.complete && img.naturalWidth > 0) {
+            var canvas = document.createElement("canvas");
+            canvas.width = img.naturalWidth;
+            canvas.height = img.naturalHeight;
+            var ctx = canvas.getContext("2d");
+            ctx.drawImage(img, 0, 0);
+            canvas.toBlob(function (blob) {
+              if (blob) {
+                handleQrBlob(blob);
+              } else {
+                fallbackDownloadUrl(currentQrImageUrl);
+              }
+            }, "image/png");
+            return;
+          }
+        } catch (e) {}
+        fallbackDownloadUrl(currentQrImageUrl);
       });
   }
 
