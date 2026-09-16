@@ -716,8 +716,7 @@
       btn.addEventListener("click", function (e) {
         e.stopPropagation();
         var prodId = btn.getAttribute("data-buy-id");
-        addToCart(prodId, { openDrawer: false });
-        openCheckout();
+        buyNow(prodId);
       });
     });
 
@@ -897,8 +896,7 @@
       if (btnDetailBuy) {
         btnDetailBuy.addEventListener("click", function () {
           closeDetail();
-          addToCart(product.id, { openDrawer: false });
-          openCheckout();
+          buyNow(product.id);
         });
       }
     }
@@ -1162,11 +1160,16 @@
     if (checkoutModalTitle) checkoutModalTitle.textContent = "Quét mã QR thanh toán";
     if (qrBox) qrBox.innerHTML = '<div class="empty-state" style="padding:40px 0;"><div style="font-size:2rem;margin-bottom:8px;">⏳</div><div>Đang tạo mã VietQR...</div></div>';
 
+    var productNames = state.cart.map(function(e) {
+      var p = getProductById(e.productId);
+      return p ? p.name : '';
+    }).filter(Boolean).join(" + ");
+
     var orderData = {
       customer_email: email,
       customer_phone: phone,
       product_id: product.id,
-      product_name: state.cart.length > 1 ? (product.name + " và " + (state.cart.length - 1) + " file khác") : product.name,
+      product_name: productNames || product.name,
       product_file_url: product.sheetUrl || product.delivery_link || product.fileUrl || "./outputs/1_Quan_Ly_Kho_Sample.xlsx",
       product_type: (product.type === "google_sheets" || !!product.sheetUrl) ? "google_sheets" : "excel",
       amount: getCartTotal()
@@ -1238,9 +1241,11 @@
     }, 0);
 
     if (checkoutSummaryName && product) {
-      checkoutSummaryName.textContent = state.cart.length > 1
-        ? product.name + " (+" + (state.cart.length - 1) + " file khác)"
-        : product.name;
+      var allNames = state.cart.map(function(e) {
+        var p = getProductById(e.productId);
+        return p ? p.name : '';
+      }).filter(Boolean).join(" + ");
+      checkoutSummaryName.textContent = allNames || product.name;
     }
     if (checkoutSummaryPrice) {
       checkoutSummaryPrice.textContent = formatCurrency(total);
@@ -1298,6 +1303,14 @@
       pulseCart();
       showToast(existingIdx !== -1 ? "Sản phẩm đã có trong giỏ hàng." : "Đã thêm vào giỏ hàng.");
     }
+  }
+
+  function buyNow(productId) {
+    // 1-Click Buy: Focus solely on this selected file
+    state.cart = [{ productId: productId, quantity: 1 }];
+    persistCart();
+    renderCart();
+    openCheckout();
   }
 
   function pulseCart() {
