@@ -481,6 +481,22 @@
     return /^[0-9]{9,11}$/.test(normalizePhone(value));
   }
 
+  function getResolvedPhone() {
+    if (state.profile && isValidPhone(state.profile.phone)) {
+      return normalizePhone(state.profile.phone);
+    }
+    if (state.user) {
+      if (state.user.phoneNumber && isValidPhone(state.user.phoneNumber)) {
+        return normalizePhone(state.user.phoneNumber);
+      }
+      if (state.user.email && state.user.email.indexOf("@khachhang.filedilam.vn") !== -1) {
+        var fromEmail = normalizePhone(state.user.email.split("@")[0]);
+        if (isValidPhone(fromEmail)) return fromEmail;
+      }
+    }
+    return "";
+  }
+
   function hasCompleteProfile() {
     return !!(state.profile && state.profile.email && isValidPhone(state.profile.phone));
   }
@@ -490,15 +506,20 @@
     return authFetch("/profile")
       .then(function(profile) {
         state.profile = profile || null;
+        var resolved = getResolvedPhone();
+        if (resolved && (!state.profile || !isValidPhone(state.profile.phone))) {
+          state.profile = Object.assign({}, state.profile || {}, { phone: resolved, email: state.user.email || "" });
+          saveProfile({ phone: resolved, email: state.user.email || "", auth_provider: "auto_detect" });
+        }
         return state.profile;
       })
       .catch(function(error) {
-        if (String(error.message).indexOf("PROFILE_NOT_FOUND") !== -1) {
-          state.profile = { email: state.user.email || "", phone: "" };
-          return state.profile;
+        var resolved = getResolvedPhone();
+        state.profile = { email: state.user.email || "", phone: resolved };
+        if (resolved) {
+          saveProfile({ phone: resolved, email: state.user.email || "", auth_provider: "auto_detect" });
         }
-        showToast("Chưa tải được hồ sơ. Vui lòng thử lại.");
-        return null;
+        return state.profile;
       });
   }
 
@@ -1024,6 +1045,22 @@
     var auth = firebase.auth();
     if (btnQuickSubmit) btnQuickSubmit.disabled = true;
 
+    // Nếu người dùng đã đăng nhập (ví dụ qua Google) nhưng chưa có SĐT
+    if (state.user) {
+      var loggedInPhoneInput = quickPhone.value.trim();
+      var loggedInPhone = normalizePhone(loggedInPhoneInput);
+      if (!isValidPhone(loggedInPhone)) {
+        showToast("Vui lòng nhập đúng số điện thoại/Zalo (9–11 số).");
+        if (btnQuickSubmit) btnQuickSubmit.disabled = false;
+        return;
+      }
+      state.profile = Object.assign({}, state.profile || {}, { phone: loggedInPhone, email: state.user.email || "" });
+      saveProfile({ phone: loggedInPhone, email: state.user.email || "", auth_provider: "quick_phone" });
+      createOrderAndRenderQr({ customer_phone: loggedInPhone, customer_email: state.user.email || "" });
+      if (btnQuickSubmit) btnQuickSubmit.disabled = false;
+      return;
+    }
+
     if (!isQuickLoginMode) {
       // --- CHẾ ĐỘ: KHÁCH MUA LẦN ĐẦU ---
       var phoneInput = quickPhone.value.trim();
@@ -1151,8 +1188,26 @@
       return;
     }
 
-    var phone = (customInfo && customInfo.customer_phone) || (state.profile && state.profile.phone) || "";
+    var phone = (customInfo && customInfo.customer_phone) || getResolvedPhone();
     var email = (customInfo && customInfo.customer_email) || (state.profile && state.profile.email) || (state.user ? state.user.email : "");
+
+    // Tự động lưu profile nếu trên server chưa có số điện thoại
+    if (phone && (!state.profile || !state.profile.phone)) {
+      state.profile = Object.assign({}, state.profile || {}, { phone: phone, email: email });
+      saveProfile({ phone: phone, email: email, auth_provider: "auto_detect" });
+    }
+
+    // Hiển thị ngay thông tin ngân hàng để tránh bị trống các trường trong lúc chờ server
+    var bankAccount = (window.StorefrontData && window.StorefrontData.store && window.StorefrontData.store.bankAccount) || {};
+    var bankShortName = bankAccount.bankShortName || bankAccount.bankName || "TPBank";
+    var vietQrCode = "TPB";
+    var accNo = bankAccount.number || "59215112002";
+    var owner = bankAccount.owner || "HUYNH KIEN CAM";
+
+    if (bankName) bankName.textContent = bankShortName;
+    if (bankOwner) bankOwner.textContent = owner;
+    if (bankNumber) bankNumber.textContent = accNo;
+    if (bankTransferNote) bankTransferNote.textContent = "Đang tạo mã...";
 
     // Chuyển sang Step 2 ngay lập tức
     if (checkoutAuthStep) checkoutAuthStep.style.display = "none";
@@ -1180,16 +1235,9 @@
       body: JSON.stringify(orderData)
     })
     .then(function(resData) {
-      var bankId = (window.StorefrontData && window.StorefrontData.store && window.StorefrontData.store.bankAccount && window.StorefrontData.store.bankAccount.bankShortName) || "TPB";
-      var accNo = (window.StorefrontData && window.StorefrontData.store && window.StorefrontData.store.bankAccount && window.StorefrontData.store.bankAccount.number) || "59215112002";
-      var owner = (window.StorefrontData && window.StorefrontData.store && window.StorefrontData.store.bankAccount && window.StorefrontData.store.bankAccount.owner) || "HUYNH KIEN CAM";
-
-      if (bankName) bankName.textContent = bankId;
-      if (bankOwner) bankOwner.textContent = owner;
-      if (bankNumber) bankNumber.textContent = accNo;
       if (bankTransferNote) bankTransferNote.textContent = resData.transfer_note;
 
-      var qrUrl = "https://img.vietqr.io/image/" + bankId + "-" + accNo + "-compact.png?amount=" + resData.amount + "&addInfo=" + encodeURIComponent(resData.transfer_note) + "&accountName=" + encodeURIComponent(owner);
+      var qrUrl = "https://img.vietqr.io/image/" + vietQrCode + "-" + accNo + "-compact.png?amount=" + resData.amount + "&addInfo=" + encodeURIComponent(resData.transfer_note) + "&accountName=" + encodeURIComponent(owner);
       currentQrImageUrl = qrUrl;
 
       if (qrBox) {
@@ -1200,9 +1248,22 @@
       pollOrderStatus(resData.order_id);
     })
     .catch(function(err) {
-      showToast("Chưa thể tạo đơn hàng. Vui lòng thử lại.");
+      console.error("Order creation error:", err);
+      showToast("Chưa thể tạo đơn hàng. Vui lòng bấm Thử lại.");
       if (qrBox) {
-        qrBox.innerHTML = '<div class="empty-state" style="color:#ef4444; padding:20px;">Lỗi kết nối. Vui lòng bấm nút dưới để thử lại.</div>';
+        qrBox.innerHTML = 
+          '<div class="empty-state" style="color:#ef4444; padding:24px 16px;">' +
+            '<div style="font-size:2rem;margin-bottom:8px;">⚠️</div>' +
+            '<div style="font-weight:600;margin-bottom:6px;">Chưa tạo được đơn hàng</div>' +
+            '<div style="font-size:0.85rem;color:var(--muted);margin-bottom:16px;">Vui lòng kiểm tra mạng và thử lại.</div>' +
+            '<button type="button" class="button-primary" id="retryOrderBtn" style="padding:8px 24px;font-size:0.95rem;margin:0 auto;">Thử lại ngay</button>' +
+          '</div>';
+        var retryBtn = document.getElementById("retryOrderBtn");
+        if (retryBtn) {
+          retryBtn.addEventListener("click", function() {
+            createOrderAndRenderQr(customInfo);
+          });
+        }
       }
     });
   }
@@ -1258,16 +1319,39 @@
     checkoutModal.setAttribute("aria-hidden", "false");
     document.body.classList.add("drawer-open");
 
-    // Nếu đã đăng nhập -> Nhảy thẳng sang Step 2 (Mã QR)
+    // Nếu đã đăng nhập
     if (state.user) {
-      if (checkoutAuthStep) checkoutAuthStep.style.display = "none";
-      if (checkoutPaymentStep) checkoutPaymentStep.style.display = "block";
-      if (checkoutModalTitle) checkoutModalTitle.textContent = "Quét mã QR thanh toán";
-      createOrderAndRenderQr();
+      var resolvedPhone = getResolvedPhone();
+      if (resolvedPhone) {
+        if (checkoutAuthStep) checkoutAuthStep.style.display = "none";
+        if (checkoutPaymentStep) checkoutPaymentStep.style.display = "block";
+        if (checkoutModalTitle) checkoutModalTitle.textContent = "Quét mã QR thanh toán";
+        createOrderAndRenderQr({ customer_phone: resolvedPhone, customer_email: state.user.email });
+      } else {
+        // Đã đăng nhập nhưng chưa có SĐT (ví dụ tài khoản Google lần đầu)
+        if (checkoutModalTitle) checkoutModalTitle.textContent = "Thông tin nhận file";
+        if (quickPhoneLabel) {
+          quickPhoneLabel.innerHTML = '<span>Số điện thoại / Zalo nhận file <strong style="color:#ef4444;">*</strong></span><span style="font-weight:normal;font-size:0.8rem;color:var(--muted);">Để gửi link tải và hỗ trợ</span>';
+        }
+        if (quickPhone) {
+          quickPhone.placeholder = "Ví dụ: 0912345678";
+          quickPhone.value = "";
+        }
+        if (quickPassGroup) quickPassGroup.style.display = "none";
+        if (quickEmailGroup) quickEmailGroup.style.display = "none";
+        if (quickToggleText && quickToggleText.parentElement) quickToggleText.parentElement.style.display = "none";
+        if (btnQuickSubmitText) btnQuickSubmitText.textContent = "Tiếp tục nhận mã QR thanh toán ➔";
+        if (checkoutAuthStep) checkoutAuthStep.style.display = "block";
+        if (checkoutPaymentStep) checkoutPaymentStep.style.display = "none";
+        if (quickPhone) setTimeout(function() { quickPhone.focus(); }, 100);
+      }
     } else {
       // Khách chưa đăng nhập -> Hiển thị Step 1 (Mặc định form mua lần đầu)
       isQuickLoginMode = false;
       updateQuickUI();
+      if (quickPassGroup) quickPassGroup.style.display = "block";
+      if (quickEmailGroup) quickEmailGroup.style.display = "block";
+      if (quickToggleText && quickToggleText.parentElement) quickToggleText.parentElement.style.display = "block";
       if (checkoutAuthStep) checkoutAuthStep.style.display = "block";
       if (checkoutPaymentStep) checkoutPaymentStep.style.display = "none";
       if (quickPhone) setTimeout(function() { quickPhone.focus(); }, 100);

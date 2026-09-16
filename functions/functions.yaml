@@ -1,0 +1,17 @@
+﻿endpoints:
+  api:
+    availableMemoryMb: null
+    concurrency: null
+    entryPoint: api
+    httpsTrigger: {}
+    ingressSettings: null
+    labels: {}
+    maxInstances: null
+    minInstances: null
+    platform: gcfv2
+    secretEnvironmentVariables: []
+    serviceAccountEmail: null
+    timeoutSeconds: null
+params: []
+requiredAPIs: []
+specVersion: v1alpha1

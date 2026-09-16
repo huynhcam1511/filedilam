@@ -6,6 +6,7 @@
       "**/.*",
       "**/node_modules/**",
       "backend/**",
+      "functions/**",
       "tests/**",
       "file_di_lam_factory/**",
       "*.md",
