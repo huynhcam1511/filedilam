@@ -221,6 +221,36 @@
     if (authToggleLink) authToggleLink.addEventListener("click", toggleAuthMode);
     if (authForm) authForm.addEventListener("submit", handleAuthSubmit);
 
+    var tabAuthLogin = document.getElementById("tabAuthLogin");
+    if (tabAuthLogin) {
+      tabAuthLogin.addEventListener("click", function () {
+        isRegisterMode = false;
+        updateAuthUI();
+      });
+    }
+
+    var tabAuthRegister = document.getElementById("tabAuthRegister");
+    if (tabAuthRegister) {
+      tabAuthRegister.addEventListener("click", function () {
+        isRegisterMode = true;
+        updateAuthUI();
+      });
+    }
+
+    var toggleAuthPassVisibility = document.getElementById("toggleAuthPassVisibility");
+    if (toggleAuthPassVisibility) {
+      toggleAuthPassVisibility.addEventListener("click", function () {
+        var authPass = document.getElementById("authPassword");
+        if (!authPass) return;
+        var isPass = authPass.type === "password";
+        authPass.type = isPass ? "text" : "password";
+        var eyeOpen = toggleAuthPassVisibility.querySelector(".eye-open");
+        var eyeClosed = toggleAuthPassVisibility.querySelector(".eye-closed");
+        if (eyeOpen) eyeOpen.style.display = isPass ? "none" : "block";
+        if (eyeClosed) eyeClosed.style.display = isPass ? "block" : "none";
+      });
+    }
+
     // Unified Checkout events
     if (btnGoogleCheckout) btnGoogleCheckout.addEventListener("click", signInWithGoogleCheckout);
     if (quickBuyForm) quickBuyForm.addEventListener("submit", handleQuickBuySubmit);
@@ -372,23 +402,35 @@
     var accountLabel = document.getElementById("authAccountLabel");
     var passLabel = document.getElementById("authPasswordLabel");
     var passInput = document.getElementById("authPassword");
+    var tabLogin = document.getElementById("tabAuthLogin");
+    var tabRegister = document.getElementById("tabAuthRegister");
+
+    if (tabLogin && tabRegister) {
+      if (isRegisterMode) {
+        tabLogin.classList.remove("active");
+        tabRegister.classList.add("active");
+      } else {
+        tabLogin.classList.add("active");
+        tabRegister.classList.remove("active");
+      }
+    }
 
     if (isRegisterMode) {
       if (title) title.textContent = "Đăng ký tài khoản";
       if (submitBtn) submitBtn.textContent = "Đăng ký tài khoản";
       if (toggleText) toggleText.textContent = "Đã có tài khoản?";
       if (toggleLink) toggleLink.textContent = "Đăng nhập ngay";
-      if (accountLabel) accountLabel.textContent = "Số điện thoại / Zalo";
-      if (passLabel) passLabel.textContent = "Mật khẩu tự chọn";
-      if (passInput) passInput.placeholder = "Nhập mật khẩu (tối thiểu 6 ký tự)";
+      if (accountLabel) accountLabel.innerHTML = 'Số điện thoại / Zalo <span class="req">*</span>';
+      if (passLabel) passLabel.innerHTML = 'Mật khẩu tự chọn <span class="req">*</span>';
+      if (passInput) passInput.placeholder = "Tối thiểu 6 ký tự để tải lại file sau";
       if (authPhoneGroup) authPhoneGroup.style.display = "none";
     } else {
       if (title) title.textContent = "Đăng nhập tài khoản";
       if (submitBtn) submitBtn.textContent = "Đăng nhập";
       if (toggleText) toggleText.textContent = "Chưa có tài khoản?";
       if (toggleLink) toggleLink.textContent = "Đăng ký ngay";
-      if (accountLabel) accountLabel.textContent = "Số điện thoại hoặc Email";
-      if (passLabel) passLabel.textContent = "Mật khẩu";
+      if (accountLabel) accountLabel.innerHTML = 'Số điện thoại hoặc Email <span class="req">*</span>';
+      if (passLabel) passLabel.innerHTML = 'Mật khẩu <span class="req">*</span>';
       if (passInput) passInput.placeholder = "Nhập mật khẩu";
       if (authPhoneGroup) authPhoneGroup.style.display = "none";
     }
