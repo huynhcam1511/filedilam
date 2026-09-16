@@ -11,7 +11,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="./storefront.css?v=37" />
+    <link rel="stylesheet" href="./storefront.css?v=38" />
   </head>
   <body>
     <!-- Top Navigation Bar -->
@@ -179,54 +179,69 @@
         </div>
 
         <!-- STEP 1: Quick Customer Info / Auth Step (shown when not logged in) -->
-        <div id="checkoutAuthStep" class="modal-body" style="padding: 20px;">
-          <!-- 1-Tap Google Button -->
-          <button class="button-secondary button-full" id="btnGoogleCheckout" type="button" style="display:flex; align-items:center; justify-content:center; gap:10px; height: 46px; font-weight: 600; font-size: 0.95rem; background: #ffffff; border: 1px solid #cbd5e1; box-shadow: 0 1px 3px rgba(0,0,0,0.06); margin-bottom: 16px;">
-            <svg width="18" height="18" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
-            Tiếp tục nhanh bằng Google
-          </button>
-
-          <div style="display:flex; align-items:center; text-align:center; margin-bottom: 16px;">
-            <div style="flex:1; border-bottom: 1px solid var(--line);"></div>
-            <span id="checkoutDividerText" style="padding: 0 12px; color: var(--muted); font-size: 0.85rem; font-weight: 500;">Hoặc đặt mua bằng Số điện thoại</span>
-            <div style="flex:1; border-bottom: 1px solid var(--line);"></div>
+        <!-- STEP 1: Quick Customer Info / Auth Step (shown when not logged in) -->
+        <div id="checkoutAuthStep" class="modal-body" style="padding: 16px 20px;">
+          <!-- Segmented Mode Switch Tabs -->
+          <div class="checkout-segmented-tabs">
+            <button type="button" class="checkout-tab-btn active" id="tabNewBuyer">
+              <span>✨ Người mua lần đầu</span>
+            </button>
+            <button type="button" class="checkout-tab-btn" id="tabReturningBuyer">
+              <span>🔑 Đã có tài khoản</span>
+            </button>
           </div>
 
           <form id="quickBuyForm">
-            <!-- First-time buyer fields -->
-            <div class="form-group" style="margin-bottom: 12px;">
-              <label id="quickPhoneLabel" style="display: flex; justify-content: space-between; font-weight: 600; font-size: 0.9rem;">
-                <span>Số điện thoại / Zalo <strong style="color: #ef4444;">*</strong></span>
-                <span style="font-weight: normal; font-size: 0.8rem; color: var(--muted);">Dùng để nhận hỗ trợ & tra cứu</span>
+            <!-- Field 1: Phone / Account -->
+            <div class="checkout-field">
+              <label class="checkout-label" id="quickPhoneLabel">
+                Số điện thoại / Zalo <span class="req">*</span>
               </label>
-              <input id="quickPhone" type="text" placeholder="Ví dụ: 0912345678" required style="height: 44px; font-size: 0.95rem;" />
+              <input id="quickPhone" type="text" placeholder="Ví dụ: 0912345678" required class="checkout-input" />
             </div>
 
-            <div class="form-group" id="quickPassGroup" style="margin-bottom: 12px;">
-              <label style="display: flex; justify-content: space-between; font-weight: 600; font-size: 0.9rem;">
-                <span>Mật khẩu tự chọn <strong style="color: #ef4444;">*</strong></span>
-                <span style="font-weight: normal; font-size: 0.8rem; color: var(--muted);">Tối thiểu 6 ký tự</span>
+            <!-- Field 2: Password with eye toggle -->
+            <div class="checkout-field" id="quickPassGroup">
+              <label class="checkout-label" id="quickPassLabel">
+                Mật khẩu <span class="req">*</span>
               </label>
-              <input id="quickPassword" type="password" placeholder="Nhập mật khẩu để sau này tải lại file" minlength="6" required style="height: 44px;" />
+              <div class="password-input-wrap">
+                <input id="quickPassword" type="password" placeholder="Tối thiểu 6 ký tự để tải lại file sau" minlength="6" required class="checkout-input" />
+                <button type="button" class="btn-toggle-eye" id="togglePassVisibility" title="Hiện/ẩn mật khẩu">
+                  <svg class="eye-open" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                  <svg class="eye-closed" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="display:none;"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg>
+                </button>
+              </div>
             </div>
 
-            <div class="form-group" id="quickEmailGroup" style="margin-bottom: 16px;">
-              <label style="display: flex; justify-content: space-between; font-weight: 600; font-size: 0.9rem;">
-                <span>Gmail nhận file</span>
-                <span style="font-weight: normal; font-size: 0.8rem; color: var(--muted);">Không bắt buộc</span>
+            <!-- Field 3: Email (Optional) -->
+            <div class="checkout-field" id="quickEmailGroup">
+              <label class="checkout-label">
+                Gmail nhận file <span class="opt">(Không bắt buộc)</span>
               </label>
-              <input id="quickEmail" type="email" placeholder="Ví dụ: yourname@gmail.com" style="height: 44px;" />
+              <input id="quickEmail" type="email" placeholder="Ví dụ: yourname@gmail.com" class="checkout-input" />
             </div>
 
-            <button class="button-primary button-full" id="btnQuickSubmit" type="submit" style="height: 48px; font-size: 1rem; font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 8px;">
+            <!-- Submit Button -->
+            <button class="button-primary button-full" id="btnQuickSubmit" type="submit" style="height: 46px; font-size: 0.98rem; font-weight: 600; margin-top: 6px; display: flex; align-items: center; justify-content: center; gap: 8px;">
               <span id="btnQuickSubmitText">Tiếp tục nhận mã QR thanh toán ➔</span>
             </button>
           </form>
 
-          <div style="text-align: center; margin-top: 14px; font-size: 0.88rem;">
-            <span id="quickToggleText">Đã từng mua file trước đây?</span>
-            <a href="#" id="quickToggleLink" style="color: var(--mint-strong); font-weight: 600; text-decoration: none; margin-left: 4px;">Đăng nhập ngay</a>
+          <!-- Divider -->
+          <div class="checkout-divider">
+            <span>hoặc tiếp tục nhanh với</span>
           </div>
+
+          <!-- 1-Tap Google Button -->
+          <button class="btn-google-flat button-full" id="btnGoogleCheckout" type="button">
+            <svg width="18" height="18" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
+            <span>Đăng nhập bằng Google</span>
+          </button>
+
+          <!-- Hidden bridge elements for backward compatibility -->
+          <span id="quickToggleText" style="display:none;"></span>
+          <a href="#" id="quickToggleLink" style="display:none;"></a>
         </div>
 
         <!-- STEP 2: VietQR Payment Step (shown after auth or when already logged in) -->
@@ -436,7 +451,7 @@
             <!-- 20. Viettel Money -->
             <button type="button" class="bank-item" data-app-id="viettelmoney" data-scheme="viettelpay://" data-name="Viettel Money" data-search="viettelmoney viettel money d ch v  t i ch nh s  viettel money">
               <div class="bank-logo-wrap">
-                <img src="https://cdn.haitrieu.com/wp-content/uploads/2022/10/Icon-Viettel-Money.png" alt="Viettel Money" class="bank-logo-img" loading="lazy" />
+                <img src="https://cdn.vietqr.io/img/VIETTELMONEY.png" alt="Viettel Money" class="bank-logo-img" loading="lazy" />
               </div>
               <span class="bank-label">Viettel Money</span>
             </button>
@@ -662,6 +677,6 @@
     <script src="/__/firebase/init.js"></script>
     <script src="./storefront-data.js?v=12"></script>
     <script src="./storefront-products.generated.js?v=6"></script>
-    <script src="storefront.js?v=51"></script>
+    <script src="storefront.js?v=52"></script>
   </body>
 </html>

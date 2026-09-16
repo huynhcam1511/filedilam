@@ -220,6 +220,35 @@
     if (quickToggleLink) quickToggleLink.addEventListener("click", toggleQuickMode);
     if (backToInfoBtn) backToInfoBtn.addEventListener("click", handleBackToInfo);
 
+    var tabNewBuyer = document.getElementById("tabNewBuyer");
+    if (tabNewBuyer) {
+      tabNewBuyer.addEventListener("click", function () {
+        isQuickLoginMode = false;
+        updateQuickUI();
+      });
+    }
+
+    var tabReturningBuyer = document.getElementById("tabReturningBuyer");
+    if (tabReturningBuyer) {
+      tabReturningBuyer.addEventListener("click", function () {
+        isQuickLoginMode = true;
+        updateQuickUI();
+      });
+    }
+
+    var togglePassVisibility = document.getElementById("togglePassVisibility");
+    if (togglePassVisibility) {
+      togglePassVisibility.addEventListener("click", function () {
+        if (!quickPassword) return;
+        var isPass = quickPassword.type === "password";
+        quickPassword.type = isPass ? "text" : "password";
+        var eyeOpen = togglePassVisibility.querySelector(".eye-open");
+        var eyeClosed = togglePassVisibility.querySelector(".eye-closed");
+        if (eyeOpen) eyeOpen.style.display = isPass ? "none" : "block";
+        if (eyeClosed) eyeClosed.style.display = isPass ? "block" : "none";
+      });
+    }
+
     if (detailModal) {
       detailModal.addEventListener("click", function (event) {
         if (event.target === detailModal) {
@@ -998,37 +1027,51 @@
 
   function updateQuickUI() {
     if (!quickBuyForm) return;
+
+    var tabNew = document.getElementById("tabNewBuyer");
+    var tabRet = document.getElementById("tabReturningBuyer");
+    if (tabNew && tabRet) {
+      if (isQuickLoginMode) {
+        tabNew.classList.remove("active");
+        tabRet.classList.add("active");
+      } else {
+        tabNew.classList.add("active");
+        tabRet.classList.remove("active");
+      }
+    }
+
     if (isQuickLoginMode) {
       if (checkoutModalTitle) checkoutModalTitle.textContent = "Đăng nhập tài khoản cũ";
       if (quickPhoneLabel) {
-        quickPhoneLabel.innerHTML = '<span>Số điện thoại hoặc Email <strong style="color:#ef4444;">*</strong></span><span style="font-weight:normal;font-size:0.8rem;color:var(--muted);">Đã dùng khi mua file</span>';
+        quickPhoneLabel.innerHTML = 'Số điện thoại hoặc Email <span class="req">*</span>';
       }
-      if (quickPhone) quickPhone.placeholder = "Nhập SĐT hoặc Email của bạn";
+      if (quickPhone) quickPhone.placeholder = "SĐT hoặc Email bạn đã mua file";
       if (quickPassGroup) quickPassGroup.style.display = "block";
       if (quickPassword) quickPassword.placeholder = "Nhập mật khẩu";
       if (quickEmailGroup) quickEmailGroup.style.display = "none";
       if (btnQuickSubmitText) btnQuickSubmitText.textContent = "Đăng nhập & Nhận mã QR ➔";
-      if (quickToggleText) quickToggleText.textContent = "Người mua lần đầu?";
-      if (quickToggleLink) quickToggleLink.textContent = "Đăng ký nhanh";
     } else {
-      if (checkoutModalTitle) checkoutModalTitle.textContent = "Đăng ký mua file (Người mua lần đầu)";
+      if (checkoutModalTitle) checkoutModalTitle.textContent = "Thông tin nhận file & Thanh toán";
       if (quickPhoneLabel) {
-        quickPhoneLabel.innerHTML = '<span>Số điện thoại / Zalo <strong style="color:#ef4444;">*</strong></span><span style="font-weight:normal;font-size:0.8rem;color:var(--muted);">Dùng để nhận hỗ trợ & tra cứu</span>';
+        quickPhoneLabel.innerHTML = 'Số điện thoại / Zalo <span class="req">*</span>';
       }
       if (quickPhone) quickPhone.placeholder = "Ví dụ: 0912345678";
       if (quickPassGroup) quickPassGroup.style.display = "block";
-      if (quickPassword) quickPassword.placeholder = "Nhập mật khẩu tự chọn (tối thiểu 6 ký tự)";
+      if (quickPassword) quickPassword.placeholder = "Tối thiểu 6 ký tự để tải lại file sau";
       if (quickEmailGroup) quickEmailGroup.style.display = "block";
       if (btnQuickSubmitText) btnQuickSubmitText.textContent = "Tiếp tục nhận mã QR thanh toán ➔";
-      if (quickToggleText) quickToggleText.textContent = "Đã từng mua file trước đây?";
-      if (quickToggleLink) quickToggleLink.textContent = "Đăng nhập ngay";
     }
   }
 
   function handleBackToInfo() {
     if (checkoutAuthStep) checkoutAuthStep.style.display = "block";
     if (checkoutPaymentStep) checkoutPaymentStep.style.display = "none";
-    if (checkoutModalTitle) checkoutModalTitle.textContent = "Thanh toán & Nhận file";
+    if (checkoutModalTitle) checkoutModalTitle.textContent = "Thông tin nhận file & Thanh toán";
+    if (state.user) {
+      if (quickPhone) quickPhone.value = getResolvedPhone();
+      if (quickPassGroup) quickPassGroup.style.display = "none";
+      if (quickEmailGroup) quickEmailGroup.style.display = "none";
+    }
   }
 
   function handleConfirmPaymentClicked() {
@@ -1331,15 +1374,19 @@
         // Đã đăng nhập nhưng chưa có SĐT (ví dụ tài khoản Google lần đầu)
         if (checkoutModalTitle) checkoutModalTitle.textContent = "Thông tin nhận file";
         if (quickPhoneLabel) {
-          quickPhoneLabel.innerHTML = '<span>Số điện thoại / Zalo nhận file <strong style="color:#ef4444;">*</strong></span><span style="font-weight:normal;font-size:0.8rem;color:var(--muted);">Để gửi link tải và hỗ trợ</span>';
+          quickPhoneLabel.innerHTML = 'Số điện thoại / Zalo <span class="req">*</span>';
         }
         if (quickPhone) {
           quickPhone.placeholder = "Ví dụ: 0912345678";
           quickPhone.value = "";
         }
+        var tabs = document.querySelector(".checkout-segmented-tabs");
+        if (tabs) tabs.style.display = "none";
+        var divider = document.querySelector(".checkout-divider");
+        if (divider) divider.style.display = "none";
+        if (btnGoogleCheckout) btnGoogleCheckout.style.display = "none";
         if (quickPassGroup) quickPassGroup.style.display = "none";
         if (quickEmailGroup) quickEmailGroup.style.display = "none";
-        if (quickToggleText && quickToggleText.parentElement) quickToggleText.parentElement.style.display = "none";
         if (btnQuickSubmitText) btnQuickSubmitText.textContent = "Tiếp tục nhận mã QR thanh toán ➔";
         if (checkoutAuthStep) checkoutAuthStep.style.display = "block";
         if (checkoutPaymentStep) checkoutPaymentStep.style.display = "none";
@@ -1348,10 +1395,12 @@
     } else {
       // Khách chưa đăng nhập -> Hiển thị Step 1 (Mặc định form mua lần đầu)
       isQuickLoginMode = false;
+      var tabs = document.querySelector(".checkout-segmented-tabs");
+      if (tabs) tabs.style.display = "flex";
+      var divider = document.querySelector(".checkout-divider");
+      if (divider) divider.style.display = "flex";
+      if (btnGoogleCheckout) btnGoogleCheckout.style.display = "flex";
       updateQuickUI();
-      if (quickPassGroup) quickPassGroup.style.display = "block";
-      if (quickEmailGroup) quickEmailGroup.style.display = "block";
-      if (quickToggleText && quickToggleText.parentElement) quickToggleText.parentElement.style.display = "block";
       if (checkoutAuthStep) checkoutAuthStep.style.display = "block";
       if (checkoutPaymentStep) checkoutPaymentStep.style.display = "none";
       if (quickPhone) setTimeout(function() { quickPhone.focus(); }, 100);
@@ -1547,12 +1596,84 @@
     showToast("Đã tải ảnh mã QR về máy!");
   }
 
+  var BANK_SEARCH_ALIASES = {
+    "vcb": "vietcombank vietcom ngoại thương ngoai thuong bftvvnvx",
+    "mb": "mbbank mb bank quân đội quan doi mscbvnvx",
+    "tcb": "techcombank techcom kỹ thương ky thuong vtcbvnvx",
+    "tpb": "tpbank tp tiên phong tien phong tpbvvnvx",
+    "vpb": "vpbank vp việt nam thịnh vượng viet nam thinh vuong vpbkvnvx",
+    "acb": "acb á châu a chau ascbvnvx",
+    "bidv": "bidv đầu tư phát triển dau tu phat trien bidvvnvx",
+    "icb": "vietinbank vietin công thương cong thuong icbvvnvx ctg",
+    "vba": "agribank agri nông nghiệp nong nghiep vbaavnvx",
+    "stb": "sacombank sacom sài gòn thương tín sai gon thuong tin sgttvnvx",
+    "vib-2": "vib quốc tế quoc te vnibvnvx myvib",
+    "vib": "vib quốc tế quoc te vnibvnvx myvib",
+    "momo": "momo ví momo vi momo trực tuyến truc tuyen",
+    "zalopay": "zalopay ví zalopay vi zalopay zalo vng",
+    "hdb": "hdbank hdb phát triển tphcm phat trien hdbcvnvx",
+    "shb": "shb sài gòn hà nội sai gon ha noi shbavnvx",
+    "msb": "msb hàng hải hang hai mcobvnvx",
+    "ocb": "ocb phương đông phuong dong orcovnvx",
+    "seab": "seabank seab đông nam á dong nam a seavvnvx",
+    "lpb": "lpbank lpb lộc phát loc phat bưu điện liên việt buu dien lien viet lvbkvnvx",
+    "viettelmoney": "viettelmoney viettel money vtpay vtlmoney viettel pay viễn thông quân đội",
+    "cake": "cake cake by vpbank ngân hàng số ngan hang so",
+    "shbvn": "shinhan shinhanbank shinhan bank shbkvnvx hàn quốc",
+    "eib": "eximbank exim xuất nhập khẩu xuat nhap khau ebvivnvx",
+    "nab": "nam a namabank nam á namavnvx",
+    "abb": "abbank ab an bình an binh abbkvnvx",
+    "timo": "timo bvbank bản việt ban viet vietcapitalbank vccb vcbcvnvx",
+    "vab": "vietabank việt á viet a vnacvnvx",
+    "klb": "kienlongbank kiên long kien long klbkvnvx",
+    "bvb": "baoviet baovietbank bảo việt bao viet bvbvvnvx",
+    "scb": "scb sài gòn sai gon saclvnvx",
+    "ncb": "ncb quốc dân quoc dan nvbavnvx",
+    "vietbank": "vietbank thương tín thuong tin vnttvnvx",
+    "uob": "uob united overseas unitedoverseas",
+    "cimb": "cimb",
+    "wvn": "woori wooribank woori bank",
+    "pbvn": "public publicbank public bank",
+    "coopbank": "coopbank coop hợp tác xã hop tac xa",
+    "vrb": "vrb việt nga viet nga",
+    "ivb": "indovina indovinabank",
+    "hsbc": "hsbc",
+    "scvn": "standard chartered standardchartered",
+    "citibank": "citibank citi",
+    "kbank": "kbank kasikorn kasikornbank",
+    "dbs": "dbs dbsbank",
+    "hlbvn": "hong leong hongleong",
+    "pgb": "pgbank pg thịnh vượng phát triển thinh vuong phat trien",
+    "ubank": "ubank ubank by vpbank",
+    "ojb": "oceanbank đại dương dai duong",
+    "vnptmoney": "vnpt vnptmoney vnpt money",
+    "sgicb": "saigonbank sài gòn công thương sai gon cong thuong"
+  };
+
+  function removeVietnameseTones(str) {
+    if (!str) return "";
+    return String(str)
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .replace(/đ/g, "d")
+      .replace(/Đ/g, "D")
+      .toLowerCase();
+  }
+
   function openBankPickerModal() {
     if (!bankPickerModal) return;
     if (bankSearchInput) {
       bankSearchInput.value = "";
       filterBankItems("");
     }
+    // Gán title tooltip cho từng card ngân hàng để rê chuột vẫn biết rõ tên
+    document.querySelectorAll(".bank-item").forEach(function (el) {
+      var name = el.getAttribute("data-name");
+      if (name) {
+        if (!el.getAttribute("title")) el.setAttribute("title", name);
+        if (!el.getAttribute("aria-label")) el.setAttribute("aria-label", name);
+      }
+    });
     bankPickerModal.classList.add("is-open");
     bankPickerModal.setAttribute("aria-hidden", "false");
     document.body.classList.add("drawer-open");
@@ -1564,16 +1685,47 @@
   }
 
   function filterBankItems(query) {
-    var q = (query || "").trim().toLowerCase();
+    var rawQ = (query || "").trim().toLowerCase();
+    var normQ = removeVietnameseTones(rawQ);
     var items = document.querySelectorAll(".bank-item");
+    var visibleCount = 0;
+
     items.forEach(function (el) {
-      var searchStr = (el.getAttribute("data-search") || "") + " " + (el.getAttribute("data-name") || "") + " " + (el.textContent || "");
-      if (!q || searchStr.toLowerCase().indexOf(q) !== -1) {
+      var appId = (el.getAttribute("data-app-id") || "").toLowerCase();
+      var dataSearch = el.getAttribute("data-search") || "";
+      var dataName = el.getAttribute("data-name") || "";
+      var labelText = el.textContent || "";
+      var aliases = BANK_SEARCH_ALIASES[appId] || "";
+
+      var combined = [dataSearch, dataName, labelText, aliases, appId].join(" ");
+      var rawCombined = combined.toLowerCase();
+      var normCombined = removeVietnameseTones(combined);
+
+      var isMatch = !normQ || rawCombined.indexOf(rawQ) !== -1 || normCombined.indexOf(normQ) !== -1;
+      if (isMatch) {
         el.style.display = "flex";
+        visibleCount++;
       } else {
         el.style.display = "none";
       }
     });
+
+    var emptyMsg = document.getElementById("bankGridEmpty");
+    if (!emptyMsg && bankGrid) {
+      emptyMsg = document.createElement("div");
+      emptyMsg.id = "bankGridEmpty";
+      emptyMsg.className = "bank-grid-empty";
+      emptyMsg.style.gridColumn = "1 / -1";
+      emptyMsg.style.textAlign = "center";
+      emptyMsg.style.padding = "24px 12px";
+      emptyMsg.style.color = "#64748b";
+      emptyMsg.style.fontSize = "0.88rem";
+      emptyMsg.textContent = "Không tìm thấy ứng dụng ngân hàng phù hợp";
+      bankGrid.appendChild(emptyMsg);
+    }
+    if (emptyMsg) {
+      emptyMsg.style.display = (visibleCount === 0) ? "block" : "none";
+    }
   }
 
   function closeBankPickerModal() {
