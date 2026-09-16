@@ -1,0 +1,592 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "document": {
+    "id": "file-di-lam-mvp-it-brain",
+    "title": "FILE ĐI LÀM MVP - IT Brain",
+    "version": "1.0.0",
+    "language": "vi-VN",
+    "generated_at": "2026-09-16T21:50:00+07:00",
+    "purpose": "Nguồn chuẩn kỹ thuật và nghiệp vụ có cấu trúc về toàn bộ kiến trúc IT, storefront webapp, admin dashboard, backend/cloud functions, factory sinh template Excel, Firestore/Storage rules, module, luồng thanh toán SePay, danh mục sản phẩm, checklist và quy tắc tư vấn trước khi thay đổi code.",
+    "authority": {
+      "priority_order": [
+        "Yêu cầu rõ ràng mới nhất của chủ dự án (Huỳnh Kiến Cẩm)",
+        "Security rules (Firestore/Storage) và kiểm tra quyền thực thi phía server/Cloud Functions",
+        "IT_BRAIN.json",
+        "brain.json & FILE_DI_LAM_BRAND.json (Bộ tiêu chuẩn thương hiệu & chất lượng sản phẩm)",
+        "Code production đang chạy trên Firebase Hosting/Cloud Functions (filedilam)",
+        "README và các tài liệu kế hoạch tác nghiệp (.md) trong thư mục gốc",
+        "Script sửa chữa cục bộ, file scratch, cache và snapshot lịch sử"
+      ],
+      "conflict_policy": "Khi nguồn mâu thuẫn, không tự tiện suy đoán âm thầm. Nêu rõ điểm xung đột, ưu tiên an toàn dữ liệu khách hàng, tính đúng đắn của dòng tiền SePay và giao hàng tự động, xác minh runtime thực tế rồi mới chỉnh sửa code.",
+      "fact_labels": {
+        "observed": "Đã quan sát trực tiếp trong mã nguồn, config hoặc database.",
+        "inferred": "Suy luận logic có căn cứ nhưng cần xác minh khi quyết định có rủi ro cao.",
+        "recommended": "Quy tắc hoặc kiến trúc mục tiêu chuẩn hoá; chưa khẳng định đã triển khai đầy đủ.",
+        "disabled": "Có code nhưng hiện bị tạm dừng hoặc chưa nối vào UI/API công khai.",
+        "legacy": "Bản sao, code thử nghiệm hoặc backend cũ (như FastAPI backend cục bộ) không còn là nguồn chuẩn."
+      }
+    },
+    "maintenance": {
+      "owner": "Huỳnh Kiến Cẩm (huynhkiencam151102@gmail.com) / Antigravity AI Pair Programmer",
+      "update_triggers": [
+        "Thêm, sửa, xoá sản phẩm hoặc danh mục trên Storefront / Firestore",
+        "Thay đổi schema đơn hàng (orders), hồ sơ khách hàng (customer_profiles) hoặc sản phẩm (products)",
+        "Thay đổi Cloud Functions API (functions/main.py) hoặc SePay webhook handler",
+        "Cập nhật Firebase Hosting rewrites/headers, Firestore rules hoặc Storage rules",
+        "Cập nhật core engine của Template Factory (file_di_lam_factory) hoặc thêm template mới",
+        "Thay đổi thông tin tài khoản ngân hàng thụ hưởng TPBank hoặc cú pháp mã chuyển khoản",
+        "Nâng cấp hoặc bổ sung file thương mại mới vào outputs/"
+      ],
+      "update_rule": "Mọi lần can thiệp mã nguồn liên quan đến các thành phần trên phải cập nhật đồng thời IT_BRAIN.json để duy trì ngữ cảnh dài hạn.",
+      "validation": "File phải là JSON hợp lệ theo draft 2020-12; không hardcode secret nhạy cảm (như SePay API token thật, private keys); các claim quan trọng phải có source_map liên kết."
+    }
+  },
+  "repository": {
+    "workspace_root": ".",
+    "primary_applications": {
+      "storefront": {
+        "path": ".",
+        "entrypoints": ["index.html", "storefront.js", "storefront.css", "storefront-data.js"],
+        "status": "observed",
+        "role": "Website bán hàng số tĩnh (Single-Page App) tối ưu cho TikTok bio link và mobile, tích hợp giỏ hàng, đặt mua nhanh, đăng nhập Google/Phone và nhận link file qua VietQR."
+      },
+      "admin_portal": {
+        "path": ".",
+        "entrypoints": ["admin.html", "admin.js"],
+        "status": "observed",
+        "role": "Trang quản trị cho chủ shop đăng bán, chỉnh sửa giá, upload ảnh bìa/file Excel lên Storage và lưu metadata vào Firestore."
+      },
+      "cloud_functions_backend": {
+        "path": "functions",
+        "entrypoints": ["functions/main.py", "functions/functions.yaml", "functions/requirements.txt"],
+        "status": "observed",
+        "role": "Backend chính thức (Firebase Functions 2nd gen - Python) phụ trách API đơn hàng, hồ sơ khách, đơn đã mua và webhook SePay tự động mở khóa file."
+      },
+      "template_factory": {
+        "path": "file_di_lam_factory",
+        "entrypoints": ["file_di_lam_factory/cli.py", "file_di_lam_factory/core/", "file_di_lam_factory/design_systems/", "file_di_lam_factory/templates/"],
+        "status": "observed",
+        "role": "Bộ máy Python sinh template thương mại (.xlsx) theo config và design tokens, đi kèm engine tự động kiểm thử chất lượng (QC) và xuất manifest."
+      },
+      "standalone_debt_app": {
+        "path": "debt-management-app",
+        "entrypoints": ["debt-management-app/index.html", "debt-management-app/app.js"],
+        "status": "observed",
+        "role": "Web App mini cục bộ theo dõi công nợ, đối tác và dòng tiền (client-side prototype)."
+      },
+      "legacy_backend": {
+        "path": "backend",
+        "entrypoints": ["backend/main.py", "backend/database.py"],
+        "status": "legacy",
+        "role": "FastAPI + SQLite backend ban đầu; đã được thay thế bằng Firebase Cloud Functions trên môi trường live."
+      }
+    },
+    "non_runtime_assets": [
+      "outputs/ (chứa các file build xuất xưởng, file QC json, manifest json và file Google Apps Script)",
+      "market_research/ (dữ liệu phân tích nhu cầu và khảo sát đối thủ)",
+      "01_He_Thong_Cong_No_Thuc_Chien_Pro.xlsx, Bang_Gia_MacBook_Tham_Khao.xlsx, shop_online_mini_beautiful.xlsx (tài liệu nghiệp vụ & file đối chiếu)",
+      "huong-dan-kho-smart.mp4 (video hướng dẫn vận hành)"
+    ],
+    "exclude_from_architecture_inference": [
+      "__pycache__",
+      ".firebase",
+      "functions/venv",
+      "functions/.venv",
+      "scratch",
+      "fix_anim.py",
+      "fix_css.py",
+      "fix_mobile_nav.py",
+      "fix_modal.py",
+      "fix_syntax.py",
+      "token.pickle",
+      "token_sheets.pickle"
+    ],
+    "known_maintenance_debt": [
+      "Tồn tại đồng thời 2 backend: functions/main.py (live Cloud Functions) và backend/main.py (FastAPI SQLite cục bộ). Phải thống nhất dùng functions/main.py.",
+      "Dữ liệu sản phẩm có 2 lớp: storefront-data.js (hardcoded fallback) và collection 'products' trên Cloud Firestore (Single Source of Truth).",
+      "Webhook SePay tại functions/main.py chưa có secret token verification (xác thực signature/header SePay) để chặn request giả lập.",
+      "Admin Portal admin.js so sánh quyền trực tiếp bằng chuỗi hardcode: user.email === 'huynhkiencam151102@gmail.com' ở cả client và firestore.rules.",
+      "Tồn tại các file credentials và client_secret ở thư mục gốc có thể vô tình bị đưa lên version control nếu không đưa vào .gitignore."
+    ]
+  },
+  "decision_output_contract": {
+    "status": "normative",
+    "source_of_truth_ui": "Storefront (index.html) -> Admin (admin.html) -> Cloud Functions (functions/main.py) -> Factory (file_di_lam_factory).",
+    "interpretation_rule": "Nội dung phản hồi cần ngắn gọn, trực diện, ưu tiên xử lý bài toán vận hành bán hàng và chất lượng file Excel/Sheets.",
+    "default_user_facing_format": "Danh sách đầu việc theo thứ tự ưu tiên P0/P1/P2/P3; nêu rõ layer và file tác động trước khi code.",
+    "taxonomy_rule": "Gốc phân loại: Domain/Capability -> Layer -> Target -> Vấn đề -> Giải pháp đề xuất -> Quyết định.",
+    "hierarchy": ["Domain", "Capability", "Layer", "Target", "Issue", "RecommendedChange", "Priority", "DecisionStatus"],
+    "layers": [
+      "storefront_ui",
+      "admin_ui",
+      "checkout_flow",
+      "cloud_functions_api",
+      "firestore_data",
+      "storage_files",
+      "sepay_webhook",
+      "template_factory_engine",
+      "excel_qc",
+      "apps_script_automation",
+      "security_and_auth"
+    ],
+    "allowed_priorities": ["P0", "P1", "P2", "P3"],
+    "decision_statuses": ["Chờ quyết định", "Đã duyệt", "Từ chối", "Hoãn", "Đang làm", "Cần kiểm tra", "Hoàn thành"],
+    "verbosity_rules": [
+      "Mặc định tối đa 10-15 đầu việc trong một lần trình bày.",
+      "Mỗi đầu việc tối đa 2-3 câu ngắn; ưu tiên rõ outcome nghiệp vụ.",
+      "Không lặp lại code dài dòng nếu chỉ giải thích logic."
+    ]
+  },
+  "action_plans": {
+    "active_plan": {
+      "id": "COST-CALC-PRODUCT",
+      "title": "Hoàn thiện và phát hành file Tính Giá Cost đa ngành v3.x",
+      "status": "in_progress",
+      "canonical_file": "KE_HOACH_NANG_CAP_FILE_COST_DA_NGANH.md",
+      "secondary_file": "ACTION_PLAN_THANG_09_2026.md",
+      "task_ids": ["COST-01", "COST-02", "COST-03", "COST-04"],
+      "execution_rule": "Chỉ phát hành khi file vượt qua tiêu chuẩn visual và QC: màu hồng pastel dịu, font hỗ trợ tiếng Việt, 4 KPI + 6 biểu đồ rõ nhãn, 40-50 dòng dữ liệu mẫu, dropdown phủ đến dòng cuối và có dấu phân tách hàng nghìn.",
+      "next_task": "COST-03"
+    },
+    "candidate_plans": [
+      {
+        "id": "SEPAY-SECURITY-HARDENING",
+        "title": "Bảo mật Webhook SePay và quản lý đơn hàng tự động",
+        "status": "planned",
+        "task_ids": ["SEC-01", "SEC-02", "SEC-03"],
+        "activation_gate": "Triển khai xác thực API Key/Secret của SePay và lưu trữ transaction logs bảo mật trong Firestore."
+      },
+      {
+        "id": "FACTORY-GSHEETS-BRIDGE",
+        "title": "Cầu nối sinh trực tiếp Google Sheets và Apps Script từ Template Factory",
+        "status": "backlog",
+        "canonical_file": "PIPELINE_FILE_DI_LAM_FACTORY.md"
+      }
+    ]
+  },
+  "portal_module_registry": {
+    "status": "active",
+    "portal_codes": {
+      "STO": "Storefront Web (Khách mua & tải file)",
+      "ADM": "Admin Portal (Chủ shop quản trị sản phẩm & giá)",
+      "FNC": "Cloud Functions API (Quản lý profile, đơn hàng & webhook)",
+      "FAC": "Template Factory Engine (Bộ máy sinh file Excel & QC)",
+      "GAS": "Google Apps Script Extensions (Tự động hoá trên Google Sheets)"
+    }
+  },
+  "product": {
+    "name": "File Đi Làm (filedilam.vn)",
+    "brand_tagline": "Kho File Quản Lý Tự Động - Giải quyết công việc thật cho SME & người đi làm",
+    "positioning": "Hệ sinh thái công cụ số hoá nhẹ, bắt đầu từ Excel/Google Sheets dễ dùng, nâng cấp lên Apps Script và Web App.",
+    "pricing_anchors": {
+      "admin_sovereignty_principle": "Toàn bộ giá niêm yết, giá khuyến mãi, phần trăm giảm giá và combo ĐỀU DO ADMIN (Huỳnh Kiến Cẩm) toàn quyền thiết lập trực tiếp trên Firestore. Nghiêm cấm mọi hành vi tự ý ghi đè, xóa sản phẩm hoặc hardcode giá làm mất sản phẩm của Admin.",
+      "ban_hang_online": 2000,
+      "quan_ly_kho_mini": 99000,
+      "tinh_cost_da_nganh": 99000,
+      "combo_tiet_kiem": 149000
+    },
+    "personas": [
+      {
+        "id": "chu_shop_online",
+        "description": "Bán hàng trên TikTok Shop, Shopee, Facebook; cần quản lý đơn hàng, theo dõi tiền COD và kiểm soát lãi lỗ mà không rành công thức phức tạp."
+      },
+      {
+        "id": "chu_quan_fnb_dich_vu",
+        "description": "Quán cà phê, trà sữa, quán ăn, tiệm bánh, xưởng handmade; đau đầu với việc tính cost món, quy đổi nguyên vật liệu kg/g/lít/ml và hao hụt."
+      },
+      {
+        "id": "admin_ke_toan_kho",
+        "description": "Nhân viên văn phòng, phụ trách kho hoặc công nợ tại doanh nghiệp SME; cần file chuẩn chỉ, có dashboard báo cáo và bảo vệ công thức."
+      }
+    ]
+  },
+  "technology": {
+    "frontend": [
+      "HTML5 Semantic Single Page Application",
+      "Storefront CSS3 với Modern CSS Variables (Design Tokens)",
+      "Vanilla JavaScript (ES6+)",
+      "Firebase Client SDK v10 (Auth, Firestore, Storage)",
+      "VietQR API / QR Code Generator (Quick payment via Banking Apps)",
+      "Canvas-confetti (Hiệu ứng chốt đơn)",
+      "Lucide Icons (SVG Embeds)"
+    ],
+    "backend": [
+      "Python 3.11 / 3.12",
+      "Firebase Functions 2nd gen (firebase-functions, firebase-admin)",
+      "FastAPI + SQLAlchemy + SQLite (Legacy local backend)"
+    ],
+    "template_factory": [
+      "openpyxl (đọc, kiểm tra QC, định dạng, validation)",
+      "xlsxwriter (authoring engine sinh workbook có conditional formatting, charts và data validation)",
+      "pytest / unittest (kiểm thử chất lượng file mẫu)"
+    ],
+    "cloud_infrastructure": {
+      "firebase_project": "filedilam",
+      "hosting": "Firebase Hosting (public: ., Cache-Control: no-cache cho HTML)",
+      "database": "Cloud Firestore (region: default / asia-southeast1)",
+      "storage": "Firebase Cloud Storage (filedilam.firebasestorage.app)",
+      "serverless": "Cloud Run / Firebase Cloud Functions (function: api)"
+    },
+    "entrypoints": {
+      "storefront_html": "index.html",
+      "storefront_logic": "storefront.js",
+      "storefront_data": "storefront-data.js",
+      "admin_html": "admin.html",
+      "admin_logic": "admin.js",
+      "cloud_functions": "functions/main.py",
+      "factory_cli": "file_di_lam_factory/cli.py",
+      "firestore_rules": "firestore.rules",
+      "firebase_config": "firebase.json"
+    }
+  },
+  "ui": {
+    "design_direction": {
+      "brand_identity": "Thực dụng, hiện đại, tối giản, sang trọng, thân thiện với chủ shop và người mới dùng máy tính.",
+      "storefront": "Giao diện bio-link cao cấp, tối giản, chuyên nghiệp chuẩn Fintech. Tuyệt đối KHÔNG lạm dụng card container thừa thãi ('lậm card') và KHÔNG dùng các emoji/icon sến súa (⚡, ✨, 🔑, 🟢, ⏳, ⚠️, ➔). Modal thanh toán 2 bước tinh gọn: Step 1 thu thập thông tin nhận file (SĐT / Zalo / Google); Step 2 hiển thị mã QR VietQR kèm bảng chuyển khoản đầy đủ: Ngân hàng, Chủ TK, Số TK, Số tiền (kèm nút sao chép), Nội dung CK.",
+      "admin": "Bảng điều khiển tinh gọn, danh sách sản phẩm kèm ảnh thumbnail, form thêm/sửa trực quan hỗ trợ phân loại Google Sheets vs Excel.",
+      "excel_templates": "Tuân thủ bộ bảng màu Pastel Feminine hoặc Corporate Blue, font chữ hỗ trợ tiếng Việt (Arial, Segoe UI), chia rõ vùng Nhập Liệu (nền nhạt) và vùng Tự Tính (khóa công thức), trang Tổng Quan có ít nhất 4 KPI và 6 biểu đồ."
+    },
+    "tokens": {
+      "colors": {
+        "mint_primary": "#10b981",
+        "mint_dark": "#059669",
+        "mint_light": "#ecfdf5",
+        "mint_surface": "#f0fdf4",
+        "dark_bg": "#0f172a",
+        "dark_card": "#1e293b",
+        "text_main": "#1e293b",
+        "text_muted": "#64748b",
+        "border_color": "#e2e8f0"
+      },
+      "radii": {
+        "card": "16px",
+        "modal": "20px",
+        "button": "12px",
+        "tag": "6px"
+      },
+      "bank_account_info": {
+        "bank_name": "Ngân hàng TMCP Tiên Phong (TPBank)",
+        "account_number": "59215112002",
+        "account_owner": "HUYNH KIEN CAM",
+        "transfer_prefix": "FILEDILAM"
+      }
+    }
+  },
+  "routes": [
+    { "path": "/", "surface": "storefront", "access": "public", "description": "Trang chủ bán file, hiển thị danh mục, bộ lọc giá, giỏ hàng và thanh toán VietQR." },
+    { "path": "/admin.html", "surface": "admin", "access": "admin_only", "description": "Trang quản trị thêm, sửa, xoá sản phẩm và đồng bộ kho Firestore." },
+    { "path": "/debt-management-app/index.html", "surface": "standalone_tool", "access": "public", "description": "Ứng dụng web theo dõi công nợ độc lập." }
+  ],
+  "modules": [
+    {
+      "code": "STO-CATALOG",
+      "id": "storefront_catalog",
+      "name": "Danh mục sản phẩm & Thư mục",
+      "responsibilities": ["Hiển thị các folder danh mục (Bán hàng online, Quản lý kho, Công nợ, Combo)", "Lọc theo khoảng giá", "Tìm kiếm theo tên file"]
+    },
+    {
+      "code": "STO-CHECKOUT",
+      "id": "storefront_checkout",
+      "name": "Giỏ hàng & Thanh toán VietQR",
+      "responsibilities": ["Giỏ hàng cục bộ", "Đặt mua nhanh (Quick Buy bằng SĐT)", "Tạo mã QR VietQR động", "Tự động sao chép số tài khoản & nội dung chuyển khoản", "Nhảy popup nhận link bản sao Google Drive hoặc file Excel"]
+    },
+    {
+      "code": "STO-MYPURCHASE",
+      "id": "storefront_my_purchases",
+      "name": "File của tôi (Đơn đã mua)",
+      "responsibilities": ["Đăng nhập Google / SĐT", "Lưu trữ lịch sử mua hàng", "Hiển thị danh sách file đã sở hữu kèm nút Tạo bản sao / Tải về"]
+    },
+    {
+      "code": "ADM-PROD",
+      "id": "admin_product_management",
+      "name": "Quản lý sản phẩm Firestore",
+      "responsibilities": ["CRUD sản phẩm", "Upload ảnh thumbnail lên Storage", "Upload file Excel lên Storage hoặc lưu Google Sheets /copy link", "Chỉnh sửa giá niêm yết và giá khuyến mãi"]
+    },
+    {
+      "code": "API-ORDER",
+      "id": "cloud_functions_orders",
+      "name": "API Xử lý đơn hàng & Khách",
+      "responsibilities": ["Tạo mã đơn hàng (DHxxxxxx)", "Ghi nhận thông tin SĐT / email khách", "Truy vấn trạng thái đơn hàng (GET /orders/:id)", "Liệt kê đơn đã thanh toán (GET /my-orders)"]
+    },
+    {
+      "code": "API-SEPAY",
+      "id": "cloud_functions_sepay",
+      "name": "Webhook SePay Đối Soát Tự Động",
+      "responsibilities": ["Lắng nghe POST /webhooks/sepay từ cổng SePay", "Khớp mã đơn hàng trong nội dung chuyển khoản (transferContent)", "Chuyển trạng thái đơn hàng từ PENDING sang PAID", "Mở khóa link tải file ngay lập tức"]
+    },
+    {
+      "code": "FAC-BUILD",
+      "id": "factory_build_engine",
+      "name": "Core Engine Sản Xuất File Excel",
+      "responsibilities": ["Xây dựng sheet Bắt đầu, Dữ liệu, Danh mục, Báo cáo Tổng quan", "Áp dụng định dạng bảng, màu sắc theo Design Token", "Tạo công thức động và validation ô nhập", "Khoá sheet và bảo vệ công thức"]
+    },
+    {
+      "code": "FAC-QC",
+      "id": "factory_qc_engine",
+      "name": "Tự động Kiểm thử Chất lượng (QC Engine)",
+      "responsibilities": ["Kiểm tra lỗi công thức (#REF!, #VALUE!, #NAME?)", "Kiểm tra độ phủ dropdown đến dòng cuối", "Kiểm tra tính toàn vẹn của bảo vệ ô và màu phân định", "Xuất báo cáo .qc.json và .manifest.json"]
+    }
+  ],
+  "architecture": {
+    "frontend_layers": [
+      { "layer": "view_shell", "paths": ["index.html", "admin.html"] },
+      { "layer": "presentation_styles", "paths": ["storefront.css"] },
+      { "layer": "client_logic_and_state", "paths": ["storefront.js", "admin.js"] },
+      { "layer": "static_fallback_data", "paths": ["storefront-data.js"] },
+      { "layer": "cloud_client_bridge", "paths": ["Firebase Auth, Firestore, Storage SDKs"] }
+    ],
+    "backend_layers": [
+      { "layer": "serverless_api_entry", "path": "functions/main.py" },
+      { "layer": "firebase_admin_sdk", "path": "functions/main.py (auth, firestore)" },
+      { "layer": "webhook_router", "path": "functions/main.py (/webhooks/sepay)" },
+      { "layer": "factory_automation", "path": "file_di_lam_factory/cli.py" }
+    ],
+    "data_ownership": {
+      "products": "Firestore collection 'products' (quản lý bởi Admin, đọc công khai trên Storefront)",
+      "orders": "Firestore collection 'orders' (tạo từ Storefront, cập nhật trạng thái PAID bởi SePay Webhook)",
+      "customer_profiles": "Firestore collection 'customer_profiles' (quản lý thông tin SĐT, email theo UID)",
+      "product_files": "Firebase Storage (products/{id}/cover_*, products/{id}/file_*) hoặc Google Drive Link",
+      "template_configs": "file_di_lam_factory/templates/*/config.json và sample_data.json"
+    }
+  },
+  "data_model": {
+    "collections": [
+      {
+        "name": "products",
+        "description": "Kho sản phẩm số hiển thị trên storefront",
+        "fields": {
+          "id": "String (Slug ID hoặc Timestamp ID duy nhất)",
+          "name": "String (Tên hiển thị sản phẩm)",
+          "categoryId": "String (ban-hang-online | cong-no | quan-ly-kho | combo)",
+          "price": "Number (Giá bán thực tế VND)",
+          "originalPrice": "Number | null (Giá gốc trước khi giảm)",
+          "type": "String (google_sheets | excel | combo)",
+          "sheetUrl": "String (Link Google Sheets gốc)",
+          "delivery_link": "String (Link /copy vào Drive hoặc link tải)",
+          "previewImageUrl": "String (URL ảnh bìa từ Storage)",
+          "fileUrl": "String | null (URL file .xlsx đính kèm nếu type=excel)",
+          "description": "String (Mô tả chi tiết giải quyết vấn đề gì)",
+          "suitableFor": "String (Đối tượng phù hợp nhất)",
+          "highlights": "Array<String> (Danh sách tính năng nổi bật)",
+          "delivery": "String (Phương thức bàn giao)",
+          "fileCount": "Number (Số lượng file)",
+          "tag": "String | null (VD: Bán chạy nhất, Hot, Mới)",
+          "createdAt": "Timestamp"
+        }
+      },
+      {
+        "name": "orders",
+        "description": "Lịch sử đơn hàng và trạng thái kích hoạt file",
+        "fields": {
+          "id": "String (Mã đơn hàng, định dạng DHxxxxxx)",
+          "user_id": "String (UID Firebase Auth của khách mua)",
+          "customer_email": "String (Email nhận thông báo / tài khoản)",
+          "customer_phone": "String (Số điện thoại khách)",
+          "product_id": "String (ID sản phẩm tương ứng)",
+          "product_name": "String (Tên sản phẩm tại thời điểm mua)",
+          "product_type": "String (google_sheets | excel)",
+          "product_file_url": "String (Link bàn giao file sau khi thanh toán)",
+          "amount": "Number (Số tiền phải thanh toán VND)",
+          "status": "String (PENDING | PAID)",
+          "created_at": "Timestamp"
+        }
+      },
+      {
+        "name": "customer_profiles",
+        "description": "Hồ sơ khách hàng gắn với SĐT và phương thức đăng nhập",
+        "fields": {
+          "user_id": "String (UID)",
+          "phone": "String (Số điện thoại chuẩn hóa)",
+          "email": "String (Email)",
+          "auth_provider": "String (google | quick_checkout | phone)",
+          "created_at": "Timestamp",
+          "updated_at": "Timestamp"
+        }
+      }
+    ],
+    "consistency_rules": [
+      "Mã đơn hàng (id) bắt buộc dùng tiền tố DH + 6 chữ số ngẫu nhiên để khách chuyển khoản dễ dàng.",
+      "Trạng thái đơn hàng chỉ có 2 giá trị chuẩn: PENDING và PAID.",
+      "Chỉ cấp product_file_url khi đơn hàng đã đạt trạng thái PAID.",
+      "Đối với sản phẩm Google Sheets, link bàn giao bắt buộc phải kết thúc bằng /copy hoặc mở trang tạo bản sao Google Drive."
+    ]
+  },
+  "api": {
+    "cloud_functions_endpoints": [
+      {
+        "method": "POST",
+        "path": "/orders",
+        "auth": "Bearer Firebase ID Token",
+        "description": "Khởi tạo đơn hàng mới, sinh mã DHxxxxxx và lưu Firestore trạng thái PENDING."
+      },
+      {
+        "method": "GET",
+        "path": "/orders/:id",
+        "auth": "Bearer Firebase ID Token (chỉ xem đơn của chính mình)",
+        "description": "Kiểm tra trạng thái thanh toán của đơn hàng; trả về file URL nếu đã PAID."
+      },
+      {
+        "method": "GET",
+        "path": "/my-orders",
+        "auth": "Bearer Firebase ID Token",
+        "description": "Lấy danh sách các đơn hàng đã thanh toán thành công của tài khoản hiện tại."
+      },
+      {
+        "method": "GET/PUT",
+        "path": "/profile",
+        "auth": "Bearer Firebase ID Token",
+        "description": "Lấy hoặc cập nhật thông tin số điện thoại khách hàng."
+      },
+      {
+        "method": "POST",
+        "path": "/webhooks/sepay",
+        "auth": "Public Webhook (Đang xử lý khớp mã đơn hàng trong content)",
+        "description": "Webhook nhận biến động số dư từ SePay, tự động duyệt đơn sang PAID."
+      }
+    ]
+  },
+  "authorization": {
+    "roles": {
+      "admin": {
+        "identifier": "huynhkiencam151102@gmail.com",
+        "capabilities": [
+          "Quản trị toàn bộ danh mục sản phẩm (Create, Update, Delete)",
+          "Tải ảnh bìa và file gốc lên Firebase Storage",
+          "Truy cập trang /admin.html",
+          "Quyền ghi vào Firestore collection 'products'"
+        ]
+      },
+      "customer": {
+        "identifier": "Mọi người dùng đã xác thực (Google Auth hoặc Quick Phone login)",
+        "capabilities": [
+          "Tạo đơn hàng mới gắn với UID của mình",
+          "Xem trạng thái đơn hàng của chính mình",
+          "Xem danh sách file đã mua và nhận link tải",
+          "Cập nhật thông tin SĐT cá nhân"
+        ]
+      },
+      "visitor": {
+        "identifier": "Khách vãng lai chưa đăng nhập",
+        "capabilities": [
+          "Xem danh sách sản phẩm và chi tiết mô tả",
+          "Thêm sản phẩm vào giỏ hàng cục bộ",
+          "Quét mã QR chuyển khoản"
+        ]
+      }
+    },
+    "security_rules": {
+      "firestore": "Chỉ cho phép public READ collection 'products'. Mọi quyền WRITE 'products' bị khoá chặt cho admin email 'huynhkiencam151102@gmail.com'.",
+      "storage": "Quy tắc lưu trữ tài nguyên ảnh và file sản phẩm bảo vệ theo quyền quản trị."
+    }
+  },
+  "flows": [
+    {
+      "id": "customer_purchase_and_auto_delivery",
+      "name": "Luồng Mua Hàng & Giao File Tự Động 100%",
+      "steps": [
+        "1. Khách xem sản phẩm trên Storefront (từ link bio TikTok / Facebook).",
+        "2. Bấm 'Mua ngay' hoặc thêm vào giỏ hàng và bấm 'Thanh toán'.",
+        "3. Bước xác thực nhanh: Nhập SĐT hoặc Đăng nhập Google (tự động tạo UID ẩn danh/xác thực).",
+        "4. Hệ thống gọi Cloud Functions POST /orders để sinh mã đơn (VD: DH123456).",
+        "5. Storefront hiển thị mã QR VietQR (TPBank, STK 59215112002, số tiền chính xác, nội dung DH123456).",
+        "6. Khách mở App ngân hàng quét mã QR và chuyển khoản.",
+        "7. SePay bắn webhook POST /webhooks/sepay về Cloud Functions.",
+        "8. Backend kiểm tra nội dung chuyển khoản chứa mã DH123456 và số tiền đủ -> cập nhật status='PAID'.",
+        "9. Storefront đang polling GET /orders/DH123456 phát hiện trạng thái PAID -> bắn pháo hoa ăn mừng và hiển thị nút 'Tạo Bản Sao (Google Drive)' / 'Tải Xuống Ngay'."
+      ],
+      "guards": [
+        "Chống thất lạc đơn: Nội dung chuyển khoản phải cố định là mã đơn hàng.",
+        "Khách không bị mất quyền truy cập: Khi đăng nhập lại bằng SĐT/Google cũ, file đã mua luôn nằm trong 'File của tôi'.",
+        "1-Click Buy độc lập: Khi bấm 'Mua ngay' trên một sản phẩm bất kỳ, hệ thống làm sạch giỏ và chỉ đặt duy nhất sản phẩm đó để tạo đơn (tránh lỗi hiển thị '+1 file khác' hoặc mua nhầm file cũ)."
+      ]
+    },
+    {
+      "id": "admin_product_management_flow",
+      "name": "Luồng Đăng Bán & Cập Nhật Sản Phẩm",
+      "steps": [
+        "1. Chủ shop mở /admin.html và bấm 'Đăng nhập với Google'.",
+        "2. Kiểm tra email nếu là huynhkiencam151102@gmail.com -> mở màn hình quản trị.",
+        "3. Điền tên file, chọn danh mục, giá bán, giá khuyến mãi, mô tả, ưu điểm.",
+        "4. Chọn loại: 'Google Sheets' (nhập link /copy) hoặc 'Excel' (upload file .xlsx) hoặc 'Combo'.",
+        "5. Chọn ảnh bìa thumbnail (hệ thống tự upload lên Firebase Storage).",
+        "6. Bấm 'Đăng bán' -> lưu trực tiếp vào Firestore collection 'products'.",
+        "7. Storefront realtime onSnapshot tự động cập nhật sản phẩm mới ngay lập tức mà không cần build lại web."
+      ]
+    },
+    {
+      "id": "template_factory_production_pipeline",
+      "name": "Quy trình Sản Xuất File Excel Thương Mại",
+      "steps": [
+        "1. Khảo sát nghiệp vụ và lập cấu trúc bảng tại templates/<template_id>/config.json.",
+        "2. Định nghĩa dữ liệu mẫu chuẩn và danh mục tại sample_data.json.",
+        "3. Viết công thức động tại formulas.py và data validation dropdown tại validations.py.",
+        "4. Thiết lập bảng Dashboard (tối thiểu 4 KPI + 6 charts) tại dashboard.py.",
+        "5. Chạy CLI build: python3 -m file_di_lam_factory.cli build <template_id>.",
+        "6. Engine tự động chạy QC và sinh file xuất xưởng kèm báo cáo .qc.json và .manifest.json.",
+        "7. Kiểm tra thực tế bằng Microsoft Excel và Google Sheets trước khi upload bán."
+      ]
+    }
+  ],
+  "product_quality_standard": {
+    "benchmark": "outputs/shop_online_mini/file_di_lam_shop_online_mini__v1_3_0__20260818_031500.xlsx",
+    "mandatory_standards": [
+      "Sheet BẮT ĐẦU: Có mục đích file, hướng dẫn 3 bước nhập, thiết lập ban đầu, ví dụ hoàn chỉnh và bảng chú giải màu.",
+      "Sheet TỔNG QUAN: Là Dashboard chỉ xem với tối thiểu 4 KPI và 6 biểu đồ khác chức năng; không chứa bài đọc dài hay ô nhập liệu.",
+      "Vùng Nhập vs Vùng Tự Tính: Phân biệt rõ ràng bằng màu sắc; vùng tự tính và công thức bắt buộc phải khóa (protect sheet).",
+      "Độ phủ Dropdown & Validation: Phủ sẵn toàn bộ số dòng nhập dự kiến đến dòng cuối cùng; khách thêm dòng mới không phải kéo công thức.",
+      "Định dạng số nhất quán: Toàn bộ tiền tệ, số lượng phải có dấu phân tách hàng nghìn (1.000.000 đ), tỷ lệ % rõ ràng.",
+      "Typography & Font: Dùng font hỗ trợ đầy đủ tiếng Việt không bị lỗi dấu (Arial, Segoe UI, Google Sans).",
+      "Kiểm tra thực tế: Phải mở file trên ứng dụng thực tế (Excel, Google Sheets) để kiểm tra giao diện, không chỉ dựa vào mã nguồn sinh file."
+    ]
+  },
+  "risk_register": [
+    {
+      "id": "RSK-01",
+      "severity": "high",
+      "status": "observed",
+      "risk": "Webhook SePay (/webhooks/sepay) chưa kiểm tra API Key hoặc Bearer Token bảo mật từ SePay trong header.",
+      "action": "Bổ sung kiểm tra secret token SePay trong functions/main.py để chặn request giả lập chuyển tiền."
+    },
+    {
+      "id": "RSK-02",
+      "severity": "medium",
+      "status": "observed",
+      "risk": "Tồn tại 2 backend song song (functions/main.py và backend/main.py), dễ gây nhầm lẫn khi nâng cấp API.",
+      "action": "Đánh dấu backend/ là legacy và tài liệu hoá functions/main.py là Cloud Functions duy nhất."
+    },
+    {
+      "id": "RSK-03",
+      "severity": "medium",
+      "status": "observed",
+      "risk": "Các file OAuth và token (client_secret_*.json, token.pickle, credentials.json) nằm tại thư mục gốc.",
+      "action": "Đảm bảo đã đưa toàn bộ file chứng thực vào .gitignore để tránh rò rỉ khi push lên GitHub."
+    },
+    {
+      "id": "RSK-04",
+      "severity": "low",
+      "status": "observed",
+      "risk": "Admin Dashboard kiểm tra quyền admin bằng email client-side.",
+      "action": "Firestore Rules đã chặn write ở cấp database, tuy nhiên cần duy trì kiểm tra Firebase Auth token chặt chẽ."
+    }
+  ],
+  "source_map": [
+    { "ref": "SRC-01", "path": "index.html", "supports": ["Storefront HTML layout", "Modal checkout", "Drawer giỏ hàng", "Drawer đơn mua"] },
+    { "ref": "SRC-02", "path": "storefront.css", "supports": ["Design tokens", "Giao diện bio link", "Mobile responsiveness", "Animations"] },
+    { "ref": "SRC-03", "path": "storefront.js", "supports": ["Logic hiển thị sản phẩm", "Giỏ hàng", "VietQR dynamic rendering", "Polling đơn hàng", "Auth"] },
+    { "ref": "SRC-04", "path": "storefront-data.js", "supports": ["Dữ liệu sản phẩm mẫu fallback ban đầu", "Thông tin tài khoản ngân hàng TPBank"] },
+    { "ref": "SRC-05", "path": "admin.html", "supports": ["Giao diện trang quản trị Admin"] },
+    { "ref": "SRC-06", "path": "admin.js", "supports": ["Logic quản trị Admin", "Tải ảnh/file lên Storage", "CRUD sản phẩm Firestore"] },
+    { "ref": "SRC-07", "path": "functions/main.py", "supports": ["Firebase Cloud Functions", "API đơn hàng /orders", "Webhook SePay /webhooks/sepay"] },
+    { "ref": "SRC-08", "path": "firestore.rules", "supports": ["Phân quyền đọc/ghi Firestore", "Chặn sửa sản phẩm trừ admin email"] },
+    { "ref": "SRC-09", "path": "firebase.json", "supports": ["Hosting config", "Cache control headers", "Functions config"] },
+    { "ref": "SRC-10", "path": "file_di_lam_factory/cli.py", "supports": ["CLI lệnh build, list, qc template"] },
+    { "ref": "SRC-11", "path": "file_di_lam_factory/core/", "supports": ["Lõi render Excel", "Định dạng bảng", "Xử lý formula & protection"] },
+    { "ref": "SRC-12", "path": "file_di_lam_factory/design_systems/", "supports": ["Bộ Design Tokens màu sắc (Pastel Spring, Clean Blue, Neutral Beige)"] },
+    { "ref": "SRC-13", "path": "file_di_lam_factory/templates/shop_online_mini/", "supports": ["Template Shop Online Mini"] },
+    { "ref": "SRC-14", "path": "KE_HOACH_NANG_CAP_FILE_COST_DA_NGANH.md", "supports": ["Kế hoạch kỹ thuật & thiết kế file Tính Giá Cost đa ngành"] },
+    { "ref": "SRC-15", "path": "ACTION_PLAN_THANG_09_2026.md", "supports": ["Mục tiêu và tiến độ tác nghiệp tháng 09/2026"] },
+    { "ref": "SRC-16", "path": "FILE_DI_LAM_BRAND.json", "supports": ["Tầm nhìn thương hiệu, danh mục sản phẩm và đối tượng khách hàng"] },
+    { "ref": "SRC-17", "path": "brain.json", "supports": ["Tiêu chuẩn chất lượng sản phẩm & dữ liệu marketing TikTok"] },
+    { "ref": "SRC-18", "path": ".agents/rules/production_pipeline.md", "supports": ["Quy chuẩn đặt tên sản phẩm và cấu trúc dữ liệu giao hàng"] }
+  ]
+}
