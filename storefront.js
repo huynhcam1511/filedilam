@@ -321,6 +321,20 @@
       });
     }
 
+    // Đóng drawer khi click ra ngoài
+    document.addEventListener("click", function (event) {
+      if (purchasesDrawer && purchasesDrawer.classList.contains("is-open")) {
+        if (!purchasesDrawer.contains(event.target) && !event.target.closest("#myPurchasesBtn") && !event.target.closest("#btnSuccessViewPurchases")) {
+          closePurchasesDrawer();
+        }
+      }
+      if (cartDrawer && cartDrawer.classList.contains("is-open")) {
+        if (!cartDrawer.contains(event.target) && !event.target.closest("#openCartNav") && !event.target.closest("#openCartButton")) {
+          closeCart();
+        }
+      }
+    });
+
     // Tự động kiểm tra đơn hàng khi khách quay lại trình duyệt sau khi chuyển khoản
     document.addEventListener("visibilitychange", function () {
       if (document.visibilityState === "visible") {
@@ -343,6 +357,9 @@
           if (registerButton) registerButton.style.display = "none";
           if (loginButton) loginButton.style.display = "none";
           if (userProfile) userProfile.style.display = "flex";
+          if (purchasesDrawer && purchasesDrawer.classList.contains("is-open")) {
+            loadMyPurchases();
+          }
           
           var adminBtn = document.getElementById("adminDashboardBtn");
           if (adminBtn) {
@@ -634,13 +651,38 @@
   }
 
   function openPurchases() {
-    loadMyPurchases();
+    closeCart();
+    closeDetail();
+    closeCheckout();
+
     if (purchasesDrawer) {
       purchasesDrawer.classList.add("is-open");
       purchasesDrawer.setAttribute("aria-hidden", "false");
       document.body.classList.add("drawer-open");
       document.body.classList.add("cart-drawer-open");
     }
+
+    if (!state.user) {
+      if (purchasesItems) {
+        purchasesItems.innerHTML =
+          '<div class="empty-state" style="padding: 40px 16px; text-align: center;">' +
+            '<div style="font-size: 40px; margin-bottom: 12px;">📁</div>' +
+            '<div style="font-weight: 600; font-size: 1rem; margin-bottom: 8px; color: var(--text);">Tài khoản của bạn</div>' +
+            '<p style="color: var(--muted); font-size: 0.88rem; line-height: 1.5; margin-bottom: 20px;">Vui lòng đăng nhập bằng Số điện thoại hoặc Email để xem toàn bộ file đã mua.</p>' +
+            '<button type="button" class="button-primary button-full" id="btnPurchasesLogin" style="padding: 10px 0; font-size: 0.95rem;">Đăng nhập ngay</button>' +
+          '</div>';
+        var btnL = document.getElementById("btnPurchasesLogin");
+        if (btnL) {
+          btnL.addEventListener("click", function() {
+            closePurchasesDrawer();
+            openAuthModal();
+          });
+        }
+      }
+      return;
+    }
+
+    loadMyPurchases();
   }
 
   function closePurchasesDrawer() {
@@ -674,12 +716,8 @@
     if (!state.user || !purchasesItems) return;
     purchasesItems.innerHTML = '<div class="empty-state">Đang tải dữ liệu...</div>';
     
-    Promise.all([
-      authFetch("/my-orders"),
-      productsLoadedPromise || Promise.resolve()
-    ])
-      .then(function(results) {
-        var orders = results[0];
+    authFetch("/my-orders")
+      .then(function(orders) {
         if (!orders || !orders.length) {
           purchasesItems.innerHTML = '<div class="empty-state">Bạn chưa có đơn hàng nào.</div>';
           return;
@@ -1220,7 +1258,17 @@
       "<p style='color: var(--muted); margin-bottom: 24px;'>" + descText + "</p>" +
       setupText +
       '<a href="' + escapeHtml(deliveryUrl) + '" target="_blank" rel="noopener noreferrer" class="button-primary button-full" style="height: 50px; font-size: 1.1rem; text-decoration: none; display:flex; align-items:center; justify-content:center;">' + btnText + '</a>' +
+      '<button type="button" class="button-secondary button-full" id="btnSuccessViewPurchases" style="height: 44px; margin-top: 12px; font-size: 0.95rem;">Mở danh sách File của tôi</button>' +
       "</div>";
+    
+    var btnVP = document.getElementById("btnSuccessViewPurchases");
+    if (btnVP) {
+      btnVP.addEventListener("click", function() {
+        closeDetail();
+        openPurchases();
+      });
+    }
+
     detailTitle.textContent = "Nhận File Của Bạn";
     if (detailFooter) detailFooter.innerHTML = "";
     detailModal.classList.add("is-open");
