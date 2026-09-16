@@ -199,6 +199,13 @@
         copyTextToClipboard(bankNumber ? bankNumber.textContent.trim() : "", copyBankNumberBtn, "Đã sao chép Số tài khoản");
       });
     }
+    var copyBankAmountBtn = document.getElementById("copyBankAmountBtn");
+    if (copyBankAmountBtn) {
+      copyBankAmountBtn.addEventListener("click", function () {
+        var bankAmt = document.getElementById("bankAmount");
+        copyTextToClipboard(bankAmt ? bankAmt.textContent.replace(/[^\d]/g, "") : "", copyBankAmountBtn, "Đã sao chép Số tiền");
+      });
+    }
     if (copyTransferNoteBtn) {
       copyTransferNoteBtn.addEventListener("click", function () {
         copyTextToClipboard(bankTransferNote ? bankTransferNote.textContent.trim() : "", copyTransferNoteBtn, "Đã sao chép Nội dung CK");
@@ -1041,7 +1048,7 @@
     }
 
     if (isQuickLoginMode) {
-      if (checkoutModalTitle) checkoutModalTitle.textContent = "Đăng nhập tài khoản cũ";
+      if (checkoutModalTitle) checkoutModalTitle.textContent = "Đăng nhập tài khoản";
       if (quickPhoneLabel) {
         quickPhoneLabel.innerHTML = 'Số điện thoại hoặc Email <span class="req">*</span>';
       }
@@ -1049,9 +1056,9 @@
       if (quickPassGroup) quickPassGroup.style.display = "block";
       if (quickPassword) quickPassword.placeholder = "Nhập mật khẩu";
       if (quickEmailGroup) quickEmailGroup.style.display = "none";
-      if (btnQuickSubmitText) btnQuickSubmitText.textContent = "Đăng nhập & Nhận mã QR ➔";
+      if (btnQuickSubmitText) btnQuickSubmitText.textContent = "Đăng nhập & Nhận mã QR";
     } else {
-      if (checkoutModalTitle) checkoutModalTitle.textContent = "Thông tin nhận file & Thanh toán";
+      if (checkoutModalTitle) checkoutModalTitle.textContent = "Thông tin thanh toán";
       if (quickPhoneLabel) {
         quickPhoneLabel.innerHTML = 'Số điện thoại / Zalo <span class="req">*</span>';
       }
@@ -1059,7 +1066,7 @@
       if (quickPassGroup) quickPassGroup.style.display = "block";
       if (quickPassword) quickPassword.placeholder = "Tối thiểu 6 ký tự để tải lại file sau";
       if (quickEmailGroup) quickEmailGroup.style.display = "block";
-      if (btnQuickSubmitText) btnQuickSubmitText.textContent = "Tiếp tục nhận mã QR thanh toán ➔";
+      if (btnQuickSubmitText) btnQuickSubmitText.textContent = "Tiếp tục nhận mã QR";
     }
   }
 
@@ -1201,7 +1208,7 @@
               quickPhoneLabel.innerHTML = '<span>Số điện thoại / Zalo nhận file <strong style="color:#ef4444;">*</strong></span>';
             }
             if (btnQuickSubmitText) {
-              btnQuickSubmitText.textContent = "Xác nhận SĐT & Nhận mã QR ➔";
+              btnQuickSubmitText.textContent = "Xác nhận SĐT & Nhận mã QR";
             }
             if (quickPhone) quickPhone.focus();
             showToast("Đã liên kết Google. Vui lòng nhập SĐT/Zalo để nhận file.");
@@ -1250,13 +1257,15 @@
     if (bankName) bankName.textContent = bankShortName;
     if (bankOwner) bankOwner.textContent = owner;
     if (bankNumber) bankNumber.textContent = accNo;
+    var bankAmount = document.getElementById("bankAmount");
+    if (bankAmount) bankAmount.textContent = formatCurrency(getCartTotal());
     if (bankTransferNote) bankTransferNote.textContent = "Đang tạo mã...";
 
     // Chuyển sang Step 2 ngay lập tức
     if (checkoutAuthStep) checkoutAuthStep.style.display = "none";
     if (checkoutPaymentStep) checkoutPaymentStep.style.display = "block";
     if (checkoutModalTitle) checkoutModalTitle.textContent = "Quét mã QR thanh toán";
-    if (qrBox) qrBox.innerHTML = '<div class="empty-state" style="padding:40px 0;"><div style="font-size:2rem;margin-bottom:8px;">⏳</div><div>Đang tạo mã VietQR...</div></div>';
+    if (qrBox) qrBox.innerHTML = '<div class="empty-state" style="padding:40px 0;"><div style="font-weight:600; font-size: 0.95rem; color: var(--muted); margin-bottom: 4px;">Đang tạo mã VietQR...</div><div style="font-size: 0.8rem; color: var(--muted);">Vui lòng chờ trong giây lát</div></div>';
 
     var productNames = state.cart.map(function(e) {
       var p = getProductById(e.productId);
@@ -1279,6 +1288,7 @@
     })
     .then(function(resData) {
       if (bankTransferNote) bankTransferNote.textContent = resData.transfer_note;
+      if (bankAmount) bankAmount.textContent = formatCurrency(resData.amount || getCartTotal());
 
       var qrUrl = "https://img.vietqr.io/image/" + vietQrCode + "-" + accNo + "-compact.png?amount=" + resData.amount + "&addInfo=" + encodeURIComponent(resData.transfer_note) + "&accountName=" + encodeURIComponent(owner);
       currentQrImageUrl = qrUrl;
@@ -1296,7 +1306,6 @@
       if (qrBox) {
         qrBox.innerHTML = 
           '<div class="empty-state" style="color:#ef4444; padding:24px 16px;">' +
-            '<div style="font-size:2rem;margin-bottom:8px;">⚠️</div>' +
             '<div style="font-weight:600;margin-bottom:6px;">Chưa tạo được đơn hàng</div>' +
             '<div style="font-size:0.85rem;color:var(--muted);margin-bottom:16px;">Vui lòng kiểm tra mạng và thử lại.</div>' +
             '<button type="button" class="button-primary" id="retryOrderBtn" style="padding:8px 24px;font-size:0.95rem;margin:0 auto;">Thử lại ngay</button>' +
@@ -1357,6 +1366,10 @@
     if (checkoutSummaryOriginal) {
       checkoutSummaryOriginal.textContent = originalTotal > total ? formatCurrency(originalTotal) : "";
     }
+    var bankAmountEl = document.getElementById("bankAmount");
+    if (bankAmountEl) {
+      bankAmountEl.textContent = formatCurrency(total);
+    }
 
     checkoutModal.classList.add("is-open");
     checkoutModal.setAttribute("aria-hidden", "false");
@@ -1387,7 +1400,7 @@
         if (btnGoogleCheckout) btnGoogleCheckout.style.display = "none";
         if (quickPassGroup) quickPassGroup.style.display = "none";
         if (quickEmailGroup) quickEmailGroup.style.display = "none";
-        if (btnQuickSubmitText) btnQuickSubmitText.textContent = "Tiếp tục nhận mã QR thanh toán ➔";
+        if (btnQuickSubmitText) btnQuickSubmitText.textContent = "Tiếp tục nhận mã QR";
         if (checkoutAuthStep) checkoutAuthStep.style.display = "block";
         if (checkoutPaymentStep) checkoutPaymentStep.style.display = "none";
         if (quickPhone) setTimeout(function() { quickPhone.focus(); }, 100);
