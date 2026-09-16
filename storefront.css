@@ -1517,11 +1517,44 @@ body.cart-drawer-open .page-layout {
   .cart-drawer {
     position: fixed !important;
     top: 0 !important;
+    left: 0 !important;
     right: 0 !important;
+    bottom: 0 !important;
     height: 100vh !important;
     height: 100dvh !important;
-    width: min(380px, 92%) !important;
-    z-index: 10001 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    border-radius: 0 !important;
+    border-left: none !important;
+    z-index: 10005 !important;
+    box-shadow: none !important;
+  }
+
+  .cart-drawer .drawer-header {
+    padding: 14px 18px !important;
+    background: #ffffff !important;
+    position: sticky !important;
+    top: 0 !important;
+    z-index: 2 !important;
+  }
+
+  .cart-drawer .drawer-header h3 {
+    font-size: 1.15rem !important;
+    font-weight: 700 !important;
+  }
+
+  .cart-drawer .drawer-body {
+    padding: 16px 18px !important;
+    -webkit-overflow-scrolling: touch !important;
+  }
+
+  .cart-drawer .drawer-footer {
+    padding: 14px 18px calc(14px + env(safe-area-inset-bottom, 0px)) 18px !important;
+    background: #ffffff !important;
+    box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.05) !important;
+    position: sticky !important;
+    bottom: 0 !important;
+    z-index: 2 !important;
   }
 
   .nav-container {
