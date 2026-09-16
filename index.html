@@ -11,7 +11,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="./storefront.css?v=40" />
+    <link rel="stylesheet" href="./storefront.css?v=41" />
   </head>
   <body>
     <!-- Top Navigation Bar -->
@@ -188,9 +188,14 @@
     <!-- Checkout Modal (Unified Quick Buy & VietQR) -->
     <div class="modal-backdrop" id="checkoutModal" aria-hidden="true" style="z-index: 10006;">
       <div class="modal-card checkout-card" style="max-width: 500px; width: 100%;">
-        <div class="drawer-header">
-          <h3 id="checkoutModalTitle">Thông tin thanh toán</h3>
-          <button class="icon-button" id="closeCheckout" type="button" aria-label="Đóng">×</button>
+        <div class="drawer-header" style="display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; border-bottom: 1px solid var(--line);">
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <button class="icon-button" id="checkoutBackBtn" type="button" aria-label="Quay lại bước trước" title="Quay lại sửa thông tin" style="display: none; width: 36px; height: 36px; align-items: center; justify-content: center; border-radius: 8px;">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+            </button>
+            <h3 id="checkoutModalTitle" style="margin: 0; font-size: 1.05rem; font-weight: 700; color: #0f172a;">Thông tin thanh toán</h3>
+          </div>
+          <button class="icon-button" id="closeCheckout" type="button" aria-label="Đóng" style="width: 36px; height: 36px; font-size: 1.4rem; display: flex; align-items: center; justify-content: center;">×</button>
         </div>
 
         <!-- STEP 1: Quick Customer Info / Auth Step (shown when not logged in) -->
@@ -259,9 +264,9 @@
         </div>
 
         <!-- STEP 2: VietQR Payment Step (shown after auth or when already logged in) -->
-        <div id="checkoutPaymentStep" class="modal-body" style="display: none; padding: 20px;">
-          <div class="bank-box" style="padding: 16px; border-radius: 12px; background: #f8fafc; border: 1px solid var(--line);">
-            <div class="qr-box" id="qrBox" style="min-height: 220px; display: flex; align-items: center; justify-content: center; margin-bottom: 12px;">
+        <div id="checkoutPaymentStep" class="modal-body" style="display: none; padding: 14px 16px;">
+          <div class="bank-box" style="padding: 12px 14px; border-radius: 12px; background: #f8fafc; border: 1px solid var(--line);">
+            <div class="qr-box" id="qrBox" style="min-height: 175px; display: flex; align-items: center; justify-content: center; margin-bottom: 10px;">
               <div class="empty-state">Đang tạo mã VietQR...</div>
             </div>
 
@@ -276,11 +281,11 @@
                 <span>Mở App Bank</span>
               </button>
             </div>
-            <div id="qrDownloadedHint" style="display: none; margin-top: 8px; font-size: 0.8rem; color: #047857; background: #ecfdf5; border: 1px solid #a7f3d0; padding: 7px 12px; border-radius: 8px; text-align: center; font-weight: 500; line-height: 1.4;">
+            <div id="qrDownloadedHint" style="display: none; margin-top: 8px; font-size: 0.78rem; color: #047857; background: #ecfdf5; border: 1px solid #a7f3d0; padding: 6px 10px; border-radius: 8px; text-align: center; font-weight: 500; line-height: 1.4;">
               Đã lưu ảnh QR vào máy. Mở App Bank và chọn quét từ thư viện ảnh để thanh toán.
             </div>
 
-            <div class="bank-details" style="text-align: left; margin-top: 12px;">
+            <div class="bank-details" style="text-align: left; margin-top: 10px;">
               <div class="bank-detail-row">
                 <span class="detail-label">Ngân hàng:</span>
                 <span class="detail-val" id="bankName"></span>
@@ -305,15 +310,23 @@
                 <button class="btn-copy-mini" id="copyTransferNoteBtn" type="button" title="Sao chép Nội dung">Sao chép</button>
               </div>
             </div>
-
-            <div style="margin-top: 14px; padding: 10px 14px; background: #f8fafc; border: 1px solid var(--line); border-radius: 8px; font-size: 0.82rem; color: var(--muted); text-align: center; line-height: 1.4;">
-              Hệ thống tự động kích hoạt file và hiển thị link tải ngay sau khi nhận được chuyển khoản.
-            </div>
           </div>
           
-          <div style="display: flex; gap: 10px; margin-top: 16px;">
-            <button class="button-secondary" id="backToInfoBtn" type="button" style="padding: 10px 16px;">Đổi thông tin</button>
-            <button class="button-primary" id="confirmPayment" type="button" style="flex: 1; height: 44px;">Tôi đã chuyển khoản xong</button>
+          <div class="checkout-status-action-area" style="margin-top: 12px; text-align: center;">
+            <div class="payment-live-indicator" style="display: inline-flex; align-items: center; justify-content: center; gap: 8px; font-size: 0.82rem; color: #065f46; background: #ecfdf5; border: 1px solid #a7f3d0; border-radius: 20px; padding: 5px 14px; margin-bottom: 10px; font-weight: 500;">
+              <span class="pulse-indicator-dot"></span>
+              <span>Đang tự động chờ nhận tiền...</span>
+            </div>
+
+            <button class="button-primary button-full" id="confirmPayment" type="button" style="height: 44px; font-size: 0.95rem; font-weight: 600;">
+              Kiểm tra trạng thái thanh toán
+            </button>
+
+            <div style="margin-top: 8px;">
+              <button class="btn-link-subtle" id="backToInfoBtn" type="button" style="background: none; border: none; font-size: 0.8rem; color: var(--muted); cursor: pointer; text-decoration: underline; padding: 4px 8px;">
+                Quay lại sửa thông tin nhận file (SĐT / Zalo)
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -693,6 +706,6 @@
     <script src="/__/firebase/init.js"></script>
     <script src="./storefront-data.js?v=12"></script>
     <script src="./storefront-products.generated.js?v=6"></script>
-    <script src="storefront.js?v=57"></script>
+    <script src="storefront.js?v=58"></script>
   </body>
 </html>
