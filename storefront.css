@@ -998,14 +998,28 @@ body.cart-drawer-open .page-layout {
   background: #d1fae5;
 }
 
-.btn-open-bank {
-  background: #f1f5f9;
-  color: #1e293b;
+.btn-save-qr.btn-saved-qr {
+  background: #f8fafc;
+  color: #475569;
   border-color: #cbd5e1;
+  font-weight: 500;
+}
+
+.btn-save-qr.btn-saved-qr:hover {
+  background: #f1f5f9;
+}
+
+.btn-open-bank {
+  background: var(--mint-strong);
+  color: #ffffff;
+  border-color: var(--mint-strong);
+  font-weight: 600;
+  box-shadow: 0 2px 6px rgba(16, 185, 129, 0.25);
 }
 
 .btn-open-bank:hover, .btn-open-bank:active {
-  background: #e2e8f0;
+  background: var(--mint-dark);
+  border-color: var(--mint-dark);
 }
 
 /* Structured Bank Details */

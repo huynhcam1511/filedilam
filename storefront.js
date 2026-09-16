@@ -1313,6 +1313,7 @@
     if (checkoutAuthStep) checkoutAuthStep.style.display = "none";
     if (checkoutPaymentStep) checkoutPaymentStep.style.display = "block";
     if (checkoutModalTitle) checkoutModalTitle.textContent = "Quét mã QR thanh toán";
+    resetQrActions();
     if (qrBox) qrBox.innerHTML = '<div class="empty-state" style="padding:40px 0;"><div style="font-weight:600; font-size: 0.95rem; color: var(--muted); margin-bottom: 4px;">Đang tạo mã VietQR...</div><div style="font-size: 0.8rem; color: var(--muted);">Vui lòng chờ trong giây lát</div></div>';
 
     var productNames = state.cart.map(function(e) {
@@ -1587,6 +1588,35 @@
     copyTextToClipboard(bankTransferNote.textContent.trim(), copyTransferNoteBtn, "Đã sao chép nội dung chuyển khoản.");
   }
 
+  function onQrDownloaded() {
+    if (saveQrBtn) {
+      saveQrBtn.innerHTML = '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg><span>Đã lưu (Tải lại)</span>';
+      saveQrBtn.classList.add("btn-saved-qr");
+    }
+    if (openBankBtn) {
+      openBankBtn.style.display = "inline-flex";
+    }
+    var hint = document.getElementById("qrDownloadedHint");
+    if (hint) {
+      hint.style.display = "block";
+    }
+    showToast("Đã lưu ảnh QR. Hãy mở App Bank để quét từ thư viện ảnh!");
+  }
+
+  function resetQrActions() {
+    if (openBankBtn) {
+      openBankBtn.style.display = "none";
+    }
+    if (saveQrBtn) {
+      saveQrBtn.innerHTML = '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg><span>Tải ảnh QR</span>';
+      saveQrBtn.classList.remove("btn-saved-qr");
+    }
+    var hint = document.getElementById("qrDownloadedHint");
+    if (hint) {
+      hint.style.display = "none";
+    }
+  }
+
   function saveQrImage() {
     if (!currentQrImageUrl) {
       showToast("Chưa có mã QR để tải.");
@@ -1618,7 +1648,7 @@
       if (a.parentNode) a.parentNode.removeChild(a);
       window.URL.revokeObjectURL(blobUrl);
     }, 2000);
-    showToast("Đã tải ảnh mã QR về máy!");
+    onQrDownloaded();
   }
 
   function downloadViaImgElement(filename) {
@@ -1654,7 +1684,7 @@
     setTimeout(function () {
       if (a.parentNode) a.parentNode.removeChild(a);
     }, 1000);
-    showToast("Đã tải ảnh mã QR về máy!");
+    onQrDownloaded();
   }
 
   var BANK_SEARCH_ALIASES = {
