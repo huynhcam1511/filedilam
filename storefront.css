@@ -1592,4 +1592,33 @@ body.cart-drawer-open .page-layout {
   .page-layout, .nav-container {
     max-width: 100%;
   }
+
+  /* Tối ưu khung QR & Thanh toán trên điện thoại để vừa vặn màn hình */
+  .qr-box img {
+    max-width: 175px !important;
+  }
+  .qr-box {
+    min-height: 180px !important;
+    margin-bottom: 6px !important;
+  }
+  .bank-box {
+    padding: 12px 14px !important;
+  }
+  .qr-action-buttons {
+    margin: 8px 0 10px 0 !important;
+  }
+  .qr-action-buttons .btn-qr-action {
+    padding: 7px 10px !important;
+    font-size: 0.82rem !important;
+  }
+  .bank-details {
+    padding: 6px 10px !important;
+  }
+  .bank-detail-row {
+    padding: 4px 0 !important;
+    font-size: 0.84rem !important;
+  }
+  #checkoutPaymentStep {
+    padding: 12px 16px calc(24px + env(safe-area-inset-bottom, 20px)) 16px !important;
+  }
 }
