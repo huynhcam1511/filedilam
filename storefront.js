@@ -320,6 +320,17 @@
         }
       });
     }
+
+    // Tự động kiểm tra đơn hàng khi khách quay lại trình duyệt sau khi chuyển khoản
+    document.addEventListener("visibilitychange", function () {
+      if (document.visibilityState === "visible") {
+        checkActiveOrderOnResume();
+      }
+    });
+
+    window.addEventListener("focus", function () {
+      checkActiveOrderOnResume();
+    });
   }
 
   function initAuth() {
@@ -670,11 +681,25 @@
       .then(function(results) {
         var orders = results[0];
         if (!orders || !orders.length) {
-          purchasesItems.innerHTML = '<div class="empty-state">Bạn chưa có file nào được kích hoạt.</div>';
+          purchasesItems.innerHTML = '<div class="empty-state">Bạn chưa có đơn hàng nào.</div>';
           return;
         }
         purchasesItems.innerHTML = orders.map(function(order) {
+          var isPaid = order.status === "PAID";
           var matched = findProductForOrder(order);
+
+          if (!isPaid) {
+            return '<div class="drawer-item" style="flex-direction: column; align-items: flex-start; gap: 8px;">' +
+                     '<div class="drawer-item-info" style="width:100%; display:flex; justify-content:space-between; align-items:flex-start;">' +
+                       '<div>' +
+                         '<span class="drawer-item-title">' + escapeHtml(order.product_name) + '</span>' +
+                         '<span class="drawer-item-price" style="color:var(--muted); font-size: 0.8rem;">' + formatCurrency(order.amount) + '</span>' +
+                       '</div>' +
+                       '<span class="status-badge status-pending" style="background:#fef3c7; color:#92400e; font-size:0.75rem; font-weight:600; padding:2px 8px; border-radius:999px;">Chờ thanh toán</span>' +
+                     '</div>' +
+                     '<button type="button" class="button-secondary button-full btn-recheck-order" data-order-id="' + escapeHtml(order.order_id || "") + '" style="padding: 6px 0; font-size: 0.85rem;">Kiểm tra thanh toán</button>' +
+                   '</div>';
+          }
 
           var rawUrl = (matched && (matched.sheetUrl || matched.delivery_link || matched.fileUrl)) || order.product_file_url || "";
           var isCloud = (matched && (matched.type === "google_sheets" || !!matched.sheetUrl)) ||
@@ -700,14 +725,43 @@
           }
 
           return '<div class="drawer-item" style="flex-direction: column; align-items: flex-start; gap: 8px;">' +
-                   '<div class="drawer-item-info">' +
-                     '<span class="drawer-item-title">' + escapeHtml(order.product_name) + '</span>' +
-                     '<span class="drawer-item-price" style="color:var(--mint-strong); font-size: 0.8rem;">Đã thanh toán: ' + formatCurrency(order.amount) + '</span>' +
+                   '<div class="drawer-item-info" style="width:100%; display:flex; justify-content:space-between; align-items:flex-start;">' +
+                     '<div>' +
+                       '<span class="drawer-item-title">' + escapeHtml(order.product_name) + '</span>' +
+                       '<span class="drawer-item-price" style="color:var(--mint-strong); font-size: 0.8rem;">Đã thanh toán: ' + formatCurrency(order.amount) + '</span>' +
+                     '</div>' +
+                     '<span class="status-badge status-paid" style="background:#ecfdf5; color:#065f46; font-size:0.75rem; font-weight:600; padding:2px 8px; border-radius:999px;">Đã kích hoạt</span>' +
                    '</div>' +
                    '<a href="' + escapeHtml(deliveryUrl) + '" target="_blank" rel="noopener noreferrer" class="button-primary button-full" style="padding: 6px 0; font-size: 0.9rem; text-decoration: none; text-align: center;">' + btnText + '</a>' +
                    guide +
                  '</div>';
         }).join("");
+
+        // Gắn sự kiện kiểm tra lại cho các đơn Chờ thanh toán
+        purchasesItems.querySelectorAll(".btn-recheck-order").forEach(function(btn) {
+          btn.addEventListener("click", function() {
+            var oId = btn.getAttribute("data-order-id");
+            if (!oId) return;
+            btn.disabled = true;
+            btn.textContent = "Đang kiểm tra...";
+            authFetch("/orders/" + oId)
+              .then(function(orderRes) {
+                if (orderRes && orderRes.status === "PAID") {
+                  showToast("Đơn hàng đã được thanh toán thành công!");
+                  loadMyPurchases();
+                } else {
+                  showToast("Đơn hàng vẫn đang chờ thanh toán.");
+                  btn.disabled = false;
+                  btn.textContent = "Kiểm tra thanh toán";
+                }
+              })
+              .catch(function() {
+                showToast("Chưa thể kiểm tra đơn hàng.");
+                btn.disabled = false;
+                btn.textContent = "Kiểm tra thanh toán";
+              });
+          });
+        });
       })
       .catch(function(err) {
         purchasesItems.innerHTML = '<div class="empty-state">Lỗi kết nối. Vui lòng thử lại.</div>';
@@ -1133,58 +1187,96 @@
     }
   }
 
+  function handleOrderSuccess(data) {
+    try {
+      localStorage.removeItem("filedilam_pending_order_id");
+    } catch (e) {}
+    currentActiveOrderId = null;
+    state.cart = [];
+    persistCart();
+    renderCart();
+    closeCheckout();
+    if (quickBuyForm) quickBuyForm.reset();
+    
+    var matched = findProductForOrder(data);
+    var rawUrl = (matched && (matched.sheetUrl || matched.delivery_link || matched.fileUrl)) || data.product_file_url || "";
+    var isCloud = (matched && (matched.type === "google_sheets" || !!matched.sheetUrl)) ||
+                  data.product_type === "google_sheets" ||
+                  (rawUrl && rawUrl.indexOf("docs.google.com/spreadsheets") !== -1);
+    var deliveryUrl = getSafeDeliveryUrl(rawUrl, isCloud ? "google_sheets" : data.product_type, data.product_id);
+    var btnText = isCloud ? 'Tạo bản sao Google Sheets' : 'Tải file Excel';
+    var descText = isCloud ? "Bấm nút bên dưới, đăng nhập Google rồi chọn Tạo bản sao. File sẽ được lưu trong Drive của bạn." : "Đơn hàng đã được xác nhận. Bạn có thể tải file ngay hoặc mở lại trong File của tôi.";
+    
+    var isSmartKho = (data.product_id === "quan-ly-kho-mini-google-sheets-smart") || (matched && matched.id === "quan-ly-kho-mini-google-sheets-smart");
+    var setupText = '';
+    if (isCloud && isSmartKho) {
+      setupText = '<div style="text-align:left;background:#ecfdf5;border:1px solid #a7f3d0;border-radius:12px;padding:14px;margin:16px 0;color:#065f46;font-size:.9rem;line-height:1.55"><b>Mở Web App rất nhanh:</b><br>1. Tạo bản sao và mở file trong Google Drive.<br>2. Tải lại trang một lần để thấy menu <b>📦 Kho Mini Smart</b>.<br>3. Chọn <b>Mở ứng dụng quản lý kho</b> và cấp quyền Google lần đầu.<br><br>Không cần vào Extensions, không cần tự triển khai Apps Script và không cần dán link <b>/exec</b>. Sau đó dùng được trên điện thoại, iPad hoặc máy tính.</div>';
+    }
+    
+    detailBody.innerHTML =
+      '<div style="text-align:center; padding: 40px 20px;">' +
+      '<div style="font-size: 64px; margin-bottom: 16px;">🎉</div>' +
+      '<h3 style="color: var(--mint-strong); margin-bottom: 12px; font-size: 1.5rem;">Thanh toán thành công!</h3>' +
+      "<p style='color: var(--muted); margin-bottom: 24px;'>" + descText + "</p>" +
+      setupText +
+      '<a href="' + escapeHtml(deliveryUrl) + '" target="_blank" rel="noopener noreferrer" class="button-primary button-full" style="height: 50px; font-size: 1.1rem; text-decoration: none; display:flex; align-items:center; justify-content:center;">' + btnText + '</a>' +
+      "</div>";
+    detailTitle.textContent = "Nhận File Của Bạn";
+    if (detailFooter) detailFooter.innerHTML = "";
+    detailModal.classList.add("is-open");
+    detailModal.setAttribute("aria-hidden", "false");
+    document.body.classList.add("drawer-open");
+    showToast("Đã thanh toán thành công!");
+    var confirmBtn = document.getElementById("confirmPayment");
+    if (confirmBtn) {
+      confirmBtn.textContent = "Kiểm tra thanh toán";
+      confirmBtn.disabled = false;
+    }
+  }
+
+  function checkActiveOrderOnResume() {
+    var pendingOrderId = currentActiveOrderId;
+    if (!pendingOrderId) {
+      try {
+        pendingOrderId = localStorage.getItem("filedilam_pending_order_id");
+      } catch (e) {}
+    }
+    if (!pendingOrderId) return;
+    if (detailModal && detailModal.classList.contains("is-open")) return;
+
+    authFetch("/orders/" + pendingOrderId)
+      .then(function(data) {
+        if (data && data.status === "PAID") {
+          handleOrderSuccess(data);
+        }
+      })
+      .catch(function() {});
+  }
+
   function handleConfirmPaymentClicked() {
     var btn = document.getElementById("confirmPayment");
-    if (!currentActiveOrderId) {
-      showToast("Hệ thống đang tự động kiểm tra, file sẽ mở ngay khi nhận được thanh toán.");
+    var checkOrderId = currentActiveOrderId;
+    if (!checkOrderId) {
+      try {
+        checkOrderId = localStorage.getItem("filedilam_pending_order_id");
+      } catch (e) {}
+    }
+    if (!checkOrderId) {
+      showToast("Chưa có đơn hàng nào đang chờ thanh toán.");
       return;
     }
 
     if (btn) {
       btn.disabled = true;
-      btn.textContent = "Đang kiểm tra giao dịch...";
+      btn.textContent = "Đang kiểm tra...";
     }
 
-    authFetch("/orders/" + currentActiveOrderId)
+    authFetch("/orders/" + checkOrderId)
       .then(function(data) {
         if (data && data.status === "PAID") {
-          state.cart = [];
-          persistCart();
-          renderCart();
-          closeCheckout();
-          if (quickBuyForm) quickBuyForm.reset();
-          
-          var matched = findProductForOrder(data);
-          var rawUrl = (matched && (matched.sheetUrl || matched.delivery_link || matched.fileUrl)) || data.product_file_url || "";
-          var isCloud = (matched && (matched.type === "google_sheets" || !!matched.sheetUrl)) ||
-                        data.product_type === "google_sheets" ||
-                        (rawUrl && rawUrl.indexOf("docs.google.com/spreadsheets") !== -1);
-          var deliveryUrl = getSafeDeliveryUrl(rawUrl, isCloud ? "google_sheets" : data.product_type, data.product_id);
-          var btnText = isCloud ? 'Tạo bản sao Google Sheets' : 'Tải file Excel';
-          var descText = isCloud ? "Bấm nút bên dưới, đăng nhập Google rồi chọn Tạo bản sao. File sẽ được lưu trong Drive của bạn." : "Đơn hàng đã được xác nhận. Bạn có thể tải file ngay hoặc mở lại trong File của tôi.";
-          
-          var isSmartKho = (data.product_id === "quan-ly-kho-mini-google-sheets-smart") || (matched && matched.id === "quan-ly-kho-mini-google-sheets-smart");
-          var setupText = '';
-          if (isCloud && isSmartKho) {
-            setupText = '<div style="text-align:left;background:#ecfdf5;border:1px solid #a7f3d0;border-radius:12px;padding:14px;margin:16px 0;color:#065f46;font-size:.9rem;line-height:1.55"><b>Mở Web App rất nhanh:</b><br>1. Tạo bản sao và mở file trong Google Drive.<br>2. Tải lại trang một lần để thấy menu <b>📦 Kho Mini Smart</b>.<br>3. Chọn <b>Mở ứng dụng quản lý kho</b> và cấp quyền Google lần đầu.<br><br>Không cần vào Extensions, không cần tự triển khai Apps Script và không cần dán link <b>/exec</b>. Sau đó dùng được trên điện thoại, iPad hoặc máy tính.</div>';
-          }
-          
-          detailBody.innerHTML =
-            '<div style="text-align:center; padding: 40px 20px;">' +
-            '<div style="font-size: 64px; margin-bottom: 16px;">🎉</div>' +
-            '<h3 style="color: var(--mint-strong); margin-bottom: 12px; font-size: 1.5rem;">Thanh toán thành công!</h3>' +
-            "<p style='color: var(--muted); margin-bottom: 24px;'>" + descText + "</p>" +
-            setupText +
-            '<a href="' + escapeHtml(deliveryUrl) + '" target="_blank" rel="noopener noreferrer" class="button-primary button-full" style="height: 50px; font-size: 1.1rem; text-decoration: none;">' + btnText + '</a>' +
-            "</div>";
-          detailTitle.textContent = "Nhận File Của Bạn";
-          if (detailFooter) detailFooter.innerHTML = "";
-          detailModal.classList.add("is-open");
-          detailModal.setAttribute("aria-hidden", "false");
-          document.body.classList.add("drawer-open");
-          showToast("Đã thanh toán thành công!");
+          handleOrderSuccess(data);
         } else {
-          showToast("Chưa nhận được giao dịch từ TPBank. Thường mất 5–30 giây, hệ thống vẫn đang tự động chờ...");
+          showToast("Chưa nhận được giao dịch. Hệ thống đang tự động kiểm tra, vui lòng đợi giây lát.");
         }
       })
       .catch(function(err) {
@@ -1194,8 +1286,8 @@
         if (btn) {
           setTimeout(function() {
             btn.disabled = false;
-            btn.textContent = "Kiểm tra trạng thái thanh toán";
-          }, 1500);
+            btn.textContent = "Kiểm tra thanh toán";
+          }, 1200);
         }
       });
   }
@@ -1245,16 +1337,17 @@
 
       var emailInput = quickEmail ? quickEmail.value.trim() : "";
       var email = (emailInput && emailInput.indexOf("@") !== -1) ? emailInput.toLowerCase() : "";
-      var authEmail = email || (phone + "@khachhang.filedilam.vn");
+      var authEmail = phone + "@khachhang.filedilam.vn";
+      var customerEmail = email || authEmail;
 
       showToast("Đang tạo thông tin đơn hàng...");
 
       auth.createUserWithEmailAndPassword(authEmail, password)
         .then(function(result) {
           state.user = result.user;
-          state.profile = { email: email || authEmail, phone: phone, user_id: result.user.uid };
-          saveProfile({ email: email || authEmail, phone: phone, auth_provider: "phone_password" });
-          createOrderAndRenderQr({ customer_phone: phone, customer_email: email || authEmail });
+          state.profile = { email: customerEmail, phone: phone, user_id: result.user.uid };
+          saveProfile({ email: customerEmail, phone: phone, auth_provider: "phone_password" });
+          createOrderAndRenderQr({ customer_phone: phone, customer_email: customerEmail });
         })
         .catch(function(error) {
           var code = error && error.code ? String(error.code) : "";
@@ -1263,7 +1356,7 @@
             auth.signInWithEmailAndPassword(authEmail, password)
               .then(function(result) {
                 state.user = result.user;
-                createOrderAndRenderQr({ customer_phone: phone, customer_email: email || authEmail });
+                createOrderAndRenderQr({ customer_phone: phone, customer_email: customerEmail });
               })
               .catch(function() {
                 showToast("Số điện thoại này đã có tài khoản. Vui lòng bấm 'Đăng nhập ngay' bên dưới.");
@@ -1405,6 +1498,9 @@
     })
     .then(function(resData) {
       currentActiveOrderId = resData.order_id;
+      try {
+        localStorage.setItem("filedilam_pending_order_id", resData.order_id);
+      } catch (e) {}
       if (bankTransferNote) bankTransferNote.textContent = resData.transfer_note;
       if (bankAmount) bankAmount.textContent = formatCurrency(resData.amount || getCartTotal());
 
@@ -2046,53 +2142,22 @@
   }
 
   function pollOrderStatus(orderId) {
+    var attempts = 0;
+    var maxAttempts = 60; // 3 phút polling
     var interval = setInterval(function() {
+      attempts++;
+      if (attempts > maxAttempts || !currentActiveOrderId) {
+        clearInterval(interval);
+        return;
+      }
       authFetch("/orders/" + orderId)
-      .then(data => {
-        if (data.status === "PAID") {
-          clearInterval(interval);
-          state.cart = [];
-          persistCart();
-          renderCart();
-          closeCheckout();
-          if (quickBuyForm) quickBuyForm.reset();
-          
-          var matched = findProductForOrder(data);
-          var rawUrl = (matched && (matched.sheetUrl || matched.delivery_link || matched.fileUrl)) || data.product_file_url || "";
-          var isCloud = (matched && (matched.type === "google_sheets" || !!matched.sheetUrl)) ||
-                        data.product_type === "google_sheets" ||
-                        (rawUrl && rawUrl.indexOf("docs.google.com/spreadsheets") !== -1);
-          var deliveryUrl = getSafeDeliveryUrl(rawUrl, isCloud ? "google_sheets" : data.product_type, data.product_id);
-          var btnText = isCloud ? 'Tạo bản sao Google Sheets' : 'Tải file Excel';
-          var descText = isCloud ? "Bấm nút bên dưới, đăng nhập Google rồi chọn Tạo bản sao. File sẽ được lưu trong Drive của bạn." : "Đơn hàng đã được xác nhận. Bạn có thể tải file ngay hoặc mở lại trong File của tôi.";
-          
-          var isSmartKho = (data.product_id === "quan-ly-kho-mini-google-sheets-smart") || (matched && matched.id === "quan-ly-kho-mini-google-sheets-smart");
-          var setupText = '';
-          if (isCloud && isSmartKho) {
-            setupText = '<div style="text-align:left;background:#ecfdf5;border:1px solid #a7f3d0;border-radius:12px;padding:14px;margin:16px 0;color:#065f46;font-size:.9rem;line-height:1.55"><b>Mở Web App rất nhanh:</b><br>1. Tạo bản sao và mở file trong Google Drive.<br>2. Tải lại trang một lần để thấy menu <b>📦 Kho Mini Smart</b>.<br>3. Chọn <b>Mở ứng dụng quản lý kho</b> và cấp quyền Google lần đầu.<br><br>Không cần vào Extensions, không cần tự triển khai Apps Script và không cần dán link <b>/exec</b>. Sau đó dùng được trên điện thoại, iPad hoặc máy tính.</div>';
+        .then(function(data) {
+          if (data && data.status === "PAID") {
+            clearInterval(interval);
+            handleOrderSuccess(data);
           }
-          
-          detailBody.innerHTML =
-            '<div style="text-align:center; padding: 40px 20px;">' +
-            '<div style="font-size: 64px; margin-bottom: 16px;">🎉</div>' +
-            '<h3 style="color: var(--mint-strong); margin-bottom: 12px; font-size: 1.5rem;">Thanh toán thành công!</h3>' +
-            "<p style='color: var(--muted); margin-bottom: 24px;'>" + descText + "</p>" +
-            setupText +
-            '<a href="' + escapeHtml(deliveryUrl) + '" target="_blank" rel="noopener noreferrer" class="button-primary button-full" style="height: 50px; font-size: 1.1rem; text-decoration: none;">' + btnText + '</a>' +
-            "</div>";
-          detailTitle.textContent = "Nhận File Của Bạn";
-          if (detailFooter) detailFooter.innerHTML = "";
-          detailModal.classList.add("is-open");
-          detailModal.setAttribute("aria-hidden", "false");
-          document.body.classList.add("drawer-open");
-          showToast("Đã thanh toán thành công!");
-          var confirmBtn = document.getElementById("confirmPayment");
-          if (confirmBtn) {
-            confirmBtn.textContent = "Kiểm tra trạng thái thanh toán";
-            confirmBtn.disabled = false;
-          }
-        }
-      });
+        })
+        .catch(function() {});
     }, 3000);
   }
 

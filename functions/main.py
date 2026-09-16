@@ -4,6 +4,7 @@ import random
 import string
 from datetime import datetime, timezone
 import json
+import re
 
 try:
     get_app()
@@ -166,34 +167,55 @@ def api(req: https_fn.Request) -> https_fn.Response:
         if not user:
             return json_response({"error": "AUTH_REQUIRED"}, 401)
         
-        docs = db.collection("orders").where("user_id", "==", user["uid"]).where("status", "==", "PAID").stream()
+        docs = db.collection("orders").where("user_id", "==", user["uid"]).stream()
         orders = []
         for doc in docs:
             order_data = doc.to_dict()
+            status = order_data.get("status", "PENDING")
             orders.append({
                 "order_id": order_data.get("id"),
+                "status": status,
                 "product_id": order_data.get("product_id", ""),
                 "product_name": order_data.get("product_name"),
-                "product_file_url": order_data.get("product_file_url"),
+                "product_file_url": order_data.get("product_file_url") if status == "PAID" else None,
                 "product_type": order_data.get("product_type", "excel"),
-                "amount": order_data.get("amount")
+                "amount": order_data.get("amount"),
+                "created_at": order_data.get("created_at")
             })
             
+        orders.sort(key=lambda x: str(x.get("created_at") or ""), reverse=True)
         return json_response(orders)
         
     elif path == "/webhooks/sepay" and method == "POST":
-        payload = req.get_json(silent=True)
-        if payload and payload.get("transferType") == "in":
-            content = str(payload.get("content", "")).upper()
-            amount_paid = int(payload.get("transferAmount", 0))
+        payload = req.get_json(silent=True) or {}
+        transfer_type = str(payload.get("transferType", "in")).lower()
+        if transfer_type == "in":
+            raw_content = str(payload.get("content") or payload.get("description") or payload.get("code") or "")
+            content_upper = raw_content.upper()
+            compact_content = re.sub(r'[^A-Z0-9]', '', content_upper)
             
+            try:
+                amount_paid = int(float(payload.get("transferAmount") or 0))
+            except (ValueError, TypeError):
+                amount_paid = 0
+
             orders_ref = db.collection("orders").where("status", "==", "PENDING").stream()
             for doc in orders_ref:
                 order = doc.to_dict()
-                if order.get("id") in content and amount_paid >= order.get("amount", 0):
-                    doc.reference.update({"status": "PAID"})
-                    print(f"Kich hoat file {order.get('product_file_url')} cho {order.get('customer_email')}")
-                    break
+                order_id = str(order.get("id", "")).upper()
+                compact_order_id = re.sub(r'[^A-Z0-9]', '', order_id)
+                
+                if compact_order_id and compact_order_id in compact_content:
+                    if amount_paid >= int(order.get("amount", 0)):
+                        now = datetime.now(timezone.utc)
+                        doc.reference.update({
+                            "status": "PAID",
+                            "paid_at": now,
+                            "sepay_transaction_id": payload.get("id"),
+                            "reference_code": payload.get("referenceCode")
+                        })
+                        print(f"Kich hoat file {order.get('product_file_url')} cho {order.get('customer_email')}")
+                        break
         return json_response({"success": True})
 
     return json_response({"error": "NOT_FOUND"}, 404)

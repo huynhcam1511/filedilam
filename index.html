@@ -266,11 +266,8 @@
         <!-- STEP 2: VietQR Payment Step (shown after auth or when already logged in) -->
         <div id="checkoutPaymentStep" class="modal-body" style="display: none; padding: 14px 16px;">
           <div class="bank-box" style="padding: 12px 14px; border-radius: 12px; background: #f8fafc; border: 1px solid var(--line);">
-            <div class="qr-box" id="qrBox" style="min-height: 175px; display: flex; align-items: center; justify-content: center; margin-bottom: 6px;">
+            <div class="qr-box" id="qrBox" style="min-height: 175px; display: flex; align-items: center; justify-content: center; margin-bottom: 8px;">
               <div class="empty-state">Đang tạo mã VietQR...</div>
-            </div>
-            <div style="font-size: 0.76rem; color: var(--muted); text-align: center; margin-bottom: 10px;">
-              Nhấn giữ ảnh để chọn <b>Lưu vào Ảnh</b> hoặc bấm nút tải bên dưới
             </div>
 
             <!-- Quick Mobile Actions -->
@@ -284,8 +281,8 @@
                 <span>Mở App Bank</span>
               </button>
             </div>
-            <div id="qrDownloadedHint" style="display: none; margin-top: 8px; font-size: 0.78rem; color: #047857; background: #ecfdf5; border: 1px solid #a7f3d0; padding: 6px 10px; border-radius: 8px; text-align: center; font-weight: 500; line-height: 1.4;">
-              Đã lưu ảnh QR vào Album ảnh. Mở App Bank và chọn quét từ Album ảnh để thanh toán.
+            <div id="qrDownloadedHint" style="display: none; margin-top: 8px; font-size: 0.8rem; color: #047857; background: #ecfdf5; border: 1px solid #a7f3d0; padding: 7px 12px; border-radius: 8px; text-align: center; font-weight: 500; line-height: 1.4;">
+              Đã lưu ảnh QR. Mở App Bank để quét từ thư viện ảnh.
             </div>
 
             <div class="bank-details" style="text-align: left; margin-top: 10px;">
@@ -315,21 +312,11 @@
             </div>
           </div>
           
-          <div class="checkout-status-action-area" style="margin-top: 12px; text-align: center;">
-            <div class="payment-live-indicator" style="display: inline-flex; align-items: center; justify-content: center; gap: 8px; font-size: 0.82rem; color: #065f46; background: #ecfdf5; border: 1px solid #a7f3d0; border-radius: 20px; padding: 5px 14px; margin-bottom: 10px; font-weight: 500;">
-              <span class="pulse-indicator-dot"></span>
-              <span>Đang tự động chờ nhận tiền...</span>
-            </div>
-
-            <button class="button-primary button-full" id="confirmPayment" type="button" style="height: 44px; font-size: 0.95rem; font-weight: 600;">
-              Kiểm tra trạng thái thanh toán
+          <div style="margin-top: 14px;">
+            <button class="button-primary button-full" id="confirmPayment" type="button" style="height: 46px; font-size: 0.98rem; font-weight: 600;">
+              Kiểm tra thanh toán
             </button>
-
-            <div style="margin-top: 8px;">
-              <button class="btn-link-subtle" id="backToInfoBtn" type="button" style="background: none; border: none; font-size: 0.8rem; color: var(--muted); cursor: pointer; text-decoration: underline; padding: 4px 8px;">
-                Quay lại sửa thông tin nhận file (SĐT / Zalo)
-              </button>
-            </div>
+            <button id="backToInfoBtn" type="button" style="display: none;"></button>
           </div>
         </div>
       </div>
@@ -709,6 +696,6 @@
     <script src="/__/firebase/init.js"></script>
     <script src="./storefront-data.js?v=12"></script>
     <script src="./storefront-products.generated.js?v=6"></script>
-    <script src="storefront.js?v=59"></script>
+    <script src="storefront.js?v=60"></script>
   </body>
 </html>
