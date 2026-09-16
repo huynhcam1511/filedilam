@@ -331,7 +331,7 @@
   }
 
   function openAuthModal() {
-    isRegisterMode = true;
+    isRegisterMode = false;
     updateAuthUI();
     if (authModal) {
       authModal.classList.add("is-open");
@@ -370,20 +370,26 @@
     var toggleText = document.getElementById("authToggleText");
     var toggleLink = document.getElementById("authToggleLink");
     var accountLabel = document.getElementById("authAccountLabel");
+    var passLabel = document.getElementById("authPasswordLabel");
+    var passInput = document.getElementById("authPassword");
 
     if (isRegisterMode) {
-      if (title) title.textContent = "Đăng ký tài khoản (Người mua lần đầu)";
+      if (title) title.textContent = "Đăng ký tài khoản";
       if (submitBtn) submitBtn.textContent = "Đăng ký tài khoản";
       if (toggleText) toggleText.textContent = "Đã có tài khoản?";
       if (toggleLink) toggleLink.textContent = "Đăng nhập ngay";
       if (accountLabel) accountLabel.textContent = "Số điện thoại / Zalo";
+      if (passLabel) passLabel.textContent = "Mật khẩu tự chọn";
+      if (passInput) passInput.placeholder = "Nhập mật khẩu (tối thiểu 6 ký tự)";
       if (authPhoneGroup) authPhoneGroup.style.display = "none";
     } else {
-      if (title) title.textContent = "Đăng nhập tài khoản cũ";
+      if (title) title.textContent = "Đăng nhập tài khoản";
       if (submitBtn) submitBtn.textContent = "Đăng nhập";
-      if (toggleText) toggleText.textContent = "Người mua lần đầu?";
-      if (toggleLink) toggleLink.textContent = "Đăng ký nhanh";
+      if (toggleText) toggleText.textContent = "Chưa có tài khoản?";
+      if (toggleLink) toggleLink.textContent = "Đăng ký ngay";
       if (accountLabel) accountLabel.textContent = "Số điện thoại hoặc Email";
+      if (passLabel) passLabel.textContent = "Mật khẩu";
+      if (passInput) passInput.placeholder = "Nhập mật khẩu";
       if (authPhoneGroup) authPhoneGroup.style.display = "none";
     }
   }
