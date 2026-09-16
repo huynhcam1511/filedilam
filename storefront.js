@@ -717,28 +717,18 @@
     purchasesItems.innerHTML = '<div class="empty-state">Đang tải dữ liệu...</div>';
     
     authFetch("/my-orders")
-      .then(function(orders) {
-        if (!orders || !orders.length) {
-          purchasesItems.innerHTML = '<div class="empty-state">Bạn chưa có đơn hàng nào.</div>';
+      .then(function(rawOrders) {
+        var orders = (rawOrders || []).filter(function(o) {
+          return o && o.status === "PAID";
+        });
+
+        if (!orders.length) {
+          purchasesItems.innerHTML = '<div class="empty-state">Bạn chưa có file nào được kích hoạt.</div>';
           return;
         }
+
         purchasesItems.innerHTML = orders.map(function(order) {
-          var isPaid = order.status === "PAID";
           var matched = findProductForOrder(order);
-
-          if (!isPaid) {
-            return '<div class="drawer-item" style="flex-direction: column; align-items: flex-start; gap: 8px;">' +
-                     '<div class="drawer-item-info" style="width:100%; display:flex; justify-content:space-between; align-items:flex-start;">' +
-                       '<div>' +
-                         '<span class="drawer-item-title">' + escapeHtml(order.product_name) + '</span>' +
-                         '<span class="drawer-item-price" style="color:var(--muted); font-size: 0.8rem;">' + formatCurrency(order.amount) + '</span>' +
-                       '</div>' +
-                       '<span class="status-badge status-pending" style="background:#fef3c7; color:#92400e; font-size:0.75rem; font-weight:600; padding:2px 8px; border-radius:999px;">Chờ thanh toán</span>' +
-                     '</div>' +
-                     '<button type="button" class="button-secondary button-full btn-recheck-order" data-order-id="' + escapeHtml(order.order_id || "") + '" style="padding: 6px 0; font-size: 0.85rem;">Kiểm tra thanh toán</button>' +
-                   '</div>';
-          }
-
           var rawUrl = (matched && (matched.sheetUrl || matched.delivery_link || matched.fileUrl)) || order.product_file_url || "";
           var isCloud = (matched && (matched.type === "google_sheets" || !!matched.sheetUrl)) ||
                         order.product_type === "google_sheets" ||
@@ -750,7 +740,7 @@
           var isSmartKho = (order.product_id === "quan-ly-kho-mini-google-sheets-smart") || (matched && matched.id === "quan-ly-kho-mini-google-sheets-smart");
           var guide = '';
           if (isCloud) {
-            guide = '<p style="font-size:.78rem;color:var(--muted);margin:0 0 8px 0;">Mở link → Đăng nhập Google → Bấm Tạo bản sao. File sẽ lưu vào Google Drive của bạn.</p>';
+            guide = '<p style="font-size:.78rem;color:var(--muted);margin:0 0 8px 0;line-height:1.4;">Mở link → Đăng nhập Google → Bấm Tạo bản sao. File sẽ lưu vào Google Drive của bạn.</p>';
             if (isSmartKho) {
               guide += '<div style="font-size:.78rem;background:rgba(4,120,87,0.1);padding:8px;border-radius:6px;color:var(--mint-strong); margin-bottom:4px;">' +
                 '<b>🚀 CÀI ĐẶT WEB APP (Chỉ làm 1 lần):</b><br>' +
@@ -762,44 +752,18 @@
             }
           }
 
-          return '<div class="drawer-item" style="flex-direction: column; align-items: flex-start; gap: 8px;">' +
-                   '<div class="drawer-item-info" style="width:100%; display:flex; justify-content:space-between; align-items:flex-start;">' +
+          return '<div class="drawer-item" style="flex-direction: column; align-items: stretch; gap: 10px; padding: 14px; border: 1px solid var(--line); border-radius: 10px; background: #fff; margin-bottom: 12px;">' +
+                   '<div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 8px;">' +
                      '<div>' +
-                       '<span class="drawer-item-title">' + escapeHtml(order.product_name) + '</span>' +
-                       '<span class="drawer-item-price" style="color:var(--mint-strong); font-size: 0.8rem;">Đã thanh toán: ' + formatCurrency(order.amount) + '</span>' +
+                       '<div style="font-weight: 600; font-size: 0.95rem; color: var(--text); margin-bottom: 4px;">' + escapeHtml(order.product_name) + '</div>' +
+                       '<div style="color: var(--mint-strong); font-size: 0.82rem; font-weight: 500;">Đã thanh toán: ' + formatCurrency(order.amount) + '</div>' +
                      '</div>' +
-                     '<span class="status-badge status-paid" style="background:#ecfdf5; color:#065f46; font-size:0.75rem; font-weight:600; padding:2px 8px; border-radius:999px;">Đã kích hoạt</span>' +
+                     '<span style="background:#ecfdf5; color:#065f46; font-size: 0.72rem; font-weight: 600; padding: 3px 8px; border-radius: 999px; white-space: nowrap;">Đã kích hoạt</span>' +
                    '</div>' +
-                   '<a href="' + escapeHtml(deliveryUrl) + '" target="_blank" rel="noopener noreferrer" class="button-primary button-full" style="padding: 6px 0; font-size: 0.9rem; text-decoration: none; text-align: center;">' + btnText + '</a>' +
+                   '<a href="' + escapeHtml(deliveryUrl) + '" target="_blank" rel="noopener noreferrer" class="button-primary button-full" style="height: 40px; font-size: 0.9rem; text-decoration: none; display: flex; align-items: center; justify-content: center; border-radius: 8px;">' + btnText + '</a>' +
                    guide +
                  '</div>';
         }).join("");
-
-        // Gắn sự kiện kiểm tra lại cho các đơn Chờ thanh toán
-        purchasesItems.querySelectorAll(".btn-recheck-order").forEach(function(btn) {
-          btn.addEventListener("click", function() {
-            var oId = btn.getAttribute("data-order-id");
-            if (!oId) return;
-            btn.disabled = true;
-            btn.textContent = "Đang kiểm tra...";
-            authFetch("/orders/" + oId)
-              .then(function(orderRes) {
-                if (orderRes && orderRes.status === "PAID") {
-                  showToast("Đơn hàng đã được thanh toán thành công!");
-                  loadMyPurchases();
-                } else {
-                  showToast("Đơn hàng vẫn đang chờ thanh toán.");
-                  btn.disabled = false;
-                  btn.textContent = "Kiểm tra thanh toán";
-                }
-              })
-              .catch(function() {
-                showToast("Chưa thể kiểm tra đơn hàng.");
-                btn.disabled = false;
-                btn.textContent = "Kiểm tra thanh toán";
-              });
-          });
-        });
       })
       .catch(function(err) {
         purchasesItems.innerHTML = '<div class="empty-state">Lỗi kết nối. Vui lòng thử lại.</div>';

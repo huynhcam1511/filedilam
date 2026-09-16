@@ -167,17 +167,16 @@ def api(req: https_fn.Request) -> https_fn.Response:
         if not user:
             return json_response({"error": "AUTH_REQUIRED"}, 401)
         
-        docs = db.collection("orders").where("user_id", "==", user["uid"]).stream()
+        docs = db.collection("orders").where("user_id", "==", user["uid"]).where("status", "==", "PAID").stream()
         orders = []
         for doc in docs:
             order_data = doc.to_dict()
-            status = order_data.get("status", "PENDING")
             orders.append({
                 "order_id": order_data.get("id"),
-                "status": status,
+                "status": "PAID",
                 "product_id": order_data.get("product_id", ""),
                 "product_name": order_data.get("product_name"),
-                "product_file_url": order_data.get("product_file_url") if status == "PAID" else None,
+                "product_file_url": order_data.get("product_file_url"),
                 "product_type": order_data.get("product_type", "excel"),
                 "amount": order_data.get("amount"),
                 "created_at": order_data.get("created_at")
