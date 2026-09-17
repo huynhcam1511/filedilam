@@ -367,6 +367,41 @@ document.addEventListener('DOMContentLoaded', () => {
   // --- REVENUE STATISTICS & ORDER MANAGEMENT ---
   let cachedOrders = [];
 
+  function parseDateObj(val) {
+    if (!val) return null;
+    if (val && typeof val.toDate === 'function') return val.toDate();
+    if (val && typeof val.seconds === 'number') return new Date(val.seconds * 1000);
+    if (typeof val === 'number') return new Date(val > 1e11 ? val : val * 1000);
+    if (typeof val === 'string') {
+      const match = val.match(/seconds=(\d+)/);
+      if (match) return new Date(parseInt(match[1], 10) * 1000);
+      const d = new Date(val);
+      if (!isNaN(d.getTime())) return d;
+    }
+    if (val instanceof Date) return val;
+    return null;
+  }
+
+  function formatDateTime(val) {
+    const d = parseDateObj(val);
+    if (!d || isNaN(d.getTime())) {
+      return { time: String(val || 'Mới'), date: '', full: String(val || 'Mới') };
+    }
+    const pad = n => String(n).padStart(2, '0');
+    const day = pad(d.getDate());
+    const month = pad(d.getMonth() + 1);
+    const year = d.getFullYear();
+    const hours = pad(d.getHours());
+    const minutes = pad(d.getMinutes());
+    const seconds = pad(d.getSeconds());
+
+    return {
+      time: `${hours}:${minutes}:${seconds}`,
+      date: `${day}/${month}/${year}`,
+      full: `${day}/${month}/${year} ${hours}:${minutes}:${seconds}`
+    };
+  }
+
   async function loadAdminStats() {
     const kpiTotalRevenue = document.getElementById('kpiTotalRevenue');
     const kpiMonthRevenue = document.getElementById('kpiMonthRevenue');
@@ -414,10 +449,11 @@ document.addEventListener('DOMContentLoaded', () => {
             const cId = o.customer_phone || o.customer_email || o.user_id;
             if (cId) customers.add(cId);
 
-            const cStr = String(o.created_at || '').slice(0, 10);
+            const dObj = parseDateObj(o.created_at || o.paid_at);
+            const cStr = dObj ? dObj.toISOString().slice(0, 10) : '';
             if (cStr === todayStr) todayRev += amt;
             if (cStr.startsWith(monthStr)) monthRev += amt;
-            if (dailyMap[cStr]) {
+            if (cStr && dailyMap[cStr]) {
               dailyMap[cStr].revenue += amt;
               dailyMap[cStr].count += 1;
             }
@@ -562,10 +598,11 @@ document.addEventListener('DOMContentLoaded', () => {
         ? '<span class="badge-status badge-status-paid">✓ Đã thanh toán</span>'
         : '<span class="badge-status badge-status-pending">⏳ Chờ thanh toán</span>';
 
-      const createdDate = order.created_at ? new Date(order.created_at) : null;
-      const timeStr = createdDate && !isNaN(createdDate) 
-        ? `${createdDate.toLocaleDateString('vi-VN')} ${createdDate.toLocaleTimeString('vi-VN', {hour: '2-digit', minute:'2-digit'})}`
-        : (order.created_at || 'Mới');
+      const timeObj = formatDateTime(order.created_at || order.paid_at);
+      const timeHtml = timeObj.date 
+        ? `<div style="font-weight: 600; color: #0f172a; font-size: 0.88rem; white-space: nowrap;">${escapeHtml(timeObj.time)}</div>` +
+          `<div style="font-size: 0.78rem; color: #64748b; white-space: nowrap; margin-top: 2px;">${escapeHtml(timeObj.date)}</div>`
+        : `<span style="font-size: 0.84rem; color: #64748b;">${escapeHtml(timeObj.time)}</span>`;
 
       const customerInfo = order.customer_phone || order.customer_email || (order.user_id ? order.user_id.slice(0, 8) + '...' : 'Khách vãng lai');
 
@@ -581,7 +618,7 @@ document.addEventListener('DOMContentLoaded', () => {
       return `
         <tr>
           <td><strong style="font-size: 0.9rem; color: #1e293b;">#${escapeHtml(order.order_id || '')}</strong></td>
-          <td style="font-size: 0.82rem; color: var(--muted); white-space: nowrap;">${escapeHtml(timeStr)}</td>
+          <td style="white-space: nowrap;">${timeHtml}</td>
           <td><span style="font-weight: 500; color: #1e293b;">${escapeHtml(customerInfo)}</span></td>
           <td><span style="font-weight: 600; color: #1e293b;">${escapeHtml(order.product_name || 'File')}</span></td>
           <td><strong style="color: var(--mint-strong);">${formatCurrency(order.amount || 0)}</strong></td>

@@ -24,6 +24,30 @@ def cors_headers():
         "Access-Control-Allow-Methods": "POST, GET, PUT, OPTIONS",
     }
 
+def serialize_datetime(val):
+    if not val:
+        return None
+    if hasattr(val, "isoformat"):
+        return val.isoformat()
+    if hasattr(val, "seconds"):
+        return datetime.fromtimestamp(val.seconds, tz=timezone.utc).isoformat()
+    match = re.search(r'seconds=(\d+)', str(val))
+    if match:
+        return datetime.fromtimestamp(int(match.group(1)), tz=timezone.utc).isoformat()
+    return str(val)
+
+def extract_date_str(val):
+    if not val:
+        return ""
+    if hasattr(val, "strftime"):
+        return val.strftime("%Y-%m-%d")
+    if hasattr(val, "seconds"):
+        return datetime.fromtimestamp(val.seconds, tz=timezone.utc).strftime("%Y-%m-%d")
+    match = re.search(r'seconds=(\d+)', str(val))
+    if match:
+        return datetime.fromtimestamp(int(match.group(1)), tz=timezone.utc).strftime("%Y-%m-%d")
+    return str(val)[:10]
+
 def json_response(payload, status=200):
     return https_fn.Response(json.dumps(payload, default=str), status=status, content_type="application/json", headers=cors_headers())
 
@@ -294,8 +318,8 @@ def api(req: https_fn.Request) -> https_fn.Response:
             amount = int(o.get("amount") or 0)
             
             created_at = o.get("created_at") or o.get("paid_at")
-            created_str = str(created_at or "")[:10]
-            created_month = str(created_at or "")[:7]
+            created_str = extract_date_str(created_at)
+            created_month = created_str[:7]
             
             if status == "PAID":
                 paid_orders_count += 1
@@ -365,8 +389,8 @@ def api(req: https_fn.Request) -> https_fn.Response:
                 "has_reviewed": bool(o.get("has_reviewed")),
                 "review_stars": o.get("review_stars", 0),
                 "review_comment": o.get("review_comment", ""),
-                "created_at": o.get("created_at"),
-                "paid_at": o.get("paid_at")
+                "created_at": serialize_datetime(o.get("created_at")),
+                "paid_at": serialize_datetime(o.get("paid_at"))
             })
         orders.sort(key=lambda x: str(x.get("created_at") or ""), reverse=True)
         return json_response(orders)
