@@ -11,7 +11,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="./storefront.css?v=45" />
+    <link rel="stylesheet" href="./storefront.css?v=46" />
   </head>
   <body>
     <!-- Top Navigation Bar -->
@@ -714,38 +714,60 @@
       </div>
     </div>
 
-    <!-- Review Modal (Đánh giá thật) -->
-    <div class="modal-backdrop" id="reviewModal" aria-hidden="true" style="z-index: 10010;">
-      <div class="checkout-card" style="max-width: 440px; padding: 0; overflow: hidden; border-radius: 16px;">
-        <div class="drawer-header" style="padding: 16px 20px; border-bottom: 1px solid var(--line);">
-          <h3 id="reviewModalTitle" style="font-size: 1.05rem; font-weight: 600; margin: 0; color: var(--text);">Đánh giá trải nghiệm file</h3>
+    <!-- Review Modal (Đánh giá thật - Bottom Sheet on Mobile / Centered Card on Desktop) -->
+    <div class="modal-backdrop review-modal-backdrop" id="reviewModal" aria-hidden="true" style="z-index: 100050;">
+      <div class="modal-card review-modal-card" id="reviewModalCard">
+        <!-- Handle bar for mobile bottom-sheet feel -->
+        <div class="sheet-handle-bar hide-on-desktop">
+          <div class="sheet-handle-pill"></div>
+        </div>
+        <div class="drawer-header review-modal-header">
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <span style="font-size: 1.25rem;">⭐</span>
+            <h3 id="reviewModalTitle" style="font-size: 1.1rem; font-weight: 700; margin: 0; color: var(--text);">Đánh giá trải nghiệm file</h3>
+          </div>
           <button class="icon-button" id="closeReviewModal" type="button" aria-label="Đóng">✕</button>
         </div>
-        <form id="reviewForm" style="padding: 20px;">
+        <form id="reviewForm" class="review-modal-body">
           <input type="hidden" id="reviewOrderId" value="" />
           <input type="hidden" id="reviewProductId" value="" />
           <input type="hidden" id="reviewStars" value="5" />
 
-          <div style="text-align: center; margin-bottom: 20px;">
-            <div id="reviewProductName" style="font-weight: 600; font-size: 0.95rem; color: var(--text); margin-bottom: 10px;"></div>
-            <div class="star-rating-picker" id="starRatingPicker" style="display: flex; justify-content: center; gap: 8px; font-size: 2rem; cursor: pointer; margin-bottom: 8px;">
-              <span class="star-pick active" data-star="1">★</span>
-              <span class="star-pick active" data-star="2">★</span>
-              <span class="star-pick active" data-star="3">★</span>
-              <span class="star-pick active" data-star="4">★</span>
-              <span class="star-pick active" data-star="5">★</span>
+          <!-- Product Info Card -->
+          <div class="review-product-banner">
+            <div id="reviewProductName" class="review-product-name"></div>
+            <div class="review-product-sub">
+              <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg>
+              <span>File đã mua & kích hoạt thành công</span>
             </div>
-            <div id="starRatingLabel" style="font-size: 0.85rem; font-weight: 600; color: #d97706;">Rất hài lòng & hữu ích! (5 sao)</div>
           </div>
 
-          <div style="margin-bottom: 18px;">
-            <label for="reviewComment" style="display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 6px; color: #374151;">Nhận xét của bạn (không bắt buộc):</label>
-            <textarea id="reviewComment" rows="3" placeholder="Chia sẻ cảm nhận về file (công thức, giao diện, độ dễ dùng)..." style="width: 100%; box-sizing: border-box; border: 1px solid var(--line); border-radius: 8px; padding: 10px; font-family: inherit; font-size: 0.88rem; resize: vertical; outline: none;"></textarea>
+          <!-- Star Rating Section -->
+          <div class="review-picker-section">
+            <div class="review-picker-hint">Chạm vào sao để đánh giá:</div>
+            <div class="star-rating-picker" id="starRatingPicker">
+              <span class="star-pick active" data-star="1" aria-label="1 sao">★</span>
+              <span class="star-pick active" data-star="2" aria-label="2 sao">★</span>
+              <span class="star-pick active" data-star="3" aria-label="3 sao">★</span>
+              <span class="star-pick active" data-star="4" aria-label="4 sao">★</span>
+              <span class="star-pick active" data-star="5" aria-label="5 sao">★</span>
+            </div>
+            <div class="star-rating-badge" id="starRatingLabel">Rất hài lòng & hữu ích! (5 sao)</div>
           </div>
 
-          <div style="display: flex; gap: 10px;">
-            <button type="button" class="button-secondary" id="cancelReviewBtn" style="flex: 1; height: 42px; border-radius: 8px;">Hủy</button>
-            <button type="submit" class="button-primary" id="submitReviewBtn" style="flex: 1; height: 42px; border-radius: 8px; font-weight: 600;">Gửi đánh giá</button>
+          <!-- Comment Textarea -->
+          <div class="review-comment-section">
+            <label for="reviewComment" class="review-comment-label">
+              <span>Nhận xét của bạn:</span>
+              <span style="font-weight: 400; color: var(--muted); font-size: 0.8rem;">(Không bắt buộc)</span>
+            </label>
+            <textarea id="reviewComment" class="review-comment-textarea" rows="4" placeholder="Chia sẻ cảm nhận về file (công thức, giao diện, độ dễ dùng hoặc góp ý để hoàn thiện hơn)..."></textarea>
+          </div>
+
+          <!-- Action Buttons -->
+          <div class="review-modal-actions">
+            <button type="button" class="button-secondary btn-review-cancel" id="cancelReviewBtn">Hủy</button>
+            <button type="submit" class="button-primary btn-review-submit" id="submitReviewBtn">Gửi đánh giá</button>
           </div>
         </form>
       </div>
@@ -758,6 +780,6 @@
     <script src="/__/firebase/init.js"></script>
     <script src="./storefront-data.js?v=12"></script>
     <script src="./storefront-products.generated.js?v=6"></script>
-    <script src="storefront.js?v=65"></script>
+    <script src="storefront.js?v=66"></script>
   </body>
 </html>

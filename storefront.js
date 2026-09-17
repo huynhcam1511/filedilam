@@ -259,6 +259,8 @@
     // Review Modal events
     if (closeReviewModal) closeReviewModal.addEventListener("click", closeReviewModalFn);
     if (cancelReviewBtn) cancelReviewBtn.addEventListener("click", closeReviewModalFn);
+    var sheetHandleBar = document.querySelector("#reviewModal .sheet-handle-bar");
+    if (sheetHandleBar) sheetHandleBar.addEventListener("click", closeReviewModalFn);
     if (reviewForm) reviewForm.addEventListener("submit", handleReviewSubmit);
 
     if (starRatingPicker) {
