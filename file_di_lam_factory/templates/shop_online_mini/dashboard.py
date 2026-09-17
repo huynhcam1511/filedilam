@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from .chart_formulas import chart_formulas, chart_cached_values
+
 
 def _metric_formula(metric_name: str, config: dict) -> str:
     orders_sheet = config["sheets"]["orders"]
@@ -8,7 +10,7 @@ def _metric_formula(metric_name: str, config: dict) -> str:
     max_row = config["max_input_rows"] + 3
 
     formulas = {
-        "order_count": f'=COUNTIF(\'{orders_sheet}\'!$K$4:$K${max_row},"<>")',
+        "order_count": f'=COUNT(\'{orders_sheet}\'!$A$4:$A${max_row})',
         "total_revenue": f'=SUM(\'{orders_sheet}\'!$E$4:$E${max_row})',
         "cod_outstanding": f'=SUM(\'{cod_sheet}\'!$G$4:$G${max_row})',
         "net_cashflow": (
@@ -39,10 +41,9 @@ def write_dashboard(
     sample_data: dict,
 ) -> None:
     colors = design_tokens["colors"]
-    platform_color_map = {item["name"]: item["chip_bg"] for item in sample_data["platforms"]}
 
     worksheet.set_column("A:T", 10)
-    worksheet.set_column("AA:AZ", 18, None, {"hidden": True})
+    worksheet.set_column("AA:BA", 18, None, {"hidden": True})
     worksheet.set_row(0, 28)
     worksheet.set_row(1, 20)
 
@@ -82,22 +83,23 @@ def write_dashboard(
     _write_helper_block(worksheet, "AM", "AN", 2, "Thu/Chi", "Số tiền", list(dashboard_cache["cashflow_summary"].items()), formats)
     _write_helper_block(worksheet, "AP", "AQ", 2, "Sản phẩm", "Doanh thu", dashboard_cache["product_revenue"], formats)
 
+    cached_values = chart_cached_values(config, sample_data, dashboard_cache)
+    for address, formula in chart_formulas(config).items():
+        worksheet.write_formula(address, formula, formats["helper_currency"], cached_values[address])
+    worksheet.write("AA10", "Các kênh còn lại", formats["helper_text"])
+    worksheet.write("AD10", "Các kênh còn lại", formats["helper_text"])
+
     chart_positions = [
-        ("B12", "Doanh thu theo kênh", "column", "AA", "AB", len(dashboard_cache["revenue_by_channel"])),
-        ("J12", "Số đơn theo kênh", "bar", "AD", "AE", len(dashboard_cache["order_count_by_channel"])),
-        ("B30", "Cơ cấu trạng thái đơn", "doughnut", "AG", "AH", len(dashboard_cache["orders_by_status"])),
+        ("B12", "Doanh thu theo kênh (Top 7 + còn lại)", "bar", "AA", "AB", 8),
+        ("J12", "Số đơn theo kênh (Top 7 + còn lại)", "bar", "AD", "AE", 8),
+        ("B30", "Cơ cấu trạng thái đơn", "doughnut", "AG", "AH", 5),
         ("J30", "Thu và chi", "column", "AM", "AN", len(dashboard_cache["cashflow_summary"])),
-        ("B48", "Top sản phẩm", "bar", "AP", "AQ", len(dashboard_cache["product_revenue"])),
+        ("B48", "Top 5 sản phẩm theo doanh thu", "bar", "AP", "AQ", 5),
         ("J48", "Tiền COD chờ về", "bar", "AJ", "AK", len(dashboard_cache["cod_aging"])),
     ]
 
     for anchor, title, chart_type, category_col, value_col, size in chart_positions:
         chart = workbook.add_chart({"type": chart_type})
-        points = None
-        if category_col in {"AA", "AD"}:
-            labels = list(dashboard_cache["revenue_by_channel"].keys()) if category_col == "AA" else list(dashboard_cache["order_count_by_channel"].keys())
-            points = [{"fill": {"color": platform_color_map.get(label, colors["secondary"])}, "border": {"color": platform_color_map.get(label, colors["secondary"])}} for label in labels]
-
         series = {
             "name": title,
             "categories": f"='{config['sheets']['dashboard']}'!${category_col}$3:${category_col}${2 + size}",
@@ -112,17 +114,20 @@ def write_dashboard(
                 {"fill": {"color": colors["lavender"]}},
                 {"fill": {"color": colors["danger"]}},
             ]
-        elif points:
-            series["points"] = points
         else:
             series["fill"] = {"color": colors["secondary"] if chart_type == "column" else colors["accent"]}
             series["border"] = {"color": colors["secondary"] if chart_type == "column" else colors["accent"]}
 
         chart.add_series(series)
+        chart.show_hidden_data()
         chart.set_title({"name": title})
         chart.set_chartarea({"fill": {"color": colors["white"]}, "border": {"color": colors["border"]}})
         chart.set_plotarea({"fill": {"color": colors["white"]}, "border": {"color": colors["white"]}})
         if chart_type != "doughnut":
             chart.set_legend({"none": True})
-            chart.set_y_axis({"num_format": "#,##0"})
+            if chart_type == "bar":
+                chart.set_x_axis({"num_format": "#,##0" if value_col == "AE" else '0.0,," tr"', "min": 0, "num_font": {"size": 9}})
+                chart.set_y_axis({"reverse": True, "num_font": {"size": 9}})
+            else:
+                chart.set_y_axis({"num_format": '0.0,," tr"', "min": 0})
         worksheet.insert_chart(anchor, chart, {"x_scale": 1.0, "y_scale": 0.9})

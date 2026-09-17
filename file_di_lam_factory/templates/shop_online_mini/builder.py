@@ -249,35 +249,52 @@ def _write_setup_sheet(worksheet, *, config: dict, sample_data: dict, formats: d
     protect_sheet(worksheet)
 
 
-def _write_lists_sheet(workbook, worksheet, *, sample_data: dict, formats: dict) -> dict[str, tuple[int, int, str]]:
+def _write_lists_sheet(workbook, worksheet, *, config: dict, sample_data: dict, formats: dict) -> dict[str, tuple[int, int, str]]:
     configure_sheet(worksheet, tab_color="#D9A7B5")
     worksheet.set_column("A:E", 18)
     worksheet.set_column("G:J", 18)
     worksheet.set_column("L:L", 18)
     worksheet.set_column("N:S", 18)
+    worksheet.set_column("A:A", 32)
+    worksheet.set_column("E:E", 42)
+    worksheet.set_column("G:G", 24)
+    worksheet.set_column("H:H", 28)
+    worksheet.set_column("K:K", 32)
+    worksheet.set_column("M:M", 42)
+    worksheet.set_column("P:P", 22)
+    worksheet.freeze_panes(2, 0)
     worksheet.write("A1", "Danh mục sản phẩm", formats["section"])
     product_headers = ["Tên sản phẩm", "Nhóm", "Giá gợi ý", "Mã SP tự tạo", "Dùng để chọn"]
     for idx, header in enumerate(product_headers):
         worksheet.write(1, idx, header, formats["helper_header"])
-    for row_idx, item in enumerate(sample_data["products_catalog"], start=3):
+    for offset in range(config["catalog_capacity"]["products"]):
+        row_idx = offset + 3
+        item = sample_data["products_catalog"][offset] if offset < len(sample_data["products_catalog"]) else dict(name="", group="", default_price=None, code="", label="")
         worksheet.write(f"A{row_idx}", item["name"], formats["setup_input"])
         worksheet.write(f"B{row_idx}", item["group"], formats["setup_input"])
-        worksheet.write_number(f"C{row_idx}", item["default_price"], formats["input_currency"])
+        write_cell(worksheet, row_idx - 1, 2, item["default_price"], formats["input_currency"])
         worksheet.write_formula(f"D{row_idx}", f'=IF(A{row_idx}="","", "SP"&TEXT(ROW()-2,"00"))', formats["locked_text"], item["code"])
         worksheet.write_formula(f"E{row_idx}", f'=IF(A{row_idx}="","", D{row_idx}&" - "&A{row_idx})', formats["locked_text"], item["label"])
 
     worksheet.write("G1", "Kênh bán hàng", formats["section"])
     worksheet.write("G2", "Tên kênh", formats["helper_header"])
     worksheet.write("H2", "Ghi chú", formats["helper_header"])
-    for row_idx, item in enumerate(sample_data["platforms"], start=3):
-        worksheet.write(f"G{row_idx}", item["name"], formats["setup_input"])
-        worksheet.write(f"H{row_idx}", "Không cần sửa nếu vẫn dùng nền tảng phổ biến", formats["helper_text"])
+    for offset in range(config["catalog_capacity"]["channels"]):
+        row_idx = offset + 3
+        name = sample_data["platforms"][offset]["name"] if offset < len(sample_data["platforms"]) else ""
+        worksheet.write(f"G{row_idx}", name, formats["setup_input"])
+    worksheet.write("H3", "Thêm liên tiếp, không bỏ dòng trống", formats["setup_hint"])
+    worksheet.write("H4", "Giữ tên/mã đã dùng trong đơn cũ", formats["setup_hint"])
+    worksheet.write("H5", "Sản phẩm và giá là ví dụ để sửa", formats["setup_hint"])
+    worksheet.write("H6", "500 SP / 60 kênh / 150 thu chi", formats["setup_hint"])
 
     worksheet.write("J1", "Danh mục thu chi", formats["section"])
     cash_headers = ["Loại Thu/Chi", "Tên danh mục", "Mã tự tạo", "Dùng để chọn"]
     for idx, header in enumerate(cash_headers):
         worksheet.write(1, 9 + idx, header, formats["helper_header"])
-    for row_idx, item in enumerate(sample_data["cashflow_categories"], start=3):
+    for offset in range(config["catalog_capacity"]["cashbook_categories"]):
+        row_idx = offset + 3
+        item = sample_data["cashflow_categories"][offset] if offset < len(sample_data["cashflow_categories"]) else dict(flow_type="", name="", code="", label="")
         worksheet.write(f"J{row_idx}", item["flow_type"], formats["setup_input"])
         worksheet.write(f"K{row_idx}", item["name"], formats["setup_input"])
         worksheet.write_formula(
@@ -305,16 +322,27 @@ def _write_lists_sheet(workbook, worksheet, *, sample_data: dict, formats: dict)
     worksheet.write("R3", "Thu", formats["setup_input"])
     worksheet.write("R4", "Chi", formats["setup_input"])
 
-    protect_sheet(worksheet)
-    return {
-        "channels": (3, 2 + len(sample_data["platforms"]), "G"),
-        "products": (3, 2 + len(sample_data["products_catalog"]), "E"),
+    list_ranges = {
+        "channels": (3, 2 + config["catalog_capacity"]["channels"], "G"),
+        "products": (3, 2 + config["catalog_capacity"]["products"], "E"),
         "payment_methods": (3, 2 + len(sample_data["lists"]["payment_methods"]), "O"),
         "carriers": (3, 2 + len(sample_data["lists"]["carriers"]), "P"),
         "order_statuses": (3, 2 + len(sample_data["lists"]["order_statuses"]), "Q"),
         "flow_types": (3, 4, "R"),
-        "cashbook_categories": (3, 2 + len(sample_data["cashflow_categories"]), "M"),
+        "cashbook_categories": (3, 2 + config["catalog_capacity"]["cashbook_categories"], "M"),
     }
+    count_columns = {"products": "A", "channels": "G", "cashbook_categories": "K"}
+    for name, (start, end, col) in list_ranges.items():
+        sheet = config["sheets"]["lists"]
+        count_col = count_columns.get(name)
+        if count_col:
+            formula = f"=OFFSET('{sheet}'!${col}${start},0,0,MAX(1,COUNTA('{sheet}'!${count_col}${start}:${count_col}${end})),1)"
+        else:
+            formula = f"='{sheet}'!${col}${start}:${col}${end}"
+        workbook.define_name(f"shop_{name}", formula)
+    worksheet.data_validation(f"J3:J{list_ranges['cashbook_categories'][1]}", {"validate": "list", "source": "=shop_flow_types"})
+    protect_sheet(worksheet)
+    return list_ranges
 
 
 def _write_orders_sheet(workbook, worksheet, *, config: dict, sample_data: dict, formats: dict, metrics: dict, design_tokens: dict) -> None:
@@ -460,7 +488,7 @@ def build_workbook(*, context, config: dict, sample_data: dict, design_tokens: d
     metadata_ws = workbook.add_worksheet(config["sheets"]["metadata"])
 
     _write_setup_sheet(guide_ws, config=config, sample_data=sample_data, formats=formats, context=context, design_tokens=design_tokens)
-    list_ranges = _write_lists_sheet(workbook, lists_ws, sample_data=sample_data, formats=formats)
+    list_ranges = _write_lists_sheet(workbook, lists_ws, config=config, sample_data=sample_data, formats=formats)
     _write_orders_sheet(workbook, orders_ws, config=config, sample_data=sample_data, formats=formats, metrics=metrics, design_tokens=design_tokens)
     _write_cashbook_sheet(workbook, cashbook_ws, config=config, sample_data=sample_data, formats=formats, design_tokens=design_tokens)
     _write_cod_sheet(workbook, cod_ws, config=config, formats=formats, metrics=metrics, design_tokens=design_tokens)

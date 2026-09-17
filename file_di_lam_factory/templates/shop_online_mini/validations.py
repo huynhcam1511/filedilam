@@ -1,16 +1,12 @@
 from __future__ import annotations
 
 
-def _range_formula(sheet_name: str, start_row: int, end_row: int, column_letter: str) -> str:
-    return f"='{sheet_name}'!${column_letter}${start_row}:${column_letter}${end_row}"
-
-
 def apply_validations(orders_ws, cashbook_ws, *, config: dict, list_ranges: dict[str, tuple[int, int, str]]) -> None:
-    sheet_name = config["sheets"]["lists"]
     max_row = config["max_input_rows"] + 1
     def source(name: str) -> str:
-        start_row, end_row, column_letter = list_ranges[name]
-        return _range_formula(sheet_name, start_row, end_row, column_letter)
+        if name not in list_ranges:
+            raise ValueError(f"Missing dropdown catalog: {name}")
+        return f"=shop_{name}"
 
     orders_validations = {
         "B": source("channels"),
@@ -60,7 +56,7 @@ def apply_validations(orders_ws, cashbook_ws, *, config: dict, list_ranges: dict
         },
     )
     cashbook_ws.data_validation(
-        f"E4:E{max_row + 2}",
+        f"D4:D{max_row + 2}",
         {
             "validate": "integer",
             "criteria": ">=",

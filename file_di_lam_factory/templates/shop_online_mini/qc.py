@@ -92,6 +92,16 @@ def run_qc(*, context, config: dict, sample_data: dict, workbook_path) -> dict:
             f"Dashboard charts: {len(getattr(dashboard_ws, '_charts', []))}",
         )
     )
+    # A chart object alone does not prove that its source responds to input.
+    chart_cells = [f'{col}{row}' for col, end in [('AB',10),('AE',10),('AH',7),('AK',6),('AN',4),('AQ',7)] for row in range(3,end+1)]
+    checks.append(_check('live_chart_sources', all(dashboard_ws[cell].data_type == 'f' for cell in chart_cells), 'All six chart value ranges contain formulas'))
+    checks.append(_check('live_product_ranking', all(dashboard_ws[f'AP{r}'].data_type == 'f' for r in range(3,8)), 'Top product labels use live ranking formulas'))
+    expected_lists = {'products': ('E','A',config['catalog_capacity']['products']), 'channels': ('G','G',config['catalog_capacity']['channels']), 'cashbook_categories': ('M','K',config['catalog_capacity']['cashbook_categories'])}
+    checks.append(_check('expandable_catalog_names', all(f'shop_{name}' in wb.defined_names and f'${source}${capacity+2}' in wb.defined_names[f'shop_{name}'].attr_text for name, (_,source,capacity) in expected_lists.items()), 'Dropdown names include all reserved catalog rows'))
+    end_row = config['max_input_rows'] + 3
+    checks.append(_check('cash_amount_validation', any(v.type == 'whole' and f'D{end_row}' in v.sqref for v in cashbook_ws.data_validations.dataValidation), 'Cash amount validation covers column D through final row'))
+    for sheet, cols in [(orders_ws, ['B','D','F','G','I']), (cashbook_ws,['B','C'])]:
+        checks.append(_check(f'{sheet.title}_dropdown_coverage', all(any(v.type == 'list' and f'{col}4' in v.sqref and f'{col}{end_row}' in v.sqref and v.formula1 in wb.defined_names for v in sheet.data_validations.dataValidation) for col in cols), 'Every dropdown covers first and last input rows and resolves to a workbook name'))
     checks.append(
         _check(
             "lists_sheet_visible",
@@ -114,6 +124,7 @@ def run_qc(*, context, config: dict, sample_data: dict, workbook_path) -> dict:
         )
     )
 
+    wb.close()
     all_passed = all(item["passed"] for item in checks)
     return {
         "template_id": context.template_id,

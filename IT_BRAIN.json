@@ -528,6 +528,18 @@
     }
   ],
   "product_quality_standard": {
+    "shop_online_mini_v1_4_0": {
+      "updated_at": "2026-09-17",
+      "source": "file_di_lam_factory/templates/shop_online_mini/",
+      "changes": [
+        "Cả 6 biểu đồ dùng công thức liên kết dữ liệu, Top 5 sản phẩm xếp hạng động và xử lý đồng hạng theo thứ tự danh mục.",
+        "Biểu đồ kênh lấy Top 7 và nhóm các kênh còn lại để giữ tổng đầy đủ; nguồn biểu đồ ẩn vẫn được hiển thị.",
+        "60 sản phẩm mẫu, 24 kênh và 40 danh mục thu chi; dự phòng tương ứng 500, 60, 150 mục.",
+        "Dropdown dùng named ranges tự mở rộng khi thêm liên tiếp vào danh mục; không để dòng trống và giữ nguyên tên/mã đã dùng trong đơn cũ.",
+        "Validation số tiền thu chi nằm tại cột D, không phải cột E mã đơn; đếm đơn theo ngày nhập để không đếm công thức trả chuỗi rỗng.",
+        "QC kiểm tra công thức nguồn của cả 6 biểu đồ, tên sản phẩm xếp hạng và độ phủ dropdown đến dòng nhập cuối."
+      ]
+    },
     "benchmark": "outputs/shop_online_mini/file_di_lam_shop_online_mini__v1_3_0__20260818_031500.xlsx",
     "mandatory_standards": [
       "Sheet BẮT ĐẦU: Có mục đích file, hướng dẫn 3 bước nhập, thiết lập ban đầu, ví dụ hoàn chỉnh và bảng chú giải màu.",
