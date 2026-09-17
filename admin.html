@@ -64,6 +64,126 @@
     
     .admin-form { max-width: 650px; background: white; padding: 40px; border-radius: 16px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05), 0 2px 4px -1px rgba(0,0,0,0.03); }
 
+    /* Stats & Orders Dashboard Styles */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 20px;
+      margin-bottom: 28px;
+    }
+    .stat-card {
+      background: #ffffff;
+      border-radius: 14px;
+      padding: 22px 24px;
+      border: 1px solid var(--line);
+      box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      position: relative;
+    }
+    .stat-card-label {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .stat-card-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.15rem;
+    }
+    .stat-card-value {
+      font-size: 1.85rem;
+      font-weight: 700;
+      color: #0f172a;
+      line-height: 1.2;
+      margin-top: 4px;
+    }
+    .stat-card-sub {
+      font-size: 0.82rem;
+      color: var(--mint-strong);
+      font-weight: 500;
+      margin-top: 2px;
+    }
+
+    .analytics-two-col {
+      display: grid;
+      grid-template-columns: 1.4fr 1fr;
+      gap: 24px;
+      margin-bottom: 28px;
+    }
+    @media (max-width: 1024px) {
+      .analytics-two-col {
+        grid-template-columns: 1fr;
+      }
+    }
+    .chart-box {
+      background: #ffffff;
+      border-radius: 14px;
+      padding: 24px;
+      border: 1px solid var(--line);
+      box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+    }
+    
+    .badge-status {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 0.76rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+    }
+    .badge-status-paid {
+      background: #ecfdf5;
+      color: #047857;
+      border: 1px solid #a7f3d0;
+    }
+    .badge-status-pending {
+      background: #fffbeb;
+      color: #b45309;
+      border: 1px solid #fde68a;
+    }
+
+    .best-seller-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 0;
+      border-bottom: 1px solid #f1f5f9;
+    }
+    .best-seller-item:last-child {
+      border-bottom: none;
+    }
+    .rank-badge {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: #f1f5f9;
+      color: #475569;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.78rem;
+      font-weight: 700;
+      margin-right: 10px;
+      flex-shrink: 0;
+    }
+    .rank-badge.top-1 { background: #fef3c7; color: #b45309; }
+    .rank-badge.top-2 { background: #f1f5f9; color: #334155; }
+    .rank-badge.top-3 { background: #ffedd5; color: #c2410c; }
+
   </style>
 </head>
 <body>
@@ -96,8 +216,8 @@
       <ul class="sidebar-menu">
         <li class="active" data-tab="productsTab">Danh sách sản phẩm</li>
         <li data-tab="addTab">Thêm sản phẩm mới</li>
-        <li data-tab="ordersTab">Đơn hàng (Sắp ra mắt)</li>
-        <li data-tab="statsTab">Thống kê (Sắp ra mắt)</li>
+        <li data-tab="ordersTab">Quản lý Đơn hàng</li>
+        <li data-tab="statsTab">Thống kê Doanh thu</li>
       </ul>
     </aside>
 
@@ -236,19 +356,129 @@
         </div>
       </div>
 
-      <!-- Placeholder Tabs -->
+      <!-- Order Management Tab -->
       <div id="ordersTab" class="tab-pane">
-        <h2 style="margin-top: 0; margin-bottom: 24px;">Quản lý Đơn hàng</h2>
-        <div class="admin-form" style="text-align: center; padding: 60px;">
-          <h3>Tính năng đang phát triển</h3>
-          <p style="color: var(--muted);">Phần quản lý đơn hàng sẽ sớm được cập nhật.</p>
+        <div class="data-table-container">
+          <div style="display: flex; justify-content: space-between; align-items: center; padding: 24px 32px; border-bottom: 1px solid var(--line); flex-wrap: wrap; gap: 16px;">
+            <div>
+              <h2 style="margin: 0; font-size: 1.4rem; color: #111;">Quản lý Đơn hàng</h2>
+              <p style="margin: 6px 0 0 0; color: var(--muted); font-size: 0.9rem;">Toàn bộ giao dịch đặt mua file trên cửa hàng.</p>
+            </div>
+            
+            <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
+              <input type="search" id="orderSearchInput" placeholder="Tìm theo Mã đơn, SĐT, Tên file..." style="height: 40px; padding: 0 14px; border: 1px solid var(--line); border-radius: 8px; font-size: 0.9rem; min-width: 240px; outline: none;" />
+              <select id="orderStatusFilter" style="height: 40px; padding: 0 12px; border: 1px solid var(--line); border-radius: 8px; font-size: 0.9rem; background: #fff; cursor: pointer; outline: none;">
+                <option value="ALL">Tất cả trạng thái</option>
+                <option value="PAID">Đã thanh toán (PAID)</option>
+                <option value="PENDING">Chờ thanh toán (PENDING)</option>
+              </select>
+              <button class="button-secondary" id="refreshOrdersBtn" style="height: 40px; padding: 0 14px; border-radius: 8px; font-size: 0.88rem; display: flex; align-items: center; gap: 6px; cursor: pointer;">
+                <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+                Làm mới
+              </button>
+            </div>
+          </div>
+          
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Mã đơn</th>
+                <th>Thời gian</th>
+                <th>Khách hàng</th>
+                <th>Sản phẩm</th>
+                <th>Số tiền</th>
+                <th>Trạng thái</th>
+                <th>Đánh giá</th>
+                <th>Thao tác</th>
+              </tr>
+            </thead>
+            <tbody id="orderListBody">
+              <tr><td colspan="8" style="text-align: center; color: var(--muted); padding: 32px;">Đang tải danh sách đơn hàng...</td></tr>
+            </tbody>
+          </table>
         </div>
       </div>
+
+      <!-- Revenue Statistics Tab -->
       <div id="statsTab" class="tab-pane">
-        <h2 style="margin-top: 0; margin-bottom: 24px;">Thống kê Doanh thu</h2>
-        <div class="admin-form" style="text-align: center; padding: 60px;">
-          <h3>Tính năng đang phát triển</h3>
-          <p style="color: var(--muted);">Bảng điều khiển thống kê sẽ sớm được cập nhật.</p>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; flex-wrap: wrap; gap: 12px;">
+          <div>
+            <h2 style="margin: 0; font-size: 1.4rem; color: #111;">Thống kê Doanh thu</h2>
+            <p style="margin: 6px 0 0 0; color: var(--muted); font-size: 0.9rem;">Dữ liệu thanh toán thực tế tự động cập nhật từ hệ thống SePay.</p>
+          </div>
+          <div style="display: flex; gap: 10px;">
+            <button class="button-secondary" id="refreshStatsBtn" style="display: flex; align-items: center; gap: 6px; padding: 8px 14px; border-radius: 8px; font-size: 0.88rem; cursor: pointer;">
+              <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+              Làm mới
+            </button>
+          </div>
+        </div>
+
+        <!-- 4 KPI Cards -->
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-card-label">
+              <span>Tổng doanh thu</span>
+              <span class="stat-card-icon" style="background: #ecfdf5; color: #059669;">💰</span>
+            </div>
+            <div class="stat-card-value" id="kpiTotalRevenue">0 đ</div>
+            <div class="stat-card-sub" id="kpiTotalRevenueSub">Tất cả đơn đã thanh toán</div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-card-label">
+              <span>Doanh thu tháng này</span>
+              <span class="stat-card-icon" style="background: #eff6ff; color: #2563eb;">📅</span>
+            </div>
+            <div class="stat-card-value" id="kpiMonthRevenue">0 đ</div>
+            <div class="stat-card-sub" id="kpiMonthRevenueSub" style="color: #2563eb;">Tháng hiện tại</div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-card-label">
+              <span>Đơn hàng thành công</span>
+              <span class="stat-card-icon" style="background: #fef3c7; color: #d97706;">📦</span>
+            </div>
+            <div class="stat-card-value" id="kpiPaidOrders">0</div>
+            <div class="stat-card-sub" id="kpiPaidOrdersSub" style="color: #d97706;">Tỉ lệ hoàn tất tốt</div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-card-label">
+              <span>Khách hàng thực tế</span>
+              <span class="stat-card-icon" style="background: #f5f3ff; color: #7c3aed;">👥</span>
+            </div>
+            <div class="stat-card-value" id="kpiCustomers">0</div>
+            <div class="stat-card-sub" id="kpiCustomersSub" style="color: #7c3aed;">Người mua duy nhất</div>
+          </div>
+        </div>
+
+        <!-- Two Columns: Revenue Trend Chart & Best Sellers -->
+        <div class="analytics-two-col">
+          <!-- Daily Revenue Chart -->
+          <div class="chart-box">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+              <div>
+                <h3 style="margin: 0; font-size: 1.1rem; color: #1e293b;">Biểu đồ Doanh thu (14 ngày qua)</h3>
+                <p style="margin: 4px 0 0 0; font-size: 0.82rem; color: var(--muted);">Doanh số chi tiết theo từng ngày</p>
+              </div>
+              <div id="chartTotalLabel" style="font-weight: 700; color: var(--mint-strong); font-size: 1rem;"></div>
+            </div>
+            <div id="revenueChartContainer" style="min-height: 220px; display: flex; align-items: flex-end; justify-content: space-between; gap: 8px; padding: 20px 10px 10px 10px; border-bottom: 1px solid var(--line); background: #fafafa; border-radius: 10px;">
+              <div style="margin: auto; color: var(--muted); font-size: 0.9rem;">Đang tải biểu đồ...</div>
+            </div>
+          </div>
+
+          <!-- Best Sellers Box -->
+          <div class="chart-box">
+            <div style="margin-bottom: 16px;">
+              <h3 style="margin: 0; font-size: 1.1rem; color: #1e293b;">Top File Bán Chạy Nhất</h3>
+              <p style="margin: 4px 0 0 0; font-size: 0.82rem; color: var(--muted);">Xếp hạng theo doanh số đóng góp</p>
+            </div>
+            <div id="bestSellersContainer">
+              <div style="margin: 20px 0; text-align: center; color: var(--muted); font-size: 0.9rem;">Đang tải xếp hạng...</div>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -263,6 +493,6 @@
   <script src="/__/firebase/10.7.1/firebase-storage-compat.js"></script>
   <script src="/__/firebase/init.js"></script>
   
-  <script src="./admin.js?v=4"></script>
+  <script src="./admin.js?v=5"></script>
 </body>
 </html>

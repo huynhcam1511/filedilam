@@ -38,6 +38,10 @@ document.addEventListener('DOMContentLoaded', () => {
     });
     if (tabId === 'productsTab') {
       loadProducts();
+    } else if (tabId === 'ordersTab') {
+      loadAdminOrders();
+    } else if (tabId === 'statsTab') {
+      loadAdminStats();
     }
   }
 
@@ -82,6 +86,28 @@ document.addEventListener('DOMContentLoaded', () => {
   // --- PRODUCT MANAGEMENT ---
   function formatCurrency(val) {
     return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND', maximumFractionDigits: 0 }).format(val);
+  }
+
+  function escapeHtml(str) {
+    if (!str) return '';
+    return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  }
+
+  async function adminFetch(endpoint, options = {}) {
+    const user = auth.currentUser;
+    if (!user) throw new Error("Chưa đăng nhập Admin");
+    const token = await user.getIdToken();
+    const headers = {
+      ...(options.headers || {}),
+      "Authorization": "Bearer " + token,
+      "Content-Type": "application/json"
+    };
+    const res = await fetch(endpoint, { ...options, headers });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.error || ("Lỗi server " + res.status));
+    }
+    return res.json();
   }
 
   let currentProducts = [];
@@ -337,4 +363,239 @@ document.addEventListener('DOMContentLoaded', () => {
       submitBtn.textContent = editingId ? 'Cập nhật sản phẩm' : 'Tải lên & Đăng bán';
     }
   });
+
+  // --- REVENUE STATISTICS & ORDER MANAGEMENT ---
+  let cachedOrders = [];
+
+  async function loadAdminStats() {
+    const kpiTotalRevenue = document.getElementById('kpiTotalRevenue');
+    const kpiMonthRevenue = document.getElementById('kpiMonthRevenue');
+    const kpiPaidOrders = document.getElementById('kpiPaidOrders');
+    const kpiCustomers = document.getElementById('kpiCustomers');
+    const revenueChartContainer = document.getElementById('revenueChartContainer');
+    const bestSellersContainer = document.getElementById('bestSellersContainer');
+
+    if (!kpiTotalRevenue) return;
+
+    kpiTotalRevenue.textContent = "Đang tính...";
+    kpiMonthRevenue.textContent = "Đang tính...";
+    kpiPaidOrders.textContent = "...";
+    kpiCustomers.textContent = "...";
+    if (revenueChartContainer) revenueChartContainer.innerHTML = '<div style="margin: auto; color: var(--muted); font-size: 0.9rem;">Đang tải biểu đồ...</div>';
+    if (bestSellersContainer) bestSellersContainer.innerHTML = '<div style="margin: 20px 0; text-align: center; color: var(--muted); font-size: 0.9rem;">Đang tải xếp hạng...</div>';
+
+    try {
+      let stats = null;
+      try {
+        stats = await adminFetch('/admin/stats');
+      } catch (apiErr) {
+        console.warn("Backend /admin/stats failed, fallback to client calculation:", apiErr);
+        const snap = await db.collection('orders').get();
+        let totalRev = 0, monthRev = 0, todayRev = 0, paidCount = 0;
+        const customers = new Set();
+        const productMap = {};
+        const dailyMap = {};
+        const now = new Date();
+        const todayStr = now.toISOString().slice(0, 10);
+        const monthStr = now.toISOString().slice(0, 7);
+
+        for (let i = 13; i >= 0; i--) {
+          const d = new Date(now.getTime() - i * 24 * 60 * 60 * 1000);
+          const ds = d.toISOString().slice(0, 10);
+          dailyMap[ds] = { date: ds, revenue: 0, count: 0 };
+        }
+
+        snap.forEach(doc => {
+          const o = doc.data();
+          if (o && String(o.status || '').toUpperCase() === 'PAID') {
+            const amt = parseInt(o.amount || 0, 10);
+            totalRev += amt;
+            paidCount += 1;
+            const cId = o.customer_phone || o.customer_email || o.user_id;
+            if (cId) customers.add(cId);
+
+            const cStr = String(o.created_at || '').slice(0, 10);
+            if (cStr === todayStr) todayRev += amt;
+            if (cStr.startsWith(monthStr)) monthRev += amt;
+            if (dailyMap[cStr]) {
+              dailyMap[cStr].revenue += amt;
+              dailyMap[cStr].count += 1;
+            }
+
+            const pid = o.product_id || 'other';
+            if (!productMap[pid]) {
+              productMap[pid] = { id: pid, name: o.product_name || 'File', count: 0, revenue: 0 };
+            }
+            productMap[pid].count += 1;
+            productMap[pid].revenue += amt;
+          }
+        });
+
+        stats = {
+          total_revenue: totalRev,
+          month_revenue: monthRev,
+          today_revenue: todayRev,
+          paid_orders_count: paidCount,
+          customers_count: customers.size,
+          daily_revenue: Object.values(dailyMap),
+          best_sellers: Object.values(productMap).sort((a, b) => b.revenue - a.revenue).slice(0, 10)
+        };
+      }
+
+      // Update KPI Cards
+      kpiTotalRevenue.textContent = formatCurrency(stats.total_revenue || 0);
+      kpiMonthRevenue.textContent = formatCurrency(stats.month_revenue || 0);
+      kpiPaidOrders.textContent = (stats.paid_orders_count || 0) + " đơn";
+      kpiCustomers.textContent = (stats.customers_count || 0) + " khách";
+
+      // Render Daily Revenue Chart
+      const dailyList = stats.daily_revenue || [];
+      const revenues = dailyList.map(d => d.revenue);
+      const maxRev = Math.max(...revenues, 100000);
+
+      if (revenueChartContainer) {
+        revenueChartContainer.innerHTML = dailyList.map(d => {
+          const heightPct = Math.max(Math.round((d.revenue / maxRev) * 150), 6);
+          const dayLabel = d.date.slice(8, 10) + '/' + d.date.slice(5, 7);
+          const isToday = d.date === new Date().toISOString().slice(0, 10);
+          const barBg = d.revenue > 0 ? (isToday ? '#059669' : '#10b981') : '#e2e8f0';
+
+          return `
+            <div style="flex: 1; display: flex; flex-direction: column; align-items: center; gap: 6px; height: 100%; justify-content: flex-end; position: relative;" title="${d.date}: ${formatCurrency(d.revenue)} (${d.count} đơn)">
+              <div style="font-size: 0.7rem; font-weight: 600; color: #10b981; margin-bottom: 2px;">${d.revenue > 0 ? (Math.round(d.revenue / 1000) + 'k') : ''}</div>
+              <div style="width: 100%; max-width: 28px; height: ${heightPct}px; background: ${barBg}; border-radius: 6px 6px 0 0; transition: height 0.3s ease;"></div>
+              <div style="font-size: 0.72rem; color: #64748b; font-weight: 500; margin-top: 4px;">${dayLabel}</div>
+            </div>
+          `;
+        }).join('');
+      }
+
+      // Render Best Sellers
+      const bestSellers = stats.best_sellers || [];
+      if (bestSellersContainer) {
+        if (!bestSellers.length) {
+          bestSellersContainer.innerHTML = '<div style="margin: 20px 0; text-align: center; color: var(--muted); font-size: 0.9rem;">Chưa có dữ liệu bán hàng.</div>';
+        } else {
+          bestSellersContainer.innerHTML = bestSellers.map((item, idx) => {
+            const rank = idx + 1;
+            const rankClass = rank <= 3 ? `top-${rank}` : '';
+            return `
+              <div class="best-seller-item">
+                <div style="display: flex; align-items: center; min-width: 0; flex: 1; margin-right: 12px;">
+                  <div class="rank-badge ${rankClass}">${rank}</div>
+                  <div style="min-width: 0;">
+                    <div style="font-weight: 600; font-size: 0.92rem; color: #1e293b; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${escapeHtml(item.name)}</div>
+                    <div style="font-size: 0.78rem; color: var(--muted);">${item.count} lượt mua thành công</div>
+                  </div>
+                </div>
+                <div style="text-align: right; flex-shrink: 0;">
+                  <div style="font-weight: 700; font-size: 0.95rem; color: var(--mint-strong);">${formatCurrency(item.revenue)}</div>
+                </div>
+              </div>
+            `;
+          }).join('');
+        }
+      }
+
+    } catch (err) {
+      console.error("Lỗi tải thống kê:", err);
+      showToast("Lỗi khi tải thống kê: " + err.message, true);
+    }
+  }
+
+  async function loadAdminOrders() {
+    const orderListBody = document.getElementById('orderListBody');
+    if (!orderListBody) return;
+    orderListBody.innerHTML = '<tr><td colspan="8" style="text-align: center; color: var(--muted); padding: 32px;">Đang tải danh sách đơn hàng...</td></tr>';
+
+    try {
+      try {
+        cachedOrders = await adminFetch('/admin/orders');
+      } catch (apiErr) {
+        console.warn("Backend /admin/orders failed, fallback to Firestore:", apiErr);
+        const snap = await db.collection('orders').get();
+        cachedOrders = [];
+        snap.forEach(doc => {
+          const d = doc.data();
+          cachedOrders.push({
+            order_id: doc.id,
+            ...d
+          });
+        });
+        cachedOrders.sort((a, b) => String(b.created_at || '').localeCompare(String(a.created_at || '')));
+      }
+
+      renderFilteredOrders();
+
+    } catch (err) {
+      console.error("Lỗi tải đơn hàng:", err);
+      orderListBody.innerHTML = `<tr><td colspan="8" style="text-align: center; color: #ef4444; padding: 32px;">Lỗi kết nối: ${escapeHtml(err.message)}</td></tr>`;
+    }
+  }
+
+  function renderFilteredOrders() {
+    const orderListBody = document.getElementById('orderListBody');
+    if (!orderListBody) return;
+    const searchVal = (document.getElementById('orderSearchInput')?.value || '').trim().toLowerCase();
+    const statusVal = document.getElementById('orderStatusFilter')?.value || 'ALL';
+
+    const filtered = cachedOrders.filter(order => {
+      const matchStatus = statusVal === 'ALL' || (order.status || '').toUpperCase() === statusVal;
+      if (!matchStatus) return false;
+
+      if (!searchVal) return true;
+      const oId = String(order.order_id || '').toLowerCase();
+      const phone = String(order.customer_phone || '').toLowerCase();
+      const email = String(order.customer_email || '').toLowerCase();
+      const pName = String(order.product_name || '').toLowerCase();
+      return oId.includes(searchVal) || phone.includes(searchVal) || email.includes(searchVal) || pName.includes(searchVal);
+    });
+
+    if (!filtered.length) {
+      orderListBody.innerHTML = '<tr><td colspan="8" style="text-align: center; color: var(--muted); padding: 32px;">Không tìm thấy đơn hàng nào phù hợp.</td></tr>';
+      return;
+    }
+
+    orderListBody.innerHTML = filtered.map(order => {
+      const isPaid = (order.status || '').toUpperCase() === 'PAID';
+      const statusBadge = isPaid
+        ? '<span class="badge-status badge-status-paid">✓ Đã thanh toán</span>'
+        : '<span class="badge-status badge-status-pending">⏳ Chờ thanh toán</span>';
+
+      const createdDate = order.created_at ? new Date(order.created_at) : null;
+      const timeStr = createdDate && !isNaN(createdDate) 
+        ? `${createdDate.toLocaleDateString('vi-VN')} ${createdDate.toLocaleTimeString('vi-VN', {hour: '2-digit', minute:'2-digit'})}`
+        : (order.created_at || 'Mới');
+
+      const customerInfo = order.customer_phone || order.customer_email || (order.user_id ? order.user_id.slice(0, 8) + '...' : 'Khách vãng lai');
+
+      const reviewHtml = order.has_reviewed
+        ? `<span style="color: #f59e0b; font-weight: 600;">⭐ ${order.review_stars}/5</span>`
+        : '<span style="color: var(--muted); font-size: 0.8rem;">Chưa</span>';
+
+      const fileUrl = order.product_file_url || '';
+      const actionHtml = fileUrl
+        ? `<a href="${escapeHtml(fileUrl)}" target="_blank" class="action-btn" style="text-decoration:none; color:var(--mint-strong); font-size:0.85rem;" title="Mở link file">📁 Mở file</a>`
+        : '<span style="color: var(--muted); font-size: 0.8rem;">-</span>';
+
+      return `
+        <tr>
+          <td><strong style="font-size: 0.9rem; color: #1e293b;">#${escapeHtml(order.order_id || '')}</strong></td>
+          <td style="font-size: 0.82rem; color: var(--muted); white-space: nowrap;">${escapeHtml(timeStr)}</td>
+          <td><span style="font-weight: 500; color: #1e293b;">${escapeHtml(customerInfo)}</span></td>
+          <td><span style="font-weight: 600; color: #1e293b;">${escapeHtml(order.product_name || 'File')}</span></td>
+          <td><strong style="color: var(--mint-strong);">${formatCurrency(order.amount || 0)}</strong></td>
+          <td>${statusBadge}</td>
+          <td>${reviewHtml}</td>
+          <td>${actionHtml}</td>
+        </tr>
+      `;
+    }).join('');
+  }
+
+  // Event Listeners for Orders & Stats
+  document.getElementById('refreshStatsBtn')?.addEventListener('click', loadAdminStats);
+  document.getElementById('refreshOrdersBtn')?.addEventListener('click', loadAdminOrders);
+  document.getElementById('orderSearchInput')?.addEventListener('input', renderFilteredOrders);
+  document.getElementById('orderStatusFilter')?.addEventListener('change', renderFilteredOrders);
 });

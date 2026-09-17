@@ -262,6 +262,114 @@ def api(req: https_fn.Request) -> https_fn.Response:
             "rating_avg": rating_avg,
             "rating_count": rating_count
         })
+
+    elif path == "/admin/stats" and method == "GET":
+        user = require_user(req)
+        if not user or user.get("email") != "huynhkiencam151102@gmail.com":
+            return json_response({"error": "ADMIN_AUTH_REQUIRED"}, 403)
+        
+        now = datetime.now(timezone.utc)
+        today_str = now.strftime("%Y-%m-%d")
+        month_str = now.strftime("%Y-%m")
+        
+        orders_stream = db.collection("orders").stream()
+        total_revenue = 0
+        today_revenue = 0
+        month_revenue = 0
+        paid_orders_count = 0
+        total_orders_count = 0
+        unique_customers = set()
+        product_sales = {}
+        daily_revenue_map = {}
+        
+        from datetime import timedelta
+        for i in range(13, -1, -1):
+            day = (now - timedelta(days=i)).strftime("%Y-%m-%d")
+            daily_revenue_map[day] = {"date": day, "revenue": 0, "count": 0}
+
+        for doc in orders_stream:
+            total_orders_count += 1
+            o = doc.to_dict()
+            status = str(o.get("status", "")).upper()
+            amount = int(o.get("amount") or 0)
+            
+            created_at = o.get("created_at") or o.get("paid_at")
+            created_str = str(created_at or "")[:10]
+            created_month = str(created_at or "")[:7]
+            
+            if status == "PAID":
+                paid_orders_count += 1
+                total_revenue += amount
+                
+                cust_id = o.get("customer_phone") or o.get("customer_email") or o.get("user_id")
+                if cust_id:
+                    unique_customers.add(cust_id)
+                    
+                if created_str == today_str:
+                    today_revenue += amount
+                if created_month == month_str:
+                    month_revenue += amount
+                    
+                if created_str in daily_revenue_map:
+                    daily_revenue_map[created_str]["revenue"] += amount
+                    daily_revenue_map[created_str]["count"] += 1
+                    
+                pid = o.get("product_id") or "other"
+                pname = o.get("product_name") or "File tổng hợp"
+                if pid not in product_sales:
+                    product_sales[pid] = {
+                        "id": pid,
+                        "name": pname,
+                        "count": 0,
+                        "revenue": 0,
+                        "price": amount
+                    }
+                product_sales[pid]["count"] += 1
+                product_sales[pid]["revenue"] += amount
+
+        best_sellers = sorted(product_sales.values(), key=lambda x: x["revenue"], reverse=True)[:10]
+        daily_list = sorted(daily_revenue_map.values(), key=lambda x: x["date"])
+        
+        return json_response({
+            "total_revenue": total_revenue,
+            "today_revenue": today_revenue,
+            "month_revenue": month_revenue,
+            "paid_orders_count": paid_orders_count,
+            "total_orders_count": total_orders_count,
+            "customers_count": len(unique_customers),
+            "aov": round(total_revenue / paid_orders_count) if paid_orders_count > 0 else 0,
+            "daily_revenue": daily_list,
+            "best_sellers": best_sellers
+        })
+
+    elif path == "/admin/orders" and method == "GET":
+        user = require_user(req)
+        if not user or user.get("email") != "huynhkiencam151102@gmail.com":
+            return json_response({"error": "ADMIN_AUTH_REQUIRED"}, 403)
+            
+        orders_stream = db.collection("orders").stream()
+        orders = []
+        for doc in orders_stream:
+            o = doc.to_dict()
+            orders.append({
+                "order_id": doc.id,
+                "amount": o.get("amount", 0),
+                "status": o.get("status", "PENDING"),
+                "product_id": o.get("product_id", ""),
+                "product_name": o.get("product_name", ""),
+                "product_file_url": o.get("product_file_url", ""),
+                "product_type": o.get("product_type", "excel"),
+                "customer_phone": o.get("customer_phone", ""),
+                "customer_email": o.get("customer_email", ""),
+                "user_id": o.get("user_id", ""),
+                "has_reviewed": bool(o.get("has_reviewed")),
+                "review_stars": o.get("review_stars", 0),
+                "review_comment": o.get("review_comment", ""),
+                "created_at": o.get("created_at"),
+                "paid_at": o.get("paid_at")
+            })
+        orders.sort(key=lambda x: str(x.get("created_at") or ""), reverse=True)
+        return json_response(orders)
         
     elif path == "/webhooks/sepay" and method == "POST":
         payload = req.get_json(silent=True) or {}
