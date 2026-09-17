@@ -179,11 +179,89 @@ def api(req: https_fn.Request) -> https_fn.Response:
                 "product_file_url": order_data.get("product_file_url"),
                 "product_type": order_data.get("product_type", "excel"),
                 "amount": order_data.get("amount"),
+                "has_reviewed": bool(order_data.get("has_reviewed")),
+                "review_stars": order_data.get("review_stars", 0),
+                "review_comment": order_data.get("review_comment", ""),
                 "created_at": order_data.get("created_at")
             })
             
         orders.sort(key=lambda x: str(x.get("created_at") or ""), reverse=True)
         return json_response(orders)
+
+    elif path == "/reviews" and method == "POST":
+        user = require_user(req)
+        if not user:
+            return json_response({"error": "AUTH_REQUIRED"}, 401)
+        data = req.get_json(silent=True) or {}
+        order_id = str(data.get("order_id", "")).strip().upper()
+        if not order_id:
+            return json_response({"error": "MISSING_ORDER_ID"}, 400)
+            
+        try:
+            stars = int(data.get("stars", 5))
+            if stars < 1 or stars > 5:
+                stars = 5
+        except (ValueError, TypeError):
+            stars = 5
+
+        comment = str(data.get("comment", "")).strip()[:500]
+
+        order_doc = db.collection("orders").document(order_id).get()
+        if not order_doc.exists:
+            return json_response({"error": "ORDER_NOT_FOUND"}, 404)
+        order = order_doc.to_dict()
+
+        if order.get("user_id") != user["uid"] and order.get("customer_email") != user.get("email"):
+            return json_response({"error": "PERMISSION_DENIED"}, 403)
+        if order.get("status") != "PAID":
+            return json_response({"error": "ORDER_NOT_PAID"}, 400)
+
+        product_id = order.get("product_id") or data.get("product_id")
+        now = datetime.now(timezone.utc)
+
+        db.collection("reviews").document(order_id).set({
+            "id": order_id,
+            "order_id": order_id,
+            "user_id": user["uid"],
+            "customer_phone": order.get("customer_phone", ""),
+            "product_id": product_id,
+            "product_name": order.get("product_name", ""),
+            "stars": stars,
+            "comment": comment,
+            "created_at": now
+        })
+
+        db.collection("orders").document(order_id).set({
+            "has_reviewed": True,
+            "review_stars": stars,
+            "review_comment": comment,
+            "reviewed_at": now
+        }, merge=True)
+
+        rating_avg = stars
+        rating_count = 1
+        if product_id:
+            try:
+                rev_stream = db.collection("reviews").where("product_id", "==", product_id).stream()
+                all_stars = [r.to_dict().get("stars", 5) for r in rev_stream if r.to_dict().get("stars")]
+                if all_stars:
+                    rating_count = len(all_stars)
+                    rating_avg = round(sum(all_stars) / rating_count, 1)
+                db.collection("products").document(product_id).set({
+                    "rating_avg": rating_avg,
+                    "rating_count": rating_count
+                }, merge=True)
+            except Exception as re_err:
+                print(f"Error updating product ratings: {re_err}")
+
+        return json_response({
+            "success": True,
+            "order_id": order_id,
+            "stars": stars,
+            "comment": comment,
+            "rating_avg": rating_avg,
+            "rating_count": rating_count
+        })
         
     elif path == "/webhooks/sepay" and method == "POST":
         payload = req.get_json(silent=True) or {}

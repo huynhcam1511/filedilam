@@ -2113,3 +2113,63 @@ body.cart-drawer-open .page-layout {
   }
 }
 
+/* Star Rating Picker & Review System */
+.star-rating-picker {
+  user-select: none;
+}
+
+.star-pick {
+  color: #cbd5e1;
+  transition: color 0.15s ease, transform 0.15s ease;
+  display: inline-block;
+  cursor: pointer;
+  padding: 0 3px;
+}
+
+.star-pick.active {
+  color: #f59e0b;
+}
+
+.star-pick:hover {
+  transform: scale(1.2);
+}
+
+.btn-open-review {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  background: #fffbeb;
+  color: #b45309;
+  border: 1px solid #fde68a;
+  border-radius: 8px;
+  padding: 8px 14px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  width: 100%;
+  font-family: inherit;
+  margin-top: 4px;
+}
+
+.btn-open-review:hover {
+  background: #fef3c7;
+  border-color: #f59e0b;
+  transform: translateY(-1px);
+}
+
+.reviewed-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: #f0fdf4;
+  color: #166534;
+  border: 1px solid #bbf7d0;
+  border-radius: 8px;
+  padding: 6px 12px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  margin-top: 4px;
+}
+
