@@ -18,6 +18,8 @@
 
   var folderGrid = document.getElementById("folderGrid");
   var priceGrid = document.getElementById("priceGrid");
+  var categorySelect = document.getElementById("categorySelect");
+  var priceSelect = document.getElementById("priceSelect");
   var productGrid = document.getElementById("productGrid");
   var coverWindowContent = document.getElementById("coverWindowContent");
   var catalogTitle = document.getElementById("catalogTitle");
@@ -156,6 +158,22 @@
     if (searchInput) {
       searchInput.addEventListener("input", function (event) {
         state.searchTerm = event.target.value.trim().toLowerCase();
+        renderProducts();
+      });
+    }
+
+    if (categorySelect) {
+      categorySelect.addEventListener("change", function (event) {
+        state.activeCategoryId = event.target.value;
+        renderFolders();
+        renderProducts();
+      });
+    }
+
+    if (priceSelect) {
+      priceSelect.addEventListener("change", function (event) {
+        state.activePriceId = event.target.value;
+        renderPriceFilter();
         renderProducts();
       });
     }
@@ -771,58 +789,65 @@
   }
 
   function renderFolders() {
-    var categoryOptions = [{ id: "all", name: "Tất cả" }].concat(data.categories);
-    folderGrid.innerHTML = categoryOptions
-      .map(function (category) {
-        var activeClass = category.id === state.activeCategoryId ? " active" : "";
-        return (
-          '<li class="category-item' + activeClass + '" data-folder-id="' +
-          escapeHtml(category.id) + '">' +
-          escapeHtml(category.name) +
-          "</li>"
-        );
-      })
-      .join("");
+    var categoryOptions = [{ id: "all", name: "Tất cả danh mục" }].concat(data.categories || []);
+    if (folderGrid) {
+      folderGrid.innerHTML = categoryOptions
+        .map(function (category) {
+          var activeClass = category.id === state.activeCategoryId ? " active" : "";
+          return (
+            '<li class="category-item' + activeClass + '" data-folder-id="' +
+            escapeHtml(category.id) + '">' +
+            escapeHtml(category.name) +
+            "</li>"
+          );
+        })
+        .join("");
 
-    Array.prototype.forEach.call(folderGrid.querySelectorAll("[data-folder-id]"), function (li) {
-      li.addEventListener("click", function () {
-        state.activeCategoryId = li.getAttribute("data-folder-id");
-        renderFolders();
-        renderProducts();
+      Array.prototype.forEach.call(folderGrid.querySelectorAll("[data-folder-id]"), function (li) {
+        li.addEventListener("click", function () {
+          state.activeCategoryId = li.getAttribute("data-folder-id");
+          if (categorySelect) categorySelect.value = state.activeCategoryId;
+          renderFolders();
+          renderProducts();
+        });
       });
-    });
+    }
+
+    if (categorySelect) {
+      categorySelect.innerHTML = categoryOptions
+        .map(function (c) {
+          return '<option value="' + escapeHtml(c.id) + '"' + (c.id === state.activeCategoryId ? ' selected' : '') + '>' + escapeHtml(c.name) + '</option>';
+        })
+        .join("");
+    }
   }
 
   function renderPriceFilter() {
-    if (!priceGrid) return;
-    var priceItems = priceGrid.querySelectorAll(".category-item");
-    Array.prototype.forEach.call(priceItems, function (li) {
-      if (li.getAttribute("data-price-id") === state.activePriceId) {
-        li.classList.add("active");
-      } else {
-        li.classList.remove("active");
-      }
-      
-      // Remove old listeners to avoid duplicates, by cloning
-      var newLi = li.cloneNode(true);
-      li.parentNode.replaceChild(newLi, li);
-      
-      newLi.addEventListener("click", function () {
-        state.activePriceId = newLi.getAttribute("data-price-id");
-        renderPriceFilter();
-        renderProducts();
+    if (priceGrid) {
+      var priceItems = priceGrid.querySelectorAll(".category-item");
+      Array.prototype.forEach.call(priceItems, function (li) {
+        if (li.getAttribute("data-price-id") === state.activePriceId) {
+          li.classList.add("active");
+        } else {
+          li.classList.remove("active");
+        }
+        
+        // Remove old listeners to avoid duplicates, by cloning
+        var newLi = li.cloneNode(true);
+        li.parentNode.replaceChild(newLi, li);
+        
+        newLi.addEventListener("click", function () {
+          state.activePriceId = newLi.getAttribute("data-price-id");
+          if (priceSelect) priceSelect.value = state.activePriceId;
+          renderPriceFilter();
+          renderProducts();
+        });
       });
-    });
-  }
-
-  function getProductDownloadCount(product) {
-    if (product.downloadsCount) return product.downloadsCount;
-    var str = String(product.id || product.name || "file");
-    var hash = 0;
-    for (var i = 0; i < str.length; i++) {
-      hash = (hash * 31 + str.charCodeAt(i)) & 0x7fffffff;
     }
-    return 150 + (hash % 350);
+
+    if (priceSelect) {
+      priceSelect.value = state.activePriceId;
+    }
   }
 
   function renderProducts() {
@@ -850,7 +875,27 @@
         var originalPrice = product.originalPrice;
         var hasDiscount = originalPrice && originalPrice > product.price;
         var discountPercent = hasDiscount ? Math.round((1 - product.price / originalPrice) * 100) : 0;
-        var downloads = getProductDownloadCount(product);
+        
+        // Dữ liệu thực tế 100% từ Firestore (KHÔNG FAKE)
+        var realDownloads = parseInt(product.downloads_count || product.downloadsCount || 0, 10);
+        var realRatingAvg = parseFloat(product.rating_avg || product.ratingAvg || 0);
+        var realRatingCount = parseInt(product.rating_count || product.ratingCount || 0, 10);
+
+        var socialProofHtml = '';
+        if (realRatingCount > 0 && realRatingAvg > 0) {
+          socialProofHtml = '<div class="product-social-proof">' +
+            '<span class="star-rating">⭐ ' + realRatingAvg.toFixed(1) + '</span>' +
+            '<span class="download-count">(' + (realDownloads > 0 ? realDownloads + ' đã tải' : realRatingCount + ' đánh giá') + ')</span>' +
+          '</div>';
+        } else if (realDownloads > 0) {
+          socialProofHtml = '<div class="product-social-proof">' +
+            '<span class="download-count">📦 ' + realDownloads + ' đã tải</span>' +
+          '</div>';
+        } else {
+          socialProofHtml = '<div class="product-social-proof">' +
+            '<span class="download-count" style="color:var(--mint-strong); font-weight:600;">⚡ Bản mới</span>' +
+          '</div>';
+        }
         
         var isCombo = product.categoryId === "combo" || product.type === "combo";
         var isHot = product.price >= 80000;
@@ -875,10 +920,7 @@
                 '<span class="digital-perk">Trọn đời</span>' +
               '</div>' +
               '<div class="product-card-footer">' +
-                '<div class="product-social-proof">' +
-                  '<span class="star-rating">⭐ 5.0</span>' +
-                  '<span class="download-count">(' + downloads + '+ đã tải)</span>' +
-                '</div>' +
+                socialProofHtml +
                 '<button class="btn-card-cart-circle" type="button" data-cart-id="' + escapeHtml(product.id) + '" title="Thêm vào giỏ hàng">' +
                   '<svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>' +
                 '</button>' +

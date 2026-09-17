@@ -213,6 +213,17 @@ def api(req: https_fn.Request) -> https_fn.Response:
                             "sepay_transaction_id": payload.get("id"),
                             "reference_code": payload.get("referenceCode")
                         })
+
+                        product_id = order.get("product_id")
+                        if product_id:
+                            try:
+                                from google.cloud import firestore as gc_firestore
+                                db.collection("products").document(product_id).set({
+                                    "downloads_count": gc_firestore.Increment(1)
+                                }, merge=True)
+                            except Exception as pe:
+                                print(f"Lỗi cập nhật downloads_count: {pe}")
+
                         print(f"Kich hoat file {order.get('product_file_url')} cho {order.get('customer_email')}")
                         break
         return json_response({"success": True})

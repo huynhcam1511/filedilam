@@ -11,7 +11,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="./storefront.css?v=43" />
+    <link rel="stylesheet" href="./storefront.css?v=44" />
   </head>
   <body>
     <!-- Top Navigation Bar -->
@@ -48,21 +48,46 @@
     </header>
 
     <div class="page-layout">
-      <!-- Sidebar Categories -->
+      <!-- Sidebar Categories & Filter Bar -->
       <aside class="sidebar">
-        <div class="sidebar-section">
-          <ul class="category-list" id="folderGrid">
-            <!-- Categories rendered here -->
-          </ul>
+        <!-- Dual Dropdown Filter Bar (Mobile) -->
+        <div class="storefront-filter-bar" id="storefrontFilterBar">
+          <div class="filter-select-box">
+            <span class="filter-icon">📁</span>
+            <select id="categorySelect" class="filter-select" aria-label="Chọn danh mục">
+              <option value="all">Tất cả danh mục</option>
+            </select>
+            <svg class="filter-chevron" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"></path></svg>
+          </div>
+
+          <div class="filter-select-box">
+            <span class="filter-icon">💰</span>
+            <select id="priceSelect" class="filter-select" aria-label="Chọn mức giá">
+              <option value="all">Mọi mức giá</option>
+              <option value="under_50">Dưới 50.000₫</option>
+              <option value="50_150">50k - 150k</option>
+              <option value="over_150">Trên 150.000₫</option>
+            </select>
+            <svg class="filter-chevron" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"></path></svg>
+          </div>
         </div>
-        
-        <div class="sidebar-section">
-          <ul class="category-list" id="priceGrid">
-            <li class="category-item active" data-price-id="all">Tất cả</li>
-            <li class="category-item" data-price-id="under_50">Dưới 50k</li>
-            <li class="category-item" data-price-id="50_150">50k - 150k</li>
-            <li class="category-item" data-price-id="over_150">Trên 150k</li>
-          </ul>
+
+        <!-- Desktop Sidebar Lists -->
+        <div class="sidebar-desktop-content hide-on-mobile">
+          <div class="sidebar-section">
+            <ul class="category-list" id="folderGrid">
+              <!-- Categories rendered here -->
+            </ul>
+          </div>
+          
+          <div class="sidebar-section">
+            <ul class="category-list" id="priceGrid">
+              <li class="category-item active" data-price-id="all">Tất cả</li>
+              <li class="category-item" data-price-id="under_50">Dưới 50k</li>
+              <li class="category-item" data-price-id="50_150">50k - 150k</li>
+              <li class="category-item" data-price-id="over_150">Trên 150k</li>
+            </ul>
+          </div>
         </div>
       </aside>
 
@@ -696,6 +721,6 @@
     <script src="/__/firebase/init.js"></script>
     <script src="./storefront-data.js?v=12"></script>
     <script src="./storefront-products.generated.js?v=6"></script>
-    <script src="storefront.js?v=63"></script>
+    <script src="storefront.js?v=64"></script>
   </body>
 </html>
