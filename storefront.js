@@ -815,6 +815,16 @@
     });
   }
 
+  function getProductDownloadCount(product) {
+    if (product.downloadsCount) return product.downloadsCount;
+    var str = String(product.id || product.name || "file");
+    var hash = 0;
+    for (var i = 0; i < str.length; i++) {
+      hash = (hash * 31 + str.charCodeAt(i)) & 0x7fffffff;
+    }
+    return 150 + (hash % 350);
+  }
+
   function renderProducts() {
     var category = getActiveCategory();
     var items = getFilteredProducts().filter(matchesSearch);
@@ -837,27 +847,40 @@
 
     productGrid.innerHTML = items
       .map(function (product) {
+        var originalPrice = product.originalPrice;
+        var hasDiscount = originalPrice && originalPrice > product.price;
+        var discountPercent = hasDiscount ? Math.round((1 - product.price / originalPrice) * 100) : 0;
+        var downloads = getProductDownloadCount(product);
+        
+        var isCombo = product.categoryId === "combo" || product.type === "combo";
+        var isHot = product.price >= 80000;
+        var inlineTag = product.tag || (isCombo ? "Combo" : (isHot ? "Bán chạy" : ""));
+        var inlineTagClass = isCombo ? " is-combo" : (inlineTag === "Bán chạy" ? " is-bestseller" : "");
+        var inlineTagHtml = inlineTag ? '<span class="product-badge-inline' + inlineTagClass + '">' + escapeHtml(inlineTag) + '</span> ' : '';
+
         return (
           '<div class="product-card" data-detail-id="' + escapeHtml(product.id) + '">' +
             renderProductThumb(product) +
             '<div class="product-info">' +
               '<div class="product-main">' +
-                '<div class="product-name">' + escapeHtml(product.name) + '</div>' +
-                '<div class="product-summary">' + escapeHtml(product.description || "File quản lý dễ dùng, tự động tổng hợp số liệu.") + '</div>' +
+                '<div class="product-name">' + inlineTagHtml + escapeHtml(product.name) + '</div>' +
               '</div>' +
-              '<div class="product-price">' +
-                (product.originalPrice && product.originalPrice > product.price 
-                  ? '<div class="product-price-original-row">' +
-                      '<span class="product-original-val">' + formatCurrency(product.originalPrice) + '</span>' +
-                      '<span class="product-discount-pill">-' + Math.round((1 - product.price / product.originalPrice) * 100) + '%</span>' +
-                    '</div>' 
-                  : '') +
-                '<div class="product-current-val">' + formatCurrency(product.price) + '</div>' +
+              '<div class="product-price-row">' +
+                '<span class="product-current-val">' + formatCurrency(product.price) + '</span>' +
+                (hasDiscount ? '<span class="product-original-val">' + formatCurrency(originalPrice) + '</span>' : '') +
+                (hasDiscount ? '<span class="product-discount-pill">-' + discountPercent + '%</span>' : '') +
               '</div>' +
-              '<div class="product-card-actions">' +
-                '<button class="btn-card-buy" type="button" data-buy-id="' + escapeHtml(product.id) + '">Mua ngay</button>' +
-                '<button class="btn-card-cart" type="button" data-cart-id="' + escapeHtml(product.id) + '" title="Thêm vào giỏ hàng">' +
-                  '<svg width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>' +
+              '<div class="product-digital-perks">' +
+                '<span class="digital-perk">⚡ Nhận file ngay</span>' +
+                '<span class="digital-perk">Trọn đời</span>' +
+              '</div>' +
+              '<div class="product-card-footer">' +
+                '<div class="product-social-proof">' +
+                  '<span class="star-rating">⭐ 5.0</span>' +
+                  '<span class="download-count">(' + downloads + '+ đã tải)</span>' +
+                '</div>' +
+                '<button class="btn-card-cart-circle" type="button" data-cart-id="' + escapeHtml(product.id) + '" title="Thêm vào giỏ hàng">' +
+                  '<svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>' +
                 '</button>' +
               '</div>' +
             '</div>' +
@@ -868,19 +891,11 @@
 
     Array.prototype.forEach.call(productGrid.querySelectorAll(".product-card"), function (card) {
       card.addEventListener("click", function (e) {
-        if (e.target.closest("[data-buy-id]") || e.target.closest("[data-cart-id]")) {
+        if (e.target.closest("[data-cart-id]")) {
           return;
         }
         var prodId = card.getAttribute("data-detail-id");
         if (prodId) openDetail(prodId);
-      });
-    });
-
-    Array.prototype.forEach.call(productGrid.querySelectorAll("[data-buy-id]"), function (btn) {
-      btn.addEventListener("click", function (e) {
-        e.stopPropagation();
-        var prodId = btn.getAttribute("data-buy-id");
-        buyNow(prodId);
       });
     });
 
@@ -1075,27 +1090,30 @@
   function renderProductThumb(product) {
     var isGoogleSheet = product.type === "google_sheets" || !!product.sheetUrl;
     var isCombo = product.categoryId === "combo" || product.type === "combo";
-    var typeLabel = isCombo ? "Combo Tiết Kiệm" : (isGoogleSheet ? "Google Sheets · Apps Script" : "Excel");
+    var typeLabel = isCombo ? "Combo" : (isGoogleSheet ? "Google Sheets" : "Excel");
     var typeClass = isCombo ? " is-combo" : (isGoogleSheet ? " is-google-sheets" : " is-excel");
     
-    var autoBadge = (!product.tag && product.originalPrice && product.originalPrice > product.price)
-      ? '<span class="product-tag" style="position:absolute; top:8px; right:8px; background:#ef4444; color:white; font-size:0.75rem; font-weight:700; padding:3px 8px; border-radius:6px; box-shadow:0 2px 6px rgba(0,0,0,0.15); z-index:2;">-' + Math.round((1 - product.price / product.originalPrice) * 100) + '%</span>'
+    var hasDiscount = product.originalPrice && product.originalPrice > product.price;
+    var discountPercent = hasDiscount ? Math.round((1 - product.price / product.originalPrice) * 100) : 0;
+    var discountBadgeHtml = hasDiscount
+      ? '<span class="product-thumb-discount-tag">-' + discountPercent + '%</span>'
       : '';
-    var badgeHtml = product.tag
-      ? '<span class="product-tag" style="position:absolute; top:8px; right:8px; background:#ef4444; color:white; font-size:0.75rem; font-weight:700; padding:3px 8px; border-radius:6px; box-shadow:0 2px 6px rgba(0,0,0,0.15); z-index:2;">' + escapeHtml(product.tag) + '</span>'
-      : autoBadge;
 
     if (product.previewImageUrl) {
       return (
-        '<div class="product-thumb" style="position:relative; background-image:url(&quot;' +
-        escapeHtml(product.previewImageUrl) +
-        '&quot;); background-size: cover; background-position: center; color: transparent;">' +
-        '<span class="product-type-badge' + typeClass + '">' + typeLabel + '</span>' +
-        badgeHtml +
+        '<div class="product-thumb" style="background-image:url(&quot;' + escapeHtml(product.previewImageUrl) + '&quot;);">' +
+          '<span class="product-type-badge' + typeClass + '">' + typeLabel + '</span>' +
+          discountBadgeHtml +
         '</div>'
       );
     }
-    return '<div class="product-thumb" style="position:relative;">FILE<span class="product-type-badge' + typeClass + '">' + typeLabel + '</span>' + badgeHtml + '</div>';
+    return (
+      '<div class="product-thumb is-placeholder">' +
+        '<span class="thumb-placeholder-text">FILE</span>' +
+        '<span class="product-type-badge' + typeClass + '">' + typeLabel + '</span>' +
+        discountBadgeHtml +
+      '</div>'
+    );
   }
 
   function renderDetailThumb(product) {
