@@ -615,12 +615,17 @@ document.addEventListener('DOMContentLoaded', () => {
         ? `<a href="${escapeHtml(fileUrl)}" target="_blank" class="action-btn" style="text-decoration:none; color:var(--mint-strong); font-size:0.85rem;" title="Mở link file">📁 Mở file</a>`
         : '<span style="color: var(--muted); font-size: 0.8rem;">-</span>';
 
+      const isCoaching = order.package_type === 'coaching' || parseInt(order.amount || 0, 10) >= 199000;
+      const coachingBadge = isCoaching
+        ? '<span style="display: inline-block; margin-left: 6px; font-size: 0.72rem; font-weight: 700; background: #fef3c7; color: #b45309; padding: 2px 7px; border-radius: 6px; border: 1px solid #fde68a; vertical-align: middle;">🎓 Kèm 1-1</span>'
+        : '';
+
       return `
         <tr>
           <td><strong style="font-size: 0.9rem; color: #1e293b;">#${escapeHtml(order.order_id || '')}</strong></td>
           <td style="white-space: nowrap;">${timeHtml}</td>
           <td><span style="font-weight: 500; color: #1e293b;">${escapeHtml(customerInfo)}</span></td>
-          <td><span style="font-weight: 600; color: #1e293b;">${escapeHtml(order.product_name || 'File')}</span></td>
+          <td><span style="font-weight: 600; color: #1e293b;">${escapeHtml(order.product_name || 'File')}</span>${coachingBadge}</td>
           <td><strong style="color: var(--mint-strong);">${formatCurrency(order.amount || 0)}</strong></td>
           <td>${statusBadge}</td>
           <td>${reviewHtml}</td>

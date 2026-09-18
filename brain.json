@@ -37,7 +37,29 @@
       ],
       "known_gap": "Danh mục chỉ có vài dòng; sản phẩm mới phải chuẩn bị đủ dòng khai báo/danh mục, không chỉ dòng giao dịch."
     },
-    "release_gate": "Không gọi file là bản bán nếu thiếu bất kỳ yêu cầu tối thiểu nào. Kiểm tra thực tế bằng file xuất cuối, không chỉ đọc config hoặc mã tạo file.",
+    "release_gate": "Không gọi file là bản bán nếu thiếu bất kỳ yêu cầu tối thiểu nào. Kiểm tra thực tế bằng file xuất cuối, không chỉ đọc config hoặc mã tạo file. Chỉ xác nhận tính năng hoạt động trong ứng dụng và chế độ mở đã kiểm thử; chưa thử thao tác người dùng thì không được báo đã hoàn tất kiểm tra tính năng đó.",
+    "dropdown_incident_2026_09_18": {
+      "product": "Shop Online Mini v1.4.0",
+      "responsibility": "Agent tạo file chịu trách nhiệm. Đã có quy định kiểm thử dropdown trên ứng dụng đích trong brain.json nhưng không thực hiện đầy đủ; không phải lỗi thao tác của người dùng.",
+      "failures": [
+        "Dùng named range động bằng OFFSET của Excel làm nguồn dropdown mà chưa kiểm tra khi mở XLSX bằng Google Sheets.",
+        "Kiểm tra sự tồn tại của validation, vùng nguồn và công thức nhưng bỏ sót thao tác mở danh sách, chọn mục và xác nhận ô nhận giá trị.",
+        "Báo hoàn thành dựa trên 12 test dự án và 45 kiểm tra Excel; các kết quả này không chứng minh dropdown dùng được trong Google Sheets."
+      ],
+      "observed_failure": "Trên Google Sheets ở chế độ chỉnh sửa XLSX, dropdown danh mục thu chi mở ra rỗng; nguồn =shop_cashbook_categories báo 'Vui lòng nhập dải ô hợp lệ'.",
+      "impact": "Người dùng không chọn được danh mục để nhập liệu, phải tự phát hiện và báo lại lỗi sau khi agent đã giao file.",
+      "correction": "Đổi nguồn dropdown sang tham chiếu trực tiếp vùng danh mục có sức chứa dự phòng, loại dòng tiêu đề khỏi danh sách; cập nhật mã tạo file và QC để không lặp lại nguồn OFFSET không tương thích.",
+      "verified_scope": "Đã trực tiếp bấm chọn SP60, kênh Khác và C30 - Chi khác trên file đang mở trong Google Sheets, xác nhận ô nhận đúng giá trị, hoàn tác dữ liệu thử và xác nhận lưu vào Drive. Đây là bằng chứng cho ba thao tác đã thử, không phải chứng nhận toàn bộ file hoặc mọi chế độ mở.",
+      "required_checks_before_delivery": [
+        "Xác định ứng dụng đích và chế độ mở: Excel desktop, XLSX trong Google Sheets hoặc Google Sheets gốc. Kết quả ở một môi trường không được suy rộng sang môi trường khác.",
+        "Với mỗi loại dropdown, thử trên ô đầu, ô giữa và ô cuối vùng nhập: bấm mở, thấy danh sách có dữ liệu, chọn mục và xác nhận giá trị được ghi vào ô.",
+        "Thử mục đầu và mục cuối danh mục; thêm một mục trong vùng dự phòng rồi kiểm tra mục mới xuất hiện và chọn được. Không để tiêu đề hoặc lỗi công thức trở thành lựa chọn.",
+        "Thử giá trị không hợp lệ để xác nhận cơ chế cảnh báo/từ chối theo thiết kế; kiểm tra ô nhập không bị khóa nhầm.",
+        "Kiểm tra công thức, KPI và biểu đồ phụ thuộc phản ứng đúng sau khi chọn; hoàn tác dữ liệu thử, lưu rồi mở lại để xác nhận quy tắc còn hoạt động.",
+        "Ghi rõ file hoặc URL, ứng dụng, chế độ mở, ô đã thử, thao tác, kết quả và phần chưa kiểm tra. Nếu chưa truy cập được ứng dụng đích, báo chưa xác minh; không tuyên bố đã dùng được."
+      ],
+      "reporting_rule": "Không dùng số lượng test đạt để thay thế bằng chứng thao tác thực tế. Báo hoàn thành phải khớp đúng phạm vi đã kiểm tra; gặp lỗi chức năng cốt lõi thì nhận trách nhiệm, tái hiện và sửa trước khi đề xuất mở rộng."
+    },
     "cost_product_upgrade_plan": "KE_HOACH_NANG_CAP_FILE_COST_DA_NGANH.md",
     "cost_prototype_status": "outputs/tinh_cost_da_nganh_v1.xlsx là prototype kỹ thuật; v2 không đạt chuẩn thiết kế. outputs/tinh_cost_da_nganh_v3.xlsx là bản làm lại để chủ sản phẩm xem xét: hồng pastel, font Arial, 45 đầu vào và 45 thành phẩm mẫu, cột nghiệp vụ bổ sung, 4 KPI/6 biểu đồ có nhãn/trục/series, dropdown phủ cuối vùng nhập, định dạng số và conditional formatting. Đã QC bằng Microsoft Excel: 0 lỗi công thức, test thay giá/đơn vị/dòng cuối qua; chưa niêm yết hoặc phát hành bản bán.",
     "cost_design_feedback_2026_09_14": {
@@ -56,6 +78,14 @@
       "audience": "Chủ quán/shop rất ít dùng máy tính; hướng dẫn theo 4 việc: ghi món, ghi nguyên liệu, ghi cách làm, xem tiền vốn",
       "purchase_batches": "Có nhật ký mua 200 dòng, mỗi lần mua một dòng, giá đơn vị theo từng lô; chưa nối xuất kho FIFO hoặc cost thực tế theo ngày",
       "release_gap": "Cần xây FIFO gắn với lượng bán/xuất dùng, kiểm tra biểu đồ và giao diện thật trên Google Sheets trước khi bán"
+    },
+    "cost_simple_v4_2026_09_16": {
+      "status": "Đã tạo bản đơn giản 3 sheet",
+      "structure": "BẮT ĐẦU, TÍNH COST, TỔNG QUAN",
+      "workflow": "Bảng nguyên liệu: tên, số tiền đã trả, số lượng thực tế đã quy về g/ml/cái/miếng, đơn vị, giá một đơn vị tự tính. Không có kg/lít hoặc hệ số quy đổi. Công thức món chọn dropdown và nhập định lượng.",
+      "scope": "Không FIFO, không tồn kho, không nhật ký mua",
+      "file": "outputs/cost_simple_v4/file_di_lam_tinh_cost_mon_v4.xlsx",
+      "quality": "50 nguyên liệu mẫu, 30 dòng món, 10 món mẫu, 4 KPI, 6 biểu đồ, pastel hồng, công thức và dropdown phủ vùng nhập"
     }
   },
   "marketing_learnings": [

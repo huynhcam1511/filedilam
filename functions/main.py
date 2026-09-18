@@ -146,6 +146,8 @@ def api(req: https_fn.Request) -> https_fn.Response:
         now = datetime.now(timezone.utc)
         req_product_id = str(data.get("product_id") or "")
         req_amount = int(data.get("amount") or 0)
+        req_package_type = str(data.get("package_type") or "standard")
+        req_package_name = str(data.get("package_name") or ("Bản Kèm 1-1 (1 buổi 1 tiếng)" if req_package_type == "coaching" else "Bản Tự Dùng"))
 
         # Check for existing PENDING order to reuse (prevents lost/duplicate orders on mobile app-switching)
         user_orders = db.collection("orders").where("user_id", "==", user["uid"]).stream()
@@ -169,6 +171,8 @@ def api(req: https_fn.Request) -> https_fn.Response:
                             "order_id": o_data.get("id"),
                             "amount": o_data.get("amount", req_amount),
                             "transfer_note": o_data.get("id"),
+                            "package_type": o_data.get("package_type", req_package_type),
+                            "package_name": o_data.get("package_name", req_package_name),
                             "reused": True
                         })
 
@@ -188,6 +192,8 @@ def api(req: https_fn.Request) -> https_fn.Response:
             "product_file_url": data.get("product_file_url", ""),
             "product_type": data.get("product_type", "excel"),
             "amount": req_amount,
+            "package_type": req_package_type,
+            "package_name": req_package_name,
             "status": "PENDING",
             "created_at": now
         })
@@ -196,6 +202,8 @@ def api(req: https_fn.Request) -> https_fn.Response:
             "order_id": order_id,
             "amount": req_amount,
             "transfer_note": order_id,
+            "package_type": req_package_type,
+            "package_name": req_package_name
         })
         
     elif path.startswith("/orders/") and method == "GET":
@@ -213,8 +221,11 @@ def api(req: https_fn.Request) -> https_fn.Response:
         return json_response({
             "order_id": order_data.get("id"),
             "status": order_data.get("status"),
+            "amount": order_data.get("amount"),
             "product_id": order_data.get("product_id", ""),
             "product_type": order_data.get("product_type", "excel"),
+            "package_type": order_data.get("package_type", "standard"),
+            "package_name": order_data.get("package_name", "Bản Tự Dùng"),
             "product_file_url": order_data.get("product_file_url") if order_data.get("status") == "PAID" else None
         })
         
@@ -234,6 +245,8 @@ def api(req: https_fn.Request) -> https_fn.Response:
                 "product_name": order_data.get("product_name"),
                 "product_file_url": order_data.get("product_file_url"),
                 "product_type": order_data.get("product_type", "excel"),
+                "package_type": order_data.get("package_type", "standard"),
+                "package_name": order_data.get("package_name", "Bản Tự Dùng"),
                 "amount": order_data.get("amount"),
                 "has_reviewed": bool(order_data.get("has_reviewed")),
                 "review_stars": order_data.get("review_stars", 0),
@@ -413,6 +426,8 @@ def api(req: https_fn.Request) -> https_fn.Response:
                 "status": o.get("status", "PENDING"),
                 "product_id": o.get("product_id", ""),
                 "product_name": o.get("product_name", ""),
+                "package_type": o.get("package_type", "standard"),
+                "package_name": o.get("package_name", "Bản Tự Dùng"),
                 "product_file_url": o.get("product_file_url", ""),
                 "product_type": o.get("product_type", "excel"),
                 "customer_phone": o.get("customer_phone", ""),

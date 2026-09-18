@@ -14,6 +14,7 @@
     user: null,
     profile: null,
     pendingCheckout: false,
+    selectedPackage: "standard",
   };
 
   var folderGrid = document.getElementById("folderGrid");
@@ -112,6 +113,100 @@
   var checkoutPaymentStep = document.getElementById("checkoutPaymentStep");
   var backToInfoBtn = document.getElementById("backToInfoBtn");
   var isQuickLoginMode = false;
+
+  // Package Upsell Elements (99k vs 199k)
+  var pkgOptionStandard = document.getElementById("pkgOptionStandard");
+  var pkgOptionCoaching = document.getElementById("pkgOptionCoaching");
+  var radioPkgStandard = document.getElementById("radioPkgStandard");
+  var radioPkgCoaching = document.getElementById("radioPkgCoaching");
+  var btnSwitchPkgStandard = document.getElementById("btnSwitchPkgStandard");
+  var btnSwitchPkgCoaching = document.getElementById("btnSwitchPkgCoaching");
+  var pkgPriceStandard = document.getElementById("pkgPriceStandard");
+  var pkgPriceCoaching = document.getElementById("pkgPriceCoaching");
+  var pillPriceStandard = document.getElementById("pillPriceStandard");
+  var pillPriceCoaching = document.getElementById("pillPriceCoaching");
+
+  function getCartBaseTotal() {
+    if (!state.cart || !state.cart.length) return 0;
+    return state.cart.reduce(function (sum, entry) {
+      var product = getProductById(entry.productId);
+      return sum + (product ? product.price * entry.quantity : 0);
+    }, 0);
+  }
+
+  function setCheckoutPackage(pkgType, updateOrder) {
+    state.selectedPackage = pkgType === "coaching" ? "coaching" : "standard";
+
+    // 1. Update Step 1 Radio & Card visual state
+    var rStd = document.getElementById("radioPkgStandard");
+    var rCoach = document.getElementById("radioPkgCoaching");
+    var cStd = document.getElementById("pkgOptionStandard");
+    var cCoach = document.getElementById("pkgOptionCoaching");
+
+    if (rStd) rStd.checked = (state.selectedPackage === "standard");
+    if (rCoach) rCoach.checked = (state.selectedPackage === "coaching");
+
+    if (cStd) {
+      if (state.selectedPackage === "standard") {
+        cStd.style.border = "2px solid var(--mint-strong, #059669)";
+        cStd.style.background = "#f0fdf4";
+      } else {
+        cStd.style.border = "1.5px solid #e2e8f0";
+        cStd.style.background = "#ffffff";
+      }
+    }
+
+    if (cCoach) {
+      if (state.selectedPackage === "coaching") {
+        cCoach.style.border = "2px solid var(--mint-strong, #059669)";
+        cCoach.style.background = "#f0fdf4";
+      } else {
+        cCoach.style.border = "1.5px solid #e2e8f0";
+        cCoach.style.background = "#ffffff";
+      }
+    }
+
+    // 2. Update Step 2 Switcher Pills visual state
+    var pStd = document.getElementById("btnSwitchPkgStandard");
+    var pCoach = document.getElementById("btnSwitchPkgCoaching");
+    if (pStd) {
+      if (state.selectedPackage === "standard") {
+        pStd.style.border = "1.5px solid var(--mint-strong, #059669)";
+        pStd.style.background = "#f0fdf4";
+        pStd.style.color = "#065f46";
+      } else {
+        pStd.style.border = "1.5px solid #e2e8f0";
+        pStd.style.background = "#ffffff";
+        pStd.style.color = "#475569";
+      }
+    }
+    if (pCoach) {
+      if (state.selectedPackage === "coaching") {
+        pCoach.style.border = "1.5px solid var(--mint-strong, #059669)";
+        pCoach.style.background = "#f0fdf4";
+        pCoach.style.color = "#065f46";
+      } else {
+        pCoach.style.border = "1.5px solid #e2e8f0";
+        pCoach.style.background = "#ffffff";
+        pCoach.style.color = "#475569";
+      }
+    }
+
+    // 3. Update summary labels
+    var currentTotal = getCartTotal();
+    if (checkoutSummaryPrice) checkoutSummaryPrice.textContent = formatCurrency(currentTotal);
+    var bankAmt = document.getElementById("bankAmount");
+    if (bankAmt) bankAmt.textContent = formatCurrency(currentTotal);
+    if (checkoutTotal) checkoutTotal.textContent = formatCurrency(currentTotal);
+
+    // 4. If switched while on Step 2 (payment step), refresh order & QR code
+    if (updateOrder && checkoutPaymentStep && checkoutPaymentStep.style.display !== "none") {
+      createOrderAndRenderQr({
+        customer_phone: getResolvedPhone(),
+        customer_email: state.user ? state.user.email : ""
+      });
+    }
+  }
 
   // Cache check for instant product display
   var isFirestoreProductsLoaded = false;
@@ -337,6 +432,21 @@
         if (eyeClosed) eyeClosed.style.display = isPass ? "block" : "none";
       });
     }
+
+    // Package Upsell listeners (Step 1 cards & Step 2 pills)
+    var elPkgStd = document.getElementById("pkgOptionStandard");
+    var elPkgCoach = document.getElementById("pkgOptionCoaching");
+    var elRadioStd = document.getElementById("radioPkgStandard");
+    var elRadioCoach = document.getElementById("radioPkgCoaching");
+    var elBtnSwitchStd = document.getElementById("btnSwitchPkgStandard");
+    var elBtnSwitchCoach = document.getElementById("btnSwitchPkgCoaching");
+
+    if (elPkgStd) elPkgStd.addEventListener("click", function() { setCheckoutPackage("standard", false); });
+    if (elPkgCoach) elPkgCoach.addEventListener("click", function() { setCheckoutPackage("coaching", false); });
+    if (elRadioStd) elRadioStd.addEventListener("change", function() { setCheckoutPackage("standard", false); });
+    if (elRadioCoach) elRadioCoach.addEventListener("change", function() { setCheckoutPackage("coaching", false); });
+    if (elBtnSwitchStd) elBtnSwitchStd.addEventListener("click", function() { setCheckoutPackage("standard", true); });
+    if (elBtnSwitchCoach) elBtnSwitchCoach.addEventListener("click", function() { setCheckoutPackage("coaching", true); });
 
     if (detailModal) {
       detailModal.addEventListener("click", function (event) {
@@ -851,15 +961,30 @@
                          '</button>';
           }
 
+          var isCoaching = (order.package_type === "coaching") || (order.amount && order.amount >= 199000);
+          var coachingBadge = isCoaching 
+            ? '<span style="display: inline-block; background: #fef3c7; color: #b45309; font-size: 0.72rem; font-weight: 700; padding: 2px 7px; border-radius: 6px; border: 1px solid #fde68a; margin-left: 6px; vertical-align: middle;">🎓 Kèm 1-1</span>' 
+            : '';
+          var coachingZaloBtn = '';
+          if (isCoaching) {
+            var supportPhone = (window.StorefrontData && window.StorefrontData.store && window.StorefrontData.store.supportZaloPhone) || "0921511202";
+            var cleanPhone = supportPhone.replace(/\s+/g, "");
+            coachingZaloBtn = 
+              '<a href="https://zalo.me/' + cleanPhone + '" target="_blank" rel="noopener noreferrer" style="display: flex; align-items: center; justify-content: center; gap: 6px; height: 38px; background: #fef3c7; border: 1.5px solid #f59e0b; color: #92400e; font-weight: 700; font-size: 0.82rem; border-radius: 8px; text-decoration: none; margin-top: 6px;">' +
+                '<span>🎓 Đặt lịch Kèm 1-1 qua Zalo (' + supportPhone + ')</span>' +
+              '</a>';
+          }
+
           return '<div class="drawer-item" style="flex-direction: column; align-items: stretch; gap: 10px; padding: 14px; border: 1px solid var(--line); border-radius: 10px; background: #fff; margin-bottom: 12px;">' +
                    '<div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 8px;">' +
                      '<div>' +
-                       '<div style="font-weight: 600; font-size: 0.95rem; color: var(--text); margin-bottom: 4px;">' + escapeHtml(order.product_name) + '</div>' +
+                       '<div style="font-weight: 600; font-size: 0.95rem; color: var(--text); margin-bottom: 4px;">' + escapeHtml(order.product_name) + coachingBadge + '</div>' +
                        '<div style="color: var(--mint-strong); font-size: 0.82rem; font-weight: 500;">Đã thanh toán: ' + formatCurrency(order.amount) + '</div>' +
                      '</div>' +
                      '<span style="background:#ecfdf5; color:#065f46; font-size: 0.72rem; font-weight: 600; padding: 3px 8px; border-radius: 999px; white-space: nowrap;">Đã kích hoạt</span>' +
                    '</div>' +
                    '<a href="' + escapeHtml(deliveryUrl) + '" target="_blank" rel="noopener noreferrer" class="button-primary button-full" style="height: 40px; font-size: 0.9rem; text-decoration: none; display: flex; align-items: center; justify-content: center; border-radius: 8px;">' + btnText + '</a>' +
+                   coachingZaloBtn +
                    guide +
                    reviewHtml +
                  '</div>';
@@ -1490,12 +1615,38 @@
     if (isCloud && isSmartKho) {
       setupText = '<div style="text-align:left;background:#ecfdf5;border:1px solid #a7f3d0;border-radius:12px;padding:14px;margin:16px 0;color:#065f46;font-size:.9rem;line-height:1.55"><b>Mở Web App rất nhanh:</b><br>1. Tạo bản sao và mở file trong Google Drive.<br>2. Tải lại trang một lần để thấy menu <b>📦 Kho Mini Smart</b>.<br>3. Chọn <b>Mở ứng dụng quản lý kho</b> và cấp quyền Google lần đầu.<br><br>Không cần vào Extensions, không cần tự triển khai Apps Script và không cần dán link <b>/exec</b>. Sau đó dùng được trên điện thoại, iPad hoặc máy tính.</div>';
     }
+
+    var isCoaching = (data.package_type === "coaching") || (data.amount && data.amount >= 199000) || (state.selectedPackage === "coaching");
+    var coachingCardHtml = "";
+    if (isCoaching) {
+      var supportPhone = (window.StorefrontData && window.StorefrontData.store && window.StorefrontData.store.supportZaloPhone) || "0921511202";
+      var cleanPhone = supportPhone.replace(/\s+/g, "");
+      var zaloLink = "https://zalo.me/" + cleanPhone;
+      var orderCode = data.order_id || currentActiveOrderId || "";
+
+      coachingCardHtml =
+        '<div style="background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%); border: 2px solid #f59e0b; border-radius: 14px; padding: 16px 18px; margin: 18px 0; text-align: left; box-shadow: 0 4px 14px rgba(245, 158, 11, 0.15);">' +
+          '<div style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px;">' +
+            '<span style="font-size: 1.35rem;">🎓</span>' +
+            '<strong style="color: #92400e; font-size: 1rem;">Gói Kèm 1-1 (1 buổi 1 tiếng)</strong>' +
+          '</div>' +
+          '<p style="color: #78350f; font-size: 0.84rem; line-height: 1.5; margin: 0 0 12px 0;">' +
+            'Chúc mừng bạn đã đăng ký gói kèm thực chiến! Bạn hãy bấm nút bên dưới để nhắn tin Zalo cho Kỹ thuật viên đặt lịch hỗ trợ qua UltraViewer / Meet ngay nhé.' +
+          '</p>' +
+          '<a href="' + zaloLink + '" target="_blank" rel="noopener noreferrer" style="display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; height: 46px; background: #0068ff; color: #fff; font-weight: 700; font-size: 0.95rem; border-radius: 10px; text-decoration: none; box-shadow: 0 3px 8px rgba(0, 104, 255, 0.25); transition: all 0.2s ease;">' +
+            '<svg width="22" height="22" viewBox="0 0 48 48" fill="none"><path d="M24 4C12.95 4 4 12.95 4 24C4 28.34 5.38 32.36 7.74 35.63L5.05 43.14C4.85 43.7 5.3 44.25 5.86 44.05L13.37 41.36C16.64 43.72 20.66 45.1 25 45.1C36.05 45.1 45 36.15 45 25.1C45 14.05 36.05 4 24 4Z" fill="#fff"/></svg>' +
+            '<span>Hẹn Lịch Kèm 1-1 Qua Zalo (' + supportPhone + ')</span>' +
+          '</a>' +
+          (orderCode ? '<div style="text-align: center; margin-top: 8px; font-size: 0.78rem; color: #92400e;">(Mã đơn của bạn: <b>#' + escapeHtml(orderCode) + '</b>)</div>' : '') +
+        '</div>';
+    }
     
     detailBody.innerHTML =
       '<div style="text-align:center; padding: 40px 20px;">' +
       '<div style="font-size: 64px; margin-bottom: 16px;">🎉</div>' +
       '<h3 style="color: var(--mint-strong); margin-bottom: 12px; font-size: 1.5rem;">Thanh toán thành công!</h3>' +
       "<p style='color: var(--muted); margin-bottom: 24px;'>" + descText + "</p>" +
+      coachingCardHtml +
       setupText +
       '<a href="' + escapeHtml(deliveryUrl) + '" target="_blank" rel="noopener noreferrer" class="button-primary button-full" style="height: 50px; font-size: 1.1rem; text-decoration: none; display:flex; align-items:center; justify-content:center;">' + btnText + '</a>' +
       '<button type="button" class="button-secondary button-full" id="btnSuccessViewPurchases" style="height: 44px; margin-top: 12px; font-size: 0.95rem;">Mở danh sách File của tôi</button>' +
@@ -1951,13 +2102,13 @@
     if (bankNumber) bankNumber.textContent = accNo;
     var bankAmount = document.getElementById("bankAmount");
     if (bankAmount) bankAmount.textContent = formatCurrency(getCartTotal());
-    // Kiểm tra xem đã có đơn hàng PENDING của cùng file này trong vòng 60 phút chưa (tránh tạo mã rác khi chuyển app)
+    // Kiểm tra xem đã có đơn hàng PENDING của cùng file và cùng gói này trong vòng 60 phút chưa (tránh tạo mã rác khi chuyển app)
     var cachedOrder = null;
     try {
       var rawActive = localStorage.getItem("filedilam_active_order");
       if (rawActive) {
         var parsedActive = JSON.parse(rawActive);
-        if (parsedActive && parsedActive.product_id === product.id && parsedActive.amount === getCartTotal() && (Date.now() - (parsedActive.time || 0) < 3600000)) {
+        if (parsedActive && parsedActive.product_id === product.id && parsedActive.amount === getCartTotal() && (parsedActive.package_type || "standard") === (state.selectedPackage || "standard") && (Date.now() - (parsedActive.time || 0) < 3600000)) {
           cachedOrder = parsedActive;
         }
       }
@@ -1997,7 +2148,9 @@
       product_name: productNames || product.name,
       product_file_url: product.sheetUrl || product.delivery_link || product.fileUrl || "./outputs/1_Quan_Ly_Kho_Sample.xlsx",
       product_type: (product.type === "google_sheets" || !!product.sheetUrl) ? "google_sheets" : "excel",
-      amount: getCartTotal()
+      amount: getCartTotal(),
+      package_type: state.selectedPackage || "standard",
+      package_name: state.selectedPackage === "coaching" ? "Bản Kèm 1-1 (1 buổi 1 tiếng)" : "Bản Tự Dùng"
     };
 
     authFetch("/orders", {
@@ -2014,6 +2167,8 @@
           transfer_note: resData.transfer_note,
           product_id: product.id,
           product_name: productNames || product.name,
+          package_type: state.selectedPackage || "standard",
+          package_name: state.selectedPackage === "coaching" ? "Bản Kèm 1-1 (1 buổi 1 tiếng)" : "Bản Tự Dùng",
           customer_phone: phone,
           time: Date.now()
         }));
@@ -2072,6 +2227,32 @@
 
     closeCart();
     closeDetail();
+
+    // Calculate Package Prices (Standard vs Coaching)
+    var baseTotal = getCartBaseTotal();
+    var coachingTotal = baseTotal + 100000;
+
+    var pkgPriceStdEl = document.getElementById("pkgPriceStandard");
+    var pkgPriceCoachEl = document.getElementById("pkgPriceCoaching");
+    var pillPriceStdEl = document.getElementById("pillPriceStandard");
+    var pillPriceCoachEl = document.getElementById("pillPriceCoaching");
+
+    if (pkgPriceStdEl) pkgPriceStdEl.textContent = formatCurrency(baseTotal);
+    if (pkgPriceCoachEl) pkgPriceCoachEl.textContent = formatCurrency(coachingTotal);
+    if (pillPriceStdEl) pillPriceStdEl.textContent = Math.round(baseTotal / 1000) + "k";
+    if (pillPriceCoachEl) pillPriceCoachEl.textContent = Math.round(coachingTotal / 1000) + "k";
+
+    try {
+      var rawActive = localStorage.getItem("filedilam_active_order");
+      if (rawActive) {
+        var parsedActive = JSON.parse(rawActive);
+        if (parsedActive && parsedActive.package_type) {
+          state.selectedPackage = parsedActive.package_type;
+        }
+      }
+    } catch (e) {}
+
+    setCheckoutPackage(state.selectedPackage || "standard", false);
 
     // Render Order Summary Bar
     var firstItem = state.cart.find(function(entry) {
@@ -2752,10 +2933,9 @@
   }
 
   function getCartTotal() {
-    return state.cart.reduce(function (sum, entry) {
-      var product = getProductById(entry.productId);
-      return sum + (product ? product.price * entry.quantity : 0);
-    }, 0);
+    if (!state.cart || !state.cart.length) return 0;
+    var base = getCartBaseTotal();
+    return state.selectedPackage === "coaching" ? base + 100000 : base;
   }
 
   function getCartCount() {
