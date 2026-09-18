@@ -142,7 +142,10 @@ document.addEventListener('DOMContentLoaded', () => {
           </td>
           <td style="font-weight: 500;">${p.name}</td>
           <td><span style="background: #f3f4f6; padding: 4px 8px; border-radius: 4px; font-size: 0.8rem;">${catName}</span></td>
-          <td style="font-weight: 600; color: var(--mint-strong);">${formatCurrency(p.price)}</td>
+          <td style="font-weight: 600; color: var(--mint-strong);">
+            ${formatCurrency(p.price)}
+            ${p.hasCoaching && p.coachingPrice ? `<div style="font-size:0.75rem; color:#b45309; font-weight:600; margin-top:2px;">+ Kèm 1-1: ${formatCurrency(p.coachingPrice)}</div>` : ''}
+          </td>
           <td style="text-align: right;">
             <button class="action-btn btn-edit" data-id="${doc.id}" style="margin-right: 8px;">Sửa</button>
             <button class="action-btn danger btn-delete" data-id="${doc.id}">Xóa</button>
@@ -192,6 +195,16 @@ document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('productDescription').value = product.description || '';
             document.getElementById('productFeatures').value = (product.highlights || []).map(h => '- ' + h).join('\n');
             document.getElementById('productSheetUrl').value = product.sheetUrl || '';
+
+            var chkCoaching = document.getElementById('productHasCoaching');
+            var grpCoaching = document.getElementById('coachingFieldsGroup');
+            var inpCoachingPrice = document.getElementById('productCoachingPrice');
+            var inpCoachingTitle = document.getElementById('productCoachingTitle');
+            if (chkCoaching) chkCoaching.checked = !!product.hasCoaching;
+            if (grpCoaching) grpCoaching.style.display = product.hasCoaching ? 'block' : 'none';
+            if (inpCoachingPrice) inpCoachingPrice.value = product.coachingPrice ? new Intl.NumberFormat('vi-VN').format(product.coachingPrice) : '';
+            if (inpCoachingTitle) inpCoachingTitle.value = product.coachingTitle || '';
+
             updateFormatFields();
             
             // Note: Cannot set value of file inputs (security). Make them optional in edit mode.
@@ -235,6 +248,26 @@ document.addEventListener('DOMContentLoaded', () => {
       } else {
         e.target.value = '';
       }
+    });
+  }
+
+  const coachingPriceInput = document.getElementById('productCoachingPrice');
+  if (coachingPriceInput) {
+    coachingPriceInput.addEventListener('input', function(e) {
+      let val = e.target.value.replace(/\D/g, '');
+      if (val) {
+        e.target.value = new Intl.NumberFormat('vi-VN').format(parseInt(val, 10));
+      } else {
+        e.target.value = '';
+      }
+    });
+  }
+
+  const coachingCheckbox = document.getElementById('productHasCoaching');
+  const coachingGroup = document.getElementById('coachingFieldsGroup');
+  if (coachingCheckbox && coachingGroup) {
+    coachingCheckbox.addEventListener('change', function() {
+      coachingGroup.style.display = coachingCheckbox.checked ? 'block' : 'none';
     });
   }
 
@@ -282,6 +315,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const excelFile = document.getElementById('productFile').files[0];
     const sheetUrl = document.getElementById('productSheetUrl').value.trim();
 
+    const hasCoaching = document.getElementById('productHasCoaching')?.checked || false;
+    const coachingPriceRaw = (document.getElementById('productCoachingPrice')?.value || '').replace(/\D/g, '');
+    const coachingPrice = parseInt(coachingPriceRaw, 10) || 0;
+    const coachingTitle = (document.getElementById('productCoachingTitle')?.value || '').trim();
+
     // If adding a new product, image is required
     if (!editingId && !imageFile) {
       showToast('Vui lòng chọn ảnh sản phẩm', true);
@@ -313,7 +351,10 @@ document.addEventListener('DOMContentLoaded', () => {
         delivery: format === 'google_sheets' 
           ? "Nhận link tạo bản sao Google Sheets vào Google Drive" 
           : (format === 'combo' ? "Nhận trọn bộ link/file combo sau thanh toán" : "Tải file Excel (.xlsx) trực tiếp"),
-        fileCount: format === 'combo' ? 2 : 1
+        fileCount: format === 'combo' ? 2 : 1,
+        hasCoaching: hasCoaching,
+        coachingPrice: hasCoaching && coachingPrice > 0 ? coachingPrice : null,
+        coachingTitle: hasCoaching ? (coachingTitle || 'Bản Kèm 1-1 (1 buổi 1 tiếng)') : null
       };
 
       if (!editingId) {
@@ -345,6 +386,11 @@ document.addEventListener('DOMContentLoaded', () => {
       }
       
       productForm.reset();
+      if (document.getElementById('productHasCoaching')) document.getElementById('productHasCoaching').checked = false;
+      if (document.getElementById('coachingFieldsGroup')) document.getElementById('coachingFieldsGroup').style.display = 'none';
+      if (document.getElementById('productCoachingPrice')) document.getElementById('productCoachingPrice').value = '';
+      if (document.getElementById('productCoachingTitle')) document.getElementById('productCoachingTitle').value = '';
+
       document.getElementById('editingProductId').value = '';
       document.getElementById('formTitle').textContent = 'Thêm Sản Phẩm Mới';
       document.getElementById('formDescription').textContent = 'Điền đầy đủ thông tin để đăng bán một file Excel hoặc Google Sheets mới.';

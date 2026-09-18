@@ -226,8 +226,8 @@
         <!-- STEP 1: Quick Customer Info / Auth Step (shown when not logged in) -->
         <div id="checkoutAuthStep" class="modal-body" style="padding: 20px;">
           
-          <!-- Package Selection Card (99k vs 199k) -->
-          <div class="package-selection-wrap" style="margin-bottom: 16px;">
+          <!-- Package Selection Card (Shopee Upsell) -->
+          <div class="package-selection-wrap" id="packageSelectionWrap" style="margin-bottom: 16px; display: none;">
             <div style="font-weight: 600; font-size: 0.88rem; color: #1e293b; margin-bottom: 8px; display: flex; align-items: center; justify-content: space-between;">
               <span>Chọn gói nhận file:</span>
               <span style="font-size: 0.75rem; color: #059669; font-weight: 600; background: #ecfdf5; padding: 2px 8px; border-radius: 12px;">Hỗ trợ 1-1 tận tình</span>
@@ -254,7 +254,7 @@
                 <input type="radio" name="checkoutPackage" id="radioPkgCoaching" value="coaching" style="margin-top: 3px; accent-color: #059669; cursor: pointer;" />
                 <div style="flex: 1;">
                   <div style="display: flex; justify-content: space-between; align-items: center;">
-                    <strong style="font-size: 0.92rem; color: #0f172a;">Bản Kèm 1-1 (1 buổi 1 tiếng)</strong>
+                    <strong id="pkgTitleCoaching" style="font-size: 0.92rem; color: #0f172a;">Bản Kèm 1-1 (1 buổi 1 tiếng)</strong>
                     <span class="pkg-price font-mono" id="pkgPriceCoaching" style="font-weight: 700; color: #059669; font-size: 0.95rem;">199.000 đ</span>
                   </div>
                   <p style="margin: 2px 0 0 0; font-size: 0.78rem; color: #64748b; line-height: 1.35;">File gốc + <strong>1 buổi kèm riêng 1 tiếng</strong> (UltraViewer/Meet) ráp số liệu thực tế cho shop của bạn.</p>
@@ -330,20 +330,20 @@
         <div id="checkoutPaymentStep" class="modal-body" style="display: none; padding: 14px 16px;">
           <div class="bank-box" style="padding: 12px 14px; border-radius: 12px; background: #f8fafc; border: 1px solid var(--line);">
             
-            <!-- Compact Package Switcher Pills -->
-            <div class="package-step2-pills" style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-bottom: 10px;">
+            <!-- Compact Package Switcher Pills (Shopee Upsell) -->
+            <div class="package-step2-pills" id="packageStep2Pills" style="display: none; grid-template-columns: 1fr 1fr; gap: 6px; margin-bottom: 10px;">
               <button type="button" class="pkg-step2-btn active" id="btnSwitchPkgStandard" style="padding: 7px 6px; font-size: 0.8rem; font-weight: 600; border: 1.5px solid var(--mint-strong, #059669); background: #f0fdf4; color: #065f46; border-radius: 8px; cursor: pointer; text-align: center; transition: all 0.2s ease;">
                 📦 Bản Tự Dùng (<span id="pillPriceStandard">99k</span>)
               </button>
               <button type="button" class="pkg-step2-btn" id="btnSwitchPkgCoaching" style="padding: 7px 6px; font-size: 0.8rem; font-weight: 600; border: 1.5px solid #e2e8f0; background: #fff; color: #475569; border-radius: 8px; cursor: pointer; text-align: center; transition: all 0.2s ease;">
-                🎓 Kèm 1-1 (<span id="pillPriceCoaching">199k</span>)
+                <span id="pillTitleCoaching">🎓 Kèm 1-1</span> (<span id="pillPriceCoaching">199k</span>)
               </button>
             </div>
 
-            <!-- 60-Minute Countdown Timer Badge -->
+            <!-- 10-Minute Countdown Timer Badge (09:59) -->
             <div id="qrCountdownContainer" style="display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 10px; padding: 7px 14px; background: #fef2f2; border: 1px solid #fee2e2; border-radius: 10px; color: #b91c1c; font-size: 0.85rem; font-weight: 600;">
               <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
-              <span>Mã có hiệu lực trong: <strong id="qrTimerDisplay" style="font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; font-size: 0.95rem; color: #dc2626;">60:00</strong></span>
+              <span>Mã có hiệu lực trong: <strong id="qrTimerDisplay" style="font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; font-size: 0.95rem; color: #dc2626;">09:59</strong></span>
             </div>
 
             <div class="qr-box" id="qrBox" style="min-height: 175px; display: flex; align-items: center; justify-content: center; margin-bottom: 8px;">
@@ -831,7 +831,7 @@
     <!-- Floating Pending Order Bar -->
     <div id="floatingOrderBar" style="display: none; position: fixed; bottom: 85px; left: 50%; transform: translateX(-50%); background: #0f172a; color: #fff; padding: 10px 18px; border-radius: 30px; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.3); z-index: 900; align-items: center; gap: 12px; font-size: 0.88rem; max-width: 90vw; width: max-content; border: 1px solid rgba(255,255,255,0.15);">
       <span style="display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #22c55e;"></span>
-      <span>Đơn hàng <strong id="floatingOrderId">#DH...</strong> đang chờ (<span id="floatingOrderTimer">60:00</span>)</span>
+      <span>Đơn hàng <strong id="floatingOrderId">#DH...</strong> đang chờ (<span id="floatingOrderTimer">09:59</span>)</span>
       <button type="button" id="btnResumeOrder" style="background: var(--mint-strong, #059669); color: #fff; border: none; padding: 5px 14px; border-radius: 20px; font-weight: 600; font-size: 0.82rem; cursor: pointer;">Tiếp tục</button>
     </div>
 
@@ -840,8 +840,8 @@
     <script src="/__/firebase/10.7.1/firebase-auth-compat.js"></script>
     <script src="/__/firebase/10.7.1/firebase-firestore-compat.js"></script>
     <script src="/__/firebase/init.js"></script>
-    <script src="./storefront-data.js?v=12"></script>
+    <script src="./storefront-data.js?v=13"></script>
     <script src="./storefront-products.generated.js?v=6"></script>
-    <script src="storefront.js?v=69"></script>
+    <script src="storefront.js?v=71"></script>
   </body>
 </html>

@@ -166,13 +166,15 @@ def api(req: https_fn.Request) -> https_fn.Response:
                             age_sec = (now - datetime.fromisoformat(c_at.replace("Z", "+00:00"))).total_seconds()
                         except Exception:
                             pass
-                    if age_sec <= 3600:
+                    if age_sec <= 600:
+                        c_at_str = c_at.isoformat() if hasattr(c_at, "isoformat") else str(c_at)
                         return json_response({
                             "order_id": o_data.get("id"),
                             "amount": o_data.get("amount", req_amount),
                             "transfer_note": o_data.get("id"),
                             "package_type": o_data.get("package_type", req_package_type),
                             "package_name": o_data.get("package_name", req_package_name),
+                            "created_at": c_at_str,
                             "reused": True
                         })
 
@@ -203,7 +205,9 @@ def api(req: https_fn.Request) -> https_fn.Response:
             "amount": req_amount,
             "transfer_note": order_id,
             "package_type": req_package_type,
-            "package_name": req_package_name
+            "package_name": req_package_name,
+            "created_at": now.isoformat(),
+            "reused": False
         })
         
     elif path.startswith("/orders/") and method == "GET":

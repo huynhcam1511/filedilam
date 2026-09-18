@@ -135,13 +135,44 @@
   }
 
   function setCheckoutPackage(pkgType, updateOrder) {
-    state.selectedPackage = pkgType === "coaching" ? "coaching" : "standard";
+    var firstItem = state.cart.find(function(entry) {
+      return !!getProductById(entry.productId);
+    }) || state.cart[0];
+    var product = getProductById(firstItem ? firstItem.productId : null);
+    var hasCoaching = product && product.hasCoaching && product.coachingPrice && product.coachingPrice > product.price;
+
+    if (!hasCoaching) {
+      state.selectedPackage = "standard";
+    } else {
+      state.selectedPackage = pkgType === "coaching" ? "coaching" : "standard";
+    }
 
     // 1. Update Step 1 Radio & Card visual state
     var rStd = document.getElementById("radioPkgStandard");
     var rCoach = document.getElementById("radioPkgCoaching");
     var cStd = document.getElementById("pkgOptionStandard");
     var cCoach = document.getElementById("pkgOptionCoaching");
+    var pkgTitleCoachEl = document.getElementById("pkgTitleCoaching");
+    var pillTitleCoachEl = document.getElementById("pillTitleCoaching");
+
+    var baseTotal = getCartBaseTotal();
+    var pkgPriceStdEl = document.getElementById("pkgPriceStandard");
+    var pkgPriceCoachEl = document.getElementById("pkgPriceCoaching");
+    var pillPriceStdEl = document.getElementById("pillPriceStandard");
+    var pillPriceCoachEl = document.getElementById("pillPriceCoaching");
+    if (pkgPriceStdEl) pkgPriceStdEl.textContent = formatCurrency(baseTotal);
+    if (pillPriceStdEl) pillPriceStdEl.textContent = Math.round(baseTotal / 1000) + "k";
+
+    if (hasCoaching) {
+      var coachingTotal = baseTotal + (product.coachingPrice - product.price);
+      if (pkgPriceCoachEl) pkgPriceCoachEl.textContent = formatCurrency(coachingTotal);
+      if (pillPriceCoachEl) pillPriceCoachEl.textContent = Math.round(coachingTotal / 1000) + "k";
+    }
+
+    if (product && product.coachingTitle) {
+      if (pkgTitleCoachEl) pkgTitleCoachEl.textContent = product.coachingTitle;
+      if (pillTitleCoachEl) pillTitleCoachEl.textContent = "🎓 " + product.coachingTitle.replace(/\(.*?\)/g, "").trim();
+    }
 
     if (rStd) rStd.checked = (state.selectedPackage === "standard");
     if (rCoach) rCoach.checked = (state.selectedPackage === "coaching");
@@ -1398,11 +1429,22 @@
       '</div>';
     }
 
+    var coachingOptionHtml = (product.hasCoaching && product.coachingPrice)
+      ? '<div style="display:flex; align-items:center; justify-content:space-between; background:#fffbeb; border:1px solid #fde68a; padding:10px 14px; border-radius:10px;">' +
+          '<div style="font-size:0.85rem; color:#92400e; font-weight:600;">' +
+            '<span>🎓 ' + escapeHtml(product.coachingTitle || 'Có tùy chọn Kèm 1-1') + '</span>' +
+            '<div style="font-size:0.75rem; color:#b45309; font-weight:normal; margin-top:2px;">Kèm riêng 1 buổi ráp số liệu thực tế</div>' +
+          '</div>' +
+          '<span style="font-weight:700; color:#b45309; font-size:0.92rem; white-space:nowrap;">' + formatCurrency(product.coachingPrice) + '</span>' +
+        '</div>'
+      : '';
+
     // Content inside scrollable body
     detailBody.innerHTML =
       '<div style="display:flex; flex-direction:column; gap: 16px;">' +
       renderDetailThumb(product) +
       socialProofDetailHtml +
+      coachingOptionHtml +
       '<p class="detail-desc" style="line-height:1.6; color:#475569; margin:0;">' + escapeHtml(product.description) + '</p>' +
       suitableHtml +
       deliveryHtml +
@@ -1685,15 +1727,14 @@
     var container = document.getElementById("qrCountdownContainer");
     var floatingTimer = document.getElementById("floatingOrderTimer");
 
-    var totalDuration = 60 * 60 * 1000; // 60 phút hiệu lực
+    var totalDuration = 10 * 60 * 1000; // 10 phút hiệu lực
     var orderStart = startTime || Date.now();
 
     function tick() {
       var elapsed = Date.now() - orderStart;
       var remainingMs = Math.max(0, totalDuration - elapsed);
-      var remainingSec = Math.floor(remainingMs / 1000);
 
-      if (remainingSec <= 0) {
+      if (remainingMs <= 0) {
         clearInterval(qrCountdownTimer);
         qrCountdownTimer = null;
         if (timerDisplay) timerDisplay.textContent = "00:00";
@@ -1701,7 +1742,29 @@
         if (container) {
           container.style.background = "#fff1f2";
           container.style.color = "#991b1b";
-          container.innerHTML = '<span style="font-size: 0.85rem;">⚠️ Mã thanh toán đã hết hạn 60 phút. Vui lòng tạo lại đơn mới.</span>';
+          container.innerHTML = '<span style="font-size: 0.85rem;">⚠️ Mã thanh toán đã hết hạn 10 phút.</span>';
+        }
+        if (qrBox) {
+          qrBox.innerHTML = 
+            '<div class="empty-state" style="padding:28px 16px; background:#f8fafc; border-radius:12px; border:1.5px dashed #cbd5e1;">' +
+              '<div style="font-size:32px; margin-bottom:6px;">⌛</div>' +
+              '<div style="font-weight:700; color:#991b1b; font-size:0.95rem; margin-bottom:4px;">Mã thanh toán đã hết hạn</div>' +
+              '<div style="font-size:0.8rem; color:#64748b; margin-bottom:14px;">Để đảm bảo an toàn giao dịch, vui lòng tạo mã mới.</div>' +
+              '<button type="button" class="button-primary" id="btnRefreshExpiredQr" style="padding:8px 20px; font-size:0.88rem; margin:0 auto;">Tạo mã QR mới</button>' +
+            '</div>';
+          var refBtn = document.getElementById("btnRefreshExpiredQr");
+          if (refBtn) {
+            refBtn.addEventListener("click", function() {
+              try {
+                localStorage.removeItem("filedilam_active_order");
+                localStorage.removeItem("filedilam_pending_order_id");
+              } catch (e) {}
+              createOrderAndRenderQr({
+                customer_phone: getResolvedPhone(),
+                customer_email: state.user ? state.user.email : ""
+              });
+            });
+          }
         }
         try {
           localStorage.removeItem("filedilam_active_order");
@@ -1711,6 +1774,8 @@
         return;
       }
 
+      // Đếm từ 09:59 ngay khi bắt đầu (hoặc số giây thực tế còn lại)
+      var remainingSec = Math.max(0, Math.floor((remainingMs - 1) / 1000));
       var mins = Math.floor(remainingSec / 60);
       var secs = remainingSec % 60;
       var pad = function(n) { return String(n).padStart(2, "0"); };
@@ -1750,7 +1815,7 @@
       activeOrder = JSON.parse(raw);
     } catch (e) {}
 
-    if (!activeOrder || !activeOrder.order_id || (Date.now() - (activeOrder.time || 0) >= 3600000)) {
+    if (!activeOrder || !activeOrder.order_id || (Date.now() - (activeOrder.time || 0) >= 600000)) {
       bar.style.display = "none";
       return;
     }
@@ -1800,7 +1865,7 @@
     }
 
     var orderAge = Date.now() - (activeOrder.time || 0);
-    if (orderAge >= 3600000) {
+    if (orderAge >= 600000) {
       try {
         localStorage.removeItem("filedilam_active_order");
         localStorage.removeItem("filedilam_pending_order_id");
@@ -2102,13 +2167,13 @@
     if (bankNumber) bankNumber.textContent = accNo;
     var bankAmount = document.getElementById("bankAmount");
     if (bankAmount) bankAmount.textContent = formatCurrency(getCartTotal());
-    // Kiểm tra xem đã có đơn hàng PENDING của cùng file và cùng gói này trong vòng 60 phút chưa (tránh tạo mã rác khi chuyển app)
+    // Kiểm tra xem đã có đơn hàng PENDING của cùng file và cùng gói này trong vòng 10 phút chưa (tránh tạo mã rác khi chuyển app)
     var cachedOrder = null;
     try {
       var rawActive = localStorage.getItem("filedilam_active_order");
       if (rawActive) {
         var parsedActive = JSON.parse(rawActive);
-        if (parsedActive && parsedActive.product_id === product.id && parsedActive.amount === getCartTotal() && (parsedActive.package_type || "standard") === (state.selectedPackage || "standard") && (Date.now() - (parsedActive.time || 0) < 3600000)) {
+        if (parsedActive && parsedActive.product_id === product.id && parsedActive.amount === getCartTotal() && (parsedActive.package_type || "standard") === (state.selectedPackage || "standard") && (Date.now() - (parsedActive.time || 0) < 600000)) {
           cachedOrder = parsedActive;
         }
       }
@@ -2123,6 +2188,7 @@
       if (qrBox) {
         qrBox.innerHTML = '<img src="' + preQr + '" alt="Mã QR chuyển khoản" style="max-width:175px; width:100%; height:auto; border-radius:8px; display:block; margin:0 auto;" />';
       }
+      startQrCountdown(cachedOrder.time);
       pollOrderStatus(cachedOrder.order_id);
     } else {
       if (bankTransferNote) bankTransferNote.textContent = "Đang tạo mã...";
@@ -2150,7 +2216,7 @@
       product_type: (product.type === "google_sheets" || !!product.sheetUrl) ? "google_sheets" : "excel",
       amount: getCartTotal(),
       package_type: state.selectedPackage || "standard",
-      package_name: state.selectedPackage === "coaching" ? "Bản Kèm 1-1 (1 buổi 1 tiếng)" : "Bản Tự Dùng"
+      package_name: state.selectedPackage === "coaching" ? (product.coachingTitle || "Bản Kèm 1-1 (1 buổi 1 tiếng)") : "Bản Tự Dùng"
     };
 
     authFetch("/orders", {
@@ -2158,6 +2224,7 @@
       body: JSON.stringify(orderData)
     })
     .then(function(resData) {
+      var orderStartTime = (resData.created_at ? new Date(resData.created_at).getTime() : Date.now());
       currentActiveOrderId = resData.order_id;
       try {
         localStorage.setItem("filedilam_pending_order_id", resData.order_id);
@@ -2168,9 +2235,9 @@
           product_id: product.id,
           product_name: productNames || product.name,
           package_type: state.selectedPackage || "standard",
-          package_name: state.selectedPackage === "coaching" ? "Bản Kèm 1-1 (1 buổi 1 tiếng)" : "Bản Tự Dùng",
+          package_name: state.selectedPackage === "coaching" ? (product.coachingTitle || "Bản Kèm 1-1 (1 buổi 1 tiếng)") : "Bản Tự Dùng",
           customer_phone: phone,
-          time: Date.now()
+          time: orderStartTime
         }));
       } catch (e) {}
       if (bankTransferNote) bankTransferNote.textContent = resData.transfer_note;
@@ -2183,6 +2250,7 @@
         qrBox.innerHTML = '<img src="' + qrUrl + '" alt="Mã QR chuyển khoản" style="max-width:175px; width:100%; height:auto; border-radius:8px; display:block; margin:0 auto;" />';
       }
 
+      startQrCountdown(orderStartTime);
       showToast("Vui lòng quét mã QR để thanh toán.");
       pollOrderStatus(resData.order_id);
     })
@@ -2230,23 +2298,47 @@
 
     // Calculate Package Prices (Standard vs Coaching)
     var baseTotal = getCartBaseTotal();
-    var coachingTotal = baseTotal + 100000;
+    var firstItem = state.cart.find(function(entry) {
+      return !!getProductById(entry.productId);
+    }) || state.cart[0];
+    var product = getProductById(firstItem ? firstItem.productId : null);
+    var hasCoaching = product && product.hasCoaching && product.coachingPrice && product.coachingPrice > product.price;
 
-    var pkgPriceStdEl = document.getElementById("pkgPriceStandard");
-    var pkgPriceCoachEl = document.getElementById("pkgPriceCoaching");
-    var pillPriceStdEl = document.getElementById("pillPriceStandard");
-    var pillPriceCoachEl = document.getElementById("pillPriceCoaching");
+    var pkgSectionWrap = document.getElementById("packageSelectionWrap");
+    var pkgStep2Pills = document.getElementById("packageStep2Pills");
 
-    if (pkgPriceStdEl) pkgPriceStdEl.textContent = formatCurrency(baseTotal);
-    if (pkgPriceCoachEl) pkgPriceCoachEl.textContent = formatCurrency(coachingTotal);
-    if (pillPriceStdEl) pillPriceStdEl.textContent = Math.round(baseTotal / 1000) + "k";
-    if (pillPriceCoachEl) pillPriceCoachEl.textContent = Math.round(coachingTotal / 1000) + "k";
+    if (hasCoaching) {
+      var coachingTotal = baseTotal + (product.coachingPrice - product.price);
+      var pkgPriceStdEl = document.getElementById("pkgPriceStandard");
+      var pkgPriceCoachEl = document.getElementById("pkgPriceCoaching");
+      var pillPriceStdEl = document.getElementById("pillPriceStandard");
+      var pillPriceCoachEl = document.getElementById("pillPriceCoaching");
+      var pkgTitleCoachEl = document.getElementById("pkgTitleCoaching");
+      var pillTitleCoachEl = document.getElementById("pillTitleCoaching");
+
+      if (pkgPriceStdEl) pkgPriceStdEl.textContent = formatCurrency(baseTotal);
+      if (pkgPriceCoachEl) pkgPriceCoachEl.textContent = formatCurrency(coachingTotal);
+      if (pillPriceStdEl) pillPriceStdEl.textContent = Math.round(baseTotal / 1000) + "k";
+      if (pillPriceCoachEl) pillPriceCoachEl.textContent = Math.round(coachingTotal / 1000) + "k";
+
+      if (product.coachingTitle) {
+        if (pkgTitleCoachEl) pkgTitleCoachEl.textContent = product.coachingTitle;
+        if (pillTitleCoachEl) pillTitleCoachEl.textContent = "🎓 " + product.coachingTitle.replace(/\(.*?\)/g, "").trim();
+      }
+
+      if (pkgSectionWrap) pkgSectionWrap.style.display = "block";
+      if (pkgStep2Pills) pkgStep2Pills.style.display = "flex";
+    } else {
+      state.selectedPackage = "standard";
+      if (pkgSectionWrap) pkgSectionWrap.style.display = "none";
+      if (pkgStep2Pills) pkgStep2Pills.style.display = "none";
+    }
 
     try {
       var rawActive = localStorage.getItem("filedilam_active_order");
       if (rawActive) {
         var parsedActive = JSON.parse(rawActive);
-        if (parsedActive && parsedActive.package_type) {
+        if (parsedActive && parsedActive.package_type && (hasCoaching || parsedActive.package_type === "standard")) {
           state.selectedPackage = parsedActive.package_type;
         }
       }
@@ -2255,10 +2347,6 @@
     setCheckoutPackage(state.selectedPackage || "standard", false);
 
     // Render Order Summary Bar
-    var firstItem = state.cart.find(function(entry) {
-      return !!getProductById(entry.productId);
-    }) || state.cart[0];
-    var product = getProductById(firstItem ? firstItem.productId : null);
     var total = getCartTotal();
     var originalTotal = state.cart.reduce(function(acc, item) {
       var p = getProductById(item.productId);
@@ -2844,7 +2932,7 @@
 
   function pollOrderStatus(orderId) {
     var attempts = 0;
-    var maxAttempts = 1200; // Polling bền bỉ suốt 60 phút hiệu lực đơn hàng
+    var maxAttempts = 200; // Polling 10 phút hiệu lực đơn hàng (200 * 3s = 600s)
     if (window._orderPollInterval) clearInterval(window._orderPollInterval);
     window._orderPollInterval = setInterval(function() {
       attempts++;
@@ -2935,7 +3023,16 @@
   function getCartTotal() {
     if (!state.cart || !state.cart.length) return 0;
     var base = getCartBaseTotal();
-    return state.selectedPackage === "coaching" ? base + 100000 : base;
+    if (state.selectedPackage === "coaching") {
+      var firstItem = state.cart.find(function(entry) {
+        return !!getProductById(entry.productId);
+      }) || state.cart[0];
+      var product = getProductById(firstItem ? firstItem.productId : null);
+      if (product && product.hasCoaching && product.coachingPrice && product.coachingPrice > product.price) {
+        return base + (product.coachingPrice - product.price);
+      }
+    }
+    return base;
   }
 
   function getCartCount() {

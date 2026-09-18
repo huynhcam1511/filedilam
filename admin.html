@@ -351,6 +351,30 @@
               <small style="color: var(--muted); display: block; margin-top: 4px;">Dành cho file Excel hoặc file nén .zip chứa combo nhiều file.</small>
             </div>
 
+            <!-- Dịch vụ Kèm 1-1 (Shopee Upsell) -->
+            <div class="form-group" style="background: #f8fafc; padding: 14px 16px; border-radius: 10px; border: 1.5px dashed #cbd5e1; margin-top: 14px;">
+              <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; margin-bottom: 0; font-weight: 600; color: #0f172a;">
+                <input type="checkbox" id="productHasCoaching" style="width: 18px; height: 18px; accent-color: #059669; cursor: pointer;">
+                <span>🎓 Cung cấp gói Dịch vụ Kèm 1-1 cho sản phẩm này</span>
+              </label>
+              
+              <div id="coachingFieldsGroup" style="display: none; margin-top: 14px; padding-top: 12px; border-top: 1px solid #e2e8f0;">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                  <div class="form-group" style="margin-bottom: 0;">
+                    <label for="productCoachingPrice">Giá trọn gói Kèm 1-1 (VNĐ) *</label>
+                    <input type="text" id="productCoachingPrice" placeholder="VD: 199,000">
+                  </div>
+                  <div class="form-group" style="margin-bottom: 0;">
+                    <label for="productCoachingTitle">Tên gói Kèm 1-1 hiển thị</label>
+                    <input type="text" id="productCoachingTitle" placeholder="Bản Kèm 1-1 (1 buổi 1 tiếng)">
+                  </div>
+                </div>
+                <small style="color: #64748b; margin-top: 6px; display: block;">
+                  Khi bật, khách mua file này sẽ thấy lựa chọn phân loại: <b>Bản Tự Dùng</b> và <b>Bản Kèm 1-1</b>. Nếu không bật, khách mua sẽ thanh toán đúng giá file gốc.
+                </small>
+              </div>
+            </div>
+
             <button type="submit" class="button-primary button-full" id="submitBtn" style="margin-top: 24px; height: 50px; font-size: 1rem; border-radius: 8px;">Tải lên & Đăng bán</button>
           </form>
         </div>
@@ -493,6 +517,6 @@
   <script src="/__/firebase/10.7.1/firebase-storage-compat.js"></script>
   <script src="/__/firebase/init.js"></script>
   
-  <script src="./admin.js?v=6"></script>
+  <script src="./admin.js?v=7"></script>
 </body>
 </html>
