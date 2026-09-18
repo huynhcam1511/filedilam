@@ -392,16 +392,32 @@
       }
     });
 
-    // Tự động kiểm tra đơn hàng khi khách quay lại trình duyệt sau khi chuyển khoản
+    // Tự động kiểm tra đơn hàng và phục hồi màn hình thanh toán khi khách quay lại trình duyệt
     document.addEventListener("visibilitychange", function () {
       if (document.visibilityState === "visible") {
         checkActiveOrderOnResume();
+        if (!checkoutModal || !checkoutModal.classList.contains("is-open")) {
+          restoreActiveOrderModal();
+        }
       }
     });
 
     window.addEventListener("focus", function () {
       checkActiveOrderOnResume();
+      if (!checkoutModal || !checkoutModal.classList.contains("is-open")) {
+        restoreActiveOrderModal();
+      }
     });
+
+    var btnResumeOrder = document.getElementById("btnResumeOrder");
+    if (btnResumeOrder) {
+      btnResumeOrder.addEventListener("click", function () {
+        restoreActiveOrderModal({ force: true });
+      });
+    }
+
+    // Treo màn hình thanh toán nếu khách có đơn hàng PENDING còn hiệu lực khi vừa tải trang
+    restoreActiveOrderModal();
   }
 
   function initAuth() {
@@ -434,6 +450,9 @@
                 : (user.displayName || user.email));
             if (userNameDisplay) userNameDisplay.textContent = displayId;
             checkActiveOrderOnResume();
+            if (!checkoutModal || !checkoutModal.classList.contains("is-open")) {
+              restoreActiveOrderModal();
+            }
           });
         } else {
           state.user = null;
@@ -1443,11 +1462,14 @@
   }
 
   function handleOrderSuccess(data) {
+    stopQrCountdown();
     try {
       localStorage.removeItem("filedilam_pending_order_id");
       localStorage.removeItem("filedilam_active_order");
     } catch (e) {}
     currentActiveOrderId = null;
+    userClosedCheckout = false;
+    updateFloatingOrderBar();
     state.cart = [];
     persistCart();
     renderCart();
@@ -1498,6 +1520,188 @@
       confirmBtn.textContent = "Kiểm tra thanh toán";
       confirmBtn.disabled = false;
     }
+  }
+
+  var qrCountdownTimer = null;
+  var userClosedCheckout = false;
+
+  function startQrCountdown(startTime) {
+    if (qrCountdownTimer) {
+      clearInterval(qrCountdownTimer);
+      qrCountdownTimer = null;
+    }
+    var timerDisplay = document.getElementById("qrTimerDisplay");
+    var container = document.getElementById("qrCountdownContainer");
+    var floatingTimer = document.getElementById("floatingOrderTimer");
+
+    var totalDuration = 60 * 60 * 1000; // 60 phút hiệu lực
+    var orderStart = startTime || Date.now();
+
+    function tick() {
+      var elapsed = Date.now() - orderStart;
+      var remainingMs = Math.max(0, totalDuration - elapsed);
+      var remainingSec = Math.floor(remainingMs / 1000);
+
+      if (remainingSec <= 0) {
+        clearInterval(qrCountdownTimer);
+        qrCountdownTimer = null;
+        if (timerDisplay) timerDisplay.textContent = "00:00";
+        if (floatingTimer) floatingTimer.textContent = "00:00";
+        if (container) {
+          container.style.background = "#fff1f2";
+          container.style.color = "#991b1b";
+          container.innerHTML = '<span style="font-size: 0.85rem;">⚠️ Mã thanh toán đã hết hạn 60 phút. Vui lòng tạo lại đơn mới.</span>';
+        }
+        try {
+          localStorage.removeItem("filedilam_active_order");
+          localStorage.removeItem("filedilam_pending_order_id");
+        } catch (e) {}
+        updateFloatingOrderBar();
+        return;
+      }
+
+      var mins = Math.floor(remainingSec / 60);
+      var secs = remainingSec % 60;
+      var pad = function(n) { return String(n).padStart(2, "0"); };
+      var timeStr = pad(mins) + ":" + pad(secs);
+      if (timerDisplay) timerDisplay.textContent = timeStr;
+      if (floatingTimer) floatingTimer.textContent = timeStr;
+    }
+
+    tick();
+    qrCountdownTimer = setInterval(tick, 1000);
+  }
+
+  function stopQrCountdown() {
+    if (qrCountdownTimer) {
+      clearInterval(qrCountdownTimer);
+      qrCountdownTimer = null;
+    }
+  }
+
+  function updateFloatingOrderBar() {
+    var bar = document.getElementById("floatingOrderBar");
+    var floatingOrderId = document.getElementById("floatingOrderId");
+    if (!bar) return;
+
+    var raw = null;
+    try {
+      raw = localStorage.getItem("filedilam_active_order");
+    } catch (e) {}
+
+    if (!raw) {
+      bar.style.display = "none";
+      return;
+    }
+
+    var activeOrder = null;
+    try {
+      activeOrder = JSON.parse(raw);
+    } catch (e) {}
+
+    if (!activeOrder || !activeOrder.order_id || (Date.now() - (activeOrder.time || 0) >= 3600000)) {
+      bar.style.display = "none";
+      return;
+    }
+
+    if (checkoutModal && checkoutModal.classList.contains("is-open")) {
+      bar.style.display = "none";
+      return;
+    }
+
+    if (detailModal && detailModal.classList.contains("is-open")) {
+      bar.style.display = "none";
+      return;
+    }
+
+    if (floatingOrderId) floatingOrderId.textContent = "#" + activeOrder.order_id;
+    bar.style.display = "flex";
+  }
+
+  function restoreActiveOrderModal(options) {
+    options = options || {};
+    var force = options.force === true;
+
+    if (!force && userClosedCheckout) {
+      updateFloatingOrderBar();
+      return false;
+    }
+
+    var raw = null;
+    try {
+      raw = localStorage.getItem("filedilam_active_order");
+    } catch (e) {}
+    if (!raw) {
+      updateFloatingOrderBar();
+      return false;
+    }
+
+    var activeOrder = null;
+    try {
+      activeOrder = JSON.parse(raw);
+    } catch (e) {
+      return false;
+    }
+
+    if (!activeOrder || !activeOrder.order_id) {
+      updateFloatingOrderBar();
+      return false;
+    }
+
+    var orderAge = Date.now() - (activeOrder.time || 0);
+    if (orderAge >= 3600000) {
+      try {
+        localStorage.removeItem("filedilam_active_order");
+        localStorage.removeItem("filedilam_pending_order_id");
+      } catch (e) {}
+      updateFloatingOrderBar();
+      return false;
+    }
+
+    if (detailModal && detailModal.classList.contains("is-open")) return false;
+
+    userClosedCheckout = false;
+    currentActiveOrderId = activeOrder.order_id;
+
+    var bankAccount = (window.StorefrontData && window.StorefrontData.store && window.StorefrontData.store.bankAccount) || {};
+    var bankShortName = bankAccount.bankShortName || bankAccount.bankName || "TPBank";
+    var vietQrCode = "TPB";
+    var accNo = bankAccount.number || "59215112002";
+    var owner = bankAccount.owner || "HUYNH KIEN CAM";
+
+    if (bankName) bankName.textContent = bankShortName;
+    if (bankOwner) bankOwner.textContent = owner;
+    if (bankNumber) bankNumber.textContent = accNo;
+    var bankAmountEl = document.getElementById("bankAmount");
+    if (bankAmountEl) bankAmountEl.textContent = formatCurrency(activeOrder.amount);
+    if (bankTransferNote) bankTransferNote.textContent = activeOrder.transfer_note || activeOrder.order_id;
+
+    var qrUrl = "https://img.vietqr.io/image/" + vietQrCode + "-" + accNo + "-compact.png?amount=" + activeOrder.amount + "&addInfo=" + encodeURIComponent(activeOrder.transfer_note || activeOrder.order_id) + "&accountName=" + encodeURIComponent(owner);
+    currentQrImageUrl = qrUrl;
+
+    if (qrBox) {
+      qrBox.innerHTML = '<img src="' + qrUrl + '" alt="Mã QR chuyển khoản" style="max-width:175px; width:100%; height:auto; border-radius:8px; display:block; margin:0 auto;" />';
+    }
+
+    resetQrActions();
+    startQrCountdown(activeOrder.time);
+
+    // Mở và treo màn hình thanh toán ở Step 2
+    if (checkoutAuthStep) checkoutAuthStep.style.display = "none";
+    if (checkoutPaymentStep) checkoutPaymentStep.style.display = "block";
+    if (checkoutModalTitle) checkoutModalTitle.textContent = "Quét mã QR thanh toán";
+    if (checkoutBackBtn) checkoutBackBtn.style.display = "inline-flex";
+
+    if (checkoutModal) {
+      checkoutModal.classList.add("is-open");
+      checkoutModal.setAttribute("aria-hidden", "false");
+      document.body.classList.add("drawer-open");
+    }
+
+    updateFloatingOrderBar();
+    pollOrderStatus(activeOrder.order_id);
+    checkActiveOrderOnResume();
+    return true;
   }
 
   function checkActiveOrderOnResume() {
@@ -1951,11 +2155,12 @@
   }
 
   function closeCheckout() {
+    userClosedCheckout = true;
     checkoutModal.classList.remove("is-open");
     checkoutModal.setAttribute("aria-hidden", "true");
     if (checkoutBackBtn) checkoutBackBtn.style.display = "none";
-    currentActiveOrderId = null;
     unlockBodyIfNeeded();
+    updateFloatingOrderBar();
   }
 
   function addToCart(productId, options) {
@@ -2436,9 +2641,11 @@
       closeBankPickerModal();
 
       if (isHttp) {
-        // Universal Link / Web Link của VietQR (các ngân hàng)
+        // Mở qua tab mới để tab chính filedilam.web.app vẫn luôn hiển thị màn hình thanh toán
         var link = document.createElement("a");
         link.href = targetUrl;
+        link.target = "_blank";
+        link.rel = "noopener noreferrer";
         link.style.display = "none";
         document.body.appendChild(link);
         link.click();
@@ -2456,17 +2663,22 @@
 
   function pollOrderStatus(orderId) {
     var attempts = 0;
-    var maxAttempts = 60; // 3 phút polling
-    var interval = setInterval(function() {
+    var maxAttempts = 1200; // Polling bền bỉ suốt 60 phút hiệu lực đơn hàng
+    if (window._orderPollInterval) clearInterval(window._orderPollInterval);
+    window._orderPollInterval = setInterval(function() {
       attempts++;
-      if (attempts > maxAttempts || !currentActiveOrderId) {
-        clearInterval(interval);
+      if (attempts > maxAttempts || (!currentActiveOrderId && !localStorage.getItem("filedilam_active_order"))) {
+        clearInterval(window._orderPollInterval);
+        window._orderPollInterval = null;
         return;
       }
       authFetch("/orders/" + orderId)
         .then(function(data) {
           if (data && data.status === "PAID") {
-            clearInterval(interval);
+            if (window._orderPollInterval) {
+              clearInterval(window._orderPollInterval);
+              window._orderPollInterval = null;
+            }
             handleOrderSuccess(data);
           }
         })
