@@ -433,6 +433,7 @@
                 ? user.email.replace("@khachhang.filedilam.vn", "")
                 : (user.displayName || user.email));
             if (userNameDisplay) userNameDisplay.textContent = displayId;
+            checkActiveOrderOnResume();
           });
         } else {
           state.user = null;
@@ -1444,6 +1445,7 @@
   function handleOrderSuccess(data) {
     try {
       localStorage.removeItem("filedilam_pending_order_id");
+      localStorage.removeItem("filedilam_active_order");
     } catch (e) {}
     currentActiveOrderId = null;
     state.cart = [];
@@ -1503,6 +1505,13 @@
     if (!pendingOrderId) {
       try {
         pendingOrderId = localStorage.getItem("filedilam_pending_order_id");
+        if (!pendingOrderId) {
+          var raw = localStorage.getItem("filedilam_active_order");
+          if (raw) {
+            var parsed = JSON.parse(raw);
+            if (parsed && parsed.order_id) pendingOrderId = parsed.order_id;
+          }
+        }
       } catch (e) {}
     }
     if (!pendingOrderId) return;
@@ -1523,6 +1532,13 @@
     if (!checkOrderId) {
       try {
         checkOrderId = localStorage.getItem("filedilam_pending_order_id");
+        if (!checkOrderId) {
+          var raw = localStorage.getItem("filedilam_active_order");
+          if (raw) {
+            var parsed = JSON.parse(raw);
+            if (parsed && parsed.order_id) checkOrderId = parsed.order_id;
+          }
+        }
       } catch (e) {}
     }
     if (!checkOrderId) {
@@ -1731,7 +1747,32 @@
     if (bankNumber) bankNumber.textContent = accNo;
     var bankAmount = document.getElementById("bankAmount");
     if (bankAmount) bankAmount.textContent = formatCurrency(getCartTotal());
-    if (bankTransferNote) bankTransferNote.textContent = "Đang tạo mã...";
+    // Kiểm tra xem đã có đơn hàng PENDING của cùng file này trong vòng 60 phút chưa (tránh tạo mã rác khi chuyển app)
+    var cachedOrder = null;
+    try {
+      var rawActive = localStorage.getItem("filedilam_active_order");
+      if (rawActive) {
+        var parsedActive = JSON.parse(rawActive);
+        if (parsedActive && parsedActive.product_id === product.id && parsedActive.amount === getCartTotal() && (Date.now() - (parsedActive.time || 0) < 3600000)) {
+          cachedOrder = parsedActive;
+        }
+      }
+    } catch (e) {}
+
+    if (cachedOrder) {
+      currentActiveOrderId = cachedOrder.order_id;
+      if (bankTransferNote) bankTransferNote.textContent = cachedOrder.transfer_note || cachedOrder.order_id;
+      if (bankAmount) bankAmount.textContent = formatCurrency(cachedOrder.amount);
+      var preQr = "https://img.vietqr.io/image/" + vietQrCode + "-" + accNo + "-compact.png?amount=" + cachedOrder.amount + "&addInfo=" + encodeURIComponent(cachedOrder.transfer_note || cachedOrder.order_id) + "&accountName=" + encodeURIComponent(owner);
+      currentQrImageUrl = preQr;
+      if (qrBox) {
+        qrBox.innerHTML = '<img src="' + preQr + '" alt="Mã QR chuyển khoản" style="max-width:175px; width:100%; height:auto; border-radius:8px; display:block; margin:0 auto;" />';
+      }
+      pollOrderStatus(cachedOrder.order_id);
+    } else {
+      if (bankTransferNote) bankTransferNote.textContent = "Đang tạo mã...";
+      if (qrBox) qrBox.innerHTML = '<div class="empty-state" style="padding:40px 0;"><div style="font-weight:600; font-size: 0.95rem; color: var(--muted); margin-bottom: 4px;">Đang tạo mã VietQR...</div><div style="font-size: 0.8rem; color: var(--muted);">Vui lòng chờ trong giây lát</div></div>';
+    }
 
     // Chuyển sang Step 2 ngay lập tức
     if (checkoutAuthStep) checkoutAuthStep.style.display = "none";
@@ -1739,7 +1780,6 @@
     if (checkoutModalTitle) checkoutModalTitle.textContent = "Quét mã QR thanh toán";
     if (checkoutBackBtn) checkoutBackBtn.style.display = "inline-flex";
     resetQrActions();
-    if (qrBox) qrBox.innerHTML = '<div class="empty-state" style="padding:40px 0;"><div style="font-weight:600; font-size: 0.95rem; color: var(--muted); margin-bottom: 4px;">Đang tạo mã VietQR...</div><div style="font-size: 0.8rem; color: var(--muted);">Vui lòng chờ trong giây lát</div></div>';
 
     var productNames = state.cart.map(function(e) {
       var p = getProductById(e.productId);
@@ -1764,6 +1804,15 @@
       currentActiveOrderId = resData.order_id;
       try {
         localStorage.setItem("filedilam_pending_order_id", resData.order_id);
+        localStorage.setItem("filedilam_active_order", JSON.stringify({
+          order_id: resData.order_id,
+          amount: resData.amount || getCartTotal(),
+          transfer_note: resData.transfer_note,
+          product_id: product.id,
+          product_name: productNames || product.name,
+          customer_phone: phone,
+          time: Date.now()
+        }));
       } catch (e) {}
       if (bankTransferNote) bankTransferNote.textContent = resData.transfer_note;
       if (bankAmount) bankAmount.textContent = formatCurrency(resData.amount || getCartTotal());

@@ -14,7 +14,10 @@ except ValueError:
 def get_db():
     return firestore.client()
 
-def generate_order_id():
+def generate_order_id(phone=None):
+    digits = "".join(filter(str.isdigit, str(phone or "")))
+    if len(digits) >= 4:
+        return "DH" + digits[-4:] + "".join(random.choices(string.digits, k=2))
     return "DH" + "".join(random.choices(string.digits, k=6))
 
 def cors_headers():
@@ -140,10 +143,39 @@ def api(req: https_fn.Request) -> https_fn.Response:
                 profile_payload["created_at"] = now
             profile_ref.set(profile_payload, merge=True)
 
+        now = datetime.now(timezone.utc)
+        req_product_id = str(data.get("product_id") or "")
+        req_amount = int(data.get("amount") or 0)
+
+        # Check for existing PENDING order to reuse (prevents lost/duplicate orders on mobile app-switching)
+        user_orders = db.collection("orders").where("user_id", "==", user["uid"]).stream()
+        for doc in user_orders:
+            o_data = doc.to_dict()
+            if o_data.get("status") == "PENDING":
+                if str(o_data.get("product_id") or "") == req_product_id and int(o_data.get("amount") or 0) == req_amount:
+                    c_at = o_data.get("created_at")
+                    age_sec = 999999
+                    if hasattr(c_at, "timestamp"):
+                        age_sec = (now - c_at).total_seconds()
+                    elif hasattr(c_at, "seconds"):
+                        age_sec = now.timestamp() - c_at.seconds
+                    elif isinstance(c_at, str):
+                        try:
+                            age_sec = (now - datetime.fromisoformat(c_at.replace("Z", "+00:00"))).total_seconds()
+                        except Exception:
+                            pass
+                    if age_sec <= 3600:
+                        return json_response({
+                            "order_id": o_data.get("id"),
+                            "amount": o_data.get("amount", req_amount),
+                            "transfer_note": o_data.get("id"),
+                            "reused": True
+                        })
+
         customer_email = data.get("customer_email") or user.get("email", "")
-        order_id = generate_order_id()
+        order_id = generate_order_id(phone)
         while db.collection("orders").document(order_id).get().exists:
-            order_id = generate_order_id()
+            order_id = generate_order_id(phone)
             
         doc_ref = db.collection("orders").document(order_id)
         doc_ref.set({
@@ -151,18 +183,18 @@ def api(req: https_fn.Request) -> https_fn.Response:
             "customer_email": customer_email,
             "customer_phone": phone,
             "user_id": user["uid"],
-            "product_id": data.get("product_id", ""),
+            "product_id": req_product_id,
             "product_name": data.get("product_name", ""),
             "product_file_url": data.get("product_file_url", ""),
             "product_type": data.get("product_type", "excel"),
-            "amount": data.get("amount", 0),
+            "amount": req_amount,
             "status": "PENDING",
-            "created_at": datetime.now(timezone.utc)
+            "created_at": now
         })
         
         return json_response({
             "order_id": order_id,
-            "amount": data.get("amount", 0),
+            "amount": req_amount,
             "transfer_note": order_id,
         })
         
@@ -408,34 +440,67 @@ def api(req: https_fn.Request) -> https_fn.Response:
             except (ValueError, TypeError):
                 amount_paid = 0
 
-            orders_ref = db.collection("orders").where("status", "==", "PENDING").stream()
-            for doc in orders_ref:
+            matched_doc = None
+            matched_order = None
+
+            # Stream all PENDING orders
+            pending_orders = list(db.collection("orders").where("status", "==", "PENDING").stream())
+
+            # TIER 1: Match by exact Order ID (e.g. DH120289 or DH324085)
+            for doc in pending_orders:
                 order = doc.to_dict()
                 order_id = str(order.get("id", "")).upper()
                 compact_order_id = re.sub(r'[^A-Z0-9]', '', order_id)
                 
                 if compact_order_id and compact_order_id in compact_content:
                     if amount_paid >= int(order.get("amount", 0)):
-                        now = datetime.now(timezone.utc)
-                        doc.reference.update({
-                            "status": "PAID",
-                            "paid_at": now,
-                            "sepay_transaction_id": payload.get("id"),
-                            "reference_code": payload.get("referenceCode")
-                        })
-
-                        product_id = order.get("product_id")
-                        if product_id:
-                            try:
-                                from google.cloud import firestore as gc_firestore
-                                db.collection("products").document(product_id).set({
-                                    "downloads_count": gc_firestore.Increment(1)
-                                }, merge=True)
-                            except Exception as pe:
-                                print(f"Lỗi cập nhật downloads_count: {pe}")
-
-                        print(f"Kich hoat file {order.get('product_file_url')} cho {order.get('customer_email')}")
+                        matched_doc = doc
+                        matched_order = order
+                        print(f"[SePay] Tier 1 matched Order ID: {order_id}")
                         break
+
+            # TIER 2 (Fail-safe): If customer omitted Order ID and typed their Phone Number
+            if not matched_doc:
+                candidate_matches = []
+                for doc in pending_orders:
+                    order = doc.to_dict()
+                    cust_phone = re.sub(r'\D', '', str(order.get("customer_phone", "")))
+                    if len(cust_phone) >= 9:
+                        phone_without_zero = cust_phone[1:] if cust_phone.startswith("0") else cust_phone
+                        # Check if full phone or 9 digits without leading 0 appears in transfer content
+                        if (cust_phone in compact_content) or (phone_without_zero in compact_content):
+                            order_amount = int(order.get("amount", 0))
+                            if amount_paid >= order_amount:
+                                is_exact_amount = (order_amount == amount_paid)
+                                candidate_matches.append((doc, order, is_exact_amount))
+                
+                if candidate_matches:
+                    # Prefer exact amount match first, otherwise most recent
+                    candidate_matches.sort(key=lambda x: (1 if x[2] else 0), reverse=True)
+                    matched_doc = candidate_matches[0][0]
+                    matched_order = candidate_matches[0][1]
+                    print(f"[SePay] Tier 2 matched Phone for Order ID: {matched_order.get('id')}")
+
+            if matched_doc and matched_order:
+                now = datetime.now(timezone.utc)
+                matched_doc.reference.update({
+                    "status": "PAID",
+                    "paid_at": now,
+                    "sepay_transaction_id": payload.get("id"),
+                    "reference_code": payload.get("referenceCode")
+                })
+
+                product_id = matched_order.get("product_id")
+                if product_id:
+                    try:
+                        from google.cloud import firestore as gc_firestore
+                        db.collection("products").document(product_id).set({
+                            "downloads_count": gc_firestore.Increment(1)
+                        }, merge=True)
+                    except Exception as pe:
+                        print(f"Lỗi cập nhật downloads_count: {pe}")
+
+                print(f"Kich hoat file {matched_order.get('product_file_url')} cho {matched_order.get('customer_email')}")
         return json_response({"success": True})
 
     return json_response({"error": "NOT_FOUND"}, 404)
