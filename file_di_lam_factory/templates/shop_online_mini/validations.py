@@ -6,7 +6,10 @@ def apply_validations(orders_ws, cashbook_ws, *, config: dict, list_ranges: dict
     def source(name: str) -> str:
         if name not in list_ranges:
             raise ValueError(f"Missing dropdown catalog: {name}")
-        return f"=shop_{name}"
+        start, end, column = list_ranges[name]
+        # Sheets' XLSX editor cannot resolve Excel OFFSET-defined names.
+        # Reserve capacity in a direct range so new catalog entries still appear.
+        return f"='{config['sheets']['lists']}'!${column}${start}:${column}${end}"
 
     orders_validations = {
         "B": source("channels"),

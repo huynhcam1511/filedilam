@@ -528,6 +528,12 @@
     }
   ],
   "product_quality_standard": {
+    "shop_online_mini_v1_4_1": {
+      "updated_at": "2026-09-18",
+      "issue": "Dropdown nguồn OFFSET-defined name hợp lệ trong Excel nhưng rỗng/báo dải ô không hợp lệ khi mở XLSX bằng Google Sheets.",
+      "fix": "Validation tham chiếu trực tiếp các vùng danh mục dự phòng; bỏ OFFSET trong named ranges. Không dùng kiểm tra tồn tại rule hoặc test Excel thay cho thao tác chọn thực tế trên Google Sheets.",
+      "source": "file_di_lam_factory/templates/shop_online_mini/validations.py"
+    },
     "shop_online_mini_v1_4_0": {
       "updated_at": "2026-09-17",
       "source": "file_di_lam_factory/templates/shop_online_mini/",

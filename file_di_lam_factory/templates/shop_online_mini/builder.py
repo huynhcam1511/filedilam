@@ -331,16 +331,11 @@ def _write_lists_sheet(workbook, worksheet, *, config: dict, sample_data: dict, 
         "flow_types": (3, 4, "R"),
         "cashbook_categories": (3, 2 + config["catalog_capacity"]["cashbook_categories"], "M"),
     }
-    count_columns = {"products": "A", "channels": "G", "cashbook_categories": "K"}
     for name, (start, end, col) in list_ranges.items():
         sheet = config["sheets"]["lists"]
-        count_col = count_columns.get(name)
-        if count_col:
-            formula = f"=OFFSET('{sheet}'!${col}${start},0,0,MAX(1,COUNTA('{sheet}'!${count_col}${start}:${count_col}${end})),1)"
-        else:
-            formula = f"='{sheet}'!${col}${start}:${col}${end}"
+        formula = f"='{sheet}'!${col}${start}:${col}${end}"
         workbook.define_name(f"shop_{name}", formula)
-    worksheet.data_validation(f"J3:J{list_ranges['cashbook_categories'][1]}", {"validate": "list", "source": "=shop_flow_types"})
+    worksheet.data_validation(f"J3:J{list_ranges['cashbook_categories'][1]}", {"validate": "list", "source": f"='{sheet}'!$R$3:$R$4"})
     protect_sheet(worksheet)
     return list_ranges
 

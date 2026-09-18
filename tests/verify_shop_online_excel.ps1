@@ -24,9 +24,9 @@ try {
     Assert-Equal $dashboard.Range('AQ3').Value2 1497000 'Initial product ranking'
     Assert-Equal $dashboard.Range('AN3').Value2 3947000 'Initial income'
     Assert-Equal $dashboard.Range('AN4').Value2 6930000 'Initial expense'
-    Assert-Equal $book.Names.Item('shop_products').RefersToRange.Rows.Count 60 '60 products in dropdown'
-    Assert-Equal $book.Names.Item('shop_channels').RefersToRange.Rows.Count 24 '24 channels in dropdown'
-    Assert-Equal $book.Names.Item('shop_cashbook_categories').RefersToRange.Rows.Count 40 '40 cash categories in dropdown'
+    Assert-Equal $book.Names.Item('shop_products').RefersToRange.Rows.Count 500 'Product source reserves 500 rows'
+    Assert-Equal $book.Names.Item('shop_channels').RefersToRange.Rows.Count 60 'Channel source reserves 60 rows'
+    Assert-Equal $book.Names.Item('shop_cashbook_categories').RefersToRange.Rows.Count 150 'Cash category source reserves 150 rows'
     if ($cash.Range('D203').Validation.Type -notin @(1,2)) {throw 'Amount validation missing'}
     $checks.Add('Amount validation on cash amount')
     Assert-Equal $orders.Range('D203').Validation.Type 3 'Product dropdown reaches last order'
@@ -37,9 +37,9 @@ try {
     $catalog.Range('J43').Value2 = 'Chi'
     $catalog.Range('K43').Value2 = 'Khoan chi kiem thu'
     $excel.CalculateFullRebuild()
-    Assert-Equal $book.Names.Item('shop_products').RefersToRange.Rows.Count 61 'New product extends dropdown'
-    Assert-Equal $book.Names.Item('shop_channels').RefersToRange.Rows.Count 25 'New channel extends dropdown'
-    Assert-Equal $book.Names.Item('shop_cashbook_categories').RefersToRange.Rows.Count 41 'New category extends dropdown'
+    Assert-Equal $book.Names.Item('shop_products').RefersToRange.Rows.Item(61).Value2 $catalog.Range('E63').Value2 'New product appears inside reserved source'
+    Assert-Equal $book.Names.Item('shop_channels').RefersToRange.Rows.Item(25).Value2 'Kenh kiem thu' 'New channel appears inside reserved source'
+    Assert-Equal $book.Names.Item('shop_cashbook_categories').RefersToRange.Rows.Item(41).Value2 $catalog.Range('M43').Value2 'New cash category appears inside reserved source'
     $orders.Range('A203').Value2 = [double][datetime]::Today.ToOADate()
     $orders.Range('B203').Value2 = 'Kenh kiem thu'
     $orders.Range('D203').Value2 = $catalog.Range('E63').Value2
@@ -48,6 +48,8 @@ try {
     $orders.Range('H203').Value2 = [double][datetime]::Today.AddDays(-5).ToOADate()
     $orders.Range('I203').Value2 = 'Mới'
     $excel.CalculateFullRebuild()
+    Assert-Equal $orders.Range('D203').Validation.Value $true 'New product is accepted by validation'
+    Assert-Equal $orders.Range('B203').Validation.Value $true 'New channel is accepted by validation'
     Assert-Equal $dashboard.Range('AA3').Value2 'Kenh kiem thu' 'Channel revenue ranking reacts'
     Assert-Equal $dashboard.Range('AB3').Value2 9000000 'New channel revenue included'
     Assert-Equal $dashboard.Range('AP3').Value2 $catalog.Range('E63').Value2 'New product becomes top seller'

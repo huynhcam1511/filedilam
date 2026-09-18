@@ -28,6 +28,17 @@ class ShopOnlineDashboardTest(unittest.TestCase):
                 self.assertEqual(values['AP3'].value, 'SP06 - Khóa học Canva cơ bản')
                 self.assertEqual(values['AQ3'].value, 1497000)
                 self.assertIn('$A$4:$A$203', dashboard['B7'].value)
+                expected_sources = {
+                    'B4:B203': "'5_DANH_MỤC'!$G$3:$G$62",
+                    'D4:D203': "'5_DANH_MỤC'!$E$3:$E$502",
+                }
+                for rule in wb['1_ĐƠN_HÀNG'].data_validations.dataValidation:
+                    if str(rule.sqref) in expected_sources:
+                        self.assertEqual(rule.formula1, expected_sources[str(rule.sqref)])
+                        self.assertFalse(rule.showDropDown)
+                cash_category_rule = next(v for v in wb['2_THU_CHI'].data_validations.dataValidation if str(v.sqref)=='C4:C203')
+                self.assertEqual(cash_category_rule.formula1, "'5_DANH_MỤC'!$M$3:$M$152")
+                self.assertTrue(all('OFFSET(' not in name.attr_text for name in wb.defined_names.values()))
                 self.assertEqual(cached['5_DANH_MỤC']['D62'].value, 'SP60')
                 for cell in ['D502','E502','L152','M152']:
                     self.assertEqual(wb['5_DANH_MỤC'][cell].data_type, 'f')
