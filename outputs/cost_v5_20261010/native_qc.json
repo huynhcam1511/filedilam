@@ -1,0 +1,182 @@
+[
+  {
+    "pass": true,
+    "test": "Cost cà phê đối chiếu tay",
+    "actual": 11340.0,
+    "expected": 11340
+  },
+  {
+    "pass": true,
+    "test": "Trà mẻ đối chiếu tay",
+    "actual": 26000.0,
+    "expected": 26000
+  },
+  {
+    "pass": true,
+    "test": "Món 11 nhiều thành phần và hai mẻ",
+    "actual": 13300.833333333332,
+    "expected": 13300.833333333332
+  },
+  {
+    "pass": true,
+    "test": "Tổng quan bao phủ món 11",
+    "actual": "M011",
+    "expected": "M011"
+  },
+  {
+    "pass": true,
+    "test": "13 món hợp lệ",
+    "actual": 13.0,
+    "expected": 13
+  },
+  {
+    "pass": true,
+    "test": "Đổi giá cập nhật cost",
+    "actual": 19590.0,
+    "expected": 19590
+  },
+  {
+    "pass": true,
+    "test": "Đổi giá cập nhật mẻ",
+    "actual": 44000.0,
+    "expected": 44000
+  },
+  {
+    "pass": true,
+    "test": "Đổi giá cập nhật món dùng mẻ",
+    "actual": 14800.833333333332,
+    "expected": 14800.8333333333
+  },
+  {
+    "pass": true,
+    "test": "Thiếu giá không ra tổng thiếu",
+    "actual": "",
+    "expected": ""
+  },
+  {
+    "pass": true,
+    "test": "Thiếu giá có cảnh báo",
+    "actual": "Thiếu / sai giá",
+    "expected": "Thiếu / sai giá"
+  },
+  {
+    "pass": true,
+    "test": "Thiếu định lượng chặn cost",
+    "actual": "",
+    "expected": ""
+  },
+  {
+    "pass": true,
+    "test": "Định lượng 0 chặn cost",
+    "actual": "",
+    "expected": ""
+  },
+  {
+    "pass": true,
+    "test": "Trùng mã không lấy bản ghi đầu",
+    "actual": "",
+    "expected": ""
+  },
+  {
+    "pass": true,
+    "test": "Đổi tên giữ liên kết",
+    "actual": 11340.0,
+    "expected": 11340
+  },
+  {
+    "pass": true,
+    "test": "Đổi tên hiển thị ở công thức",
+    "actual": "Cà phê đổi tên",
+    "expected": "Cà phê đổi tên"
+  },
+  {
+    "pass": true,
+    "test": "Xóa mã đang dùng chặn cost",
+    "actual": "",
+    "expected": ""
+  },
+  {
+    "pass": true,
+    "test": "Mẻ lượng thu 0 chặn món liên quan",
+    "actual": "",
+    "expected": ""
+  },
+  {
+    "pass": true,
+    "test": "Không tham chiếu mẻ nhiều tầng",
+    "actual": "",
+    "expected": ""
+  },
+  {
+    "pass": true,
+    "test": "Giá 0 hợp lệ không coi là thiếu",
+    "actual": 3090.0,
+    "expected": 3090
+  },
+  {
+    "pass": true,
+    "test": "Dòng cuối cost đúng",
+    "actual": 60000.0,
+    "expected": 60000
+  },
+  {
+    "pass": true,
+    "test": "Dòng cuối vào bảng tổng quan",
+    "actual": "M060",
+    "expected": "M060"
+  },
+  {
+    "pass": true,
+    "test": "Dòng cuối thay đổi top biểu đồ",
+    "actual": "Món cuối",
+    "expected": "Món cuối"
+  },
+  {
+    "pass": true,
+    "test": "Dropdown cuối vùng có rule",
+    "actual": 3,
+    "expected": 3
+  },
+  {
+    "pass": true,
+    "test": "Dropdown chấp nhận mã mới",
+    "actual": true,
+    "expected": true
+  },
+  {
+    "pass": true,
+    "test": "Sắp xếp toàn bảng giữ cost",
+    "actual": 11340.0,
+    "expected": 11340
+  },
+  {
+    "pass": true,
+    "test": "Ô nhập vẫn mở khóa",
+    "actual": false,
+    "expected": false
+  },
+  {
+    "pass": true,
+    "test": "Công thức khóa",
+    "actual": true,
+    "expected": true
+  },
+  {
+    "pass": true,
+    "test": "Lưu mở lại giữ kết quả",
+    "actual": 11340.0,
+    "expected": 11340
+  },
+  {
+    "pass": true,
+    "test": "Lưu mở lại giữ bảo vệ",
+    "actual": true,
+    "expected": true
+  },
+  {
+    "pass": true,
+    "test": "Không lỗi công thức Excel",
+    "actual": 0,
+    "expected": 0
+  }
+]

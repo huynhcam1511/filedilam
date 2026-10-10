@@ -1,0 +1,19 @@
+{
+  "version": "5.0",
+  "date": "10/10/2026",
+  "capacity": {
+    "ingredients": 200,
+    "batches": 20,
+    "batchLines": 200,
+    "menu": 60,
+    "recipeLines": 600
+  },
+  "samples": {
+    "ingredients": 50,
+    "menu": 13,
+    "batches": 2,
+    "recipeLines": 76
+  },
+  "uiVerification": "pending",
+  "output": "C:/Users/ADMIN-PC/Documents/ANTIGRAVITY/FILE_DI_LAM_MVP/outputs/cost_v5_20261010/File_Di_Lam_Cost_Mon_v5.xlsx"
+}
