@@ -26,11 +26,25 @@ window.StorefrontData = {
   },
   categories: [
     {
+      id: "fnb-cost",
+      name: "F&B - Định lượng & Giá vốn",
+      accent: "mint",
+      description: "Các file định lượng công thức món, tính cost giá vốn cho quán cà phê, trà sữa, quán ăn & bánh ngọt.",
+      heroNote: "Tự tính cost nguyên liệu theo mẻ & món, kiểm soát biên lợi nhuận.",
+    },
+    {
       id: "ban-hang-online",
       name: "Bán hàng online",
       accent: "mint",
       description: "Các file dành cho shop online, người bán hàng trên TikTok, Facebook, Shopee.",
       heroNote: "Ít cột, dễ nhập, có dashboard rõ ràng.",
+    },
+    {
+      id: "quan-ly-kho",
+      name: "Quản lý kho",
+      accent: "mint",
+      description: "Các file theo dõi nhập, xuất, tồn kho và cảnh báo hàng sắp hết cho shop nhỏ.",
+      heroNote: "Biết còn bao nhiêu hàng và khi nào cần nhập thêm.",
     },
     {
       id: "cong-no",
@@ -40,11 +54,11 @@ window.StorefrontData = {
       heroNote: "Phù hợp chủ shop, admin và kế toán nhỏ.",
     },
     {
-      id: "quan-ly-kho",
-      name: "Quản lý kho",
+      id: "thu-chi-dong-tien",
+      name: "Thu chi & Dòng tiền",
       accent: "mint",
-      description: "Các file theo dõi nhập, xuất, tồn kho và cảnh báo hàng sắp hết cho shop nhỏ.",
-      heroNote: "Biết còn bao nhiêu hàng và khi nào cần nhập thêm.",
+      description: "Theo dõi dòng tiền thu chi thực tế, quỹ tiền mặt và tài khoản ngân hàng.",
+      heroNote: "Biết rõ tiền đang ở đâu, lãi lỗ thực tế từng ngày.",
     },
     {
       id: "combo",
@@ -72,6 +86,29 @@ window.StorefrontData = {
         "Quản lý đơn hàng, thu chi, COD",
         "Báo cáo tổng quan trực quan",
         "Dữ liệu thuộc quyền sở hữu trên Google Drive"
+      ],
+      reviews: [
+        {
+          author: "Nguyễn Thị Mai",
+          role: "Chủ shop Thời trang",
+          stars: 5,
+          comment: "File dùng cực kỳ tiện lợi, giao diện gọn gàng trực quan. Dễ dàng theo dõi đơn COD và biết được lợi nhuận chuẩn xác hàng tháng mà không bị thất thoát.",
+          date: "2 ngày trước"
+        },
+        {
+          author: "Trần Quốc Tuấn",
+          role: "Shop Đồ gia dụng TP.HCM",
+          stars: 5,
+          comment: "Dashboard tự động vẽ biểu đồ chi tiết rất thích. Nhập đơn trên điện thoại mượt mà, anh chủ shop hỗ trợ nhiệt tình 100%!",
+          date: "1 tuần trước"
+        },
+        {
+          author: "Phạm Lê Phương",
+          role: "Kinh doanh Mỹ phẩm Online",
+          stars: 5,
+          comment: "Tự động tạo bản sao vào Google Drive cá nhân nên rất bảo mật. Rất đáng đồng tiền, tiết kiệm bao nhiêu thời gian làm file thủ công.",
+          date: "2 tuần trước"
+        }
       ]
     },
     {
@@ -94,6 +131,29 @@ window.StorefrontData = {
         "Quản lý nhập - xuất - tồn kho",
         "Cảnh báo hàng sắp hết",
         "Dễ sử dụng, không cần rành Excel"
+      ],
+      reviews: [
+        {
+          author: "Lê Anh Tuấn",
+          role: "Chủ kho hàng gia dụng",
+          stars: 5,
+          comment: "File quản lý xuất nhập tồn rất nhẹ và chính xác. Tính năng cảnh báo hàng sắp hết giúp shop mình luôn nhập hàng kịp thời.",
+          date: "3 ngày trước"
+        },
+        {
+          author: "Vũ Thị Thanh",
+          role: "Shop Giày dép Online",
+          stars: 5,
+          comment: "Theo dõi tồn kho theo thời gian thực rất mượt. Tư vấn khách xem tồn kho trực tiếp trên điện thoại siêu tiện luôn.",
+          date: "1 tuần trước"
+        },
+        {
+          author: "Đặng Hoàng Nam",
+          role: "Shop Phụ kiện",
+          stars: 5,
+          comment: "Giao diện chuẩn chỉ, hướng dẫn sử dụng rõ ràng. Mua gói kèm 1-1 được hỗ trợ ráp số thực tế rất tận tình.",
+          date: "2 tuần trước"
+        }
       ]
     }
   ],

@@ -1,4 +1,48 @@
 {
+  "adam_voiceover_style_20261018": {
+    "speaker": "chồng",
+    "audience": "con vợ",
+    "style": "Tự nhiên, gần gũi, câu ngắn để đọc thành tiếng; hook tình huống thật, tránh quảng cáo gượng và khẩu hiệu.",
+    "scope": "Lời thoại giới thiệu/lồng tiếng Adam, không áp vào giao diện ứng dụng.",
+    "canonical_source": "PIPELINE_FILE_DI_LAM_FACTORY.md — Giọng lời thoại giới thiệu sản phẩm — lồng tiếng Adam",
+    "timing": "Khoảng một phút phải căn theo tốc độ đọc; chưa có bản thu đo thời lượng."
+  },
+  "packaging_split_20261018": {
+    "decision": "Module Bao bì riêng, cùng nguồn giá vật tư; loại materialType độc lập tên nhóm.",
+    "rules": "Dropdown thành phần chỉ nguyên liệu/mẻ; dropdown bao bì chỉ bao bì. Kiểm tra server, giữ dòng lịch sử và cost; không tự xóa dòng khác loại.",
+    "evidence": "outputs/fnb_cost_v10/packaging-tests.json; test-catalog-browser.cjs; Packaging.gs; PackagingUI.js"
+  },
+  "cost_load_help_dashboard_20261018": {
+    "root_causes": "Bootstrap dựng/protect Sheet nhiều lần; repeated reads; getEffectiveUser thiếu userinfo.email; anchor Help với base target=_top thoát iframe; dashboard mới có 4 charts.",
+    "fix": "Cache bảng riêng từng request và invalidate sau write. Không refresh Sheet khi đọc bootstrap. Bỏ API identity khỏi protection. Help preventDefault + scroll/focus. Web dashboard 4 KPI + 6 charts, lọc nhất quán.",
+    "evidence": "outputs/fnb_cost_v10/performance-tests.json; experience-tests.json; Experience.js; Experience.css",
+    "limits": "Call-count fixture không chứng minh thời gian live. Không mở scope mới để che lỗi. Không suy diễn dữ liệu doanh thu."
+  },
+  "default_prompt_to_product_workflow_20261018": {
+    "owner_preference": "Chỉ đưa prompt; agent tự làm Sheet, Apps Script gắn sẵn, webapp, cấu hình, deploy và kiểm tra. Người dùng mở menu trong bản sao là dùng ứng dụng, không chép code hay nối link.",
+    "upgrade_policy": "Nâng cấp cùng sản phẩm dùng lại file/host/link ổn định, giữ dữ liệu; không tạo thêm project/link không cần thiết.",
+    "boundary": "Có thể cần Google cấp quyền lần đầu. Chỉ hỏi thao tác tối thiểu khi bị chặn thật; không tuyên bố CLI bootstrap một lệnh đã tồn tại.",
+    "canonical_source": "PIPELINE_FILE_DI_LAM_FACTORY.md"
+  },
+  "cost_complete_catalogs_20261018": {
+    "lesson": "Danh mục phải bao phủ cả nguyên liệu, mẻ và món: nhóm riêng, đơn vị dùng đúng vai trò, đơn vị bán và size tùy chọn.",
+    "rules": "Size là nhãn không tự nhân định lượng. Đổi nhóm giữ ID/cost; chặn relabel đơn vị/size đang dùng. Nâng cấp chỉ thêm cột, không tự đoán phân loại dữ liệu cũ.",
+    "evidence": "outputs/fnb_cost_v10/recipe-catalog-tests.json; test-catalog-browser.cjs; product-catalog-preview.png",
+    "status": "Đã kiểm tra services và trình duyệt fixture; lưu Apps Script live còn chờ OAuth."
+  },
+  "cost_app_first_sheet_views_20261018": {
+    "decision": "Webapp nhập liệu; Google Sheet đẹp với BẮT ĐẦU và TỔNG QUAN. Ẩn/bảo vệ bảng kỹ thuật, chủ file vẫn có quyền gỡ.",
+    "implementation": "Schema gate trước RPC; common cost engine -> report snapshot -> formula KPI/ranking/charts. Backup trước khôi phục bố cục, không reset nghiệp vụ. Bound onOpen cập nhật hyperlink theo bản sao.",
+    "lesson": "Kiểm tra effectiveValue theo locale vi_VN. Không coi công thức tồn tại là đã tính được; chart series phải đọc lại sau khi nguồn tính thành công.",
+    "evidence": "outputs/fnb_cost_v10/workbook-tests.json; WorkbookPlan.gs; Workbook.gs; workbook-requests.json",
+    "unverified": "Apps Script repair và live save sau OAuth; quyền cộng tác viên/tài khoản khách khác"
+  },
+  "cost_v10_catalog_learning_20261018": {
+    "lesson": "Khai báo nhóm và đơn vị tập trung trong Danh mục; form nghiệp vụ chọn dropdown từ cùng nguồn trong bản sao khách.",
+    "implemented": "V10_CATALOGS, giữ lựa chọn cũ, đổi tên nhóm đồng bộ, chặn đổi đơn vị đang dùng, xác thực phía server",
+    "evidence": "outputs/fnb_cost_v10/catalog-tests.json; test-catalog-browser.cjs; catalog-dropdown-preview.png; deployment.json",
+    "limits": "Đã kiểm tra fixture trình duyệt; lưu Apps Script live còn chờ cấp quyền Google."
+  },
   "product_quality_standard": {
     "sources": [
       "FILE_DI_LAM_BRAND.json",
@@ -79,6 +123,35 @@
       "purchase_batches": "Có nhật ký mua 200 dòng, mỗi lần mua một dòng, giá đơn vị theo từng lô; chưa nối xuất kho FIFO hoặc cost thực tế theo ngày",
       "release_gap": "Cần xây FIFO gắn với lượng bán/xuất dùng, kiểm tra biểu đồ và giao diện thật trên Google Sheets trước khi bán"
     },
+    "cost_v5_2026_10_10": {
+      "status": "Đã tạo bản kiểm tra XLSX, chưa xác nhận sẵn sàng phát hành",
+      "file": "outputs/cost_v5_20261010/File_Di_Lam_Cost_Mon_v5.xlsx",
+      "structure": [
+        "BẮT ĐẦU",
+        "TỔNG QUAN",
+        "MÓN",
+        "CÔNG THỨC",
+        "MẺ",
+        "NGUYÊN LIỆU"
+      ],
+      "scope": "Cost món/size; nhiều dòng thành phần; bao bì tổng hợp riêng; mẻ một tầng dùng nguyên liệu gốc; đơn vị cạnh định lượng; mã ổn định; dữ liệu thiếu/sai chặn cost liên quan; ngày dd/mm/yyyy. Không kho, FIFO hoặc giá lịch sử.",
+      "capacity": {
+        "ingredients": 200,
+        "batches": 20,
+        "batch_lines": 200,
+        "dishes": 60,
+        "dish_lines": 600
+      },
+      "sample_counts": {
+        "ingredients": 50,
+        "batches": 2,
+        "dishes": 13
+      },
+      "verified": "Preview 6 sheet; 30 kiểm tra Excel COM đạt, gồm đối chiếu độc lập, đổi giá, thiếu dữ liệu, mã trùng/đổi tên/xóa, sắp xếp, dòng cuối, top biểu đồ, bảo vệ và lưu/mở lại; kiểm tra bản sạch trong bộ nhớ đạt và không lưu dữ liệu thử.",
+      "not_verified": "Công cụ UI Excel không xác nhận được nhập đường dẫn trong hộp Open, có lỗi cached app state. Chưa bấm chọn dropdown thực tế; chưa thử Google Sheets. Validation.Type/Value qua COM không phải bằng chứng thao tác UI.",
+      "dashboard": "4 chỉ số đếm/phát hiện lỗi, 2 biểu đồ top 8 từ toàn bộ món hợp lệ, bảng chi tiết phủ 60 món.",
+      "evidence": "outputs/cost_v5_20261010/QA.md và native_qc.json"
+    },
     "cost_simple_v4_2026_09_16": {
       "status": "Đã tạo bản đơn giản 3 sheet",
       "structure": "BẮT ĐẦU, TÍNH COST, TỔNG QUAN",
@@ -86,6 +159,224 @@
       "scope": "Không FIFO, không tồn kho, không nhật ký mua",
       "file": "outputs/cost_simple_v4/file_di_lam_tinh_cost_mon_v4.xlsx",
       "quality": "50 nguyên liệu mẫu, 30 dòng món, 10 món mẫu, 4 KPI, 6 biểu đồ, pastel hồng, công thức và dropdown phủ vùng nhập"
+    }
+  },
+  "learned_workbook_frameworks": {
+    "shop_online_mini": {
+      "learned_on": "2026-10-07",
+      "purpose": "Khung tham chiếu để thiết kế và bảo trì file quản lý shop: hướng dẫn, thiết lập, danh mục, nhập nghiệp vụ, tính toán, báo cáo và kiểm thử.",
+      "evidence": {
+        "source_version": "1.4.1 trong config; không đồng nghĩa mọi file đã xuất là 1.4.1",
+        "source_paths": [
+          "file_di_lam_factory/templates/shop_online_mini/config.json",
+          "file_di_lam_factory/templates/shop_online_mini/builder.py",
+          "file_di_lam_factory/templates/shop_online_mini/formulas.py",
+          "file_di_lam_factory/templates/shop_online_mini/chart_formulas.py",
+          "file_di_lam_factory/templates/shop_online_mini/dashboard.py",
+          "file_di_lam_factory/templates/shop_online_mini/validations.py",
+          "file_di_lam_factory/templates/shop_online_mini/sample_data.json",
+          "file_di_lam_factory/templates/shop_online_mini/qc.py",
+          "file_di_lam_factory/design_systems/pastel_feminine_spring.json",
+          "file_di_lam_factory/core/build.py"
+        ],
+        "local_file_inspected": "outputs/shop_online_fix_20260917/Shop_Online_Mini_v1.4.0.xlsx",
+        "scope": "Học từ mã nguồn hiện tại, cấu trúc file cục bộ và bằng chứng kiểm thử trong cuộc trao đổi. Không kiểm định lại bản Google Sheets trực tuyến ngày 2026-10-07.",
+        "version_drift_observed": "File cục bộ còn validation qua shop_* named ranges và cả 7 sheet không bật sheet protection. Mã nguồn 1.4.1 dùng tham chiếu vùng trực tiếp và có cơ chế khóa sheet. Không lấy trạng thái mã nguồn làm bằng chứng cho file đang giao."
+      },
+      "audience": "Chủ shop nhỏ, ít kinh nghiệm Excel/Sheets; cần nhập ít, chọn danh mục và nhìn được kết quả ngay.",
+      "workflow": [
+        "Điền thông tin shop tại BẮT ĐẦU.",
+        "Chuẩn bị danh mục sản phẩm, kênh bán, thu chi và các lựa chọn.",
+        "Nhập đơn hàng và các giao dịch thu chi.",
+        "Liên kết khoản nhận COD với mã đơn để tính số tiền còn chờ.",
+        "Xem KPI, cơ cấu, xếp hạng và tình trạng COD trên TỔNG QUAN."
+      ],
+      "sheets": [
+        {
+          "name": "0_BẮT_ĐẦU",
+          "role": "Thiết lập và hướng dẫn",
+          "content": "Tên shop, hotline, kênh liên hệ, địa chỉ, mô tả, logo; các bước sử dụng, quy ước màu, vai trò từng sheet, phiên bản và thời gian build.",
+          "editable": "Thông tin shop; hướng dẫn và thông tin hệ thống không phải vùng nhập nghiệp vụ."
+        },
+        {
+          "name": "1_ĐƠN_HÀNG",
+          "role": "Nhập đơn",
+          "input_range": "A4:J203",
+          "input_fields": [
+            "Ngày đơn",
+            "Kênh bán",
+            "Khách hàng",
+            "Sản phẩm",
+            "Tổng đơn",
+            "Thanh toán",
+            "Vận chuyển",
+            "Ngày tiền về",
+            "Trạng thái đơn",
+            "Ghi chú"
+          ],
+          "formula_range": "K4:M203",
+          "formula_fields": [
+            "Mã đơn",
+            "Tiền COD",
+            "Trạng thái COD"
+          ],
+          "grain": "Một dòng ghi một đơn với một nhãn sản phẩm; chưa có bảng chi tiết nhiều sản phẩm trong cùng đơn."
+        },
+        {
+          "name": "2_THU_CHI",
+          "role": "Nhập dòng tiền thực tế",
+          "input_range": "A4:F203",
+          "input_fields": [
+            "Ngày",
+            "Thu / Chi",
+            "Danh mục thu chi",
+            "Số tiền",
+            "Mã đơn liên quan",
+            "Diễn giải"
+          ],
+          "formula_range": "G4:G203",
+          "formula_fields": [
+            "Mã giao dịch"
+          ],
+          "grain": "Một dòng là một giao dịch tiền; có thể nhiều khoản nhận tiền cho cùng mã đơn."
+        },
+        {
+          "name": "3_THEO_DÕI_COD",
+          "role": "Đối soát tự tính",
+          "range": "A4:H203",
+          "fields": [
+            "Mã đơn",
+            "Khách hàng",
+            "Đơn vị giao",
+            "Ngày tiền về",
+            "Tiền COD",
+            "Đã nhận",
+            "Còn chờ",
+            "Tình trạng"
+          ],
+          "editable": "Không nhập lại dữ liệu; đọc ĐƠN_HÀNG và THU_CHI."
+        },
+        {
+          "name": "4_TỔNG_QUAN",
+          "role": "Báo cáo chỉ xem",
+          "layout": "Thông tin shop phía trên; 4 KPI; 6 biểu đồ bố trí hai cột, ba hàng; vùng nguồn biểu đồ ở các cột ẩn AA:BA.",
+          "editable": "Không nhập số tổng hợp thủ công vào biểu đồ hoặc KPI."
+        },
+        {
+          "name": "5_DANH_MỤC",
+          "role": "Nguồn lựa chọn dùng chung",
+          "blocks": {
+            "A:E": "Tên sản phẩm, nhóm, giá gợi ý, mã tự tạo, nhãn chọn",
+            "G:H": "Kênh bán và ghi chú",
+            "J:M": "Loại thu/chi, tên danh mục, mã tự tạo, nhãn chọn",
+            "O:R": "Thanh toán, vận chuyển, trạng thái đơn, Thu/Chi"
+          },
+          "editable": "Tên và thuộc tính danh mục được sửa; cột mã/nhãn tự tính cần được bảo vệ."
+        },
+        {
+          "name": "6_HỆ_THỐNG",
+          "role": "Metadata",
+          "visibility": "Ẩn",
+          "content": "Nhận diện template, phiên bản, thời gian build và thông tin sản xuất file."
+        }
+      ],
+      "data_dependencies": [
+        "BẮT ĐẦU cấp tên và thông tin shop cho TỔNG QUAN.",
+        "DANH MỤC cấp dropdown cho ĐƠN HÀNG và THU CHI.",
+        "ĐƠN HÀNG cấp mã đơn, khách, vận chuyển, ngày tiền về và COD dự kiến cho THEO DÕI COD.",
+        "THU CHI cấp khoản nhận COD theo mã đơn cho THEO DÕI COD và trạng thái COD ở ĐƠN HÀNG.",
+        "Dữ liệu đơn, dòng tiền và số dư COD cấp bảng tổng hợp bằng công thức; biểu đồ tham chiếu bảng tổng hợp đó. Báo cáo không ghi ngược vào đầu vào."
+      ],
+      "business_logic_observed": {
+        "order_id": "DH- + ngày yymmdd + số thứ tự dựa trên dòng; sinh khi nhập ngày.",
+        "transaction_id": "PT- hoặc PC- theo Thu/Chi + ngày + số thứ tự dòng.",
+        "expected_cod": "Tổng đơn nếu thanh toán COD, ngược lại bằng 0.",
+        "received_cod": "SUMIFS số tiền THU CHI theo loại Thu, danh mục T01 - Nhận COD và mã đơn khớp.",
+        "outstanding_cod": "MAX(COD dự kiến - COD đã nhận, 0).",
+        "cod_aging": "So ngày tiền về với TODAY(): trong hạn, trễ 1–3 ngày, 4–7 ngày và trên 7 ngày.",
+        "order_count": "COUNT cột ngày đơn, tránh đếm ô công thức trả chuỗi rỗng.",
+        "revenue_label": "KPI ghi Doanh thu nhưng công thức hiện cộng Tổng đơn, chưa lọc Hoàn/Hủy.",
+        "net_cashflow": "Tổng giao dịch Thu trừ tổng giao dịch Chi; không phải lợi nhuận."
+      },
+      "dashboard": {
+        "kpis": [
+          "Tổng đơn",
+          "Doanh thu theo định nghĩa hiện tại",
+          "COD chờ về",
+          "Dòng tiền ròng"
+        ],
+        "charts": [
+          "Doanh thu theo kênh: Top 7 và phần còn lại",
+          "Số đơn theo kênh: Top 7 và phần còn lại",
+          "Cơ cấu trạng thái đơn",
+          "Thu và chi",
+          "Top 5 sản phẩm theo doanh thu",
+          "COD chờ về theo nhóm quá hạn"
+        ],
+        "ranking": "Tổng hợp toàn bộ danh mục, xếp hạng bằng công thức, dùng thứ tự danh mục để phân biệt đồng hạng; nhóm kênh còn lại giữ đủ tổng.",
+        "live_data_rule": "Số liệu dẫn xuất và nhãn xếp hạng phải là công thức; cache chỉ phục vụ hiển thị ban đầu. Biểu đồ phải đọc được vùng nguồn đang ẩn.",
+        "filter_status": "Mã hiện tại không có bộ lọc kỳ báo cáo; không mô tả file là có bộ lọc thời gian nếu chưa triển khai."
+      },
+      "capacity": {
+        "orders": 200,
+        "cash_transactions": 200,
+        "cod_tracking": 200,
+        "products": {
+          "sample_count": 60,
+          "prepared_capacity": 500,
+          "dropdown_source": "'5_DANH_MỤC'!$E$3:$E$502"
+        },
+        "channels": {
+          "sample_count": 24,
+          "prepared_capacity": 60,
+          "dropdown_source": "'5_DANH_MỤC'!$G$3:$G$62"
+        },
+        "cash_categories": {
+          "sample_count": 40,
+          "prepared_capacity": 150,
+          "dropdown_source": "'5_DANH_MỤC'!$M$3:$M$152"
+        },
+        "sample_transactions": "14 đơn và 14 giao dịch thu chi; không nhầm số mẫu với sức chứa.",
+        "extension_rule": "Thêm trong vùng dự phòng được chuẩn bị sẵn. Khi vượt sức chứa phải mở rộng đồng bộ công thức, dropdown, định dạng, bảo vệ, nguồn báo cáo và kiểm thử."
+      },
+      "presentation": {
+        "palette": {
+          "primary_rose": "#C88FA1",
+          "input_pink": "#FFF3F7",
+          "formula_blue": "#EEF7FC",
+          "guide_yellow": "#FFF8DB",
+          "lavender": "#CFC5E9",
+          "mint": "#B9E1D6",
+          "background": "#FFFDFB"
+        },
+        "meaning": "Màu phân biệt ô nhập, ô tự tính, hướng dẫn và trạng thái; không chỉ trang trí.",
+        "tables": "Hai dòng tiêu đề/hướng dẫn, dòng 3 là header, nhập từ dòng 4; bộ lọc và cố định vùng nhận diện để đọc bảng dài.",
+        "numbers": "Lưu ngày và tiền dưới dạng số đúng kiểu; định dạng ngày/tiền và dấu phân tách hàng nghìn; biểu đồ tiền có thể hiển thị triệu đồng.",
+        "fonts": "Design tokens dùng Aptos/Aptos Display; bản xuất được kiểm tra có nhiều font. Khi tái sử dụng cần chọn và kiểm tra font tiếng Việt nhất quán trên ứng dụng đích, không coi font hiện tại là chuẩn đã hoàn thiện."
+      },
+      "factory_structure": {
+        "config.json": "Cấu trúc sheet, cột, sức chứa, nội dung hướng dẫn, vị trí KPI và phiên bản.",
+        "sample_data.json": "Thông tin shop và dữ liệu minh họa; không phải dữ liệu kinh doanh thật.",
+        "builder.py": "Lắp ráp sheet, vùng nhập/tự tính, định dạng, danh mục và bảo vệ.",
+        "formulas.py": "Công thức nghiệp vụ và tính cache minh họa.",
+        "chart_formulas.py": "Nguồn biểu đồ, tổng hợp danh mục và xếp hạng động.",
+        "dashboard.py": "Bố trí KPI, biểu đồ và liên kết series.",
+        "validations.py": "Quy tắc chọn danh mục và nhập số; tham chiếu trực tiếp vùng nguồn cho tính tương thích.",
+        "qc.py_and_tests": "Kiểm tra cấu trúc, công thức, sức chứa và hồi quy; phải bổ sung thao tác thực tế trên ứng dụng đích.",
+        "core_build": "Nạp config/dữ liệu/design tokens, tạo workbook, chạy QC, ghi báo cáo QC và manifest theo phiên bản."
+      },
+      "do_not_copy_blindly": [
+        "Mã đơn và mã sản phẩm theo ROW có thể đổi khi sửa ngày, chèn hoặc sắp xếp dòng; cần thiết kế khóa định danh ổn định nếu cho phép các thao tác này.",
+        "Đơn đang lưu nhãn sản phẩm dưới dạng văn bản; đổi tên danh mục không tự đổi nhãn lịch sử, có thể làm mất khớp tổng hợp theo sản phẩm.",
+        "Công thức nhận COD phụ thuộc đúng chuỗi T01 - Nhận COD; đổi tên/mã danh mục này có thể làm sai đối soát.",
+        "Trạng thái COD ở ĐƠN HÀNG dùng sự tồn tại của giao dịch Thu COD; không chứng minh tiền đã nhận đủ. Sheet THEO DÕI COD dùng số dư để xác định nhận đủ.",
+        "COD dự kiến chưa loại đơn Hoàn/Hủy; tổng doanh thu cũng chưa loại các trạng thái này. Cần chốt định nghĩa nghiệp vụ trước khi dùng làm báo cáo thực tế.",
+        "Một đơn nhiều sản phẩm, số lượng, giảm giá, giá vốn, tồn kho và lợi nhuận chưa được mô hình hóa; không quảng bá là chức năng đã có.",
+        "Quy tắc khóa sheet trong code không chứng minh bản xuất hoặc bản Google Sheets còn khóa. Phải kiểm tra file giao cuối cùng.",
+        "Không tái dùng dropdown nguồn OFFSET-defined name cho Google Sheets khi chưa kiểm chứng tương thích; tham chiếu trực tiếp vùng dự phòng đã giải quyết lỗi được ghi nhận."
+      ],
+      "reuse_policy": "Khi làm file mới có thể tái dùng vai trò sheet, luồng nhập → tính → báo cáo, quy ước màu, danh mục nguồn chung, sức chứa chuẩn bị sẵn và cổng kiểm thử. Điều chỉnh số sheet, KPI, biểu đồ và quy tắc nghiệp vụ theo bài toán; không ép mọi file thành 7 sheet hoặc sao chép lỗi cũ. Đọc mục này cùng product_quality_standard và dropdown_incident_2026_09_18 trước khi triển khai.",
+      "learning_status": "Đã lưu khung và giới hạn vào bộ nhớ dự án; không sửa workbook hoặc xác nhận lại chất lượng phát hành trong lượt học này."
     }
   },
   "marketing_learnings": [
@@ -113,5 +404,63 @@
         "phần mềm quản lý bán hàng"
       ]
     }
-  ]
+  ],
+  "design_and_architecture_decision_2026_10_14": {
+    "status": "Đã hợp nhất tài liệu; chưa sửa workbook theo cấu trúc mới",
+    "canonical_docs": [
+      "AGENTS.md",
+      "system_filedilam.md"
+    ],
+    "audience": "Người rất ít hoặc chưa quen dùng máy tính",
+    "workflow": "BẮT ĐẦU + DANH MỤC + 1–2 trang nhập nghiệp vụ có kết quả ngay + TỔNG QUAN; hệ thống ẩn khi cần",
+    "visual_reference": "Shop Online Mini 1.4.0: tái sử dụng format, màu và layout; không tự thay bằng bảng text thô",
+    "dashboard": "Giữ chuẩn 4 KPI và 6 biểu đồ hữu ích, nguồn công thức động",
+    "lesson": "Giới hạn 1–2 nơi nhập thường xuyên không phải giới hạn tổng số sheet. Danh mục là thiết lập; tổng quan là xem. Tính đúng không thay thế dễ dùng và đẹp.",
+    "cost_layout": "Danh mục nguyên liệu/bao bì; TÍNH COST MÓN kết hợp khai báo món và định lượng/kết quả; TÍNH MẺ là trang nhập thứ hai khi cần; tổng quan riêng",
+    "preserved_requirements": [
+      "dd/mm/yyyy",
+      "dropdown chọn thật",
+      "không che thiếu dữ liệu",
+      "mã ổn định",
+      "bảo vệ không cản nhập",
+      "thử trên ứng dụng đích"
+    ]
+  },
+  "cost_webapp_pipeline_learning_2026_10_18": {
+    "status": "Đã ghi nhớ quy trình; chưa tuyên bố Web App V1 hoàn tất",
+    "v10_copy_first_delivery": {
+      "customer_workflow": "Bán link Google Sheet /copy; bản sao mang script; menu tự có; mở ứng dụng và cấp quyền lần đầu. KHÔNG yêu cầu khách dán code, /exec hoặc deploy.",
+      "source": "outputs/fnb_cost_v10",
+      "architecture": "Bound launcher gắn sẵn + shared host USER_ACCESSING; ID bản sao đi trong từng RPC; không UserProperties last-target và không fallback master.",
+      "actual_evidence": "Đã tạo/deploy V10 qua API; browser /copy thực tế xác nhận script copied và menu xuất hiện; 13 routing/launcher tests pass.",
+      "remaining_gate": "Google unverified-app warning cần user cấp quyền; chưa test live write hoặc tài khoản khách khác; chưa phát hành bán."
+    },
+    "premium_ui_8_1_evidence": {
+      "source": "outputs/fnb_cost_v8_webapp",
+      "installer": "install/Code.gs + install/WebApp.html; chỉ dán hai file đã bundle",
+      "verified_local": "21 calculation/CRUD fixture cases và 33 Chrome browser checks; ảnh từng trang ở desktop/tablet/mobile",
+      "not_verified": "Chưa deploy hoặc test trực tiếp Apps Script/Google Sheets của bản UI 8.1",
+      "lesson": "Không đặt form thành phần ngoài vùng trang; chỉ hiển thị trong Recipe Builder. Gói cài chỉ chứa file cần dán, có bản txt để tránh mở HTML thành trang web. Không lấy syntax check làm bằng chứng workflow hoạt động."
+    },
+    "source_of_truth": [
+      "outputs/quan_ly_kho_mini_smart_gas",
+      "project-brain/06_PIPELINE.md",
+      "project-brain/10_CURRENT_STATE.md"
+    ],
+    "fast_pipeline": [
+      "Kiểm tra shell Smart GAS và deployment hiện có",
+      "Tạo Spreadsheet ID và Apps Script project riêng cho sản phẩm",
+      "Chuẩn hóa schema và mã ổn định",
+      "Làm vertical slice nguyên liệu → mẻ → món → dashboard",
+      "Tái sử dụng sidebar, navigation, card và responsive layout đã chạy",
+      "Test persistence, menu, form, công thức và browser trước khi giao"
+    ],
+    "hard_lessons": [
+      "Không tạo dashboard bảng đơn giản rồi gọi là webapp hoàn chỉnh",
+      "Không ghi đè file nguồn hoặc Apps Script sản phẩm khác",
+      "Không dùng ScriptApp.getService().getUrl() trước deployment mà không chặn null",
+      "Không coi code local hoặc import Google Sheet là đã deploy và chạy thật",
+      "Mỗi nút sidebar phải gọi một chức năng thật; tài liệu phải ghi đúng trạng thái đã làm và chưa kiểm tra"
+    ]
+  }
 }
