@@ -5,6 +5,48 @@ document.addEventListener('DOMContentLoaded', () => {
   const adminSection = document.getElementById('adminSection');
   const loginBtn = document.getElementById('loginBtn');
   const logoutBtn = document.getElementById('logoutBtn');
+  const sidebarToggleBtn = document.getElementById('sidebarToggleBtn');
+
+  // Khôi phục trạng thái sidebar từ localStorage
+  const isSidebarCollapsed = localStorage.getItem('admin_sidebar_collapsed') === 'true';
+  if (isSidebarCollapsed && adminSection) {
+    adminSection.classList.add('sidebar-collapsed');
+    document.body.classList.add('is-sidebar-collapsed');
+  }
+
+  const floatingBurgerBtn = document.getElementById('floatingBurgerBtn');
+
+  function updateBurgerVisibility(collapsed) {
+    if (floatingBurgerBtn) {
+      floatingBurgerBtn.style.display = collapsed ? 'inline-flex' : 'none';
+    }
+  }
+
+  updateBurgerVisibility(isSidebarCollapsed);
+
+  if (floatingBurgerBtn) {
+    floatingBurgerBtn.addEventListener('click', () => {
+      if (!adminSection) return;
+      adminSection.classList.remove('sidebar-collapsed');
+      document.body.classList.remove('is-sidebar-collapsed');
+      updateBurgerVisibility(false);
+      try {
+        localStorage.setItem('admin_sidebar_collapsed', 'false');
+      } catch (e) {}
+    });
+  }
+
+  if (sidebarToggleBtn) {
+    sidebarToggleBtn.addEventListener('click', () => {
+      if (!adminSection) return;
+      const collapsed = adminSection.classList.toggle('sidebar-collapsed');
+      document.body.classList.toggle('is-sidebar-collapsed', collapsed);
+      updateBurgerVisibility(collapsed);
+      try {
+        localStorage.setItem('admin_sidebar_collapsed', collapsed ? 'true' : 'false');
+      } catch (e) {}
+    });
+  }
   
   const productForm = document.getElementById('productForm');
   const submitBtn = document.getElementById('submitBtn');
@@ -54,7 +96,42 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   // --- AUTH LOGIC ---
+  // Profile chip dropdown toggle
+  const profileChip = document.getElementById('profileChip');
+  const profileDropdown = document.getElementById('profileDropdown');
+  if (profileChip && profileDropdown) {
+    profileChip.addEventListener('click', (e) => {
+      e.stopPropagation();
+      profileDropdown.classList.toggle('show');
+    });
+    document.addEventListener('click', () => {
+      profileDropdown.classList.remove('show');
+    });
+  }
+
+  // --- AUTH LOGIC ---
   auth.onAuthStateChanged(user => {
+    if (user && user.email === ADMIN_EMAIL) {
+      const adminDisplayName = document.getElementById('adminDisplayName');
+      const adminDisplayEmail = document.getElementById('adminDisplayEmail');
+      const adminAvatarImg = document.getElementById('adminAvatarImg');
+      const name = user.displayName || 'Kien Cam Huynh';
+      if (adminDisplayName) adminDisplayName.textContent = name;
+      if (adminDisplayEmail) adminDisplayEmail.textContent = user.email || ADMIN_EMAIL;
+      
+      const fallbackAvatar = `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=059669&color=fff&size=64&bold=true`;
+      if (adminAvatarImg) {
+        adminAvatarImg.onerror = () => {
+          adminAvatarImg.onerror = null;
+          adminAvatarImg.src = fallbackAvatar;
+        };
+        if (user.photoURL) {
+          adminAvatarImg.src = user.photoURL;
+        } else {
+          adminAvatarImg.src = fallbackAvatar;
+        }
+      }
+    }
     if (user) {
       if (user.email === ADMIN_EMAIL) {
         loginSection.classList.add('hidden');
@@ -115,115 +192,165 @@ document.addEventListener('DOMContentLoaded', () => {
   async function loadProducts() {
     try {
       const snapshot = await db.collection('products').get();
-      productListBody.innerHTML = '';
       currentProducts = [];
       
-      if (snapshot.empty) {
-        productListBody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: var(--muted); padding: 32px;">Chưa có sản phẩm nào.</td></tr>';
-        return;
-      }
-
       snapshot.forEach(doc => {
-        const p = doc.data();
-        currentProducts.push({ ...p, id: doc.id });
-        const tr = document.createElement('tr');
-        
-        const catMap = {
-          'ban-hang-online': 'Bán hàng online',
-          'cong-no': 'Công nợ',
-          'quan-ly-kho': 'Quản lý kho',
-          'combo': 'Combo tiết kiệm'
-        };
-        const catName = catMap[p.categoryId] || p.categoryId;
-
-        tr.innerHTML = `
-          <td>
-            <div style="width: 50px; height: 50px; border-radius: 6px; background-image: url('${p.previewImageUrl || ''}'); background-size: cover; background-position: center; background-color: #e5e7eb;"></div>
-          </td>
-          <td style="font-weight: 500;">${p.name}</td>
-          <td><span style="background: #f3f4f6; padding: 4px 8px; border-radius: 4px; font-size: 0.8rem;">${catName}</span></td>
-          <td style="font-weight: 600; color: var(--mint-strong);">
-            ${formatCurrency(p.price)}
-            ${p.hasCoaching && p.coachingPrice ? `<div style="font-size:0.75rem; color:#b45309; font-weight:600; margin-top:2px;">+ Kèm 1-1: ${formatCurrency(p.coachingPrice)}</div>` : ''}
-          </td>
-          <td style="text-align: right;">
-            <button class="action-btn btn-edit" data-id="${doc.id}" style="margin-right: 8px;">Sửa</button>
-            <button class="action-btn danger btn-delete" data-id="${doc.id}">Xóa</button>
-          </td>
-        `;
-        productListBody.appendChild(tr);
+        currentProducts.push({ ...doc.data(), id: doc.id });
       });
 
-      // Bind delete events
-      document.querySelectorAll('.btn-delete').forEach(btn => {
-        btn.addEventListener('click', async (e) => {
-          const id = e.target.dataset.id;
-          if (confirm('Bạn có chắc chắn muốn xóa sản phẩm này không? Khách hàng sẽ không thấy sản phẩm này trên web nữa.')) {
-            try {
-              e.target.textContent = 'Đang xóa...';
-              e.target.disabled = true;
-              await db.collection('products').doc(id).delete();
-              showToast('Đã xóa sản phẩm.');
-              loadProducts(); // reload list
-            } catch (error) {
-              showToast('Lỗi khi xóa: ' + error.message, true);
-              e.target.textContent = 'Xóa';
-              e.target.disabled = false;
-            }
-          }
-        });
-      });
+      // Update counters in Toolbar & Sidebar
+      const totalNum = currentProducts.length;
+      const countEl = document.getElementById('productTotalNum');
+      const sidebarBadge = document.getElementById('sidebarProductCount');
+      if (countEl) countEl.textContent = totalNum;
+      if (sidebarBadge) sidebarBadge.textContent = totalNum;
 
-      // Bind edit events
-      document.querySelectorAll('.btn-edit').forEach(btn => {
-        btn.addEventListener('click', (e) => {
-          const id = e.target.dataset.id;
-          const product = currentProducts.find(p => p.id === id);
-          if (product) {
-            document.getElementById('editingProductId').value = id;
-            document.getElementById('formTitle').textContent = 'Sửa Sản Phẩm';
-            document.getElementById('formDescription').textContent = 'Cập nhật thông tin cho sản phẩm đang chọn.';
-            document.getElementById('submitBtn').textContent = 'Cập nhật sản phẩm';
-            
-            document.getElementById('productName').value = product.name || '';
-            document.getElementById('productCategory').value = product.categoryId || '';
-            document.getElementById('productFormat').value = product.type || (product.sheetUrl ? 'google_sheets' : 'excel');
-            document.getElementById('productPrice').value = new Intl.NumberFormat('vi-VN').format(product.price || 0);
-            document.getElementById('productOriginalPrice').value = product.originalPrice ? new Intl.NumberFormat('vi-VN').format(product.originalPrice) : '';
-            document.getElementById('productTag').value = product.tag || '';
-            document.getElementById('productSuitableFor').value = product.suitableFor || '';
-            document.getElementById('productDescription').value = product.description || '';
-            document.getElementById('productFeatures').value = (product.highlights || []).map(h => '- ' + h).join('\n');
-            document.getElementById('productSheetUrl').value = product.sheetUrl || '';
-
-            var chkCoaching = document.getElementById('productHasCoaching');
-            var grpCoaching = document.getElementById('coachingFieldsGroup');
-            var inpCoachingPrice = document.getElementById('productCoachingPrice');
-            var inpCoachingTitle = document.getElementById('productCoachingTitle');
-            if (chkCoaching) chkCoaching.checked = !!product.hasCoaching;
-            if (grpCoaching) grpCoaching.style.display = product.hasCoaching ? 'block' : 'none';
-            if (inpCoachingPrice) inpCoachingPrice.value = product.coachingPrice ? new Intl.NumberFormat('vi-VN').format(product.coachingPrice) : '';
-            if (inpCoachingTitle) inpCoachingTitle.value = product.coachingTitle || '';
-
-            updateFormatFields();
-            
-            // Note: Cannot set value of file inputs (security). Make them optional in edit mode.
-            document.getElementById('productImage').required = false;
-
-            // Switch to Add Tab
-            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-            document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
-            document.getElementById('goAddProductBtn').classList.add('active'); // highlight add button if it existed
-            document.getElementById('addTab').classList.add('active');
-            window.scrollTo(0, 0);
-          }
-        });
-      });
-
+      renderFilteredProducts();
     } catch (error) {
-      console.error(error);
-      productListBody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: #ef4444;">Lỗi tải dữ liệu: ' + error.message + '</td></tr>';
+      console.error("Lỗi tải sản phẩm:", error);
+      if (productListBody) {
+        productListBody.innerHTML = '<tr><td colspan="8" style="text-align: center; color: #ef4444; padding: 32px;">Lỗi tải dữ liệu: ' + escapeHtml(error.message) + '</td></tr>';
+      }
     }
+  }
+
+  function renderFilteredProducts() {
+    if (!productListBody) return;
+    const searchVal = (document.getElementById('productSearchInput')?.value || document.getElementById('topGlobalSearch')?.value || '').trim().toLowerCase();
+    const catVal = document.getElementById('productCategoryFilter')?.value || 'ALL';
+    const formatVal = document.getElementById('productFormatFilter')?.value || 'ALL';
+
+    const filtered = currentProducts.filter(p => {
+      const matchCat = catVal === 'ALL' || p.categoryId === catVal;
+      const pFormat = p.type || (p.sheetUrl ? 'google_sheets' : 'excel');
+      const matchFormat = formatVal === 'ALL' || pFormat === formatVal;
+      if (!matchCat || !matchFormat) return false;
+
+      if (!searchVal) return true;
+      const name = String(p.name || '').toLowerCase();
+      const id = String(p.id || '').toLowerCase();
+      return name.includes(searchVal) || id.includes(searchVal);
+    });
+
+    if (!filtered.length) {
+      productListBody.innerHTML = '<tr><td colspan="8" style="text-align: center; color: var(--slate-muted); padding: 40px;">Không tìm thấy sản phẩm nào phù hợp.</td></tr>';
+      return;
+    }
+
+    const catMap = {
+      'ban-hang-online': 'Bán hàng online',
+      'cong-no': 'Công nợ',
+      'quan-ly-kho': 'Quản lý kho',
+      'combo': 'Combo tiết kiệm'
+    };
+
+    productListBody.innerHTML = filtered.map(p => {
+      const catName = catMap[p.categoryId] || p.categoryId || 'Khác';
+      const isSheets = (p.type === 'google_sheets') || !!p.sheetUrl;
+      const formatHtml = isSheets
+        ? '<span style="font-size:0.84rem; font-weight:500; color:#059669;">Google Sheets</span>'
+        : '<span style="font-size:0.84rem; font-weight:500; color:#475569;">Excel (.xlsx)</span>';
+      
+      const downloads = p.downloads_count || 0;
+      const statusHtml = '<span class="status-text-item success">Đang bán</span>';
+
+      return `
+        <tr>
+          <td>
+            <div style="width: 44px; height: 44px; border-radius: 6px; background-image: url('${escapeHtml(p.previewImageUrl || '')}'); background-size: cover; background-position: center; background-color: #f8fafc; border: 1px solid #e2e8f0;"></div>
+          </td>
+          <td>
+            <div style="font-weight: 600; color: #0f172a; font-size: 0.9rem;">${escapeHtml(p.name)}</div>
+            <div style="font-size: 0.75rem; color: #64748b; font-family: monospace; margin-top: 2px;">${escapeHtml(p.id)}</div>
+          </td>
+          <td>
+            <span style="font-size: 0.85rem; color: #334155; font-weight: 500;">${escapeHtml(catName)}</span>
+          </td>
+          <td>${formatHtml}</td>
+          <td>
+            <strong style="color: var(--mint-primary); font-size: 0.92rem;">${formatCurrency(p.price)}</strong>
+            ${p.originalPrice ? `<div style="font-size:0.75rem; color:#94a3b8; text-decoration:line-through;">${formatCurrency(p.originalPrice)}</div>` : ''}
+            ${p.hasCoaching && p.coachingPrice ? `<div style="font-size:0.74rem; color:#b45309; font-weight:600; margin-top:2px;">+ Kèm: ${formatCurrency(p.coachingPrice)}</div>` : ''}
+          </td>
+          <td>
+            <span style="font-weight: 600; color: #334155; font-size: 0.88rem;">${downloads}</span>
+            <span style="font-size: 0.76rem; color: #64748b;"> lượt</span>
+          </td>
+          <td>${statusHtml}</td>
+          <td style="text-align: right;">
+            <div style="display: inline-flex; align-items: center; gap: 4px;">
+              <button class="action-icon-btn btn-edit" data-id="${p.id}" title="Chỉnh sửa">
+                <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
+              </button>
+              <button class="action-icon-btn danger btn-delete" data-id="${p.id}" title="Xóa file">
+                <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+              </button>
+            </div>
+          </td>
+        </tr>
+      `;
+    }).join('');
+
+    bindProductActions();
+  }
+
+  function bindProductActions() {
+    document.querySelectorAll('.btn-delete').forEach(btn => {
+      btn.addEventListener('click', async (e) => {
+        const targetBtn = e.currentTarget;
+        const id = targetBtn.dataset.id;
+        if (confirm('Bạn có chắc chắn muốn xóa sản phẩm này không? Khách hàng sẽ không thấy sản phẩm này trên web nữa.')) {
+          try {
+            targetBtn.disabled = true;
+            await db.collection('products').doc(id).delete();
+            showToast('Đã xóa sản phẩm.');
+            loadProducts();
+          } catch (error) {
+            showToast('Lỗi khi xóa: ' + error.message, true);
+            targetBtn.disabled = false;
+          }
+        }
+      });
+    });
+
+    document.querySelectorAll('.btn-edit').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const targetBtn = e.currentTarget;
+        const id = targetBtn.dataset.id;
+        const product = currentProducts.find(p => p.id === id);
+        if (product) {
+          document.getElementById('editingProductId').value = id;
+          document.getElementById('formTitle').textContent = 'Sửa Sản Phẩm';
+          document.getElementById('formDescription').textContent = 'Cập nhật thông tin cho sản phẩm đang chọn.';
+          document.getElementById('submitBtn').textContent = 'Cập nhật sản phẩm';
+          
+          document.getElementById('productName').value = product.name || '';
+          document.getElementById('productCategory').value = product.categoryId || '';
+          document.getElementById('productFormat').value = product.type || (product.sheetUrl ? 'google_sheets' : 'excel');
+          document.getElementById('productPrice').value = new Intl.NumberFormat('vi-VN').format(product.price || 0);
+          document.getElementById('productOriginalPrice').value = product.originalPrice ? new Intl.NumberFormat('vi-VN').format(product.originalPrice) : '';
+          document.getElementById('productTag').value = product.tag || '';
+          document.getElementById('productSuitableFor').value = product.suitableFor || '';
+          document.getElementById('productDescription').value = product.description || '';
+          document.getElementById('productFeatures').value = (product.highlights || []).map(h => '- ' + h).join('\n');
+          document.getElementById('productSheetUrl').value = product.sheetUrl || '';
+
+          var chkCoaching = document.getElementById('productHasCoaching');
+          var grpCoaching = document.getElementById('coachingFieldsGroup');
+          var inpCoachingPrice = document.getElementById('productCoachingPrice');
+          var inpCoachingTitle = document.getElementById('productCoachingTitle');
+          if (chkCoaching) chkCoaching.checked = !!product.hasCoaching;
+          if (grpCoaching) grpCoaching.style.display = product.hasCoaching ? 'block' : 'none';
+          if (inpCoachingPrice) inpCoachingPrice.value = product.coachingPrice ? new Intl.NumberFormat('vi-VN').format(product.coachingPrice) : '';
+          if (inpCoachingTitle) inpCoachingTitle.value = product.coachingTitle || '';
+
+          updateFormatFields();
+          document.getElementById('productImage').required = false;
+          switchTab('addTab');
+          window.scrollTo(0, 0);
+        }
+      });
+    });
   }
 
   // Format price inputs dynamically
@@ -412,6 +539,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // --- REVENUE STATISTICS & ORDER MANAGEMENT ---
   let cachedOrders = [];
+  let statsFilterPeriod = '14'; // '7', '14', '30', 'all'
+  let statsFilterMonth = 'ALL';  // 'ALL' hoặc '2026-11', '2026-10',...
+  let statsFilterType = 'ALL';   // 'ALL', 'STANDARD', 'COACHING'
+  let statsFilterProduct = 'ALL'; // 'ALL' hoặc product_id
+  let statsFilterActiveOnly = true; // Mặc định chỉ hiển thị sản phẩm đang kinh doanh trong danh mục
 
   function parseDateObj(val) {
     if (!val) return null;
@@ -448,6 +580,162 @@ document.addEventListener('DOMContentLoaded', () => {
     };
   }
 
+  function parseDateObj(val) {
+    if (!val) return null;
+    if (val && typeof val.toDate === 'function') return val.toDate();
+    if (val && typeof val.seconds === 'number') return new Date(val.seconds * 1000);
+    if (typeof val === 'number') return new Date(val > 1e11 ? val : val * 1000);
+    if (typeof val === 'string') {
+      const match = val.match(/seconds=(\d+)/);
+      if (match) return new Date(parseInt(match[1], 10) * 1000);
+      const d = new Date(val);
+      if (!isNaN(d.getTime())) return d;
+    }
+    if (val instanceof Date) return val;
+    return null;
+  }
+
+  function formatDateTime(val) {
+    const d = parseDateObj(val);
+    if (!d || isNaN(d.getTime())) {
+      return { time: String(val || 'Mới'), date: '', full: String(val || 'Mới') };
+    }
+    const pad = n => String(n).padStart(2, '0');
+    const day = pad(d.getDate());
+    const month = pad(d.getMonth() + 1);
+    const year = d.getFullYear();
+    const hours = pad(d.getHours());
+    const minutes = pad(d.getMinutes());
+    const seconds = pad(d.getSeconds());
+
+    return {
+      time: `${hours}:${minutes}:${seconds}`,
+      date: `${day}/${month}/${year}`,
+      full: `${day}/${month}/${year} ${hours}:${minutes}:${seconds}`
+    };
+  }
+
+  let cachedOrders = [];
+  let statsFilterPeriod = '14'; // '7', '14', '30', 'all'
+  let statsFilterMonth = 'ALL';  // 'ALL' hoặc '2026-11', '2026-10',...
+  let statsFilterType = 'ALL';   // 'ALL', 'STANDARD', 'COACHING'
+
+  
+  // Helper: Bóc tách đơn hàng thành các sản phẩm con độc lập (hỗ trợ cả đơn lẻ, đơn combo mảng items, và đơn combo cũ dạng "A + B")
+  function resolveOrderLineItems(order, knownProductsMap) {
+    if (!order) return [];
+    const amt = parseInt(order.amount || 0, 10);
+    const productKeys = Object.keys(knownProductsMap);
+
+    function matchCurrentProduct(str) {
+      if (!str) return null;
+      const s = String(str).trim().toLowerCase();
+      // Nhận diện theo từ khóa đặc trưng của các sản phẩm hiện hành
+      if (s.includes('bán hàng online') || s.includes('shop online')) {
+        const found = productKeys.find(k => (knownProductsMap[k].name || '').toLowerCase().includes('bán hàng online') || k.includes('ban-hang-online'));
+        if (found) return found;
+      }
+      if (s.includes('quản lý kho') || s.includes('kho mini')) {
+        const found = productKeys.find(k => (knownProductsMap[k].name || '').toLowerCase().includes('kho') || k.includes('kho-mini'));
+        if (found) return found;
+      }
+      if (s.includes('cost') || s.includes('giá vốn') || s.includes('f&b')) {
+        const found = productKeys.find(k => (knownProductsMap[k].name || '').toLowerCase().includes('cost') || k.includes('cost'));
+        if (found) return found;
+      }
+      for (const pid of productKeys) {
+        const pName = (knownProductsMap[pid].name || '').trim().toLowerCase();
+        if (pName && (pName === s || pName.includes(s) || s.includes(pName))) {
+          return pid;
+        }
+      }
+      return null;
+    }
+
+    // Trường hợp 1: Đơn hàng mới có mảng items[] rõ ràng
+    if (Array.isArray(order.items) && order.items.length > 0) {
+      const count = order.items.length;
+      return order.items.map(it => {
+        let pid = it.product_id || 'other';
+        if (!knownProductsMap[pid]) {
+          const matched = matchCurrentProduct(it.product_name || pid);
+          if (matched) pid = matched;
+        }
+        const isCurrent = !!knownProductsMap[pid];
+        const isTest = (it.product_name || '').toLowerCase().includes('[test]') || (order.product_name || '').toLowerCase().includes('[test]');
+        const pName = (knownProductsMap[pid] && knownProductsMap[pid].name) || it.product_name || 'Sản phẩm';
+        const pPrice = parseInt(it.price || (knownProductsMap[pid] && knownProductsMap[pid].price) || 0, 10);
+        const allocatedRev = pPrice > 0 ? pPrice : Math.round(amt / count);
+
+        return {
+          productId: (isCurrent && !isTest) ? pid : '__ARCHIVED_TEST__',
+          name: (isCurrent && !isTest) ? pName : '[Test / File cũ đã xóa]',
+          revenue: allocatedRev,
+          isCurrent: isCurrent && !isTest,
+          originalName: it.product_name || pName
+        };
+      });
+    }
+
+    // Trường hợp 2: Đơn hàng cũ lưu tên dạng Combo "A + B"
+    const rawName = String(order.product_name || '').trim();
+    if (rawName.includes(' + ')) {
+      const parts = rawName.split(' + ').map(s => s.trim().toLowerCase());
+      const matchedList = [];
+
+      parts.forEach(partName => {
+        const foundPid = matchCurrentProduct(partName);
+        if (foundPid) {
+          matchedList.push({
+            productId: foundPid,
+            name: knownProductsMap[foundPid].name,
+            revenue: 0,
+            isCurrent: true,
+            originalName: partName
+          });
+        } else {
+          matchedList.push({
+            productId: '__ARCHIVED_TEST__',
+            name: '[Test / File cũ đã xóa]',
+            revenue: 0,
+            isCurrent: false,
+            originalName: partName
+          });
+        }
+      });
+
+      if (matchedList.length > 0) {
+        const splitRev = Math.round(amt / matchedList.length);
+        matchedList.forEach(m => m.revenue = splitRev);
+        return matchedList;
+      }
+    }
+
+    // Trường hợp 3: Đơn hàng đơn lẻ
+    let singlePid = order.product_id || 'other';
+    let matchedPid = matchCurrentProduct(order.product_name || singlePid);
+    const isTest = rawName.toLowerCase().includes('[test]') || rawName.toLowerCase().includes('thanh toán 2k');
+
+    if (matchedPid && !isTest) {
+      return [{
+        productId: matchedPid,
+        name: knownProductsMap[matchedPid].name,
+        revenue: amt,
+        isCurrent: true,
+        originalName: rawName
+      }];
+    }
+
+    // Không thuộc sản phẩm đang bán hoặc là đơn test -> gom gọn
+    return [{
+      productId: '__ARCHIVED_TEST__',
+      name: '[Test / File cũ đã xóa]',
+      revenue: amt,
+      isCurrent: false,
+      originalName: rawName
+    }];
+  }
+
   async function loadAdminStats() {
     const kpiTotalRevenue = document.getElementById('kpiTotalRevenue');
     const kpiMonthRevenue = document.getElementById('kpiMonthRevenue');
@@ -458,132 +746,418 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (!kpiTotalRevenue) return;
 
-    kpiTotalRevenue.textContent = "Đang tính...";
-    kpiMonthRevenue.textContent = "Đang tính...";
-    kpiPaidOrders.textContent = "...";
-    kpiCustomers.textContent = "...";
-    if (revenueChartContainer) revenueChartContainer.innerHTML = '<div style="margin: auto; color: var(--muted); font-size: 0.9rem;">Đang tải biểu đồ...</div>';
-    if (bestSellersContainer) bestSellersContainer.innerHTML = '<div style="margin: 20px 0; text-align: center; color: var(--muted); font-size: 0.9rem;">Đang tải xếp hạng...</div>';
-
-    try {
-      let stats = null;
+    if (!cachedOrders || cachedOrders.length === 0) {
       try {
-        stats = await adminFetch('/admin/stats');
-      } catch (apiErr) {
-        console.warn("Backend /admin/stats failed, fallback to client calculation:", apiErr);
-        const snap = await db.collection('orders').get();
-        let totalRev = 0, monthRev = 0, todayRev = 0, paidCount = 0;
-        const customers = new Set();
-        const productMap = {};
-        const dailyMap = {};
-        const now = new Date();
-        const todayStr = now.toISOString().slice(0, 10);
-        const monthStr = now.toISOString().slice(0, 7);
-
-        for (let i = 13; i >= 0; i--) {
-          const d = new Date(now.getTime() - i * 24 * 60 * 60 * 1000);
-          const ds = d.toISOString().slice(0, 10);
-          dailyMap[ds] = { date: ds, revenue: 0, count: 0 };
+        try {
+          cachedOrders = await adminFetch('/admin/orders');
+        } catch (apiErr) {
+          const snap = await db.collection('orders').get();
+          cachedOrders = [];
+          snap.forEach(doc => {
+            cachedOrders.push({ order_id: doc.id, ...doc.data() });
+          });
         }
-
-        snap.forEach(doc => {
-          const o = doc.data();
-          if (o && String(o.status || '').toUpperCase() === 'PAID') {
-            const amt = parseInt(o.amount || 0, 10);
-            totalRev += amt;
-            paidCount += 1;
-            const cId = o.customer_phone || o.customer_email || o.user_id;
-            if (cId) customers.add(cId);
-
-            const dObj = parseDateObj(o.created_at || o.paid_at);
-            const cStr = dObj ? dObj.toISOString().slice(0, 10) : '';
-            if (cStr === todayStr) todayRev += amt;
-            if (cStr.startsWith(monthStr)) monthRev += amt;
-            if (cStr && dailyMap[cStr]) {
-              dailyMap[cStr].revenue += amt;
-              dailyMap[cStr].count += 1;
-            }
-
-            const pid = o.product_id || 'other';
-            if (!productMap[pid]) {
-              productMap[pid] = { id: pid, name: o.product_name || 'File', count: 0, revenue: 0 };
-            }
-            productMap[pid].count += 1;
-            productMap[pid].revenue += amt;
-          }
-        });
-
-        stats = {
-          total_revenue: totalRev,
-          month_revenue: monthRev,
-          today_revenue: todayRev,
-          paid_orders_count: paidCount,
-          customers_count: customers.size,
-          daily_revenue: Object.values(dailyMap),
-          best_sellers: Object.values(productMap).sort((a, b) => b.revenue - a.revenue).slice(0, 10)
-        };
+      } catch (e) {
+        console.warn('Không tải được cachedOrders cho stats:', e);
       }
+    }
 
-      // Update KPI Cards
-      kpiTotalRevenue.textContent = formatCurrency(stats.total_revenue || 0);
-      kpiMonthRevenue.textContent = formatCurrency(stats.month_revenue || 0);
-      kpiPaidOrders.textContent = (stats.paid_orders_count || 0) + " đơn";
-      kpiCustomers.textContent = (stats.customers_count || 0) + " khách";
+    populateMonthSlicer();
+    populateProductSlicer();
+    renderStatsDashboard();
+  }
 
-      // Render Daily Revenue Chart
-      const dailyList = stats.daily_revenue || [];
-      const revenues = dailyList.map(d => d.revenue);
-      const maxRev = Math.max(...revenues, 100000);
-
-      if (revenueChartContainer) {
-        revenueChartContainer.innerHTML = dailyList.map(d => {
-          const heightPct = Math.max(Math.round((d.revenue / maxRev) * 150), 6);
-          const dayLabel = d.date.slice(8, 10) + '/' + d.date.slice(5, 7);
-          const isToday = d.date === new Date().toISOString().slice(0, 10);
-          const barBg = d.revenue > 0 ? (isToday ? '#059669' : '#10b981') : '#e2e8f0';
-
-          return `
-            <div style="flex: 1; display: flex; flex-direction: column; align-items: center; gap: 6px; height: 100%; justify-content: flex-end; position: relative;" title="${d.date}: ${formatCurrency(d.revenue)} (${d.count} đơn)">
-              <div style="font-size: 0.7rem; font-weight: 600; color: #10b981; margin-bottom: 2px;">${d.revenue > 0 ? (Math.round(d.revenue / 1000) + 'k') : ''}</div>
-              <div style="width: 100%; max-width: 28px; height: ${heightPct}px; background: ${barBg}; border-radius: 6px 6px 0 0; transition: height 0.3s ease;"></div>
-              <div style="font-size: 0.72rem; color: #64748b; font-weight: 500; margin-top: 4px;">${dayLabel}</div>
-            </div>
-          `;
-        }).join('');
+  function populateMonthSlicer() {
+    const monthSelect = document.getElementById('statsMonthSlicer');
+    if (!monthSelect) return;
+    
+    const monthsSet = new Set();
+    (cachedOrders || []).forEach(o => {
+      const dObj = parseDateObj(o.created_at || o.paid_at);
+      if (dObj) {
+        const yyyymm = dObj.toISOString().slice(0, 7);
+        monthsSet.add(yyyymm);
       }
+    });
 
-      // Render Best Sellers
-      const bestSellers = stats.best_sellers || [];
-      if (bestSellersContainer) {
-        if (!bestSellers.length) {
-          bestSellersContainer.innerHTML = '<div style="margin: 20px 0; text-align: center; color: var(--muted); font-size: 0.9rem;">Chưa có dữ liệu bán hàng.</div>';
-        } else {
-          bestSellersContainer.innerHTML = bestSellers.map((item, idx) => {
-            const rank = idx + 1;
-            const rankClass = rank <= 3 ? `top-${rank}` : '';
-            return `
-              <div class="best-seller-item">
-                <div style="display: flex; align-items: center; min-width: 0; flex: 1; margin-right: 12px;">
-                  <div class="rank-badge ${rankClass}">${rank}</div>
-                  <div style="min-width: 0;">
-                    <div style="font-weight: 600; font-size: 0.92rem; color: #1e293b; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${escapeHtml(item.name)}</div>
-                    <div style="font-size: 0.78rem; color: var(--muted);">${item.count} lượt mua thành công</div>
-                  </div>
-                </div>
-                <div style="text-align: right; flex-shrink: 0;">
-                  <div style="font-weight: 700; font-size: 0.95rem; color: var(--mint-strong);">${formatCurrency(item.revenue)}</div>
-                </div>
-              </div>
-            `;
-          }).join('');
-        }
-      }
-
-    } catch (err) {
-      console.error("Lỗi tải thống kê:", err);
-      showToast("Lỗi khi tải thống kê: " + err.message, true);
+    const sortedMonths = Array.from(monthsSet).sort().reverse();
+    const currentVal = monthSelect.value || 'ALL';
+    
+    let html = '<option value="ALL">Tất cả các tháng</option>';
+    sortedMonths.forEach(m => {
+      const parts = m.split('-');
+      html += '<option value="' + m + '">Tháng ' + parts[1] + '/' + parts[0] + '</option>';
+    });
+    monthSelect.innerHTML = html;
+    if (monthsSet.has(currentVal)) {
+      monthSelect.value = currentVal;
     }
   }
+
+  
+  function populateProductSlicer() {
+    const menu = document.getElementById('statsProductMenu');
+    const input = document.getElementById('statsProductSlicer');
+    const btn = document.getElementById('statsProductFilterBtn');
+    if (!menu || !input) return;
+
+    let itemsHtml = '<div class="filter-popover-item selected" data-value="ALL">Tất cả sản phẩm (' + currentProducts.length + ')</div>';
+    currentProducts.forEach(p => {
+      itemsHtml += '<div class="filter-popover-item" data-value="' + escapeHtml(p.id) + '">' + escapeHtml(p.name) + '</div>';
+    });
+    menu.innerHTML = itemsHtml;
+
+    // Gắn sự kiện click cho các item vừa tạo
+    menu.querySelectorAll('.filter-popover-item').forEach(item => {
+      item.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const val = item.dataset.value;
+        input.value = val;
+        statsFilterProduct = val;
+        menu.querySelectorAll('.filter-popover-item').forEach(i => i.classList.remove('selected'));
+        item.classList.add('selected');
+        
+        const isAll = val === 'ALL';
+        if (btn) {
+          btn.classList.toggle('active', !isAll);
+          const span = btn.querySelector('span');
+          if (span) {
+            span.textContent = isAll ? 'Sản phẩm: Tất cả' : 'SP: ' + item.textContent.trim();
+          }
+        }
+        menu.classList.remove('show');
+        renderStatsDashboard();
+      });
+    });
+  }
+
+  function renderStatsDashboard() {
+    const kpiTotalRevenue = document.getElementById('kpiTotalRevenue');
+    const kpiMonthRevenue = document.getElementById('kpiMonthRevenue');
+    const kpiPaidOrders = document.getElementById('kpiPaidOrders');
+    const kpiCustomers = document.getElementById('kpiCustomers');
+    const revenueChartContainer = document.getElementById('revenueChartContainer');
+    const bestSellersContainer = document.getElementById('bestSellersContainer');
+    const hourlyChartContainer = document.getElementById('hourlyChartContainer');
+    const conversionContainer = document.getElementById('conversionContainer');
+    const chartTitle = document.getElementById('chartTitle');
+    const chartSubTitle = document.getElementById('chartSubTitle');
+    const slicerNotice = document.getElementById('slicerSummaryNotice');
+
+    const now = new Date();
+    const todayStr = now.toISOString().slice(0, 10);
+
+    let periodDays = statsFilterPeriod === '7' ? 7 : (statsFilterPeriod === '14' ? 14 : (statsFilterPeriod === '30' ? 30 : null));
+    let cutoffTime = periodDays ? now.getTime() - periodDays * 24 * 60 * 60 * 1000 : null;
+
+    // Map nhanh danh mục sản phẩm hiện có
+    const knownProductsMap = {};
+    (currentProducts || []).forEach(p => {
+      knownProductsMap[p.id] = p;
+    });
+
+    const filteredOrders = (cachedOrders || []).filter(o => {
+      const dObj = parseDateObj(o.created_at || o.paid_at);
+      if (!dObj) return false;
+
+      if (statsFilterMonth === 'ALL' && cutoffTime && dObj.getTime() < cutoffTime) {
+        return false;
+      }
+
+      if (statsFilterMonth !== 'ALL') {
+        const yyyymm = dObj.toISOString().slice(0, 7);
+        if (yyyymm !== statsFilterMonth) return false;
+      }
+
+      const isCoaching = o.package_type === 'coaching' || parseInt(o.amount || 0, 10) >= 199000;
+      if (statsFilterType === 'STANDARD' && isCoaching) return false;
+      if (statsFilterType === 'COACHING' && !isCoaching) return false;
+
+      // Lọc theo sản phẩm đã chọn
+      if (statsFilterProduct && statsFilterProduct !== 'ALL') {
+        const lineItems = resolveOrderLineItems(o, knownProductsMap);
+        const hasMatchingProduct = lineItems.some(it => it.productId === statsFilterProduct);
+        if (!hasMatchingProduct) return false;
+      }
+
+      return true;
+    });
+
+    if (slicerNotice) {
+      slicerNotice.textContent = 'Lọc: ' + filteredOrders.length + ' đơn được chọn';
+    }
+
+    let totalRevenue = 0;
+    let paidCount = 0;
+    let pendingCount = 0;
+    let coachingCount = 0;
+    const customers = new Set();
+    const productMap = {};
+    const hourlyMap = Array(24).fill(0);
+    const weekdayMap = [0, 0, 0, 0, 0, 0, 0]; // 0: CN, 1: T2, ..., 6: T7
+    const priceRangeMap = {
+      'tier1': { label: 'Dưới 10.000 ₫ (File mini)', count: 0, revenue: 0 },
+      'tier2': { label: '10.000 ₫ - 50.000 ₫ (Đơn phổ biến)', count: 0, revenue: 0 },
+      'tier3': { label: '50.000 ₫ - 150.000 ₫ (Combo/Smart App)', count: 0, revenue: 0 },
+      'tier4': { label: 'Trên 150.000 ₫ (Kèm 1-1/Doanh nghiệp)', count: 0, revenue: 0 }
+    };
+    const chartDataMap = {};
+    const isAllTime = statsFilterPeriod === 'all' && statsFilterMonth === 'ALL';
+
+    if (statsFilterMonth !== 'ALL') {
+      const parts = statsFilterMonth.split('-').map(Number);
+      const y = parts[0];
+      const m = parts[1];
+      const daysInMonth = new Date(y, m, 0).getDate();
+      for (let day = 1; day <= daysInMonth; day++) {
+        const ds = y + '-' + String(m).padStart(2, '0') + '-' + String(day).padStart(2, '0');
+        chartDataMap[ds] = { key: ds, label: String(day).padStart(2, '0') + '/' + String(m).padStart(2, '0'), fullDate: ds, revenue: 0, count: 0 };
+      }
+      if (chartTitle) chartTitle.textContent = 'Biểu đồ Doanh thu (Tháng ' + m + '/' + y + ')';
+      if (chartSubTitle) chartSubTitle.textContent = 'Chi tiết từng ngày trong tháng ' + m + '/' + y;
+    } else if (periodDays) {
+      for (let i = periodDays - 1; i >= 0; i--) {
+        const d = new Date(now.getTime() - i * 24 * 60 * 60 * 1000);
+        const ds = d.toISOString().slice(0, 10);
+        chartDataMap[ds] = { key: ds, label: ds.slice(8, 10) + '/' + ds.slice(5, 7), fullDate: ds, revenue: 0, count: 0 };
+      }
+      if (chartTitle) chartTitle.textContent = 'Biểu đồ Doanh thu (' + periodDays + ' ngày qua)';
+      if (chartSubTitle) chartSubTitle.textContent = 'Doanh số chi tiết theo từng ngày';
+    } else {
+      // statsFilterPeriod === 'all': Gom theo Tháng (T8/26, T9/26, T10/26, T11/26) để biểu đồ vừa vặn, không bị tràn dài
+      if (chartTitle) chartTitle.textContent = 'Biểu đồ Doanh thu (Toàn thời gian theo Tháng)';
+      if (chartSubTitle) chartSubTitle.textContent = 'Tổng hợp doanh số và số lượng đơn theo từng tháng';
+    }
+
+    filteredOrders.forEach(o => {
+      const status = String(o.status || '').toUpperCase();
+      const isPaid = status === 'PAID';
+      const amt = parseInt(o.amount || 0, 10);
+      const isCoaching = o.package_type === 'coaching' || amt >= 199000;
+
+      if (isPaid) {
+        paidCount++;
+        const cId = o.customer_phone || o.customer_email || o.user_id;
+        if (cId) customers.add(cId);
+        if (isCoaching) coachingCount++;
+
+        const dObj = parseDateObj(o.created_at || o.paid_at);
+        if (dObj) {
+          const hour = dObj.getHours();
+          hourlyMap[hour] = (hourlyMap[hour] || 0) + 1;
+        }
+
+        // Bóc tách Pivot chi tiết từng dòng sản phẩm
+        const lineItems = resolveOrderLineItems(o, knownProductsMap);
+        
+        let effectiveOrderRev = 0;
+        lineItems.forEach(it => {
+          if (statsFilterProduct !== 'ALL' && it.productId !== statsFilterProduct) {
+            return;
+          }
+          effectiveOrderRev += it.revenue;
+
+          const key = it.productId;
+          const displayName = it.name;
+          if (!productMap[key]) {
+            productMap[key] = {
+              id: key,
+              name: displayName,
+              count: 0,
+              revenue: 0,
+              isCurrent: it.isCurrent
+            };
+          }
+          productMap[key].count += 1;
+          productMap[key].revenue += it.revenue;
+        });
+
+        totalRevenue += effectiveOrderRev;
+
+        if (dObj) {
+          if (isAllTime) {
+            // Gom theo tháng: YYYY-MM
+            const monthKey = dObj.toISOString().slice(0, 7);
+            const mParts = monthKey.split('-');
+            const monthLabel = 'T' + parseInt(mParts[1], 10) + '/' + mParts[0].slice(2);
+            if (!chartDataMap[monthKey]) {
+              chartDataMap[monthKey] = { key: monthKey, label: monthLabel, fullDate: 'Tháng ' + mParts[1] + '/' + mParts[0], revenue: 0, count: 0 };
+            }
+            chartDataMap[monthKey].revenue += effectiveOrderRev;
+            chartDataMap[monthKey].count += 1;
+          } else {
+            const ds = dObj.toISOString().slice(0, 10);
+            if (chartDataMap[ds]) {
+              chartDataMap[ds].revenue += effectiveOrderRev;
+              chartDataMap[ds].count += 1;
+            }
+          }
+        }
+      } else {
+        pendingCount++;
+      }
+    });
+
+    const aov = paidCount > 0 ? Math.round(totalRevenue / paidCount) : 0;
+    if (kpiTotalRevenue) kpiTotalRevenue.textContent = formatCurrency(totalRevenue);
+    if (kpiMonthRevenue) kpiMonthRevenue.textContent = formatCurrency(aov);
+    if (kpiPaidOrders) kpiPaidOrders.textContent = paidCount + ' đơn';
+    if (kpiCustomers) kpiCustomers.textContent = customers.size + ' khách';
+
+    const dailyList = Object.values(chartDataMap).sort((a, b) => a.key.localeCompare(b.key));
+    const revenues = dailyList.map(d => d.revenue);
+    const orderCounts = dailyList.map(d => d.count);
+    const maxRev = Math.max(...revenues, 50000);
+    const maxCount = Math.max(...orderCounts, 5);
+
+    if (revenueChartContainer) {
+      if (!dailyList.length) {
+        revenueChartContainer.innerHTML = '<div style="margin: auto; color: var(--muted); font-size: 0.9rem;">Không có dữ liệu trong khoảng thời gian này.</div>';
+      } else {
+        // Đảm bảo itemMinWidth cân đối, vừa vặn không bị chen chúc
+        const itemMinWidth = isAllTime ? 64 : (dailyList.length > 20 ? 32 : (dailyList.length <= 14 ? 54 : 36));
+        const chartHeight = 220;
+
+        // Tạo danh sách điểm tọa độ SVG cho đường Line Doanh Thu
+        const totalItems = dailyList.length;
+        const linePoints = [];
+
+        dailyList.forEach((d, idx) => {
+          const y = chartHeight - Math.round((d.revenue / maxRev) * (chartHeight - 45)) - 15;
+          linePoints.push({ idx, y, rev: d.revenue, count: d.count, key: d.key });
+        });
+
+        // Xây dựng các cột Bar (Số lượng đơn) với label gọn gàng
+        const barsHtml = dailyList.map((d, idx) => {
+          const barHeightPx = d.count > 0 ? Math.max(Math.round((d.count / maxCount) * (chartHeight - 50)), 22) : 6;
+          const displayLabel = d.label || d.key;
+          const isToday = d.key === todayStr;
+          const barColor = d.count > 0 ? '#bbf7d0' : '#f8fafc';
+          const barTextColor = '#065f46';
+          const lineY = chartHeight - Math.round((d.revenue / maxRev) * (chartHeight - 45)) - 15;
+
+          return (
+            '<div style="flex: ' + (dailyList.length > 14 ? '0 0 ' + itemMinWidth + 'px' : '1') + '; min-width: ' + itemMinWidth + 'px; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; position: relative;" title="' + (d.fullDate || d.key) + '&#10;• Số đơn: ' + d.count + ' đơn&#10;• Doanh thu: ' + formatCurrency(d.revenue) + '">' +
+              (d.revenue > 0 ? '<div style="position: absolute; top: ' + (lineY - 14) + 'px; z-index: 5; font-size: 0.65rem; font-weight: 700; color: #059669; font-family: monospace; white-space: nowrap; pointer-events: none;">' + (Math.round(d.revenue / 1000) + 'k') + '</div>' : '') +
+              '<div style="width: 100%; max-width: 24px; height: ' + barHeightPx + 'px; background: ' + barColor + '; border-radius: 3px 3px 0 0; transition: height 0.3s ease; display: flex; align-items: center; justify-content: center; position: relative;">' +
+                (d.count > 0 ? '<span style="font-size: 0.62rem; font-weight: 700; color: ' + barTextColor + '; line-height: 1; user-select: none;">' + d.count + 'đ</span>' : '') +
+              '</div>' +
+              '<div style="font-size: 0.72rem; color: ' + (isToday ? '#059669' : '#64748b') + '; font-weight: ' + (isToday ? '700' : '500') + '; margin-top: 5px; white-space: nowrap;">' + displayLabel + '</div>' +
+            '</div>'
+          );
+        }).join('');
+
+        // Đường SVG Line nối các điểm
+        const svgPathD = linePoints.map((pt, i) => {
+          const xPercent = ((i + 0.5) / totalItems) * 100;
+          return (i === 0 ? 'M ' : 'L ') + xPercent + ' ' + pt.y;
+        }).join(' ');
+
+        revenueChartContainer.innerHTML = (
+          '<div style="width: 100%; height: 100%; display: flex; align-items: flex-end; position: relative; min-width: ' + (dailyList.length * itemMinWidth) + 'px;">' +
+            '<svg style="position: absolute; top: 0; left: 0; width: 100%; height: ' + chartHeight + 'px; pointer-events: none; z-index: 4;" preserveAspectRatio="none" viewBox="0 0 100 ' + chartHeight + '">' +
+              '<path d="' + svgPathD + '" fill="none" stroke="#10b981" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" vector-effect="non-scaling-stroke"></path>' +
+            '</svg>' +
+            barsHtml +
+          '</div>'
+        );
+      }
+    }
+
+    const bestSellers = Object.values(productMap).sort((a, b) => {
+      // Đưa các file thật lên trên, file gom test/cũ xuống dưới cùng
+      if (a.id === '__ARCHIVED_TEST__') return 1;
+      if (b.id === '__ARCHIVED_TEST__') return -1;
+      return b.revenue - a.revenue;
+    }).slice(0, 10);
+    if (bestSellersContainer) {
+      if (!bestSellers.length) {
+        bestSellersContainer.innerHTML = '<div style="margin: 20px 0; text-align: center; color: var(--muted); font-size: 0.9rem;">Chưa có dữ liệu bán hàng.</div>';
+      } else {
+        bestSellersContainer.innerHTML = bestSellers.map((item, idx) => {
+          const rank = idx + 1;
+          const rankClass = rank <= 3 ? ('top-' + rank) : '';
+          return (
+            '<div class="best-seller-item">' +
+              '<div style="display: flex; align-items: center; min-width: 0; flex: 1; margin-right: 12px;">' +
+                '<div class="rank-badge ' + rankClass + '">' + rank + '</div>' +
+                '<div style="min-width: 0;">' +
+                  '<div style="font-weight: 600; font-size: 0.92rem; color: #1e293b; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">' + escapeHtml(item.name) + '</div>' +
+                  '<div style="font-size: 0.78rem; color: var(--muted);">' + item.count + ' lượt mua thành công</div>' +
+                '</div>' +
+              '</div>' +
+              '<div style="text-align: right; flex-shrink: 0;">' +
+                '<div style="font-weight: 700; font-size: 0.95rem; color: var(--mint-strong);">' + formatCurrency(item.revenue) + '</div>' +
+              '</div>' +
+            '</div>'
+          );
+        }).join('');
+      }
+    }
+
+    if (hourlyChartContainer) {
+      const maxHourly = Math.max(...hourlyMap, 1);
+      let peakHourCount = Math.max(...hourlyMap);
+
+      hourlyChartContainer.innerHTML = hourlyMap.map((cnt, hr) => {
+        const heightPct = Math.max(Math.round((cnt / maxHourly) * 110), 4);
+        const isPeak = cnt === peakHourCount && cnt > 0;
+        const barColor = isPeak ? '#059669' : (cnt > 0 ? '#34d399' : '#e2e8f0');
+        const showLabel = hr % 3 === 0;
+
+        return (
+          '<div style="flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; height: 100%; justify-content: flex-end;" title="' + hr + ':00 - ' + hr + ':59: ' + cnt + ' đơn mua">' +
+            '<div style="font-size: 0.65rem; font-weight: 600; color: #059669;">' + (cnt > 0 ? cnt : '') + '</div>' +
+            '<div style="width: 100%; max-width: 16px; height: ' + heightPct + 'px; background: ' + barColor + '; border-radius: 4px 4px 0 0; transition: height 0.3s ease;"></div>' +
+            '<div style="font-size: 0.68rem; color: #64748b; font-weight: ' + (showLabel ? '600' : '400') + '; margin-top: 4px;">' + (showLabel ? (hr + 'h') : '') + '</div>' +
+          '</div>'
+        );
+      }).join('');
+    }
+
+    if (conversionContainer) {
+      const totalOrdersInFilter = paidCount + pendingCount;
+      const payRate = totalOrdersInFilter > 0 ? Math.round((paidCount / totalOrdersInFilter) * 100) : 0;
+      const coachingRate = paidCount > 0 ? Math.round((coachingCount / paidCount) * 100) : 0;
+
+      conversionContainer.innerHTML = (
+        '<div>' +
+          '<div style="display: flex; justify-content: space-between; font-size: 0.88rem; margin-bottom: 6px;">' +
+            '<span style="font-weight: 600; color: #1e293b;">Tỉ lệ thanh toán thành công</span>' +
+            '<span style="font-weight: 700; color: #059669;">' + payRate + '% (' + paidCount + '/' + totalOrdersInFilter + ' đơn)</span>' +
+          '</div>' +
+          '<div style="width: 100%; height: 10px; background: #f1f5f9; border-radius: 999px; overflow: hidden; display: flex;">' +
+            '<div style="width: ' + payRate + '%; background: #10b981; border-radius: 999px;"></div>' +
+          '</div>' +
+        '</div>' +
+        '<div>' +
+          '<div style="display: flex; justify-content: space-between; font-size: 0.88rem; margin-bottom: 6px;">' +
+            '<span style="font-weight: 600; color: #1e293b;">Đơn kèm Coaching 1-1</span>' +
+            '<span style="font-weight: 700; color: #d97706;">' + coachingRate + '% (' + coachingCount + ' đơn Kèm 1-1)</span>' +
+          '</div>' +
+          '<div style="width: 100%; height: 10px; background: #f1f5f9; border-radius: 999px; overflow: hidden; display: flex;">' +
+            '<div style="width: ' + coachingRate + '%; background: #f59e0b; border-radius: 999px;"></div>' +
+          '</div>' +
+        '</div>' +
+        '<div style="display: flex; gap: 12px; margin-top: 6px; padding: 12px; background: #f8fafc; border-radius: 8px; border: 1px solid #e2e8f0; font-size: 0.82rem; color: #475569;">' +
+          '<div>💡 <b>Gợi ý kinh doanh:</b> Khung giờ khách đặt nhiều nhất là lúc <b>' + calcPeakHour(hourlyMap) + '</b>. Đẩy bài TikTok/Zalo trước khung giờ này 30 phút sẽ tăng lượt chuyển đổi.</div>' +
+        '</div>'
+      );
+    }
+  }
+
+  function calcPeakHour(hourlyMap) {
+    let max = 0;
+    let peak = 14;
+    hourlyMap.forEach((v, idx) => {
+      if (v > max) {
+        max = v;
+        peak = idx;
+      }
+    });
+    return peak + 'h - ' + (peak + 1) + 'h';
+  }
+
 
   async function loadAdminOrders() {
     const orderListBody = document.getElementById('orderListBody');
@@ -608,6 +1182,18 @@ document.addEventListener('DOMContentLoaded', () => {
       }
 
       renderFilteredOrders();
+
+      // Cập nhật badge số đơn PENDING trong Sidebar
+      const pendingCount = cachedOrders.filter(o => (o.status || '').toUpperCase() === 'PENDING').length;
+      const pendingBadge = document.getElementById('sidebarPendingOrderCount');
+      if (pendingBadge) {
+        if (pendingCount > 0) {
+          pendingBadge.textContent = pendingCount;
+          pendingBadge.style.display = 'inline-flex';
+        } else {
+          pendingBadge.style.display = 'none';
+        }
+      }
 
     } catch (err) {
       console.error("Lỗi tải đơn hàng:", err);
@@ -641,8 +1227,8 @@ document.addEventListener('DOMContentLoaded', () => {
     orderListBody.innerHTML = filtered.map(order => {
       const isPaid = (order.status || '').toUpperCase() === 'PAID';
       const statusBadge = isPaid
-        ? '<span class="badge-status badge-status-paid">✓ Đã thanh toán</span>'
-        : '<span class="badge-status badge-status-pending">⏳ Chờ thanh toán</span>';
+        ? '<span class="status-text-item success">Đã thanh toán</span>'
+        : '<span class="status-text-item warning">Chờ thanh toán</span>';
 
       const timeObj = formatDateTime(order.created_at || order.paid_at);
       const timeHtml = timeObj.date 
@@ -650,7 +1236,11 @@ document.addEventListener('DOMContentLoaded', () => {
           `<div style="font-size: 0.78rem; color: #64748b; white-space: nowrap; margin-top: 2px;">${escapeHtml(timeObj.date)}</div>`
         : `<span style="font-size: 0.84rem; color: #64748b;">${escapeHtml(timeObj.time)}</span>`;
 
-      const customerInfo = order.customer_phone || order.customer_email || (order.user_id ? order.user_id.slice(0, 8) + '...' : 'Khách vãng lai');
+      const rawEmail = order.customer_email || '';
+      const isVirtualEmail = rawEmail.endsWith('@khachhang.filedilam.vn');
+      const cleanEmail = isVirtualEmail ? '' : rawEmail;
+      const customerInfo = order.customer_phone || cleanEmail || (order.user_id ? order.user_id.slice(0, 8) + '...' : 'Khách vãng lai');
+      const customerDisplayEmail = cleanEmail;
 
       const reviewHtml = order.has_reviewed
         ? `<span style="color: #f59e0b; font-weight: 600;">⭐ ${order.review_stars}/5</span>`
@@ -685,5 +1275,22 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('refreshStatsBtn')?.addEventListener('click', loadAdminStats);
   document.getElementById('refreshOrdersBtn')?.addEventListener('click', loadAdminOrders);
   document.getElementById('orderSearchInput')?.addEventListener('input', renderFilteredOrders);
+  document.getElementById('productSearchInput')?.addEventListener('input', renderFilteredProducts);
+  document.getElementById('productCategoryFilter')?.addEventListener('change', renderFilteredProducts);
+  document.getElementById('productFormatFilter')?.addEventListener('change', renderFilteredProducts);
+  document.getElementById('topGlobalSearch')?.addEventListener('input', (e) => {
+    const val = e.target.value;
+    const activeTab = document.querySelector('.tab-pane.active')?.id;
+    if (activeTab === 'productsTab') {
+      const pInput = document.getElementById('productSearchInput');
+      if (pInput) pInput.value = val;
+      renderFilteredProducts();
+    } else if (activeTab === 'ordersTab') {
+      const oInput = document.getElementById('orderSearchInput');
+      if (oInput) oInput.value = val;
+      renderFilteredOrders();
+    }
+  });
   document.getElementById('orderStatusFilter')?.addEventListener('change', renderFilteredOrders);
-});
+
+  });

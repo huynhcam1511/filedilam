@@ -33,22 +33,86 @@
     }
     .file-input-wrapper:hover .file-input-btn { border-color: var(--mint-strong); color: var(--mint-strong); background: #f0fdf4; }
     
-    .dashboard-wrapper { display: flex; min-height: calc(100vh - 64px); }
-    .sidebar { width: 240px; background: white; border-right: 1px solid var(--line); padding: 24px 0; flex-shrink: 0; }
-    .sidebar-menu { list-style: none; padding: 0; margin: 0; }
-    .sidebar-menu li { padding: 12px 24px; cursor: pointer; border-left: 3px solid transparent; font-weight: 500; color: var(--muted); transition: all 0.2s; }
+    .dashboard-wrapper { display: flex; min-height: calc(100vh - 64px); position: relative; }
+    .sidebar {
+      width: 240px;
+      background: white;
+      border-right: 1px solid var(--line);
+      padding: 24px 0;
+      flex-shrink: 0;
+      transition: width 0.25s cubic-bezier(0.4, 0, 0.2, 1), padding 0.25s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.2s ease, border-color 0.25s ease;
+      overflow: hidden;
+      white-space: nowrap;
+    }
+    .sidebar-menu { list-style: none; padding: 0; margin: 0; min-width: 240px; }
+    .sidebar-menu li { padding: 12px 24px; cursor: pointer; border-left: 3px solid transparent; font-weight: 500; color: var(--muted); transition: all 0.2s; display: flex; align-items: center; gap: 12px; }
     .sidebar-menu li:hover { background: #f9fafb; color: #111; }
     .sidebar-menu li.active { border-left-color: var(--mint-strong); color: var(--mint-strong); background: #f0fdf4; }
+    .sidebar-menu li svg { flex-shrink: 0; }
+
+    /* Khi sidebar closed -> Fullpage layout */
+    .dashboard-wrapper.sidebar-collapsed .sidebar {
+      width: 0 !important;
+      padding: 24px 0 !important;
+      border-right: 1px solid transparent !important;
+      opacity: 0;
+      pointer-events: none;
+    }
     
-    .main-content { flex: 1; padding: 40px; overflow-y: auto; background: #f3f4f6; }
+    .main-content {
+      flex: 1;
+      width: 100%;
+      min-width: 0;
+      padding: 40px;
+      overflow-y: auto;
+      background: #f3f4f6;
+      transition: padding 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .dashboard-wrapper.sidebar-collapsed .main-content {
+      max-width: 100%;
+      padding: 40px 48px;
+    }
+
+    /* Burger toggle button */
+    .sidebar-toggle-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 38px;
+      height: 38px;
+      border-radius: 8px;
+      border: 1px solid var(--line);
+      background: #ffffff;
+      color: #374151;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      margin-right: 14px;
+      padding: 0;
+      flex-shrink: 0;
+    }
+    .sidebar-toggle-btn:hover {
+      background: #f1f5f9;
+      color: var(--mint-strong);
+      border-color: #cbd5e1;
+    }
+    .sidebar-toggle-btn svg {
+      width: 20px;
+      height: 20px;
+      transition: transform 0.2s ease;
+    }
+    .dashboard-wrapper.sidebar-collapsed ~ .top-nav .sidebar-toggle-btn svg,
+    body.is-sidebar-collapsed .sidebar-toggle-btn svg {
+      transform: scale(0.95);
+    }
     .tab-pane { display: none; animation: fadeIn 0.3s; }
     .tab-pane.active { display: block; }
     @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
     .data-table-container { background: white; border-radius: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); overflow-x: auto; }
     .data-table { width: 100%; border-collapse: collapse; min-width: 700px; }
-    .data-table th, .data-table td { padding: 16px; border-bottom: 1px solid var(--line); text-align: left; font-size: 0.95rem; }
-    .data-table th { background: #f9fafb; font-size: 0.85rem; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; }
+    .data-table th, .data-table td { padding: 12px 16px; border-bottom: 1px solid var(--line); text-align: left; font-size: 0.92rem; vertical-align: middle; }
+    .data-table th { background: #f9fafb; font-size: 0.85rem; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; height: 48px; }
+    .data-table tbody tr { height: 52px; }
     .data-table tr:last-child td { border-bottom: none; }
     .data-table tbody tr:hover { background: #f9fafb; }
     
@@ -63,6 +127,146 @@
     #toast.show { opacity: 1; }
     
     .admin-form { max-width: 650px; background: white; padding: 40px; border-radius: 16px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05), 0 2px 4px -1px rgba(0,0,0,0.03); }
+
+    /* Slicer Filter Bar */
+    .slicer-bar {
+      background: #ffffff;
+      border-radius: 12px;
+      padding: 14px 18px;
+      border: 1px solid var(--line);
+      margin-bottom: 24px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      flex-wrap: wrap;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+    }
+    .slicer-group {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .slicer-label {
+      font-size: 0.84rem;
+      font-weight: 600;
+      color: var(--muted);
+      white-space: nowrap;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+    }
+    .slicer-select {
+      height: 38px;
+      padding: 0 12px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      font-size: 0.88rem;
+      font-weight: 500;
+      color: #1e293b;
+      background: #f8fafc;
+      outline: none;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .slicer-select:focus, .slicer-select:hover {
+      border-color: var(--mint-strong);
+      background: #ffffff;
+    }
+    .slicer-btn-group {
+      display: inline-flex;
+      background: #f1f5f9;
+      border-radius: 8px;
+      padding: 3px;
+      gap: 2px;
+    }
+    .slicer-btn {
+      border: none;
+      background: transparent;
+      padding: 6px 12px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: #64748b;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .slicer-btn:hover {
+      color: #0f172a;
+    }
+    .slicer-btn.active {
+      background: #ffffff;
+      color: var(--mint-strong);
+      box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    }
+
+    /* Slicer Filter Bar */
+    .slicer-bar {
+      background: #ffffff;
+      border-radius: 12px;
+      padding: 14px 18px;
+      border: 1px solid var(--line);
+      margin-bottom: 24px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      flex-wrap: wrap;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+    }
+    .slicer-group {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .slicer-label {
+      font-size: 0.84rem;
+      font-weight: 600;
+      color: var(--muted);
+      white-space: nowrap;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+    }
+    .slicer-select {
+      height: 38px;
+      padding: 0 12px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      font-size: 0.88rem;
+      font-weight: 500;
+      color: #1e293b;
+      background: #f8fafc;
+      outline: none;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .slicer-select:focus, .slicer-select:hover {
+      border-color: var(--mint-strong);
+      background: #ffffff;
+    }
+    .slicer-btn-group {
+      display: inline-flex;
+      background: #f1f5f9;
+      border-radius: 8px;
+      padding: 3px;
+      gap: 2px;
+    }
+    .slicer-btn {
+      border: none;
+      background: transparent;
+      padding: 6px 12px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: #64748b;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .slicer-btn:hover {
+      color: #0f172a;
+    }
+    .slicer-btn.active {
+      background: #ffffff;
+      color: var(--mint-strong);
+      box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    }
 
     /* Stats & Orders Dashboard Styles */
     .stats-grid {
@@ -134,26 +338,19 @@
       box-shadow: 0 1px 3px rgba(0,0,0,0.04);
     }
     
-    .badge-status {
+    .status-text {
       display: inline-flex;
       align-items: center;
-      gap: 5px;
-      padding: 4px 10px;
-      border-radius: 999px;
-      font-size: 0.76rem;
+      gap: 6px;
+      font-size: 0.88rem;
       font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.03em;
+      white-space: nowrap;
     }
-    .badge-status-paid {
-      background: #ecfdf5;
-      color: #047857;
-      border: 1px solid #a7f3d0;
+    .status-text-paid {
+      color: #059669;
     }
-    .badge-status-pending {
-      background: #fffbeb;
-      color: #b45309;
-      border: 1px solid #fde68a;
+    .status-text-pending {
+      color: #d97706;
     }
 
     .best-seller-item {
@@ -190,7 +387,12 @@
   
   <header class="top-nav">
     <div class="nav-container">
-      <div class="nav-logo">
+      <div class="nav-logo" style="display: flex; align-items: center;">
+        <button id="sidebarToggleBtn" class="sidebar-toggle-btn" aria-label="Đóng/mở thanh bên" title="Đóng/Mở Sidebar (Toàn màn hình)">
+          <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"></path>
+          </svg>
+        </button>
         <strong>Admin | File Đi Làm</strong>
       </div>
       <div class="nav-actions">
@@ -212,12 +414,24 @@
   <!-- Admin Dashboard Section -->
   <div id="adminSection" class="dashboard-wrapper hidden">
     <!-- Sidebar -->
-    <aside class="sidebar">
+     <aside class="sidebar" id="adminSidebar">
       <ul class="sidebar-menu">
-        <li class="active" data-tab="productsTab">Danh sách sản phẩm</li>
-        <li data-tab="addTab">Thêm sản phẩm mới</li>
-        <li data-tab="ordersTab">Quản lý Đơn hàng</li>
-        <li data-tab="statsTab">Thống kê Doanh thu</li>
+        <li class="active" data-tab="productsTab">
+          <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 10h16M4 14h16M4 18h16"></path></svg>
+          <span>Danh sách sản phẩm</span>
+        </li>
+        <li data-tab="addTab">
+          <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"></path></svg>
+          <span>Thêm sản phẩm mới</span>
+        </li>
+        <li data-tab="ordersTab">
+          <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path></svg>
+          <span>Quản lý Đơn hàng</span>
+        </li>
+        <li data-tab="statsTab">
+          <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>
+          <span>Thống kê Doanh thu</span>
+        </li>
       </ul>
     </aside>
 
@@ -425,9 +639,9 @@
 
       <!-- Revenue Statistics Tab -->
       <div id="statsTab" class="tab-pane">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; flex-wrap: wrap; gap: 12px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 12px;">
           <div>
-            <h2 style="margin: 0; font-size: 1.4rem; color: #111;">Thống kê Doanh thu</h2>
+            <h2 style="margin: 0; font-size: 1.4rem; color: #111;">Thống kê Doanh thu & Vận hành</h2>
             <p style="margin: 6px 0 0 0; color: var(--muted); font-size: 0.9rem;">Dữ liệu thanh toán thực tế tự động cập nhật từ hệ thống SePay.</p>
           </div>
           <div style="display: flex; gap: 10px;">
@@ -438,11 +652,44 @@
           </div>
         </div>
 
+        <!-- Slicer Filters Bar -->
+        <div class="slicer-bar">
+          <div class="slicer-group">
+            <span class="slicer-label">Khoảng thời gian:</span>
+            <div class="slicer-btn-group" id="statsPeriodSlicer">
+              <button type="button" class="slicer-btn" data-period="7">7 ngày</button>
+              <button type="button" class="slicer-btn active" data-period="14">14 ngày</button>
+              <button type="button" class="slicer-btn" data-period="30">30 ngày</button>
+              <button type="button" class="slicer-btn" data-period="all">Tất cả</button>
+            </div>
+          </div>
+
+          <div class="slicer-group" style="margin-left: 8px;">
+            <span class="slicer-label">Tháng:</span>
+            <select id="statsMonthSlicer" class="slicer-select">
+              <option value="ALL">Tất cả các tháng</option>
+            </select>
+          </div>
+
+          <div class="slicer-group">
+            <span class="slicer-label">Loại đơn:</span>
+            <select id="statsTypeSlicer" class="slicer-select">
+              <option value="ALL">Tất cả loại đơn</option>
+              <option value="STANDARD">Bản Tự Dùng</option>
+              <option value="COACHING">Bản Kèm 1-1</option>
+            </select>
+          </div>
+
+          <div class="slicer-group" style="margin-left: auto;">
+            <span id="slicerSummaryNotice" style="font-size: 0.82rem; color: #64748b; font-weight: 500;"></span>
+          </div>
+        </div>
+
         <!-- 4 KPI Cards -->
         <div class="stats-grid">
           <div class="stat-card">
             <div class="stat-card-label">
-              <span>Tổng doanh thu</span>
+              <span>Doanh thu kỳ chọn</span>
               <span class="stat-card-icon" style="background: #ecfdf5; color: #059669;">💰</span>
             </div>
             <div class="stat-card-value" id="kpiTotalRevenue">0 đ</div>
@@ -451,11 +698,11 @@
 
           <div class="stat-card">
             <div class="stat-card-label">
-              <span>Doanh thu tháng này</span>
-              <span class="stat-card-icon" style="background: #eff6ff; color: #2563eb;">📅</span>
+              <span>Giá trị TB / Đơn (AOV)</span>
+              <span class="stat-card-icon" style="background: #eff6ff; color: #2563eb;">📈</span>
             </div>
             <div class="stat-card-value" id="kpiMonthRevenue">0 đ</div>
-            <div class="stat-card-sub" id="kpiMonthRevenueSub" style="color: #2563eb;">Tháng hiện tại</div>
+            <div class="stat-card-sub" id="kpiMonthRevenueSub" style="color: #2563eb;">Doanh thu / đơn thành công</div>
           </div>
 
           <div class="stat-card">
@@ -464,7 +711,7 @@
               <span class="stat-card-icon" style="background: #fef3c7; color: #d97706;">📦</span>
             </div>
             <div class="stat-card-value" id="kpiPaidOrders">0</div>
-            <div class="stat-card-sub" id="kpiPaidOrdersSub" style="color: #d97706;">Tỉ lệ hoàn tất tốt</div>
+            <div class="stat-card-sub" id="kpiPaidOrdersSub" style="color: #d97706;">Tỉ lệ thanh toán tốt</div>
           </div>
 
           <div class="stat-card">
@@ -483,12 +730,12 @@
           <div class="chart-box">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
               <div>
-                <h3 style="margin: 0; font-size: 1.1rem; color: #1e293b;">Biểu đồ Doanh thu (14 ngày qua)</h3>
-                <p style="margin: 4px 0 0 0; font-size: 0.82rem; color: var(--muted);">Doanh số chi tiết theo từng ngày</p>
+                <h3 style="margin: 0; font-size: 1.1rem; color: #1e293b;" id="chartTitle">Biểu đồ Doanh thu</h3>
+                <p style="margin: 4px 0 0 0; font-size: 0.82rem; color: var(--muted);" id="chartSubTitle">Doanh số chi tiết theo từng ngày</p>
               </div>
               <div id="chartTotalLabel" style="font-weight: 700; color: var(--mint-strong); font-size: 1rem;"></div>
             </div>
-            <div id="revenueChartContainer" style="min-height: 220px; display: flex; align-items: flex-end; justify-content: space-between; gap: 8px; padding: 20px 10px 10px 10px; border-bottom: 1px solid var(--line); background: #fafafa; border-radius: 10px;">
+            <div id="revenueChartContainer" style="min-height: 220px; display: flex; align-items: flex-end; justify-content: space-between; gap: 8px; padding: 20px 10px 10px 10px; border-bottom: 1px solid var(--line); background: #fafafa; border-radius: 10px; overflow-x: auto;">
               <div style="margin: auto; color: var(--muted); font-size: 0.9rem;">Đang tải biểu đồ...</div>
             </div>
           </div>
@@ -504,10 +751,36 @@
             </div>
           </div>
         </div>
+
+        <!-- Second Row: 2 Extra Insight Charts (Phân bổ giờ đặt hàng & Tỷ lệ hoàn tất thanh toán) -->
+        <div class="analytics-two-col" style="margin-bottom: 0;">
+          <!-- Hourly Distribution Chart -->
+          <div class="chart-box">
+            <div style="margin-bottom: 18px;">
+              <h3 style="margin: 0; font-size: 1.1rem; color: #1e293b;">Khung Giờ Mua Hàng Sôi Động Nhất</h3>
+              <p style="margin: 4px 0 0 0; font-size: 0.82rem; color: var(--muted);">Phân bố đơn hàng theo các mốc giờ trong ngày (Sáng, Chiều, Tối)</p>
+            </div>
+            <div id="hourlyChartContainer" style="min-height: 160px; display: flex; align-items: flex-end; justify-content: space-between; gap: 4px; padding: 14px 6px 6px 6px; border-bottom: 1px solid var(--line); background: #fafafa; border-radius: 10px;">
+              <div style="margin: auto; color: var(--muted); font-size: 0.88rem;">Đang tải dữ liệu giờ...</div>
+            </div>
+          </div>
+
+          <!-- Order Status & Coaching Ratio Insight -->
+          <div class="chart-box">
+            <div style="margin-bottom: 16px;">
+              <h3 style="margin: 0; font-size: 1.1rem; color: #1e293b;">Cơ Cấu Đơn & Dịch Vụ Kèm</h3>
+              <p style="margin: 4px 0 0 0; font-size: 0.82rem; color: var(--muted);">Tỷ lệ chuyển đổi thanh toán & đóng góp gói Kèm 1-1</p>
+            </div>
+            <div id="conversionContainer" style="display: flex; flex-direction: column; gap: 14px; padding-top: 6px;">
+              <div style="text-align: center; color: var(--muted); padding: 20px 0; font-size: 0.88rem;">Đang tính tỷ lệ...</div>
+            </div>
+          </div>
+        </div>
       </div>
 
     </main>
-  </div>
+    </div> <!-- /.main-workspace -->
+  </div> <!-- /.app-layout -->
 
   <div id="toast">Thông báo</div>
 
@@ -517,6 +790,8 @@
   <script src="/__/firebase/10.7.1/firebase-storage-compat.js"></script>
   <script src="/__/firebase/init.js"></script>
   
-  <script src="./admin.js?v=7"></script>
+  <script src="./admin.js?v=8"></script>
+  <!-- Agentation: Visual Feedback & Annotation for AI agents -->
+  <script src="./agentation-vanilla.js"></script>
 </body>
 </html>

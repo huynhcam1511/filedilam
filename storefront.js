@@ -560,6 +560,34 @@
 
     // Treo màn hình thanh toán nếu khách có đơn hàng PENDING còn hiệu lực khi vừa tải trang
     restoreActiveOrderModal();
+
+    // Hỗ trợ tự động đăng nhập 1-chạm bằng Magic Link (?magic=token) và mở File của tôi
+    try {
+      var urlParams = new URLSearchParams(window.location.search);
+      var magicToken = urlParams.get("magic");
+      if (magicToken && typeof firebase !== 'undefined' && firebase.auth) {
+        showToast("Đang xác thực đăng nhập 1 chạm...");
+        firebase.auth().signInWithCustomToken(magicToken)
+          .then(function(userCred) {
+            showToast("Đăng nhập thành công!");
+            // Xóa param ?magic trên URL để bảo mật và sạch URL
+            if (window.history && window.history.replaceState) {
+              window.history.replaceState({}, document.title, window.location.pathname + "?tab=my-files");
+            }
+            setTimeout(function() {
+              openPurchases();
+            }, 600);
+          })
+          .catch(function(err) {
+            console.error("Magic login failed:", err);
+            showToast("Link đăng nhập đã hết hạn hoặc không hợp lệ.");
+          });
+      } else if (urlParams.get("tab") === "my-files" || urlParams.get("view") === "purchases") {
+        setTimeout(function() {
+          openPurchases();
+        }, 600);
+      }
+    } catch(e) {}
   }
 
   function initAuth() {
@@ -947,52 +975,8 @@
         }
 
         purchasesItems.innerHTML = orders.map(function(order) {
-          var matched = findProductForOrder(order);
-          var rawUrl = (matched && (matched.sheetUrl || matched.delivery_link || matched.fileUrl)) || order.product_file_url || "";
-          var isCloud = (matched && (matched.type === "google_sheets" || !!matched.sheetUrl)) ||
-                        order.product_type === "google_sheets" ||
-                        (rawUrl && rawUrl.indexOf("docs.google.com/spreadsheets") !== -1);
-
-          var deliveryUrl = getSafeDeliveryUrl(rawUrl, isCloud ? "google_sheets" : order.product_type, order.product_id);
-          var btnText = isCloud ? 'Tạo bản sao Google Sheets' : 'Tải file Excel';
-          
-          var isSmartKho = (order.product_id === "quan-ly-kho-mini-google-sheets-smart") || (matched && matched.id === "quan-ly-kho-mini-google-sheets-smart");
-          var guide = '';
-          if (isCloud) {
-            guide = '<p style="font-size:.78rem;color:var(--muted);margin:0 0 8px 0;line-height:1.4;">Mở link → Đăng nhập Google → Bấm Tạo bản sao. File sẽ lưu vào Google Drive của bạn.</p>';
-            if (isSmartKho) {
-              guide += '<div style="font-size:.78rem;background:rgba(4,120,87,0.1);padding:8px;border-radius:6px;color:var(--mint-strong); margin-bottom:4px;">' +
-                '<b>🚀 CÀI ĐẶT WEB APP (Chỉ làm 1 lần):</b><br>' +
-                '1. Mở bản sao vừa tạo, bấm menu <b>Kho Mini Smart > Mở ứng dụng quản lý kho</b><br>' +
-                '2. Cấp quyền bảo mật: Bấm <b>Continue > Chọn Email > Allow</b><br>' +
-                '3. Màn hình báo thành công: <b>Đóng tab đó lại</b> và quay về trang tính bấm mở lại ứng dụng lần nữa!' +
-              '</div>' +
-              '<a href="/huong-dan-kho-smart.mp4" target="_blank" style="font-size:.75rem; color:var(--mint); text-decoration:underline;">▶ Xem video hướng dẫn 15s</a>';
-            }
-          }
-
+          var items = resolveOrderItems(order);
           var orderId = order.order_id || order.id || "";
-          var prodId = order.product_id || (matched && matched.id) || "";
-          var prodName = order.product_name || (matched && matched.name) || "File đã mua";
-
-          var reviewHtml = "";
-          if (order.has_reviewed) {
-            var starsNum = parseInt(order.review_stars || 5, 10);
-            var starsStr = "★★★★★".slice(0, starsNum);
-            reviewHtml = '<div class="reviewed-badge">' +
-                           '<span>' + starsStr + '</span>' +
-                           '<span>Đã đánh giá ' + starsNum + '/5 sao</span>' +
-                         '</div>' +
-                         (order.review_comment ? '<div style="font-size: 0.78rem; color: #4b5563; font-style: italic; margin-top: 4px; padding-left: 6px; border-left: 2px solid #86efac;">“' + escapeHtml(order.review_comment) + '”</div>' : '');
-          } else {
-            reviewHtml = '<button type="button" class="btn-open-review" ' +
-                           'data-order-id="' + escapeHtml(orderId) + '" ' +
-                           'data-product-id="' + escapeHtml(prodId) + '" ' +
-                           'data-product-name="' + escapeHtml(prodName) + '">' +
-                           '⭐ Đánh giá trải nghiệm file này' +
-                         '</button>';
-          }
-
           var isCoaching = (order.package_type === "coaching") || (order.amount && order.amount >= 199000);
           var coachingBadge = isCoaching 
             ? '<span style="display: inline-block; background: #fef3c7; color: #b45309; font-size: 0.72rem; font-weight: 700; padding: 2px 7px; border-radius: 6px; border: 1px solid #fde68a; margin-left: 6px; vertical-align: middle;">🎓 Kèm 1-1</span>' 
@@ -1007,6 +991,51 @@
               '</a>';
           }
 
+          var reviewHtml = "";
+          if (order.has_reviewed) {
+            var starsNum = parseInt(order.review_stars || 5, 10);
+            var starsStr = "★★★★★".slice(0, starsNum);
+            reviewHtml = '<div class="reviewed-badge" style="margin-top: 6px;">' +
+                           '<span>' + starsStr + '</span>' +
+                           '<span>Đã đánh giá ' + starsNum + '/5 sao</span>' +
+                         '</div>' +
+                         (order.review_comment ? '<div style="font-size: 0.78rem; color: #4b5563; font-style: italic; margin-top: 4px; padding-left: 6px; border-left: 2px solid #86efac;">“' + escapeHtml(order.review_comment) + '”</div>' : '');
+          } else {
+            reviewHtml = '<button type="button" class="btn-open-review" style="margin-top: 6px;" ' +
+                           'data-order-id="' + escapeHtml(orderId) + '" ' +
+                           'data-product-id="' + escapeHtml(order.product_id || (items[0] && items[0].product_id) || "") + '" ' +
+                           'data-product-name="' + escapeHtml(order.product_name || "File đã mua") + '">' +
+                           '⭐ Đánh giá trải nghiệm đơn này' +
+                         '</button>';
+          }
+
+          var itemsHtml = items.map(function(item, idx) {
+            var isCloud = item.is_cloud;
+            var btnText = isCloud ? 'Tạo bản sao Google Sheets' : 'Tải file Excel';
+            var isSmartKho = (item.product_id === "quan-ly-kho-mini-google-sheets-smart");
+            var itemGuide = '';
+            if (isCloud) {
+              itemGuide = '<p style="font-size:.78rem;color:var(--muted);margin:0 0 6px 0;line-height:1.4;">Mở link → Đăng nhập Google → Bấm Tạo bản sao. File sẽ lưu vào Google Drive của bạn.</p>';
+              if (isSmartKho) {
+                itemGuide += '<div style="font-size:.78rem;background:rgba(4,120,87,0.1);padding:8px;border-radius:6px;color:var(--mint-strong); margin-bottom:4px;">' +
+                  '<b>🚀 CÀI ĐẶT WEB APP (Chỉ làm 1 lần):</b><br>' +
+                  '1. Mở bản sao vừa tạo, bấm menu <b>Kho Mini Smart > Mở ứng dụng quản lý kho</b><br>' +
+                  '2. Cấp quyền bảo mật: Bấm <b>Continue > Chọn Email > Allow</b><br>' +
+                  '3. Màn hình báo thành công: <b>Đóng tab đó lại</b> và quay về trang tính bấm mở lại ứng dụng lần nữa!' +
+                '</div>' +
+                '<a href="/huong-dan-kho-smart.mp4" target="_blank" style="font-size:.75rem; color:var(--mint); text-decoration:underline;">▶ Xem video hướng dẫn 15s</a>';
+              }
+            }
+
+            var itemHeader = items.length > 1 ? '<div style="font-weight: 600; font-size: 0.88rem; color: #1f2937; margin-bottom: 4px; display:flex; align-items:center; gap: 6px;"><span style="color:var(--mint-strong); font-size: 0.95rem;">📄</span> ' + escapeHtml(item.product_name) + '</div>' : '';
+
+            return '<div style="background: ' + (items.length > 1 ? '#f8fafc' : 'transparent') + '; padding: ' + (items.length > 1 ? '10px' : '0') + '; border-radius: 8px; border: ' + (items.length > 1 ? '1px solid #e2e8f0' : 'none') + '; margin-top: 6px;">' +
+                     itemHeader +
+                     '<a href="' + escapeHtml(item.delivery_url) + '" target="_blank" rel="noopener noreferrer" class="button-primary button-full" style="height: 38px; font-size: 0.88rem; text-decoration: none; display: flex; align-items: center; justify-content: center; border-radius: 8px; margin-bottom: 6px;">' + btnText + (items.length > 1 ? ' (' + escapeHtml(item.product_name) + ')' : '') + '</a>' +
+                     itemGuide +
+                   '</div>';
+          }).join("");
+
           return '<div class="drawer-item" style="flex-direction: column; align-items: stretch; gap: 10px; padding: 14px; border: 1px solid var(--line); border-radius: 10px; background: #fff; margin-bottom: 12px;">' +
                    '<div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 8px;">' +
                      '<div>' +
@@ -1015,9 +1044,8 @@
                      '</div>' +
                      '<span style="background:#ecfdf5; color:#065f46; font-size: 0.72rem; font-weight: 600; padding: 3px 8px; border-radius: 999px; white-space: nowrap;">Đã kích hoạt</span>' +
                    '</div>' +
-                   '<a href="' + escapeHtml(deliveryUrl) + '" target="_blank" rel="noopener noreferrer" class="button-primary button-full" style="height: 40px; font-size: 0.9rem; text-decoration: none; display: flex; align-items: center; justify-content: center; border-radius: 8px;">' + btnText + '</a>' +
+                   itemsHtml +
                    coachingZaloBtn +
-                   guide +
                    reviewHtml +
                  '</div>';
         }).join("");
@@ -1762,20 +1790,29 @@
     closeCheckout();
     if (quickBuyForm) quickBuyForm.reset();
     
-    var matched = findProductForOrder(data);
-    var rawUrl = (matched && (matched.sheetUrl || matched.delivery_link || matched.fileUrl)) || data.product_file_url || "";
-    var isCloud = (matched && (matched.type === "google_sheets" || !!matched.sheetUrl)) ||
-                  data.product_type === "google_sheets" ||
-                  (rawUrl && rawUrl.indexOf("docs.google.com/spreadsheets") !== -1);
-    var deliveryUrl = getSafeDeliveryUrl(rawUrl, isCloud ? "google_sheets" : data.product_type, data.product_id);
-    var btnText = isCloud ? 'Tạo bản sao Google Sheets' : 'Tải file Excel';
-    var descText = isCloud ? "Bấm nút bên dưới, đăng nhập Google rồi chọn Tạo bản sao. File sẽ được lưu trong Drive của bạn." : "Đơn hàng đã được xác nhận. Bạn có thể tải file ngay hoặc mở lại trong File của tôi.";
-    
-    var isSmartKho = (data.product_id === "quan-ly-kho-mini-google-sheets-smart") || (matched && matched.id === "quan-ly-kho-mini-google-sheets-smart");
-    var setupText = '';
-    if (isCloud && isSmartKho) {
-      setupText = '<div style="text-align:left;background:#ecfdf5;border:1px solid #a7f3d0;border-radius:12px;padding:14px;margin:16px 0;color:#065f46;font-size:.9rem;line-height:1.55"><b>Mở Web App rất nhanh:</b><br>1. Tạo bản sao và mở file trong Google Drive.<br>2. Tải lại trang một lần để thấy menu <b>📦 Kho Mini Smart</b>.<br>3. Chọn <b>Mở ứng dụng quản lý kho</b> và cấp quyền Google lần đầu.<br><br>Không cần vào Extensions, không cần tự triển khai Apps Script và không cần dán link <b>/exec</b>. Sau đó dùng được trên điện thoại, iPad hoặc máy tính.</div>';
-    }
+    var orderSuccessItems = resolveOrderItems(data);
+    var isMultipleFiles = orderSuccessItems.length > 1;
+
+    var actionButtonsHtml = orderSuccessItems.map(function(item) {
+      var isCloud = item.is_cloud;
+      var btnText = isCloud ? 'Tạo bản sao Google Sheets' : 'Tải file Excel';
+      var isSmartKho = (item.product_id === "quan-ly-kho-mini-google-sheets-smart");
+      var itemSetup = '';
+      if (isCloud && isSmartKho) {
+        itemSetup = '<div style="text-align:left;background:#ecfdf5;border:1px solid #a7f3d0;border-radius:10px;padding:12px;margin:10px 0;color:#065f46;font-size:.85rem;line-height:1.5"><b>Mở Web App rất nhanh:</b><br>1. Tạo bản sao và mở file trong Google Drive.<br>2. Tải lại trang một lần để thấy menu <b>📦 Kho Mini Smart</b>.<br>3. Chọn <b>Mở ứng dụng quản lý kho</b> và cấp quyền Google lần đầu.</div>';
+      }
+      return '<div style="background: ' + (isMultipleFiles ? '#f8fafc' : 'transparent') + '; padding: ' + (isMultipleFiles ? '14px' : '0') + '; border-radius: 12px; border: ' + (isMultipleFiles ? '1px solid #e2e8f0' : 'none') + '; margin-bottom: 12px; text-align: left;">' +
+               (isMultipleFiles ? '<div style="font-weight: 700; font-size: 0.95rem; color: #1e293b; margin-bottom: 8px; display:flex; align-items:center; gap:6px;"><span style="color:var(--mint-strong); font-size: 1.1rem;">📄</span> ' + escapeHtml(item.product_name) + '</div>' : '') +
+               '<a href="' + escapeHtml(item.delivery_url) + '" target="_blank" rel="noopener noreferrer" class="button-primary button-full" style="height: 48px; font-size: 1rem; text-decoration: none; display:flex; align-items:center; justify-content:center; border-radius: 8px;">' + btnText + (isMultipleFiles ? ' (' + escapeHtml(item.product_name) + ')' : '') + '</a>' +
+               itemSetup +
+             '</div>';
+    }).join("");
+
+    var descText = isMultipleFiles
+      ? "Đơn hàng của bạn gồm " + orderSuccessItems.length + " file đã được kích hoạt. Hãy bấm vào từng nút bên dưới để tạo bản sao vào Google Drive cá nhân của bạn:"
+      : (orderSuccessItems[0] && orderSuccessItems[0].is_cloud
+          ? "Bấm nút bên dưới, đăng nhập Google rồi chọn Tạo bản sao. File sẽ được lưu trong Drive của bạn."
+          : "Đơn hàng đã được xác nhận. Bạn có thể tải file ngay hoặc mở lại trong File của tôi.");
 
     var isCoaching = (data.package_type === "coaching") || (data.amount && data.amount >= 199000) || (state.selectedPackage === "coaching");
     var coachingCardHtml = "";
@@ -1808,8 +1845,7 @@
       '<h3 style="color: var(--mint-strong); margin-bottom: 12px; font-size: 1.5rem;">Thanh toán thành công!</h3>' +
       "<p style='color: var(--muted); margin-bottom: 24px;'>" + descText + "</p>" +
       coachingCardHtml +
-      setupText +
-      '<a href="' + escapeHtml(deliveryUrl) + '" target="_blank" rel="noopener noreferrer" class="button-primary button-full" style="height: 50px; font-size: 1.1rem; text-decoration: none; display:flex; align-items:center; justify-content:center;">' + btnText + '</a>' +
+      actionButtonsHtml +
       '<button type="button" class="button-secondary button-full" id="btnSuccessViewPurchases" style="height: 44px; margin-top: 12px; font-size: 0.95rem;">Mở danh sách File của tôi</button>' +
       "</div>";
     
@@ -2331,6 +2367,20 @@
       return p ? p.name : '';
     }).filter(Boolean).join(" + ");
 
+    var orderItems = state.cart.map(function(e) {
+      var p = getProductById(e.productId);
+      if (!p) return null;
+      var pRawUrl = p.sheetUrl || p.delivery_link || p.fileUrl || "";
+      var pIsCloud = (p.type === "google_sheets" || !!p.sheetUrl || (pRawUrl && pRawUrl.indexOf("docs.google.com/spreadsheets") !== -1));
+      return {
+        product_id: p.id,
+        product_name: p.name,
+        product_file_url: getSafeDeliveryUrl(pRawUrl, pIsCloud ? "google_sheets" : "excel", p.id),
+        product_type: pIsCloud ? "google_sheets" : (p.type || "excel"),
+        price: p.price || 0
+      };
+    }).filter(Boolean);
+
     var orderData = {
       customer_email: email,
       customer_phone: phone,
@@ -2338,6 +2388,7 @@
       product_name: productNames || product.name,
       product_file_url: product.sheetUrl || product.delivery_link || product.fileUrl || "./outputs/1_Quan_Ly_Kho_Sample.xlsx",
       product_type: (product.type === "google_sheets" || !!product.sheetUrl) ? "google_sheets" : "excel",
+      items: orderItems,
       amount: getCartTotal(),
       package_type: state.selectedPackage || "standard",
       package_name: state.selectedPackage === "coaching" ? (product.coachingTitle || "Bản Kèm 1-1 (1 buổi 1 tiếng)") : "Bản Tự Dùng"
@@ -3142,6 +3193,72 @@
       if (byName) return byName;
     }
     return null;
+  }
+
+  function resolveOrderItems(order) {
+    if (!order) return [];
+    if (Array.isArray(order.items) && order.items.length > 0) {
+      return order.items.map(function(it) {
+        var p = getProductById(it.product_id) || findProductForOrder(it);
+        var rawUrl = (p && (p.sheetUrl || p.delivery_link || p.fileUrl)) || it.product_file_url || "";
+        var isCloud = (p && (p.type === "google_sheets" || !!p.sheetUrl)) ||
+                      it.product_type === "google_sheets" ||
+                      (rawUrl && rawUrl.indexOf("docs.google.com/spreadsheets") !== -1);
+        var deliveryUrl = getSafeDeliveryUrl(rawUrl, isCloud ? "google_sheets" : (it.product_type || "excel"), it.product_id);
+        return {
+          product_id: it.product_id || (p && p.id) || "",
+          product_name: it.product_name || (p && p.name) || "File đã mua",
+          product_type: isCloud ? "google_sheets" : (it.product_type || "excel"),
+          delivery_url: deliveryUrl,
+          is_cloud: isCloud,
+          price: it.price || (p && p.price) || 0
+        };
+      });
+    }
+
+    var rawName = String(order.product_name || "");
+    if (rawName.indexOf(" + ") !== -1 && data.products && data.products.length > 0) {
+      var parts = rawName.split(" + ").map(function(s) { return s.trim(); }).filter(Boolean);
+      var matchedItems = [];
+      parts.forEach(function(partName) {
+        var lowerPart = partName.toLowerCase();
+        var found = data.products.find(function(p) {
+          if (!p || !p.name) return false;
+          var pName = p.name.trim().toLowerCase();
+          return pName === lowerPart || pName.indexOf(lowerPart) !== -1 || lowerPart.indexOf(pName) !== -1;
+        });
+        if (found) {
+          var rawUrl = found.sheetUrl || found.delivery_link || found.fileUrl || "";
+          var isCloud = found.type === "google_sheets" || !!found.sheetUrl || (rawUrl && rawUrl.indexOf("docs.google.com/spreadsheets") !== -1);
+          matchedItems.push({
+            product_id: found.id,
+            product_name: found.name,
+            product_type: isCloud ? "google_sheets" : (found.type || "excel"),
+            delivery_url: getSafeDeliveryUrl(rawUrl, isCloud ? "google_sheets" : "excel", found.id),
+            is_cloud: isCloud,
+            price: found.price || 0
+          });
+        }
+      });
+      if (matchedItems.length > 1) {
+        return matchedItems;
+      }
+    }
+
+    var singleMatched = findProductForOrder(order);
+    var singleUrl = (singleMatched && (singleMatched.sheetUrl || singleMatched.delivery_link || singleMatched.fileUrl)) || order.product_file_url || "";
+    var singleCloud = (singleMatched && (singleMatched.type === "google_sheets" || !!singleMatched.sheetUrl)) ||
+                      order.product_type === "google_sheets" ||
+                      (singleUrl && singleUrl.indexOf("docs.google.com/spreadsheets") !== -1);
+    var singleDelivery = getSafeDeliveryUrl(singleUrl, singleCloud ? "google_sheets" : order.product_type, order.product_id);
+    return [{
+      product_id: order.product_id || (singleMatched && singleMatched.id) || "",
+      product_name: order.product_name || (singleMatched && singleMatched.name) || "File đã mua",
+      product_type: singleCloud ? "google_sheets" : (order.product_type || "excel"),
+      delivery_url: singleDelivery,
+      is_cloud: singleCloud,
+      price: order.amount || 0
+    }];
   }
 
   function getCartTotal() {

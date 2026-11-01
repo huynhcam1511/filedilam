@@ -72,6 +72,80 @@ def api(req: https_fn.Request) -> https_fn.Response:
     if method == "OPTIONS":
         return https_fn.Response(status=204, headers=cors_headers())
 
+    if path == "/admin/confirm-payment" and method == "POST":
+        user = require_user(req)
+        if not user or user.get("email") != "huynhkiencam151102@gmail.com":
+            return json_response({"error": "ADMIN_AUTH_REQUIRED"}, 403)
+        data = req.get_json(silent=True) or {}
+        order_id = str(data.get("order_id") or "").strip().upper()
+        if not order_id:
+            return json_response({"error": "MISSING_ORDER_ID"}, 400)
+        
+        doc_ref = db.collection("orders").document(order_id)
+        doc = doc_ref.get()
+        if not doc.exists:
+            return json_response({"error": "ORDER_NOT_FOUND"}, 404)
+        
+        order_data = doc.to_dict()
+        now = datetime.now(timezone.utc)
+        doc_ref.update({
+            "status": "PAID",
+            "paid_at": now,
+            "manual_confirm_by": user.get("email")
+        })
+
+        # Cập nhật lượt mua sản phẩm
+        target_pids = set()
+        order_items = order_data.get("items")
+        if isinstance(order_items, list) and len(order_items) > 0:
+            for it in order_items:
+                if isinstance(it, dict) and it.get("product_id"):
+                    target_pids.add(it["product_id"])
+        elif order_data.get("product_id"):
+            target_pids.add(order_data["product_id"])
+
+        for pid in target_pids:
+            try:
+                p_ref = db.collection("products").document(pid)
+                if p_ref.get().exists:
+                    p_ref.update({"downloads_count": firestore.Increment(1)})
+            except Exception as e:
+                print(f"[Admin Confirm] Failed to increment downloads_count for {pid}: {e}")
+
+        return json_response({
+            "success": True,
+            "order_id": order_id,
+            "status": "PAID"
+        })
+
+    if path == "/admin/generate-magic-link" and method == "POST":
+        user = require_user(req)
+        if not user or user.get("email") != "huynhkiencam151102@gmail.com":
+            return json_response({"error": "ADMIN_AUTH_REQUIRED"}, 403)
+        data = req.get_json(silent=True) or {}
+        target_uid = str(data.get("user_id") or "").strip()
+        order_id = str(data.get("order_id") or "").strip()
+
+        if not target_uid and order_id:
+            order_doc = db.collection("orders").document(order_id).get()
+            if order_doc.exists:
+                target_uid = order_doc.to_dict().get("user_id")
+
+        if not target_uid:
+            return json_response({"error": "MISSING_USER_ID"}, 400)
+
+        try:
+            # Tạo Custom Token của Firebase Auth có hạn sử dụng
+            custom_token = auth.create_custom_token(target_uid)
+            token_str = custom_token.decode("utf-8") if isinstance(custom_token, bytes) else str(custom_token)
+            magic_url = f"https://filedilam.web.app/?magic={token_str}&tab=my-files"
+            return json_response({
+                "magic_url": magic_url,
+                "user_id": target_uid
+            })
+        except Exception as e:
+            return json_response({"error": "FAILED_TO_CREATE_MAGIC_TOKEN", "detail": str(e)}, 500)
+
     if path == "/profile" and method in ("GET", "PUT"):
         user = require_user(req)
         if not user:
@@ -178,13 +252,26 @@ def api(req: https_fn.Request) -> https_fn.Response:
                             "reused": True
                         })
 
+        raw_items = data.get("items")
+        items = []
+        if isinstance(raw_items, list) and len(raw_items) > 0:
+            for it in raw_items:
+                if isinstance(it, dict):
+                    items.append({
+                        "product_id": str(it.get("product_id") or ""),
+                        "product_name": str(it.get("product_name") or ""),
+                        "product_file_url": str(it.get("product_file_url") or ""),
+                        "product_type": str(it.get("product_type") or "google_sheets"),
+                        "price": int(it.get("price") or 0)
+                    })
+
         customer_email = data.get("customer_email") or user.get("email", "")
         order_id = generate_order_id(phone)
         while db.collection("orders").document(order_id).get().exists:
             order_id = generate_order_id(phone)
             
         doc_ref = db.collection("orders").document(order_id)
-        doc_ref.set({
+        order_doc_data = {
             "id": order_id,
             "customer_email": customer_email,
             "customer_phone": phone,
@@ -198,7 +285,11 @@ def api(req: https_fn.Request) -> https_fn.Response:
             "package_name": req_package_name,
             "status": "PENDING",
             "created_at": now
-        })
+        }
+        if items:
+            order_doc_data["items"] = items
+
+        doc_ref.set(order_doc_data)
         
         return json_response({
             "order_id": order_id,
@@ -227,9 +318,11 @@ def api(req: https_fn.Request) -> https_fn.Response:
             "status": order_data.get("status"),
             "amount": order_data.get("amount"),
             "product_id": order_data.get("product_id", ""),
+            "product_name": order_data.get("product_name", ""),
             "product_type": order_data.get("product_type", "excel"),
             "package_type": order_data.get("package_type", "standard"),
             "package_name": order_data.get("package_name", "Bản Tự Dùng"),
+            "items": order_data.get("items") if order_data.get("status") == "PAID" else None,
             "product_file_url": order_data.get("product_file_url") if order_data.get("status") == "PAID" else None
         })
         
@@ -251,6 +344,7 @@ def api(req: https_fn.Request) -> https_fn.Response:
                 "product_type": order_data.get("product_type", "excel"),
                 "package_type": order_data.get("package_type", "standard"),
                 "package_name": order_data.get("package_name", "Bản Tự Dùng"),
+                "items": order_data.get("items") or [],
                 "amount": order_data.get("amount"),
                 "has_reviewed": bool(order_data.get("has_reviewed")),
                 "review_stars": order_data.get("review_stars", 0),
@@ -387,18 +481,39 @@ def api(req: https_fn.Request) -> https_fn.Response:
                     daily_revenue_map[created_str]["revenue"] += amount
                     daily_revenue_map[created_str]["count"] += 1
                     
-                pid = o.get("product_id") or "other"
-                pname = o.get("product_name") or "File tổng hợp"
-                if pid not in product_sales:
-                    product_sales[pid] = {
-                        "id": pid,
-                        "name": pname,
-                        "count": 0,
-                        "revenue": 0,
-                        "price": amount
-                    }
-                product_sales[pid]["count"] += 1
-                product_sales[pid]["revenue"] += amount
+                # Ghi nhận doanh số / lượt mua cho từng sản phẩm (bao gồm tách các item trong combo)
+                order_items = o.get("items")
+                if isinstance(order_items, list) and len(order_items) > 0:
+                    item_count = len(order_items)
+                    for it in order_items:
+                        sub_pid = it.get("product_id") or "other"
+                        sub_pname = it.get("product_name") or "File con"
+                        # Phân bổ doanh thu nếu có giá item hoặc chia đều
+                        sub_price = int(it.get("price") or 0)
+                        sub_rev = sub_price if sub_price > 0 else round(amount / item_count)
+                        if sub_pid not in product_sales:
+                            product_sales[sub_pid] = {
+                                "id": sub_pid,
+                                "name": sub_pname,
+                                "count": 0,
+                                "revenue": 0,
+                                "price": sub_price or amount
+                            }
+                        product_sales[sub_pid]["count"] += 1
+                        product_sales[sub_pid]["revenue"] += sub_rev
+                else:
+                    pid = o.get("product_id") or "other"
+                    pname = o.get("product_name") or "File tổng hợp"
+                    if pid not in product_sales:
+                        product_sales[pid] = {
+                            "id": pid,
+                            "name": pname,
+                            "count": 0,
+                            "revenue": 0,
+                            "price": amount
+                        }
+                    product_sales[pid]["count"] += 1
+                    product_sales[pid]["revenue"] += amount
 
         best_sellers = sorted(product_sales.values(), key=lambda x: x["revenue"], reverse=True)[:10]
         daily_list = sorted(daily_revenue_map.values(), key=lambda x: x["date"])
@@ -434,6 +549,7 @@ def api(req: https_fn.Request) -> https_fn.Response:
                 "package_name": o.get("package_name", "Bản Tự Dùng"),
                 "product_file_url": o.get("product_file_url", ""),
                 "product_type": o.get("product_type", "excel"),
+                "items": o.get("items") or [],
                 "customer_phone": o.get("customer_phone", ""),
                 "customer_email": o.get("customer_email", ""),
                 "user_id": o.get("user_id", ""),
@@ -509,13 +625,28 @@ def api(req: https_fn.Request) -> https_fn.Response:
                     "reference_code": payload.get("referenceCode")
                 })
 
+                # Cập nhật lượt tải / lượt mua cho sản phẩm
+                # Nếu đơn hàng có danh sách items (combo gồm nhiều file), tăng downloads_count cho từng file
+                target_pids = set()
+                order_items = matched_order.get("items")
+                if isinstance(order_items, list) and len(order_items) > 0:
+                    for it in order_items:
+                        it_pid = it.get("product_id")
+                        if it_pid:
+                            target_pids.add(str(it_pid))
+                
+                # Bổ sung product_id gốc nếu có
                 product_id = matched_order.get("product_id")
                 if product_id:
+                    target_pids.add(str(product_id))
+
+                if target_pids:
                     try:
                         from google.cloud import firestore as gc_firestore
-                        db.collection("products").document(product_id).set({
-                            "downloads_count": gc_firestore.Increment(1)
-                        }, merge=True)
+                        for pid in target_pids:
+                            db.collection("products").document(pid).set({
+                                "downloads_count": gc_firestore.Increment(1)
+                            }, merge=True)
                     except Exception as pe:
                         print(f"Lỗi cập nhật downloads_count: {pe}")
 
