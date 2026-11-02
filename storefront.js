@@ -843,6 +843,11 @@
     return /^[0-9]{9,11}$/.test(normalizePhone(value));
   }
 
+  function isValidEmail(value) {
+    var str = String(value || "").trim().toLowerCase();
+    return /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(str);
+  }
+
   function getResolvedPhone() {
     if (state.profile && isValidPhone(state.profile.phone)) {
       return normalizePhone(state.profile.phone);
@@ -2175,25 +2180,36 @@
 
     if (!isQuickLoginMode) {
       // --- CHẾ ĐỘ: KHÁCH MUA LẦN ĐẦU ---
+      // 1. Gmail bắt buộc
+      var emailInput = quickEmail ? quickEmail.value.trim().toLowerCase() : "";
+      if (!isValidEmail(emailInput)) {
+        showToast("Vui lòng nhập đúng địa chỉ Gmail để nhận link bản sao Google Sheets.");
+        if (quickEmail) quickEmail.focus();
+        if (btnQuickSubmit) btnQuickSubmit.disabled = false;
+        return;
+      }
+
+      // 2. Số điện thoại bắt buộc
       var phoneInput = quickPhone.value.trim();
       var phone = normalizePhone(phoneInput);
       if (!isValidPhone(phone)) {
         showToast("Vui lòng nhập đúng số điện thoại/Zalo (9–11 số).");
+        if (quickPhone) quickPhone.focus();
         if (btnQuickSubmit) btnQuickSubmit.disabled = false;
         return;
       }
 
+      // 3. Mật khẩu
       var password = quickPassword.value;
       if (!password || password.length < 6) {
-        showToast("Mật khẩu cần ít nhất 6 ký tự để bảo mật.");
+        showToast("Mật khẩu cần ít nhất 6 ký tự để bảo mật đơn hàng.");
+        if (quickPassword) quickPassword.focus();
         if (btnQuickSubmit) btnQuickSubmit.disabled = false;
         return;
       }
 
-      var emailInput = quickEmail ? quickEmail.value.trim() : "";
-      var email = (emailInput && emailInput.indexOf("@") !== -1) ? emailInput.toLowerCase() : "";
+      var customerEmail = emailInput;
       var authEmail = phone + "@khachhang.filedilam.vn";
-      var customerEmail = email || authEmail;
 
       showToast("Đang tạo thông tin đơn hàng...");
 
