@@ -16,7 +16,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="./storefront.css?v=97" />
+    <link rel="stylesheet" href="./storefront.css?v=98" />
     <style>
     :root {
       --bg: #ffffff;
@@ -1351,14 +1351,16 @@
       font-family: var(--font-mono);
     }
 
-    /* FAQ ACCORDION */
+    /* FAQ ACCORDION & TYPOGRAPHY */
     .faq-section {
-      padding: 60px 0 90px;
+      padding: 80px 0 100px;
+      border-top: 1px solid var(--line-subtle);
     }
     .faq-grid {
       display: grid;
-      grid-template-columns: 1fr 1.5fr;
-      gap: 48px;
+      grid-template-columns: 1fr 1.6fr;
+      gap: 56px;
+      align-items: start;
     }
     .faq-list {
       display: flex;
@@ -1368,8 +1370,9 @@
       background: transparent;
       border: none;
       border-radius: 0;
-      padding: 24px 0;
-      border-bottom: 1px solid var(--line-subtle);
+      padding: 28px 0;
+      border-bottom: 1px solid #edf2f7;
+      transition: all 0.2s ease;
     }
     .faq-item:first-child {
       padding-top: 0;
@@ -1378,16 +1381,17 @@
       border-bottom: none;
     }
     .faq-question {
-      font-size: 18px;
-      font-weight: 600;
+      font-size: 1.15rem;
+      font-weight: 700;
       color: #181925;
-      margin-bottom: 8px;
-      line-height: 1.4;
+      margin-bottom: 10px;
+      line-height: 1.35;
+      letter-spacing: -0.3px;
     }
     .faq-answer {
-      font-size: 16px;
-      color: #333333;
-      line-height: 25.6px;
+      font-size: 0.95rem;
+      color: #64748b;
+      line-height: 1.6;
       font-weight: 400;
     }
 
@@ -1969,8 +1973,9 @@
   <section class="faq-section" id="faq">
     <div class="container faq-grid">
       <div>
-        <span class="section-tag">Trước khi mua</span>
-        <h2 class="section-title">Những câu khách hay hỏi</h2>
+        <span class="section-tag" style="background: #ffffff; border: 1px solid #e2e8f0; padding: 4px 14px; border-radius: 9999px; font-size: 0.78rem; font-weight: 600; color: #475569; display: inline-block; margin-bottom: 12px; width: fit-content;">TRƯỚC KHI MUA</span>
+        <h2 class="section-title" style="font-size: 2.2rem; font-weight: 700; letter-spacing: -1.2px; line-height: 1.2; color: #181925; margin-bottom: 16px;">Những câu khách hay hỏi</h2>
+        <p style="font-size: 0.95rem; color: #64748b; line-height: 1.55; max-width: 380px;">Tất cả những điều bạn cần biết trước khi sở hữu và sử dụng file Google Sheets tại File Đi Làm.</p>
       </div>
       <div class="faq-list">
         <div class="faq-item">
