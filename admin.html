@@ -3,356 +3,677 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Admin Dashboard - File Đi Làm</title>
+  <title>Admin Dashboard | File Đi Làm</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="./storefront.css" />
   <style>
-    body { background-color: #f3f4f6; margin: 0; }
+    :root {
+      --mint-primary: #059669;
+      --mint-light: #ecfdf5;
+      --mint-border: #a7f3d0;
+      --slate-bg: #f8fafc;
+      --slate-card: #ffffff;
+      --slate-border: #e2e8f0;
+      --slate-text: #0f172a;
+      --slate-muted: #64748b;
+    }
+    * { box-sizing: border-box; }
+    body { background-color: var(--slate-bg); margin: 0; font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; color: var(--slate-text); }
     .hidden { display: none !important; }
-    .form-group { margin-bottom: 20px; }
-    .form-group label { display: block; margin-bottom: 6px; font-weight: 600; font-size: 0.9rem; color: #374151; }
-    .form-group input[type="text"], .form-group input[type="number"], .form-group select, .form-group textarea { 
-      width: 100%; padding: 12px; border: 1px solid #d1d5db; border-radius: 8px; font-family: inherit; font-size: 0.95rem; transition: border-color 0.2s, box-shadow 0.2s; background: #f9fafb;
-    }
-    .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
-      outline: none; border-color: var(--mint-strong); box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1); background: white;
-    }
-    .form-group textarea { resize: vertical; min-height: 120px; }
-    
-    .file-input-wrapper {
-      position: relative; overflow: hidden; display: inline-block; width: 100%;
-    }
-    .file-input-wrapper input[type=file] {
-      font-size: 100px; position: absolute; left: 0; top: 0; opacity: 0; cursor: pointer; height: 100%;
-    }
-    .file-input-btn {
-      display: flex; align-items: center; justify-content: center; gap: 8px;
-      border: 2px dashed #d1d5db; background: #f9fafb; color: #6b7280; border-radius: 8px; padding: 16px; font-weight: 500; text-align: center; pointer-events: none; transition: all 0.2s;
-    }
-    .file-input-wrapper:hover .file-input-btn { border-color: var(--mint-strong); color: var(--mint-strong); background: #f0fdf4; }
-    
-    .dashboard-wrapper { display: flex; min-height: calc(100vh - 64px); position: relative; }
-    .sidebar {
-      width: 240px;
-      background: white;
-      border-right: 1px solid var(--line);
-      padding: 24px 0;
-      flex-shrink: 0;
-      transition: width 0.25s cubic-bezier(0.4, 0, 0.2, 1), padding 0.25s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.2s ease, border-color 0.25s ease;
-      overflow: hidden;
-      white-space: nowrap;
-    }
-    .sidebar-menu { list-style: none; padding: 0; margin: 0; min-width: 240px; }
-    .sidebar-menu li { padding: 12px 24px; cursor: pointer; border-left: 3px solid transparent; font-weight: 500; color: var(--muted); transition: all 0.2s; display: flex; align-items: center; gap: 12px; }
-    .sidebar-menu li:hover { background: #f9fafb; color: #111; }
-    .sidebar-menu li.active { border-left-color: var(--mint-strong); color: var(--mint-strong); background: #f0fdf4; }
-    .sidebar-menu li svg { flex-shrink: 0; }
 
-    /* Khi sidebar closed -> Fullpage layout */
-    .dashboard-wrapper.sidebar-collapsed .sidebar {
-      width: 0 !important;
-      padding: 24px 0 !important;
-      border-right: 1px solid transparent !important;
-      opacity: 0;
-      pointer-events: none;
+    /* Topbar Layout (Alocal Header) */
+    .top-header {
+      position: sticky;
+      top: 0;
+      height: 64px;
+      background: #ffffff;
+      border-bottom: 1px solid var(--slate-border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 24px;
+      z-index: 60;
     }
-    
-    .main-content {
-      flex: 1;
-      width: 100%;
-      min-width: 0;
-      padding: 40px;
-      overflow-y: auto;
-      background: #f3f4f6;
-      transition: padding 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    .top-left {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      min-width: 240px;
     }
-    .dashboard-wrapper.sidebar-collapsed .main-content {
-      max-width: 100%;
-      padding: 40px 48px;
-    }
-
-    /* Burger toggle button */
-    .sidebar-toggle-btn {
+    .burger-btn {
       display: inline-flex;
       align-items: center;
       justify-content: center;
       width: 38px;
       height: 38px;
       border-radius: 8px;
-      border: 1px solid var(--line);
-      background: #ffffff;
-      color: #374151;
+      border: 1px solid transparent;
+      background: transparent;
+      color: #334155;
       cursor: pointer;
-      transition: all 0.2s ease;
-      margin-right: 14px;
+      transition: all 0.2s;
       padding: 0;
-      flex-shrink: 0;
     }
-    .sidebar-toggle-btn:hover {
+    .burger-btn:hover {
       background: #f1f5f9;
-      color: var(--mint-strong);
+      color: var(--mint-primary);
+    }
+    .admin-brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+      color: inherit;
+    }
+    .admin-brand .logo-mark {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      background: #047857;
+      color: #ffffff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 1.1rem;
+    }
+    .admin-brand span {
+      font-weight: 700;
+      font-size: 1.15rem;
+      letter-spacing: -0.02em;
+      color: #0f172a;
+    }
+
+    /* Topbar Center Search */
+    .top-center {
+      flex: 1;
+      max-width: 480px;
+      margin: 0 20px;
+    }
+    .top-search-wrap {
+      position: relative;
+      width: 100%;
+    }
+    .top-search-wrap svg {
+      position: absolute;
+      left: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #94a3b8;
+      pointer-events: none;
+    }
+    .top-search-input {
+      width: 100%;
+      height: 40px;
+      border-radius: 20px;
+      border: 1px solid var(--slate-border);
+      background: #f8fafc;
+      padding: 0 16px 0 40px;
+      font-size: 0.88rem;
+      font-family: inherit;
+      color: #1e293b;
+      outline: none;
+      transition: all 0.2s;
+    }
+    .top-search-input:focus {
+      background: #ffffff;
+      border-color: var(--mint-primary);
+      box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.1);
+    }
+
+    /* Topbar Right Profile & Actions */
+    .top-right {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    .icon-action-btn {
+      position: relative;
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      border: 1px solid var(--slate-border);
+      background: #ffffff;
+      color: #64748b;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .icon-action-btn:hover {
+      background: #f8fafc;
+      color: #0f172a;
       border-color: #cbd5e1;
     }
-    .sidebar-toggle-btn svg {
-      width: 20px;
+    .profile-chip {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 4px 10px 4px 6px;
+      border-radius: 24px;
+      background: #ffffff;
+      border: 1px solid var(--slate-border);
+      cursor: pointer;
+      transition: all 0.15s;
+      position: relative;
+    }
+    .profile-chip:hover {
+      border-color: #cbd5e1;
+      background: #f8fafc;
+    }
+    .profile-avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: #e2e8f0;
+      object-fit: cover;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      color: #475569;
+      font-size: 0.82rem;
+      border: 1px solid var(--slate-border);
+    }
+    .profile-info {
+      text-align: left;
+      line-height: 1.25;
+    }
+    .profile-name {
+      font-size: 0.86rem;
+      font-weight: 600;
+      color: #0f172a;
+      display: block;
+    }
+    .profile-email {
+      font-size: 0.74rem;
+      color: #64748b;
+      display: block;
+      max-width: 170px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .profile-dropdown {
+      position: absolute;
+      top: calc(100% + 8px);
+      right: 0;
+      background: #ffffff;
+      border: 1px solid var(--slate-border);
+      border-radius: 12px;
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.08);
+      width: 200px;
+      padding: 6px;
+      display: none;
+      z-index: 100;
+    }
+    .profile-dropdown.show { display: block; }
+    .dropdown-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      width: 100%;
+      padding: 9px 12px;
+      border-radius: 8px;
+      font-size: 0.86rem;
+      font-weight: 500;
+      color: #334155;
+      text-decoration: none;
+      border: none;
+      background: transparent;
+      cursor: pointer;
+      text-align: left;
+    }
+    .dropdown-item:hover {
+      background: #f1f5f9;
+      color: #0f172a;
+    }
+    .dropdown-item.danger { color: #dc2626; }
+    .dropdown-item.danger:hover { background: #fef2f2; }
+
+    /* App Shell Layout */
+    .dashboard-wrapper {
+      display: flex;
+      min-height: calc(100vh - 64px);
+      position: relative;
+    }
+
+    /* Alocal Grouped Sidebar */
+    .sidebar {
+      width: 260px;
+      background: #ffffff;
+      border-right: 1px solid var(--slate-border);
+      padding: 16px 12px;
+      flex-shrink: 0;
+      transition: width 0.25s cubic-bezier(0.4, 0, 0.2, 1), padding 0.25s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.2s ease, border-color 0.25s ease;
+      overflow-y: auto;
+      overflow-x: hidden;
+    }
+    .sidebar-group {
+      margin-bottom: 22px;
+    }
+    .sidebar-group-title {
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      color: #94a3b8;
+      text-transform: uppercase;
+      padding: 0 12px;
+      margin-bottom: 6px;
+    }
+    .sidebar-menu {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+    .sidebar-menu li {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 12px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 0.88rem;
+      font-weight: 500;
+      color: #475569;
+      transition: all 0.15s ease;
+      margin-bottom: 2px;
+    }
+    .sidebar-menu li .menu-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .sidebar-menu li svg {
+      color: #64748b;
+      flex-shrink: 0;
+      transition: color 0.15s;
+    }
+    .sidebar-menu li:hover {
+      background: #f8fafc;
+      color: #0f172a;
+    }
+    .sidebar-menu li:hover svg {
+      color: var(--mint-primary);
+    }
+    .sidebar-menu li.active {
+      background: var(--mint-light);
+      color: var(--mint-primary);
+      font-weight: 600;
+    }
+    .sidebar-menu li.active svg {
+      color: var(--mint-primary);
+    }
+    .sidebar-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 20px;
       height: 20px;
-      transition: transform 0.2s ease;
+      padding: 0 6px;
+      border-radius: 10px;
+      font-size: 0.72rem;
+      font-weight: 700;
+      background: #f1f5f9;
+      color: #475569;
     }
-    .dashboard-wrapper.sidebar-collapsed ~ .top-nav .sidebar-toggle-btn svg,
-    body.is-sidebar-collapsed .sidebar-toggle-btn svg {
-      transform: scale(0.95);
+    .sidebar-badge.danger {
+      background: #f43f5e;
+      color: #ffffff;
     }
-    .tab-pane { display: none; animation: fadeIn 0.3s; }
+    .sidebar-badge.mint {
+      background: var(--mint-border);
+      color: #065f46;
+    }
+
+    /* Sidebar Collapsed State (Fullpage) */
+    .dashboard-wrapper.sidebar-collapsed .sidebar {
+      width: 0 !important;
+      padding: 16px 0 !important;
+      border-right: 1px solid transparent !important;
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    /* Main Content Area */
+    .main-content {
+      flex: 1;
+      width: 100%;
+      min-width: 0;
+      padding: 24px 32px 48px;
+      overflow-y: auto;
+      background: var(--slate-bg);
+      transition: padding 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .dashboard-wrapper.sidebar-collapsed .main-content {
+      padding: 24px 44px 48px;
+    }
+
+    .tab-pane { display: none; animation: fadeIn 0.2s ease-out; }
     .tab-pane.active { display: block; }
-    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
 
-    .data-table-container { background: white; border-radius: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); overflow-x: auto; }
-    .data-table { width: 100%; border-collapse: collapse; min-width: 700px; }
-    .data-table th, .data-table td { padding: 12px 16px; border-bottom: 1px solid var(--line); text-align: left; font-size: 0.92rem; vertical-align: middle; }
-    .data-table th { background: #f9fafb; font-size: 0.85rem; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; height: 48px; }
-    .data-table tbody tr { height: 52px; }
-    .data-table tr:last-child td { border-bottom: none; }
-    .data-table tbody tr:hover { background: #f9fafb; }
-    
-    .action-btn { background: transparent; border: none; cursor: pointer; font-weight: 600; padding: 6px 10px; border-radius: 4px; transition: background 0.2s; }
-    .action-btn:hover { background: #e5e7eb; }
-    .action-btn.danger { color: #ef4444; }
-    .action-btn.danger:hover { background: #fef2f2; }
-    
-    .login-box { text-align: center; padding: 60px 20px; max-width: 400px; margin: 60px auto; background: white; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
-    
-    #toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: #333; color: white; padding: 12px 24px; border-radius: 8px; z-index: 1000; opacity: 0; transition: opacity 0.3s; pointer-events: none; font-weight: 500; box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
-    #toast.show { opacity: 1; }
-    
-    .admin-form { max-width: 650px; background: white; padding: 40px; border-radius: 16px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05), 0 2px 4px -1px rgba(0,0,0,0.03); }
-
-    /* Slicer Filter Bar */
-    .slicer-bar {
+    /* Alocal Action Toolbar Card */
+    .action-toolbar {
       background: #ffffff;
-      border-radius: 12px;
-      padding: 14px 18px;
-      border: 1px solid var(--line);
-      margin-bottom: 24px;
+      border: 1px solid var(--slate-border);
+      border-radius: 14px;
+      padding: 12px 18px;
+      margin-bottom: 20px;
       display: flex;
       align-items: center;
+      justify-content: space-between;
       gap: 16px;
       flex-wrap: wrap;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+      box-shadow: 0 1px 2px rgba(0,0,0,0.02);
     }
-    .slicer-group {
+    .toolbar-left {
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 10px;
+      flex-wrap: wrap;
+      flex: 1;
     }
-    .slicer-label {
-      font-size: 0.84rem;
-      font-weight: 600;
-      color: var(--muted);
-      white-space: nowrap;
-      text-transform: uppercase;
-      letter-spacing: 0.03em;
+    .search-box-pill {
+      position: relative;
+      min-width: 250px;
+      flex: 1;
+      max-width: 340px;
     }
-    .slicer-select {
+    .search-box-pill svg {
+      position: absolute;
+      left: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #94a3b8;
+      pointer-events: none;
+    }
+    .search-box-pill input {
+      width: 100%;
       height: 38px;
-      padding: 0 12px;
-      border: 1px solid var(--line);
       border-radius: 8px;
-      font-size: 0.88rem;
-      font-weight: 500;
-      color: #1e293b;
+      border: 1px solid var(--slate-border);
       background: #f8fafc;
+      padding: 0 14px 0 36px;
+      font-size: 0.86rem;
+      font-family: inherit;
       outline: none;
-      cursor: pointer;
-      transition: all 0.2s;
+      transition: all 0.15s;
     }
-    .slicer-select:focus, .slicer-select:hover {
-      border-color: var(--mint-strong);
+    .search-box-pill input:focus {
       background: #ffffff;
+      border-color: var(--mint-primary);
+      box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.1);
     }
-    .slicer-btn-group {
-      display: inline-flex;
-      background: #f1f5f9;
+    .pill-select {
+      height: 38px;
+      padding: 0 14px;
       border-radius: 8px;
-      padding: 3px;
-      gap: 2px;
-    }
-    .slicer-btn {
-      border: none;
-      background: transparent;
-      padding: 6px 12px;
-      font-size: 0.82rem;
-      font-weight: 600;
-      color: #64748b;
-      border-radius: 6px;
+      border: 1px solid var(--slate-border);
+      background: #f8fafc;
+      color: #334155;
+      font-size: 0.84rem;
+      font-weight: 500;
+      outline: none;
       cursor: pointer;
       transition: all 0.15s;
     }
-    .slicer-btn:hover {
-      color: #0f172a;
-    }
-    .slicer-btn.active {
+    .pill-select:focus, .pill-select:hover {
       background: #ffffff;
-      color: var(--mint-strong);
-      box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+      border-color: var(--mint-primary);
     }
-
-    /* Slicer Filter Bar */
-    .slicer-bar {
-      background: #ffffff;
-      border-radius: 12px;
-      padding: 14px 18px;
-      border: 1px solid var(--line);
-      margin-bottom: 24px;
-      display: flex;
-      align-items: center;
-      gap: 16px;
-      flex-wrap: wrap;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.02);
-    }
-    .slicer-group {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-    .slicer-label {
-      font-size: 0.84rem;
-      font-weight: 600;
-      color: var(--muted);
-      white-space: nowrap;
-      text-transform: uppercase;
-      letter-spacing: 0.03em;
-    }
-    .slicer-select {
-      height: 38px;
-      padding: 0 12px;
-      border: 1px solid var(--line);
-      border-radius: 8px;
-      font-size: 0.88rem;
-      font-weight: 500;
-      color: #1e293b;
-      background: #f8fafc;
-      outline: none;
-      cursor: pointer;
-      transition: all 0.2s;
-    }
-    .slicer-select:focus, .slicer-select:hover {
-      border-color: var(--mint-strong);
-      background: #ffffff;
-    }
-    .slicer-btn-group {
+    .pill-btn-group {
       display: inline-flex;
       background: #f1f5f9;
-      border-radius: 8px;
+      border-radius: 20px;
       padding: 3px;
       gap: 2px;
     }
-    .slicer-btn {
+    .pill-btn {
       border: none;
       background: transparent;
-      padding: 6px 12px;
+      padding: 6px 14px;
+      border-radius: 16px;
       font-size: 0.82rem;
       font-weight: 600;
       color: #64748b;
-      border-radius: 6px;
       cursor: pointer;
       transition: all 0.15s;
     }
-    .slicer-btn:hover {
-      color: #0f172a;
-    }
-    .slicer-btn.active {
+    .pill-btn:hover { color: #0f172a; }
+    .pill-btn.active {
       background: #ffffff;
-      color: var(--mint-strong);
-      box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+      color: var(--mint-primary);
+      box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+    }
+    .toolbar-right {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .status-counter-text {
+      font-size: 0.82rem;
+      color: #64748b;
+      white-space: nowrap;
+    }
+    .status-counter-text b { color: #0f172a; }
+
+    /* Alocal Rounded Action Buttons */
+    .btn-create-pill {
+      height: 38px;
+      padding: 0 16px;
+      border-radius: 8px;
+      background: var(--mint-primary);
+      color: #ffffff;
+      font-size: 0.86rem;
+      font-weight: 600;
+      border: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      cursor: pointer;
+      transition: all 0.15s;
+      box-shadow: 0 1px 2px rgba(5, 150, 105, 0.2);
+    }
+    .btn-create-pill:hover {
+      background: #047857;
+      transform: translateY(-1px);
+    }
+    .btn-icon-pill {
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      background: #ffffff;
+      border: 1px solid var(--slate-border);
+      color: #475569;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .btn-icon-pill:hover {
+      background: #f8fafc;
+      color: #0f172a;
+      border-color: #cbd5e1;
     }
 
-    /* Stats & Orders Dashboard Styles */
+    /* Alocal Data Table Container */
+    .data-table-card {
+      background: #ffffff;
+      border: 1px solid var(--slate-border);
+      border-radius: 14px;
+      overflow: hidden;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+    }
+    .table-responsive {
+      overflow-x: auto;
+      width: 100%;
+    }
+    .alocal-table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+    }
+    .alocal-table th {
+      background: #ffffff;
+      padding: 14px 18px;
+      font-size: 0.74rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: #64748b;
+      border-bottom: 1px solid var(--slate-border);
+      white-space: nowrap;
+    }
+    .alocal-table td {
+      padding: 14px 18px;
+      font-size: 0.88rem;
+      color: #1e293b;
+      border-bottom: 1px solid #f1f5f9;
+      vertical-align: middle;
+    }
+    .alocal-table tbody tr:hover {
+      background: #f8fafc;
+    }
+    .alocal-table tbody tr:last-child td {
+      border-bottom: none;
+    }
+
+    /* Alocal Status Pills with Dots */
+    .status-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 10px;
+      border-radius: 16px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+    .status-pill::before {
+      content: '';
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: currentColor;
+    }
+    .status-pill.success {
+      background: #ecfdf5;
+      color: #059669;
+      border: 1px solid #a7f3d0;
+    }
+    .status-pill.warning {
+      background: #fffbeb;
+      color: #d97706;
+      border: 1px solid #fde68a;
+    }
+    .status-pill.neutral {
+      background: #f1f5f9;
+      color: #64748b;
+      border: 1px solid #e2e8f0;
+    }
+
+    /* Forms */
+    .admin-form-card {
+      max-width: 680px;
+      background: #ffffff;
+      padding: 36px 40px;
+      border-radius: 16px;
+      border: 1px solid var(--slate-border);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+    }
+    .form-group { margin-bottom: 20px; }
+    .form-group label { display: block; margin-bottom: 6px; font-weight: 600; font-size: 0.88rem; color: #334155; }
+    .form-group input[type="text"], .form-group input[type="number"], .form-group input[type="url"], .form-group select, .form-group textarea {
+      width: 100%;
+      padding: 10px 14px;
+      border: 1px solid var(--slate-border);
+      border-radius: 8px;
+      font-family: inherit;
+      font-size: 0.92rem;
+      background: #f8fafc;
+      color: #0f172a;
+      transition: all 0.2s;
+    }
+    .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+      outline: none;
+      border-color: var(--mint-primary);
+      box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.1);
+      background: #ffffff;
+    }
+    .form-group textarea { resize: vertical; min-height: 100px; }
+
+    .file-input-wrapper { position: relative; overflow: hidden; display: inline-block; width: 100%; }
+    .file-input-wrapper input[type=file] { font-size: 100px; position: absolute; left: 0; top: 0; opacity: 0; cursor: pointer; height: 100%; }
+    .file-input-btn {
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+      border: 2px dashed #cbd5e1; background: #f8fafc; color: #64748b; border-radius: 8px; padding: 14px; font-weight: 500; font-size: 0.9rem; text-align: center; pointer-events: none; transition: all 0.2s;
+    }
+    .file-input-wrapper:hover .file-input-btn { border-color: var(--mint-primary); color: var(--mint-primary); background: #ecfdf5; }
+
+    /* Stats Grid */
     .stats-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-      gap: 20px;
-      margin-bottom: 28px;
+      gap: 18px;
+      margin-bottom: 24px;
     }
     .stat-card {
       background: #ffffff;
       border-radius: 14px;
       padding: 22px 24px;
-      border: 1px solid var(--line);
-      box-shadow: 0 1px 3px rgba(0,0,0,0.04);
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-      position: relative;
+      border: 1px solid var(--slate-border);
+      box-shadow: 0 1px 3px rgba(0,0,0,0.02);
     }
     .stat-card-label {
-      font-size: 0.85rem;
-      font-weight: 600;
-      color: var(--muted);
-      text-transform: uppercase;
-      letter-spacing: 0.04em;
       display: flex;
-      align-items: center;
       justify-content: space-between;
+      align-items: center;
+      color: #64748b;
+      font-size: 0.86rem;
+      font-weight: 600;
     }
     .stat-card-icon {
-      width: 36px;
-      height: 36px;
-      border-radius: 10px;
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 1.15rem;
+      font-size: 0.95rem;
     }
     .stat-card-value {
       font-size: 1.85rem;
       font-weight: 700;
       color: #0f172a;
-      line-height: 1.2;
-      margin-top: 4px;
+      margin: 12px 0 4px 0;
+      letter-spacing: -0.02em;
     }
     .stat-card-sub {
-      font-size: 0.82rem;
-      color: var(--mint-strong);
+      font-size: 0.8rem;
       font-weight: 500;
-      margin-top: 2px;
     }
 
     .analytics-two-col {
       display: grid;
-      grid-template-columns: 1.4fr 1fr;
-      gap: 24px;
-      margin-bottom: 28px;
+      grid-template-columns: 2fr 1fr;
+      gap: 20px;
+      margin-bottom: 20px;
     }
     @media (max-width: 1024px) {
-      .analytics-two-col {
-        grid-template-columns: 1fr;
-      }
+      .analytics-two-col { grid-template-columns: 1fr; }
     }
     .chart-box {
       background: #ffffff;
+      border: 1px solid var(--slate-border);
       border-radius: 14px;
       padding: 24px;
-      border: 1px solid var(--line);
-      box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+      box-shadow: 0 1px 3px rgba(0,0,0,0.02);
     }
-    
-    .status-text {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      font-size: 0.88rem;
-      font-weight: 600;
-      white-space: nowrap;
-    }
-    .status-text-paid {
-      color: #059669;
-    }
-    .status-text-pending {
-      color: #d97706;
-    }
-
     .best-seller-item {
       display: flex;
       align-items: center;
@@ -360,9 +681,7 @@
       padding: 12px 0;
       border-bottom: 1px solid #f1f5f9;
     }
-    .best-seller-item:last-child {
-      border-bottom: none;
-    }
+    .best-seller-item:last-child { border-bottom: none; }
     .rank-badge {
       width: 24px;
       height: 24px;
@@ -381,23 +700,116 @@
     .rank-badge.top-2 { background: #f1f5f9; color: #334155; }
     .rank-badge.top-3 { background: #ffedd5; color: #c2410c; }
 
+    /* Action buttons in Table */
+    .action-icon-btn {
+      width: 32px;
+      height: 32px;
+      border-radius: 6px;
+      border: 1px solid transparent;
+      background: transparent;
+      color: #64748b;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.15s;
+    }
+    .action-icon-btn:hover {
+      background: #f1f5f9;
+      color: #0f172a;
+    }
+    .action-icon-btn.danger:hover {
+      background: #fef2f2;
+      color: #dc2626;
+    }
+
+    /* Login section */
+    .login-box {
+      text-align: center;
+      padding: 60px 32px;
+      max-width: 420px;
+      margin: 80px auto;
+      background: white;
+      border-radius: 16px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+      border: 1px solid var(--slate-border);
+    }
+
+    #toast {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #0f172a;
+      color: white;
+      padding: 12px 24px;
+      border-radius: 10px;
+      z-index: 1000;
+      opacity: 0;
+      transition: opacity 0.25s, transform 0.25s;
+      pointer-events: none;
+      font-weight: 500;
+      font-size: 0.9rem;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+    }
+    #toast.show { opacity: 1; transform: translateX(-50%) translateY(-4px); }
   </style>
 </head>
 <body>
-  
-  <header class="top-nav">
-    <div class="nav-container">
-      <div class="nav-logo" style="display: flex; align-items: center;">
-        <button id="sidebarToggleBtn" class="sidebar-toggle-btn" aria-label="Đóng/mở thanh bên" title="Đóng/Mở Sidebar (Toàn màn hình)">
-          <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"></path>
-          </svg>
-        </button>
-        <strong>Admin | File Đi Làm</strong>
+
+  <!-- Topbar Header (Alocal Style) -->
+  <header class="top-header hidden" id="adminTopHeader">
+    <div class="top-left">
+      <button id="sidebarToggleBtn" class="burger-btn" aria-label="Đóng/mở thanh điều hướng" title="Đóng/mở Sidebar">
+        <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"></path>
+        </svg>
+      </button>
+      <a href="/admin.html" class="admin-brand">
+        <div class="logo-mark">f.</div>
+        <span>File Đi Làm</span>
+      </a>
+    </div>
+
+    <!-- Center Search Bar -->
+    <div class="top-center">
+      <div class="top-search-wrap">
+        <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+        </svg>
+        <input type="search" id="topGlobalSearch" class="top-search-input" placeholder="Tìm kiếm file, đơn hàng, khách hàng..." />
       </div>
-      <div class="nav-actions">
-        <a href="/" class="button-secondary" style="text-decoration: none; margin-right: 12px; padding: 6px 12px; border-radius: 20px; font-size: 0.9rem;">Về cửa hàng</a>
-        <button id="logoutBtn" class="button-secondary hidden" style="padding: 6px 12px; border-radius: 20px; font-size: 0.9rem;">Đăng xuất</button>
+    </div>
+
+    <!-- Right Profile Chip & Actions -->
+    <div class="top-right">
+      <button class="icon-action-btn" title="Thông báo hệ thống">
+        <svg width="19" height="19" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path>
+        </svg>
+      </button>
+
+      <!-- Profile Chip Dropdown -->
+      <div class="profile-chip" id="profileChip">
+        <div id="adminAvatarContainer" class="profile-avatar" style="overflow: hidden; background: #e0f2fe; color: #0369a1; font-weight: 700; font-size: 0.82rem; display: flex; align-items: center; justify-content: center; flex-shrink: 0;"><img id="adminAvatarImg" src="https://ui-avatars.com/api/?name=Kien+Cam&background=059669&color=fff&size=64&bold=true" alt="Avatar" referrerpolicy="no-referrer" style="width: 100%; height: 100%; object-fit: cover; display: block;" onerror="this.onerror=null; this.src='https://ui-avatars.com/api/?name=Kien+Cam&background=059669&color=fff&size=64&bold=true';" /></div>
+        <div class="profile-info">
+          <span class="profile-name" id="adminDisplayName">Kien Cam Huynh</span>
+          <span class="profile-email" id="adminDisplayEmail">huynhkiencam151102@gmail.com</span>
+        </div>
+        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="color:#94a3b8; margin-left:2px;">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"></path>
+        </svg>
+
+        <div class="profile-dropdown" id="profileDropdown">
+          <a href="/" target="_blank" class="dropdown-item">
+            <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
+            Về Cửa Hàng
+          </a>
+          <button id="logoutBtn" type="button" class="dropdown-item danger">
+            <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>
+            Đăng xuất
+          </button>
+        </div>
       </div>
     </div>
   </header>
@@ -405,103 +817,164 @@
   <!-- Login Section -->
   <div id="loginSection" class="dashboard-wrapper" style="display: block;">
     <div class="login-box">
-      <h2>Khu vực Quản trị</h2>
-      <p style="color: var(--muted); margin-bottom: 32px;">Đăng nhập bằng tài khoản Admin.</p>
-      <button id="loginBtn" class="button-primary button-full" style="height: 48px;">Đăng nhập bằng Google</button>
+      <div class="logo-mark" style="margin: 0 auto 16px auto; width: 48px; height: 48px; font-size: 1.5rem;">f.</div>
+      <h2 style="margin: 0 0 8px 0; font-size: 1.4rem;">Khu Vực Quản Trị</h2>
+      <p style="color: var(--slate-muted); margin-bottom: 28px; font-size: 0.92rem;">Đăng nhập bằng tài khoản Admin để truy cập hệ thống.</p>
+      <button id="loginBtn" class="button-primary button-full" style="height: 48px; font-size: 0.96rem; border-radius: 8px;">Đăng nhập bằng Google</button>
     </div>
   </div>
 
   <!-- Admin Dashboard Section -->
   <div id="adminSection" class="dashboard-wrapper hidden">
-    <!-- Sidebar -->
-     <aside class="sidebar" id="adminSidebar">
-      <ul class="sidebar-menu">
-        <li class="active" data-tab="productsTab">
-          <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 10h16M4 14h16M4 18h16"></path></svg>
-          <span>Danh sách sản phẩm</span>
-        </li>
-        <li data-tab="addTab">
-          <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"></path></svg>
-          <span>Thêm sản phẩm mới</span>
-        </li>
-        <li data-tab="ordersTab">
-          <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path></svg>
-          <span>Quản lý Đơn hàng</span>
-        </li>
-        <li data-tab="statsTab">
-          <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>
-          <span>Thống kê Doanh thu</span>
-        </li>
-      </ul>
+    <!-- Alocal Grouped Sidebar Navigation -->
+    <aside class="sidebar" id="adminSidebar">
+      <!-- Group 1: TỔNG QUAN -->
+      <div class="sidebar-group">
+        <div class="sidebar-group-title">Tổng quan</div>
+        <ul class="sidebar-menu">
+          <li data-tab="statsTab">
+            <div class="menu-left">
+              <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>
+              <span>Thống kê doanh thu</span>
+            </div>
+          </li>
+        </ul>
+      </div>
+
+      <!-- Group 2: SẢN PHẨM & KHO -->
+      <div class="sidebar-group">
+        <div class="sidebar-group-title">Sản phẩm & Kho</div>
+        <ul class="sidebar-menu">
+          <li class="active" data-tab="productsTab">
+            <div class="menu-left">
+              <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 10h16M4 14h16M4 18h16"></path></svg>
+              <span>Danh sách sản phẩm</span>
+            </div>
+            <span class="sidebar-badge mint" id="sidebarProductCount">3</span>
+          </li>
+          <li data-tab="addTab">
+            <div class="menu-left">
+              <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"></path></svg>
+              <span>Thêm sản phẩm mới</span>
+            </div>
+          </li>
+        </ul>
+      </div>
+
+      <!-- Group 3: ĐƠN HÀNG & TÀI CHÍNH -->
+      <div class="sidebar-group">
+        <div class="sidebar-group-title">Tài chính & Đơn hàng</div>
+        <ul class="sidebar-menu">
+          <li data-tab="ordersTab">
+            <div class="menu-left">
+              <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path></svg>
+              <span>Quản lý đơn hàng</span>
+            </div>
+            <span class="sidebar-badge danger" id="sidebarPendingOrderCount" style="display:none;">0</span>
+          </li>
+        </ul>
+      </div>
     </aside>
 
     <!-- Main Content -->
     <main class="main-content">
-      
-      <!-- Product List Tab -->
+
+      <!-- TAB 1: PRODUCT LIST -->
       <div id="productsTab" class="tab-pane active">
-        <div class="data-table-container">
-          <div style="display: flex; justify-content: space-between; align-items: center; padding: 24px 32px; border-bottom: 1px solid var(--line);">
-            <div>
-              <h2 style="margin: 0; font-size: 1.4rem; color: #111;">Danh sách sản phẩm</h2>
-              <p style="margin: 6px 0 0 0; color: var(--muted); font-size: 0.9rem;">Quản lý toàn bộ các file đang được đăng bán trên cửa hàng.</p>
+        <!-- Alocal Action Toolbar Card -->
+        <div class="action-toolbar">
+          <div class="toolbar-left">
+            <div class="search-box-pill">
+              <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+              <input type="search" id="productSearchInput" placeholder="Tra cứu mã file, tên sản phẩm..." />
             </div>
-            <button class="button-primary" id="goAddProductBtn">
-              <svg style="margin-right: 6px;" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"></path></svg>
-              Thêm sản phẩm
+
+            <select id="productCategoryFilter" class="pill-select">
+              <option value="ALL">Tất cả danh mục</option>
+              <option value="ban-hang-online">Bán hàng online</option>
+              <option value="cong-no">Công nợ</option>
+              <option value="quan-ly-kho">Quản lý kho</option>
+              <option value="combo">Combo tiết kiệm</option>
+            </select>
+
+            <select id="productFormatFilter" class="pill-select">
+              <option value="ALL">Định dạng file</option>
+              <option value="google_sheets">Google Sheets</option>
+              <option value="excel">Excel (.xlsx)</option>
+            </select>
+          </div>
+
+          <div class="toolbar-right">
+            <div class="status-counter-text" id="productCountCounter">
+              Đã kết nối Firestore • <b id="productTotalNum">3</b> sản phẩm
+            </div>
+            <button type="button" class="btn-create-pill" id="goAddProductBtn" title="Thêm file hoặc gói sản phẩm mới">
+              <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"></path></svg>
+              Thêm mới
             </button>
           </div>
-          
-          <table class="data-table">
-            <thead>
-              <tr>
-                <th style="width: 80px;">Ảnh</th>
-                <th>Tên sản phẩm</th>
-                <th>Danh mục</th>
-                <th>Giá bán</th>
-                <th style="text-align: right;">Hành động</th>
-              </tr>
-            </thead>
-            <tbody id="productListBody">
-              <tr>
-                <td colspan="5" style="text-align: center; padding: 32px; color: var(--muted);">Đang tải dữ liệu...</td>
-              </tr>
-            </tbody>
-          </table>
+        </div>
+
+        <!-- Alocal Style Data Table -->
+        <div class="data-table-card">
+          <div class="table-responsive">
+            <table class="alocal-table">
+              <thead>
+                <tr>
+                  <th style="width: 72px;">Ảnh bìa</th>
+                  <th>Mã & Tên sản phẩm</th>
+                  <th>Lĩnh vực / Danh mục</th>
+                  <th>Định dạng</th>
+                  <th>Giá bán</th>
+                  <th>Lượt tải</th>
+                  <th>Trạng thái</th>
+                  <th style="text-align: right; width: 110px;">Thao tác</th>
+                </tr>
+              </thead>
+              <tbody id="productListBody">
+                <tr>
+                  <td colspan="8" style="text-align: center; padding: 40px; color: var(--slate-muted);">Đang tải dữ liệu từ Firestore...</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
 
-      <!-- Add Product Tab -->
+      <!-- TAB 2: ADD / EDIT PRODUCT -->
       <div id="addTab" class="tab-pane">
-        <div class="admin-form">
-          <div style="border-bottom: 1px solid var(--line); padding-bottom: 20px; margin-bottom: 24px;">
-            <h2 id="formTitle" style="margin: 0; font-size: 1.4rem; color: #111;">Thêm Sản Phẩm Mới</h2>
-            <p id="formDescription" style="margin: 6px 0 0 0; color: var(--muted); font-size: 0.9rem;">Điền đầy đủ thông tin để đăng bán một file Excel hoặc Google Sheets mới.</p>
+        <div class="admin-form-card">
+          <div style="border-bottom: 1px solid var(--slate-border); padding-bottom: 16px; margin-bottom: 24px;">
+            <h2 id="formTitle" style="margin: 0; font-size: 1.35rem; color: #0f172a;">Thêm Sản Phẩm Mới</h2>
+            <p id="formDescription" style="margin: 6px 0 0 0; color: var(--slate-muted); font-size: 0.88rem;">Điền đầy đủ thông tin để đăng bán một file Excel hoặc Google Sheets mới.</p>
           </div>
           <form id="productForm">
             <input type="hidden" id="editingProductId" value="">
-            <div class="form-group">
-              <label for="productName">Tên sản phẩm *</label>
-              <input type="text" id="productName" required placeholder="VD: Quản lý kho Mini">
-            </div>
             
             <div class="form-group">
-              <label for="productCategory">Danh mục *</label>
-              <select id="productCategory" required>
-                <option value="ban-hang-online">Bán hàng online</option>
-                <option value="cong-no">Công nợ</option>
-                <option value="quan-ly-kho">Quản lý kho</option>
-                <option value="combo">Combo tiết kiệm</option>
-              </select>
+              <label for="productName">Tên sản phẩm *</label>
+              <input type="text" id="productName" required placeholder="VD: Quản lý kho Mini Smart">
             </div>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+              <div class="form-group">
+                <label for="productCategory">Danh mục *</label>
+                <select id="productCategory" required>
+                  <option value="ban-hang-online">Bán hàng online</option>
+                  <option value="cong-no">Công nợ</option>
+                  <option value="quan-ly-kho">Quản lý kho</option>
+                  <option value="combo">Combo tiết kiệm</option>
+                </select>
+              </div>
 
-            <div class="form-group">
-              <label for="productFormat">Loại file cung cấp *</label>
-              <select id="productFormat" required>
-                <option value="google_sheets">Google Sheets · Tự động tạo bản sao</option>
-                <option value="excel">File Excel (.xlsx) · Tải file trực tiếp</option>
-                <option value="combo">Combo Tiết Kiệm (Folder Drive / File Zip)</option>
-              </select>
+              <div class="form-group">
+                <label for="productFormat">Loại file cung cấp *</label>
+                <select id="productFormat" required>
+                  <option value="google_sheets">Google Sheets • Tự động tạo bản sao</option>
+                  <option value="excel">File Excel (.xlsx) • Tải trực tiếp</option>
+                  <option value="combo">Combo Tiết Kiệm (Folder Drive / Zip)</option>
+                </select>
+              </div>
             </div>
 
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
@@ -522,18 +995,18 @@
               </div>
               <div class="form-group">
                 <label for="productSuitableFor">Đối tượng phù hợp</label>
-                <input type="text" id="productSuitableFor" placeholder="VD: Shop online TikTok, Shopee, người mới khởi nghiệp">
+                <input type="text" id="productSuitableFor" placeholder="VD: Shop online TikTok, Shopee, quán Cafe...">
               </div>
             </div>
 
             <div class="form-group">
               <label for="productDescription">Mô tả ngắn *</label>
-              <textarea id="productDescription" required placeholder="Nhập mô tả sản phẩm..."></textarea>
+              <textarea id="productDescription" required placeholder="Mô tả công dụng và lợi ích chính của file..."></textarea>
             </div>
 
             <div class="form-group">
-              <label for="productFeatures">Tính năng chính (mỗi dòng 1 tính năng)</label>
-              <textarea id="productFeatures" placeholder="- Tính năng 1&#10;- Tính năng 2"></textarea>
+              <label for="productFeatures">Tính năng chính (mỗi dòng 1 gạch đầu dòng)</label>
+              <textarea id="productFeatures" placeholder="- Tính năng tự động tính&#10;- Báo cáo Dashboard tự cập nhật"></textarea>
             </div>
 
             <div class="form-group">
@@ -541,7 +1014,7 @@
               <div class="file-input-wrapper">
                 <div class="file-input-btn" id="imageBtnText">
                   <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
-                  Chọn file ảnh
+                  Chọn file ảnh bìa
                 </div>
                 <input type="file" id="productImage" accept="image/*" required onchange="document.getElementById('imageBtnText').innerHTML = 'Đã chọn: ' + this.files[0].name">
               </div>
@@ -550,7 +1023,7 @@
             <div class="form-group" id="sheetUrlGroup">
               <label for="productSheetUrl">Link Google Sheets hoặc Thư mục Google Drive</label>
               <input type="url" id="productSheetUrl" placeholder="https://docs.google.com/spreadsheets/d/... hoặc link folder Drive">
-              <small style="color: var(--muted); display: block; margin-top: 4px;">Khách hàng sẽ nhận link tạo bản sao vào Google Drive cá nhân của họ.</small>
+              <small style="color: var(--slate-muted); display: block; margin-top: 4px;">Khách hàng sẽ nhận link tạo bản sao vào Google Drive cá nhân của họ.</small>
             </div>
 
             <div class="form-group" id="fileUploadGroup">
@@ -562,10 +1035,10 @@
                 </div>
                 <input type="file" id="productFile" onchange="if(this.files[0]) document.getElementById('fileBtnText').innerHTML = 'Đã chọn: ' + this.files[0].name; else document.getElementById('fileBtnText').innerHTML = 'Chọn file đính kèm'">
               </div>
-              <small style="color: var(--muted); display: block; margin-top: 4px;">Dành cho file Excel hoặc file nén .zip chứa combo nhiều file.</small>
+              <small style="color: var(--slate-muted); display: block; margin-top: 4px;">Dành cho file Excel hoặc file nén .zip chứa combo nhiều file.</small>
             </div>
 
-            <!-- Dịch vụ Kèm 1-1 (Shopee Upsell) -->
+            <!-- Gói Dịch vụ Kèm 1-1 -->
             <div class="form-group" style="background: #f8fafc; padding: 14px 16px; border-radius: 10px; border: 1.5px dashed #cbd5e1; margin-top: 14px;">
               <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; margin-bottom: 0; font-weight: 600; color: #0f172a;">
                 <input type="checkbox" id="productHasCoaching" style="width: 18px; height: 18px; accent-color: #059669; cursor: pointer;">
@@ -584,60 +1057,69 @@
                   </div>
                 </div>
                 <small style="color: #64748b; margin-top: 6px; display: block;">
-                  Khi bật, khách mua file này sẽ thấy lựa chọn phân loại: <b>Bản Tự Dùng</b> và <b>Bản Kèm 1-1</b>. Nếu không bật, khách mua sẽ thanh toán đúng giá file gốc.
+                  Khi bật, khách mua file này sẽ thấy lựa chọn: <b>Bản Tự Dùng</b> và <b>Bản Kèm 1-1</b>.
                 </small>
               </div>
             </div>
 
-            <button type="submit" class="button-primary button-full" id="submitBtn" style="margin-top: 24px; height: 50px; font-size: 1rem; border-radius: 8px;">Tải lên & Đăng bán</button>
+            <button type="submit" class="btn-create-pill" id="submitBtn" style="margin-top: 24px; height: 46px; width: 100%; justify-content: center; font-size: 0.95rem; border-radius: 8px;">Tải lên & Đăng bán</button>
           </form>
         </div>
       </div>
 
-      <!-- Order Management Tab -->
+      <!-- TAB 3: ORDER MANAGEMENT -->
       <div id="ordersTab" class="tab-pane">
-        <div class="data-table-container">
-          <div style="display: flex; justify-content: space-between; align-items: center; padding: 24px 32px; border-bottom: 1px solid var(--line); flex-wrap: wrap; gap: 16px;">
-            <div>
-              <h2 style="margin: 0; font-size: 1.4rem; color: #111;">Quản lý Đơn hàng</h2>
-              <p style="margin: 6px 0 0 0; color: var(--muted); font-size: 0.9rem;">Toàn bộ giao dịch đặt mua file trên cửa hàng.</p>
+        <!-- Alocal Action Toolbar Card -->
+        <div class="action-toolbar">
+          <div class="toolbar-left">
+            <div class="search-box-pill">
+              <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+              <input type="search" id="orderSearchInput" placeholder="Tìm theo Mã đơn, SĐT, Tên file..." />
             </div>
-            
-            <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
-              <input type="search" id="orderSearchInput" placeholder="Tìm theo Mã đơn, SĐT, Tên file..." style="height: 40px; padding: 0 14px; border: 1px solid var(--line); border-radius: 8px; font-size: 0.9rem; min-width: 240px; outline: none;" />
-              <select id="orderStatusFilter" style="height: 40px; padding: 0 12px; border: 1px solid var(--line); border-radius: 8px; font-size: 0.9rem; background: #fff; cursor: pointer; outline: none;">
-                <option value="ALL">Tất cả trạng thái</option>
-                <option value="PAID">Đã thanh toán (PAID)</option>
-                <option value="PENDING">Chờ thanh toán (PENDING)</option>
-              </select>
-              <button class="button-secondary" id="refreshOrdersBtn" style="height: 40px; padding: 0 14px; border-radius: 8px; font-size: 0.88rem; display: flex; align-items: center; gap: 6px; cursor: pointer;">
-                <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
-                Làm mới
-              </button>
-            </div>
+
+            <select id="orderStatusFilter" class="pill-select">
+              <option value="ALL">Tất cả trạng thái</option>
+              <option value="PAID">Đã thanh toán (PAID)</option>
+              <option value="PENDING">Chờ thanh toán (PENDING)</option>
+            </select>
           </div>
-          
-          <table class="data-table">
-            <thead>
-              <tr>
-                <th>Mã đơn</th>
-                <th>Thời gian</th>
-                <th>Khách hàng</th>
-                <th>Sản phẩm</th>
-                <th>Số tiền</th>
-                <th>Trạng thái</th>
-                <th>Đánh giá</th>
-                <th>Thao tác</th>
-              </tr>
-            </thead>
-            <tbody id="orderListBody">
-              <tr><td colspan="8" style="text-align: center; color: var(--muted); padding: 32px;">Đang tải danh sách đơn hàng...</td></tr>
-            </tbody>
-          </table>
+
+          <div class="toolbar-right">
+            <button class="pill-select" id="syncDownloadsBtn" style="display: inline-flex; align-items: center; gap: 6px; font-weight: 600; color: var(--mint-primary);" title="Quét toàn bộ đơn hàng PAID để tính đúng lượt tải">
+              <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+              Đồng bộ số lượt mua
+            </button>
+            <button class="btn-icon-pill" id="refreshOrdersBtn" title="Làm mới danh sách đơn hàng">
+              <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+            </button>
+          </div>
+        </div>
+
+        <!-- Alocal Style Data Table -->
+        <div class="data-table-card">
+          <div class="table-responsive">
+            <table class="alocal-table">
+              <thead>
+                <tr>
+                  <th style="width: 100px;">Mã đơn</th>
+                  <th>Thời gian</th>
+                  <th>Khách hàng</th>
+                  <th>Sản phẩm / Dịch vụ</th>
+                  <th>Số tiền</th>
+                  <th>Trạng thái</th>
+                  <th style="text-align: center;">Mã QR</th>
+                  <th>Thao tác</th>
+                </tr>
+              </thead>
+              <tbody id="orderListBody">
+                <tr><td colspan="8" style="text-align: center; color: var(--slate-muted); padding: 40px;">Đang tải danh sách đơn hàng...</td></tr>
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
 
-      <!-- Revenue Statistics Tab -->
+      <!-- TAB 4: REVENUE & ANALYTICS -->
       <div id="statsTab" class="tab-pane">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 12px;">
           <div>
@@ -779,8 +1261,7 @@
       </div>
 
     </main>
-    </div> <!-- /.main-workspace -->
-  </div> <!-- /.app-layout -->
+  </div>
 
   <div id="toast">Thông báo</div>
 
@@ -790,7 +1271,7 @@
   <script src="/__/firebase/10.7.1/firebase-storage-compat.js"></script>
   <script src="/__/firebase/init.js"></script>
   
-  <script src="./admin.js?v=9"></script>
+  <script src="./admin.js?v=25"></script>
   <!-- Agentation: Visual Feedback & Annotation for AI agents -->
   <script src="./agentation-vanilla.js"></script>
 </body>

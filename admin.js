@@ -132,10 +132,12 @@ document.addEventListener('DOMContentLoaded', () => {
         }
       }
     }
+    const adminTopHeader = document.getElementById('adminTopHeader');
     if (user) {
       if (user.email === ADMIN_EMAIL) {
         loginSection.classList.add('hidden');
         adminSection.classList.remove('hidden');
+        if (adminTopHeader) adminTopHeader.classList.remove('hidden');
         logoutBtn.classList.remove('hidden');
         loadProducts(); // Load table
       } else {
@@ -145,6 +147,7 @@ document.addEventListener('DOMContentLoaded', () => {
     } else {
       loginSection.classList.remove('hidden');
       adminSection.classList.add('hidden');
+      if (adminTopHeader) adminTopHeader.classList.add('hidden');
       logoutBtn.classList.add('hidden');
     }
   });
