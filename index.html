@@ -16,7 +16,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="./storefront.css?v=93" />
+    <link rel="stylesheet" href="./storefront.css?v=94" />
     <style>
     :root {
       --bg: #ffffff;
@@ -1145,64 +1145,77 @@
       font-weight: 600;
     }
 
-    /* DISCOUNT TICKET COUPON (PHIẾU THANH TOÁN / VOUCHER RECEIPT) */
+    /* PERFORATED TICKET COUPON (PHIẾU THANH TOÁN VẾT CẮT BẤM LỖ THỰC THẾ) */
     .ticket-section {
-      margin: 20px auto 80px;
+      margin: 30px auto 80px;
       display: flex;
       justify-content: center;
       width: 100%;
     }
+    .coupon-ticket-wrapper {
+      width: 100%;
+      position: relative;
+      filter: drop-shadow(0 6px 20px rgba(15, 23, 42, 0.04));
+    }
     .coupon-ticket {
-      background: #ffffff;
+      background: #f4f5f7;
       border: 1px solid #e2e8f0;
-      border-radius: 20px;
+      border-radius: 24px;
       display: grid;
       grid-template-columns: 1.15fr 0.85fr;
       position: relative;
-      overflow: hidden;
-      box-shadow: 0 4px 24px -2px rgba(15, 23, 42, 0.05);
       width: 100%;
       margin: 0;
-    }
-    /* Vết cắt tròn hai bên răng cưa kiểu vé / phiếu thanh toán */
-    .coupon-ticket::before,
-    .coupon-ticket::after {
-      content: "";
-      position: absolute;
-      width: 24px;
-      height: 24px;
-      background: var(--bg, #ffffff);
-      border: 1px solid #e2e8f0;
-      border-radius: 50%;
-      z-index: 5;
-    }
-    @media (min-width: 901px) {
-      .coupon-ticket::before {
-        top: -12px;
-        left: calc(57.5% - 12px);
-      }
-      .coupon-ticket::after {
-        bottom: -12px;
-        left: calc(57.5% - 12px);
-      }
+      /* Khuyết vết cắt tròn bán nguyệt hai mép trên & dưới tại 57.5% bằng mask-image */
+      -webkit-mask-image: 
+        radial-gradient(circle 14px at 57.5% 0, transparent 0, transparent 14px, #000 14.5px),
+        radial-gradient(circle 14px at 57.5% 100%, transparent 0, transparent 14px, #000 14.5px);
+      -webkit-mask-composite: source-in;
+      mask-image: 
+        radial-gradient(circle 14px at 57.5% 0, transparent 0, transparent 14px, #000 14.5px),
+        radial-gradient(circle 14px at 57.5% 100%, transparent 0, transparent 14px, #000 14.5px);
+      mask-composite: intersect;
     }
     @media (max-width: 900px) {
-      .coupon-ticket::before {
-        left: -12px;
-        top: calc(50% - 12px);
-      }
-      .coupon-ticket::after {
-        right: -12px;
-        top: calc(50% - 12px);
+      .coupon-ticket {
+        -webkit-mask-image: 
+          radial-gradient(circle 14px at 0 50%, transparent 0, transparent 14px, #000 14.5px),
+          radial-gradient(circle 14px at 100% 50%, transparent 0, transparent 14px, #000 14.5px);
+        -webkit-mask-composite: source-in;
+        mask-image: 
+          radial-gradient(circle 14px at 0 50%, transparent 0, transparent 14px, #000 14.5px),
+          radial-gradient(circle 14px at 100% 50%, transparent 0, transparent 14px, #000 14.5px);
+        mask-composite: intersect;
       }
     }
     .ticket-left {
-      padding: 40px 38px;
-      border-right: 2px dashed #e2e8f0;
+      padding: 48px 44px;
+      position: relative;
       display: flex;
       flex-direction: column;
       justify-content: center;
-      background: #fafafa;
+      background: #f4f5f7;
+    }
+    .ticket-left::after {
+      content: "";
+      position: absolute;
+      top: 14px;
+      bottom: 14px;
+      right: 0;
+      width: 2px;
+      border-right: 2px dashed #cbd5e1;
+    }
+    @media (max-width: 900px) {
+      .ticket-left::after {
+        top: auto;
+        bottom: 0;
+        left: 14px;
+        right: 14px;
+        width: auto;
+        height: 2px;
+        border-right: none;
+        border-bottom: 2px dashed #cbd5e1;
+      }
     }
     .ticket-code-pill {
       display: inline-flex;
@@ -1217,26 +1230,25 @@
       color: var(--text);
       margin: 14px 0 16px;
       width: fit-content;
-      border: 1px solid #e2e8f0;
       box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
     }
     .ticket-copy-btn {
-      background: var(--text, #181925);
-      color: #ffffff;
-      border: none;
+      background: transparent;
+      color: #6a5ae0;
+      border: 1.5px dashed #6a5ae0;
       font-size: 0.78rem;
       font-weight: 500;
-      padding: 6px 14px;
+      padding: 5px 14px;
       border-radius: var(--radius-full);
       transition: all 0.15s ease;
       cursor: pointer;
     }
     .ticket-copy-btn:hover {
-      background: #334155;
+      background: rgba(106, 90, 224, 0.08);
     }
     .ticket-right {
-      background: #ffffff;
-      padding: 40px 38px;
+      background: #f4f5f7;
+      padding: 48px 44px;
       display: flex;
       flex-direction: column;
       justify-content: center;
@@ -1852,30 +1864,31 @@
     </div>
   </section>
 
-  <!-- COUPON VOUCHER TICKET (PHIẾU THANH TOÁN MẪU) -->
+  <!-- COUPON VOUCHER TICKET (PHIẾU THANH TOÁN PERFORATED TICKET) -->
   <section class="container ticket-section">
-    <div class="coupon-ticket">
-      <div class="ticket-left">
-        <span class="section-tag" style="margin-bottom: 8px;">Mã ưu đãi</span>
-        <h2 class="section-title" style="font-size: 1.75rem; font-weight: 600; letter-spacing: -1.03px; margin-bottom: 6px;">Giảm 10% cho đơn từ 160k</h2>
-        <div style="font-size: 0.82rem; color: var(--muted); margin-bottom: 4px;">Áp dụng cho mọi khách hàng mới trên toàn hệ thống</div>
-        <div class="ticket-code-pill">
-          <span>FILEDILAM</span>
-          <button class="ticket-copy-btn" type="button" onclick="copyVoucherCode(this, 'FILEDILAM');">Sao chép</button>
+    <div class="coupon-ticket-wrapper">
+      <div class="coupon-ticket">
+        <div class="ticket-left">
+          <span class="section-tag" style="background: #ffffff; border: 1px solid #e2e8f0; padding: 4px 14px; border-radius: 9999px; font-size: 0.78rem; font-weight: 600; color: #475569; display: inline-block; margin-bottom: 12px; width: fit-content;">MÃ GIẢM GIÁ</span>
+          <h2 class="section-title" style="font-size: 2.1rem; font-weight: 600; letter-spacing: -1.2px; margin-bottom: 6px; color: var(--text);">Giảm 10% cho đơn từ 160k</h2>
+          <div style="font-size: 0.85rem; color: #64748b; margin-bottom: 12px;">Chỉ đến ngày 29/11/2026</div>
+          <div class="ticket-code-pill">
+            <span style="letter-spacing: 0.5px;">FILEDILAM</span>
+            <button class="ticket-copy-btn" type="button" onclick="copyVoucherCode(this, 'FILEDILAM');">Sao chép</button>
+          </div>
+          <p style="font-size: 0.82rem; color: #64748b; margin-top: 4px;">Nhập mã ở bước thanh toán, hệ thống tự trừ 10%.</p>
         </div>
-        <p style="font-size: 0.8rem; color: var(--muted); margin-top: 2px;">Nhập mã ở bước thanh toán để tự động giảm 10% giá trị đơn hàng.</p>
-      </div>
-      <div class="ticket-right">
-        <div class="receipt-header">
-          <span class="receipt-badge">Mô phỏng phiếu thanh toán</span>
-          <span class="receipt-watermark">Đã áp dụng -10%</span>
+        <div class="ticket-right">
+          <div class="summary-row" style="color: #475569;"><span>Đơn hàng của bạn</span><span style="font-family: var(--font-mono); font-weight: 500;">2 file</span></div>
+          <div class="summary-row" style="color: #475569;"><span>Quản lý bán hàng</span><span style="font-family: var(--font-mono);">599.000</span></div>
+          <div class="summary-row" style="color: #475569;"><span>Quản lý kho</span><span style="font-family: var(--font-mono);">95.000</span></div>
+          <div class="summary-row" style="color: #475569;"><span>Tạm tính</span><span style="font-family: var(--font-mono);">694.000</span></div>
+          <div class="summary-row" style="color: var(--mint-primary); font-weight: 500;"><span>Mã FILEDILAM</span><span style="font-family: var(--font-mono);">-69.400</span></div>
+          <div class="summary-total" style="border-top: 1px dashed #cbd5e1; padding-top: 16px; margin-top: 14px; font-size: 1.25rem;">
+            <span style="font-family: var(--font-main); font-weight: 600;">Thanh toán</span>
+            <span style="font-family: var(--font-mono); font-weight: 600;">624.600 đ</span>
+          </div>
         </div>
-        <div class="summary-row"><span>Sản phẩm chọn mua</span><span style="font-family: var(--font-mono); font-weight: 500;">2 file</span></div>
-        <div class="summary-row"><span>Quản lý bán hàng</span><span style="font-family: var(--font-mono);">599.000</span></div>
-        <div class="summary-row"><span>Quản lý kho</span><span style="font-family: var(--font-mono);">95.000</span></div>
-        <div class="summary-row" style="border-top: 1px dashed #f1f5f9; padding-top: 8px; margin-top: 4px;"><span>Tạm tính</span><span style="font-family: var(--font-mono);">694.000</span></div>
-        <div class="summary-row" style="color: var(--mint-primary); font-weight: 500;"><span>Mã FILEDILAM (-10%)</span><span style="font-family: var(--font-mono);">-69.400</span></div>
-        <div class="summary-total"><span>Tổng thanh toán</span><span>624.600 đ</span></div>
       </div>
     </div>
   </section>
