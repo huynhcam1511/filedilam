@@ -2412,3 +2412,147 @@ body.cart-drawer-open .page-layout {
 }
 
 
+
+
+/* ==========================================================================
+   FLAT CANVAS & NOURISH DESIGN SYSTEM FOR FILE DI LAM
+   ========================================================================== */
+
+body {
+  font-family: 'Manrope', -apple-system, BlinkMacSystemFont, sans-serif !important;
+  color: #181925;
+  letter-spacing: -0.1px;
+}
+
+h1, h2, h3, h4 {
+  font-family: 'Manrope', sans-serif !important;
+  font-weight: 600 !important;
+  color: #181925;
+}
+
+h1 { letter-spacing: -1.385px !important; }
+h2 { letter-spacing: -1.03px !important; }
+
+/* Top Navigation Bar alignment */
+.top-nav {
+  background: rgba(255, 255, 255, 0.94) !important;
+  backdrop-filter: blur(12px) !important;
+  border-bottom: 1px solid #f1f5f9 !important;
+}
+
+.nav-container {
+  max-width: 1200px !important;
+  margin: 0 auto !important;
+}
+
+/* Horizontal Category Navigation Bar */
+.catalog-section-wrap {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 60px 24px 80px;
+}
+
+.horizontal-filter-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  margin-bottom: 32px;
+  flex-wrap: wrap;
+}
+
+.category-list-horizontal {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.category-list-horizontal .category-item {
+  padding: 8px 18px !important;
+  border-radius: 9999px !important;
+  background: #fafafa !important;
+  border: 1px solid #e2e8f0 !important;
+  font-size: 0.88rem !important;
+  font-weight: 500 !important;
+  color: #181925 !important;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+}
+
+.category-list-horizontal .category-item:hover {
+  background: #f1f5f9 !important;
+}
+
+.category-list-horizontal .category-item.active {
+  background: #181925 !important;
+  color: #ffffff !important;
+  border-color: #181925 !important;
+}
+
+/* Product Card Styling on Flat Canvas */
+.product-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr) !important;
+  gap: 28px !important;
+}
+
+@media (max-width: 992px) {
+  .product-grid { grid-template-columns: repeat(2, 1fr) !important; }
+}
+
+@media (max-width: 600px) {
+  .product-grid { grid-template-columns: 1fr !important; }
+}
+
+.product-card {
+  border-radius: 20px !important;
+  border: 1px solid #e2e8f0 !important;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.03) !important;
+  transition: transform 0.2s, box-shadow 0.2s !important;
+  background: #ffffff !important;
+  overflow: hidden;
+}
+
+.product-card:hover {
+  transform: translateY(-4px) !important;
+  box-shadow: 0 10px 25px -4px rgba(0,0,0,0.08) !important;
+  border-color: #cbd5e1 !important;
+}
+
+.product-thumb {
+  aspect-ratio: 16 / 10 !important;
+  height: auto !important;
+  border-bottom: 1px solid #f1f5f9 !important;
+}
+
+.product-name {
+  font-size: 1rem !important;
+  font-weight: 600 !important;
+  color: #181925 !important;
+  line-height: 1.45 !important;
+}
+
+.product-current-val {
+  font-size: 1.18rem !important;
+  font-weight: 600 !important;
+  color: #181925 !important;
+  font-family: 'JetBrains Mono', monospace !important;
+}
+
+.btn-card-cart-circle {
+  background: #181925 !important;
+  color: #ffffff !important;
+  width: 36px !important;
+  height: 36px !important;
+  border-radius: 50% !important;
+}
+
+.btn-card-cart-circle:hover {
+  background: #334155 !important;
+}
