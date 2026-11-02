@@ -580,47 +580,6 @@ document.addEventListener('DOMContentLoaded', () => {
     };
   }
 
-  function parseDateObj(val) {
-    if (!val) return null;
-    if (val && typeof val.toDate === 'function') return val.toDate();
-    if (val && typeof val.seconds === 'number') return new Date(val.seconds * 1000);
-    if (typeof val === 'number') return new Date(val > 1e11 ? val : val * 1000);
-    if (typeof val === 'string') {
-      const match = val.match(/seconds=(\d+)/);
-      if (match) return new Date(parseInt(match[1], 10) * 1000);
-      const d = new Date(val);
-      if (!isNaN(d.getTime())) return d;
-    }
-    if (val instanceof Date) return val;
-    return null;
-  }
-
-  function formatDateTime(val) {
-    const d = parseDateObj(val);
-    if (!d || isNaN(d.getTime())) {
-      return { time: String(val || 'Mới'), date: '', full: String(val || 'Mới') };
-    }
-    const pad = n => String(n).padStart(2, '0');
-    const day = pad(d.getDate());
-    const month = pad(d.getMonth() + 1);
-    const year = d.getFullYear();
-    const hours = pad(d.getHours());
-    const minutes = pad(d.getMinutes());
-    const seconds = pad(d.getSeconds());
-
-    return {
-      time: `${hours}:${minutes}:${seconds}`,
-      date: `${day}/${month}/${year}`,
-      full: `${day}/${month}/${year} ${hours}:${minutes}:${seconds}`
-    };
-  }
-
-  let cachedOrders = [];
-  let statsFilterPeriod = '14'; // '7', '14', '30', 'all'
-  let statsFilterMonth = 'ALL';  // 'ALL' hoặc '2026-11', '2026-10',...
-  let statsFilterType = 'ALL';   // 'ALL', 'STANDARD', 'COACHING'
-
-  
   // Helper: Bóc tách đơn hàng thành các sản phẩm con độc lập (hỗ trợ cả đơn lẻ, đơn combo mảng items, và đơn combo cũ dạng "A + B")
   function resolveOrderLineItems(order, knownProductsMap) {
     if (!order) return [];
