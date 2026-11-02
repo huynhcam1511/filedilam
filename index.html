@@ -16,7 +16,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="./storefront.css?v=90" />
+    <link rel="stylesheet" href="./storefront.css?v=91" />
     <style>
     :root {
       --bg: #ffffff;
@@ -250,9 +250,13 @@
       background: #ffffff;
       border: 1px solid var(--line-subtle);
       border-radius: var(--radius-lg);
-      padding: 20px;
+      padding: 28px 24px 24px;
       box-shadow: var(--shadow-md);
       position: relative;
+      min-height: 420px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
     }
     .sheet-status-tag {
       position: absolute;
@@ -311,7 +315,7 @@
     }
     .sheet-table th, .sheet-table td {
       border: 1px solid var(--line);
-      padding: 8px 10px;
+      padding: 11px 12px;
       text-align: left;
     }
     .sheet-table th {
@@ -380,7 +384,7 @@
     }
     .stats-grid {
       display: grid;
-      grid-template-columns: repeat(4, 1fr);
+      grid-template-columns: repeat(3, 1fr);
       gap: 32px;
     }
     .stat-card {
@@ -1386,8 +1390,14 @@
     <!-- Top Navigation Bar -->
     <header class="top-nav">
       <div class="nav-container">
-        <div class="nav-logo">
+        <div class="nav-logo" style="display: flex; align-items: center; gap: 28px;">
           <strong id="navBrand" style="font-family: 'Manrope', sans-serif; font-size: 1.25rem; font-weight: 600; letter-spacing: -0.5px;">File Đi Làm</strong>
+          <nav class="nav-links">
+            <a href="#" class="active">Trang chủ</a>
+            <a href="#catalog">Template</a>
+            <a href="https://zalo.me/0867738365" target="_blank" rel="noopener">Hỗ trợ</a>
+            <a href="#custom">Đặt theo yêu cầu</a>
+          </nav>
         </div>
         <div class="nav-search">
           <input id="searchInput" type="search" placeholder="Tìm kiếm file quản lý..." />
@@ -1458,8 +1468,9 @@
             <tbody>
               <tr><td>02/09</td><td>Chị Nhung</td><td>File bán hàng</td><td>599.000</td></tr>
               <tr><td>03/09</td><td>Anh Tùng</td><td>File chấm công</td><td>150.000</td></tr>
+              <tr><td>04/09</td><td>Anh Minh</td><td>File dòng tiền</td><td>320.000</td></tr>
               <tr><td>05/09</td><td>Chị Tuyền</td><td>File kho</td><td>95.000</td></tr>
-              <tr><td colspan="3" style="text-align:right; font-weight:600;">Tổng</td><td class="total-cell">844.000</td></tr>
+              <tr><td colspan="3" style="text-align:right; font-weight:600;">Tổng</td><td class="total-cell">1.164.000</td></tr>
             </tbody>
           </table>
           <div class="sheet-tabs">
@@ -1489,15 +1500,11 @@
   <section class="stats-section">
     <div class="container stats-grid">
       <div class="stat-card">
-        <div class="stat-number">60.000+</div>
-        <div class="stat-label">Lượt theo dõi trên TikTok, Facebook và YouTube</div>
+        <div class="stat-number" id="statTotalFiles">30+</div>
+        <div class="stat-label">File Google Sheets sẵn dùng cho doanh nghiệp</div>
       </div>
       <div class="stat-card">
-        <div class="stat-number">30+</div>
-        <div class="stat-label">Mẫu file cho bán hàng, kho, nhân sự và học tập</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-number">Từ 2024</div>
+        <div class="stat-number">Từ 2023</div>
         <div class="stat-label">Bên mình bán file và hỗ trợ khách qua Zalo</div>
       </div>
       <div class="stat-card">
@@ -2721,7 +2728,7 @@
     <script src="/__/firebase/init.js"></script>
     <script src="./storefront-data.js?v=15"></script>
     <script src="./storefront-products.generated.js?v=6"></script>
-    <script src="storefront.js?v=82"></script>
+    <script src="storefront.js?v=83"></script>
     <!-- Agentation: Visual Feedback & Annotation for AI agents -->
   <script src="./agentation-vanilla.js"></script>
 </body>

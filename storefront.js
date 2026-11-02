@@ -1246,6 +1246,11 @@
     if (catalogTitle) catalogTitle.textContent = category ? category.name : "Tất cả sản phẩm";
     if (catalogDescription) catalogDescription.textContent = category ? category.description : "Toàn bộ file Excel và Google Sheets đang có trên cửa hàng.";
 
+    var statTotalFilesEl = document.getElementById("statTotalFiles");
+    if (statTotalFilesEl && data.products && data.products.length > 0) {
+      statTotalFilesEl.textContent = data.products.length + "+";
+    }
+
     if (!items.length) {
       if (!isFirestoreProductsLoaded && (!data.products || !data.products.length)) {
         productGrid.innerHTML =
