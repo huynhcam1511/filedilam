@@ -2539,7 +2539,7 @@ h2 { letter-spacing: -1.03px !important; }
 }
 
 .product-thumb {
-  aspect-ratio: 16 / 10 !important;
+  aspect-ratio: 1 / 1 !important;
   height: auto !important;
   border-bottom: 1px solid #f8fafc !important;
 }
