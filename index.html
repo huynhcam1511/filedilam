@@ -16,7 +16,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="./storefront.css?v=95" />
+    <link rel="stylesheet" href="./storefront.css?v=96" />
     <style>
     :root {
       --bg: #ffffff;
@@ -1027,63 +1027,118 @@
       margin-top: 40px;
     }
     .usp-card {
-      background: #ffffff;
-      border: 1px solid var(--line-subtle);
-      border-radius: 16px;
-      padding: 24px;
+      background: #f8fafc;
+      border: 1px solid #edf2f7;
+      border-radius: 24px;
+      padding: 32px 28px 28px;
       display: flex;
       flex-direction: column;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+      transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .usp-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 12px 30px -4px rgba(15, 23, 42, 0.06);
+      background: #ffffff;
+      border-color: #cbd5e1;
     }
     .usp-icon-badge {
-      width: 36px;
-      height: 36px;
-      border-radius: 8px;
-      background: var(--bg-alt);
-      border: 1px solid var(--line-subtle);
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      background: #ffffff;
+      border: 1px solid #f1f5f9;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 1rem;
-      margin-bottom: 14px;
+      font-size: 1.15rem;
+      margin-bottom: 24px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
     }
     .usp-tagline {
-      font-size: 0.72rem;
-      font-weight: 500;
-      color: var(--muted);
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-      margin-bottom: 4px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: #059669;
+      margin-bottom: 8px;
+      letter-spacing: -0.2px;
     }
     .usp-title {
-      font-size: 1.1rem;
-      font-weight: 600;
-      margin-bottom: 14px;
-      line-height: 1.3;
-      color: var(--text);
+      font-size: 1.35rem;
+      font-weight: 700;
+      margin-bottom: 20px;
+      line-height: 1.25;
+      color: #181925;
+      letter-spacing: -0.6px;
     }
     .usp-list {
       list-style: none;
-      font-size: 0.82rem;
-      color: var(--muted);
+      font-size: 0.88rem;
+      color: #64748b;
       display: flex;
       flex-direction: column;
-      gap: 8px;
-      margin-bottom: 24px;
+      gap: 12px;
+      margin-bottom: 32px;
+      line-height: 1.45;
     }
     .usp-list li {
       display: flex;
-      align-items: center;
-      gap: 8px;
+      align-items: flex-start;
+      gap: 10px;
     }
     .usp-list li::before {
       content: "✓";
-      color: var(--mint-primary);
-      font-weight: 600;
+      color: #059669;
+      font-weight: 700;
+      font-size: 0.95rem;
+      line-height: 1.2;
     }
     .usp-footer-visual {
       margin-top: auto;
-      padding-top: 16px;
-      border-top: 1px dashed var(--line);
+      padding-top: 20px;
+      border-top: 1px solid #e2e8f0;
+    }
+    /* Cost 12-Month Pills Bar */
+    .cost-progress-wrap {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .cost-progress-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.82rem;
+    }
+    .cost-pills-bar {
+      display: flex;
+      gap: 4px;
+      width: 100%;
+    }
+    .cost-pill-item {
+      flex: 1;
+      height: 14px;
+      border-radius: 4px;
+      background: #e2e8f0;
+      transition: background-color 0.3s ease;
+    }
+    .cost-pill-item.is-paid {
+      background: #10b981;
+    }
+    .cost-note-dot {
+      font-size: 0.76rem;
+      color: #64748b;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-top: 4px;
+    }
+    .cost-note-dot::before {
+      content: "";
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #10b981;
+      display: inline-block;
     }
 
     /* CUSTOM SERVICE BANNER */
@@ -1747,9 +1802,10 @@
       <p style="color: var(--muted); max-width: 650px; font-size: 0.95rem;">Bên mình dựng sẵn phần khó nhất: công thức, liên kết giữa các sheet và báo cáo. Bạn mở ra, nhập số của mình vào là chạy.</p>
 
       <div class="usp-grid">
+        <!-- Card 1: Chi phí -->
         <div class="usp-card">
           <div class="usp-icon-badge" style="color: var(--mint-primary);">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M16 8h-6a2 2 0 1 0 0 4h4a2 2 0 1 1 0 4H8"/><path d="M12 18V6"/></svg>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M16 8h-6a2 2 0 1 0 0 4h4a2 2 0 1 1 0 4H8"/><path d="M12 18V6"/></svg>
           </div>
           <div class="usp-tagline">Chi phí</div>
           <h3 class="usp-title">Mua một lần, dùng mãi mãi</h3>
@@ -1759,19 +1815,36 @@
             <li>File nằm trong Google Drive của bạn</li>
           </ul>
           <div class="usp-footer-visual">
-            <div style="font-size: 0.72rem; font-weight: 400; color: var(--muted); margin-bottom: 4px;">12 tháng tới: <strong style="color: var(--mint-primary); font-weight: 600;">0 đ/tháng</strong></div>
-            <div style="display:flex; gap: 4px; align-items:center;">
-              <span style="width: 10px; height: 10px; border-radius: 50%; background: var(--mint-primary);"></span>
-              <div style="flex:1; height: 4px; background: #e2e8f0; border-radius: 2px;"></div>
+            <div class="cost-progress-wrap">
+              <div class="cost-progress-header">
+                <span style="color: #64748b;">12 tháng tới</span>
+                <strong style="color: #181925; font-family: var(--font-mono); font-size: 0.95rem;">0 đ/tháng</strong>
+              </div>
+              <div class="cost-pills-bar">
+                <div class="cost-pill-item is-paid"></div>
+                <div class="cost-pill-item"></div>
+                <div class="cost-pill-item"></div>
+                <div class="cost-pill-item"></div>
+                <div class="cost-pill-item"></div>
+                <div class="cost-pill-item"></div>
+                <div class="cost-pill-item"></div>
+                <div class="cost-pill-item"></div>
+                <div class="cost-pill-item"></div>
+                <div class="cost-pill-item"></div>
+                <div class="cost-pill-item"></div>
+                <div class="cost-pill-item"></div>
+              </div>
+              <div class="cost-note-dot">Trả một lần ở tháng đầu</div>
             </div>
           </div>
         </div>
 
+        <!-- Card 2: Bắt đầu -->
         <div class="usp-card">
           <div class="usp-icon-badge" style="color: #3b82f6;">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>
           </div>
-          <div class="usp-tagline">Bắt đầu</div>
+          <div class="usp-tagline" style="color: #2563eb;">Bắt đầu</div>
           <h3 class="usp-title">Mở ra là dùng được ngay</h3>
           <ul class="usp-list">
             <li>Công thức và báo cáo dựng sẵn</li>
@@ -1779,17 +1852,18 @@
             <li>Gửi kèm hướng dẫn tạo bản sao</li>
           </ul>
           <div class="usp-footer-visual">
-            <div style="font-family: var(--font-mono); font-size: 0.7rem; color: var(--muted); background: #fff; padding: 4px; border-radius: 4px; border: 1px solid var(--line);">
-              fx =SUMIFS(...)
+            <div style="font-family: var(--font-mono); font-size: 0.78rem; color: #475569; background: #ffffff; padding: 6px 12px; border-radius: 8px; border: 1px solid #e2e8f0; display: inline-flex; align-items: center; gap: 6px;">
+              <span style="color: #2563eb; font-weight: 600;">fx</span> =SUMIFS(...)
             </div>
           </div>
         </div>
 
+        <!-- Card 3: Nền tảng -->
         <div class="usp-card">
           <div class="usp-icon-badge" style="color: #ec4899;">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="8" y1="13" x2="16" y2="13"/><line x1="8" y1="17" x2="16" y2="17"/></svg>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="8" y1="13" x2="16" y2="13"/><line x1="8" y1="17" x2="16" y2="17"/></svg>
           </div>
-          <div class="usp-tagline">Nền tảng</div>
+          <div class="usp-tagline" style="color: #db2777;">Nền tảng</div>
           <h3 class="usp-title">Chạy thẳng trên Google Sheets</h3>
           <ul class="usp-list">
             <li>Không phải cài phần mềm</li>
@@ -1797,15 +1871,16 @@
             <li>Mở được trên cả điện thoại</li>
           </ul>
           <div class="usp-footer-visual">
-            <div style="font-size: 0.72rem; color: var(--muted);">Laptop & Điện thoại</div>
+            <div style="font-size: 0.8rem; color: #64748b; font-weight: 500;">Laptop & Điện thoại</div>
           </div>
         </div>
 
+        <!-- Card 4: Tùy biến -->
         <div class="usp-card">
           <div class="usp-icon-badge" style="color: #f59e0b;">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
           </div>
-          <div class="usp-tagline">Tùy biến</div>
+          <div class="usp-tagline" style="color: #d97706;">Tùy biến</div>
           <h3 class="usp-title">Sửa được theo cách bạn làm</h3>
           <ul class="usp-list">
             <li>Toàn quyền sửa công thức</li>
@@ -1813,7 +1888,7 @@
             <li>Cần riêng thì bên mình dựng giúp</li>
           </ul>
           <div class="usp-footer-visual">
-            <div style="font-size: 0.72rem; font-weight: 500; color: var(--mint-primary); border: 1px dashed var(--mint-border); padding: 4px 8px; border-radius: 4px; text-align: center;">
+            <div style="font-size: 0.78rem; font-weight: 600; color: #059669; border: 1.5px dashed #a7f3d0; background: #ffffff; padding: 6px 14px; border-radius: 8px; text-align: center; display: inline-block;">
               + Thêm cột của bạn
             </div>
           </div>
