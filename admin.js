@@ -133,7 +133,9 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     }
     if (user) {
+      const adminTopHeader = document.getElementById('adminTopHeader');
       if (user.email === ADMIN_EMAIL) {
+        if (adminTopHeader) adminTopHeader.classList.remove('hidden');
         loginSection.classList.add('hidden');
         adminSection.classList.remove('hidden');
         logoutBtn.classList.remove('hidden');
@@ -145,6 +147,8 @@ document.addEventListener('DOMContentLoaded', () => {
     } else {
       loginSection.classList.remove('hidden');
       adminSection.classList.add('hidden');
+      const adminTopHeader = document.getElementById('adminTopHeader');
+      if (adminTopHeader) adminTopHeader.classList.add('hidden');
       logoutBtn.classList.add('hidden');
     }
   });
