@@ -2771,6 +2771,12 @@
     copyTextToClipboard(bankTransferNote.textContent.trim(), copyTransferNoteBtn, "Đã sao chép nội dung chuyển khoản.");
   }
 
+  // Global helper for voucher coupon ticket copy button
+  window.copyVoucherCode = function (btnEl, code) {
+    if (!code) code = "FILEDILAM";
+    copyTextToClipboard(code, btnEl, "Đã sao chép mã " + code);
+  };
+
   function onQrDownloaded() {
     if (saveQrBtn) {
       saveQrBtn.innerHTML = '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg><span>Đã lưu (Tải lại)</span>';

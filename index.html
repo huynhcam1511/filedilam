@@ -16,7 +16,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="./storefront.css?v=91" />
+    <link rel="stylesheet" href="./storefront.css?v=92" />
     <style>
     :root {
       --bg: #ffffff;
@@ -1145,31 +1145,64 @@
       font-weight: 600;
     }
 
-    /* DISCOUNT TICKET COUPON */
+    /* DISCOUNT TICKET COUPON (PHIẾU THANH TOÁN / VOUCHER RECEIPT) */
     .ticket-section {
       margin: 20px auto 80px;
       display: flex;
       justify-content: center;
     }
     .coupon-ticket {
-      background: #f5f5f5;
-      border: none;
-      border-radius: 24px;
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 20px;
       display: grid;
       grid-template-columns: 1.15fr 0.85fr;
       position: relative;
       overflow: hidden;
-      box-shadow: none;
+      box-shadow: 0 4px 24px -2px rgba(15, 23, 42, 0.05);
       max-width: 936px;
       width: 100%;
       margin: 0 auto;
     }
+    /* Vết cắt tròn hai bên răng cưa kiểu vé / phiếu thanh toán */
+    .coupon-ticket::before,
+    .coupon-ticket::after {
+      content: "";
+      position: absolute;
+      width: 24px;
+      height: 24px;
+      background: var(--bg, #ffffff);
+      border: 1px solid #e2e8f0;
+      border-radius: 50%;
+      z-index: 5;
+    }
+    @media (min-width: 901px) {
+      .coupon-ticket::before {
+        top: -12px;
+        left: calc(57.5% - 12px);
+      }
+      .coupon-ticket::after {
+        bottom: -12px;
+        left: calc(57.5% - 12px);
+      }
+    }
+    @media (max-width: 900px) {
+      .coupon-ticket::before {
+        left: -12px;
+        top: calc(50% - 12px);
+      }
+      .coupon-ticket::after {
+        right: -12px;
+        top: calc(50% - 12px);
+      }
+    }
     .ticket-left {
-      padding: 48px 44px;
+      padding: 40px 38px;
       border-right: 2px dashed #e2e8f0;
       display: flex;
       flex-direction: column;
       justify-content: center;
+      background: #fafafa;
     }
     .ticket-code-pill {
       display: inline-flex;
@@ -1180,16 +1213,17 @@
       border-radius: var(--radius-full);
       font-family: var(--font-mono);
       font-size: 0.95rem;
-      font-weight: 500;
+      font-weight: 600;
       color: var(--text);
-      margin: 14px 0 20px;
+      margin: 14px 0 16px;
       width: fit-content;
-      border: none;
+      border: 1px solid #e2e8f0;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
     }
     .ticket-copy-btn {
-      background: transparent;
-      color: #6a5ae0;
-      border: 2px dashed #6a5ae0;
+      background: var(--text, #181925);
+      color: #ffffff;
+      border: none;
       font-size: 0.78rem;
       font-weight: 500;
       padding: 6px 14px;
@@ -1198,14 +1232,38 @@
       cursor: pointer;
     }
     .ticket-copy-btn:hover {
-      background: rgba(106, 90, 224, 0.08);
+      background: #334155;
     }
     .ticket-right {
-      background: transparent;
-      padding: 48px 44px;
+      background: #ffffff;
+      padding: 40px 38px;
       display: flex;
       flex-direction: column;
       justify-content: center;
+    }
+    .receipt-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid #f1f5f9;
+      padding-bottom: 12px;
+      margin-bottom: 14px;
+    }
+    .receipt-badge {
+      font-size: 0.72rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--muted);
+      font-family: var(--font-mono);
+    }
+    .receipt-watermark {
+      font-size: 0.72rem;
+      color: var(--mint-primary);
+      background: #ecfdf5;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-weight: 600;
     }
     .summary-row {
       display: flex;
@@ -1794,26 +1852,30 @@
     </div>
   </section>
 
-  <!-- COUPON VOUCHER TICKET -->
+  <!-- COUPON VOUCHER TICKET (PHIẾU THANH TOÁN MẪU) -->
   <section class="container ticket-section">
     <div class="coupon-ticket">
       <div class="ticket-left">
-        <span class="section-tag" style="margin-bottom: 8px;">Mã giảm giá</span>
-        <h2 class="section-title" style="font-size: 1.8rem; font-weight: 600; letter-spacing: -1.03px; margin-bottom: 8px;">Giảm 10% cho đơn từ 160k</h2>
-        <div style="font-size: 0.82rem; color: var(--muted);">Chỉ đến ngày 29/11/2026</div>
+        <span class="section-tag" style="margin-bottom: 8px;">Mã ưu đãi</span>
+        <h2 class="section-title" style="font-size: 1.75rem; font-weight: 600; letter-spacing: -1.03px; margin-bottom: 6px;">Giảm 10% cho đơn từ 160k</h2>
+        <div style="font-size: 0.82rem; color: var(--muted); margin-bottom: 4px;">Áp dụng cho mọi khách hàng mới trên toàn hệ thống</div>
         <div class="ticket-code-pill">
           <span>FILEDILAM</span>
-          <button class="ticket-copy-btn" onclick="copyVoucherCode(this, 'FILEDILAM');">Sao chép</button>
+          <button class="ticket-copy-btn" type="button" onclick="copyVoucherCode(this, 'FILEDILAM');">Sao chép</button>
         </div>
-        <p style="font-size: 0.82rem; color: var(--muted);">Nhập mã ở bước thanh toán, hệ thống tự trừ 10%.</p>
+        <p style="font-size: 0.8rem; color: var(--muted); margin-top: 2px;">Nhập mã ở bước thanh toán để tự động giảm 10% giá trị đơn hàng.</p>
       </div>
       <div class="ticket-right">
-        <div class="summary-row"><span>Đơn hàng của bạn</span><span>2 file</span></div>
-        <div class="summary-row"><span>Quản lý bán hàng</span><span>599.000</span></div>
-        <div class="summary-row"><span>Quản lý kho</span><span>95.000</span></div>
-        <div class="summary-row"><span>Tạm tính</span><span>694.000</span></div>
-        <div class="summary-row" style="color: var(--mint-primary);"><span>Mã FILEDILAM</span><span>-69.400</span></div>
-        <div class="summary-total"><span>Thanh toán</span><span>624.600 đ</span></div>
+        <div class="receipt-header">
+          <span class="receipt-badge">Mô phỏng phiếu thanh toán</span>
+          <span class="receipt-watermark">Đã áp dụng -10%</span>
+        </div>
+        <div class="summary-row"><span>Sản phẩm chọn mua</span><span style="font-family: var(--font-mono); font-weight: 500;">2 file</span></div>
+        <div class="summary-row"><span>Quản lý bán hàng</span><span style="font-family: var(--font-mono);">599.000</span></div>
+        <div class="summary-row"><span>Quản lý kho</span><span style="font-family: var(--font-mono);">95.000</span></div>
+        <div class="summary-row" style="border-top: 1px dashed #f1f5f9; padding-top: 8px; margin-top: 4px;"><span>Tạm tính</span><span style="font-family: var(--font-mono);">694.000</span></div>
+        <div class="summary-row" style="color: var(--mint-primary); font-weight: 500;"><span>Mã FILEDILAM (-10%)</span><span style="font-family: var(--font-mono);">-69.400</span></div>
+        <div class="summary-total"><span>Tổng thanh toán</span><span>624.600 đ</span></div>
       </div>
     </div>
   </section>
@@ -2728,7 +2790,7 @@
     <script src="/__/firebase/init.js"></script>
     <script src="./storefront-data.js?v=15"></script>
     <script src="./storefront-products.generated.js?v=6"></script>
-    <script src="storefront.js?v=83"></script>
+    <script src="storefront.js?v=84"></script>
     <!-- Agentation: Visual Feedback & Annotation for AI agents -->
   <script src="./agentation-vanilla.js"></script>
 </body>
