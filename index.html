@@ -16,7 +16,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="./storefront.css?v=87" />
+    <link rel="stylesheet" href="./storefront.css?v=88" />
     <style>
     :root {
       --bg: #ffffff;
@@ -2018,15 +2018,21 @@
     </div>
 
 
-    <!-- Product Detail Modal -->
-    <div class="modal-backdrop" id="detailModal" aria-hidden="true" style="z-index: 10005;">
-      <div class="modal-card">
-        <div class="drawer-header">
-          <h3 id="detailTitle">Chi tiết file</h3>
-          <button class="icon-button" id="closeDetail" type="button" aria-label="Đóng">×</button>
+    <!-- Product Detail Fullpage Modal -->
+    <div class="modal-backdrop detail-modal-backdrop" id="detailModal" aria-hidden="true" style="z-index: 10005;">
+      <div class="modal-card detail-fullpage-card">
+        <div class="drawer-header detail-drawer-header">
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <button class="icon-button checkout-back-link" id="closeDetail" type="button" aria-label="Trở lại">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+              <span>Trở lại danh sách file</span>
+            </button>
+            <h3 id="detailTitle" style="display: none;">Chi tiết file</h3>
+          </div>
+          <button class="icon-button" id="closeDetailTopBtn" type="button" aria-label="Đóng" style="width: 36px; height: 36px; font-size: 1.4rem; display: flex; align-items: center; justify-content: center;">×</button>
         </div>
-        <div class="modal-body" id="detailBody"></div>
-        <div class="modal-footer" id="detailFooter"></div>
+        <div class="modal-body detail-modal-body" id="detailBody"></div>
+        <div class="modal-footer detail-modal-footer" id="detailFooter"></div>
       </div>
     </div>
 
@@ -2707,9 +2713,11 @@
     </div>
 
     <div class="toast" id="toast"></div>
-    <script src="/__/firebase/10.7.1/firebase-app-compat.js"></script>
-    <script src="/__/firebase/10.7.1/firebase-auth-compat.js"></script>
-    <script src="/__/firebase/10.7.1/firebase-firestore-compat.js"></script>
+    <!-- Firebase SDK (CDN with local fallback) -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    <script src="./firebase-config.js"></script>
     <script src="/__/firebase/init.js"></script>
     <script src="./storefront-data.js?v=15"></script>
     <script src="./storefront-products.generated.js?v=6"></script>

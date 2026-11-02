@@ -340,6 +340,8 @@
 
     var elCloseDetail = document.getElementById("closeDetail");
     if (elCloseDetail) elCloseDetail.addEventListener("click", closeDetail);
+    var elCloseDetailTop = document.getElementById("closeDetailTopBtn");
+    if (elCloseDetailTop) elCloseDetailTop.addEventListener("click", closeDetail);
 
     var elCopyBankInfo = document.getElementById("copyBankInfo");
     if (elCopyBankInfo) elCopyBankInfo.addEventListener("click", copyTransferNote);
