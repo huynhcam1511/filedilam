@@ -17,6 +17,104 @@
         font-family: 'Manrope', -apple-system, BlinkMacSystemFont, sans-serif;
         line-height: 1.6;
         -webkit-font-smoothing: antialiased;
+        padding-top: 80px;
+      }
+
+      /* Navigation Styling */
+      .nav-links {
+        display: flex;
+        align-items: center;
+        gap: 24px;
+        list-style: none;
+        margin: 0;
+        padding: 0;
+      }
+      .nav-links a {
+        font-size: 0.92rem;
+        font-weight: 500;
+        color: #64748b;
+        text-decoration: none;
+        transition: color 0.15s ease;
+      }
+      .nav-links a:hover {
+        color: #059669;
+      }
+      .btn-primary {
+        background: #059669;
+        color: #ffffff !important;
+        text-decoration: none;
+        font-weight: 600;
+        border-radius: 9999px;
+        transition: background-color 0.15s ease;
+      }
+      .btn-primary:hover {
+        background: #047857;
+      }
+
+      /* Footer Styling */
+      .footer {
+        background: #ffffff;
+        border-top: 1px solid #f1f5f9;
+        padding: 60px 0 30px;
+        margin-top: 60px;
+      }
+      .footer .container {
+        max-width: 1180px;
+        margin: 0 auto;
+        padding: 0 24px;
+      }
+      .footer-columns {
+        display: grid;
+        grid-template-columns: 2fr 1fr 1fr 1fr;
+        gap: 40px;
+        margin-bottom: 48px;
+      }
+      .footer-title {
+        font-size: 0.85rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: #181925;
+        margin-bottom: 16px;
+      }
+      .footer-links {
+        list-style: none;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        font-size: 0.85rem;
+        color: #64748b;
+        padding: 0;
+        margin: 0;
+      }
+      .footer-links a {
+        color: #64748b;
+        text-decoration: none;
+        transition: color 0.15s;
+      }
+      .footer-links a:hover {
+        color: #059669;
+      }
+      .footer-bottom {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-top: 1px solid #f1f5f9;
+        padding-top: 24px;
+        font-size: 0.8rem;
+        color: #94a3b8;
+      }
+      .footer-bottom-links {
+        display: flex;
+        gap: 20px;
+      }
+      .footer-bottom-links a {
+        color: #94a3b8;
+        text-decoration: none;
+        transition: color 0.15s;
+      }
+      .footer-bottom-links a:hover {
+        color: #181925;
       }
 
       .policy-layout {
