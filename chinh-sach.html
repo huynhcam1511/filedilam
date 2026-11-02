@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Chính sách & Điều khoản | File Đi Làm</title>
+    <meta name="description" content="Chính sách giá, giao hàng, bảo mật và điều khoản sử dụng tại File Đi Làm." />
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23059669'><path d='M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z'/><polyline points='14 2 14 8 20 8'/></svg>" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="./storefront.css?v=99" />
+    <style>
+      body {
+        background-color: #ffffff;
+        color: #181925;
+        font-family: 'Manrope', -apple-system, BlinkMacSystemFont, sans-serif;
+        line-height: 1.6;
+        -webkit-font-smoothing: antialiased;
+      }
+
+      .policy-layout {
+        max-width: 1180px;
+        margin: 40px auto 100px;
+        padding: 0 24px;
+        display: grid;
+        grid-template-columns: 260px 1fr;
+        gap: 60px;
+        align-items: start;
+      }
+
+      /* Sidebar navigation */
+      .policy-sidebar {
+        position: sticky;
+        top: 90px;
+        background: #fafafa;
+        border: 1px solid #edf2f7;
+        border-radius: 20px;
+        padding: 24px 20px;
+      }
+      .policy-nav-title {
+        font-size: 0.8rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: #64748b;
+        margin-bottom: 14px;
+      }
+      .policy-nav-list {
+        list-style: none;
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+      }
+      .policy-nav-link {
+        display: block;
+        padding: 8px 14px;
+        border-radius: 10px;
+        font-size: 0.9rem;
+        font-weight: 500;
+        color: #475569;
+        text-decoration: none;
+        transition: all 0.15s ease;
+      }
+      .policy-nav-link:hover {
+        background: #f1f5f9;
+        color: #181925;
+      }
+      .policy-nav-link.active {
+        background: #ffffff;
+        color: #181925;
+        font-weight: 600;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+        border: 1px solid #e2e8f0;
+      }
+      .policy-sidebar-contact {
+        margin-top: 24px;
+        padding-top: 18px;
+        border-top: 1px solid #e2e8f0;
+      }
+      .policy-sidebar-contact .contact-title {
+        font-size: 0.8rem;
+        font-weight: 600;
+        color: #64748b;
+        margin-bottom: 8px;
+      }
+      .policy-sidebar-contact a {
+        display: block;
+        font-size: 0.88rem;
+        color: #059669;
+        text-decoration: none;
+        font-weight: 600;
+        margin-bottom: 4px;
+      }
+      .policy-sidebar-contact a:hover {
+        text-decoration: underline;
+      }
+
+      /* Content Area */
+      .policy-content-header {
+        margin-bottom: 32px;
+      }
+      .policy-tag {
+        display: inline-block;
+        background: #f1f5f9;
+        color: #475569;
+        font-size: 0.75rem;
+        font-weight: 600;
+        padding: 3px 12px;
+        border-radius: 9999px;
+        margin-bottom: 12px;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+      }
+      .policy-main-title {
+        font-size: 2.3rem;
+        font-weight: 700;
+        letter-spacing: -1.2px;
+        color: #181925;
+        margin-bottom: 8px;
+      }
+      .policy-update-date {
+        font-size: 0.85rem;
+        color: #64748b;
+      }
+
+      .policy-highlight-box {
+        background: #f8fafc;
+        border: 1px solid #edf2f7;
+        border-radius: 16px;
+        padding: 24px 28px;
+        font-size: 0.98rem;
+        color: #334155;
+        line-height: 1.6;
+        margin-bottom: 36px;
+      }
+
+      .policy-article {
+        display: none;
+      }
+      .policy-article.active {
+        display: block;
+        animation: fadeIn 0.25s ease;
+      }
+      @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(4px); }
+        to { opacity: 1; transform: translateY(0); }
+      }
+
+      .policy-section {
+        margin-bottom: 36px;
+      }
+      .policy-section h3 {
+        font-size: 1.35rem;
+        font-weight: 700;
+        color: #181925;
+        letter-spacing: -0.5px;
+        margin-bottom: 14px;
+      }
+      .policy-section p {
+        font-size: 0.95rem;
+        color: #475569;
+        line-height: 1.65;
+        margin-bottom: 14px;
+      }
+      .policy-section ul {
+        list-style: none;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        margin-bottom: 16px;
+      }
+      .policy-section ul li {
+        font-size: 0.95rem;
+        color: #475569;
+        line-height: 1.6;
+        position: relative;
+        padding-left: 20px;
+      }
+      .policy-section ul li::before {
+        content: "•";
+        position: absolute;
+        left: 4px;
+        color: #059669;
+        font-weight: bold;
+        font-size: 1.2rem;
+        line-height: 1.2;
+      }
+
+      @media (max-width: 900px) {
+        .policy-layout {
+          grid-template-columns: 1fr;
+          gap: 32px;
+          margin-top: 24px;
+        }
+        .policy-sidebar {
+          position: static;
+        }
+        .policy-main-title {
+          font-size: 1.8rem;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Top Navigation Bar -->
+    <header class="top-nav">
+      <div class="nav-container">
+        <div class="nav-logo" style="display: flex; align-items: center; gap: 28px;">
+          <a href="/index.html" style="text-decoration: none; color: inherit;">
+            <strong id="navBrand" style="font-family: 'Manrope', sans-serif; font-size: 1.25rem; font-weight: 600; letter-spacing: -0.5px;">File Đi Làm</strong>
+          </a>
+          <nav class="nav-links">
+            <a href="/index.html">Trang chủ</a>
+            <a href="/index.html#catalog">Template</a>
+            <a href="https://zalo.me/0938134576" target="_blank" rel="noopener">Hỗ trợ</a>
+            <a href="/index.html#custom">Đặt theo yêu cầu</a>
+          </nav>
+        </div>
+        <div class="nav-actions" style="display: flex; align-items: center;">
+          <a href="/index.html" class="btn-primary" style="padding: 6px 16px; font-size: 0.88rem; border-radius: 9999px;">Quay lại cửa hàng</a>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Content Policy Layout -->
+    <main class="policy-layout">
+      <!-- Left Navigation Sidebar -->
+      <aside class="policy-sidebar">
+        <div class="policy-nav-title">Các chính sách</div>
+        <ul class="policy-nav-list">
+          <li><a href="#gia-va-thanh-toan" class="policy-nav-link active" data-target="gia-va-thanh-toan">Giá và thanh toán</a></li>
+          <li><a href="#giao-hang" class="policy-nav-link" data-target="giao-hang">Giao hàng & Nhận file</a></li>
+          <li><a href="#dieu-khoan-su-dung" class="policy-nav-link" data-target="dieu-khoan-su-dung">Điều khoản sử dụng</a></li>
+          <li><a href="#bao-mat-thong-tin" class="policy-nav-link" data-target="bao-mat-thong-tin">Bảo mật thông tin</a></li>
+          <li><a href="#doi-tra-va-hoan-tien" class="policy-nav-link" data-target="doi-tra-va-hoan-tien">Đổi trả & Hoàn tiền</a></li>
+          <li><a href="#thong-tin-chu-quan" class="policy-nav-link" data-target="thong-tin-chu-quan">Thông tin chủ quản</a></li>
+        </ul>
+
+        <div class="policy-sidebar-contact">
+          <div class="contact-title">Cần hỏi thêm?</div>
+          <a href="https://zalo.me/0938134576" target="_blank" rel="noopener">Nhắn Zalo: 0938 134 576</a>
+          <a href="mailto:hotro@nourishgroup.vn">hotro@nourishgroup.vn</a>
+        </div>
+      </aside>
+
+      <!-- Right Main Policy Content -->
+      <section class="policy-content-wrap">
+        <!-- 1. GIÁ VÀ THANH TOÁN -->
+        <article class="policy-article active" id="article-gia-va-thanh-toan">
+          <div class="policy-content-header">
+            <span class="policy-tag">Chính sách</span>
+            <h1 class="policy-main-title">Chính sách giá và thanh toán</h1>
+            <div class="policy-update-date">Cập nhật ngày 03/11/2026</div>
+          </div>
+
+          <div class="policy-highlight-box">
+            Giá trên website là số tiền cuối cùng bạn trả. Bạn thanh toán bằng mã QR chuyển khoản ngân hàng (VietQR), hệ thống tự đối soát và gửi file về email ngay lập tức, không cần gửi ảnh chuyển khoản.
+          </div>
+
+          <div class="policy-section">
+            <h3>Giá sản phẩm</h3>
+            <ul>
+              <li>Giá niêm yết bằng đồng Việt Nam (VND) và đã bao gồm toàn bộ phí sản phẩm theo quy định.</li>
+              <li>Không có phí giao hàng, không phí cài đặt, không có phí duy trì định kỳ hằng tháng. Bạn mua một lần và sở hữu, sử dụng mãi mãi trọn đời.</li>
+              <li>Sản phẩm có nhiều phiên bản (Standard, Coaching kèm 1-1) thì giá của từng phiên bản được hiển thị rõ ràng khi bạn chọn gói.</li>
+              <li>Giá áp dụng là giá hiển thị tại thời điểm bạn tạo đơn đặt hàng. Mọi điều chỉnh giá sau đó không ảnh hưởng tới đơn hàng đã thanh toán thành công.</li>
+              <li>Dịch vụ theo yêu cầu (custom) được tính theo báo giá riêng gửi qua Zalo hoặc email trước khi bắt đầu. Không phát sinh chi phí ngoài phạm vi công việc đã thỏa thuận.</li>
+            </ul>
+          </div>
+
+          <div class="policy-section">
+            <h3>Khuyến mại và mã giảm giá</h3>
+            <ul>
+              <li>Chương trình khuyến mại và mã giảm giá được thông báo trực tiếp trên website kèm điều kiện cụ thể (mức giảm, giá trị đơn tối thiểu, thời hạn áp dụng).</li>
+              <li>Bạn nhập mã ở bước thanh toán (checkout), hệ thống tự động trừ trực tiếp vào tổng tiền thanh toán trước khi bạn quét mã VietQR.</li>
+              <li>Mỗi đơn hàng áp dụng tối đa 01 mã ưu đãi tại cùng một thời điểm.</li>
+            </ul>
+          </div>
+
+          <div class="policy-section">
+            <h3>Phương thức thanh toán</h3>
+            <ul>
+              <li><strong>Chuyển khoản VietQR tự động:</strong> Khách hàng dùng bất kỳ ứng dụng ngân hàng hoặc ví điện tử quét mã QR hiển thị trên màn hình. Số tiền và nội dung chuyển khoản được tạo sẵn chính xác.</li>
+              <li><strong>Thời gian kích hoạt:</strong> Hệ thống tự động kiểm tra biến động số dư qua webhook SePay trong vòng 3-10 giây kể từ khi ngân hàng báo chuyển thành công. Màn hình tự chuyển sang trang nhận file mà không cần nhân viên hỗ trợ duyệt tay.</li>
+            </ul>
+          </div>
+        </article>
+
+        <!-- 2. GIAO HÀNG & NHẬN FILE -->
+        <article class="policy-article" id="article-giao-hang">
+          <div class="policy-content-header">
+            <span class="policy-tag">Chính sách</span>
+            <h1 class="policy-main-title">Chính sách giao hàng & nhận file</h1>
+            <div class="policy-update-date">Cập nhật ngày 03/11/2026</div>
+          </div>
+
+          <div class="policy-highlight-box">
+            Toàn bộ sản phẩm tại File Đi Làm là sản phẩm kỹ thuật số (Google Sheets template & Web App). File được bàn giao tự động trực tuyến 100%, không giao hàng vật lý.
+          </div>
+
+          <div class="policy-section">
+            <h3>Hình thức bàn giao</h3>
+            <ul>
+              <li><strong>Giao diện nhận file tức thì:</strong> Ngay sau khi thanh toán thành công, hệ thống cung cấp link <code>/copy</code> độc quyền để bạn bấm tạo bản sao trực tiếp về Google Drive cá nhân.</li>
+              <li><strong>Email xác nhận đơn hàng:</strong> Đường link bản sao và hóa đơn thanh toán được gửi đồng thời về địa chỉ Gmail bạn đã điền lúc checkout.</li>
+              <li><strong>Mục "File của tôi":</strong> Bất kỳ lúc nào bạn đăng nhập hoặc nhập email/số điện thoại đã mua, bạn đều có thể truy cập lại toàn bộ danh sách file đã mua vĩnh viễn.</li>
+            </ul>
+          </div>
+
+          <div class="policy-section">
+            <h3>Thời gian giao hàng</h3>
+            <ul>
+              <li>Hệ thống vận hành tự động 24/7. Thời gian giao file trung bình từ <strong>5 giây đến 1 phút</strong> sau khi hoàn tất giao dịch ngân hàng.</li>
+              <li>Trường hợp ngân hàng bảo trì đột xuất, bạn có thể gửi mã đơn hàng đến Zalo hotline <strong>0938 134 576</strong> để được gửi file thủ công ngay lập tức.</li>
+            </ul>
+          </div>
+        </article>
+
+        <!-- 3. ĐIỀU KHOẢN SỬ DỤNG -->
+        <article class="policy-article" id="article-dieu-khoan-su-dung">
+          <div class="policy-content-header">
+            <span class="policy-tag">Chính sách</span>
+            <h1 class="policy-main-title">Điều khoản sử dụng</h1>
+            <div class="policy-update-date">Cập nhật ngày 03/11/2026</div>
+          </div>
+
+          <div class="policy-highlight-box">
+            Khi mua và tải bản sao file từ File Đi Làm, bạn có toàn quyền sử dụng, chỉnh sửa và nhập liệu cho công việc kinh doanh cá nhân hoặc doanh nghiệp của mình.
+          </div>
+
+          <div class="policy-section">
+            <h3>Quyền sở hữu & Bản quyền</h3>
+            <ul>
+              <li>File Đi Làm giữ bản quyền thiết kế giao diện, cấu trúc sheet, giải thuật công thức và mã nguồn Apps Script liên kết.</li>
+              <li>Người mua được cấp quyền sử dụng không giới hạn thời gian (trọn đời) trên tài khoản Google của chính mình.</li>
+              <li><strong>CẤM sao chép để bán lại:</strong> Bạn không được chia sẻ công khai link master, bán lại mẫu file, hoặc phân phối thương mại lại dưới mọi hình thức mà không có sự đồng ý bằng văn bản từ File Đi Làm.</li>
+            </ul>
+          </div>
+
+          <div class="policy-section">
+            <h3>Quyền tự do tùy chỉnh</h3>
+            <ul>
+              <li>Bạn có toàn quyền thêm cột, sửa tên danh mục, thay đổi công thức hoặc bổ sung sheet mới theo nhu cầu thực tế của mô hình kinh doanh.</li>
+              <li>File Đi Làm luôn khuyến khích bạn giữ 1 bản sao gốc lưu trữ trên Google Drive trước khi chỉnh sửa công thức phức tạp để tiện đối chiếu phục hồi.</li>
+            </ul>
+          </div>
+        </article>
+
+        <!-- 4. BẢO MẬT THÔNG TIN -->
+        <article class="policy-article" id="article-bao-mat-thong-tin">
+          <div class="policy-content-header">
+            <span class="policy-tag">Chính sách</span>
+            <h1 class="policy-main-title">Chính sách bảo mật thông tin</h1>
+            <div class="policy-update-date">Cập nhật ngày 03/11/2026</div>
+          </div>
+
+          <div class="policy-highlight-box">
+            Dữ liệu kinh doanh và số liệu nội bộ của bạn được bảo mật tuyệt đối 100%. File bản sao nằm hoàn toàn trong tài khoản Google Drive cá nhân của bạn, File Đi Làm không có quyền xem hay can thiệp.
+          </div>
+
+          <div class="policy-section">
+            <h3>Bảo mật dữ liệu trên Google Sheets</h3>
+            <ul>
+              <li>Khi bạn bấm nút nhận file, Google thực hiện lệnh <code>Make a copy</code> độc lập vào Drive của bạn.</li>
+              <li>Chỉ có bạn và những người bạn chủ động phân quyền chia sẻ (Share) trong Google Drive mới có quyền mở và xem dữ liệu.</li>
+              <li>File Đi Làm không thu thập hay lưu trữ bất kỳ số liệu đơn hàng, doanh thu hay danh sách khách hàng nào bạn nhập trong sheet.</li>
+            </ul>
+          </div>
+
+          <div class="policy-section">
+            <h3>Bảo mật thông tin khách hàng</h3>
+            <ul>
+              <li>Thông tin thu thập (Họ tên, Gmail, Số điện thoại) chỉ dùng để gửi link file, kích hoạt bản sao và hỗ trợ kỹ thuật khi bạn yêu cầu.</li>
+              <li>Cam kết không chia sẻ, bán hay cung cấp thông tin liên hệ của khách hàng cho bất kỳ bên thứ ba nào.</li>
+            </ul>
+          </div>
+        </article>
+
+        <!-- 5. ĐỔI TRẢ VÀ HOÀN TIỀN -->
+        <article class="policy-article" id="article-doi-tra-va-hoan-tien">
+          <div class="policy-content-header">
+            <span class="policy-tag">Chính sách</span>
+            <h1 class="policy-main-title">Chính sách đổi trả & hoàn tiền</h1>
+            <div class="policy-update-date">Cập nhật ngày 03/11/2026</div>
+          </div>
+
+          <div class="policy-highlight-box">
+            Vì sản phẩm là tài sản kỹ thuật số giao nhận trực tuyến, File Đi Làm luôn hỗ trợ giải quyết thấu đáo và đồng hành cùng khách hàng cho đến khi vận hành trơn tru.
+          </div>
+
+          <div class="policy-section">
+            <h3>Điều kiện hỗ trợ kỹ thuật</h3>
+            <ul>
+              <li>Nếu file gặp lỗi công thức, lỗi hiển thị hoặc lỗi tương thích phiên bản Google Sheets, đội ngũ kỹ thuật sửa lỗi và cập nhật bản hoàn thiện miễn phí.</li>
+              <li>Hỗ trợ hướng dẫn sử dụng và giải đáp thắc mắc qua Zalo hotline <strong>0938 134 576</strong> cả Thứ 7 và Chủ Nhật.</li>
+            </ul>
+          </div>
+
+          <div class="policy-section">
+            <h3>Trường hợp hoàn tiền</h3>
+            <ul>
+              <li>Khách hàng chuyển khoản trùng đơn (thanh toán 2 lần cho cùng một mã đơn). Hệ thống sẽ đối soát và hoàn trả 100% số tiền trùng trong vòng 24 giờ làm việc.</li>
+              <li>File bị lỗi kỹ thuật cốt lõi xuất phát từ mẫu nguồn mà đội ngũ kỹ thuật không thể khắc phục được trong vòng 48 giờ kể từ khi tiếp nhận phản ánh.</li>
+            </ul>
+          </div>
+        </article>
+
+        <!-- 6. THÔNG TIN CHỦ QUẢN -->
+        <article class="policy-article" id="article-thong-tin-chu-quan">
+          <div class="policy-content-header">
+            <span class="policy-tag">Chính sách</span>
+            <h1 class="policy-main-title">Thông tin chủ quản</h1>
+            <div class="policy-update-date">Cập nhật ngày 03/11/2026</div>
+          </div>
+
+          <div class="policy-highlight-box">
+            Hệ sinh thái sản phẩm Google Sheets và Web App tự động hoá quy trình làm việc được phát triển và vận hành bởi File Đi Làm.
+          </div>
+
+          <div class="policy-section">
+            <h3>Thông tin liên hệ</h3>
+            <ul>
+              <li><strong>Thương hiệu:</strong> File Đi Làm</li>
+              <li><strong>Đại diện quản trị:</strong> Huỳnh Kiên Cẩm</li>
+              <li><strong>Hotline / Zalo hỗ trợ:</strong> <a href="https://zalo.me/0938134576" target="_blank" rel="noopener" style="color: #059669; font-weight: 600;">0938 134 576</a></li>
+              <li><strong>Email hỗ trợ:</strong> <a href="mailto:hotro@nourishgroup.vn" style="color: #059669; font-weight: 600;">hotro@nourishgroup.vn</a></li>
+              <li><strong>Khu vực hoạt động:</strong> Đà Nẵng & TP. Hồ Chí Minh (Hỗ trợ khách hàng toàn quốc)</li>
+            </ul>
+          </div>
+        </article>
+      </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+      <div class="container">
+        <div class="footer-columns">
+          <div>
+            <div class="logo" style="margin-bottom: 12px; font-weight: 600; font-size: 1.25rem;">File Đi Làm</div>
+            <p style="font-size: 0.85rem; color: var(--muted); margin-bottom: 16px;">Giải pháp Google Sheets & Web App tự động hoá quy trình làm việc cho cá nhân và doanh nghiệp.</p>
+          </div>
+          <div>
+            <h4 class="footer-title">Liên hệ</h4>
+            <ul class="footer-links">
+              <li>Hotline: 0938 134 576</li>
+              <li>Email: hotro@nourishgroup.vn</li>
+              <li>Đà Nẵng & TP. Hồ Chí Minh</li>
+            </ul>
+          </div>
+          <div>
+            <h4 class="footer-title">Danh mục</h4>
+            <ul class="footer-links">
+              <li><a href="/index.html#catalog">Tất cả template</a></li>
+              <li><a href="/index.html#catalog">Kinh doanh & Bán hàng</a></li>
+              <li><a href="/index.html#catalog">Nhân sự & Chấm công</a></li>
+              <li><a href="/index.html#catalog">Kế toán & Thu chi</a></li>
+            </ul>
+          </div>
+          <div>
+            <h4 class="footer-title">Chính sách</h4>
+            <ul class="footer-links">
+              <li><a href="/chinh-sach.html#dieu-khoan-su-dung">Điều khoản sử dụng</a></li>
+              <li><a href="/chinh-sach.html#bao-mat-thong-tin">Bảo mật thông tin</a></li>
+              <li><a href="/chinh-sach.html#giao-hang">Chính sách giao hàng</a></li>
+              <li><a href="/chinh-sach.html#doi-tra-va-hoan-tien">Hỗ trợ & hoàn tiền</a></li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="footer-bottom">
+          <div>© 2026 File Đi Làm. Nền tảng tự động hoá trên Google Sheets.</div>
+          <div class="footer-bottom-links">
+            <a href="/chinh-sach.html#dieu-khoan-su-dung">Điều khoản</a>
+            <a href="/chinh-sach.html#bao-mat-thong-tin">Bảo mật</a>
+            <a href="/chinh-sach.html#giao-hang">Giao hàng</a>
+          </div>
+        </div>
+      </div>
+    </footer>
+
+    <script>
+      // Tab switching logic for policy navigation
+      document.addEventListener("DOMContentLoaded", function () {
+        var navLinks = document.querySelectorAll(".policy-nav-link");
+        var articles = document.querySelectorAll(".policy-article");
+
+        function switchTab(targetId) {
+          if (!targetId) return;
+          var cleanId = targetId.replace("#", "");
+          var targetArticle = document.getElementById("article-" + cleanId);
+          if (!targetArticle) return;
+
+          articles.forEach(function (art) { art.classList.remove("active"); });
+          navLinks.forEach(function (link) { link.classList.remove("active"); });
+
+          targetArticle.classList.add("active");
+          var activeLink = document.querySelector('.policy-nav-link[data-target="' + cleanId + '"]');
+          if (activeLink) activeLink.classList.add("active");
+
+          window.scrollTo({ top: 0, behavior: "smooth" });
+        }
+
+        navLinks.forEach(function (link) {
+          link.addEventListener("click", function (e) {
+            e.preventDefault();
+            var targetId = this.getAttribute("data-target");
+            history.pushState(null, null, "#" + targetId);
+            switchTab(targetId);
+          });
+        });
+
+        // Handle direct URL hash
+        if (window.location.hash) {
+          switchTab(window.location.hash);
+        }
+
+        window.addEventListener("hashchange", function () {
+          if (window.location.hash) {
+            switchTab(window.location.hash);
+          }
+        });
+      });
+    </script>
+  </body>
+</html>
