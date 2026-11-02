@@ -16,7 +16,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="./storefront.css?v=86" />
+    <link rel="stylesheet" href="./storefront.css?v=87" />
     <style>
     :root {
       --bg: #ffffff;
@@ -2031,122 +2031,170 @@
     </div>
 
     <!-- Checkout Modal (Unified Quick Buy & VietQR) -->
-    <div class="modal-backdrop" id="checkoutModal" aria-hidden="true" style="z-index: 10006;">
-      <div class="modal-card checkout-card" style="max-width: 500px; width: 100%;">
-        <div class="drawer-header" style="display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; border-bottom: 1px solid var(--line);">
+    <div class="modal-backdrop checkout-modal-backdrop" id="checkoutModal" aria-hidden="true" style="z-index: 10006;">
+      <div class="modal-card checkout-card">
+        <div class="drawer-header checkout-drawer-header">
           <div style="display: flex; align-items: center; gap: 8px;">
-            <button class="icon-button" id="checkoutBackBtn" type="button" aria-label="Quay lại bước trước" title="Quay lại sửa thông tin" style="display: none; width: 36px; height: 36px; align-items: center; justify-content: center; border-radius: 8px;">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+            <button class="icon-button checkout-back-link" id="checkoutBackBtn" type="button" aria-label="Quay lại">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+              <span>Trở lại cửa hàng</span>
             </button>
-            <h3 id="checkoutModalTitle" style="margin: 0; font-size: 1.05rem; font-weight: 700; color: #0f172a;">Thông tin thanh toán</h3>
+            <h3 id="checkoutModalTitle" class="checkout-title-text" style="display: none;">Thông tin thanh toán</h3>
           </div>
           <button class="icon-button" id="closeCheckout" type="button" aria-label="Đóng" style="width: 36px; height: 36px; font-size: 1.4rem; display: flex; align-items: center; justify-content: center;">×</button>
         </div>
 
         <!-- STEP 1: Quick Customer Info / Auth Step (shown when not logged in) -->
-        <div id="checkoutAuthStep" class="modal-body" style="padding: 20px;">
+        <div id="checkoutAuthStep" class="modal-body checkout-modal-body-split">
           
-          <!-- Package Selection Card (Shopee Upsell) -->
-          <div class="package-selection-wrap" id="packageSelectionWrap" style="margin-bottom: 16px; display: none;">
-            <div style="font-weight: 600; font-size: 0.88rem; color: #1e293b; margin-bottom: 8px; display: flex; align-items: center; justify-content: space-between;">
-              <span>Chọn gói nhận file:</span>
-              <span style="font-size: 0.75rem; color: #059669; font-weight: 600; background: #ecfdf5; padding: 2px 8px; border-radius: 12px;">Hỗ trợ 1-1 tận tình</span>
+          <!-- LEFT COLUMN: Order Summary (Optimate Inspired) -->
+          <div class="checkout-summary-col">
+            <div class="checkout-hero-section">
+              <div class="checkout-hero-label">Tổng đơn</div>
+              <div class="checkout-hero-total font-mono" id="checkoutHeroTotal">0 đ</div>
             </div>
-            
-            <div style="display: flex; flex-direction: column; gap: 8px;">
-              <!-- Option 1: Bản Tự Dùng -->
-              <label class="package-option-card active" id="pkgOptionStandard" style="display: flex; align-items: flex-start; gap: 10px; padding: 10px 12px; border: 2px solid var(--mint-strong, #059669); background: #f0fdf4; border-radius: 10px; cursor: pointer; transition: all 0.2s ease;">
-                <input type="radio" name="checkoutPackage" id="radioPkgStandard" value="standard" checked style="margin-top: 3px; accent-color: #059669; cursor: pointer;" />
-                <div style="flex: 1;">
-                  <div style="display: flex; justify-content: space-between; align-items: center;">
-                    <strong style="font-size: 0.92rem; color: #0f172a;">Bản Tự Dùng</strong>
-                    <span class="pkg-price font-mono" id="pkgPriceStandard" style="font-weight: 700; color: #0f172a; font-size: 0.95rem;">99.000 đ</span>
-                  </div>
-                  <p style="margin: 2px 0 0 0; font-size: 0.78rem; color: #64748b; line-height: 1.35;">Nhận file gốc + Video hướng dẫn nhập liệu chi tiết trọn đời.</p>
-                </div>
-              </label>
 
-              <!-- Option 2: Bản Kèm 1-1 Thực Chiến -->
-              <label class="package-option-card" id="pkgOptionCoaching" style="display: flex; align-items: flex-start; gap: 10px; padding: 10px 12px; border: 1.5px solid #e2e8f0; background: #ffffff; border-radius: 10px; cursor: pointer; transition: all 0.2s ease; position: relative;">
-                <div style="position: absolute; top: -8px; right: 10px; background: linear-gradient(135deg, #f59e0b, #d97706); color: #fff; font-size: 0.65rem; font-weight: 700; padding: 1px 7px; border-radius: 8px; text-transform: uppercase; letter-spacing: 0.3px; box-shadow: 0 2px 4px rgba(217, 119, 6, 0.2);">
-                  🔥 Khuyên Dùng
-                </div>
-                <input type="radio" name="checkoutPackage" id="radioPkgCoaching" value="coaching" style="margin-top: 3px; accent-color: #059669; cursor: pointer;" />
-                <div style="flex: 1;">
-                  <div style="display: flex; justify-content: space-between; align-items: center;">
-                    <strong id="pkgTitleCoaching" style="font-size: 0.92rem; color: #0f172a;">Bản Kèm 1-1 (1 buổi 1 tiếng)</strong>
-                    <span class="pkg-price font-mono" id="pkgPriceCoaching" style="font-weight: 700; color: #059669; font-size: 0.95rem;">199.000 đ</span>
-                  </div>
-                  <p style="margin: 2px 0 0 0; font-size: 0.78rem; color: #64748b; line-height: 1.35;">File gốc + <strong>1 buổi kèm riêng 1 tiếng</strong> (UltraViewer/Meet) ráp số liệu thực tế cho shop của bạn.</p>
-                </div>
-              </label>
+            <!-- List of items in checkout -->
+            <div class="checkout-items-list" id="checkoutItems"></div>
+
+            <div class="checkout-calc-divider"></div>
+
+            <div class="checkout-calc-row">
+              <span class="calc-label">Tổng phụ</span>
+              <span class="calc-val font-mono" id="checkoutSubTotal">0 đ</span>
             </div>
-          </div>
 
-          <!-- Segmented Mode Switch Tabs -->
-          <div class="checkout-segmented-tabs">
-            <button type="button" class="checkout-tab-btn active" id="tabNewBuyer">
-              <span>Người mua lần đầu</span>
-            </button>
-            <button type="button" class="checkout-tab-btn" id="tabReturningBuyer">
-              <span>Đã có tài khoản</span>
-            </button>
-          </div>
-
-          <form id="quickBuyForm">
-            <!-- Field 1: Gmail (BẮT BUỘC để nhận file Drive) -->
-            <div class="checkout-field" id="quickEmailGroup">
-              <label class="checkout-label">
-                Gmail nhận file Google Drive <span class="req">*</span>
-              </label>
-              <input id="quickEmail" type="email" placeholder="Ví dụ: yourname@gmail.com" required class="checkout-input" />
-              <div style="font-size: 0.76rem; color: var(--muted); margin-top: 4px; line-height: 1.35;">
-                Link tạo bản sao Google Sheets sẽ được lưu vào tài khoản và gửi về Gmail này.
+            <!-- Discount coupon row -->
+            <div class="checkout-coupon-box">
+              <div class="coupon-box-title">Thêm mã giảm giá</div>
+              <div class="coupon-input-group">
+                <input type="text" id="checkoutCouponInput" class="checkout-coupon-input" placeholder="Điền mã giảm giá" />
+                <button type="button" id="btnApplyCheckoutCoupon" class="btn-apply-coupon">Áp mã</button>
               </div>
             </div>
 
-            <!-- Field 2: Phone / Account -->
-            <div class="checkout-field">
-              <label class="checkout-label" id="quickPhoneLabel">
-                Số điện thoại / Zalo <span class="req">*</span>
-              </label>
-              <input id="quickPhone" type="tel" placeholder="Ví dụ: 0912345678" required class="checkout-input" />
-            </div>
+            <div class="checkout-calc-divider"></div>
 
-            <!-- Field 3: Password with eye toggle -->
-            <div class="checkout-field" id="quickPassGroup">
-              <label class="checkout-label" id="quickPassLabel">
-                Mật khẩu quản lý đơn <span class="req">*</span>
-              </label>
-              <div class="password-input-wrap">
-                <input id="quickPassword" type="password" placeholder="Tối thiểu 6 ký tự để tải lại file sau" class="checkout-input" />
-                <button type="button" class="btn-toggle-eye" id="togglePassVisibility" title="Hiện/ẩn mật khẩu">
-                  <svg class="eye-open" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
-                  <svg class="eye-closed" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="display:none;"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg>
+            <div class="checkout-calc-row checkout-grand-row">
+              <span class="calc-label-grand">Tổng cộng</span>
+              <span class="calc-val-grand font-mono" id="checkoutGrandTotal">0 đ</span>
+            </div>
+          </div>
+
+          <!-- RIGHT COLUMN: Customer Payment Form Card -->
+          <div class="checkout-form-col">
+            <div class="checkout-form-card">
+              <h4 class="checkout-form-card-title">Thông tin thanh toán</h4>
+
+              <!-- Package Selection Card (Shopee Upsell) -->
+              <div class="package-selection-wrap" id="packageSelectionWrap" style="margin-bottom: 16px; display: none;">
+                <div style="font-weight: 600; font-size: 0.88rem; color: #1e293b; margin-bottom: 8px; display: flex; align-items: center; justify-content: space-between;">
+                  <span>Chọn gói nhận file:</span>
+                  <span style="font-size: 0.75rem; color: #059669; font-weight: 600; background: #ecfdf5; padding: 2px 8px; border-radius: 12px;">Hỗ trợ 1-1 tận tình</span>
+                </div>
+                
+                <div style="display: flex; flex-direction: column; gap: 8px;">
+                  <!-- Option 1: Bản Tự Dùng -->
+                  <label class="package-option-card active" id="pkgOptionStandard" style="display: flex; align-items: flex-start; gap: 10px; padding: 10px 12px; border: 2px solid var(--mint-strong, #059669); background: #f0fdf4; border-radius: 10px; cursor: pointer; transition: all 0.2s ease;">
+                    <input type="radio" name="checkoutPackage" id="radioPkgStandard" value="standard" checked style="margin-top: 3px; accent-color: #059669; cursor: pointer;" />
+                    <div style="flex: 1;">
+                      <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <strong style="font-size: 0.92rem; color: #0f172a;">Bản Tự Dùng</strong>
+                        <span class="pkg-price font-mono" id="pkgPriceStandard" style="font-weight: 700; color: #0f172a; font-size: 0.95rem;">99.000 đ</span>
+                      </div>
+                      <p style="margin: 2px 0 0 0; font-size: 0.78rem; color: #64748b; line-height: 1.35;">Nhận file gốc + Video hướng dẫn nhập liệu chi tiết trọn đời.</p>
+                    </div>
+                  </label>
+
+                  <!-- Option 2: Bản Kèm 1-1 Thực Chiến -->
+                  <label class="package-option-card" id="pkgOptionCoaching" style="display: flex; align-items: flex-start; gap: 10px; padding: 10px 12px; border: 1.5px solid #e2e8f0; background: #ffffff; border-radius: 10px; cursor: pointer; transition: all 0.2s ease; position: relative;">
+                    <div style="position: absolute; top: -8px; right: 10px; background: linear-gradient(135deg, #f59e0b, #d97706); color: #fff; font-size: 0.65rem; font-weight: 700; padding: 1px 7px; border-radius: 8px; text-transform: uppercase; letter-spacing: 0.3px; box-shadow: 0 2px 4px rgba(217, 119, 6, 0.2);">
+                      🔥 Khuyên Dùng
+                    </div>
+                    <input type="radio" name="checkoutPackage" id="radioPkgCoaching" value="coaching" style="margin-top: 3px; accent-color: #059669; cursor: pointer;" />
+                    <div style="flex: 1;">
+                      <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <strong id="pkgTitleCoaching" style="font-size: 0.92rem; color: #0f172a;">Bản Kèm 1-1 (1 buổi 1 tiếng)</strong>
+                        <span class="pkg-price font-mono" id="pkgPriceCoaching" style="font-weight: 700; color: #059669; font-size: 0.95rem;">199.000 đ</span>
+                      </div>
+                      <p style="margin: 2px 0 0 0; font-size: 0.78rem; color: #64748b; line-height: 1.35;">File gốc + <strong>1 buổi kèm riêng 1 tiếng</strong> (UltraViewer/Meet) ráp số liệu thực tế cho shop của bạn.</p>
+                    </div>
+                  </label>
+                </div>
+              </div>
+
+              <!-- Segmented Mode Switch Tabs -->
+              <div class="checkout-segmented-tabs">
+                <button type="button" class="checkout-tab-btn active" id="tabNewBuyer">
+                  <span>Người mua lần đầu</span>
+                </button>
+                <button type="button" class="checkout-tab-btn" id="tabReturningBuyer">
+                  <span>Đã có tài khoản</span>
                 </button>
               </div>
+
+              <form id="quickBuyForm">
+                <!-- Field 1: Gmail (BẮT BUỘC để nhận file Drive) -->
+                <div class="checkout-field" id="quickEmailGroup">
+                  <label class="checkout-label">
+                    Gmail nhận file Google Drive <span class="req">*</span>
+                  </label>
+                  <input id="quickEmail" type="email" placeholder="Ví dụ: yourname@gmail.com" required class="checkout-input" />
+                  <div style="font-size: 0.76rem; color: var(--muted); margin-top: 4px; line-height: 1.35;">
+                    Link tạo bản sao Google Sheets sẽ được lưu vào tài khoản và gửi về Gmail này.
+                  </div>
+                </div>
+
+                <!-- Field 2: Phone / Account -->
+                <div class="checkout-field">
+                  <label class="checkout-label" id="quickPhoneLabel">
+                    Số điện thoại / Zalo <span class="req">*</span>
+                  </label>
+                  <input id="quickPhone" type="tel" placeholder="Ví dụ: 0912345678" required class="checkout-input" />
+                </div>
+
+                <!-- Field 3: Password with eye toggle -->
+                <div class="checkout-field" id="quickPassGroup">
+                  <label class="checkout-label" id="quickPassLabel">
+                    Mật khẩu quản lý đơn <span class="req">*</span>
+                  </label>
+                  <div class="password-input-wrap">
+                    <input id="quickPassword" type="password" placeholder="Tối thiểu 6 ký tự để tải lại file sau" class="checkout-input" />
+                    <button type="button" class="btn-toggle-eye" id="togglePassVisibility" title="Hiện/ẩn mật khẩu">
+                      <svg class="eye-open" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                      <svg class="eye-closed" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="display:none;"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg>
+                    </button>
+                  </div>
+                </div>
+
+                <!-- Submit Button (Đặt hàng / Tiếp tục nhận mã QR) -->
+                <button class="button-primary button-full btn-place-order" id="btnQuickSubmit" type="submit">
+                  <span id="btnQuickSubmitText">Đặt hàng</span>
+                </button>
+              </form>
+
+              <!-- Helpful Note (Optimate Inspired) -->
+              <div class="checkout-help-note">
+                <p><strong>Lưu ý:</strong> Hãy nhập chính xác địa chỉ Gmail của bạn vì email này sẽ được dùng để nhận bản sao file khi bạn thanh toán thành công. Nếu bạn có thắc mắc gì trong quá trình mua hàng / thanh toán xin liên hệ SĐT/Zalo: <strong>086 773 8365</strong>.</p>
+                <div class="checkout-terms-note">Khi đặt hàng, bạn đồng ý với <a href="#">Điều khoản</a>, <a href="#">Đổi trả</a> và <a href="#">Bảo mật</a>.</div>
+              </div>
+
+              <!-- Divider -->
+              <div class="checkout-divider">
+                <span>hoặc tiếp tục nhanh với</span>
+              </div>
+
+              <!-- 1-Tap Google Button -->
+              <button class="btn-google-flat button-full" id="btnGoogleCheckout" type="button">
+                <svg width="18" height="18" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
+                <span>Đăng nhập bằng Google</span>
+              </button>
+
+              <!-- Hidden bridge elements for backward compatibility -->
+              <span id="quickToggleText" style="display:none;"></span>
+              <a href="#" id="quickToggleLink" style="display:none;"></a>
             </div>
-
-            <!-- Submit Button -->
-            <button class="button-primary button-full" id="btnQuickSubmit" type="submit" style="height: 46px; font-size: 0.98rem; font-weight: 600; margin-top: 6px; display: flex; align-items: center; justify-content: center;">
-              <span id="btnQuickSubmitText">Tiếp tục nhận mã QR</span>
-            </button>
-          </form>
-
-          <!-- Divider -->
-          <div class="checkout-divider">
-            <span>hoặc tiếp tục nhanh với</span>
           </div>
-
-          <!-- 1-Tap Google Button -->
-          <button class="btn-google-flat button-full" id="btnGoogleCheckout" type="button">
-            <svg width="18" height="18" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
-            <span>Đăng nhập bằng Google</span>
-          </button>
-
-          <!-- Hidden bridge elements for backward compatibility -->
-          <span id="quickToggleText" style="display:none;"></span>
-          <a href="#" id="quickToggleLink" style="display:none;"></a>
         </div>
 
         <!-- STEP 2: VietQR Payment Step (shown after auth or when already logged in) -->
@@ -2665,7 +2713,7 @@
     <script src="/__/firebase/init.js"></script>
     <script src="./storefront-data.js?v=15"></script>
     <script src="./storefront-products.generated.js?v=6"></script>
-    <script src="storefront.js?v=81"></script>
+    <script src="storefront.js?v=82"></script>
     <!-- Agentation: Visual Feedback & Annotation for AI agents -->
   <script src="./agentation-vanilla.js"></script>
 </body>

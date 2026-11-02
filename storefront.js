@@ -1378,24 +1378,40 @@
   }
 
   function renderCheckoutSummary(detailedCart) {
+    var checkoutHeroTotal = document.getElementById("checkoutHeroTotal");
+    var checkoutSubTotal = document.getElementById("checkoutSubTotal");
+    var checkoutGrandTotal = document.getElementById("checkoutGrandTotal");
+    var total = getCartTotal();
+
+    if (!detailedCart) {
+      detailedCart = state.cart.map(function(entry) {
+        var p = getProductById(entry.productId);
+        return p ? { product: p, quantity: entry.quantity, total: p.price * entry.quantity } : null;
+      }).filter(Boolean);
+    }
+
+    if (checkoutHeroTotal) checkoutHeroTotal.textContent = formatCurrency(total);
+    if (checkoutSubTotal) checkoutSubTotal.textContent = formatCurrency(total);
+    if (checkoutGrandTotal) checkoutGrandTotal.textContent = formatCurrency(total);
+
     if (!checkoutItems) return;
     if (!detailedCart.length) {
       checkoutItems.innerHTML =
-        '<div class="empty-state">Chưa có file nào trong giỏ hàng.</div>';
+        '<div class="empty-state" style="padding: 16px 0; color: #64748b; font-size: 0.9rem;">Chưa có file nào trong đơn hàng.</div>';
       return;
     }
 
     checkoutItems.innerHTML = detailedCart
       .map(function (item) {
         return (
-          '<div class="summary-line">' +
-          "<span>" +
-          escapeHtml(item.product.name) +
-          "</span>" +
-          "<strong>" +
-          formatCurrency(item.total) +
-          "</strong>" +
-          "</div>"
+          '<div class="checkout-product-row" style="display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; margin-bottom: 12px; font-size: 0.92rem;">' +
+            '<div style="color: #1e293b; font-weight: 500; line-height: 1.4; flex: 1;">' +
+              escapeHtml(item.product.name) +
+            '</div>' +
+            '<div class="font-mono" style="color: #0f172a; font-weight: 600; white-space: nowrap;">' +
+              formatCurrency(item.total) +
+            '</div>' +
+          '</div>'
         );
       })
       .join("");
@@ -2546,6 +2562,11 @@
 
     // Render Order Summary Bar
     var total = getCartTotal();
+    var detailedCart = state.cart.map(function(entry) {
+      var p = getProductById(entry.productId);
+      return p ? { product: p, quantity: entry.quantity, total: p.price * entry.quantity } : null;
+    }).filter(Boolean);
+    renderCheckoutSummary(detailedCart);
     var originalTotal = state.cart.reduce(function(acc, item) {
       var p = getProductById(item.productId);
       return acc + (p && p.originalPrice && p.originalPrice > p.price ? p.originalPrice * item.quantity : (p ? p.price * item.quantity : 0));
