@@ -798,6 +798,7 @@
   function signInWithGoogle() {
     if (typeof firebase !== 'undefined' && firebase.auth) {
       var provider = new firebase.auth.GoogleAuthProvider();
+      provider.setCustomParameters({ prompt: 'select_account' });
       firebase.auth().signInWithPopup(provider).then(function(result) {
         state.user = result.user;
         closeAuthModal();
@@ -807,7 +808,16 @@
         }
         return loadProfile();
       }).catch(function(error) {
-        showToast("Đăng nhập thất bại: " + error.message);
+        console.error("Google signIn error:", error);
+        if (error.code === 'auth/popup-blocked') {
+          showToast("Trình duyệt đang chặn cửa sổ đăng nhập. Vui lòng cho phép popup.");
+        } else if (error.code === 'auth/cancelled-popup-request' || error.code === 'auth/popup-closed-by-user') {
+          // Người dùng chủ động đóng popup
+        } else if (error.code === 'auth/unauthorized-domain') {
+          showToast("Tên miền chưa được cấp phép trong Firebase Auth (Authorized domains).");
+        } else {
+          showToast("Đăng nhập thất bại: " + (error.message || error.code));
+        }
       });
     } else {
       showToast("Đang tải dữ liệu. Vui lòng thử lại sau.");
@@ -2303,6 +2313,7 @@
   function signInWithGoogleCheckout() {
     if (typeof firebase !== 'undefined' && firebase.auth) {
       var provider = new firebase.auth.GoogleAuthProvider();
+      provider.setCustomParameters({ prompt: 'select_account' });
       firebase.auth().signInWithPopup(provider)
         .then(function(result) {
           state.user = result.user;
@@ -2329,7 +2340,16 @@
           }
         })
         .catch(function(error) {
-          showToast("Đăng nhập Google thất bại: " + error.message);
+          console.error("Google Checkout signIn error:", error);
+          if (error.code === 'auth/popup-blocked') {
+            showToast("Trình duyệt đang chặn cửa sổ đăng nhập. Vui lòng cho phép popup.");
+          } else if (error.code === 'auth/cancelled-popup-request' || error.code === 'auth/popup-closed-by-user') {
+            // Người dùng chủ động đóng popup
+          } else if (error.code === 'auth/unauthorized-domain') {
+            showToast("Tên miền chưa được cấp phép trong Firebase Auth (Authorized domains).");
+          } else {
+            showToast("Đăng nhập Google thất bại: " + (error.message || error.code));
+          }
         });
     } else {
       showToast("Đang tải dữ liệu. Vui lòng thử lại sau.");
