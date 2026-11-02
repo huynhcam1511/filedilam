@@ -22,7 +22,7 @@ window.StorefrontData = {
       notePrefix: "FILEDILAM",
       qrImageUrl: "",
     },
-    supportZaloPhone: "0921511202",
+    supportZaloPhone: "0938134576",
   },
   categories: [
     {

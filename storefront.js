@@ -996,7 +996,7 @@
             : '';
           var coachingZaloBtn = '';
           if (isCoaching) {
-            var supportPhone = (window.StorefrontData && window.StorefrontData.store && window.StorefrontData.store.supportZaloPhone) || "0921511202";
+            var supportPhone = (window.StorefrontData && window.StorefrontData.store && window.StorefrontData.store.supportZaloPhone) || "0938134576";
             var cleanPhone = supportPhone.replace(/\s+/g, "");
             coachingZaloBtn = 
               '<a href="https://zalo.me/' + cleanPhone + '" target="_blank" rel="noopener noreferrer" style="display: flex; align-items: center; justify-content: center; gap: 6px; height: 38px; background: #fef3c7; border: 1.5px solid #f59e0b; color: #92400e; font-weight: 700; font-size: 0.82rem; border-radius: 8px; text-decoration: none; margin-top: 6px;">' +
@@ -1852,7 +1852,7 @@
     var isCoaching = (data.package_type === "coaching") || (data.amount && data.amount >= 199000) || (state.selectedPackage === "coaching");
     var coachingCardHtml = "";
     if (isCoaching) {
-      var supportPhone = (window.StorefrontData && window.StorefrontData.store && window.StorefrontData.store.supportZaloPhone) || "0921511202";
+      var supportPhone = (window.StorefrontData && window.StorefrontData.store && window.StorefrontData.store.supportZaloPhone) || "0938134576";
       var cleanPhone = supportPhone.replace(/\s+/g, "");
       var zaloLink = "https://zalo.me/" + cleanPhone;
       var orderCode = data.order_id || currentActiveOrderId || "";
