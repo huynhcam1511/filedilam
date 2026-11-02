@@ -615,11 +615,6 @@ document.addEventListener('DOMContentLoaded', () => {
     };
   }
 
-  let cachedOrders = [];
-  let statsFilterPeriod = '14'; // '7', '14', '30', 'all'
-  let statsFilterMonth = 'ALL';  // 'ALL' hoặc '2026-11', '2026-10',...
-  let statsFilterType = 'ALL';   // 'ALL', 'STANDARD', 'COACHING'
-
   
   // Helper: Bóc tách đơn hàng thành các sản phẩm con độc lập (hỗ trợ cả đơn lẻ, đơn combo mảng items, và đơn combo cũ dạng "A + B")
   function resolveOrderLineItems(order, knownProductsMap) {
