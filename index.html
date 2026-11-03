@@ -16,7 +16,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="./storefront.css?v=103" />
+    <link rel="stylesheet" href="./storefront.css?v=104" />
     <style>
     :root {
       --bg: #ffffff;
@@ -273,11 +273,6 @@
       background: #10b981;
       border-radius: 50%;
       box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.2);
-    }
-    .linear-app-tag {
-      font-size: 0.75rem;
-      color: #94a3b8;
-      font-family: var(--font-mono);
     }
     .linear-hero-metric {
       margin-bottom: 24px;
@@ -1669,6 +1664,41 @@
       .custom-banner { padding: 36px 20px; gap: 24px; }
       .ticket-left, .ticket-right { padding: 28px 20px; }
       .footer-columns { grid-template-columns: 1fr; }
+      .stats-section {
+        padding: 24px 0 28px;
+        background: #f8fafc;
+        border-top: 1px solid var(--line-subtle);
+      }
+      .stats-grid {
+        display: flex;
+        flex-direction: column;
+        gap: 0;
+      }
+      .stat-card {
+        display: grid;
+        grid-template-columns: 110px 1fr;
+        align-items: center;
+        gap: 16px;
+        padding: 12px 0;
+        border-bottom: 1px solid #f1f5f9;
+      }
+      .stat-card:last-child {
+        border-bottom: none;
+        padding-bottom: 0;
+      }
+      .stat-card:first-child {
+        padding-top: 0;
+      }
+      .stat-number {
+        font-size: 1.5rem;
+        line-height: 1.2;
+        white-space: nowrap;
+      }
+      .stat-label {
+        font-size: 0.84rem;
+        line-height: 1.45;
+        color: #64748b;
+      }
     }
   </style>
   </head>
@@ -1757,7 +1787,6 @@
               <span class="live-pulse"></span>
               Đồng bộ Google Sheets tự động
             </div>
-            <span class="linear-app-tag">SHEETS-CORE v2.4</span>
           </div>
 
           <div class="linear-hero-metric">

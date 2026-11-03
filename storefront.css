@@ -2424,49 +2424,7 @@ h2 { letter-spacing: -1.03px !important; }
   padding: 48px 24px 80px;
 }
 
-.horizontal-filter-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 20px;
-  margin-bottom: 32px;
-  flex-wrap: wrap;
-}
-
-.category-list-horizontal {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  flex-wrap: wrap;
-  list-style: none;
-  padding: 0;
-  margin: 0;
-}
-
-.category-list-horizontal .category-item {
-  padding: 8px 18px !important;
-  border-radius: 9999px !important;
-  background: #fafafa !important;
-  border: 1px solid #e2e8f0 !important;
-  font-size: 0.88rem !important;
-  font-weight: 500 !important;
-  color: #181925 !important;
-  cursor: pointer;
-  transition: all 0.15s ease;
-  white-space: nowrap;
-}
-
-.category-list-horizontal .category-item:hover {
-  background: #f1f5f9 !important;
-}
-
-.category-list-horizontal .category-item.active {
-  background: #181925 !important;
-  color: #ffffff !important;
-  border-color: #181925 !important;
-}
-
-/* Product Card Styling on Flat Canvas (4 Cards per Row) */
+.horizontal-filter-row {\n  display: flex;\n  align-items: center;\n  justify-content: space-between;\n  gap: 16px;\n  margin-bottom: 24px;\n  width: 100%;\n  position: relative;\n}\n\n.category-list-horizontal {\n  display: flex;\n  align-items: center;\n  gap: 8px;\n  flex-wrap: wrap;\n  list-style: none;\n  padding: 0;\n  margin: 0;\n  width: 100%;\n}\n\n.category-list-horizontal .category-item {\n  padding: 8px 16px !important;\n  border-radius: 9999px !important;\n  background: #ffffff !important;\n  border: 1px solid #e2e8f0 !important;\n  font-size: 0.86rem !important;\n  font-weight: 500 !important;\n  color: #334155 !important;\n  cursor: pointer;\n  transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);\n  white-space: nowrap;\n  user-select: none;\n  flex-shrink: 0;\n}\n\n.category-list-horizontal .category-item:hover {\n  background: #f8fafc !important;\n  border-color: #cbd5e1 !important;\n  color: #0f172a !important;\n}\n\n.category-list-horizontal .category-item.active {\n  background: #059669 !important;\n  color: #ffffff !important;\n  border-color: #059669 !important;\n  box-shadow: 0 2px 6px rgba(5, 150, 105, 0.22) !important;\n  font-weight: 600 !important;\n}\n\n@media (max-width: 768px) {\n  .horizontal-filter-row {\n    margin-bottom: 18px !important;\n    margin-left: -16px !important;\n    margin-right: -16px !important;\n    width: calc(100% + 32px) !important;\n    overflow: hidden;\n  }\n  .category-list-horizontal {\n    flex-wrap: nowrap !important;\n    overflow-x: auto !important;\n    -webkit-overflow-scrolling: touch !important;\n    padding: 2px 16px 8px !important;\n    gap: 7px !important;\n    scrollbar-width: none !important;\n  }\n  .category-list-horizontal::-webkit-scrollbar {\n    display: none !important;\n    width: 0 !important;\n    height: 0 !important;\n  }\n  .category-list-horizontal .category-item {\n    padding: 7px 14px !important;\n    font-size: 0.82rem !important;\n  }\n}\n\n/* Product Card Styling on Flat Canvas (4 Cards per Row) */
 .product-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr) !important;
@@ -2482,7 +2440,7 @@ h2 { letter-spacing: -1.03px !important; }
 }
 
 @media (max-width: 480px) {
-  .product-grid { grid-template-columns: 1fr !important; gap: 12px !important; }
+  .product-grid { grid-template-columns: repeat(2, 1fr) !important; gap: 8px !important; }
 }
 
 .product-card {
@@ -2994,3 +2952,4 @@ h2 { letter-spacing: -1.03px !important; }
     padding: 14px 18px !important;
   }
 }
+\n\n/* Optimized 2-Column Mobile Card Layout (Shopee standard) */\n@media (max-width: 640px) {\n  .product-grid {\n    grid-template-columns: repeat(2, 1fr) !important;\n    gap: 8px !important;\n  }\n  .product-card {\n    padding: 7px !important;\n    gap: 5px !important;\n    border-radius: 12px !important;\n  }\n  .product-thumb {\n    aspect-ratio: 1 / 1 !important;\n    border-radius: 8px !important;\n  }\n  .product-type-badge {\n    font-size: 0.52rem !important;\n    padding: 1.5px 5px !important;\n    top: 5px !important;\n    left: 5px !important;\n    border-radius: 4px !important;\n    max-width: calc(100% - 10px) !important;\n  }\n  .product-thumb-discount-tag {\n    font-size: 0.55rem !important;\n    padding: 1.5px 5px !important;\n    top: 5px !important;\n    right: 5px !important;\n    border-radius: 4px !important;\n  }\n  .product-name {\n    font-size: 0.78rem !important;\n    font-weight: 600 !important;\n    line-height: 1.3 !important;\n    min-height: 2.6em !important;\n    max-height: 2.6em !important;\n    display: -webkit-box !important;\n    -webkit-line-clamp: 2 !important;\n    -webkit-box-orient: vertical !important;\n    overflow: hidden !important;\n    margin-bottom: 2px !important;\n  }\n  .product-badge-inline {\n    font-size: 0.52rem !important;\n    padding: 1px 4px !important;\n    margin-right: 2px !important;\n  }\n  .product-price-row {\n    display: flex !important;\n    align-items: baseline !important;\n    flex-wrap: wrap !important;\n    gap: 2px 4px !important;\n    margin-top: 2px !important;\n  }\n  .product-current-val {\n    font-size: 0.88rem !important;\n    font-weight: 700 !important;\n    line-height: 1.15 !important;\n  }\n  .product-original-val {\n    font-size: 0.65rem !important;\n  }\n  .product-discount-pill {\n    font-size: 0.55rem !important;\n    padding: 0 3px !important;\n  }\n  .product-digital-perks {\n    display: flex !important;\n    align-items: center !important;\n    gap: 2px !important;\n    flex-wrap: wrap !important;\n    margin-top: 1px !important;\n  }\n  .digital-perk {\n    font-size: 0.55rem !important;\n    padding: 1px 3px !important;\n  }\n  .product-card-footer {\n    margin-top: 3px !important;\n    padding-top: 4px !important;\n    gap: 4px !important;\n  }\n  .product-social-proof {\n    font-size: 0.62rem !important;\n    gap: 2px !important;\n  }\n  .product-social-proof .download-count {\n    display: none !important;\n  }\n  .btn-card-cart-pill {\n    padding: 4px 8px !important;\n    font-size: 0.68rem !important;\n    gap: 3px !important;\n    white-space: nowrap !important;\n  }\n  .btn-card-cart-pill svg {\n    width: 10px !important;\n    height: 10px !important;\n  }\n}\n
