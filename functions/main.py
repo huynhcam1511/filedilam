@@ -5,6 +5,95 @@ import string
 from datetime import datetime, timezone
 import json
 import re
+import smtplib
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
+
+SMTP_USER = "kiencam.work@gmail.com"
+SMTP_PASS = "eohmiuavreukunhk"
+
+def send_order_success_email(customer_email, customer_name, order_id, order_data):
+    if not customer_email or "@" not in customer_email:
+        print(f"[Email] Bỏ qua gửi email do địa chỉ không hợp lệ: {customer_email}")
+        return False
+    
+    try:
+        product_name = order_data.get("product_name") or "File Quản Lý Google Sheets"
+        file_url = order_data.get("product_file_url") or "https://filedilam.web.app"
+        items = order_data.get("items") or []
+
+        # Tạo danh sách file nếu là combo nhiều file
+        files_html = ""
+        if isinstance(items, list) and len(items) > 0:
+            files_html += "<ul style='margin: 10px 0; padding-left: 20px; line-height: 1.8;'>"
+            for it in items:
+                it_name = it.get("title") or it.get("name") or "File Google Sheets"
+                it_url = it.get("file_url") or file_url
+                files_html += f"<li><strong>{it_name}</strong>: <a href='{it_url}' style='color: #059669; font-weight: 600;' target='_blank'>[Bấm vào đây để tạo bản sao /copy]</a></li>"
+            files_html += "</ul>"
+        else:
+            files_html = f"<div style='margin: 16px 0; text-align: center;'><a href='{file_url}' style='display: inline-block; padding: 14px 28px; background-color: #059669; color: #ffffff; text-decoration: none; border-radius: 8px; font-weight: 700; font-size: 16px;' target='_blank'>Mở Bản Sao Google Sheet Ngay</a></div>"
+
+        html_content = f"""
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+</head>
+<body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: #f8fafc; margin: 0; padding: 24px; color: #1e293b;">
+  <div style="max-width: 600px; margin: 0 auto; background: #ffffff; border-radius: 12px; border: 1px solid #e2e8f0; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);">
+    <div style="background-color: #059669; padding: 24px; text-align: center; color: #ffffff;">
+      <h1 style="margin: 0; font-size: 22px; font-weight: 800; letter-spacing: -0.5px;">FILE ĐI LÀM</h1>
+      <p style="margin: 6px 0 0 0; font-size: 14px; opacity: 0.9;">Xác nhận kích hoạt đơn hàng thành công</p>
+    </div>
+    <div style="padding: 28px;">
+      <p style="font-size: 15px; margin-top: 0;">Xin chào <strong>{customer_name or 'Quý khách'}</strong>,</p>
+      <p style="font-size: 15px; line-height: 1.6;">Hệ thống <strong>File Đi Làm</strong> đã nhận được thanh toán cho mã đơn hàng <strong style="color: #059669; font-family: monospace;">{order_id}</strong>.</p>
+      
+      <div style="background-color: #f1f5f9; border-radius: 8px; padding: 16px; margin: 20px 0; font-size: 14px;">
+        <div style="margin-bottom: 8px;"><strong>Sản phẩm:</strong> {product_name}</div>
+        <div style="margin-bottom: 8px;"><strong>Mã đơn hàng:</strong> <span style="font-family: monospace;">{order_id}</span></div>
+        <div><strong>Gói bản quyền:</strong> {order_data.get('package_name', 'Bản Tự Dùng')}</div>
+      </div>
+
+      <h3 style="font-size: 16px; color: #0f172a; margin-top: 24px;">Link truy cập và tạo bản sao:</h3>
+      {files_html}
+
+      <div style="margin-top: 24px; padding: 16px; background-color: #ecfdf5; border: 1px solid #a7f3d0; border-radius: 8px; font-size: 13.5px; line-height: 1.6; color: #065f46;">
+        <strong>3 bước bắt đầu sử dụng nhanh:</strong><br>
+        1. Bấm vào link mở bản sao ở trên.<br>
+        2. Bấm nút <strong>"Tạo bản sao" (Make a copy)</strong> để lưu file về Drive cá nhân của bạn.<br>
+        3. File là của bạn vĩnh viễn, bạn có thể chỉnh sửa dữ liệu và chia sẻ cho cộng sự tùy ý.
+      </div>
+
+      <p style="font-size: 14px; color: #64748b; margin-top: 24px; line-height: 1.5;">
+        Nếu cần hỗ trợ trong quá trình sử dụng, bạn có thể liên hệ trực tiếp qua Zalo/Hotline: <strong>0938 134 576</strong> (hoặc phản hồi trực tiếp email này).
+      </p>
+    </div>
+    <div style="background-color: #f8fafc; padding: 16px 28px; border-top: 1px solid #e2e8f0; font-size: 12px; color: #94a3b8; text-align: center;">
+      © File Đi Làm · Kho File Quản Lý Tự Động Trên Google Sheets<br>
+      Email này được gửi tự động từ hệ thống quản lý đơn hàng.
+    </div>
+  </div>
+</body>
+</html>
+        """
+
+        msg = MIMEMultipart("alternative")
+        msg["Subject"] = f"[File Đi Làm] Kích hoạt đơn hàng #{order_id} - Link nhận file Google Sheet"
+        msg["From"] = f'"File Đi Làm" <{SMTP_USER}>'
+        msg["To"] = customer_email
+        msg.attach(MIMEText(html_content, "html", "utf-8"))
+
+        server = smtplib.SMTP_SSL("smtp.gmail.com", 465, timeout=15)
+        server.login(SMTP_USER, SMTP_PASS)
+        server.sendmail(SMTP_USER, [customer_email], msg.as_string())
+        server.quit()
+        print(f"[Email] Gửi email thành công tới {customer_email} cho đơn {order_id}")
+        return True
+    except Exception as e:
+        print(f"[Email] Lỗi gửi email cho đơn {order_id} ({customer_email}): {e}")
+        return False
 
 try:
     get_app()
@@ -111,6 +200,11 @@ def api(req: https_fn.Request) -> https_fn.Response:
                     p_ref.update({"downloads_count": firestore.Increment(1)})
             except Exception as e:
                 print(f"[Admin Confirm] Failed to increment downloads_count for {pid}: {e}")
+
+        # Tự động gửi email bàn giao file khi Admin xác nhận thanh toán thủ công
+        cust_email = order_data.get("customer_email")
+        cust_name = order_data.get("customer_name") or ""
+        send_order_success_email(cust_email, cust_name, order_id, order_data)
 
         return json_response({
             "success": True,
@@ -651,6 +745,11 @@ def api(req: https_fn.Request) -> https_fn.Response:
                         print(f"Lỗi cập nhật downloads_count: {pe}")
 
                 print(f"Kich hoat file {matched_order.get('product_file_url')} cho {matched_order.get('customer_email')}")
+                
+                # Tự động gửi email bàn giao file cho khách hàng qua kiencam.work@gmail.com
+                cust_email = matched_order.get("customer_email")
+                cust_name = matched_order.get("customer_name") or ""
+                send_order_success_email(cust_email, cust_name, matched_order.get("id"), matched_order)
         return json_response({"success": True})
 
     return json_response({"error": "NOT_FOUND"}, 404)

@@ -110,7 +110,47 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // --- AUTH LOGIC ---
+  let isAutoLoggingIn = false;
+
+  async function triggerGoogleLogin(isManual = false) {
+    const authStatusTitle = document.getElementById('authStatusTitle');
+    const authStatusDesc = document.getElementById('authStatusDesc');
+    const authSpinner = document.getElementById('authSpinner');
+    
+    if (authStatusTitle) authStatusTitle.textContent = 'Đang kết nối Google';
+    if (authStatusDesc) authStatusDesc.textContent = 'Vui lòng chọn tài khoản Admin trong cửa sổ đăng nhập...';
+    if (authSpinner) authSpinner.classList.remove('hidden');
+    if (loginBtn) loginBtn.classList.add('hidden');
+
+    const provider = new firebase.auth.GoogleAuthProvider();
+    provider.setCustomParameters({ prompt: 'select_account' });
+
+    try {
+      isAutoLoggingIn = true;
+      await auth.signInWithPopup(provider);
+    } catch (error) {
+      console.warn('Google sign-in exception:', error);
+      if (authSpinner) authSpinner.classList.add('hidden');
+      if (loginBtn) loginBtn.classList.remove('hidden');
+      if (authStatusTitle) authStatusTitle.textContent = 'Yêu cầu đăng nhập Admin';
+      
+      if (error.code === 'auth/popup-blocked') {
+        if (authStatusDesc) authStatusDesc.textContent = 'Trình duyệt đã chặn popup tự động. Vui lòng bấm nút bên dưới để mở cửa sổ Google:';
+      } else if (error.code === 'auth/popup-closed-by-user') {
+        if (authStatusDesc) authStatusDesc.textContent = 'Cửa sổ đăng nhập đã đóng. Bấm nút bên dưới để thử lại:';
+      } else {
+        if (authStatusDesc) authStatusDesc.textContent = error.message || 'Không thể xác thực tự động. Vui lòng bấm nút để thử lại:';
+      }
+    } finally {
+      isAutoLoggingIn = false;
+    }
+  }
+
   auth.onAuthStateChanged(user => {
+    const authStatusTitle = document.getElementById('authStatusTitle');
+    const authStatusDesc = document.getElementById('authStatusDesc');
+    const authSpinner = document.getElementById('authSpinner');
+
     if (user && user.email === ADMIN_EMAIL) {
       const adminDisplayName = document.getElementById('adminDisplayName');
       const adminDisplayEmail = document.getElementById('adminDisplayEmail');
@@ -132,6 +172,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
       }
     }
+
     if (user) {
       const adminTopHeader = document.getElementById('adminTopHeader');
       if (user.email === ADMIN_EMAIL) {
@@ -143,6 +184,10 @@ document.addEventListener('DOMContentLoaded', () => {
       } else {
         auth.signOut();
         showToast('Tài khoản không có quyền truy cập Admin', true);
+        if (authSpinner) authSpinner.classList.add('hidden');
+        if (loginBtn) loginBtn.classList.remove('hidden');
+        if (authStatusTitle) authStatusTitle.textContent = 'Truy cập bị từ chối';
+        if (authStatusDesc) authStatusDesc.textContent = 'Tài khoản ${user.email} không phải Admin. Vui lòng đăng nhập đúng tài khoản:';
       }
     } else {
       loginSection.classList.remove('hidden');
@@ -150,17 +195,17 @@ document.addEventListener('DOMContentLoaded', () => {
       const adminTopHeader = document.getElementById('adminTopHeader');
       if (adminTopHeader) adminTopHeader.classList.add('hidden');
       logoutBtn.classList.add('hidden');
+
+      // Tự động kích hoạt Google popup nếu chưa thử
+      if (!isAutoLoggingIn) {
+        triggerGoogleLogin(false);
+      }
     }
   });
 
-  loginBtn.addEventListener('click', async () => {
-    const provider = new firebase.auth.GoogleAuthProvider();
-    try {
-      await auth.signInWithPopup(provider);
-    } catch (error) {
-      showToast('Lỗi đăng nhập: ' + error.message, true);
-    }
-  });
+  if (loginBtn) {
+    loginBtn.addEventListener('click', () => triggerGoogleLogin(true));
+  }
 
   logoutBtn.addEventListener('click', () => auth.signOut());
 
@@ -1249,68 +1294,68 @@ document.addEventListener('DOMContentLoaded', () => {
     const zaloMsg = `Chào bạn, File Đi Làm gửi bạn thông tin thanh toán đơn hàng #${orderId} (${order.product_name || 'File'}):\n- Số tiền: ${formatCurrency(amountVal)}\n- STK: 59215112002 (TPBank - HUYNH KIEN CAM)\n- Nội dung chuyển khoản: ${orderId}\n\nSau khi chuyển khoản, file sẽ tự động mở ngay tại: https://filedilam.web.app/?tab=my-files nhé!`;
     const zaloChatUrl = cleanPhone ? `https://zalo.me/${cleanPhone}` : '';
 
-    // Zero-card layout complying strictly with AGENTS.md (No nested cards, no pill abuse, flat clean typography)
+    // Chuẩn Typography Fintech tinh tế, font phẳng, không lạm dụng in đậm to sừng sững
     contentBox.innerHTML = `
       <!-- Header Flat Inspector -->
-      <div style="display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; margin-bottom: 20px; padding-bottom: 14px; border-bottom: 1px solid var(--slate-border);">
+      <div style="display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; margin-bottom: 18px; padding-bottom: 14px; border-bottom: 1px solid var(--slate-border);">
         <div>
-          <div style="font-size: 0.76rem; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.05em;">Đơn hàng</div>
-          <div style="font-size: 1.25rem; font-weight: 700; color: #0f172a; font-family: ui-monospace, monospace; margin-top: 2px;">#${escapeHtml(orderId)}</div>
+          <div style="font-size: 0.72rem; font-weight: 600; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.05em;">Đơn hàng</div>
+          <div style="font-size: 1.15rem; font-weight: 700; color: #0f172a; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; letter-spacing: -0.01em; margin-top: 2px;">#${escapeHtml(orderId)}</div>
         </div>
         <div>
           ${isPaid 
-            ? '<span class="badge-status badge-status-paid">✓ ĐÃ THANH TOÁN</span>'
-            : '<span class="badge-status badge-status-pending">⏳ CHỜ THANH TOÁN</span>'}
+            ? '<span class="badge-status badge-status-paid" style="font-size: 0.74rem; font-weight: 600; padding: 3px 9px;">✓ ĐÃ THANH TOÁN</span>'
+            : '<span class="badge-status badge-status-pending" style="font-size: 0.74rem; font-weight: 600; padding: 3px 9px;">⏳ CHỜ THANH TOÁN</span>'}
         </div>
       </div>
 
-      <!-- Section 1: Thông tin giao dịch (Flat Section) -->
+      <!-- Section 1: Thông tin giao dịch -->
       <div class="inspector-flat-section">
         <div class="inspector-flat-title">
           <span>Thông tin giao dịch</span>
-          <span style="font-size: 0.74rem; font-weight: 500; text-transform: none; color: #64748b;">${escapeHtml(timeObj.full)}</span>
+          <span style="font-size: 0.72rem; font-weight: 400; text-transform: none; color: #94a3b8;">${escapeHtml(timeObj.full)}</span>
         </div>
         <div class="inspector-row">
           <span class="inspector-label">Khách hàng</span>
-          <span class="inspector-val" style="font-weight: 600;">${escapeHtml(order.customer_phone || order.customer_email || 'Khách vãng lai')}</span>
+          <span class="inspector-val" style="font-weight: 600; color: #0f172a; font-family: ui-monospace, SFMono-Regular, Menlo, monospace;">${escapeHtml(order.customer_phone || 'Khách vãng lai')}</span>
         </div>
         ${order.customer_email ? `
         <div class="inspector-row">
           <span class="inspector-label">Email</span>
-          <span class="inspector-val" style="font-size: 0.82rem; color: #475569;">${escapeHtml(order.customer_email)}</span>
+          <span class="inspector-val" style="font-size: 0.8rem; color: #64748b; font-weight: 400;">${escapeHtml(order.customer_email)}</span>
         </div>` : ''}
         <div class="inspector-row">
           <span class="inspector-label">Sản phẩm</span>
-          <span class="inspector-val" style="font-weight: 600;">${escapeHtml(order.product_name || 'File')}</span>
+          <span class="inspector-val" style="font-weight: 500; color: #1e293b;">${escapeHtml(order.product_name || 'File')}</span>
         </div>
         ${isCoaching ? `
         <div class="inspector-row">
           <span class="inspector-label">Phân loại</span>
-          <span class="inspector-val" style="color: #b45309; font-weight: 600;">Gói Kèm 1-1 Chuyên sâu</span>
+          <span class="inspector-val" style="color: #b45309; font-weight: 600; font-size: 0.8rem;">Gói Kèm 1-1 Chuyên sâu</span>
         </div>` : ''}
-        <div class="inspector-row" style="margin-top: 10px; padding-top: 10px; border-top: 1px dashed #e2e8f0;">
-          <span class="inspector-label" style="font-size: 0.88rem; font-weight: 600; color: #0f172a;">Tổng thanh toán</span>
-          <span class="inspector-val" style="font-size: 1.1rem; color: var(--mint-primary); font-weight: 700;">${formatCurrency(amountVal)}</span>
+        <div class="inspector-row" style="margin-top: 10px; padding-top: 10px; border-top: 1px dashed #e2e8f0; align-items: baseline;">
+          <span class="inspector-label" style="font-size: 0.84rem; font-weight: 500; color: #334155;">Tổng thanh toán</span>
+          <span class="inspector-val" style="font-size: 1.08rem; color: var(--mint-primary); font-weight: 700; font-family: ui-monospace, SFMono-Regular, Menlo, monospace;">${formatCurrency(amountVal)}</span>
         </div>
       </div>
 
-      <!-- Section 2: Mã QR Chuyển khoản VietQR (Flat Section) -->
+      <!-- Section 2: Mã QR Chuyển khoản VietQR -->
       <div class="inspector-flat-section" style="text-align: center;">
         <div class="inspector-flat-title" style="text-align: left;">
-          <span>Mã QR Chuyển khoản (VietQR)</span>
-          <span style="font-size: 0.74rem; font-weight: 600; color: #059669;">TPBank 59215112002</span>
+          <span>Mã QR Chuyển khoản</span>
+          <span style="font-size: 0.72rem; font-weight: 600; color: #059669; font-family: ui-monospace, monospace;">TPBank 59215112002</span>
         </div>
-        <div style="background: #ffffff; padding: 10px; border-radius: 8px; border: 1px solid #e2e8f0; display: inline-block; margin: 4px auto 8px;">
+        <div style="background: #ffffff; padding: 8px; border-radius: 8px; border: 1px solid #e2e8f0; display: inline-block; margin: 4px auto 8px;">
           <a href="${qrImgUrl}" target="_blank" title="Nhấp xem ảnh lớn">
-            <img src="${qrImgUrl}" alt="QR #${escapeHtml(orderId)}" style="width: 130px; height: 130px; object-fit: contain; display: block;" />
+            <img src="${qrImgUrl}" alt="QR #${escapeHtml(orderId)}" style="width: 120px; height: 120px; object-fit: contain; display: block;" />
           </a>
         </div>
-        <div style="font-size: 0.8rem; color: #64748b;">
-          Nội dung CK: <strong style="color: #0f172a; font-family: ui-monospace, monospace; font-size: 0.9rem; background: #f1f5f9; padding: 2px 6px; border-radius: 4px;">${escapeHtml(orderId)}</strong>
+        <div style="font-size: 0.78rem; color: #64748b;">
+          Nội dung CK: <span style="color: #0f172a; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0.86rem; font-weight: 700; background: #f1f5f9; padding: 2px 6px; border-radius: 4px;">${escapeHtml(orderId)}</span>
         </div>
       </div>
 
-      <!-- Section 3: Thao tác & Chăm sóc khách (Flat Section) -->
+      <!-- Section 3: Thao tác nhanh -->
       <div class="inspector-flat-section">
         <div class="inspector-flat-title">
           <span>Thao tác nhanh</span>
@@ -1343,8 +1388,7 @@ document.addEventListener('DOMContentLoaded', () => {
       </div>
     `;
 
-    // Attach click events inside inspector
-    contentBox.querySelectorAll('.btn-copy-zalo-msg').forEach(btn => {
+      contentBox.querySelectorAll('.btn-copy-zalo-msg').forEach(btn => {
       btn.addEventListener('click', (e) => {
         e.stopPropagation();
         const msg = btn.dataset.msg || '';
