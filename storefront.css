@@ -3640,16 +3640,16 @@ body:not(.is-admin) #userProfile {
   align-items: start;
 }
 
-/* LEFT COLUMN: 1x1 Media & Thumbnails */
+/* LEFT COLUMN: 1x1 Media & Thumbnails - Sticky pinned at top */
 .detail-col-media {
   position: -webkit-sticky !important;
   position: sticky !important;
-  top: 24px !important;
+  top: 16px !important;
   align-self: flex-start !important;
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-  z-index: 10;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 16px !important;
+  z-index: 20 !important;
 }
 
 .detail-media-square {
@@ -4051,7 +4051,11 @@ body:not(.is-admin) #userProfile {
   }
 
   .detail-col-media {
-    position: static;
+    position: -webkit-sticky !important;
+    position: sticky !important;
+    top: 0 !important;
+    background: #ffffff !important;
+    padding-bottom: 12px !important;
   }
 
   .detail-product-title {

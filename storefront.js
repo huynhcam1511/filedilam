@@ -1655,8 +1655,18 @@ function escapeHtml(value) {
     }
     // Filter out falsy or empty strings
     galleryList = galleryList.filter(function(url) { return typeof url === 'string' && url.trim().length > 0; });
-    if (galleryList.length === 0 && coverImg) {
-      galleryList = [coverImg];
+    
+    // If product only has 1 image, supply template mock sheets so user can switch between views (Optimate standard)
+    if (galleryList.length <= 1) {
+      var baseImg = coverImg || galleryList[0];
+      var mockScreens = [
+        baseImg,
+        'https://filedilam.web.app/assets/guide/01_tao_ban_sao.jpg',
+        'https://filedilam.web.app/assets/guide/02_menu_mo_ung_dung.jpg',
+        'https://filedilam.web.app/assets/guide/06_cho_phep_tiep_tuc.jpg'
+      ].filter(Boolean);
+      // Remove duplicates if any
+      galleryList = mockScreens.filter(function(item, pos) { return mockScreens.indexOf(item) === pos; });
     }
 
     var hasMultipleImages = galleryList.length > 1;
@@ -3136,7 +3146,28 @@ function escapeHtml(value) {
       }
 
       // 2. Cập nhật Bảng Mockup ví dụ minh họa tự động tính toán
-      var subtotalDemo = minOrder > 0 ? (minOrder < 300000 ? 694000 : minOrder + 100000) : 400000;
+      // Lấy 2 sản phẩm thực tế từ data.products hoặc fallback mẫu phù hợp điều kiện
+      var p1Name = "Quản lý bán hàng";
+      var p1Price = 599000;
+      var p2Name = "Quản lý kho";
+      var p2Price = 95000;
+
+      if (data && data.products && data.products.length >= 2) {
+        var sortedProds = data.products.slice().sort(function(a, b) { return (b.price || 0) - (a.price || 0); });
+        p1Name = sortedProds[0].name || p1Name;
+        p1Price = sortedProds[0].price || p1Price;
+        p2Name = sortedProds[1].name || p2Name;
+        p2Price = sortedProds[1].price || p2Price;
+      }
+
+      // Đảm bảo tổng demo thỏa mãn điều kiện đơn tối thiểu (min_order)
+      var subtotalDemo = p1Price + p2Price;
+      if (minOrder > 0 && subtotalDemo < minOrder) {
+        p1Price = Math.round(minOrder * 0.65);
+        p2Price = Math.round(minOrder * 0.45);
+        subtotalDemo = p1Price + p2Price;
+      }
+
       var discDemo = 0;
       if (isPercent) {
         discDemo = Math.round((subtotalDemo * Number(featured.value)) / 100);
@@ -3147,12 +3178,23 @@ function escapeHtml(value) {
       if (maxDisc > 0 && discDemo > maxDisc) discDemo = maxDisc;
       var finalDemo = Math.max(0, subtotalDemo - discDemo);
 
+      var demoItem1Name = document.getElementById('demoItem1Name');
+      var demoItem1Price = document.getElementById('demoItem1Price');
+      var demoItem2Name = document.getElementById('demoItem2Name');
+      var demoItem2Price = document.getElementById('demoItem2Price');
       var demoDiscountLabel = document.getElementById('demoDiscountLabel');
       var demoDiscountVal = document.getElementById('demoDiscountVal');
       var demoTotalVal = document.getElementById('demoTotalVal');
       var demoSubtotal = document.getElementById('demoSubtotal');
 
-      if (demoDiscountLabel) demoDiscountLabel.textContent = 'Mã ' + featured.code;
+      if (demoItem1Name) demoItem1Name.textContent = p1Name;
+      if (demoItem1Price) demoItem1Price.textContent = formatCurrency(p1Price).replace('₫', '').trim();
+      if (demoItem2Name) demoItem2Name.textContent = p2Name;
+      if (demoItem2Price) demoItem2Price.textContent = formatCurrency(p2Price).replace('₫', '').trim();
+
+      // Hiển thị rõ phần trăm (VD: "Mã FILEDILAM (-20%)") hoặc số tiền giảm
+      var discountLabelText = 'Mã ' + featured.code + (isPercent ? ' (-' + featured.value + '%)' : '');
+      if (demoDiscountLabel) demoDiscountLabel.textContent = discountLabelText;
       if (demoDiscountVal) demoDiscountVal.textContent = '-' + formatCurrency(discDemo).replace('₫', '').trim();
       if (demoSubtotal) demoSubtotal.textContent = formatCurrency(subtotalDemo).replace('₫', '').trim();
       if (demoTotalVal) demoTotalVal.textContent = formatCurrency(finalDemo);
