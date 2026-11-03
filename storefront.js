@@ -1910,13 +1910,11 @@
   function handleBackToInfo() {
     if (checkoutAuthStep) checkoutAuthStep.style.display = "block";
     if (checkoutPaymentStep) checkoutPaymentStep.style.display = "none";
-    if (checkoutModalTitle) checkoutModalTitle.textContent = "Thông tin nhận file & Thanh toán";
+    if (checkoutModalTitle) checkoutModalTitle.textContent = "Thông tin thanh toán";
     if (checkoutBackBtn) checkoutBackBtn.style.display = "none";
-    if (state.user) {
-      if (quickPhone) quickPhone.value = getResolvedPhone();
-      if (quickPassGroup) quickPassGroup.style.display = "none";
-      if (quickEmailGroup) quickEmailGroup.style.display = "none";
-    }
+    if (quickNameGroup) quickNameGroup.style.display = "block";
+    if (quickEmailGroup) quickEmailGroup.style.display = "block";
+    if (quickPassGroup) quickPassGroup.style.display = "none";
   }
 
   function handleOrderSuccess(data) {
@@ -2701,51 +2699,38 @@
     checkoutModal.setAttribute("aria-hidden", "false");
     document.body.classList.add("drawer-open");
 
-    // Nếu đã đăng nhập
-    if (state.user) {
-      var resolvedPhone = getResolvedPhone();
-      if (resolvedPhone) {
-        if (checkoutAuthStep) checkoutAuthStep.style.display = "none";
-        if (checkoutPaymentStep) checkoutPaymentStep.style.display = "block";
-        if (checkoutModalTitle) checkoutModalTitle.textContent = "Quét mã QR thanh toán";
-        if (checkoutBackBtn) checkoutBackBtn.style.display = "inline-flex";
-        createOrderAndRenderQr({ customer_phone: resolvedPhone, customer_email: state.user.email });
-      } else {
-        // Đã đăng nhập nhưng chưa có SĐT (ví dụ tài khoản Google lần đầu)
-        if (checkoutBackBtn) checkoutBackBtn.style.display = "none";
-        if (checkoutModalTitle) checkoutModalTitle.textContent = "Thông tin nhận file";
-        if (quickPhoneLabel) {
-          quickPhoneLabel.innerHTML = 'Số điện thoại / Zalo <span class="req">*</span>';
-        }
-        if (quickPhone) {
-          quickPhone.placeholder = "Ví dụ: 0912345678";
-          quickPhone.value = "";
-        }
-        var tabs = document.querySelector(".checkout-segmented-tabs");
-        if (tabs) tabs.style.display = "none";
-        var divider = document.querySelector(".checkout-divider");
-        if (divider) divider.style.display = "none";
-        if (btnGoogleCheckout) btnGoogleCheckout.style.display = "none";
-        if (quickPassGroup) quickPassGroup.style.display = "none";
-        if (quickEmailGroup) quickEmailGroup.style.display = "none";
-        if (btnQuickSubmitText) btnQuickSubmitText.textContent = "Đặt hàng";
-        if (checkoutAuthStep) checkoutAuthStep.style.display = "block";
-        if (checkoutPaymentStep) checkoutPaymentStep.style.display = "none";
-        if (quickPhone) setTimeout(function() { quickPhone.focus(); }, 100);
-      }
-    } else {
-      // Khách chưa đăng nhập -> Hiển thị Step 1 (Mặc định form mua lần đầu)
-      if (checkoutBackBtn) checkoutBackBtn.style.display = "none";
-      isQuickLoginMode = false;
-      var tabs = document.querySelector(".checkout-segmented-tabs");
-      if (tabs) tabs.style.display = "flex";
-      var divider = document.querySelector(".checkout-divider");
-      if (divider) divider.style.display = "flex";
-      if (btnGoogleCheckout) btnGoogleCheckout.style.display = "flex";
-      updateQuickUI();
-      if (checkoutAuthStep) checkoutAuthStep.style.display = "block";
-      if (checkoutPaymentStep) checkoutPaymentStep.style.display = "none";
-      if (quickPhone) setTimeout(function() { quickPhone.focus(); }, 100);
+    // Luôn hiển thị Form thanh toán 3 trường sạch sẽ, phẳng, chuẩn Fintech
+    if (checkoutBackBtn) checkoutBackBtn.style.display = "none";
+    if (checkoutModalTitle) checkoutModalTitle.textContent = "Thông tin thanh toán";
+
+    var tabs = document.querySelector(".checkout-segmented-tabs");
+    if (tabs) tabs.style.display = "none";
+    var divider = document.querySelector(".checkout-divider");
+    if (divider) divider.style.display = "none";
+    if (btnGoogleCheckout) btnGoogleCheckout.style.display = "none";
+    if (quickPassGroup) quickPassGroup.style.display = "none";
+
+    // Luôn hiển thị cả 3 trường: Họ tên, SĐT, Gmail
+    if (quickNameGroup) quickNameGroup.style.display = "block";
+    if (quickEmailGroup) quickEmailGroup.style.display = "block";
+
+    // Tự động điền dữ liệu nếu đã có thông tin từ trước
+    if (state.profile) {
+      if (quickName && state.profile.full_name && !quickName.value) quickName.value = state.profile.full_name;
+      if (quickPhone && state.profile.phone && !quickPhone.value) quickPhone.value = state.profile.phone;
+      if (quickEmail && state.profile.email && !quickEmail.value) quickEmail.value = state.profile.email;
+    }
+    if (state.user && state.user.email && quickEmail && !quickEmail.value) {
+      quickEmail.value = state.user.email;
+    }
+
+    if (btnQuickSubmitText) btnQuickSubmitText.textContent = "Đặt hàng";
+    if (checkoutAuthStep) checkoutAuthStep.style.display = "block";
+    if (checkoutPaymentStep) checkoutPaymentStep.style.display = "none";
+    if (quickName && !quickName.value) {
+      setTimeout(function() { quickName.focus(); }, 100);
+    } else if (quickPhone && !quickPhone.value) {
+      setTimeout(function() { quickPhone.focus(); }, 100);
     }
   }
 
