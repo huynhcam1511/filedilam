@@ -1687,6 +1687,7 @@ function escapeHtml(value) {
 
     var mediaHtml =
       '<div class="detail-col-media">' +
+        '<div class="detail-back-bar-left">          <button type="button" class="btn-detail-back-left" onclick="window.closeDetailModal && window.closeDetailModal();" aria-label="Trở lại">            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">              <line x1="19" y1="12" x2="5" y2="12"></line>              <polyline points="12 19 5 12 12 5"></polyline>            </svg>            <span>Trở lại danh sách file</span>          </button>        </div>' +
         '<div class="detail-media-square">' +
           '<div class="detail-media-badges">' +
             '<span class="detail-media-badge-type">' + typeLabel + '</span>' +

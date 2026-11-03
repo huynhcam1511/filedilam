@@ -4255,3 +4255,39 @@ body:not(.is-admin) #userProfile {
   transform: rotate(90deg);
 }
 
+
+
+.detail-back-bar-left {
+  display: flex !important;
+  align-items: center !important;
+  margin-bottom: 8px !important;
+}
+
+.btn-detail-back-left {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  background: none !important;
+  border: none !important;
+  padding: 6px 0 !important;
+  font-size: 0.95rem !important;
+  font-weight: 600 !important;
+  color: #334155 !important;
+  cursor: pointer !important;
+  transition: color 0.15s ease, transform 0.15s ease !important;
+}
+
+.btn-detail-back-left:hover {
+  color: #059669 !important;
+  transform: translateX(-3px);
+}
+
+.btn-detail-back-left svg {
+  color: #64748b;
+  transition: color 0.15s ease;
+}
+
+.btn-detail-back-left:hover svg {
+  color: #059669;
+}
+
