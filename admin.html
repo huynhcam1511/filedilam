@@ -840,43 +840,40 @@
       align-items: center;
       justify-content: space-between;
       gap: 16px;
-      padding: 18px 32px;
+      padding: 16px 28px;
       border-bottom: 1px solid var(--slate-border);
       background: #ffffff;
-      position: sticky;
-      top: 0;
-      z-index: 20;
     }
     @media (max-width: 768px) {
       .canvas-header-bar {
-        padding: 14px 18px;
+        padding: 14px 16px;
         flex-direction: column;
         align-items: flex-start;
       }
     }
     .canvas-title {
       margin: 0;
-      font-size: 1.25rem;
+      font-size: 1.2rem;
       font-weight: 700;
       color: #0f172a;
       letter-spacing: -0.01em;
     }
     .canvas-sub {
-      margin: 4px 0 0 0;
-      font-size: 0.84rem;
+      margin: 3px 0 0 0;
+      font-size: 0.82rem;
       color: var(--slate-muted);
     }
     .canvas-actions {
       display: flex;
       align-items: center;
-      gap: 12px;
+      gap: 10px;
     }
     .btn-cancel-flat {
       background: #ffffff;
       color: #475569;
       border: 1px solid var(--slate-border);
-      padding: 9px 18px;
-      font-size: 0.88rem;
+      padding: 8px 16px;
+      font-size: 0.85rem;
       font-weight: 500;
       border-radius: 6px;
       cursor: pointer;
@@ -891,8 +888,8 @@
       background: var(--mint-primary);
       color: #ffffff;
       border: none;
-      padding: 9px 20px;
-      font-size: 0.88rem;
+      padding: 8px 18px;
+      font-size: 0.85rem;
       font-weight: 600;
       border-radius: 6px;
       cursor: pointer;
@@ -905,65 +902,67 @@
     .btn-save-flat:hover {
       background: #047857;
     }
+    /* 2 CỘT LUÔN SONG SONG (Chỉ rớt xuống 1 cột khi màn hình di động nhỏ dưới 768px) */
     .product-form-2col {
       display: grid;
-      grid-template-columns: 1.6fr 1fr;
+      grid-template-columns: 1.25fr 1fr;
       width: 100%;
       flex: 1;
       background: #ffffff;
     }
-    @media (max-width: 1024px) {
+    @media (max-width: 768px) {
       .product-form-2col {
         grid-template-columns: 1fr;
       }
     }
     .canvas-col-main {
-      padding: 28px 32px 48px;
+      padding: 20px 24px 32px;
       border-right: 1px solid var(--slate-border);
     }
-    @media (max-width: 1024px) {
+    @media (max-width: 768px) {
       .canvas-col-main {
         border-right: none;
         border-bottom: 1px solid var(--slate-border);
-        padding: 20px 18px 32px;
+        padding: 16px 16px 24px;
       }
     }
     .canvas-col-side {
-      padding: 28px 32px 48px;
+      padding: 20px 24px 32px;
       background: #fbfcfd;
     }
-    @media (max-width: 1024px) {
+    @media (max-width: 768px) {
       .canvas-col-side {
-        padding: 20px 18px 32px;
+        padding: 16px 16px 24px;
       }
     }
     .canvas-section {
-      margin-bottom: 32px;
+      margin-bottom: 20px;
     }
     .canvas-section:last-child {
       margin-bottom: 0;
     }
     .canvas-section-header {
-      margin-bottom: 18px;
-      padding-bottom: 8px;
+      margin-bottom: 12px;
+      padding-bottom: 6px;
       border-bottom: 1px solid #f1f5f9;
       display: flex;
-      flex-direction: column;
-      gap: 2px;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 8px;
     }
     .canvas-section-title {
-      font-size: 0.85rem;
+      font-size: 0.82rem;
       font-weight: 700;
       color: #0f172a;
       text-transform: uppercase;
       letter-spacing: 0.04em;
     }
     .canvas-section-hint {
-      font-size: 0.78rem;
+      font-size: 0.74rem;
       color: var(--slate-muted);
     }
     .canvas-field-group {
-      margin-bottom: 18px;
+      margin-bottom: 12px;
     }
     .canvas-field-group:last-child {
       margin-bottom: 0;
@@ -971,20 +970,20 @@
     .canvas-row-2 {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 16px;
-      margin-bottom: 18px;
+      gap: 12px;
+      margin-bottom: 12px;
     }
-    @media (max-width: 640px) {
+    @media (max-width: 480px) {
       .canvas-row-2 {
         grid-template-columns: 1fr;
       }
     }
     .canvas-label {
       display: block;
-      font-size: 0.82rem;
+      font-size: 0.8rem;
       font-weight: 600;
       color: #334155;
-      margin-bottom: 6px;
+      margin-bottom: 4px;
     }
     .canvas-label .req {
       color: #ef4444;
@@ -992,11 +991,11 @@
     }
     .canvas-input, .canvas-select, .canvas-textarea {
       width: 100%;
-      padding: 9px 12px;
+      padding: 8px 10px;
       border: 1px solid var(--slate-border);
       border-radius: 6px;
       font-family: inherit;
-      font-size: 0.88rem;
+      font-size: 0.85rem;
       background: #ffffff;
       color: #0f172a;
       transition: all 0.15s ease;
@@ -1010,23 +1009,23 @@
     }
     .canvas-textarea {
       resize: vertical;
-      min-height: 95px;
-      line-height: 1.5;
+      min-height: 72px;
+      line-height: 1.45;
     }
     .canvas-help-text {
       display: block;
-      margin-top: 5px;
-      font-size: 0.76rem;
+      margin-top: 4px;
+      font-size: 0.74rem;
       color: var(--slate-muted);
     }
     .canvas-checkbox-row {
       display: flex;
       align-items: center;
-      gap: 10px;
+      gap: 8px;
       cursor: pointer;
       margin-bottom: 0;
       user-select: none;
-      padding: 10px 14px;
+      padding: 8px 12px;
       background: #ffffff;
       border: 1px solid var(--slate-border);
       border-radius: 6px;
@@ -1036,14 +1035,14 @@
       border-color: #cbd5e1;
     }
     .canvas-checkbox {
-      width: 17px;
-      height: 17px;
+      width: 16px;
+      height: 16px;
       accent-color: var(--mint-primary);
       cursor: pointer;
       margin: 0;
     }
     .canvas-checkbox-label {
-      font-size: 0.85rem;
+      font-size: 0.82rem;
       font-weight: 600;
       color: #0f172a;
     }
@@ -1509,17 +1508,19 @@
               <div class="canvas-section">
                 <div class="canvas-section-header">
                   <span class="canvas-section-title">Giá bán & Niêm yết</span>
-                  <span class="canvas-section-hint">Đơn vị tiền tệ: VNĐ</span>
+                  <span class="canvas-section-hint">Đơn vị: VNĐ</span>
                 </div>
 
-                <div class="canvas-field-group">
-                  <label for="productPrice" class="canvas-label">Giá bán khuyến mãi <span class="req">*</span></label>
-                  <input type="text" id="productPrice" class="canvas-input" required placeholder="VD: 44,500">
-                </div>
+                <div class="canvas-row-2">
+                  <div class="canvas-field-group">
+                    <label for="productPrice" class="canvas-label">Giá bán khuyến mãi <span class="req">*</span></label>
+                    <input type="text" id="productPrice" class="canvas-input" required placeholder="VD: 44,500">
+                  </div>
 
-                <div class="canvas-field-group">
-                  <label for="productOriginalPrice" class="canvas-label">Giá gốc niêm yết</label>
-                  <input type="text" id="productOriginalPrice" class="canvas-input" placeholder="VD: 99,000 (Để gạch ngang)">
+                  <div class="canvas-field-group">
+                    <label for="productOriginalPrice" class="canvas-label">Giá gốc niêm yết</label>
+                    <input type="text" id="productOriginalPrice" class="canvas-input" placeholder="VD: 99,000 (Để gạch)">
+                  </div>
                 </div>
               </div>
 
@@ -1790,7 +1791,7 @@
   <script src="/__/firebase/10.7.1/firebase-storage-compat.js"></script>
   <script src="/__/firebase/init.js"></script>
   
-  <script src="./admin.js?v=110"></script>
+  <script src="./admin.js?v=115"></script>
   <!-- Agentation: Visual Feedback & Annotation for AI agents -->
   <script src="./agentation-vanilla.js"></script>
 </body>

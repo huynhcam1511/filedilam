@@ -1208,13 +1208,191 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
+  let selectedOrderId = null;
+
+  function selectOrder(orderId) {
+    selectedOrderId = orderId;
+    const order = (cachedOrders || []).find(o => String(o.order_id) === String(orderId));
+    
+    // Highlight active row in table
+    document.querySelectorAll('.orders-table-canvas tbody tr').forEach(tr => {
+      tr.classList.toggle('selected-row', tr.dataset.orderId === String(orderId));
+    });
+
+    renderOrderDetailInspector(order);
+  }
+
+  function renderOrderDetailInspector(order) {
+    const emptyBox = document.getElementById('orderInspectorEmpty');
+    const contentBox = document.getElementById('orderInspectorContent');
+    if (!emptyBox || !contentBox) return;
+
+    if (!order) {
+      emptyBox.style.display = 'flex';
+      contentBox.style.display = 'none';
+      contentBox.innerHTML = '';
+      return;
+    }
+
+    emptyBox.style.display = 'none';
+    contentBox.style.display = 'block';
+
+    const isPaid = (order.status || '').toUpperCase() === 'PAID';
+    const amountVal = order.amount || 0;
+    const orderId = order.order_id || '';
+    const cleanPhone = String(order.customer_phone || '').replace(/\D/g, '');
+    const transferNote = orderId;
+    const qrImgUrl = `https://img.vietqr.io/image/TPB-59215112002-compact.png?amount=${amountVal}&addInfo=${encodeURIComponent(transferNote)}&accountName=${encodeURIComponent("HUYNH KIEN CAM")}`;
+    const timeObj = formatDateTime(order.created_at || order.paid_at);
+    const fileUrl = order.product_file_url || '';
+    const isCoaching = order.package_type === 'coaching' || parseInt(order.amount || 0, 10) >= 199000;
+    const zaloMsg = `Chào bạn, File Đi Làm gửi bạn thông tin thanh toán đơn hàng #${orderId} (${order.product_name || 'File'}):\n- Số tiền: ${formatCurrency(amountVal)}\n- STK: 59215112002 (TPBank - HUYNH KIEN CAM)\n- Nội dung chuyển khoản: ${orderId}\n\nSau khi chuyển khoản, file sẽ tự động mở ngay tại: https://filedilam.web.app/?tab=my-files nhé!`;
+    const zaloChatUrl = cleanPhone ? `https://zalo.me/${cleanPhone}` : '';
+
+    contentBox.innerHTML = `
+      <!-- Header Inspector -->
+      <div style="display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 20px; padding-bottom: 16px; border-bottom: 1px solid var(--slate-border);">
+        <div>
+          <div style="font-size: 0.8rem; font-weight: 700; color: #64748b; text-transform: uppercase;">Chi tiết đơn hàng</div>
+          <div style="font-size: 1.35rem; font-weight: 700; color: #0f172a; margin-top: 2px;">#${escapeHtml(orderId)}</div>
+        </div>
+        <div>
+          ${isPaid 
+            ? '<span class="badge-status badge-status-paid" style="font-size: 0.82rem; padding: 4px 12px;">✓ ĐÃ THANH TOÁN</span>'
+            : '<span class="badge-status badge-status-pending" style="font-size: 0.82rem; padding: 4px 12px;">⏳ CHỜ THANH TOÁN</span>'}
+        </div>
+      </div>
+
+      <!-- Card 1: Khách hàng & Sản phẩm -->
+      <div class="inspector-card">
+        <div class="inspector-title">
+          <span>Thông tin giao dịch</span>
+          <span style="font-size: 0.76rem; font-weight: 500; text-transform: none; color: #64748b;">${escapeHtml(timeObj.full)}</span>
+        </div>
+        <div class="inspector-row">
+          <span class="inspector-label">Khách hàng</span>
+          <span class="inspector-val">${escapeHtml(order.customer_phone || order.customer_email || 'Khách vãng lai')}</span>
+        </div>
+        ${order.customer_email ? `
+        <div class="inspector-row">
+          <span class="inspector-label">Email</span>
+          <span class="inspector-val" style="font-size: 0.82rem; color: #475569;">${escapeHtml(order.customer_email)}</span>
+        </div>` : ''}
+        <div class="inspector-row">
+          <span class="inspector-label">Sản phẩm</span>
+          <span class="inspector-val" style="color: #0f172a;">${escapeHtml(order.product_name || 'File')}</span>
+        </div>
+        ${isCoaching ? `
+        <div class="inspector-row">
+          <span class="inspector-label">Phân loại</span>
+          <span class="inspector-val" style="color: #b45309; font-weight: 700;">🎓 Gói Kèm 1-1 Chuyên sâu</span>
+        </div>` : ''}
+        <div class="inspector-row" style="margin-top: 12px; padding-top: 12px; border-top: 1px dashed #e2e8f0;">
+          <span class="inspector-label" style="font-size: 0.95rem; font-weight: 600; color: #0f172a;">Tổng thanh toán</span>
+          <span class="inspector-val" style="font-size: 1.15rem; color: var(--mint-primary); font-weight: 700;">${formatCurrency(amountVal)}</span>
+        </div>
+      </div>
+
+      <!-- Card 2: VietQR & Thanh toán -->
+      <div class="inspector-card" style="text-align: center;">
+        <div class="inspector-title" style="text-align: left;">
+          <span>Mã QR Chuyển khoản (VietQR)</span>
+          <span style="font-size: 0.74rem; font-weight: 600; color: #059669;">TPBank 59215112002</span>
+        </div>
+        <div style="background: #ffffff; padding: 12px; border-radius: 8px; border: 1px solid #e2e8f0; display: inline-block; margin: 6px auto 12px;">
+          <a href="${qrImgUrl}" target="_blank" title="Nhấp xem ảnh lớn">
+            <img src="${qrImgUrl}" alt="QR #${escapeHtml(orderId)}" style="width: 140px; height: 140px; object-fit: contain; display: block;" />
+          </a>
+        </div>
+        <div style="font-size: 0.8rem; color: #64748b;">
+          Nội dung CK: <strong style="color: #0f172a; font-family: monospace; font-size: 0.95rem; background: #f1f5f9; padding: 2px 6px; border-radius: 4px;">${escapeHtml(orderId)}</strong>
+        </div>
+      </div>
+
+      <!-- Card 3: Thao tác & Chăm sóc khách -->
+      <div class="inspector-card">
+        <div class="inspector-title">
+          <span>Thao tác nhanh</span>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 8px;">
+          ${isPaid ? `
+            ${fileUrl ? `<a href="${escapeHtml(fileUrl)}" target="_blank" class="btn-inspector-action btn-inspector-primary">
+              <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
+              <span>Mở file Google Sheets / Drive</span>
+            </a>` : ''}
+            <button type="button" class="btn-inspector-action btn-inspector-secondary btn-copy-magic-link" data-uid="${escapeHtml(order.user_id || '')}" data-order="${escapeHtml(orderId)}">
+              <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
+              <span>Copy link nhận file cho khách</span>
+            </button>
+            ${cleanPhone ? `<a href="https://zalo.me/${cleanPhone}" target="_blank" class="btn-inspector-action btn-inspector-zalo">
+              <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path></svg>
+              <span>Chat Zalo với khách (${escapeHtml(cleanPhone)})</span>
+            </a>` : ''}
+          ` : `
+            <button type="button" class="btn-inspector-action btn-inspector-primary btn-copy-zalo-msg" data-msg="${escapeHtml(zaloMsg)}">
+              <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"></path></svg>
+              <span>Copy tin nhắn nhắc thanh toán</span>
+            </button>
+            ${cleanPhone ? `<a href="${zaloChatUrl}" target="_blank" class="btn-inspector-action btn-inspector-zalo">
+              <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path></svg>
+              <span>Chat Zalo gửi QR (${escapeHtml(cleanPhone)})</span>
+            </a>` : ''}
+          `}
+        </div>
+      </div>
+    `;
+
+    // Attach click events inside inspector
+    contentBox.querySelectorAll('.btn-copy-zalo-msg').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const msg = btn.dataset.msg || '';
+        navigator.clipboard.writeText(msg).then(() => {
+          showToast("Đã sao chép tin nhắn nhắc thanh toán!");
+        });
+      });
+    });
+
+    contentBox.querySelectorAll('.btn-copy-magic-link').forEach(btn => {
+      btn.addEventListener('click', async (e) => {
+        e.stopPropagation();
+        const uid = btn.dataset.uid || '';
+        const oId = btn.dataset.order || '';
+        const originalText = btn.innerHTML;
+        try {
+          btn.textContent = 'Đang lấy link...';
+          const res = await adminFetch('/admin/generate-magic-link', {
+            method: 'POST',
+            body: JSON.stringify({ user_id: uid, order_id: oId })
+          });
+          if (res && res.magic_url) {
+            await navigator.clipboard.writeText(res.magic_url);
+            btn.innerHTML = '<span>Đã copy link!</span>';
+            showToast('Đã copy Magic Link! Gửi link này để khách vào thẳng kho file mà không cần mật khẩu.');
+            setTimeout(() => {
+              btn.innerHTML = originalText;
+            }, 2500);
+          } else {
+            throw new Error(res?.error || 'Không tạo được link');
+          }
+        } catch (err) {
+          console.warn("Dùng link thường fallback:", err);
+          btn.innerHTML = originalText;
+          const fallbackLink = `https://filedilam.web.app/?tab=my-files`;
+          navigator.clipboard.writeText(fallbackLink);
+          showToast('Đã copy link nhận file: https://filedilam.web.app/?tab=my-files');
+        }
+      });
+    });
+  }
+
   function renderFilteredOrders() {
     const orderListBody = document.getElementById('orderListBody');
     if (!orderListBody) return;
     const searchVal = (document.getElementById('orderSearchInput')?.value || '').trim().toLowerCase();
     const statusVal = document.getElementById('orderStatusFilter')?.value || 'ALL';
 
-    const filtered = cachedOrders.filter(order => {
+    const filtered = (cachedOrders || []).filter(order => {
       const matchStatus = statusVal === 'ALL' || (order.status || '').toUpperCase() === statusVal;
       if (!matchStatus) return false;
 
@@ -1227,7 +1405,8 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     if (!filtered.length) {
-      orderListBody.innerHTML = '<tr><td colspan="8" style="text-align: center; color: var(--muted); padding: 32px;">Không tìm thấy đơn hàng nào phù hợp.</td></tr>';
+      orderListBody.innerHTML = '<tr><td colspan="7" style="text-align: center; color: var(--slate-muted); padding: 32px;">Không tìm thấy đơn hàng nào phù hợp.</td></tr>';
+      renderOrderDetailInspector(null);
       return;
     }
 
@@ -1239,113 +1418,63 @@ document.addEventListener('DOMContentLoaded', () => {
 
       const timeObj = formatDateTime(order.created_at || order.paid_at);
       const timeHtml = timeObj.date 
-        ? `<div style="font-weight: 600; color: #0f172a; font-size: 0.88rem; white-space: nowrap;">${escapeHtml(timeObj.time)}</div>` +
-          `<div style="font-size: 0.78rem; color: #64748b; white-space: nowrap; margin-top: 2px;">${escapeHtml(timeObj.date)}</div>`
-        : `<span style="font-size: 0.84rem; color: #64748b;">${escapeHtml(timeObj.time)}</span>`;
+        ? `<div style="font-weight: 600; color: #0f172a; font-size: 0.84rem; white-space: nowrap;">${escapeHtml(timeObj.time)}</div>` +
+          `<div style="font-size: 0.74rem; color: #64748b; white-space: nowrap; margin-top: 1px;">${escapeHtml(timeObj.date)}</div>`
+        : `<span style="font-size: 0.82rem; color: #64748b;">${escapeHtml(timeObj.time)}</span>`;
 
       const rawEmail = order.customer_email || '';
       const isVirtualEmail = rawEmail.endsWith('@khachhang.filedilam.vn');
       const cleanEmail = isVirtualEmail ? '' : rawEmail;
       const customerInfo = order.customer_phone || cleanEmail || (order.user_id ? order.user_id.slice(0, 8) + '...' : 'Khách vãng lai');
 
-      const fileUrl = order.product_file_url || '';
       const orderId = order.order_id || '';
       const amountVal = order.amount || 0;
-      const cleanPhone = String(order.customer_phone || '').replace(/\D/g, '');
       const transferNote = orderId;
       const qrImgUrl = `https://img.vietqr.io/image/TPB-59215112002-compact.png?amount=${amountVal}&addInfo=${encodeURIComponent(transferNote)}&accountName=${encodeURIComponent("HUYNH KIEN CAM")}`;
 
       // Cột Mã QR VietQR thu nhỏ
       const qrThumbHtml = isPaid
         ? '<span style="color: #cbd5e1; font-size: 0.85rem;">-</span>'
-        : `<a href="${qrImgUrl}" target="_blank" title="Nhấp để xem to hoặc nhấp chuột phải Sao chép ảnh QR" style="display:inline-block; border-radius:6px; overflow:hidden; border:1px solid #e2e8f0; line-height:0; vertical-align:middle;">
-             <img src="${qrImgUrl}" alt="QR #${escapeHtml(orderId)}" style="width:36px; height:36px; object-fit:contain; display:block; cursor:pointer;" />
+        : `<a href="${qrImgUrl}" target="_blank" onclick="event.stopPropagation();" title="Nhấp để xem to hoặc nhấp chuột phải Sao chép ảnh QR" style="display:inline-block; border-radius:6px; overflow:hidden; border:1px solid #e2e8f0; line-height:0; vertical-align:middle;">
+             <img src="${qrImgUrl}" alt="QR #${escapeHtml(orderId)}" style="width:32px; height:32px; object-fit:contain; display:block; cursor:pointer;" />
            </a>`;
-
-      let actionHtml = '';
-      if (isPaid) {
-        // ĐÃ THANH TOÁN: Mở file ↗, Copy link nhận file, Chat Zalo ↗ (nếu có SĐT)
-        actionHtml = `
-          <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
-            ${fileUrl ? `<a href="${escapeHtml(fileUrl)}" target="_blank" style="text-decoration:none; color:var(--mint-primary); font-size:0.84rem; font-weight:600;" title="Mở link Google Sheets/Drive">Mở file ↗</a>` : ''}
-            <button type="button" class="btn-copy-magic-link" data-uid="${escapeHtml(order.user_id || '')}" data-order="${escapeHtml(orderId)}" style="background:none; border:none; padding:0; color:#475569; font-size:0.84rem; text-decoration:underline; cursor:pointer; font-weight:500;" title="Copy link nhận file cho khách">Copy link nhận file</button>
-            ${cleanPhone ? `<a href="https://zalo.me/${cleanPhone}" target="_blank" style="text-decoration:none; color:#0284c7; font-size:0.84rem; font-weight:600;">Chat Zalo ↗</a>` : ''}
-          </div>
-        `;
-      } else {
-        // CHỜ THANH TOÁN: Copy tin nhắn nhắc nợ, Chat Zalo ↗
-        const zaloMsg = `Chào bạn, File Đi Làm gửi bạn thông tin thanh toán đơn hàng #${orderId} (${order.product_name || 'File'}):\n- Số tiền: ${formatCurrency(amountVal)}\n- STK: 59215112002 (TPBank - HUYNH KIEN CAM)\n- Nội dung chuyển khoản: ${orderId}\n\nSau khi chuyển khoản, file sẽ tự động mở ngay tại: https://filedilam.web.app/?tab=my-files nhé!`;
-        const zaloChatUrl = cleanPhone ? `https://zalo.me/${cleanPhone}` : '';
-
-        actionHtml = `
-          <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
-            <button type="button" class="btn-copy-zalo-msg" data-msg="${escapeHtml(zaloMsg)}" style="background:none; border:none; padding:0; color:var(--mint-primary); font-size:0.84rem; text-decoration:underline; cursor:pointer; font-weight:600;" title="Sao chép lời nhắn kèm số tài khoản và cú pháp">Copy tin nhắn</button>
-            ${cleanPhone ? `<a href="${zaloChatUrl}" target="_blank" style="text-decoration:none; color:#0284c7; font-size:0.84rem; font-weight:600;">Chat Zalo ↗</a>` : ''}
-          </div>
-        `;
-      }
 
       const isCoaching = order.package_type === 'coaching' || parseInt(order.amount || 0, 10) >= 199000;
       const coachingBadge = isCoaching
-        ? '<span style="display: inline-block; margin-left: 6px; font-size: 0.72rem; font-weight: 700; background: #fef3c7; color: #b45309; padding: 2px 7px; border-radius: 6px; border: 1px solid #fde68a; vertical-align: middle;">🎓 Kèm 1-1</span>'
+        ? '<span style="display: inline-block; margin-left: 4px; font-size: 0.68rem; font-weight: 700; background: #fef3c7; color: #b45309; padding: 1px 6px; border-radius: 4px; border: 1px solid #fde68a; vertical-align: middle;">🎓 Kèm 1-1</span>'
         : '';
 
+      const isSelected = String(orderId) === String(selectedOrderId);
+
       return `
-        <tr>
-          <td><strong style="font-size: 0.9rem; color: #1e293b;">#${escapeHtml(order.order_id || '')}</strong></td>
+        <tr data-order-id="${escapeHtml(orderId)}" class="${isSelected ? 'selected-row' : ''}">
+          <td><strong style="font-size: 0.88rem; color: #1e293b; font-family: monospace;">#${escapeHtml(orderId)}</strong></td>
           <td style="white-space: nowrap;">${timeHtml}</td>
-          <td><span style="font-weight: 500; color: #1e293b;">${escapeHtml(customerInfo)}</span></td>
-          <td><span style="font-weight: 600; color: #1e293b;">${escapeHtml(order.product_name || 'File')}</span>${coachingBadge}</td>
-          <td><strong style="color: var(--mint-primary);">${formatCurrency(order.amount || 0)}</strong></td>
-          <td>${statusBadge}</td>
+          <td><span style="font-weight: 500; color: #1e293b; font-size: 0.86rem;">${escapeHtml(customerInfo)}</span></td>
+          <td><span style="font-weight: 600; color: #1e293b; font-size: 0.86rem;">${escapeHtml(order.product_name || 'File')}</span>${coachingBadge}</td>
+          <td style="text-align: right;"><strong style="color: var(--mint-primary); font-size: 0.88rem;">${formatCurrency(order.amount || 0)}</strong></td>
+          <td style="text-align: center;">${statusBadge}</td>
           <td style="text-align: center; vertical-align: middle;">${qrThumbHtml}</td>
-          <td>${actionHtml}</td>
         </tr>
       `;
     }).join('');
 
-    // Gắn sự kiện cho các nút Copy trong bảng đơn hàng
-    orderListBody.querySelectorAll('.btn-copy-zalo-msg').forEach(btn => {
-      btn.addEventListener('click', () => {
-        const msg = btn.dataset.msg || '';
-        navigator.clipboard.writeText(msg).then(() => {
-          showToast("Đã sao chép tin nhắn nhắc thanh toán!");
-        });
+    // Attach row click listeners for selection
+    orderListBody.querySelectorAll('tr[data-order-id]').forEach(tr => {
+      tr.addEventListener('click', () => {
+        const oId = tr.dataset.orderId;
+        selectOrder(oId);
       });
     });
 
-    orderListBody.querySelectorAll('.btn-copy-magic-link').forEach(btn => {
-      btn.addEventListener('click', async () => {
-        const uid = btn.dataset.uid || '';
-        const orderId = btn.dataset.order || '';
-        const originalText = btn.textContent;
-        try {
-          btn.textContent = 'Đang lấy link...';
-          const res = await adminFetch('/admin/generate-magic-link', {
-            method: 'POST',
-            body: JSON.stringify({ user_id: uid, order_id: orderId })
-          });
-          if (res && res.magic_url) {
-            await navigator.clipboard.writeText(res.magic_url);
-            btn.textContent = 'Đã copy link!';
-            showToast('Đã copy Magic Link! Gửi link này để khách vào thẳng kho file mà không cần mật khẩu.');
-            setTimeout(() => {
-              btn.textContent = originalText;
-            }, 2500);
-          } else {
-            throw new Error(res?.error || 'Không tạo được link');
-          }
-        } catch (err) {
-          console.warn("Dùng link thường fallback:", err);
-          btn.textContent = originalText;
-          const fallbackLink = `https://filedilam.web.app/?tab=my-files`;
-          navigator.clipboard.writeText(fallbackLink);
-          showToast('Đã copy link nhận file: https://filedilam.web.app/?tab=my-files');
-        }
-      });
-    });
+    // Auto-select first order if none selected or selected order not in filter
+    const activeOrderExists = filtered.some(o => String(o.order_id) === String(selectedOrderId));
+    if (!activeOrderExists && filtered.length > 0) {
+      selectOrder(filtered[0].order_id);
+    } else if (activeOrderExists) {
+      selectOrder(selectedOrderId);
+    }
   }
-
   // Event Listeners for Orders & Stats
   document.getElementById('refreshStatsBtn')?.addEventListener('click', loadAdminStats);
   document.getElementById('refreshOrdersBtn')?.addEventListener('click', loadAdminOrders);
