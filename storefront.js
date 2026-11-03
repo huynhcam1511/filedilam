@@ -415,7 +415,53 @@ function escapeHtml(value) {
 
     var elCloseCheckout = document.getElementById("closeCheckout");
     if (elCloseCheckout) elCloseCheckout.addEventListener("click", closeCheckout);
-    if (checkoutBackBtn) checkoutBackBtn.addEventListener("click", handleBackToInfo);
+    if (checkoutBackBtn) {
+      checkoutBackBtn.addEventListener("click", function () {
+        closeCheckout();
+      });
+    }
+
+    var checkoutNavBrand = document.getElementById("checkoutNavBrand");
+    if (checkoutNavBrand) {
+      checkoutNavBrand.addEventListener("click", function () {
+        closeCheckout();
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      });
+    }
+    Array.prototype.forEach.call(document.querySelectorAll(".checkout-nav-home-link"), function (link) {
+      link.addEventListener("click", function () {
+        closeCheckout();
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      });
+    });
+    Array.prototype.forEach.call(document.querySelectorAll(".checkout-nav-catalog-link"), function (link) {
+      link.addEventListener("click", function () {
+        closeCheckout();
+        var cat = document.getElementById("catalog");
+        if (cat) cat.scrollIntoView({ behavior: "smooth" });
+      });
+    });
+
+    var detailNavBrand = document.getElementById("detailNavBrand");
+    if (detailNavBrand) {
+      detailNavBrand.addEventListener("click", function () {
+        closeDetail();
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      });
+    }
+    Array.prototype.forEach.call(document.querySelectorAll(".detail-nav-home-link"), function (link) {
+      link.addEventListener("click", function () {
+        closeDetail();
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      });
+    });
+    Array.prototype.forEach.call(document.querySelectorAll(".detail-nav-catalog-link"), function (link) {
+      link.addEventListener("click", function () {
+        closeDetail();
+        var cat = document.getElementById("catalog");
+        if (cat) cat.scrollIntoView({ behavior: "smooth" });
+      });
+    });
 
     var elBackToCart = document.getElementById("backToCart");
     if (elBackToCart) {
@@ -1592,9 +1638,17 @@ function escapeHtml(value) {
       }).filter(Boolean);
     }
 
+    var grandTotal = getCartTotal(); // Tự động đồng bộ và tính lại discountAmount
     var subtotal = getCartSubtotal();
     var discount = state.discountAmount || 0;
-    var grandTotal = Math.max(0, subtotal - discount);
+
+    // Cập nhật câu điều kiện động theo coupon đang active
+    if (checkoutCouponCondition && currentFeaturedCoupon) {
+      var cMin = Number(currentFeaturedCoupon.min_order || 0);
+      var cVal = currentFeaturedCoupon.type === 'percent' ? (currentFeaturedCoupon.value + '%') : formatCurrency(currentFeaturedCoupon.value);
+      var cMinText = cMin > 0 ? ('đơn từ ' + formatCurrency(cMin)) : 'mọi đơn hàng';
+      checkoutCouponCondition.innerHTML = 'Mã <strong>' + escapeHtml(currentFeaturedCoupon.code) + '</strong>: Giảm ' + cVal + ' cho ' + cMinText + '.';
+    }
 
     if (checkoutHeroTotal) checkoutHeroTotal.textContent = formatCurrency(grandTotal);
     if (checkoutSubTotal) checkoutSubTotal.textContent = formatCurrency(subtotal);
@@ -2433,9 +2487,8 @@ function escapeHtml(value) {
     resetQrActions();
     startQrCountdown(activeOrder.time);
 
-    // Mở và treo màn hình thanh toán ở Step 2
-    if (checkoutAuthStep) checkoutAuthStep.style.display = "none";
-    if (checkoutPaymentStep) checkoutPaymentStep.style.display = "block";
+    // Mở và treo màn hình thanh toán
+    if (checkoutAuthStep) checkoutAuthStep.style.display = "grid";
     if (checkoutModalTitle) checkoutModalTitle.textContent = "Quét mã QR thanh toán";
     if (checkoutBackBtn) checkoutBackBtn.style.display = "inline-flex";
 
@@ -2735,8 +2788,7 @@ function escapeHtml(value) {
     }
 
     // Chuyển sang Step 2 ngay lập tức
-    if (checkoutAuthStep) checkoutAuthStep.style.display = "none";
-    if (checkoutPaymentStep) checkoutPaymentStep.style.display = "block";
+    if (checkoutAuthStep) checkoutAuthStep.style.display = "grid";
     if (checkoutModalTitle) checkoutModalTitle.textContent = "Quét mã QR thanh toán";
     if (checkoutBackBtn) checkoutBackBtn.style.display = "inline-flex";
     resetQrActions();
@@ -2964,7 +3016,7 @@ function escapeHtml(value) {
     }
 
     if (btnQuickSubmitText) btnQuickSubmitText.textContent = "Đặt hàng";
-    if (checkoutAuthStep) checkoutAuthStep.style.display = "block";
+    if (checkoutAuthStep) checkoutAuthStep.style.display = "grid";
     if (checkoutPaymentStep) checkoutPaymentStep.style.display = "none";
     if (quickName && !quickName.value) {
       setTimeout(function() { quickName.focus(); }, 100);
@@ -3933,7 +3985,27 @@ function escapeHtml(value) {
   function getCartTotal() {
     var subtotal = getCartSubtotal();
     if (!subtotal) return 0;
-    var discount = state.discountAmount || 0;
+    var discount = 0;
+    if (state.appliedCoupon) {
+      var minOrder = Number(state.appliedCoupon.min_order || 0);
+      if (minOrder > 0 && subtotal < minOrder) {
+        // Tự động vô hiệu hóa giảm giá nếu đơn hàng dưới điều kiện tối thiểu!
+        state.appliedCoupon = null;
+        state.discountAmount = 0;
+      } else {
+        // Tính lại số tiền giảm chính xác theo subtotal hiện tại
+        if (state.appliedCoupon.type === "fixed") {
+          discount = Number(state.appliedCoupon.value || 0);
+        } else {
+          var pct = Number(state.appliedCoupon.value || 0);
+          discount = Math.round((subtotal * pct) / 100);
+        }
+        var maxDisc = Number(state.appliedCoupon.max_discount || 0);
+        if (maxDisc > 0 && discount > maxDisc) discount = maxDisc;
+        if (discount > subtotal) discount = subtotal;
+        state.discountAmount = discount;
+      }
+    }
     return Math.max(0, subtotal - discount);
   }
 
@@ -4161,9 +4233,12 @@ function escapeHtml(value) {
       // Check min order condition
       var minOrder = Number(coupon.min_order || 0);
       if (minOrder > 0 && subtotal < minOrder) {
+        state.appliedCoupon = null;
+        state.discountAmount = 0;
         var msg = "Mã " + coupon.code + " chỉ áp dụng cho đơn từ " + formatCurrency(minOrder) + ". Hiện tại đơn của bạn là " + formatCurrency(subtotal) + ".";
         showCouponMessage(msg, true);
         showToast(msg);
+        renderCart();
         return;
       }
 
