@@ -1228,16 +1228,34 @@
   }
 
   function renderFolders() {
-    var categoryOptions = [{ id: "all", name: "Tất cả danh mục" }].concat(data.categories || []);
+    var categoryOptions = [{ id: "all", name: "Tất cả" }].concat(data.categories || []);
     if (folderGrid) {
       folderGrid.innerHTML = categoryOptions
         .map(function (category) {
           var activeClass = category.id === state.activeCategoryId ? " active" : "";
+          var count = 0;
+          if (category.id === "all") {
+            count = (data.products || []).length;
+          } else {
+            count = (data.products || []).filter(function(p) {
+              return (p.category === category.id) || (p.categoryId === category.id);
+            }).length;
+          }
+          var countBadge = count > 0 ? ' <span class="cat-count">' + count + '</span>' : '';
+          
+          var displayName = category.name;
+          if (category.id === "fnb-cost") displayName = "F&B - Định lượng";
+          else if (category.id === "ban-hang-online") displayName = "Kinh doanh";
+          else if (category.id === "quan-ly-kho") displayName = "Kho vận";
+          else if (category.id === "cong-no") displayName = "Công nợ";
+          else if (category.id === "thu-chi-dong-tien") displayName = "Dòng tiền";
+          else if (category.id === "combo") displayName = "Combo";
+
           return (
             '<li class="category-item' + activeClass + '" data-folder-id="' +
             escapeHtml(category.id) + '">' +
-            escapeHtml(category.name) +
-            "</li>"
+            escapeHtml(displayName) + countBadge +
+            '</li>'
           );
         })
         .join("");
@@ -1297,7 +1315,8 @@
 
     var statTotalFilesEl = document.getElementById("statTotalFiles");
     if (statTotalFilesEl && data.products && data.products.length > 0) {
-      statTotalFilesEl.textContent = data.products.length + "+";
+      statTotalFilesEl.setAttribute("data-target", data.products.length);
+      statTotalFilesEl.textContent = data.products.length;
     }
 
     if (!items.length) {
@@ -1321,9 +1340,10 @@
         var discountPercent = hasDiscount ? Math.round((1 - product.price / originalPrice) * 100) : 0;
         
         var ratingInfo = getProductRatingDisplay(product);
+        var countDisplay = ratingInfo.downloads > 0 ? ratingInfo.downloads : ratingInfo.count;
         var socialProofHtml = '<div class="product-social-proof">' +
           '<span class="star-rating">⭐ ' + ratingInfo.score + '</span>' +
-          '<span class="download-count">(' + (ratingInfo.downloads > 0 ? ratingInfo.downloads + ' đã tải' : ratingInfo.count + ' đánh giá') + ')</span>' +
+          '<span class="download-count">(' + countDisplay + ')</span>' +
         '</div>';
         
         var isCombo = product.categoryId === "combo" || product.type === "combo";
@@ -1342,16 +1362,10 @@
               '<div class="product-price-row">' +
                 '<span class="product-current-val">' + formatCurrency(product.price) + '</span>' +
                 (hasDiscount ? '<span class="product-original-val">' + formatCurrency(originalPrice) + '</span>' : '') +
-                (hasDiscount ? '<span class="product-discount-pill">-' + discountPercent + '%</span>' : '') +
-              '</div>' +
-              '<div class="product-digital-perks">' +
-                '<span class="digital-perk">⚡ Nhận file ngay</span>' +
-                '<span class="digital-perk">Trọn đời</span>' +
-              '</div>' +
+                '</div>' +
               '<div class="product-card-footer">' +
                 socialProofHtml +
                 '<button class="btn-card-cart-pill" type="button" data-cart-id="' + escapeHtml(product.id) + '">' +
-                  '<svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>' +
                   '<span>Thêm vào giỏ</span>' +
                 '</button>' +
               '</div>' +
@@ -1399,17 +1413,51 @@
     if (cartItems) {
       if (!detailedCart.length) {
         cartItems.innerHTML =
-          '<div class="empty-state">Giỏ hàng đang trống. Bấm vào file rồi thêm vào giỏ nhé.</div>';
+          '<div class="cart-empty-state">' +
+            '<svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">' +
+              '<circle cx="9" cy="21" r="1"></circle>' +
+              '<circle cx="20" cy="21" r="1"></circle>' +
+              '<path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>' +
+            '</svg>' +
+            '<p class="cart-empty-title">Giỏ hàng đang trống</p>' +
+            '<p class="cart-empty-desc">Chọn file mẫu phù hợp để thêm vào giỏ nhé.</p>' +
+          '</div>';
       } else {
         cartItems.innerHTML = detailedCart
           .map(function (item) {
+            var imgUrl = item.product.thumbnailUrl || item.product.previewImageUrl;
+            var thumbHtml = imgUrl
+              ? '<div class="drawer-item-thumb"><img src="' + escapeHtml(imgUrl) + '" alt="' + escapeHtml(item.product.name) + '" loading="lazy" /></div>'
+              : '<div class="drawer-item-thumb drawer-item-thumb-placeholder">' +
+                  '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">' +
+                    '<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>' +
+                    '<polyline points="14 2 14 8 20 8"></polyline>' +
+                  '</svg>' +
+                '</div>';
+
+            var hasOriginal = item.product.originalPrice && item.product.originalPrice > item.product.price;
+            var origPriceHtml = hasOriginal
+              ? '<span class="drawer-item-original-price">' + formatCurrency(item.product.originalPrice * item.quantity) + '</span>'
+              : '';
+
             return (
               '<div class="drawer-item">' +
+                thumbHtml +
                 '<div class="drawer-item-info">' +
-                  '<span class="drawer-item-title">' + escapeHtml(item.product.name) + '</span>' +
-                  '<span class="drawer-item-price">' + formatCurrency(item.total) + '</span>' +
+                  '<span class="drawer-item-title" title="' + escapeHtml(item.product.name) + '">' + escapeHtml(item.product.name) + '</span>' +
+                  '<div class="drawer-item-price-row">' +
+                    origPriceHtml +
+                    '<span class="drawer-item-price">' + formatCurrency(item.total) + '</span>' +
+                  '</div>' +
                 '</div>' +
-                '<button class="icon-button" type="button" data-remove-id="' + escapeHtml(item.product.id) + '" title="Bỏ khỏi giỏ">🗑️</button>' +
+                '<button class="drawer-item-remove" type="button" data-remove-id="' + escapeHtml(item.product.id) + '" title="Bỏ khỏi giỏ" aria-label="Bỏ khỏi giỏ">' +
+                  '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">' +
+                    '<polyline points="3 6 5 6 21 6"></polyline>' +
+                    '<path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>' +
+                    '<line x1="10" y1="11" x2="10" y2="17"></line>' +
+                    '<line x1="14" y1="11" x2="14" y2="17"></line>' +
+                  '</svg>' +
+                '</button>' +
               '</div>'
             );
           })
@@ -3507,5 +3555,62 @@
       .replaceAll(">", "&gt;")
       .replaceAll('"', "&quot;")
       .replaceAll("'", "&#39;");
+  }
+
+  // Khởi động Animation số chạy mượt mà
+  function initStatsCounters() {
+    // Kích hoạt animation nhấp nháy cho 11 thanh tháng ở Card 1
+    var pills = document.querySelectorAll(".cost-pills-bar .cost-pill-item:not(.is-paid)");
+    if (pills.length) {
+      pills.forEach(function(pill, idx) {
+        pill.classList.add("pill-glow");
+        pill.style.animationDelay = (idx * 0.12) + "s";
+      });
+    }
+    var counters = document.querySelectorAll(".counter[data-target]");
+    if (!counters.length) return;
+    
+    var observer = new IntersectionObserver(function(entries, obs) {
+      entries.forEach(function(entry) {
+        if (entry.isIntersecting) {
+          var el = entry.target;
+          var target = parseInt(el.getAttribute("data-target"), 10) || 0;
+          var duration = 1200;
+          var start = target > 2000 ? target - 10 : 0;
+          var startTime = null;
+
+          function updateNum(timestamp) {
+            if (!startTime) startTime = timestamp;
+            var progress = Math.min((timestamp - startTime) / duration, 1);
+            var easeProgress = 1 - Math.pow(1 - progress, 3);
+            var current = Math.floor(start + (target - start) * easeProgress);
+
+            if (target >= 10000) {
+              el.textContent = current.toLocaleString("vi-VN");
+            } else {
+              el.textContent = current;
+            }
+
+            if (progress < 1) {
+              requestAnimationFrame(updateNum);
+            } else {
+              el.textContent = target >= 10000 ? target.toLocaleString("vi-VN") : target;
+            }
+          }
+          requestAnimationFrame(updateNum);
+          obs.unobserve(el);
+        }
+      });
+    }, { threshold: 0.2 });
+
+    counters.forEach(function(c) {
+      observer.observe(c);
+    });
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", initStatsCounters);
+  } else {
+    setTimeout(initStatsCounters, 200);
   }
 })();
