@@ -16,7 +16,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="./storefront.css?v=126" />
+    <link rel="stylesheet" href="./storefront.css?v=127" />
     <style>
     :root {
       --bg: #ffffff;
@@ -2004,10 +2004,10 @@
         gap: 8px !important;
       }
       .cart-button {
-        width: 38px !important;
-        height: 38px !important;
-        padding: 0 !important;
-        display: flex !important;
+        width: auto !important;
+        height: 36px !important;
+        padding: 0 10px 0 9px !important;
+        display: inline-flex !important;
         align-items: center !important;
         justify-content: center !important;
       }
@@ -2032,41 +2032,49 @@
     .menu-burger-btn:hover {
       background: #f1f5f9;
     }
-    .shopping-bag-btn {
-      position: relative;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      width: 38px;
-      height: 38px;
-      background: transparent;
-      border: none;
-      color: #0f172a;
+        .shopping-bag-btn {
+      position: relative !important;
+      display: inline-flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      gap: 7px !important;
+      height: 38px !important;
+      width: auto !important;
+      padding: 0 12px 0 10px !important;
+      background: #f8fafc !important;
+      border: 1px solid #e2e8f0 !important;
+      color: #0f172a !important;
       cursor: pointer;
-      padding: 0;
-      border-radius: 8px;
-      transition: background 0.15s ease;
+      border-radius: 9999px !important;
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03) !important;
     }
     .shopping-bag-btn:hover {
-      background: #f1f5f9;
+      background: #f1f5f9 !important;
+      border-color: #cbd5e1 !important;
+      transform: translateY(-1px);
     }
-    .shopping-bag-btn .cart-badge {
-      position: absolute;
-      top: 3px;
-      right: 3px;
-      min-width: 17px;
-      height: 17px;
-      padding: 0 4px;
-      border-radius: 9999px;
-      background: #059669;
-      color: #ffffff;
-      font-size: 0.65rem;
-      font-weight: 700;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      line-height: 1;
-      border: 1.5px solid #ffffff;
+    .shopping-bag-btn svg.cart-bag-icon {
+      width: 20px !important;
+      height: 20px !important;
+      color: #1e293b !important;
+      flex-shrink: 0;
+    }
+    .shopping-bag-btn .cart-badge-pill {
+      display: inline-flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      min-width: 20px !important;
+      height: 20px !important;
+      padding: 0 6px !important;
+      border-radius: 9999px !important;
+      background: #059669 !important;
+      color: #ffffff !important;
+      font-size: 0.76rem !important;
+      font-weight: 700 !important;
+      line-height: 1 !important;
+      position: static !important;
+      letter-spacing: -0.01em !important;
     }
     @media (max-width: 768px) {
       .menu-burger-btn {
@@ -2126,13 +2134,13 @@
             </div>
           </div>
 
-          <button class="cart-button shopping-bag-btn" id="openCartNav" type="button" aria-label="Túi hàng">
-            <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+          <button class="cart-button shopping-bag-btn" id="openCartNav" type="button" aria-label="Giỏ hàng">
+            <svg class="cart-bag-icon" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"></path>
               <line x1="3" y1="6" x2="21" y2="6"></line>
               <path d="M16 10a4 4 0 0 1-8 0"></path>
             </svg>
-            <span class="cart-badge" id="cartCount">0</span>
+            <span class="cart-badge-pill" id="cartCount">0</span>
           </button>
 
           <button class="menu-burger-btn" id="openMobileMenu" type="button" aria-label="Menu" title="Menu">
@@ -3520,7 +3528,7 @@
     <script src="/__/firebase/init.js"></script>
     <script src="./storefront-data.js?v=16"></script>
     <script src="./storefront-products.generated.js?v=6"></script>
-    <script src="storefront.js?v=126"></script>
+    <script src="storefront.js?v=127"></script>
     <!-- Agentation: Visual Feedback & Annotation for AI agents -->
   <script src="./agentation-vanilla.js"></script>
 </body>
