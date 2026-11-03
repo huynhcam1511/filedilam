@@ -242,198 +242,132 @@
       font-weight: 600;
     }
 
-    /* HERO WEB APP MOCKUP CARD */
+    /* HERO FLAT LINEAR MOCKUP (STRIPE / LINEAR STYLE) */
     .hero-mockup-wrapper {
       position: relative;
     }
-    .webapp-card {
+    .linear-board {
       background: #ffffff;
-      border: 1px solid var(--line-subtle);
-      border-radius: 20px;
+      border: 1px solid var(--line);
+      border-radius: 16px;
       padding: 24px;
-      box-shadow: 0 16px 36px -10px rgba(0, 0, 0, 0.08), 0 2px 8px rgba(0, 0, 0, 0.03);
-      position: relative;
-      display: flex;
-      flex-direction: column;
-      gap: 16px;
+      box-shadow: 0 12px 32px -8px rgba(15, 23, 42, 0.06);
     }
-    .webapp-badge-sync {
-      position: absolute;
-      top: -12px;
-      left: 20px;
-      background: #ecfdf5;
-      border: 1px solid var(--mint-border);
-      color: var(--mint-primary);
-      font-size: 0.78rem;
-      font-weight: 600;
-      padding: 4px 12px;
-      border-radius: var(--radius-full);
+    .linear-board-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 20px;
+    }
+    .linear-status-live {
       display: inline-flex;
       align-items: center;
-      gap: 6px;
-      box-shadow: var(--shadow-sm);
+      gap: 7px;
+      font-size: 0.8rem;
+      font-weight: 500;
+      color: #059669;
     }
-    .sync-dot {
+    .live-pulse {
       width: 7px;
       height: 7px;
       background: #10b981;
       border-radius: 50%;
-      box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.25);
+      box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.2);
     }
-    .webapp-header {
+    .linear-app-tag {
+      font-size: 0.75rem;
+      color: #94a3b8;
+      font-family: var(--font-mono);
+    }
+    .linear-hero-metric {
+      margin-bottom: 24px;
+    }
+    .metric-top-label {
+      font-size: 0.78rem;
+      color: #64748b;
+      margin-bottom: 6px;
+    }
+    .metric-big-num {
+      font-size: 2.1rem;
+      font-weight: 700;
+      font-family: var(--font-mono);
+      letter-spacing: -1px;
+      color: var(--text);
+      line-height: 1.1;
       display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding-top: 4px;
-      border-bottom: 1px solid #f1f5f9;
-      padding-bottom: 12px;
+      align-items: baseline;
+      gap: 6px;
     }
-    .webapp-app-name {
+    .metric-big-num span.currency {
+      font-size: 1.15rem;
+      font-weight: 500;
+      color: #64748b;
+    }
+    .metric-sub-detail {
+      font-size: 0.82rem;
+      color: #64748b;
+      margin-top: 8px;
       display: flex;
       align-items: center;
       gap: 8px;
+    }
+    .badge-growth {
+      color: #059669;
       font-weight: 600;
-      font-size: 0.95rem;
-      color: var(--text);
+      font-size: 0.78rem;
     }
-    .webapp-tag-mobile {
-      font-size: 0.68rem;
-      font-weight: 600;
-      background: #f1f5f9;
-      color: #64748b;
-      padding: 3px 8px;
-      border-radius: 6px;
-    }
-    .webapp-stats-row {
-      display: grid;
-      grid-template-columns: 1.2fr 1fr;
-      gap: 10px;
-    }
-    .webapp-metric-box {
-      background: #f8fafc;
-      border: 1px solid #e2e8f0;
-      border-radius: 12px;
-      padding: 10px 14px;
-    }
-    .webapp-metric-box.highlight {
-      background: #f0fdf4;
-      border-color: #bbf7d0;
-    }
-    .metric-label {
-      font-size: 0.72rem;
-      color: #64748b;
-      margin-bottom: 3px;
-    }
-    .metric-value {
-      font-size: 1.15rem;
-      font-weight: 700;
-      color: var(--text);
-      font-family: var(--font-mono);
-      letter-spacing: -0.5px;
-    }
-    .metric-value.mint {
-      color: var(--mint-primary);
-    }
-    .metric-sub {
-      font-size: 0.68rem;
-      color: #10b981;
-      font-weight: 500;
-      margin-top: 2px;
-    }
-    .webapp-action-area {
-      background: #ffffff;
-      border: 1px dashed #cbd5e1;
-      border-radius: 14px;
-      padding: 12px 14px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 12px;
-    }
-    .action-info {
+    .linear-feed {
+      border-top: 1px solid #f1f5f9;
+      padding-top: 16px;
       display: flex;
       flex-direction: column;
+      gap: 12px;
     }
-    .action-title {
-      font-size: 0.82rem;
-      font-weight: 600;
-      color: var(--text);
-    }
-    .action-desc {
-      font-size: 0.72rem;
-      color: #64748b;
-    }
-    .btn-quick-add {
-      background: var(--text);
-      color: #ffffff;
-      font-size: 0.78rem;
-      font-weight: 600;
-      padding: 8px 14px;
-      border-radius: 8px;
-      display: inline-flex;
-      align-items: center;
-      gap: 5px;
-      flex-shrink: 0;
-    }
-    .webapp-recent-order {
-      background: #ffffff;
-      border: 1px solid #e2e8f0;
-      border-radius: 12px;
-      padding: 10px 12px;
+    .feed-item {
       display: flex;
       align-items: center;
       justify-content: space-between;
+      font-size: 0.82rem;
     }
-    .order-avatar {
-      width: 32px;
-      height: 32px;
-      border-radius: 8px;
-      background: #f1f5f9;
+    .feed-left {
       display: flex;
       align-items: center;
-      justify-content: center;
-      font-size: 0.8rem;
-      font-weight: 600;
-      color: #475569;
-      margin-right: 10px;
+      gap: 10px;
     }
-    .order-meta {
-      flex: 1;
+    .feed-dot {
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: #cbd5e1;
     }
-    .order-title {
-      font-size: 0.8rem;
+    .feed-dot.mint { background: #10b981; }
+    .feed-user {
       font-weight: 600;
       color: var(--text);
     }
-    .order-sub {
-      font-size: 0.68rem;
+    .feed-action {
+      color: #64748b;
+    }
+    .feed-right {
+      font-family: var(--font-mono);
+      font-size: 0.78rem;
+      font-weight: 500;
+      color: #059669;
+    }
+    .linear-board-footer {
+      border-top: 1px solid #f1f5f9;
+      margin-top: 16px;
+      padding-top: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 0.74rem;
       color: #94a3b8;
     }
-    .order-amount {
-      text-align: right;
-    }
-    .order-price {
-      font-size: 0.84rem;
-      font-weight: 600;
-      color: var(--text);
-      font-family: var(--font-mono);
-    }
-    .order-status {
-      font-size: 0.65rem;
-      color: #10b981;
-      font-weight: 500;
-    }
-    .webapp-footer-note {
-      font-size: 0.72rem;
-      color: #64748b;
+    .footer-left-info {
       display: flex;
       align-items: center;
       gap: 6px;
-      padding-top: 4px;
-    }
-    .webapp-footer-note svg {
-      color: #10b981;
-      flex-shrink: 0;
     }
 
     /* STATS STRIP */
@@ -1704,26 +1638,14 @@
         margin-bottom: 8px;
       }
       .hero-mockup-wrapper {
-        margin-top: 12px;
+        margin-top: 14px;
       }
-      .webapp-card {
-        padding: 18px 16px 14px;
-        border-radius: 16px;
+      .linear-board {
+        padding: 20px 18px 16px;
+        border-radius: 14px;
       }
-      .webapp-badge-sync {
-        top: -10px;
-        left: 14px;
-        font-size: 0.72rem;
-        padding: 3px 10px;
-      }
-      .webapp-stats-row {
-        gap: 8px;
-      }
-      .webapp-metric-box {
-        padding: 8px 10px;
-      }
-      .metric-value {
-        font-size: 1.05rem;
+      .metric-big-num {
+        font-size: 1.85rem;
       }
       .custom-banner { padding: 36px 20px; gap: 24px; }
       .ticket-left, .ticket-right { padding: 28px 20px; }
@@ -1808,61 +1730,56 @@
         <p class="hero-coupon-hint">Đơn từ 160k, nhập mã <strong>FILEDILAM</strong> để giảm 10%.</p>
       </div>
 
-      <!-- INTERACTIVE WEB APP MOCKUP -->
+      <!-- FLAT LINEAR BOARD MOCKUP -->
       <div class="hero-mockup-wrapper">
-        <div class="webapp-card">
-          <div class="webapp-badge-sync">
-            <span class="sync-dot"></span>
-            Đồng bộ Google Sheets thời gian thực
-          </div>
-          
-          <div class="webapp-header">
-            <div class="webapp-app-name">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--mint-primary);"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect><line x1="12" y1="18" x2="12.01" y2="18"></line></svg>
-              <span>POS Bán Hàng & Kho</span>
+        <div class="linear-board">
+          <div class="linear-board-header">
+            <div class="linear-status-live">
+              <span class="live-pulse"></span>
+              Đồng bộ Google Sheets tự động
             </div>
-            <span class="webapp-tag-mobile">Web App Mobile</span>
+            <span class="linear-app-tag">SHEETS-CORE v2.4</span>
           </div>
 
-          <div class="webapp-stats-row">
-            <div class="webapp-metric-box highlight">
-              <div class="metric-label">Doanh thu hôm nay</div>
-              <div class="metric-value mint">8.420.000đ</div>
-              <div class="metric-sub">+18% so với hôm qua</div>
+          <div class="linear-hero-metric">
+            <div class="metric-top-label">DOANH THU TRONG NGÀY</div>
+            <div class="metric-big-num">
+              8.420.000 <span class="currency">VNĐ</span>
             </div>
-            <div class="webapp-metric-box">
-              <div class="metric-label">Đơn hoàn tất</div>
-              <div class="metric-value">24 đơn</div>
-              <div class="metric-sub" style="color: #64748b;">Tự động trừ kho</div>
+            <div class="metric-sub-detail">
+              <span class="badge-growth">↑ 18.5%</span>
+              <span>•</span>
+              <span>24 đơn hoàn tất</span>
+              <span>•</span>
+              <span>Kho tự trừ</span>
             </div>
           </div>
 
-          <div class="webapp-action-area">
-            <div class="action-info">
-              <span class="action-title">Nhập đơn / Quét mã</span>
-              <span class="action-desc">Thao tác 1 chạm ngay trên điện thoại</span>
+          <div class="linear-feed">
+            <div class="feed-item">
+              <div class="feed-left">
+                <span class="feed-dot mint"></span>
+                <span class="feed-user">Hà Anh</span>
+                <span class="feed-action">thanh toán đơn #DH1092</span>
+              </div>
+              <div class="feed-right">+450.000đ</div>
             </div>
-            <div class="btn-quick-add">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
-              Tạo đơn
-            </div>
-          </div>
-
-          <div class="webapp-recent-order">
-            <div class="order-avatar">ĐH</div>
-            <div class="order-meta">
-              <div class="order-title">#DH-1092 • Chị Hà Anh</div>
-              <div class="order-sub">2 sản phẩm • Chuyển khoản VietQR</div>
-            </div>
-            <div class="order-amount">
-              <div class="order-price">450.000đ</div>
-              <div class="order-status">Đã ghi sổ Sheets</div>
+            <div class="feed-item">
+              <div class="feed-left">
+                <span class="feed-dot"></span>
+                <span class="feed-user">Văn Tùng</span>
+                <span class="feed-action">xuất kho 2 sản phẩm</span>
+              </div>
+              <div class="feed-right" style="color: #64748b;">Đã đồng bộ</div>
             </div>
           </div>
 
-          <div class="webapp-footer-note">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
-            Dữ liệu tự động lưu vào Google Drive cá nhân, bảo mật 100%
+          <div class="linear-board-footer">
+            <div class="footer-left-info">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+              <span>Dữ liệu lưu 100% trên Drive cá nhân</span>
+            </div>
+            <span style="color: #059669; font-weight: 500;">Sở hữu vĩnh viễn</span>
           </div>
         </div>
       </div>

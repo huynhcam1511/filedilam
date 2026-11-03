@@ -653,7 +653,8 @@
        FULL-BLEED FLAT CANVAS 2-COLUMN (ORDERS MANAGEMENT - ZERO-CARD STRICT AGENTS.MD)
        ========================================================================== */
     #ordersTab.tab-pane.active {
-      margin: -24px -32px -48px;
+      margin: 0;
+      padding: 0;
       background: #ffffff;
       height: calc(100vh - 64px);
       max-height: calc(100vh - 64px);
@@ -663,7 +664,7 @@
     }
     @media (max-width: 768px) {
       #ordersTab.tab-pane.active {
-        margin: -16px -16px -32px;
+        margin: 0;
         height: auto;
         max-height: none;
         overflow: visible;
@@ -679,14 +680,19 @@
     }
     .orders-canvas-2col {
       display: grid;
-      grid-template-columns: 1.6fr 1fr;
+      grid-template-columns: 1fr 380px;
       width: 100%;
       flex: 1;
       min-height: 0;
       background: #ffffff;
       overflow: hidden;
     }
-    @media (max-width: 1024px) {
+    @media (max-width: 1100px) {
+      .orders-canvas-2col {
+        grid-template-columns: 1fr 340px;
+      }
+    }
+    @media (max-width: 900px) {
       .orders-canvas-2col {
         grid-template-columns: 1fr;
         overflow: visible;
@@ -701,23 +707,23 @@
       background: #ffffff;
       -webkit-overflow-scrolling: touch;
     }
-    @media (max-width: 1024px) {
+    @media (max-width: 900px) {
       .orders-col-list {
         border-right: none;
         border-bottom: 1px solid var(--slate-border);
         height: auto;
       }
     }
-    /* Cột Phải: Inspector cố định 100% viewport, chỉ cuộn nội dung khi dài */
+    /* Cột Phải: Drawer / Inspector thu gọn chuẩn 380px, cố định 100% viewport */
     .orders-col-detail {
       background: #fafafa;
       height: 100%;
       overflow-y: auto;
-      padding: 24px 28px 36px;
+      padding: 20px 22px 32px;
       box-sizing: border-box;
       -webkit-overflow-scrolling: touch;
     }
-    @media (max-width: 1024px) {
+    @media (max-width: 900px) {
       .orders-col-detail {
         height: auto;
         padding: 20px 18px 32px;
@@ -1819,7 +1825,7 @@
   <script src="/__/firebase/10.7.1/firebase-storage-compat.js"></script>
   <script src="/__/firebase/init.js"></script>
   
-  <script src="./admin.js?v=120"></script>
+  <script src="./admin.js?v=121"></script>
   <!-- Agentation: Visual Feedback & Annotation for AI agents -->
   <script src="./agentation-vanilla.js"></script>
 </body>
