@@ -2945,12 +2945,88 @@ h2 { letter-spacing: -1.03px !important; }
 }
 
 .checkout-drawer-header {
-  padding: 16px 32px !important;
-  border-bottom: 1px solid #f1f5f9 !important;
-  background: #ffffff !important;
+  display: none !important;
+}
+
+/* Luxury Checkout Topbar */
+.checkout-top-nav {
   position: sticky !important;
   top: 0 !important;
   z-index: 100 !important;
+  background: rgba(255, 255, 255, 0.95) !important;
+  backdrop-filter: blur(12px) !important;
+  -webkit-backdrop-filter: blur(12px) !important;
+  border-bottom: 1px solid #f1f5f9 !important;
+  height: 56px !important;
+  display: flex !important;
+  align-items: center !important;
+  flex-shrink: 0 !important;
+}
+
+.checkout-nav-container {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  width: 100% !important;
+  max-width: 1280px !important;
+  margin: 0 auto !important;
+  padding: 0 24px !important;
+}
+
+.checkout-nav-left {
+  display: flex !important;
+  align-items: center !important;
+  gap: 28px !important;
+}
+
+.checkout-nav-brand {
+  font-family: 'Manrope', sans-serif !important;
+  font-size: 1.25rem !important;
+  font-weight: 700 !important;
+  color: #0f172a !important;
+  letter-spacing: -0.5px !important;
+  cursor: pointer !important;
+}
+
+.checkout-nav-links {
+  display: flex !important;
+  align-items: center !important;
+  gap: 24px !important;
+}
+
+.checkout-nav-links a {
+  font-size: 0.92rem !important;
+  font-weight: 500 !important;
+  color: #64748b !important;
+  transition: color 0.15s ease !important;
+  cursor: pointer !important;
+  text-decoration: none !important;
+}
+
+.checkout-nav-links a:hover {
+  color: #059669 !important;
+}
+
+.checkout-nav-actions {
+  display: flex !important;
+  align-items: center !important;
+  gap: 12px !important;
+}
+
+/* Sub-bar below Topbar for "Trở lại cửa hàng" */
+.checkout-subbar {
+  background: #ffffff !important;
+  border-bottom: 1px solid #f1f5f9 !important;
+  padding: 10px 24px !important;
+  flex-shrink: 0 !important;
+}
+
+.checkout-subbar-inner {
+  max-width: 1080px !important;
+  margin: 0 auto !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
 }
 
 .checkout-header-inner {
@@ -2968,27 +3044,30 @@ h2 { letter-spacing: -1.03px !important; }
   gap: 8px !important;
   width: auto !important;
   height: auto !important;
-  padding: 4px 0 !important;
-  border: none !important;
-  background: transparent !important;
-  color: #64748b !important;
-  font-size: 0.92rem !important;
-  font-weight: 500 !important;
+  padding: 6px 12px !important;
+  border-radius: 8px !important;
+  border: 1px solid #e2e8f0 !important;
+  background: #f8fafc !important;
+  color: #334155 !important;
+  font-size: 0.88rem !important;
+  font-weight: 600 !important;
   cursor: pointer !important;
-  transition: color 0.15s ease !important;
+  transition: all 0.15s ease !important;
 }
 
 .checkout-back-link:hover {
-  color: #0f172a !important;
+  background: #f1f5f9 !important;
+  color: #059669 !important;
+  border-color: #cbd5e1 !important;
 }
 
 .checkout-modal-body-split {
   max-width: 1080px !important;
   width: 100% !important;
   margin: 0 auto !important;
-  padding: 40px 32px 64px !important;
+  padding: 32px 24px 64px !important;
   display: grid !important;
-  grid-template-columns: 1fr 440px !important;
+  grid-template-columns: 460px 1fr !important;
   gap: 48px !important;
   align-items: start !important;
   background: #ffffff !important;
@@ -2996,10 +3075,33 @@ h2 { letter-spacing: -1.03px !important; }
   flex: 1 0 auto !important;
 }
 
-/* Left Column: Order Summary (Optimate Inspired) */
-.checkout-summary-col {
+/* Left Column: Customer Form Card */
+.checkout-form-col {
   display: flex;
   flex-direction: column;
+}
+
+/* Right Column: QR Payment on Top + Order Summary Below */
+.checkout-right-col {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.checkout-qr-card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  padding: 20px 22px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+.checkout-summary-card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  padding: 22px 24px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
 }
 
 .checkout-hero-section {
@@ -3573,16 +3675,15 @@ body:not(.is-admin) #userProfile {
   align-items: start;
 }
 
-/* LEFT COLUMN: 1x1 Media & Thumbnails - Sticky pinned at top */
+/* LEFT COLUMN: 1x1 Media & Thumbnails - Natural Scroll (cuộn tự nhiên cùng nội dung) */
 .detail-col-media {
-  position: -webkit-sticky !important;
-  position: sticky !important;
-  top: 16px !important;
+  position: static !important;
   align-self: flex-start !important;
   display: flex !important;
   flex-direction: column !important;
   gap: 16px !important;
-  z-index: 20 !important;
+  height: -moz-fit-content !important;
+  height: fit-content !important;
 }
 
 .detail-media-square {
@@ -3984,9 +4085,7 @@ body:not(.is-admin) #userProfile {
   }
 
   .detail-col-media {
-    position: -webkit-sticky !important;
-    position: sticky !important;
-    top: 0 !important;
+    position: static !important;
     background: #ffffff !important;
     padding-bottom: 12px !important;
   }
@@ -4216,7 +4315,6 @@ body:not(.is-admin) #userProfile {
 
 .btn-detail-back-left:hover {
   color: #059669 !important;
-  transform: translateX(-3px);
 }
 
 .btn-detail-back-left svg {
