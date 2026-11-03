@@ -16,7 +16,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="./storefront.css?v=250" />
+    <link rel="stylesheet" href="./storefront.css?v=260" />
     <style>
     :root {
       --bg: #ffffff;
@@ -2823,9 +2823,15 @@
               </nav>
             </div>
             <div class="detail-nav-actions">
-              <button class="detail-back-pill" id="closeDetail" type="button" aria-label="Trở lại">
+              <button class="detail-back-pill" id="closeDetail" type="button" onclick="window.closeDetailModal && window.closeDetailModal();" aria-label="Trở lại">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
                 <span>Trở lại danh sách file</span>
+              </button>
+              <button class="detail-close-x-btn" id="closeDetailTopBtn" type="button" onclick="window.closeDetailModal && window.closeDetailModal();" aria-label="Đóng" title="Đóng">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                  <line x1="18" y1="6" x2="6" y2="18"></line>
+                  <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
               </button>
               <button class="cart-button shopping-bag-btn" id="openCartFromDetail" type="button" aria-label="Giỏ hàng">
                 <svg class="cart-bag-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -3518,7 +3524,7 @@
     <script src="/__/firebase/init.js"></script>
     <script src="./storefront-data.js?v=20"></script>
     <script src="./storefront-products.generated.js?v=6"></script>
-    <script src="storefront.js?v=250"></script>
+    <script src="storefront.js?v=260"></script>
     <!-- Agentation: Visual Feedback & Annotation for AI agents -->
   <script src="./agentation-vanilla.js"></script>
 </body>

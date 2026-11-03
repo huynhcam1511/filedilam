@@ -2062,6 +2062,7 @@ function escapeHtml(value) {
     return '<div class="detail-thumb" style="background: #f0fdf4; min-height: 200px; border-radius: var(--radius-sm); display:flex; align-items:center; justify-content:center; font-size:2rem; color:var(--mint-strong); font-weight:bold;">FILE</div>';
   }
 
+  window.closeDetailModal = closeDetail;
   function closeDetail() {
     detailModal.classList.remove("is-open");
     detailModal.setAttribute("aria-hidden", "true");
