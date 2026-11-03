@@ -2046,7 +2046,7 @@
       });
     }
 
-    detailTitle.textContent = "Nhận File Của Bạn";
+    if (detailTitle) detailTitle.textContent = "Nhận File Của Bạn";
     if (detailFooter) detailFooter.innerHTML = "";
     detailModal.classList.add("is-open");
     detailModal.setAttribute("aria-hidden", "false");
