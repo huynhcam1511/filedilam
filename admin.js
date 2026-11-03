@@ -401,7 +401,11 @@ document.addEventListener('DOMContentLoaded', () => {
           document.getElementById('productTag').value = product.tag || '';
           document.getElementById('productSuitableFor').value = product.suitableFor || '';
           document.getElementById('productDescription').value = product.description || '';
-          document.getElementById('productFeatures').value = product.featuresDetail || (product.highlights || []).map(h => '- ' + h).join('\n');
+          const rawContent = product.featuresDetail || (product.highlights || []).map(h => '- ' + h).join('\n');
+          document.getElementById('productFeatures').value = rawContent;
+          if (typeof visualEditor !== 'undefined' && visualEditor) {
+            visualEditor.innerHTML = convertRawToVisualHtml(rawContent);
+          }
           document.getElementById('productSheetUrl').value = product.sheetUrl || '';
 
           // Load gallery
@@ -501,6 +505,42 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   
+  
+  // Helper to convert legacy markdown/text into visual HTML for the editor
+  function convertRawToVisualHtml(raw) {
+    if (!raw) return '';
+    if (/<[a-z][\s\S]*>/i.test(raw)) {
+      return raw; // Already HTML
+    }
+    const lines = raw.split('\n');
+    let out = '';
+    let inList = false;
+    for (let i = 0; i < lines.length; i++) {
+      let line = lines[i].trim();
+      if (!line) {
+        if (inList) { out += '</ul>'; inList = false; }
+        continue;
+      }
+      if (line.startsWith('###')) {
+        if (inList) { out += '</ul>'; inList = false; }
+        out += '<h3>' + line.replace(/^###\s*/, '') + '</h3>';
+      } else if (line.startsWith('####')) {
+        if (inList) { out += '</ul>'; inList = false; }
+        out += '<h4>' + line.replace(/^####\s*/, '') + '</h4>';
+      } else if (line.startsWith('- ') || line.startsWith('* ')) {
+        if (!inList) { out += '<ul>'; inList = true; }
+        let txt = line.replace(/^[-*]\s*/, '').replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+        out += '<li>' + txt + '</li>';
+      } else {
+        if (inList) { out += '</ul>'; inList = false; }
+        let txt = line.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+        out += '<p>' + txt + '</p>';
+      }
+    }
+    if (inList) out += '</ul>';
+    return out;
+  }
+
   // --- MULTI-IMAGE GALLERY STATE ---
   let selectedGalleryFiles = []; // Array of { file: File, previewUrl: string }
   let existingGalleryUrls = [];  // Array of string URLs from edited product
@@ -572,6 +612,73 @@ document.addEventListener('DOMContentLoaded', () => {
       galleryInput.value = ''; // Reset input so same file can be picked again
       renderGalleryPreviews();
     });
+  }
+
+  
+  // --- WYSIWYG VISUAL EDITOR CONTROLS ---
+  const visualEditor = document.getElementById('productFeaturesEditor');
+  const featuresHiddenInput = document.getElementById('productFeatures');
+  const headingSelect = document.getElementById('saasHeadingSelect');
+  const btnTemplate = document.getElementById('btnSaasInsertTemplate');
+
+  if (visualEditor) {
+    visualEditor.addEventListener('input', () => {
+      if (featuresHiddenInput) {
+        featuresHiddenInput.value = visualEditor.innerHTML.trim();
+      }
+    });
+
+    document.querySelectorAll('.saas-btn[data-cmd]').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.preventDefault();
+        const cmd = btn.dataset.cmd;
+        document.execCommand(cmd, false, null);
+        visualEditor.focus();
+        if (featuresHiddenInput) featuresHiddenInput.value = visualEditor.innerHTML.trim();
+      });
+    });
+
+    if (headingSelect) {
+      headingSelect.addEventListener('change', () => {
+        const tag = headingSelect.value;
+        if (tag === 'p') {
+          document.execCommand('formatBlock', false, '<p>');
+        } else if (tag === 'h3') {
+          document.execCommand('formatBlock', false, '<h3>');
+        } else if (tag === 'h4') {
+          document.execCommand('formatBlock', false, '<h4>');
+        }
+        visualEditor.focus();
+        if (featuresHiddenInput) featuresHiddenInput.value = visualEditor.innerHTML.trim();
+      });
+    }
+
+    if (btnTemplate) {
+      btnTemplate.addEventListener('click', (e) => {
+        e.preventDefault();
+        const templateHtml = `
+          <h3>1. KHỞI TẠO & PHÂN QUYỀN</h3>
+          <ul>
+            <li><strong>Thiết lập danh mục:</strong> Cài đặt bảng thông số hệ thống tự động</li>
+            <li><strong>Phân quyền Google Drive:</strong> Bảo mật dữ liệu riêng tư từng nhân viên</li>
+          </ul>
+          <h3>2. QUẢN LÝ DỮ LIỆU & NGHIỆP VỤ</h3>
+          <ul>
+            <li><strong>Thao tác thuận tiện:</strong> Nhập liệu trực tiếp, chống trùng sót đơn hàng</li>
+            <li><strong>Theo dõi tiến độ:</strong> Tự động tính toán công nợ và trạng thái</li>
+          </ul>
+          <h3>3. BÁO CÁO & DASHBOARD TỰ ĐỘNG</h3>
+          <ul>
+            <li><strong>Biểu đồ trực quan:</strong> Cập nhật số liệu kinh doanh theo thời gian thực</li>
+            <li><strong>Đo lường hiệu suất:</strong> Hỗ trợ ra quyết định nhanh chóng</li>
+          </ul>
+          <p></p>
+        `;
+        visualEditor.focus();
+        document.execCommand('insertHTML', false, templateHtml);
+        if (featuresHiddenInput) featuresHiddenInput.value = visualEditor.innerHTML.trim();
+      });
+    }
   }
 
   // --- UPLOAD LOGIC ---
@@ -687,6 +794,7 @@ document.addEventListener('DOMContentLoaded', () => {
       }
       
       productForm.reset();
+      if (typeof visualEditor !== 'undefined' && visualEditor) visualEditor.innerHTML = '';
       selectedGalleryFiles = [];
       existingGalleryUrls = [];
       renderGalleryPreviews();
