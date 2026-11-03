@@ -3332,6 +3332,8 @@ function escapeHtml(value) {
 
       showToast(warnMsg);
       syncLandingCouponTicket();
+      // Nếu khách bấm từ nút "Thanh toán không dùng mã", vẫn mở thẳng màn thanh toán cho khách!
+      openCheckout();
       return;
     }
 
@@ -3351,13 +3353,13 @@ function escapeHtml(value) {
     // Cập nhật lại card để hiển thị dòng giảm giá vừa được kích hoạt
     syncLandingCouponTicket();
 
-    // 4. Mở giỏ hàng thanh toán
-    openCart();
+    // 4. Mở thẳng màn hình thông tin thanh toán (Checkout Modal)
+    openCheckout();
 
-    // 5. Kích hoạt áp mã trong drawer
+    // 5. Kích hoạt áp mã
     setTimeout(function() {
       applyCheckoutCoupon();
-    }, 200);
+    }, 150);
 
     showToast('Đã áp dụng mã ' + code + '!');
   };
