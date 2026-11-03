@@ -620,52 +620,134 @@
     }
 
     
-    /* Rich Text Editor for Modules & Features */
-    .rich-toolbar {
+    /* Visual WYSIWYG Editor */
+    .wysiwyg-container {
+      border: 1px solid var(--slate-border);
+      border-radius: 8px;
+      background: #ffffff;
+      overflow: hidden;
+      transition: border-color 0.15s, box-shadow 0.15s;
+    }
+    .wysiwyg-container:focus-within {
+      border-color: var(--mint-primary);
+      box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.1);
+    }
+    .wysiwyg-toolbar {
       display: flex;
       align-items: center;
-      gap: 6px;
-      padding: 7px 10px;
+      gap: 4px;
+      padding: 8px 12px;
       background: #f8fafc;
-      border: 1px solid var(--slate-border);
-      border-bottom: none;
-      border-radius: 6px 6px 0 0;
+      border-bottom: 1px solid var(--slate-border);
       flex-wrap: wrap;
     }
-    .rich-btn {
-      background: #ffffff;
+    .wysiwyg-select {
+      height: 32px;
+      padding: 0 10px;
       border: 1px solid var(--slate-border);
-      border-radius: 5px;
-      padding: 5px 10px;
-      font-size: 0.78rem;
+      border-radius: 6px;
+      background: #ffffff;
+      font-size: 0.82rem;
       font-weight: 600;
       color: #334155;
       cursor: pointer;
+      outline: none;
+    }
+    .wysiwyg-select:focus {
+      border-color: var(--mint-primary);
+    }
+    .wysiwyg-divider {
+      width: 1px;
+      height: 20px;
+      background: #cbd5e1;
+      margin: 0 4px;
+    }
+    .wysiwyg-btn {
+      min-width: 32px;
+      height: 32px;
+      padding: 0 8px;
+      border: 1px solid transparent;
+      border-radius: 6px;
+      background: transparent;
+      color: #475569;
+      font-size: 0.84rem;
+      font-weight: 600;
+      cursor: pointer;
       display: inline-flex;
       align-items: center;
+      justify-content: center;
       gap: 4px;
-      transition: all 0.15s ease;
+      transition: all 0.12s ease;
       line-height: 1;
     }
-    .rich-btn:hover {
-      background: #f1f5f9;
+    .wysiwyg-btn:hover {
+      background: #e2e8f0;
       color: #0f172a;
-      border-color: #cbd5e1;
     }
-    .rich-btn.accent {
-      color: #059669;
-      border-color: #a7f3d0;
+    .wysiwyg-btn.active {
+      background: #e2e8f0;
+      color: var(--mint-primary);
+    }
+    .wysiwyg-btn.btn-template {
       background: #ecfdf5;
+      color: #059669;
+      border: 1px solid #a7f3d0;
+      font-size: 0.8rem;
+      padding: 0 10px;
+      margin-left: auto;
     }
-    .rich-btn.accent:hover {
+    .wysiwyg-btn.btn-template:hover {
       background: #d1fae5;
     }
-    .canvas-textarea.editor-body {
-      border-radius: 0 0 6px 6px;
-      min-height: 280px;
+    .wysiwyg-editor {
+      min-height: 320px;
+      max-height: 600px;
+      padding: 18px 20px;
+      overflow-y: auto;
+      outline: none;
+      font-size: 0.94rem;
+      line-height: 1.7;
+      color: #1e293b;
       font-family: inherit;
+    }
+    .wysiwyg-editor:empty:before {
+      content: attr(data-placeholder);
+      color: #94a3b8;
+      pointer-events: none;
+      display: block;
+    }
+    .wysiwyg-editor h3 {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: #0f172a;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+      margin: 22px 0 10px 0;
+      padding-bottom: 6px;
+      border-bottom: 1.5px solid #e2e8f0;
+    }
+    .wysiwyg-editor h4 {
+      font-size: 0.96rem;
+      font-weight: 700;
+      color: #1e293b;
+      margin: 14px 0 6px 0;
+    }
+    .wysiwyg-editor p {
+      margin: 8px 0;
+      color: #334155;
+    }
+    .wysiwyg-editor ul, .wysiwyg-editor ol {
+      margin: 8px 0 14px 24px;
+      padding: 0;
+      color: #334155;
+    }
+    .wysiwyg-editor li {
+      margin-bottom: 6px;
       line-height: 1.6;
-      resize: vertical;
+    }
+    .wysiwyg-editor strong {
+      color: #0f172a;
+      font-weight: 700;
     }
 
     /* Forms */
@@ -1716,69 +1798,45 @@
 
                 <div class="canvas-row-2">
                   <div class="canvas-field-group">
-                    <label for="productCategory" class="canvas-label">Danh mục sản phẩm <span class="req">*</span></label>
-                    <select id="productCategory" class="canvas-select" required>
-                      <option value="kinh-doanh">Kinh doanh</option>
-                      <option value="nhan-su">Nhân sự</option>
-                      <option value="cong-viec">Công việc</option>
-                      <option value="marketing">Marketing</option>
-                      <option value="ke-toan">Kế toán</option>
-                      <option value="phat-trien-ban-than">Phát triển bản thân</option>
-                    </select>
+                  <label class="canvas-label">Chi tiết tính năng & Phân hệ Modules (Hỗ trợ viết bài dài không giới hạn với tiêu đề module)</label>
+                  <div class="wysiwyg-container">
+                    <div class="wysiwyg-toolbar">
+                      <select id="wysiwygHeadingSelect" class="wysiwyg-select" title="Cỡ chữ tiêu đề">
+                        <option value="p">Văn bản thường</option>
+                        <option value="h3">Tiêu đề Module (H3)</option>
+                        <option value="h4">Tiêu đề phụ (H4)</option>
+                      </select>
+
+                      <div class="wysiwyg-divider"></div>
+
+                      <button type="button" class="wysiwyg-btn" data-cmd="bold" title="In đậm (Ctrl+B)"><b>B</b></button>
+                      <button type="button" class="wysiwyg-btn" data-cmd="italic" title="In nghiêng (Ctrl+I)"><i>I</i></button>
+                      <button type="button" class="wysiwyg-btn" data-cmd="underline" title="Gạch chân (Ctrl+U)"><u>U</u></button>
+
+                      <div class="wysiwyg-divider"></div>
+
+                      <button type="button" class="wysiwyg-btn" data-cmd="insertUnorderedList" title="Danh sách gạch / chấm đầu dòng">
+                        <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M2.5 12a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm0-4a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm0-4a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm3.5.5a.5.5 0 0 1 .5-.5h8a.5.5 0 0 1 0 1h-8a.5.5 0 0 1-.5-.5zm0 4a.5.5 0 0 1 .5-.5h8a.5.5 0 0 1 0 1h-8a.5.5 0 0 1-.5-.5zm0 4a.5.5 0 0 1 .5-.5h8a.5.5 0 0 1 0 1h-8a.5.5 0 0 1-.5-.5z"/></svg>
+                      </button>
+                      <button type="button" class="wysiwyg-btn" data-cmd="insertOrderedList" title="Đánh số thứ tự (1, 2, 3)">
+                        <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M2.002 2.5a.5.5 0 0 0-.5.5v1a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5V3a.5.5 0 0 0-.5-.5h-1zm3.5.5a.5.5 0 0 1 .5-.5h8a.5.5 0 0 1 0 1h-8a.5.5 0 0 1-.5-.5zm-3.5 4a.5.5 0 0 0-.5.5v1a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5h-1zm3.5.5a.5.5 0 0 1 .5-.5h8a.5.5 0 0 1 0 1h-8a.5.5 0 0 1-.5-.5zm-3.5 4a.5.5 0 0 0-.5.5v1a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5h-1zm3.5.5a.5.5 0 0 1 .5-.5h8a.5.5 0 0 1 0 1h-8a.5.5 0 0 1-.5-.5z"/></svg>
+                      </button>
+
+                      <div class="wysiwyg-divider"></div>
+
+                      <button type="button" class="wysiwyg-btn" data-cmd="removeFormat" title="Xóa định dạng">Tx</button>
+
+                      <button type="button" class="wysiwyg-btn btn-template" id="btnInsertTemplate" title="Chèn cấu trúc 3 phân hệ mẫu trực quan">
+                        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"></path></svg>
+                        Mẫu Module chuẩn
+                      </button>
+                    </div>
+
+                    <div id="productFeaturesEditor" class="wysiwyg-editor" contenteditable="true" data-placeholder="Nhập nội dung chi tiết tính năng, quy trình phân hệ tại đây như Word / Notepad trực quan..."></div>
+                    <!-- Hidden input to hold raw value for form submission -->
+                    <input type="hidden" id="productFeatures" name="featuresDetail">
                   </div>
-
-                  <div class="canvas-field-group">
-                    <label for="productFormat" class="canvas-label">Loại định dạng file <span class="req">*</span></label>
-                    <select id="productFormat" class="canvas-select" required>
-                      <option value="google_sheets">Google Sheets • Bảng tính tự động tạo bản sao</option>
-                      <option value="apps_script">Web App (Google Apps Script) • Ứng dụng Web trên Sheets</option>
-                      <option value="excel">File Excel (.xlsx) • Tải trực tiếp</option>
-                      <option value="combo">Combo Tiết Kiệm (Folder Drive / Zip)</option>
-                    </select>
-                  </div>
-                </div>
-
-                <div class="canvas-row-2">
-                  <div class="canvas-field-group">
-                    <label for="productTag" class="canvas-label">Huy hiệu nổi bật (Badge)</label>
-                    <input type="text" id="productTag" class="canvas-input" placeholder="VD: Bán chạy, Khuyên dùng, -30%">
-                  </div>
-
-                  <div class="canvas-field-group">
-                    <label for="productSuitableFor" class="canvas-label">Đối tượng phù hợp</label>
-                    <input type="text" id="productSuitableFor" class="canvas-input" placeholder="VD: Shop online TikTok, Shopee, quán Cafe...">
-                  </div>
-                </div>
-              </div>
-
-              <!-- Section 2: Nội dung sản phẩm (Tên H1, Mô tả H2 và Chi tiết tính năng đi liền một mạch) -->
-              <div class="canvas-section">
-                
-
-                <div class="canvas-field-group">
-                  <label for="productName" class="canvas-label">Tên sản phẩm (Heading 1) <span class="req">*</span></label>
-                  <input type="text" id="productName" class="canvas-input" required placeholder="VD: Bảng tính Quản lý Kho Thông Minh Mini">
-                  <small class="canvas-help-text">Tiêu đề chính lớn nhất (H1) hiển thị trên cùng ở trang chi tiết sản phẩm.</small>
-                </div>
-
-                <div class="canvas-field-group">
-                  <label for="productDescription" class="canvas-label">Mô tả ngắn (Heading 2) <span class="req">*</span></label>
-                  <textarea id="productDescription" class="canvas-textarea" rows="2" style="min-height:64px;" required placeholder="VD: Phần Mềm Quản Lý Khách Hàng Bất Động Sản (Phân Quyền – Mua dùng cho cả team – mua 1 lần dùng mãi mãi)"></textarea>
-                  <small class="canvas-help-text">Đóng vai trò là Sub-heading 2 súc tích định vị giải pháp ngay dưới tiêu đề sản phẩm.</small>
-                </div>
-
-                <div class="canvas-field-group">
-                  <label for="productFeatures" class="canvas-label">Chi tiết tính năng & Phân hệ Modules (Nội dung chi tiết)</label>
-                  <div class="rich-toolbar">
-                    <button type="button" class="rich-btn" onclick="insertRichText('bold')" title="Chữ in đậm"><b>B</b> In đậm</button>
-                    <button type="button" class="rich-btn" onclick="insertRichText('italic')" title="Chữ in nghiêng"><i>I</i> Nghiêng</button>
-                    <button type="button" class="rich-btn" onclick="insertRichText('h3')" title="Tiêu đề phân hệ / Module"><b>H3</b> Tiêu đề Module</button>
-                    <button type="button" class="rich-btn" onclick="insertRichText('bullet')" title="Gạch đầu dòng tính năng">• Danh sách</button>
-                    <button type="button" class="rich-btn" onclick="insertRichText('number')" title="Đánh số thứ tự">1. Đánh số</button>
-                    <button type="button" class="rich-btn accent" onclick="insertRichText('module_template')" title="Chèn cấu trúc mẫu 3 phân hệ">+ Mẫu Module chuẩn</button>
-                  </div>
-                  <textarea id="productFeatures" class="canvas-textarea editor-body" placeholder="Nhập bài viết chi tiết tính năng, các phân hệ modules, quy trình hoạt động...&#10;&#10;Mẹo: Dùng nút 'Tiêu đề Module' hoặc 'Mẫu Module chuẩn' để tạo đề mục phân hệ rõ ràng."></textarea>
-                  <small class="canvas-help-text">Hỗ trợ viết bài dài không giới hạn với tiêu đề module (### 1. Tên module), gạch đầu dòng (- ), in đậm (**chữ**)...</small>
+                  <small class="canvas-help-text">Soạn thảo trực quan tự nhiên như Word. Hỗ trợ tiêu đề phân hệ, in đậm, in nghiêng, gạch đầu dòng và số thứ tự.</small>
                 </div>
               </div>
             </div>
@@ -2203,37 +2261,11 @@
   <script src="/__/firebase/10.7.1/firebase-storage-compat.js"></script>
   <script src="/__/firebase/init.js"></script>
   
-  <script src="./admin.js?v=181"></script>
+  <script src="./admin.js?v=182"></script>
   <!-- Agentation: Visual Feedback & Annotation for AI agents -->
   <script src="./agentation-vanilla.js"></script>
 
-  <script>
-    window.insertRichText = function(type) {
-      const textarea = document.getElementById('productFeatures');
-      if (!textarea) return;
-      const start = textarea.selectionStart;
-      const end = textarea.selectionEnd;
-      const sel = textarea.value.substring(start, end);
-      let replacement = '';
-      
-      if (type === 'bold') {
-        replacement = sel ? '**' + sel + '**' : '**nội dung nổi bật**';
-      } else if (type === 'italic') {
-        replacement = sel ? '*' + sel + '*' : '*nội dung ghi chú*';
-      } else if (type === 'h3') {
-        replacement = '\n\n### ' + (sel || '1. KHỞI TẠO & PHÂN QUYỀN') + '\n';
-      } else if (type === 'bullet') {
-        replacement = sel ? sel.split('\n').map(l => l.startsWith('- ') ? l : '- ' + l).join('\n') : '\n- Tính năng tự động...';
-      } else if (type === 'number') {
-        replacement = sel ? sel.split('\n').map((l, i) => (i+1) + '. ' + l).join('\n') : '\n1. Bước khởi tạo...';
-      } else if (type === 'module_template') {
-        replacement = '\n\n### 1. KHỞI TẠO & PHÂN QUYỀN\n- Thiết lập danh mục và bảng thông số hệ thống\n- Phân quyền tài khoản rõ ràng, an toàn dữ liệu\n\n### 2. QUẢN LÝ DỮ LIỆU & NGHIỆP VỤ\n- Thao tác nhanh trên giao diện popup hiện đại\n- Tự động kiểm tra số liệu, chống nhập trùng sót\n\n### 3. BÁO CÁO & DASHBOARD TỰ ĐỘNG\n- Biểu đồ phân tích trực quan cập nhật theo thời gian thực\n- Đo lường chính xác hiệu suất và doanh thu\n';
-      }
-      
-      textarea.setRangeText(replacement, start, end, 'select');
-      textarea.focus();
-    };
-  </script>
+  
 
 </body>
 </html>
