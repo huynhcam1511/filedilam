@@ -1887,7 +1887,7 @@
         quickPhoneLabel.innerHTML = 'Số điện thoại hoặc Email <span class="req">*</span>';
       }
       if (quickPhone) quickPhone.placeholder = "SĐT hoặc Email bạn đã mua file";
-      if (quickPassGroup) quickPassGroup.style.display = "block";
+      if (quickPassGroup) quickPassGroup.style.display = "none";
       if (quickPassword) quickPassword.placeholder = "Nhập mật khẩu";
       if (quickEmailGroup) quickEmailGroup.style.display = "none";
       if (btnQuickSubmitText) btnQuickSubmitText.textContent = "Đăng nhập & Nhận mã QR";
@@ -1897,10 +1897,10 @@
         quickPhoneLabel.innerHTML = 'Số điện thoại / Zalo <span class="req">*</span>';
       }
       if (quickPhone) quickPhone.placeholder = "Ví dụ: 0912345678";
-      if (quickPassGroup) quickPassGroup.style.display = "block";
+      if (quickPassGroup) quickPassGroup.style.display = "none";
       if (quickPassword) quickPassword.placeholder = "Tối thiểu 6 ký tự để tải lại file sau";
       if (quickEmailGroup) quickEmailGroup.style.display = "block";
-      if (btnQuickSubmitText) btnQuickSubmitText.textContent = "Tiếp tục nhận mã QR";
+      if (btnQuickSubmitText) btnQuickSubmitText.textContent = "Đặt hàng";
     }
   }
 
@@ -2289,6 +2289,12 @@
   }
 
   function handleQuickBuySubmit(e) {
+    var fullName = quickName ? quickName.value.trim() : "";
+    if (!fullName) {
+      showToast("Vui lòng nhập họ và tên của bạn.");
+      if (quickName) quickName.focus();
+      return;
+    }
     e.preventDefault();
     if (typeof firebase === 'undefined' || !firebase.auth) {
       showToast("Hệ thống đang tải dữ liệu. Vui lòng thử lại sau giây lát.");
@@ -2744,7 +2750,7 @@
         if (btnGoogleCheckout) btnGoogleCheckout.style.display = "none";
         if (quickPassGroup) quickPassGroup.style.display = "none";
         if (quickEmailGroup) quickEmailGroup.style.display = "none";
-        if (btnQuickSubmitText) btnQuickSubmitText.textContent = "Tiếp tục nhận mã QR";
+        if (btnQuickSubmitText) btnQuickSubmitText.textContent = "Đặt hàng";
         if (checkoutAuthStep) checkoutAuthStep.style.display = "block";
         if (checkoutPaymentStep) checkoutPaymentStep.style.display = "none";
         if (quickPhone) setTimeout(function() { quickPhone.focus(); }, 100);
@@ -3594,12 +3600,9 @@
     var statsSectionEl = document.querySelector(".stats-section");
 
     var hasAnimated = false;
-    function runSynchronizedStatsAnimation() {
+    function runHackerShuffleAnimation() {
       if (hasAnimated) return;
       hasAnimated = true;
-
-      var duration = 1500; // 1.5 giây tăng dần từng số cực mượt
-      var startTime = null;
 
       function getTargetFiles() {
         if (data.products && data.products.length > 0) return data.products.length;
@@ -3611,26 +3614,27 @@
       }
       var targetFiles = getTargetFiles();
 
+      var startTime = null;
+      var duration = 900; // 0.9 giây xáo số ngẫu nhiên công nghệ cực đã mắt
+      var lastShuffle = 0;
+      var shuffleInterval = 45; // nhảy số ngẫu nhiên mỗi 45ms
+
       function step(timestamp) {
         if (!startTime) startTime = timestamp;
         var elapsed = timestamp - startTime;
-        var progress = Math.min(elapsed / duration, 1);
 
-        // Smooth cubic ease-out curve
-        var ease = 1 - Math.pow(1 - progress, 3);
+        if (elapsed - lastShuffle >= shuffleInterval && elapsed < duration) {
+          lastShuffle = elapsed;
+          // Random số công nghệ
+          if (statYearsEl) statYearsEl.textContent = String(Math.floor(Math.random() * 9) + 1);
+          if (statMonthsEl) statMonthsEl.textContent = String(Math.floor(Math.random() * 11) + 1);
+          if (statTotalFilesEl) statTotalFilesEl.textContent = String(Math.floor(Math.random() * 80) + 10);
+        }
 
-        // Tính toán số tăng dần
-        var currentYears = Math.min(Math.floor(targetYears * ease), targetYears);
-        var currentMonths = Math.min(Math.floor(targetMonths * ease), targetMonths);
-        var currentFiles = Math.min(Math.floor(targetFiles * ease), targetFiles);
-
-        if (statYearsEl) statYearsEl.textContent = String(currentYears);
-        if (statMonthsEl) statMonthsEl.textContent = String(currentMonths);
-        if (statTotalFilesEl) statTotalFilesEl.textContent = String(currentFiles);
-
-        if (progress < 1) {
+        if (elapsed < duration) {
           requestAnimationFrame(step);
         } else {
+          // Dừng ngay lập tức tại số chuẩn xác
           window.__statsAnimationFinished = true;
           if (statYearsEl) statYearsEl.textContent = String(targetYears);
           if (statMonthsEl) statMonthsEl.textContent = String(targetMonths);
@@ -3645,14 +3649,14 @@
         var obs = new IntersectionObserver(function(entries, observer) {
           entries.forEach(function(entry) {
             if (entry.isIntersecting) {
-              runSynchronizedStatsAnimation();
+              runHackerShuffleAnimation();
               observer.unobserve(entry.target);
             }
           });
         }, { threshold: 0.1 });
         obs.observe(statsSectionEl);
       } else {
-        runSynchronizedStatsAnimation();
+        runHackerShuffleAnimation();
       }
     }
   }
