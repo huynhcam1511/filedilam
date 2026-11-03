@@ -2486,63 +2486,79 @@ h2 { letter-spacing: -1.03px !important; }
 }
 
 .product-card {
-  border-radius: 12px !important;
-  border: 1px solid #eef2f6 !important;
-  box-shadow: none !important;
-  transition: transform 0.15s ease, border-color 0.15s ease !important;
+  border-radius: 16px !important;
+  border: 1px solid #e2e8f0 !important;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.03) !important;
+  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s ease, border-color 0.2s ease !important;
   background: #ffffff !important;
   overflow: hidden;
-  padding: 0 !important;
+  padding: 10px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 8px !important;
 }
 
 .product-card:hover {
-  transform: translateY(-2px) !important;
-  box-shadow: 0 6px 16px -2px rgba(0,0,0,0.06) !important;
+  transform: translateY(-3px) !important;
+  box-shadow: 0 10px 25px -4px rgba(0, 0, 0, 0.08) !important;
   border-color: #cbd5e1 !important;
-}
-
-.product-info {
-  padding: 10px 12px 12px !important;
-  display: flex !important;
-  flex-direction: column !important;
-  gap: 6px !important;
 }
 
 .product-thumb {
   aspect-ratio: 1 / 1 !important;
   height: auto !important;
-  border-bottom: 1px solid #f8fafc !important;
+  border-radius: 10px !important;
+  border-bottom: none !important;
+  overflow: hidden;
+  position: relative;
 }
 
-.product-thumb-discount-tag,
 .product-type-badge {
-  display: none !important;
+  display: inline-block !important;
+}
+
+.product-thumb-discount-tag {
+  display: inline-block !important;
+}
+
+.product-info {
+  padding: 2px 2px 0 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 5px !important;
+  flex: 1 1 auto;
+  justify-content: space-between;
 }
 
 .product-name {
-  font-size: 0.88rem !important;
-  font-weight: 500 !important;
+  font-size: 0.9rem !important;
+  font-weight: 600 !important;
   color: #181925 !important;
   line-height: 1.38 !important;
-  min-height: 2.7em;
+  min-height: 2.5em;
   margin: 0 !important;
+  display: -webkit-box !important;
+  -webkit-line-clamp: 2 !important;
+  -webkit-box-orient: vertical !important;
+  overflow: hidden !important;
 }
 
 .product-badge-inline {
-  display: none !important;
+  display: inline-block !important;
 }
 
 .product-price-row {
   display: flex !important;
   align-items: baseline !important;
-  gap: 6px !important;
-  margin-top: 2px !important;
+  flex-wrap: wrap !important;
+  gap: 4px 6px !important;
+  margin-top: 1px !important;
 }
 
 .product-current-val {
-  font-size: 0.95rem !important;
-  font-weight: 600 !important;
-  color: #181925 !important;
+  font-size: 1.05rem !important;
+  font-weight: 700 !important;
+  color: var(--mint-strong, #059669) !important;
   font-family: inherit !important;
 }
 
@@ -2553,9 +2569,16 @@ h2 { letter-spacing: -1.03px !important; }
   font-weight: 400 !important;
 }
 
-.product-discount-pill,
+.product-discount-pill {
+  display: inline-block !important;
+}
+
 .product-digital-perks {
-  display: none !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 4px !important;
+  flex-wrap: wrap !important;
+  margin-top: 2px !important;
 }
 
 .product-card-footer {
@@ -2564,14 +2587,13 @@ h2 { letter-spacing: -1.03px !important; }
   justify-content: space-between !important;
   margin-top: 6px !important;
   padding-top: 8px !important;
-  border-top: none !important;
+  border-top: 1px dashed #e2e8f0 !important;
 }
 
 .product-social-proof {
-  font-size: 0.72rem !important;
+  font-size: 0.74rem !important;
   color: #64748b !important;
 }
-
 .btn-card-cart-circle {
   background: #181925 !important;
   color: #ffffff !important;
