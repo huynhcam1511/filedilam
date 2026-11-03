@@ -139,7 +139,7 @@ body.is-logged-in #registerButton,
 body.is-logged-in #loginButton {
   display: none !important;
 }
-body.is-logged-in #userProfile {
+body.is-logged-in.is-admin #userProfile {
   display: flex !important;
 }
 

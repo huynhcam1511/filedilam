@@ -657,7 +657,11 @@
           document.body.classList.remove("is-logged-out");
           if (registerButton) registerButton.style.display = "none";
           if (loginButton) loginButton.style.display = "none";
-          if (userProfile) userProfile.style.display = "flex";
+          // Chỉ hiển thị menu tài khoản trên Topbar nếu là tài khoản ADMIN
+          var isAdminUser = (user.email === 'huynhkiencam151102@gmail.com');
+          if (userProfile) {
+            userProfile.style.display = isAdminUser ? "flex" : "none";
+          }
           if (purchasesDrawer && purchasesDrawer.classList.contains("is-open")) {
             loadMyPurchases();
           }
@@ -665,8 +669,10 @@
           var adminBtn = document.getElementById("adminDashboardBtn");
           if (adminBtn) {
             if (user.email === 'huynhkiencam151102@gmail.com') {
+              document.body.classList.add("is-admin");
               adminBtn.style.display = "flex";
             } else {
+              document.body.classList.remove("is-admin");
               adminBtn.style.display = "none";
             }
           }
