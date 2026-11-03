@@ -16,7 +16,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="./storefront.css?v=102" />
+    <link rel="stylesheet" href="./storefront.css?v=103" />
     <style>
     :root {
       --bg: #ffffff;
@@ -370,35 +370,42 @@
       gap: 6px;
     }
 
-    /* STATS STRIP */
+    /* STATS STRIP (CLASSY FINTECH TYPOGRAPHY) */
     .stats-section {
-      padding: 40px 0 50px;
+      padding: 40px 0 48px;
       border-bottom: 1px solid var(--line-subtle);
+      background: #ffffff;
     }
     .stats-grid {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
-      gap: 32px;
+      gap: 40px;
     }
     .stat-card {
       background: transparent;
       border: none;
-      border-radius: 0;
       padding: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
     }
     .stat-number {
-      font-size: 26.4px;
-      font-weight: 600;
-      letter-spacing: -1.003px;
-      color: var(--text);
-      margin-bottom: 6px;
-      line-height: 1.2;
+      font-size: 2.15rem;
+      font-weight: 700;
+      letter-spacing: -0.04em;
+      color: #0f172a;
+      line-height: 1.15;
+      font-feature-settings: "tnum" 1, "cv05" 1;
+    }
+    .stat-number.mint {
+      color: var(--mint-strong, #059669);
     }
     .stat-label {
-      font-size: 13.5px;
-      color: var(--muted);
-      line-height: 1.4;
-      font-weight: 400;
+      font-size: 0.92rem;
+      color: #64748b;
+      line-height: 1.55;
+      font-weight: 450;
+      max-width: 300px;
     }
 
     /* CATALOG & HORIZONTAL CATEGORY BAR */
@@ -1586,7 +1593,19 @@
       .hero { padding: 40px 0 32px; }
       .hero-grid, .custom-banner, .coupon-ticket, .faq-grid { grid-template-columns: 1fr; }
       .hero-grid { gap: 32px; }
-      .stats-grid, .usp-grid, .social-strip, .product-grid, .steps-grid { grid-template-columns: 1fr; }
+      .stats-section { padding: 32px 0 36px; }
+      .stats-grid { gap: 24px; }
+      .stat-card {
+        padding: 0 4px;
+      }
+      .stat-number {
+        font-size: 1.85rem;
+      }
+      .stat-label {
+        font-size: 0.88rem;
+        max-width: 100%;
+      }
+      .usp-grid, .social-strip, .product-grid, .steps-grid { grid-template-columns: 1fr; }
       .footer-columns { grid-template-columns: 1fr 1fr; }
       .nav-links { display: none; }
       .hero-title { font-size: 2.2rem; }
@@ -1790,16 +1809,16 @@
   <section class="stats-section">
     <div class="container stats-grid">
       <div class="stat-card">
-        <div class="stat-number" id="statTotalFiles">30+</div>
-        <div class="stat-label">File Google Sheets sẵn dùng cho doanh nghiệp</div>
+        <div class="stat-number mint">0đ</div>
+        <div class="stat-label">Phí duy trì hằng tháng cho mọi file</div>
       </div>
       <div class="stat-card">
         <div class="stat-number">Từ 2023</div>
         <div class="stat-label">Bên mình bán file và hỗ trợ khách qua Zalo</div>
       </div>
       <div class="stat-card">
-        <div class="stat-number" style="color: var(--mint-primary);">0đ</div>
-        <div class="stat-label">Phí duy trì hằng tháng cho mọi file</div>
+        <div class="stat-number" id="statTotalFiles">30+</div>
+        <div class="stat-label">File Google Sheets sẵn dùng cho doanh nghiệp</div>
       </div>
     </div>
   </section>
@@ -3007,7 +3026,7 @@
     <script src="/__/firebase/init.js"></script>
     <script src="./storefront-data.js?v=16"></script>
     <script src="./storefront-products.generated.js?v=6"></script>
-    <script src="storefront.js?v=88"></script>
+    <script src="storefront.js?v=89"></script>
     <!-- Agentation: Visual Feedback & Annotation for AI agents -->
   <script src="./agentation-vanilla.js"></script>
 </body>
