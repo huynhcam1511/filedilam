@@ -1843,34 +1843,7 @@ function escapeHtml(value) {
                      '</div>';
     }
 
-    var reviewsList = product.reviews;
-    if (!reviewsList || !Array.isArray(reviewsList) || reviewsList.length === 0) {
-      reviewsList = [
-        { author: "Nguyễn Thị Mai", role: "Khách đã mua file", stars: 5, comment: "File dùng cực kỳ tiện lợi, giao diện gọn gàng trực quan. Tự động hóa rất tốt, hỗ trợ nhiệt tình!", date: "2 ngày trước" },
-        { author: "Trần Quốc Tuấn", role: "Chủ cửa hàng", stars: 5, comment: "Dashboard chi tiết rất đẹp, mở ra là dùng được ngay không cần chỉnh sửa công thức phức tạp.", date: "1 tuần trước" }
-      ];
-    }
-    var reviewsHtml = '<div class="detail-section" id="detailReviewsContainer" style="background:#f8fafc; padding:14px 16px; border-radius:12px; border:1px solid #e2e8f0; margin-top:10px;">' +
-      '<div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:10px; padding-bottom:8px; border-bottom:1px solid #e2e8f0;">' +
-        '<strong style="font-size:0.95rem; color:#0f172a;">Nhận xét từ khách hàng:</strong>' +
-        '<span style="font-size:0.8rem; color:#d97706; font-weight:700; background:#fef3c7; padding:2px 8px; border-radius:6px;">⭐ 5.0 (' + reviewsList.length + ' đánh giá)</span>' +
-      '</div>' +
-      '<div style="display:flex; flex-direction:column; gap:10px;">' +
-        reviewsList.map(function(r) {
-          var firstChar = escapeHtml((r.author || 'K').charAt(0).toUpperCase());
-          return '<div style="background:#ffffff; padding:10px 12px; border-radius:8px; border:1px solid #f1f5f9;">' +
-            '<div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:4px;">' +
-              '<div style="display:flex; align-items:center; gap:6px;">' +
-                '<span style="width:24px; height:24px; border-radius:50%; background:#dcfce7; color:#15803d; font-weight:bold; font-size:0.75rem; display:flex; align-items:center; justify-content:center;">' + firstChar + '</span>' +
-                '<strong style="font-size:0.86rem; color:#1e293b;">' + escapeHtml(r.author || 'Khách hàng') + '</strong>' +
-              '</div>' +
-              '<span style="font-size:0.75rem; color:#f59e0b;">⭐⭐⭐⭐⭐</span>' +
-            '</div>' +
-            '<div style="font-size:0.85rem; color:#475569; line-height:1.45;">"' + escapeHtml(r.comment || '') + '"</div>' +
-          '</div>';
-        }).join('') +
-      '</div>' +
-    '</div>';
+    var reviewsHtml = "";
 
     var formattedDesc = escapeHtml(product.description || '')
       .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
