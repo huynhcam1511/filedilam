@@ -2308,8 +2308,13 @@
     }
 
     var emailInput = quickEmail ? quickEmail.value.trim().toLowerCase() : "";
+    if (!emailInput || !emailInput.includes("@") || !emailInput.includes(".")) {
+      showToast("Vui lòng nhập đúng địa chỉ Gmail (ví dụ: yourname@gmail.com).");
+      if (quickEmail) quickEmail.focus();
+      return;
+    }
     if (!isValidEmail(emailInput)) {
-      showToast("Vui lòng nhập đúng địa chỉ Gmail để nhận link bản sao Google Sheets.");
+      showToast("Địa chỉ email chưa chính xác. Vui lòng kiểm tra lại phần trước và sau @.");
       if (quickEmail) quickEmail.focus();
       return;
     }
@@ -3546,8 +3551,17 @@
     if (!checkoutCouponMsg) return;
     checkoutCouponMsg.textContent = text;
     checkoutCouponMsg.style.display = "block";
-    checkoutCouponMsg.style.color = isError ? "#ef4444" : "#059669";
-    checkoutCouponMsg.style.fontWeight = isError ? "500" : "600";
+    if (isError) {
+      checkoutCouponMsg.style.background = "#f8fafc";
+      checkoutCouponMsg.style.color = "#475569";
+      checkoutCouponMsg.style.border = "1px solid #e2e8f0";
+      checkoutCouponMsg.style.fontWeight = "500";
+    } else {
+      checkoutCouponMsg.style.background = "#ecfdf5";
+      checkoutCouponMsg.style.color = "#059669";
+      checkoutCouponMsg.style.border = "1px solid #a7f3d0";
+      checkoutCouponMsg.style.fontWeight = "600";
+    }
   }
 
   function clearCouponMessage() {
