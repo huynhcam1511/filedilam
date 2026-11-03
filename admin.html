@@ -847,13 +847,13 @@
        FULL-BLEED FLAT CANVAS 2-COLUMN FORM (PRODUCT ADD & EDIT)
        ========================================================================== */
     #addTab.tab-pane.active {
-      margin: -24px -32px -48px;
+      margin: 0;
       background: #ffffff;
       min-height: calc(100vh - 64px);
     }
     @media (max-width: 768px) {
       #addTab.tab-pane.active {
-        margin: -16px -16px -32px;
+        margin: 0;
       }
     }
     .product-flat-canvas {
@@ -868,39 +868,39 @@
       align-items: center;
       justify-content: space-between;
       gap: 16px;
-      padding: 16px 28px;
+      padding: 20px 32px;
       border-bottom: 1px solid var(--slate-border);
       background: #ffffff;
     }
     @media (max-width: 768px) {
       .canvas-header-bar {
-        padding: 14px 16px;
+        padding: 16px 20px;
         flex-direction: column;
         align-items: flex-start;
       }
     }
     .canvas-title {
       margin: 0;
-      font-size: 1.2rem;
+      font-size: 1.25rem;
       font-weight: 700;
       color: #0f172a;
       letter-spacing: -0.01em;
     }
     .canvas-sub {
-      margin: 3px 0 0 0;
-      font-size: 0.82rem;
+      margin: 4px 0 0 0;
+      font-size: 0.84rem;
       color: var(--slate-muted);
     }
     .canvas-actions {
       display: flex;
       align-items: center;
-      gap: 10px;
+      gap: 12px;
     }
     .btn-cancel-flat {
       background: #ffffff;
       color: #475569;
       border: 1px solid var(--slate-border);
-      padding: 8px 16px;
+      padding: 9px 18px;
       font-size: 0.85rem;
       font-weight: 500;
       border-radius: 6px;
@@ -916,7 +916,7 @@
       background: var(--mint-primary);
       color: #ffffff;
       border: none;
-      padding: 8px 18px;
+      padding: 9px 20px;
       font-size: 0.85rem;
       font-weight: 600;
       border-radius: 6px;
@@ -933,7 +933,7 @@
     /* 2 CỘT LUÔN SONG SONG (Chỉ rớt xuống 1 cột khi màn hình di động nhỏ dưới 768px) */
     .product-form-2col {
       display: grid;
-      grid-template-columns: 1.25fr 1fr;
+      grid-template-columns: 1.3fr 1fr;
       width: 100%;
       flex: 1;
       background: #ffffff;
@@ -944,23 +944,23 @@
       }
     }
     .canvas-col-main {
-      padding: 20px 24px 32px;
+      padding: 24px 32px 48px;
       border-right: 1px solid var(--slate-border);
     }
     @media (max-width: 768px) {
       .canvas-col-main {
         border-right: none;
         border-bottom: 1px solid var(--slate-border);
-        padding: 16px 16px 24px;
+        padding: 16px 20px 28px;
       }
     }
     .canvas-col-side {
-      padding: 20px 24px 32px;
+      padding: 24px 32px 48px;
       background: #fbfcfd;
     }
     @media (max-width: 768px) {
       .canvas-col-side {
-        padding: 16px 16px 24px;
+        padding: 16px 20px 28px;
       }
     }
     .canvas-section {
