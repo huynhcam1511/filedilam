@@ -4071,23 +4071,50 @@ function escapeHtml(value) {
       }
       var targetFiles = getTargetFiles();
 
-      // Điền trực tiếp giá trị chuẩn xác
-      if (statYearsEl) statYearsEl.textContent = String(targetYears);
-      if (statMonthsEl) statMonthsEl.textContent = String(targetMonths);
-      if (statTotalFilesEl) statTotalFilesEl.textContent = String(targetFiles);
-      window.__statsAnimationFinished = true;
-
-      // Kích hoạt hiệu ứng fade-in mượt mà sang trọng
+      // Card fade-in nhẹ
       var cards = document.querySelectorAll(".stats-section .stat-card");
       cards.forEach(function(card, idx) {
         card.style.opacity = "0";
-        card.style.transform = "translateY(14px)";
-        card.style.transition = "opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1), transform 0.6s cubic-bezier(0.16, 1, 0.3, 1)";
+        card.style.transform = "translateY(8px)";
+        card.style.transition = "opacity 0.4s ease, transform 0.4s ease";
         setTimeout(function() {
           card.style.opacity = "1";
           card.style.transform = "translateY(0)";
-        }, idx * 120);
+        }, idx * 80);
       });
+
+      // Smooth count-up running on 60fps with ease-out cubic
+      var startTime = null;
+      var duration = 1400; // 1.4s chạy số mượt mà, lướt êm dần về đích
+
+      function easeOutCubic(t) {
+        return 1 - Math.pow(1 - t, 3);
+      }
+
+      function animateCounters(timestamp) {
+        if (!startTime) startTime = timestamp;
+        var progress = Math.min((timestamp - startTime) / duration, 1);
+        var eased = easeOutCubic(progress);
+
+        var currentYears = Math.round(eased * targetYears);
+        var currentMonths = Math.round(eased * targetMonths);
+        var currentFiles = Math.round(eased * targetFiles);
+
+        if (statYearsEl) statYearsEl.textContent = String(currentYears);
+        if (statMonthsEl) statMonthsEl.textContent = String(currentMonths);
+        if (statTotalFilesEl) statTotalFilesEl.textContent = String(currentFiles);
+
+        if (progress < 1) {
+          requestAnimationFrame(animateCounters);
+        } else {
+          window.__statsAnimationFinished = true;
+          if (statYearsEl) statYearsEl.textContent = String(targetYears);
+          if (statMonthsEl) statMonthsEl.textContent = String(targetMonths);
+          if (statTotalFilesEl) statTotalFilesEl.textContent = String(targetFiles);
+        }
+      }
+
+      requestAnimationFrame(animateCounters);
     }
 
     if (statsSectionEl) {
