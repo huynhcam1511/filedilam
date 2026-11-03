@@ -1226,8 +1226,8 @@ document.addEventListener('DOMContentLoaded', () => {
     orderListBody.innerHTML = filtered.map(order => {
       const isPaid = (order.status || '').toUpperCase() === 'PAID';
       const statusBadge = isPaid
-        ? '<span class="status-text-item success">Đã thanh toán</span>'
-        : '<span class="status-text-item warning">Chờ thanh toán</span>';
+        ? '<span class="badge-status badge-status-paid">✓ ĐÃ THANH TOÁN</span>'
+        : '<span class="badge-status badge-status-pending">⏳ CHỜ THANH TOÁN</span>';
 
       const timeObj = formatDateTime(order.created_at || order.paid_at);
       const timeHtml = timeObj.date 
@@ -1239,16 +1239,43 @@ document.addEventListener('DOMContentLoaded', () => {
       const isVirtualEmail = rawEmail.endsWith('@khachhang.filedilam.vn');
       const cleanEmail = isVirtualEmail ? '' : rawEmail;
       const customerInfo = order.customer_phone || cleanEmail || (order.user_id ? order.user_id.slice(0, 8) + '...' : 'Khách vãng lai');
-      const customerDisplayEmail = cleanEmail;
-
-      const reviewHtml = order.has_reviewed
-        ? `<span style="color: #f59e0b; font-weight: 600;">⭐ ${order.review_stars}/5</span>`
-        : '<span style="color: var(--muted); font-size: 0.8rem;">Chưa</span>';
 
       const fileUrl = order.product_file_url || '';
-      const actionHtml = fileUrl
-        ? `<a href="${escapeHtml(fileUrl)}" target="_blank" class="action-btn" style="text-decoration:none; color:var(--mint-strong); font-size:0.85rem;" title="Mở link file">📁 Mở file</a>`
-        : '<span style="color: var(--muted); font-size: 0.8rem;">-</span>';
+      const orderId = order.order_id || '';
+      const amountVal = order.amount || 0;
+      const cleanPhone = String(order.customer_phone || '').replace(/\D/g, '');
+      const transferNote = orderId;
+      const qrImgUrl = `https://img.vietqr.io/image/TPB-59215112002-compact.png?amount=${amountVal}&addInfo=${encodeURIComponent(transferNote)}&accountName=${encodeURIComponent("HUYNH KIEN CAM")}`;
+
+      // Cột Mã QR VietQR thu nhỏ
+      const qrThumbHtml = isPaid
+        ? '<span style="color: #cbd5e1; font-size: 0.85rem;">-</span>'
+        : `<a href="${qrImgUrl}" target="_blank" title="Nhấp để xem to hoặc nhấp chuột phải Sao chép ảnh QR" style="display:inline-block; border-radius:6px; overflow:hidden; border:1px solid #e2e8f0; line-height:0; vertical-align:middle;">
+             <img src="${qrImgUrl}" alt="QR #${escapeHtml(orderId)}" style="width:36px; height:36px; object-fit:contain; display:block; cursor:pointer;" />
+           </a>`;
+
+      let actionHtml = '';
+      if (isPaid) {
+        // ĐÃ THANH TOÁN: Mở file ↗, Copy link nhận file, Chat Zalo ↗ (nếu có SĐT)
+        actionHtml = `
+          <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+            ${fileUrl ? `<a href="${escapeHtml(fileUrl)}" target="_blank" style="text-decoration:none; color:var(--mint-primary); font-size:0.84rem; font-weight:600;" title="Mở link Google Sheets/Drive">Mở file ↗</a>` : ''}
+            <button type="button" class="btn-copy-magic-link" data-uid="${escapeHtml(order.user_id || '')}" data-order="${escapeHtml(orderId)}" style="background:none; border:none; padding:0; color:#475569; font-size:0.84rem; text-decoration:underline; cursor:pointer; font-weight:500;" title="Copy link nhận file cho khách">Copy link nhận file</button>
+            ${cleanPhone ? `<a href="https://zalo.me/${cleanPhone}" target="_blank" style="text-decoration:none; color:#0284c7; font-size:0.84rem; font-weight:600;">Chat Zalo ↗</a>` : ''}
+          </div>
+        `;
+      } else {
+        // CHỜ THANH TOÁN: Copy tin nhắn nhắc nợ, Chat Zalo ↗
+        const zaloMsg = `Chào bạn, File Đi Làm gửi bạn thông tin thanh toán đơn hàng #${orderId} (${order.product_name || 'File'}):\n- Số tiền: ${formatCurrency(amountVal)}\n- STK: 59215112002 (TPBank - HUYNH KIEN CAM)\n- Nội dung chuyển khoản: ${orderId}\n\nSau khi chuyển khoản, file sẽ tự động mở ngay tại: https://filedilam.web.app/?tab=my-files nhé!`;
+        const zaloChatUrl = cleanPhone ? `https://zalo.me/${cleanPhone}` : '';
+
+        actionHtml = `
+          <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+            <button type="button" class="btn-copy-zalo-msg" data-msg="${escapeHtml(zaloMsg)}" style="background:none; border:none; padding:0; color:var(--mint-primary); font-size:0.84rem; text-decoration:underline; cursor:pointer; font-weight:600;" title="Sao chép lời nhắn kèm số tài khoản và cú pháp">Copy tin nhắn</button>
+            ${cleanPhone ? `<a href="${zaloChatUrl}" target="_blank" style="text-decoration:none; color:#0284c7; font-size:0.84rem; font-weight:600;">Chat Zalo ↗</a>` : ''}
+          </div>
+        `;
+      }
 
       const isCoaching = order.package_type === 'coaching' || parseInt(order.amount || 0, 10) >= 199000;
       const coachingBadge = isCoaching
@@ -1261,13 +1288,54 @@ document.addEventListener('DOMContentLoaded', () => {
           <td style="white-space: nowrap;">${timeHtml}</td>
           <td><span style="font-weight: 500; color: #1e293b;">${escapeHtml(customerInfo)}</span></td>
           <td><span style="font-weight: 600; color: #1e293b;">${escapeHtml(order.product_name || 'File')}</span>${coachingBadge}</td>
-          <td><strong style="color: var(--mint-strong);">${formatCurrency(order.amount || 0)}</strong></td>
+          <td><strong style="color: var(--mint-primary);">${formatCurrency(order.amount || 0)}</strong></td>
           <td>${statusBadge}</td>
-          <td>${reviewHtml}</td>
+          <td style="text-align: center; vertical-align: middle;">${qrThumbHtml}</td>
           <td>${actionHtml}</td>
         </tr>
       `;
     }).join('');
+
+    // Gắn sự kiện cho các nút Copy trong bảng đơn hàng
+    orderListBody.querySelectorAll('.btn-copy-zalo-msg').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const msg = btn.dataset.msg || '';
+        navigator.clipboard.writeText(msg).then(() => {
+          showToast("Đã sao chép tin nhắn nhắc thanh toán!");
+        });
+      });
+    });
+
+    orderListBody.querySelectorAll('.btn-copy-magic-link').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        const uid = btn.dataset.uid || '';
+        const orderId = btn.dataset.order || '';
+        const originalText = btn.textContent;
+        try {
+          btn.textContent = 'Đang lấy link...';
+          const res = await adminFetch('/admin/generate-magic-link', {
+            method: 'POST',
+            body: JSON.stringify({ user_id: uid, order_id: orderId })
+          });
+          if (res && res.magic_url) {
+            await navigator.clipboard.writeText(res.magic_url);
+            btn.textContent = 'Đã copy link!';
+            showToast('Đã copy Magic Link! Gửi link này để khách vào thẳng kho file mà không cần mật khẩu.');
+            setTimeout(() => {
+              btn.textContent = originalText;
+            }, 2500);
+          } else {
+            throw new Error(res?.error || 'Không tạo được link');
+          }
+        } catch (err) {
+          console.warn("Dùng link thường fallback:", err);
+          btn.textContent = originalText;
+          const fallbackLink = `https://filedilam.web.app/?tab=my-files`;
+          navigator.clipboard.writeText(fallbackLink);
+          showToast('Đã copy link nhận file: https://filedilam.web.app/?tab=my-files');
+        }
+      });
+    });
   }
 
   // Event Listeners for Orders & Stats

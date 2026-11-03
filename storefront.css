@@ -1796,44 +1796,14 @@ body.cart-drawer-open .page-layout {
     margin: 0 !important;
   }
 
-  #myPurchasesBtn {
-    padding: 4px 6px !important;
-    font-size: 0.8rem !important;
-    font-weight: 600 !important;
-    white-space: nowrap !important;
-    gap: 3px !important;
+  .user-menu-trigger {
+    padding: 4px 8px !important;
+    font-size: 0.82rem !important;
   }
 
-  #myPurchasesBtn svg {
-    width: 16px !important;
-    height: 16px !important;
-  }
-
-  #userProfile > div {
-    display: flex !important;
-    align-items: center !important;
-    gap: 5px !important;
-    border-left: 1px solid var(--line) !important;
-    padding-left: 6px !important;
-  }
-
-  #adminDashboardBtn {
-    padding: 3px 7px !important;
-    font-size: 0.72rem !important;
-    border-radius: 4px !important;
-    font-weight: 700 !important;
-    white-space: nowrap !important;
-  }
-
-  #logoutButton {
-    width: 28px !important;
-    height: 28px !important;
-    padding: 2px !important;
-  }
-
-  #logoutButton svg {
-    width: 16px !important;
-    height: 16px !important;
+  .user-dropdown-panel {
+    right: 0 !important;
+    width: 210px !important;
   }
 
   .cart-button {

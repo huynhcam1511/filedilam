@@ -57,6 +57,9 @@
   var registerButton = document.getElementById("registerButton");
   var loginButton = document.getElementById("loginButton");
   var userProfile = document.getElementById("userProfile");
+  var userMenuBtn = document.getElementById("userMenuBtn");
+  var userDropdownPanel = document.getElementById("userDropdownPanel");
+  var userDropdownEmail = document.getElementById("userDropdownEmail");
   var userNameDisplay = document.getElementById("userNameDisplay");
   var logoutButton = document.getElementById("logoutButton");
   var purchasesDrawer = document.getElementById("purchasesDrawer");
@@ -377,8 +380,20 @@
     }
     if (loginButton) loginButton.addEventListener("click", openAuthModal);
     if (registerButton) registerButton.addEventListener("click", openRegisterModal);
-    if (logoutButton) logoutButton.addEventListener("click", signOutUser);
-    if (myPurchasesBtn) myPurchasesBtn.addEventListener("click", openPurchases);
+    if (logoutButton) logoutButton.addEventListener("click", function () {
+      closeUserMenu();
+      signOutUser();
+    });
+    if (myPurchasesBtn) myPurchasesBtn.addEventListener("click", function () {
+      closeUserMenu();
+      openPurchases();
+    });
+    if (userMenuBtn) {
+      userMenuBtn.addEventListener("click", function (e) {
+        e.stopPropagation();
+        toggleUserMenu();
+      });
+    }
     if (closePurchases) closePurchases.addEventListener("click", closePurchasesDrawer);
     if (closeAuth) closeAuth.addEventListener("click", closeAuthModal);
     if (btnGoogleLogin) btnGoogleLogin.addEventListener("click", signInWithGoogle);
@@ -522,8 +537,13 @@
       });
     }
 
-    // Đóng drawer khi click ra ngoài
+    // Đóng drawer và dropdown khi click ra ngoài
     document.addEventListener("click", function (event) {
+      if (userProfile && userProfile.classList.contains("is-open")) {
+        if (!userProfile.contains(event.target)) {
+          closeUserMenu();
+        }
+      }
       if (purchasesDrawer && purchasesDrawer.classList.contains("is-open")) {
         if (!purchasesDrawer.contains(event.target) && !event.target.closest("#myPurchasesBtn") && !event.target.closest("#btnSuccessViewPurchases")) {
           closePurchasesDrawer();
@@ -598,6 +618,23 @@
     } catch(e) {}
   }
 
+  function toggleUserMenu() {
+    if (!userProfile) return;
+    var isOpen = userProfile.classList.contains("is-open");
+    if (isOpen) {
+      closeUserMenu();
+    } else {
+      userProfile.classList.add("is-open");
+      if (userMenuBtn) userMenuBtn.setAttribute("aria-expanded", "true");
+    }
+  }
+
+  function closeUserMenu() {
+    if (!userProfile) return;
+    userProfile.classList.remove("is-open");
+    if (userMenuBtn) userMenuBtn.setAttribute("aria-expanded", "false");
+  }
+
   function initAuth() {
     if (typeof firebase !== 'undefined' && firebase.auth) {
       firebase.auth().onAuthStateChanged(function(user) {
@@ -615,7 +652,7 @@
           var adminBtn = document.getElementById("adminDashboardBtn");
           if (adminBtn) {
             if (user.email === 'huynhkiencam151102@gmail.com') {
-              adminBtn.style.display = "inline-block";
+              adminBtn.style.display = "flex";
             } else {
               adminBtn.style.display = "none";
             }
@@ -627,6 +664,7 @@
                 ? user.email.replace("@khachhang.filedilam.vn", "")
                 : (user.displayName || user.email));
             if (userNameDisplay) userNameDisplay.textContent = displayId;
+            if (userDropdownEmail) userDropdownEmail.textContent = user.email || displayId;
             checkActiveOrderOnResume();
             if (!checkoutModal || !checkoutModal.classList.contains("is-open")) {
               restoreActiveOrderModal();
@@ -637,6 +675,7 @@
           state.profile = null;
           document.body.classList.remove("is-logged-in");
           document.body.classList.add("is-logged-out");
+          closeUserMenu();
           if (registerButton) registerButton.style.display = "inline-block";
           if (loginButton) loginButton.style.display = "inline-block";
           if (userProfile) userProfile.style.display = "none";
