@@ -333,6 +333,7 @@ function escapeHtml(value) {
   if (typeof firebase !== 'undefined' && firebase.firestore) {
     var db = firebase.firestore();
     // Real-time synchronization: Any change in Admin Dashboard reflects immediately on Storefront!
+    syncLandingCouponTicket();
     db.collection('products').onSnapshot(function(snapshot) {
       var newProducts = [];
       snapshot.forEach(function(doc) {
@@ -2962,11 +2963,122 @@ function escapeHtml(value) {
     copyTextToClipboard(bankTransferNote.textContent.trim(), copyTransferNoteBtn, "Đã sao chép nội dung chuyển khoản.");
   }
 
-  // Global helper for voucher coupon ticket copy button
-  window.copyVoucherCode = function (btnEl, code) {
-    if (!code) code = "FILEDILAM";
-    copyTextToClipboard(code, btnEl, "Đã sao chép mã " + code);
+
+  // --- REAL-TIME LANDING COUPON TICKET SYNC ---
+  var currentFeaturedCoupon = null;
+
+  async function syncLandingCouponTicket() {
+    var ticketSec = document.getElementById('landingCouponSection');
+    if (!ticketSec) return;
+
+    try {
+      if (typeof db === 'undefined' || !db.collection) return;
+
+      var snapshot = await db.collection('coupons').get();
+      if (snapshot.empty) return;
+
+      var activeCoupons = [];
+      var nowYMD = new Date().toISOString().slice(0, 10);
+
+      snapshot.forEach(function(doc) {
+        var c = doc.data();
+        c.id = doc.id;
+        if (c.is_active !== false) {
+          if (c.end_date && nowYMD > c.end_date) return;
+          activeCoupons.push(c);
+        }
+      });
+
+      if (!activeCoupons.length) {
+        ticketSec.style.display = 'none';
+        return;
+      }
+
+      // Ưu tiên mã FILEDILAM nếu đang active, hoặc lấy mã đầu tiên
+      var featured = activeCoupons.find(function(c) { return c.code === 'FILEDILAM'; }) || activeCoupons[0];
+      currentFeaturedCoupon = featured;
+      ticketSec.style.display = 'block';
+
+      // 1. Cập nhật Tiêu đề và Mô tả
+      var titleEl = document.getElementById('landingCouponTitle');
+      var dateEl = document.getElementById('landingCouponDate');
+      var codeEl = document.getElementById('landingCouponCode');
+      var hintEl = document.getElementById('landingCouponHint');
+
+      var isPercent = featured.type === 'percent';
+      var valText = isPercent ? (featured.value + '%') : formatCurrency(featured.value);
+      var minOrder = Number(featured.min_order || 0);
+
+      if (titleEl) {
+        if (minOrder > 0) {
+          var kText = minOrder >= 1000 ? (Math.round(minOrder / 1000) + 'k') : formatCurrency(minOrder);
+          titleEl.textContent = 'Giảm ' + valText + ' cho đơn từ ' + kText;
+        } else {
+          titleEl.textContent = 'Giảm ' + valText + ' cho mọi đơn hàng';
+        }
+      }
+
+      if (dateEl) {
+        if (featured.expires_at) {
+          dateEl.textContent = 'Hạn dùng: ' + featured.expires_at;
+        } else if (featured.end_date) {
+          dateEl.textContent = 'Chỉ đến ngày ' + featured.end_date.split('-').reverse().join('/');
+        } else {
+          dateEl.textContent = 'Áp dụng cho mọi khách hàng';
+        }
+      }
+
+      if (codeEl) {
+        codeEl.textContent = featured.code;
+      }
+
+      if (hintEl) {
+        hintEl.textContent = 'Nhập mã ' + featured.code + ' ở bước thanh toán để được trừ ' + valText + '.';
+      }
+
+      // 2. Cập nhật Bảng Mockup ví dụ minh họa tự động tính toán
+      var subtotalDemo = minOrder > 0 ? (minOrder < 300000 ? 694000 : minOrder + 100000) : 400000;
+      var discDemo = 0;
+      if (isPercent) {
+        discDemo = Math.round((subtotalDemo * Number(featured.value)) / 100);
+      } else {
+        discDemo = Number(featured.value);
+      }
+      var maxDisc = Number(featured.max_discount || 0);
+      if (maxDisc > 0 && discDemo > maxDisc) discDemo = maxDisc;
+      var finalDemo = Math.max(0, subtotalDemo - discDemo);
+
+      var demoDiscountLabel = document.getElementById('demoDiscountLabel');
+      var demoDiscountVal = document.getElementById('demoDiscountVal');
+      var demoTotalVal = document.getElementById('demoTotalVal');
+      var demoSubtotal = document.getElementById('demoSubtotal');
+
+      if (demoDiscountLabel) demoDiscountLabel.textContent = 'Mã ' + featured.code;
+      if (demoDiscountVal) demoDiscountVal.textContent = '-' + formatCurrency(discDemo).replace('₫', '').trim();
+      if (demoSubtotal) demoSubtotal.textContent = formatCurrency(subtotalDemo).replace('₫', '').trim();
+      if (demoTotalVal) demoTotalVal.textContent = formatCurrency(finalDemo);
+
+    } catch (e) {
+      console.warn('Lỗi đồng bộ coupon ticket:', e);
+    }
+  }
+
+  // Cập nhật hàm sao chép voucher toàn cục: Tự copy + Tự điền vào checkout input
+  window.copyVoucherCode = function(btnEl) {
+    var code = (currentFeaturedCoupon && currentFeaturedCoupon.code) || 'FILEDILAM';
+    copyTextToClipboard(code, btnEl, 'Đã sao chép mã ' + code + '!');
+    
+    // Tự động gán mã vào ô checkout coupon để khách không phải gõ lại
+    var couponInput = document.getElementById('checkoutCouponInput');
+    if (couponInput) {
+      couponInput.value = code;
+    }
+    // Lưu mã tạm vào state
+    try {
+      sessionStorage.setItem('filedilam_auto_coupon', code);
+    } catch(e) {}
   };
+
 
   function onQrDownloaded() {
     if (saveQrBtn) {
@@ -3848,7 +3960,7 @@ function escapeHtml(value) {
     var statsSectionEl = document.querySelector(".stats-section");
 
     var hasAnimated = false;
-    function runHackerShuffleAnimation() {
+    function runSmoothStatsReveal() {
       if (hasAnimated) return;
       hasAnimated = true;
 
@@ -3862,34 +3974,23 @@ function escapeHtml(value) {
       }
       var targetFiles = getTargetFiles();
 
-      var startTime = null;
-      var duration = 900; // 0.9 giây xáo số ngẫu nhiên công nghệ cực đã mắt
-      var lastShuffle = 0;
-      var shuffleInterval = 45; // nhảy số ngẫu nhiên mỗi 45ms
+      // Điền trực tiếp giá trị chuẩn xác
+      if (statYearsEl) statYearsEl.textContent = String(targetYears);
+      if (statMonthsEl) statMonthsEl.textContent = String(targetMonths);
+      if (statTotalFilesEl) statTotalFilesEl.textContent = String(targetFiles);
+      window.__statsAnimationFinished = true;
 
-      function step(timestamp) {
-        if (!startTime) startTime = timestamp;
-        var elapsed = timestamp - startTime;
-
-        if (elapsed - lastShuffle >= shuffleInterval && elapsed < duration) {
-          lastShuffle = elapsed;
-          // Random số công nghệ
-          if (statYearsEl) statYearsEl.textContent = String(Math.floor(Math.random() * 9) + 1);
-          if (statMonthsEl) statMonthsEl.textContent = String(Math.floor(Math.random() * 11) + 1);
-          if (statTotalFilesEl) statTotalFilesEl.textContent = String(Math.floor(Math.random() * 80) + 10);
-        }
-
-        if (elapsed < duration) {
-          requestAnimationFrame(step);
-        } else {
-          // Dừng ngay lập tức tại số chuẩn xác
-          window.__statsAnimationFinished = true;
-          if (statYearsEl) statYearsEl.textContent = String(targetYears);
-          if (statMonthsEl) statMonthsEl.textContent = String(targetMonths);
-          if (statTotalFilesEl) statTotalFilesEl.textContent = String(targetFiles);
-        }
-      }
-      requestAnimationFrame(step);
+      // Kích hoạt hiệu ứng fade-in mượt mà sang trọng
+      var cards = document.querySelectorAll(".stats-section .stat-card");
+      cards.forEach(function(card, idx) {
+        card.style.opacity = "0";
+        card.style.transform = "translateY(14px)";
+        card.style.transition = "opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1), transform 0.6s cubic-bezier(0.16, 1, 0.3, 1)";
+        setTimeout(function() {
+          card.style.opacity = "1";
+          card.style.transform = "translateY(0)";
+        }, idx * 120);
+      });
     }
 
     if (statsSectionEl) {
@@ -3897,14 +3998,14 @@ function escapeHtml(value) {
         var obs = new IntersectionObserver(function(entries, observer) {
           entries.forEach(function(entry) {
             if (entry.isIntersecting) {
-              runHackerShuffleAnimation();
+              runSmoothStatsReveal();
               observer.unobserve(entry.target);
             }
           });
         }, { threshold: 0.1 });
         obs.observe(statsSectionEl);
       } else {
-        runHackerShuffleAnimation();
+        runSmoothStatsReveal();
       }
     }
   }
