@@ -401,7 +401,7 @@ document.addEventListener('DOMContentLoaded', () => {
           document.getElementById('productTag').value = product.tag || '';
           document.getElementById('productSuitableFor').value = product.suitableFor || '';
           document.getElementById('productDescription').value = product.description || '';
-          document.getElementById('productFeatures').value = (product.highlights || []).map(h => '- ' + h).join('\n');
+          document.getElementById('productFeatures').value = product.featuresDetail || (product.highlights || []).map(h => '- ' + h).join('\n');
           document.getElementById('productSheetUrl').value = product.sheetUrl || '';
 
           var chkCoaching = document.getElementById('productHasCoaching');
@@ -542,6 +542,7 @@ document.addEventListener('DOMContentLoaded', () => {
         tag: tag || null,
         suitableFor: suitableFor || null,
         description,
+        featuresDetail: featuresRaw,
         highlights,
         sheetUrl,
         type: format,

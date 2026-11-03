@@ -619,6 +619,55 @@
       border: 1px solid #e2e8f0;
     }
 
+    
+    /* Rich Text Editor for Modules & Features */
+    .rich-toolbar {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 7px 10px;
+      background: #f8fafc;
+      border: 1px solid var(--slate-border);
+      border-bottom: none;
+      border-radius: 6px 6px 0 0;
+      flex-wrap: wrap;
+    }
+    .rich-btn {
+      background: #ffffff;
+      border: 1px solid var(--slate-border);
+      border-radius: 5px;
+      padding: 5px 10px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: #334155;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      transition: all 0.15s ease;
+      line-height: 1;
+    }
+    .rich-btn:hover {
+      background: #f1f5f9;
+      color: #0f172a;
+      border-color: #cbd5e1;
+    }
+    .rich-btn.accent {
+      color: #059669;
+      border-color: #a7f3d0;
+      background: #ecfdf5;
+    }
+    .rich-btn.accent:hover {
+      background: #d1fae5;
+    }
+    .canvas-textarea.editor-body {
+      border-radius: 0 0 6px 6px;
+      min-height: 280px;
+      font-family: inherit;
+      line-height: 1.6;
+      resize: vertical;
+    }
+
     /* Forms */
     .admin-form-card {
       max-width: 680px;
@@ -1674,13 +1723,23 @@
                 </div>
 
                 <div class="canvas-field-group">
-                  <label for="productDescription" class="canvas-label">Mô tả ngắn sản phẩm <span class="req">*</span></label>
-                  <textarea id="productDescription" class="canvas-textarea" rows="4" required placeholder="Mô tả công dụng và lợi ích chính của file giúp người dùng giải quyết vấn đề gì..."></textarea>
+                  <label for="productDescription" class="canvas-label">Mô tả ngắn (Heading 2 hiển thị dưới Tên sản phẩm) <span class="req">*</span></label>
+                  <textarea id="productDescription" class="canvas-textarea" rows="2" style="min-height:64px;" required placeholder="VD: Phần Mềm Quản Lý Khách Hàng Bất Động Sản (Phân Quyền – Mua dùng cho cả team – mua 1 lần dùng mãi mãi)"></textarea>
+                  <small class="canvas-help-text">Đóng vai trò là Sub-heading 2 súc tích định vị giải pháp ngay dưới tiêu đề sản phẩm.</small>
                 </div>
 
                 <div class="canvas-field-group">
-                  <label for="productFeatures" class="canvas-label">Tính năng chính (mỗi dòng 1 gạch đầu dòng)</label>
-                  <textarea id="productFeatures" class="canvas-textarea" rows="4" placeholder="- Tự động tính toán doanh thu và chi phí&#10;- Báo cáo Dashboard phân tích trực quan&#10;- Hỗ trợ import/export dữ liệu nhanh chóng"></textarea>
+                  <label for="productFeatures" class="canvas-label">Chi tiết tính năng & Phân hệ Modules (Nội dung chi tiết)</label>
+                  <div class="rich-toolbar">
+                    <button type="button" class="rich-btn" onclick="insertRichText('bold')" title="Chữ in đậm"><b>B</b> In đậm</button>
+                    <button type="button" class="rich-btn" onclick="insertRichText('italic')" title="Chữ in nghiêng"><i>I</i> Nghiêng</button>
+                    <button type="button" class="rich-btn" onclick="insertRichText('h3')" title="Tiêu đề phân hệ / Module"><b>H3</b> Tiêu đề Module</button>
+                    <button type="button" class="rich-btn" onclick="insertRichText('bullet')" title="Gạch đầu dòng tính năng">• Danh sách</button>
+                    <button type="button" class="rich-btn" onclick="insertRichText('number')" title="Đánh số thứ tự">1. Đánh số</button>
+                    <button type="button" class="rich-btn accent" onclick="insertRichText('module_template')" title="Chèn cấu trúc mẫu 3 phân hệ">+ Mẫu Module chuẩn</button>
+                  </div>
+                  <textarea id="productFeatures" class="canvas-textarea editor-body" placeholder="Nhập bài viết chi tiết tính năng, các phân hệ modules, quy trình hoạt động...&#10;&#10;Mẹo: Dùng nút 'Tiêu đề Module' hoặc 'Mẫu Module chuẩn' để tạo đề mục phân hệ rõ ràng."></textarea>
+                  <small class="canvas-help-text">Hỗ trợ viết bài dài không giới hạn với tiêu đề module (### 1. Tên module), gạch đầu dòng (- ), in đậm (**chữ**)...</small>
                 </div>
               </div>
             </div>
@@ -2098,8 +2157,37 @@
   <script src="/__/firebase/10.7.1/firebase-storage-compat.js"></script>
   <script src="/__/firebase/init.js"></script>
   
-  <script src="./admin.js?v=142"></script>
+  <script src="./admin.js?v=150"></script>
   <!-- Agentation: Visual Feedback & Annotation for AI agents -->
   <script src="./agentation-vanilla.js"></script>
+
+  <script>
+    window.insertRichText = function(type) {
+      const textarea = document.getElementById('productFeatures');
+      if (!textarea) return;
+      const start = textarea.selectionStart;
+      const end = textarea.selectionEnd;
+      const sel = textarea.value.substring(start, end);
+      let replacement = '';
+      
+      if (type === 'bold') {
+        replacement = sel ? '**' + sel + '**' : '**nội dung nổi bật**';
+      } else if (type === 'italic') {
+        replacement = sel ? '*' + sel + '*' : '*nội dung ghi chú*';
+      } else if (type === 'h3') {
+        replacement = '\n\n### ' + (sel || '1. KHỞI TẠO & PHÂN QUYỀN') + '\n';
+      } else if (type === 'bullet') {
+        replacement = sel ? sel.split('\n').map(l => l.startsWith('- ') ? l : '- ' + l).join('\n') : '\n- Tính năng tự động...';
+      } else if (type === 'number') {
+        replacement = sel ? sel.split('\n').map((l, i) => (i+1) + '. ' + l).join('\n') : '\n1. Bước khởi tạo...';
+      } else if (type === 'module_template') {
+        replacement = '\n\n### 1. KHỞI TẠO & PHÂN QUYỀN\n- Thiết lập danh mục và bảng thông số hệ thống\n- Phân quyền tài khoản rõ ràng, an toàn dữ liệu\n\n### 2. QUẢN LÝ DỮ LIỆU & NGHIỆP VỤ\n- Thao tác nhanh trên giao diện popup hiện đại\n- Tự động kiểm tra số liệu, chống nhập trùng sót\n\n### 3. BÁO CÁO & DASHBOARD TỰ ĐỘNG\n- Biểu đồ phân tích trực quan cập nhật theo thời gian thực\n- Đo lường chính xác hiệu suất và doanh thu\n';
+      }
+      
+      textarea.setRangeText(replacement, start, end, 'select');
+      textarea.focus();
+    };
+  </script>
+
 </body>
 </html>

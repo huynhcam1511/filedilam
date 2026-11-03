@@ -1,3 +1,47 @@
+
+  function formatProductRichContent(content, fallbackHighlights) {
+    if (!content && (!fallbackHighlights || !fallbackHighlights.length)) return '';
+    var text = content || (fallbackHighlights || []).map(function(h) { return '- ' + h; }).join('\n');
+    
+    // Parse ### Heading 3 as module headings
+    var lines = text.split('\n');
+    var html = '';
+    var inList = false;
+    
+    for (var i = 0; i < lines.length; i++) {
+      var line = lines[i].trim();
+      if (!line) {
+        if (inList) { html += '</ul>'; inList = false; }
+        continue;
+      }
+      
+      // Module heading (### or 1. MODULE / Phân hệ)
+      if (line.indexOf('###') === 0) {
+        if (inList) { html += '</ul>'; inList = false; }
+        var title = line.replace(/^###s*/, '');
+        html += '<div class="product-module-header">' +
+                  '<h3 class="product-module-title">' + escapeHtml(title) + '</h3>' +
+                '</div>';
+      } else if (line.indexOf('- ') === 0 || line.indexOf('* ') === 0) {
+        if (!inList) { html += '<ul class="product-module-list">'; inList = true; }
+        var bulletText = line.replace(/^[-*]s*/, '');
+        // Parse bold **text**
+        bulletText = escapeHtml(bulletText).replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+        html += '<li class="product-module-item"><span class="module-check">✓</span><span>' + bulletText + '</span></li>';
+      } else if (/^\d+\.\s/.test(line)) {
+        if (inList) { html += '</ul>'; inList = false; }
+        var numText = escapeHtml(line).replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+        html += '<p class="product-module-step">' + numText + '</p>';
+      } else {
+        if (inList) { html += '</ul>'; inList = false; }
+        var normalText = escapeHtml(line).replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+        html += '<p class="product-module-p">' + normalText + '</p>';
+      }
+    }
+    if (inList) { html += '</ul>'; }
+    return '<div class="product-features-rich-wrapper">' + html + '</div>';
+  }
+
 (function () {
   var data = window.StorefrontData;
   if (!data) {
@@ -1566,7 +1610,7 @@
     }
 
     state.selectedProductId = productId;
-    if (detailTitle) detailTitle.textContent = product.name;
+    if (detailTitle) detailTitle.innerHTML = '<h1 class="detail-h1-title">' + escapeHtml(product.name) + '</h1>';
 
     // Update cart badge in detail topbar if present
     var cartBadgeDetail = document.getElementById("cartCountDetail");
@@ -1736,7 +1780,7 @@
         '</div>' +
 
         (product.usageGuide ? '<div style="background:#f1f5f9; padding:12px 16px; border-radius:10px; font-size:0.92rem; color:#334155;"><strong>Cách dùng nhanh:</strong> ' + escapeHtml(product.usageGuide) + '</div>' : '') +
-        highlightsHtml +
+        formatProductRichContent(product.featuresDetail, product.highlights) +
         (product.sheets && product.sheets.length ? '<div style="font-size:0.92rem; color:#475569;"><strong>Bao gồm các Sheet:</strong> ' + escapeHtml(product.sheets.join(', ')) + '</div>' : '') +
         versionsHtml +
         reviewsHtml +
