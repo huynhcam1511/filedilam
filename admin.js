@@ -404,6 +404,17 @@ document.addEventListener('DOMContentLoaded', () => {
           document.getElementById('productFeatures').value = product.featuresDetail || (product.highlights || []).map(h => '- ' + h).join('\n');
           document.getElementById('productSheetUrl').value = product.sheetUrl || '';
 
+          // Load gallery
+          selectedGalleryFiles = [];
+          if (Array.isArray(product.gallery) && product.gallery.length > 0) {
+            existingGalleryUrls = product.gallery.slice();
+          } else if (Array.isArray(product.images) && product.images.length > 0) {
+            existingGalleryUrls = product.images.slice();
+          } else {
+            existingGalleryUrls = [];
+          }
+          renderGalleryPreviews();
+
           var chkCoaching = document.getElementById('productHasCoaching');
           var grpCoaching = document.getElementById('coachingFieldsGroup');
           var inpCoachingPrice = document.getElementById('productCoachingPrice');
@@ -489,6 +500,80 @@ document.addEventListener('DOMContentLoaded', () => {
     updateFormatFields();
   }
 
+  
+  // --- MULTI-IMAGE GALLERY STATE ---
+  let selectedGalleryFiles = []; // Array of { file: File, previewUrl: string }
+  let existingGalleryUrls = [];  // Array of string URLs from edited product
+
+  function renderGalleryPreviews() {
+    const container = document.getElementById('galleryPreviewGrid');
+    if (!container) return;
+    container.innerHTML = '';
+
+    // Render existing URLs
+    existingGalleryUrls.forEach((url, idx) => {
+      const item = document.createElement('div');
+      item.className = 'gallery-thumb-item';
+      item.innerHTML = '<img src="' + url + '" alt="Gallery ' + (idx + 1) + '">' +
+        '<button type="button" class="gallery-thumb-remove" title="Xóa ảnh này" data-type="existing" data-index="' + idx + '">&times;</button>';
+      container.appendChild(item);
+    });
+
+    // Render newly selected files
+    selectedGalleryFiles.forEach((itemObj, idx) => {
+      const item = document.createElement('div');
+      item.className = 'gallery-thumb-item';
+      item.innerHTML = '<img src="' + itemObj.previewUrl + '" alt="Mới ' + (idx + 1) + '">' +
+        '<button type="button" class="gallery-thumb-remove" title="Bỏ chọn" data-type="new" data-index="' + idx + '">&times;</button>';
+      container.appendChild(item);
+    });
+
+    // Update label text
+    const totalCount = existingGalleryUrls.length + selectedGalleryFiles.length;
+    const btnText = document.getElementById('galleryBtnText');
+    if (btnText) {
+      if (totalCount > 0) {
+        btnText.innerHTML = '<svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg> Đã chọn ' + totalCount + ' ảnh con';
+      } else {
+        btnText.innerHTML = '<svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg> Chọn nhiều ảnh con (Screenshots)';
+      }
+    }
+
+    // Attach remove handlers
+    container.querySelectorAll('.gallery-thumb-remove').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        const type = btn.dataset.type;
+        const index = parseInt(btn.dataset.index, 10);
+        if (type === 'existing') {
+          existingGalleryUrls.splice(index, 1);
+        } else if (type === 'new') {
+          if (selectedGalleryFiles[index] && selectedGalleryFiles[index].previewUrl) {
+            URL.revokeObjectURL(selectedGalleryFiles[index].previewUrl);
+          }
+          selectedGalleryFiles.splice(index, 1);
+        }
+        renderGalleryPreviews();
+      });
+    });
+  }
+
+  const galleryInput = document.getElementById('productGallery');
+  if (galleryInput) {
+    galleryInput.addEventListener('change', (e) => {
+      const files = Array.from(e.target.files || []);
+      files.forEach(f => {
+        selectedGalleryFiles.push({
+          file: f,
+          previewUrl: URL.createObjectURL(f)
+        });
+      });
+      galleryInput.value = ''; // Reset input so same file can be picked again
+      renderGalleryPreviews();
+    });
+  }
+
   // --- UPLOAD LOGIC ---
   productForm.addEventListener('submit', async (e) => {
     e.preventDefault();
@@ -570,6 +655,21 @@ document.addEventListener('DOMContentLoaded', () => {
         updateData.previewImageUrl = await imageRef.getDownloadURL();
       }
 
+      // Upload gallery images if any
+      let finalGallery = existingGalleryUrls.slice();
+      if (selectedGalleryFiles.length > 0) {
+        for (let i = 0; i < selectedGalleryFiles.length; i++) {
+          const item = selectedGalleryFiles[i];
+          const gRef = storage.ref(`products/${id}/gallery_${Date.now()}_${i}_${item.file.name}`);
+          await gRef.put(item.file);
+          const gUrl = await gRef.getDownloadURL();
+          finalGallery.push(gUrl);
+        }
+      }
+      // If we have gallery items, save to both 'gallery' and 'images' for full compatibility
+      updateData.gallery = finalGallery;
+      updateData.images = finalGallery;
+
       // Upload file if a new one is selected
       if (excelFile) {
         const fileRef = storage.ref(`products/${id}/file_${excelFile.name}`);
@@ -587,6 +687,9 @@ document.addEventListener('DOMContentLoaded', () => {
       }
       
       productForm.reset();
+      selectedGalleryFiles = [];
+      existingGalleryUrls = [];
+      renderGalleryPreviews();
       if (document.getElementById('productHasCoaching')) document.getElementById('productHasCoaching').checked = false;
       if (document.getElementById('coachingFieldsGroup')) document.getElementById('coachingFieldsGroup').style.display = 'none';
       if (document.getElementById('productCoachingPrice')) document.getElementById('productCoachingPrice').value = '';

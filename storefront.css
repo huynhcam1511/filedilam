@@ -3044,21 +3044,30 @@ h2 { letter-spacing: -1.03px !important; }
   gap: 8px !important;
   width: auto !important;
   height: auto !important;
-  padding: 6px 12px !important;
-  border-radius: 8px !important;
-  border: 1px solid #e2e8f0 !important;
-  background: #f8fafc !important;
-  color: #334155 !important;
-  font-size: 0.88rem !important;
-  font-weight: 600 !important;
+  padding: 6px 0 !important;
+  border-radius: 0 !important;
+  border: none !important;
+  background: transparent !important;
+  color: #64748b !important;
+  font-size: 0.92rem !important;
+  font-weight: 500 !important;
   cursor: pointer !important;
-  transition: all 0.15s ease !important;
+  transition: color 0.15s ease !important;
+}
+
+.checkout-back-link svg {
+  color: #64748b !important;
+  transition: color 0.15s ease !important;
 }
 
 .checkout-back-link:hover {
-  background: #f1f5f9 !important;
+  background: transparent !important;
   color: #059669 !important;
-  border-color: #cbd5e1 !important;
+  border-color: transparent !important;
+}
+
+.checkout-back-link:hover svg {
+  color: #059669 !important;
 }
 
 .checkout-modal-body-split {

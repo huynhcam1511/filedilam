@@ -1141,6 +1141,50 @@
     }
     .file-input-wrapper:hover .file-input-btn { border-color: var(--mint-primary); color: var(--mint-primary); background: #ecfdf5; }
 
+    /* Gallery preview styles */
+    .gallery-preview-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(72px, 1fr));
+      gap: 8px;
+      margin-top: 10px;
+    }
+    .gallery-thumb-item {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 1/1;
+      border-radius: 6px;
+      overflow: hidden;
+      border: 1px solid #cbd5e1;
+      background: #f1f5f9;
+    }
+    .gallery-thumb-item img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+    .gallery-thumb-remove {
+      position: absolute;
+      top: 3px;
+      right: 3px;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: rgba(15, 23, 42, 0.75);
+      color: #ffffff;
+      border: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 11px;
+      line-height: 1;
+      transition: background 0.15s;
+    }
+    .gallery-thumb-remove:hover {
+      background: #ef4444;
+    }
+
     /* Stats Grid */
     .stats-grid {
       display: grid;
@@ -1776,6 +1820,19 @@
                   </div>
                 </div>
 
+                <div class="canvas-field-group" id="galleryUploadGroup">
+                  <label class="canvas-label">Ảnh chi tiết / Gallery con (Chọn nhiều ảnh)</label>
+                  <div class="file-input-wrapper">
+                    <div class="file-input-btn" id="galleryBtnText">
+                      <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                      Chọn nhiều ảnh con (Screenshots)
+                    </div>
+                    <input type="file" id="productGallery" accept="image/*" multiple>
+                  </div>
+                  <div id="galleryPreviewGrid" class="gallery-preview-grid"></div>
+                  <small class="canvas-help-text">Ảnh chụp màn hình các tính năng, báo cáo để khách lướt xem dạng slider.</small>
+                </div>
+
                 <div class="canvas-field-group" id="sheetUrlGroup">
                   <label for="productSheetUrl" class="canvas-label">Link Google Sheets hoặc Thư mục Drive</label>
                   <input type="url" id="productSheetUrl" class="canvas-input" placeholder="https://docs.google.com/spreadsheets/d/...">
@@ -2146,7 +2203,7 @@
   <script src="/__/firebase/10.7.1/firebase-storage-compat.js"></script>
   <script src="/__/firebase/init.js"></script>
   
-  <script src="./admin.js?v=180"></script>
+  <script src="./admin.js?v=181"></script>
   <!-- Agentation: Visual Feedback & Annotation for AI agents -->
   <script src="./agentation-vanilla.js"></script>
 
