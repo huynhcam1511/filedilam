@@ -18,6 +18,7 @@ const mimeTypes = {
 const server = http.createServer((req, res) => {
   let reqPath = decodeURIComponent(req.url.split('?')[0]);
   if (reqPath === '/') reqPath = '/index.html';
+  if (reqPath === '/admin' || reqPath === '/admin/') reqPath = '/admin.html';
 
   // Provide exact Firebase config matching production
   if (reqPath === '/__/firebase/init.js') {
