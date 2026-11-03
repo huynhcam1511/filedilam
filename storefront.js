@@ -110,6 +110,7 @@
   var quickBuyForm = document.getElementById("quickBuyForm");
   var quickPhoneLabel = document.getElementById("quickPhoneLabel");
   var quickName = document.getElementById("quickName");
+  var quickNameGroup = document.getElementById("quickNameGroup");
   var quickPhone = document.getElementById("quickPhone");
   var quickPassGroup = document.getElementById("quickPassGroup");
   var quickPassword = document.getElementById("quickPassword");
@@ -1889,39 +1890,15 @@
   function updateQuickUI() {
     if (!quickBuyForm) return;
 
-    var tabNew = document.getElementById("tabNewBuyer");
-    var tabRet = document.getElementById("tabReturningBuyer");
-    if (tabNew && tabRet) {
-      if (isQuickLoginMode) {
-        tabNew.classList.remove("active");
-        tabRet.classList.add("active");
-      } else {
-        tabNew.classList.add("active");
-        tabRet.classList.remove("active");
-      }
+    if (checkoutModalTitle) checkoutModalTitle.textContent = "Thông tin thanh toán";
+    if (quickNameGroup) quickNameGroup.style.display = "block";
+    if (quickPhoneLabel) {
+      quickPhoneLabel.innerHTML = 'Số điện thoại / Zalo <span class="req">*</span>';
     }
-
-    if (isQuickLoginMode) {
-      if (checkoutModalTitle) checkoutModalTitle.textContent = "Đăng nhập tài khoản";
-      if (quickPhoneLabel) {
-        quickPhoneLabel.innerHTML = 'Số điện thoại hoặc Email <span class="req">*</span>';
-      }
-      if (quickPhone) quickPhone.placeholder = "SĐT hoặc Email bạn đã mua file";
-      if (quickPassGroup) quickPassGroup.style.display = "none";
-      if (quickPassword) quickPassword.placeholder = "Nhập mật khẩu";
-      if (quickEmailGroup) quickEmailGroup.style.display = "none";
-      if (btnQuickSubmitText) btnQuickSubmitText.textContent = "Đăng nhập & Nhận mã QR";
-    } else {
-      if (checkoutModalTitle) checkoutModalTitle.textContent = "Thông tin thanh toán";
-      if (quickPhoneLabel) {
-        quickPhoneLabel.innerHTML = 'Số điện thoại / Zalo <span class="req">*</span>';
-      }
-      if (quickPhone) quickPhone.placeholder = "Ví dụ: 0912345678";
-      if (quickPassGroup) quickPassGroup.style.display = "none";
-      if (quickPassword) quickPassword.placeholder = "Tối thiểu 6 ký tự để tải lại file sau";
-      if (quickEmailGroup) quickEmailGroup.style.display = "block";
-      if (btnQuickSubmitText) btnQuickSubmitText.textContent = "Đặt hàng";
-    }
+    if (quickPhone) quickPhone.placeholder = "Ví dụ: 0912345678";
+    if (quickEmailGroup) quickEmailGroup.style.display = "block";
+    if (quickPassGroup) quickPassGroup.style.display = "none";
+    if (btnQuickSubmitText) btnQuickSubmitText.textContent = "Đặt hàng";
   }
 
   function handleBackToInfo() {
