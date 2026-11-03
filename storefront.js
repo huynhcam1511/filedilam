@@ -4430,11 +4430,36 @@ function escapeHtml(value) {
     checkoutCouponMsg.style.display = "none";
   }
 
+  function invalidateActiveOrderOnCartOrCouponChange(message) {
+    if (currentActiveOrderId || localStorage.getItem("filedilam_active_order")) {
+      currentActiveOrderId = null;
+      try {
+        localStorage.removeItem("filedilam_active_order");
+        localStorage.removeItem("filedilam_pending_order_id");
+      } catch (e) {}
+      if (window._orderPollInterval) {
+        clearInterval(window._orderPollInterval);
+        window._orderPollInterval = null;
+      }
+      if (checkoutModal) checkoutModal.classList.remove("has-active-order");
+      setCheckoutCustomerConfirmed(false);
+      currentQrImageUrl = "";
+      if (bankTransferNote) bankTransferNote.textContent = "Tạo sau khi đặt hàng";
+      if (qrBox) {
+        qrBox.innerHTML = '<div class="empty-state" style="padding:40px 16px;"><div style="font-weight:600; font-size:0.95rem; color:#475569; margin-bottom:5px;">Mã thanh toán chưa được tạo</div><div style="font-size:0.8rem; color:#64748b;">' + (message || "Đơn hàng đã thay đổi. Vui lòng bấm Xác nhận thông tin để tạo lại mã QR mới.") + '</div></div>';
+      }
+      var timerDisplay = document.getElementById("qrTimerDisplay");
+      if (timerDisplay) timerDisplay.textContent = "--:--";
+      resetQrActions();
+    }
+  }
+
   function removeCheckoutCoupon() {
     state.appliedCoupon = null;
     state.discountAmount = 0;
     if (checkoutCouponInput) checkoutCouponInput.value = "";
     clearCouponMessage();
+    invalidateActiveOrderOnCartOrCouponChange("Bạn đã hủy mã giảm giá. Vui lòng xác nhận lại để cập nhật số tiền.");
     renderCart();
     showToast("Đã hủy áp dụng mã giảm giá.");
   }
@@ -4507,6 +4532,7 @@ function escapeHtml(value) {
         var msg = "Mã " + coupon.code + " chỉ áp dụng cho đơn từ " + formatCurrency(minOrder) + ". Hiện tại đơn của bạn là " + formatCurrency(subtotal) + ".";
         showCouponMessage(msg, true);
         showToast(msg);
+        invalidateActiveOrderOnCartOrCouponChange();
         renderCart();
         return;
       }
@@ -4531,7 +4557,11 @@ function escapeHtml(value) {
       state.appliedCoupon = coupon;
       state.discountAmount = discount;
 
-      showCouponMessage("Đã áp dụng mã " + coupon.code, false);
+      // Hủy mã QR cũ ngay lập tức nếu khách đã tạo đơn trước đó
+      invalidateActiveOrderOnCartOrCouponChange("Đã áp dụng mã giảm giá mới! Vui lòng bấm Xác nhận thông tin để tạo lại mã QR.");
+
+      showCouponMessage("Đã áp dụng mã " + coupon.code + "! Bấm xác nhận lại để tạo mã QR mới.", false);
+      showToast("Áp mã " + coupon.code + " thành công! Vui lòng xác nhận lại đơn.");
 
       renderCart();
     } catch (err) {
@@ -4540,7 +4570,7 @@ function escapeHtml(value) {
     }
   }
 
-  if (btnApplyCheckoutCoupon) {
+    if (btnApplyCheckoutCoupon) {
     btnApplyCheckoutCoupon.addEventListener("click", applyCheckoutCoupon);
   }
   if (btnRemoveCoupon) {
