@@ -4039,3 +4039,87 @@ body:not(.is-admin) #userProfile {
   padding: 24px !important;
   box-sizing: border-box !important;
 }
+
+
+/* HERO COUPONS CAROUSEL / LIST STYLING */
+.hero-coupons-wrapper {
+  margin-top: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.hero-coupons-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #059669;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.hero-coupons-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+
+.hero-coupon-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: #ffffff;
+  border: 1px dashed #10b981;
+  padding: 6px 12px;
+  border-radius: 8px;
+  font-size: 0.84rem;
+  color: #1e293b;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 1px 2px rgba(16, 185, 129, 0.08);
+}
+
+.hero-coupon-tag:hover {
+  background: #ecfdf5;
+  border-color: #059669;
+  transform: translateY(-1px);
+}
+
+.hero-coupon-code {
+  font-family: var(--font-mono, monospace);
+  font-weight: 700;
+  color: #059669;
+  background: #f0fdf4;
+  padding: 2px 6px;
+  border-radius: 4px;
+  letter-spacing: 0.5px;
+}
+
+.hero-coupon-detail {
+  color: #475569;
+  font-weight: 500;
+  font-size: 0.82rem;
+}
+
+.hero-coupon-copy-btn {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: #059669;
+  background: #ecfdf5;
+  padding: 2px 6px;
+  border-radius: 4px;
+  margin-left: 2px;
+}
+
+@media (max-width: 640px) {
+  .hero-coupons-list {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .hero-coupon-tag {
+    justify-content: space-between;
+  }
+}

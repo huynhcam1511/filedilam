@@ -16,7 +16,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="./storefront.css?v=220" />
+    <link rel="stylesheet" href="./storefront.css?v=230" />
     <style>
     :root {
       --bg: #ffffff;
@@ -2137,7 +2137,16 @@
           <a href="#catalog" class="btn-primary">Xem mẫu file</a>
           <a href="#custom" class="btn-secondary">Đặt file riêng</a>
         </div>
-        <p class="hero-coupon-hint">Đơn từ 160k, nhập mã <strong>FILEDILAM</strong> để giảm 10%.</p>
+        <!-- DYNAMIC HERO COUPONS LIST -->
+        <div class="hero-coupons-wrapper" id="heroCouponsContainer">
+          <div class="hero-coupons-list" id="heroCouponsList">
+            <div class="hero-coupon-tag" data-code="FILEDILAM" title="Bấm để sao chép mã">
+              <span class="hero-coupon-code">FILEDILAM</span>
+              <span class="hero-coupon-detail">Giảm 10% đơn từ 160.000 đ</span>
+              <span class="hero-coupon-copy-btn">Sao chép</span>
+            </div>
+          </div>
+        </div>
       </div>
 
       <!-- FLAT LINEAR BOARD MOCKUP -->
@@ -3505,7 +3514,7 @@
     <script src="/__/firebase/init.js"></script>
     <script src="./storefront-data.js?v=20"></script>
     <script src="./storefront-products.generated.js?v=6"></script>
-    <script src="storefront.js?v=220"></script>
+    <script src="storefront.js?v=230"></script>
     <!-- Agentation: Visual Feedback & Annotation for AI agents -->
   <script src="./agentation-vanilla.js"></script>
 </body>
