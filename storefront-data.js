@@ -26,47 +26,47 @@ window.StorefrontData = {
   },
   categories: [
     {
-      id: "fnb-cost",
-      name: "F&B - Định lượng & Giá vốn",
+      id: "kinh-doanh",
+      name: "Kinh doanh",
       accent: "mint",
-      description: "Các file định lượng công thức món, tính cost giá vốn cho quán cà phê, trà sữa, quán ăn & bánh ngọt.",
-      heroNote: "Tự tính cost nguyên liệu theo mẻ & món, kiểm soát biên lợi nhuận.",
+      description: "Các file quản lý bán hàng, doanh thu, dòng tiền và vận hành kinh doanh thực chiến.",
+      heroNote: "Theo dõi đơn hàng, doanh số và vận hành cửa hàng hiệu quả."
     },
     {
-      id: "ban-hang-online",
-      name: "Bán hàng online",
+      id: "nhan-su",
+      name: "Nhân sự",
       accent: "mint",
-      description: "Các file dành cho shop online, người bán hàng trên TikTok, Facebook, Shopee.",
-      heroNote: "Ít cột, dễ nhập, có dashboard rõ ràng.",
+      description: "Các file chấm công, tính lương, KPI và quản lý hồ sơ nhân sự tự động.",
+      heroNote: "Tự động hóa tính lương, thưởng và đánh giá hiệu suất nhân viên."
     },
     {
-      id: "quan-ly-kho",
-      name: "Quản lý kho",
+      id: "cong-viec",
+      name: "Công việc",
       accent: "mint",
-      description: "Các file theo dõi nhập, xuất, tồn kho và cảnh báo hàng sắp hết cho shop nhỏ.",
-      heroNote: "Biết còn bao nhiêu hàng và khi nào cần nhập thêm.",
+      description: "Các file lập kế hoạch công việc cá nhân, tiến độ dự án và quản lý thời gian.",
+      heroNote: "Theo dõi tiến độ công việc trực quan, tối ưu năng suất làm việc."
     },
     {
-      id: "cong-no",
-      name: "Công nợ",
+      id: "marketing",
+      name: "Marketing",
       accent: "mint",
-      description: "Các file theo dõi công nợ phải thu, phải trả, đối chiếu và nhắc nợ.",
-      heroNote: "Phù hợp chủ shop, admin và kế toán nhỏ.",
+      description: "Các file lập kế hoạch nội dung, ngân sách quảng cáo và đo lường ROI chiến dịch.",
+      heroNote: "Kiểm soát chi phí quảng cáo và hiệu quả từng kênh marketing."
     },
     {
-      id: "thu-chi-dong-tien",
-      name: "Thu chi & Dòng tiền",
+      id: "ke-toan",
+      name: "Kế toán",
       accent: "mint",
-      description: "Theo dõi dòng tiền thu chi thực tế, quỹ tiền mặt và tài khoản ngân hàng.",
-      heroNote: "Biết rõ tiền đang ở đâu, lãi lỗ thực tế từng ngày.",
+      description: "Các file quản lý công nợ, sổ quỹ thu chi, báo cáo tài chính nội bộ và thuế.",
+      heroNote: "Chuẩn hóa sổ sách kế toán, đối chiếu công nợ nhanh chóng, chính xác."
     },
     {
-      id: "combo",
-      name: "Combo tiết kiệm",
+      id: "phat-trien-ban-than",
+      name: "Phát triển bản thân",
       accent: "mint",
-      description: "Combo nhiều file để bắt đầu nhanh hơn, giá mềm hơn mua lẻ.",
-      heroNote: "Hợp người mới muốn gom đủ bộ dùng ngay.",
-    },
+      description: "Các bảng tính quản lý tài chính cá nhân, thói quen, mục tiêu và đọc sách.",
+      heroNote: "Xây dựng thói quen tốt và quản lý tài chính cá nhân thông minh."
+    }
   ],
   products: [
     {

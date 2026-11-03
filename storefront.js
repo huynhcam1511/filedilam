@@ -1257,18 +1257,15 @@
             count = (data.products || []).length;
           } else {
             count = (data.products || []).filter(function(p) {
-              return (p.category === category.id) || (p.categoryId === category.id);
+              var pCat = p.category || p.categoryId || 'kinh-doanh';
+              if (['ban-hang-online', 'quan-ly-kho', 'fnb-cost', 'combo'].indexOf(pCat) !== -1) pCat = 'kinh-doanh';
+              if (['cong-no', 'thu-chi-dong-tien'].indexOf(pCat) !== -1) pCat = 'ke-toan';
+              return pCat === category.id;
             }).length;
           }
           var countBadge = count > 0 ? ' <span class="cat-count">' + count + '</span>' : '';
           
           var displayName = category.name;
-          if (category.id === "fnb-cost") displayName = "F&B - Định lượng";
-          else if (category.id === "ban-hang-online") displayName = "Kinh doanh";
-          else if (category.id === "quan-ly-kho") displayName = "Kho vận";
-          else if (category.id === "cong-no") displayName = "Công nợ";
-          else if (category.id === "thu-chi-dong-tien") displayName = "Dòng tiền";
-          else if (category.id === "combo") displayName = "Combo";
 
           return (
             '<li class="category-item' + activeClass + '" data-folder-id="' +
@@ -3303,8 +3300,13 @@
   function getFilteredProducts() {
     return data.products.filter(function (product) {
       // Category filter
-      if (state.activeCategoryId !== "all" && product.categoryId !== state.activeCategoryId) {
-        return false;
+      if (state.activeCategoryId !== "all") {
+        var pCat = product.category || product.categoryId || 'kinh-doanh';
+        if (['ban-hang-online', 'quan-ly-kho', 'fnb-cost', 'combo'].indexOf(pCat) !== -1) pCat = 'kinh-doanh';
+        if (['cong-no', 'thu-chi-dong-tien'].indexOf(pCat) !== -1) pCat = 'ke-toan';
+        if (pCat !== state.activeCategoryId && product.categoryId !== state.activeCategoryId) {
+          return false;
+        }
       }
       
       // Price filter

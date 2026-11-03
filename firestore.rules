@@ -12,5 +12,12 @@ service cloud.firestore {
       allow read: if true;
       allow write: if request.auth != null && request.auth.token.email == 'huynhkiencam151102@gmail.com';
     }
+    match /coupons/{couponId} {
+      allow read: if true;
+      allow write: if request.auth != null && request.auth.token.email == 'huynhkiencam151102@gmail.com';
+    }
+    match /customer_profiles/{profileId} {
+      allow read, write: if request.auth != null && (request.auth.uid == profileId || request.auth.token.email == 'huynhkiencam151102@gmail.com');
+    }
   }
 }

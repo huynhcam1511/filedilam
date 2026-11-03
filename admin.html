@@ -1223,6 +1223,80 @@
       color: #dc2626;
     }
 
+    /* Minimalist Alocal Action Menu (3-dots popover) */
+    .action-menu-wrap {
+      position: relative;
+      display: inline-block;
+      text-align: right;
+    }
+    .action-dots-btn {
+      width: 28px;
+      height: 28px;
+      border-radius: 6px;
+      border: 1px solid transparent;
+      background: transparent;
+      color: #94a3b8;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.15s ease;
+    }
+    .action-dots-btn:hover,
+    .action-dots-btn.active {
+      background: #f1f5f9;
+      color: #0f172a;
+      border-color: #e2e8f0;
+    }
+    .action-dropdown-popover {
+      position: absolute;
+      top: calc(100% + 4px);
+      right: 0;
+      min-width: 146px;
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.12), 0 8px 10px -6px rgba(15, 23, 42, 0.08);
+      padding: 4px;
+      z-index: 100;
+      display: none;
+      flex-direction: column;
+      animation: fadeIn 0.12s ease-out;
+    }
+    .action-dropdown-popover.show {
+      display: flex;
+    }
+    .action-dropdown-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      width: 100%;
+      padding: 7px 10px;
+      font-size: 0.8rem;
+      font-weight: 500;
+      color: #334155;
+      background: transparent;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      text-align: left;
+      text-decoration: none;
+      transition: all 0.12s ease;
+      white-space: nowrap;
+      box-sizing: border-box;
+    }
+    .action-dropdown-item:hover {
+      background: #f8fafc;
+      color: #0f172a;
+    }
+    .action-dropdown-item.danger {
+      color: #ef4444;
+    }
+    .action-dropdown-item.danger:hover {
+      background: #fef2f2;
+      color: #dc2626;
+    }
+
     /* Minimal Auth Splash Overlay */
     #loginSection {
       position: fixed;
@@ -1466,10 +1540,12 @@
 
             <select id="productCategoryFilter" class="pill-select">
               <option value="ALL">Tất cả danh mục</option>
-              <option value="ban-hang-online">Bán hàng online</option>
-              <option value="cong-no">Công nợ</option>
-              <option value="quan-ly-kho">Quản lý kho</option>
-              <option value="combo">Combo tiết kiệm</option>
+              <option value="kinh-doanh">Kinh doanh</option>
+              <option value="nhan-su">Nhân sự</option>
+              <option value="cong-viec">Công việc</option>
+              <option value="marketing">Marketing</option>
+              <option value="ke-toan">Kế toán</option>
+              <option value="phat-trien-ban-than">Phát triển bản thân</option>
             </select>
 
             <select id="productFormatFilter" class="pill-select">
@@ -1555,10 +1631,12 @@
                   <div class="canvas-field-group">
                     <label for="productCategory" class="canvas-label">Danh mục sản phẩm <span class="req">*</span></label>
                     <select id="productCategory" class="canvas-select" required>
-                      <option value="ban-hang-online">Bán hàng online</option>
-                      <option value="cong-no">Công nợ</option>
-                      <option value="quan-ly-kho">Quản lý kho</option>
-                      <option value="combo">Combo tiết kiệm</option>
+                      <option value="kinh-doanh">Kinh doanh</option>
+                      <option value="nhan-su">Nhân sự</option>
+                      <option value="cong-viec">Công việc</option>
+                      <option value="marketing">Marketing</option>
+                      <option value="ke-toan">Kế toán</option>
+                      <option value="phat-trien-ban-than">Phát triển bản thân</option>
                     </select>
                   </div>
 
@@ -1921,7 +1999,7 @@
                   <th>Điều kiện đơn tối thiểu</th>
                   <th>Thời hạn</th>
                   <th>Trạng thái</th>
-                  <th style="text-align: right; width: 140px;">Thao tác</th>
+                  <th style="text-align: right; width: 80px; text-align: center;">Thao tác</th>
                 </tr>
               </thead>
               <tbody id="couponsListBody">
@@ -2005,7 +2083,7 @@
   <script src="/__/firebase/10.7.1/firebase-storage-compat.js"></script>
   <script src="/__/firebase/init.js"></script>
   
-  <script src="./admin.js?v=135"></script>
+  <script src="./admin.js?v=137"></script>
   <!-- Agentation: Visual Feedback & Annotation for AI agents -->
   <script src="./agentation-vanilla.js"></script>
 </body>

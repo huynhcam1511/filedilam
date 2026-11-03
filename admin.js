@@ -272,7 +272,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const formatVal = document.getElementById('productFormatFilter')?.value || 'ALL';
 
     const filtered = currentProducts.filter(p => {
-      const matchCat = catVal === 'ALL' || p.categoryId === catVal;
+      let pNormCat = p.categoryId || 'kinh-doanh';
+      if (['ban-hang-online', 'quan-ly-kho', 'fnb-cost', 'combo'].includes(pNormCat)) pNormCat = 'kinh-doanh';
+      if (['cong-no', 'thu-chi-dong-tien'].includes(pNormCat)) pNormCat = 'ke-toan';
+      const matchCat = catVal === 'ALL' || p.categoryId === catVal || pNormCat === catVal;
       const pFormat = p.type || (p.sheetUrl ? 'google_sheets' : 'excel');
       const matchFormat = formatVal === 'ALL' || pFormat === formatVal;
       if (!matchCat || !matchFormat) return false;
@@ -289,10 +292,19 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     const catMap = {
-      'ban-hang-online': 'Bán hàng online',
-      'cong-no': 'Công nợ',
-      'quan-ly-kho': 'Quản lý kho',
-      'combo': 'Combo tiết kiệm'
+      'kinh-doanh': 'Kinh doanh',
+      'nhan-su': 'Nhân sự',
+      'cong-viec': 'Công việc',
+      'marketing': 'Marketing',
+      'ke-toan': 'Kế toán',
+      'phat-trien-ban-than': 'Phát triển bản thân',
+      // Tương thích ngược với các file cũ trên Firestore
+      'ban-hang-online': 'Kinh doanh',
+      'fnb-cost': 'Kinh doanh',
+      'quan-ly-kho': 'Kinh doanh',
+      'cong-no': 'Kế toán',
+      'thu-chi-dong-tien': 'Kế toán',
+      'combo': 'Kinh doanh'
     };
 
     productListBody.innerHTML = filtered.map(p => {
@@ -1637,45 +1649,113 @@ document.addEventListener('DOMContentLoaded', () => {
       return `
         <tr>
           <td>
-            <div style="font-family: monospace; font-size: 0.96rem; font-weight: 700; color: #0f172a; letter-spacing: 0.05em;">${escapeHtml(c.code)}</div>
-            ${c.description ? `<div style="font-size: 0.76rem; color: #64748b; margin-top: 2px;">${escapeHtml(c.description)}</div>` : ''}
+            <div style="font-family: monospace; font-size: 0.92rem; font-weight: 700; color: #0f172a; letter-spacing: 0.05em;">${escapeHtml(c.code)}</div>
+            ${c.description ? `<div style="font-size: 0.75rem; color: #64748b; margin-top: 2px;">${escapeHtml(c.description)}</div>` : ''}
           </td>
-          <td>${isPercent ? 'Giảm theo phần trăm' : 'Giảm tiền cố định'}</td>
-          <td><strong style="color: #059669; font-size: 0.95rem;">${discountText}</strong></td>
-          <td>${minOrderText}</td>
-          <td>${c.expires_at ? escapeHtml(c.expires_at) : 'Vĩnh viễn'}</td>
+          <td><span style="color: #475569; font-size: 0.86rem;">${isPercent ? 'Giảm theo phần trăm' : 'Giảm tiền cố định'}</span></td>
+          <td><strong style="color: #059669; font-size: 0.92rem;">${discountText}</strong></td>
+          <td><span style="color: #334155; font-size: 0.86rem;">${minOrderText}</span></td>
+          <td><span style="color: #64748b; font-size: 0.84rem;">${c.expires_at ? escapeHtml(c.expires_at) : 'Vĩnh viễn'}</span></td>
           <td>${statusHtml}</td>
-          <td style="text-align: right; white-space: nowrap;">
-            <button type="button" class="btn-toggle-coupon" data-id="${escapeHtml(c.id)}" style="background: none; border: 1px solid #e2e8f0; border-radius: 6px; padding: 4px 8px; font-size: 0.78rem; font-weight: 600; color: ${c.is_active ? '#475569' : '#059669'}; cursor: pointer; margin-right: 4px;">
-              ${c.is_active ? 'Tắt' : 'Bật'}
-            </button>
-            <button type="button" class="btn-edit-coupon" data-id="${escapeHtml(c.id)}" style="background: none; border: 1px solid #e2e8f0; border-radius: 6px; padding: 4px 8px; font-size: 0.78rem; font-weight: 600; color: #2563eb; cursor: pointer; margin-right: 4px;">
-              Sửa
-            </button>
-            <button type="button" class="btn-delete-coupon" data-id="${escapeHtml(c.id)}" style="background: none; border: 1px solid #fee2e2; border-radius: 6px; padding: 4px 8px; font-size: 0.78rem; font-weight: 600; color: #ef4444; cursor: pointer;">
-              Xóa
-            </button>
+          <td style="text-align: center;">
+            <div class="action-menu-wrap">
+              <button type="button" class="action-dots-btn btn-coupon-dots" data-id="${escapeHtml(c.id)}" title="Thao tác">
+                <svg width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="1.5"></circle><circle cx="12" cy="5" r="1.5"></circle><circle cx="12" cy="19" r="1.5"></circle></svg>
+              </button>
+              <div class="action-dropdown-popover" id="popover-coupon-${escapeHtml(c.id)}">
+                <button type="button" class="action-dropdown-item btn-edit-coupon" data-id="${escapeHtml(c.id)}">
+                  <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
+                  Chỉnh sửa
+                </button>
+                <button type="button" class="action-dropdown-item btn-toggle-coupon" data-id="${escapeHtml(c.id)}">
+                  <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="${c.is_active ? 'M10 9v6m4-6v6m7-3a9 9 0 11-18 0 9 9 0 0118 0z' : 'M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z M21 12a9 9 0 11-18 0 9 9 0 0118 0z'}"></path></svg>
+                  ${c.is_active ? 'Tạm dừng' : 'Kích hoạt'}
+                </button>
+                <button type="button" class="action-dropdown-item danger btn-delete-coupon" data-id="${escapeHtml(c.id)}">
+                  <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                  Xóa mã
+                </button>
+              </div>
+            </div>
           </td>
         </tr>
       `;
     }).join('');
 
-    // Attach actions
+    // Attach 3-dots toggles and action listeners
+    couponsListBody.querySelectorAll('.btn-coupon-dots').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const wrap = btn.closest('.action-menu-wrap');
+        const popover = wrap?.querySelector('.action-dropdown-popover');
+        const isShown = popover?.classList.contains('show');
+        document.querySelectorAll('.action-dropdown-popover.show').forEach(p => p.classList.remove('show'));
+        document.querySelectorAll('.action-dots-btn.active').forEach(b => b.classList.remove('active'));
+        if (!isShown && popover) {
+          popover.classList.add('show');
+          btn.classList.add('active');
+        }
+      });
+    });
+
     couponsListBody.querySelectorAll('.btn-toggle-coupon').forEach(btn => {
-      btn.addEventListener('click', () => toggleCouponStatus(btn.dataset.id));
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        document.querySelectorAll('.action-dropdown-popover.show').forEach(p => p.classList.remove('show'));
+        toggleCouponStatus(btn.dataset.id);
+      });
     });
     couponsListBody.querySelectorAll('.btn-edit-coupon').forEach(btn => {
-      btn.addEventListener('click', () => openEditCouponModal(btn.dataset.id));
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        document.querySelectorAll('.action-dropdown-popover.show').forEach(p => p.classList.remove('show'));
+        openEditCouponModal(btn.dataset.id);
+      });
     });
     couponsListBody.querySelectorAll('.btn-delete-coupon').forEach(btn => {
-      btn.addEventListener('click', () => deleteCoupon(btn.dataset.id));
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        document.querySelectorAll('.action-dropdown-popover.show').forEach(p => p.classList.remove('show'));
+        deleteCoupon(btn.dataset.id);
+      });
     });
+  }
+
+  
+  function generateCouponDescription() {
+    const type = couponTypeSelect ? couponTypeSelect.value : 'percent';
+    const val = Number(couponValueInput ? couponValueInput.value : 0);
+    const minOrder = Number(couponMinOrderInput ? couponMinOrderInput.value : 0);
+    const maxDiscount = Number(couponMaxDiscountInput && couponMaxDiscountInput.value ? couponMaxDiscountInput.value : 0);
+
+    if (val <= 0) return '';
+
+    let text = type === 'percent' ? ('Giảm ' + val + '%') : ('Giảm ' + formatCurrency(val));
+    if (type === 'percent' && maxDiscount > 0) {
+      text += ' (tối đa ' + formatCurrency(maxDiscount) + ')';
+    }
+    if (minOrder > 0) {
+      text += ' cho đơn từ ' + formatCurrency(minOrder);
+    } else {
+      text += ' cho mọi đơn hàng';
+    }
+    return text;
+  }
+
+  let isCouponDescManuallyEdited = false;
+
+  function updateCouponDescPreview() {
+    if (isCouponDescManuallyEdited) return;
+    if (couponDescInput) {
+      couponDescInput.value = generateCouponDescription();
+    }
   }
 
   function openAddCouponModal() {
     if (!couponModal) return;
     if (couponModalTitle) couponModalTitle.textContent = "Thêm mã giảm giá mới";
     if (couponDocId) couponDocId.value = "";
+    isCouponDescManuallyEdited = false;
     if (couponForm) couponForm.reset();
     if (couponCodeInput) {
       couponCodeInput.readOnly = false;
@@ -1700,6 +1780,8 @@ document.addEventListener('DOMContentLoaded', () => {
     if (couponMinOrderInput) couponMinOrderInput.value = coupon.min_order || 0;
     if (couponMaxDiscountInput) couponMaxDiscountInput.value = coupon.max_discount || '';
     if (couponDescInput) couponDescInput.value = coupon.description || '';
+    isCouponDescManuallyEdited = !!(coupon.description);
+    if (!coupon.description) updateCouponDescPreview();
     if (couponIsActive) couponIsActive.checked = coupon.is_active !== false;
 
     couponModal.style.display = 'flex';
@@ -1800,5 +1882,19 @@ document.addEventListener('DOMContentLoaded', () => {
   couponForm?.addEventListener('submit', handleSaveCoupon);
   couponSearchInput?.addEventListener('input', renderFilteredCoupons);
   couponStatusFilter?.addEventListener('change', renderFilteredCoupons);
+  couponTypeSelect?.addEventListener('change', updateCouponDescPreview);
+  couponValueInput?.addEventListener('input', updateCouponDescPreview);
+  couponMinOrderInput?.addEventListener('input', updateCouponDescPreview);
+  couponMaxDiscountInput?.addEventListener('input', updateCouponDescPreview);
+  couponDescInput?.addEventListener('input', () => {
+    isCouponDescManuallyEdited = couponDescInput.value.trim().length > 0;
+  });
+
 
 });
+
+// Global listener to close popovers when clicking outside
+document.addEventListener('click', () => {
+  document.querySelectorAll('.action-dropdown-popover.show').forEach(p => p.classList.remove('show'));
+  document.querySelectorAll('.action-dots-btn.active').forEach(b => b.classList.remove('active'));
+}); // closeAllPopoversListener
