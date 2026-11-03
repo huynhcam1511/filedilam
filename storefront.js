@@ -32,6 +32,9 @@
   var cartCount = document.getElementById("cartCount");
   var cartFab = document.getElementById("cartFab");
   var openCartButton = document.getElementById("openCartNav");
+  var openMobileMenuBtn = document.getElementById("openMobileMenu");
+  var closeMobileMenuBtn = document.getElementById("closeMobileMenu");
+  var mobileNavDrawer = document.getElementById("mobileNavDrawer");
   var checkoutModal = document.getElementById("checkoutModal");
   var detailModal = document.getElementById("detailModal");
   var detailTitle = document.getElementById("detailTitle");
@@ -547,6 +550,12 @@
       if (purchasesDrawer && purchasesDrawer.classList.contains("is-open")) {
         if (!purchasesDrawer.contains(event.target) && !event.target.closest("#myPurchasesBtn") && !event.target.closest("#btnSuccessViewPurchases")) {
           closePurchasesDrawer();
+        }
+      }
+      if (mobileNavDrawer && mobileNavDrawer.classList.contains("is-open")) {
+        if (!mobileNavDrawer.contains(event.target) && !event.target.closest("#openMobileMenu")) {
+          mobileNavDrawer.classList.remove("is-open");
+          document.body.classList.remove("drawer-open");
         }
       }
       if (cartDrawer && cartDrawer.classList.contains("is-open")) {

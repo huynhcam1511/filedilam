@@ -20,7 +20,6 @@
 }
 
 html, body {
-  overflow-x: hidden;
   width: 100%;
   max-width: 100vw;
   position: relative;
@@ -32,7 +31,7 @@ body {
   color: var(--text);
   background: var(--bg);
   min-height: 100vh;
-  padding-top: 80px; /* For fixed nav */
+  padding-top: 56px;
 }
 
 h1, h2, h3, h4, strong {
@@ -57,7 +56,7 @@ ul {
   top: 0;
   left: 0;
   right: 0;
-  height: 70px;
+  height: 56px;
   background: rgba(255, 255, 255, 0.85);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
@@ -1629,25 +1628,28 @@ body.cart-drawer-open .page-layout {
   }
 
   body {
-    padding-top: 0 !important;
+    padding-top: 54px !important;
   }
   body.drawer-open {
     overflow: hidden;
   }
 
   .top-nav {
-    position: sticky !important;
+    position: fixed !important;
     top: 0 !important;
     left: 0 !important;
     right: 0 !important;
-    height: auto !important;
-    padding: 10px 0 8px 0 !important;
-    backdrop-filter: blur(12px) !important;
-    -webkit-backdrop-filter: blur(12px) !important;
-    background: rgba(255, 255, 255, 0.97) !important;
-    border-bottom: 1px solid var(--line) !important;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04) !important;
-    z-index: 100 !important;
+    width: 100% !important;
+    height: 54px !important;
+    padding: 0 !important;
+    backdrop-filter: blur(16px) !important;
+    -webkit-backdrop-filter: blur(16px) !important;
+    background: rgba(255, 255, 255, 0.96) !important;
+    border-bottom: 1px solid #f1f5f9 !important;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04) !important;
+    z-index: 9999 !important;
+    display: flex !important;
+    align-items: center !important;
   }
 
   .page-layout {
@@ -2586,7 +2588,7 @@ body {
 
 h1, h2, h3, h4 {
   font-family: 'Manrope', sans-serif !important;
-  font-weight: 600 !important;
+  font-weight: 700 !important;
   color: #181925;
 }
 
@@ -3242,7 +3244,10 @@ h2 { letter-spacing: -1.03px !important; }
     padding: 14px 18px !important;
   }
 }
-\n\n/* Optimized 2-Column Mobile Card Layout (Shopee standard) */\n@media (max-width: 640px) {
+
+
+/* Optimized 2-Column Mobile Card Layout (Shopee standard) */
+@media (max-width: 640px) {
   .product-grid {
     grid-template-columns: repeat(2, 1fr) !important;
     gap: 10px !important;

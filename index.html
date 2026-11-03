@@ -15,8 +15,8 @@
     <meta http-equiv="Expires" content="0" />
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="./storefront.css?v=114" />
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="./storefront.css?v=118" />
     <style>
     :root {
       --bg: #ffffff;
@@ -152,7 +152,7 @@
 
     /* HERO SECTION */
     .hero {
-      padding: 64px 0 48px;
+      padding: 36px 0 40px;
       background: radial-gradient(circle at 85% 20%, rgba(236, 253, 245, 0.8) 0%, rgba(255, 255, 255, 0) 60%);
     }
     .hero-grid {
@@ -528,7 +528,7 @@
     }
     .section-title {
       font-size: 2.1rem;
-      font-weight: 600;
+      font-weight: 700;
       letter-spacing: -0.8px;
       line-height: 1.25;
       color: var(--text);
@@ -536,6 +536,7 @@
     }
     .catalog-heading {
       font-size: 2rem;
+      font-weight: 700;
       line-height: 1.22;
       letter-spacing: -0.6px;
       margin-bottom: 18px;
@@ -1776,7 +1777,8 @@
       .catalog-section-wrap { padding: 24px 12px 60px !important; }
       .catalog-heading {
         font-size: 1.7rem !important;
-        line-height: 1.2 !important;
+        font-weight: 700 !important;
+        line-height: 1.22 !important;
         letter-spacing: -0.5px !important;
         margin-bottom: 14px !important;
       }
@@ -1788,6 +1790,7 @@
       }
       .hero-title {
         font-size: 1.75rem;
+        font-weight: 700;
         line-height: 1.28;
         letter-spacing: -0.5px;
         margin-bottom: 14px;
@@ -1894,6 +1897,7 @@
       }
       .steps-section .section-title {
         font-size: 1.6rem !important;
+        font-weight: 700 !important;
         line-height: 1.25 !important;
         letter-spacing: -0.5px !important;
         margin-bottom: 8px !important;
@@ -1906,7 +1910,8 @@
       }
       .usp-main-heading {
         font-size: 1.55rem !important;
-        line-height: 1.2 !important;
+        font-weight: 700 !important;
+        line-height: 1.25 !important;
         letter-spacing: -0.5px !important;
         margin-bottom: 10px !important;
       }
@@ -1942,19 +1947,20 @@
       }
     }
   
-    /* Topbar Mobile Guarantee & Optimate-style Polish */
+    /* Topbar Freeze Pane (Sticky/Fixed) Guarantee */
     .top-nav {
-      position: sticky !important;
+      position: fixed !important;
       top: 0 !important;
       left: 0 !important;
       right: 0 !important;
       width: 100% !important;
       height: 56px !important;
       background: rgba(255, 255, 255, 0.96) !important;
-      backdrop-filter: blur(12px) !important;
-      -webkit-backdrop-filter: blur(12px) !important;
+      backdrop-filter: blur(16px) !important;
+      -webkit-backdrop-filter: blur(16px) !important;
       border-bottom: 1px solid #f1f5f9 !important;
-      z-index: 1000 !important;
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04) !important;
+      z-index: 9999 !important;
       display: flex !important;
       align-items: center !important;
     }
@@ -1967,7 +1973,13 @@
       align-items: center !important;
       justify-content: space-between !important;
     }
+    body {
+      padding-top: 56px !important;
+    }
     @media (max-width: 768px) {
+      body {
+        padding-top: 54px !important;
+      }
       .top-nav {
         height: 54px !important;
         padding: 0 !important;
@@ -1996,6 +2008,68 @@
         display: flex !important;
         align-items: center !important;
         justify-content: center !important;
+      }
+    }
+
+  
+    /* Shopping Bag & Hamburger 3-Gạch Style */
+    .menu-burger-btn {
+      display: none;
+      align-items: center;
+      justify-content: center;
+      width: 38px;
+      height: 38px;
+      background: transparent;
+      border: none;
+      color: #0f172a;
+      cursor: pointer;
+      padding: 0;
+      border-radius: 8px;
+      transition: background 0.15s ease;
+    }
+    .menu-burger-btn:hover {
+      background: #f1f5f9;
+    }
+    .shopping-bag-btn {
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 38px;
+      height: 38px;
+      background: transparent;
+      border: none;
+      color: #0f172a;
+      cursor: pointer;
+      padding: 0;
+      border-radius: 8px;
+      transition: background 0.15s ease;
+    }
+    .shopping-bag-btn:hover {
+      background: #f1f5f9;
+    }
+    .shopping-bag-btn .cart-badge {
+      position: absolute;
+      top: 3px;
+      right: 3px;
+      min-width: 17px;
+      height: 17px;
+      padding: 0 4px;
+      border-radius: 9999px;
+      background: #059669;
+      color: #ffffff;
+      font-size: 0.65rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      line-height: 1;
+      border: 1.5px solid #ffffff;
+    }
+    @media (max-width: 768px) {
+      .menu-burger-btn {
+        display: flex !important;
+        margin-left: 2px;
       }
     }
 
@@ -2052,9 +2126,21 @@
             </div>
           </div>
 
-          <button class="cart-button" id="openCartNav" type="button" aria-label="Giỏ hàng">
-            <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
+          <button class="cart-button shopping-bag-btn" id="openCartNav" type="button" aria-label="Túi hàng">
+            <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"></path>
+              <line x1="3" y1="6" x2="21" y2="6"></line>
+              <path d="M16 10a4 4 0 0 1-8 0"></path>
+            </svg>
             <span class="cart-badge" id="cartCount">0</span>
+          </button>
+
+          <button class="menu-burger-btn" id="openMobileMenu" type="button" aria-label="Menu" title="Menu">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="4" y1="7" x2="20" y2="7"></line>
+              <line x1="4" y1="12" x2="20" y2="12"></line>
+              <line x1="4" y1="17" x2="20" y2="17"></line>
+            </svg>
           </button>
         </div>
       </div>
@@ -2585,6 +2671,47 @@
   </footer>
 
   
+
+    <!-- Mobile Nav Drawer (Optimate Style 3-Gạch) -->
+    <aside class="cart-drawer mobile-nav-drawer" id="mobileNavDrawer" aria-hidden="true" style="z-index: 10008;">
+      <div class="drawer-header">
+        <strong style="font-family: 'Manrope', sans-serif; font-size: 1.25rem; font-weight: 700; color: #0f172a; letter-spacing: -0.5px;">File Đi Làm</strong>
+        <button class="icon-button close-drawer-btn" id="closeMobileMenu" type="button" aria-label="Đóng">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+      </div>
+      <div class="drawer-body" style="padding: 24px 20px;">
+        <nav class="mobile-nav-list" style="display: flex; flex-direction: column; gap: 16px;">
+          <a href="#" class="mobile-nav-link" style="font-size: 1.15rem; font-weight: 600; color: #0f172a; padding: 10px 0; border-bottom: 1px solid #f1f5f9; display: flex; justify-content: space-between; align-items: center;">
+            <span>Trang chủ</span>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"></polyline></svg>
+          </a>
+          <a href="#catalog" class="mobile-nav-link" style="font-size: 1.15rem; font-weight: 600; color: #0f172a; padding: 10px 0; border-bottom: 1px solid #f1f5f9; display: flex; justify-content: space-between; align-items: center;">
+            <span>Tất cả Template</span>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"></polyline></svg>
+          </a>
+          <a href="https://zalo.me/0938134576" target="_blank" rel="noopener" class="mobile-nav-link" style="font-size: 1.15rem; font-weight: 600; color: #0f172a; padding: 10px 0; border-bottom: 1px solid #f1f5f9; display: flex; justify-content: space-between; align-items: center;">
+            <span>Hỗ trợ Zalo</span>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"></polyline></svg>
+          </a>
+          <a href="#custom" class="mobile-nav-link" style="font-size: 1.15rem; font-weight: 600; color: #0f172a; padding: 10px 0; border-bottom: 1px solid #f1f5f9; display: flex; justify-content: space-between; align-items: center;">
+            <span>Đặt file riêng</span>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"></polyline></svg>
+          </a>
+          <a href="/chinh-sach.html" class="mobile-nav-link" style="font-size: 1.15rem; font-weight: 600; color: #0f172a; padding: 10px 0; border-bottom: 1px solid #f1f5f9; display: flex; justify-content: space-between; align-items: center;">
+            <span>Chính sách & Bảo mật</span>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"></polyline></svg>
+          </a>
+        </nav>
+      </div>
+      <div class="drawer-footer" style="padding: 20px; border-top: 1px solid #f1f5f9;">
+        <div style="font-size: 0.84rem; color: #64748b; line-height: 1.5; margin-bottom: 12px;">Hotline tư vấn: <strong style="color: #0f172a;">0938 134 576</strong></div>
+        <div style="font-size: 0.84rem; color: #64748b;">Hỗ trợ kỹ thuật cả thứ 7 & CN</div>
+      </div>
+    </aside>
 
     <!-- Cart Drawer -->
     <aside class="cart-drawer" id="cartDrawer" aria-hidden="true">
@@ -3397,7 +3524,7 @@
     <script src="/__/firebase/init.js"></script>
     <script src="./storefront-data.js?v=16"></script>
     <script src="./storefront-products.generated.js?v=6"></script>
-    <script src="storefront.js?v=101"></script>
+    <script src="storefront.js?v=104"></script>
     <!-- Agentation: Visual Feedback & Annotation for AI agents -->
   <script src="./agentation-vanilla.js"></script>
 </body>
