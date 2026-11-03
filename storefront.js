@@ -1470,6 +1470,7 @@ function escapeHtml(value) {
   }
 
   function renderCart() {
+    syncLandingCouponTicket();
     var detailedCart = state.cart
       .map(function (entry) {
         var product = getProductById(entry.productId);
@@ -3103,12 +3104,11 @@ function escapeHtml(value) {
         return;
       }
 
-      // Ưu tiên mã FILEDILAM nếu đang active, hoặc lấy mã đầu tiên
       var featured = activeCoupons.find(function(c) { return c.code === 'FILEDILAM'; }) || activeCoupons[0];
       currentFeaturedCoupon = featured;
       ticketSec.style.display = 'block';
 
-      // 1. Cập nhật Tiêu đề và Mô tả
+      // 1. Cập nhật Tiêu đề và Mô tả bên trái
       var titleEl = document.getElementById('landingCouponTitle');
       var dateEl = document.getElementById('landingCouponDate');
       var codeEl = document.getElementById('landingCouponCode');
@@ -3128,12 +3128,25 @@ function escapeHtml(value) {
       }
 
       if (dateEl) {
-        if (featured.expires_at) {
-          dateEl.textContent = 'Hạn dùng: ' + featured.expires_at;
-        } else if (featured.end_date) {
-          dateEl.textContent = 'Chỉ đến ngày ' + featured.end_date.split('-').reverse().join('/');
+        function fmtDate(d) {
+          if (!d) return '';
+          var parts = d.split('-');
+          return parts.length === 3 ? (parts[2] + '/' + parts[1] + '/' + parts[0]) : d;
+        }
+
+        var sDate = featured.start_date ? fmtDate(featured.start_date) : '';
+        var eDate = featured.end_date ? fmtDate(featured.end_date) : '';
+
+        if (sDate && eDate) {
+          dateEl.textContent = 'Áp dụng từ ' + sDate + ' đến ' + eDate;
+        } else if (eDate) {
+          dateEl.textContent = 'Hạn dùng đến ' + eDate;
+        } else if (sDate) {
+          dateEl.textContent = 'Bắt đầu từ ngày ' + sDate;
+        } else if (featured.expires_at && featured.expires_at !== 'Vĩnh viễn') {
+          dateEl.textContent = 'Thời gian áp dụng: ' + featured.expires_at;
         } else {
-          dateEl.textContent = 'Áp dụng cho mọi khách hàng';
+          dateEl.textContent = 'Áp dụng: Vĩnh viễn (Chưa có ngày kết thúc)';
         }
       }
 
@@ -3142,86 +3155,184 @@ function escapeHtml(value) {
       }
 
       if (hintEl) {
-        hintEl.textContent = 'Nhập mã ' + featured.code + ' ở bước thanh toán để được trừ ' + valText + '.';
+        hintEl.textContent = 'Bấm "Sử dụng mã" để tự động áp dụng mã ' + featured.code + ' và mở thanh toán.';
       }
 
-      // 2. Cập nhật Bảng Mockup ví dụ minh họa tự động tính toán
-      // Lấy 2 sản phẩm thực tế từ data.products hoặc fallback mẫu phù hợp điều kiện
-      var p1Name = "Quản lý bán hàng";
-      var p1Price = 599000;
-      var p2Name = "Quản lý kho";
-      var p2Price = 95000;
-
-      if (data && data.products && data.products.length >= 2) {
-        var sortedProds = data.products.slice().sort(function(a, b) { return (b.price || 0) - (a.price || 0); });
-        p1Name = sortedProds[0].name || p1Name;
-        p1Price = sortedProds[0].price || p1Price;
-        p2Name = sortedProds[1].name || p2Name;
-        p2Price = sortedProds[1].price || p2Price;
-      }
-
-      // Đảm bảo tổng demo thỏa mãn điều kiện đơn tối thiểu (min_order)
-      var subtotalDemo = p1Price + p2Price;
-      if (minOrder > 0 && subtotalDemo < minOrder) {
-        p1Price = Math.round(minOrder * 0.65);
-        p2Price = Math.round(minOrder * 0.45);
-        subtotalDemo = p1Price + p2Price;
-      }
-
-      var discDemo = 0;
-      if (isPercent) {
-        discDemo = Math.round((subtotalDemo * Number(featured.value)) / 100);
-      } else {
-        discDemo = Number(featured.value);
-      }
-      var maxDisc = Number(featured.max_discount || 0);
-      if (maxDisc > 0 && discDemo > maxDisc) discDemo = maxDisc;
-      var finalDemo = Math.max(0, subtotalDemo - discDemo);
-
-      var demoItem1Name = document.getElementById('demoItem1Name');
-      var demoItem1Price = document.getElementById('demoItem1Price');
-      var demoItem2Name = document.getElementById('demoItem2Name');
-      var demoItem2Price = document.getElementById('demoItem2Price');
+      // 2. Cập nhật Card Thanh toán bên phải (Đơn hàng của bạn)
+      var itemsContainer = document.getElementById('ticketItemsContainer');
+      var headerBadge = document.getElementById('ticketCardHeaderBadge');
       var demoDiscountLabel = document.getElementById('demoDiscountLabel');
       var demoDiscountVal = document.getElementById('demoDiscountVal');
-      var demoTotalVal = document.getElementById('demoTotalVal');
       var demoSubtotal = document.getElementById('demoSubtotal');
+      var demoTotalVal = document.getElementById('demoTotalVal');
+      var btnActionText = document.getElementById('btnTicketActionText');
 
-      if (demoItem1Name) demoItem1Name.textContent = p1Name;
-      if (demoItem1Price) demoItem1Price.textContent = formatCurrency(p1Price).replace('₫', '').trim();
-      if (demoItem2Name) demoItem2Name.textContent = p2Name;
-      if (demoItem2Price) demoItem2Price.textContent = formatCurrency(p2Price).replace('₫', '').trim();
+      var itemsToShow = [];
+      var isRealCart = (state.cart && state.cart.length > 0);
 
-      // Hiển thị rõ phần trăm (VD: "Mã FILEDILAM (-20%)") hoặc số tiền giảm
-      var discountLabelText = 'Mã ' + featured.code + (isPercent ? ' (-' + featured.value + '%)' : '');
-      if (demoDiscountLabel) demoDiscountLabel.textContent = discountLabelText;
-      if (demoDiscountVal) demoDiscountVal.textContent = '-' + formatCurrency(discDemo).replace('₫', '').trim();
-      if (demoSubtotal) demoSubtotal.textContent = formatCurrency(subtotalDemo).replace('₫', '').trim();
-      if (demoTotalVal) demoTotalVal.textContent = formatCurrency(finalDemo);
+      if (isRealCart) {
+        if (headerBadge) headerBadge.textContent = 'Đơn hàng của bạn (' + state.cart.length + ' file)';
+        state.cart.forEach(function(entry) {
+          var p = getProductById(entry.productId);
+          if (p) {
+            itemsToShow.push({ name: p.name, price: p.price || 0 });
+          }
+        });
+      } else {
+        if (headerBadge) headerBadge.textContent = 'Đơn hàng mẫu (Khuyên dùng)';
+        if (data && data.products && data.products.length >= 2) {
+          var sorted = data.products.slice().sort(function(a, b) { return (b.price || 0) - (a.price || 0); });
+          itemsToShow.push({ name: sorted[0].name, price: sorted[0].price || 0 });
+          itemsToShow.push({ name: sorted[1].name, price: sorted[1].price || 0 });
+        } else {
+          itemsToShow.push({ name: 'Quản lý bán hàng', price: 599000 });
+          itemsToShow.push({ name: 'Quản lý kho', price: 95000 });
+        }
+      }
+
+      var subtotal = itemsToShow.reduce(function(sum, it) { return sum + it.price; }, 0);
+      if (minOrder > 0 && subtotal < minOrder && !isRealCart) {
+        itemsToShow[0].price = Math.round(minOrder * 0.65);
+        itemsToShow[1].price = Math.round(minOrder * 0.45);
+        subtotal = itemsToShow[0].price + itemsToShow[1].price;
+      }
+
+      if (itemsContainer) {
+        itemsContainer.innerHTML = itemsToShow.map(function(item) {
+          return '<div class="summary-row" style="font-size: 0.84rem; margin-bottom: 4px;">' +
+                   '<span style="color: #334155; font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 220px;">' + escapeHtml(item.name) + '</span>' +
+                   '<span style="font-weight: 600; color: #0f172a;">' + formatCurrency(item.price) + '</span>' +
+                 '</div>';
+        }).join('');
+      }
+
+      // Kiểm tra điều kiện đơn tối thiểu (min_order)
+      var isEligible = (minOrder <= 0 || subtotal >= minOrder);
+      var isCouponApplied = !!(state.appliedCoupon && state.appliedCoupon.code === featured.code && isEligible);
+
+      var discountRow = document.getElementById('demoDiscountRow');
+      var watermark = document.getElementById('ticketCardWatermark');
+
+      var discount = 0;
+      if (isCouponApplied) {
+        if (isPercent) {
+          discount = Math.round((subtotal * Number(featured.value)) / 100);
+        } else {
+          discount = Number(featured.value);
+        }
+        var maxDisc = Number(featured.max_discount || 0);
+        if (maxDisc > 0 && discount > maxDisc) discount = maxDisc;
+      }
+
+      var finalAmount = Math.max(0, subtotal - discount);
+
+      if (discountRow) {
+        discountRow.style.display = (isCouponApplied && discount > 0) ? 'flex' : 'none';
+      }
+      if (watermark) {
+        if (isRealCart && !isEligible) {
+          var thiếu = minOrder - subtotal;
+          watermark.textContent = 'Thiếu ' + formatCurrency(thiếu) + ' để dùng mã';
+          watermark.style.color = '#d97706';
+          watermark.style.background = '#fef3c7';
+        } else if (isCouponApplied) {
+          watermark.textContent = 'Đã áp mã -' + valText;
+          watermark.style.color = 'var(--mint-primary)';
+          watermark.style.background = '#ecfdf5';
+        } else {
+          watermark.textContent = 'Chưa áp mã';
+          watermark.style.color = '#64748b';
+          watermark.style.background = '#f1f5f9';
+        }
+      }
+
+      var labelText = 'Mã ' + featured.code + (isPercent ? ' (-' + featured.value + '%)' : '');
+      if (demoDiscountLabel) demoDiscountLabel.textContent = labelText;
+      if (demoDiscountVal) demoDiscountVal.textContent = '-' + formatCurrency(discount);
+      if (demoSubtotal) demoSubtotal.textContent = formatCurrency(subtotal);
+      if (demoTotalVal) demoTotalVal.textContent = formatCurrency(finalAmount);
+
+      if (btnActionText) {
+        if (isRealCart && !isEligible) {
+          btnActionText.textContent = 'Mua thêm để được giảm ' + valText;
+        } else if (isCouponApplied) {
+          btnActionText.textContent = 'Tiến hành thanh toán ngay';
+        } else {
+          btnActionText.textContent = isRealCart ? 'Sử dụng mã giảm giá' : 'Chọn combo mẫu & Sử dụng mã';
+        }
+      }
 
     } catch (e) {
-      console.warn('Lỗi đồng bộ coupon ticket:', e);
+      console.warn('Lỗi đồng bộ coupon ticket card:', e);
     }
   }
 
-  // Cập nhật hàm sao chép voucher toàn cục: Tự copy + Tự điền vào checkout input
-  window.copyVoucherCode = function(btnEl) {
+  // Bấm "Sử dụng mã" hoặc "Thanh toán ngay": Tự áp mã và mở ngăn giỏ hàng/thanh toán ngay
+  window.handleTicketApplyAndCheckout = function(btnEl) {
     var code = (currentFeaturedCoupon && currentFeaturedCoupon.code) || 'FILEDILAM';
-    copyTextToClipboard(code, btnEl, 'Đã sao chép mã ' + code + '!');
-    
-    // Tự động gán mã vào ô checkout coupon để khách không phải gõ lại
+
+    // 1. Nếu giỏ hàng đang trống, tự động thêm combo mẫu vào giỏ hàng
+    if (!state.cart || !state.cart.length) {
+      if (data && data.products && data.products.length >= 2) {
+        var sorted = data.products.slice().sort(function(a, b) { return (b.price || 0) - (a.price || 0); });
+        state.cart = [
+          { productId: sorted[0].id, quantity: 1 },
+          { productId: sorted[1].id, quantity: 1 }
+        ];
+      } else if (data && data.products && data.products.length === 1) {
+        state.cart = [{ productId: data.products[0].id, quantity: 1 }];
+      }
+      saveCart();
+      renderCart();
+    }
+
+    // 2. Kiểm tra điều kiện đơn tối thiểu trước khi áp mã
+    var curSubtotal = getCartSubtotal();
+    var curMinOrder = Number((currentFeaturedCoupon && currentFeaturedCoupon.min_order) || 0);
+
+    if (curMinOrder > 0 && curSubtotal < curMinOrder) {
+      state.appliedCoupon = null;
+      state.discountAmount = 0;
+      var msg = "Mã " + currentFeaturedCoupon.code + " chỉ áp dụng cho đơn từ " + formatCurrency(curMinOrder) + ". Bạn cần thêm " + formatCurrency(curMinOrder - curSubtotal) + " nữa.";
+      showToast(msg);
+      openCart();
+      syncLandingCouponTicket();
+      return;
+    }
+
+    if (currentFeaturedCoupon) {
+      state.appliedCoupon = currentFeaturedCoupon;
+    }
+
+    // 3. Điền mã vào input
     var couponInput = document.getElementById('checkoutCouponInput');
     if (couponInput) {
       couponInput.value = code;
     }
-    // Lưu mã tạm vào state
     try {
       sessionStorage.setItem('filedilam_auto_coupon', code);
     } catch(e) {}
+
+    // Cập nhật lại card để hiển thị dòng giảm giá vừa được kích hoạt
+    syncLandingCouponTicket();
+
+    // 4. Mở giỏ hàng thanh toán
+    openCart();
+
+    // 5. Kích hoạt áp mã trong drawer
+    setTimeout(function() {
+      applyCheckoutCoupon();
+    }, 200);
+
+    showToast('Đã áp dụng mã ' + code + '!');
+  };
+
+  window.copyVoucherCode = function(btnEl) {
+    handleTicketApplyAndCheckout(btnEl);
   };
 
 
-  function onQrDownloaded() {
+    function onQrDownloaded() {
     if (saveQrBtn) {
       saveQrBtn.innerHTML = '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg><span>Đã lưu (Tải lại)</span>';
       saveQrBtn.classList.add("btn-saved-qr");

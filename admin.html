@@ -1666,16 +1666,11 @@
 
             <!-- CỘT TRÁI (62%): THÔNG TIN CHÍNH, ĐỊNH DANH & NỘI DUNG -->
             <div class="canvas-col-main">
-              <!-- Section 1: Định danh sản phẩm -->
+              <!-- Section 1: Phân loại & Định dạng (Đưa các dropdown lên trên cùng) -->
               <div class="canvas-section">
                 <div class="canvas-section-header">
-                  <span class="canvas-section-title">Thông tin chung</span>
-                  <span class="canvas-section-hint">Tên gọi, phân loại & nhận diện sản phẩm</span>
-                </div>
-                
-                <div class="canvas-field-group">
-                  <label for="productName" class="canvas-label">Tên sản phẩm <span class="req">*</span></label>
-                  <input type="text" id="productName" class="canvas-input" required placeholder="VD: Bảng tính Quản lý Kho Thông Minh Mini">
+                  <span class="canvas-section-title">Phân loại & Định dạng</span>
+                  <span class="canvas-section-hint">Danh mục, hình thức phân phối và đối tượng mục tiêu</span>
                 </div>
 
                 <div class="canvas-row-2">
@@ -1715,15 +1710,21 @@
                 </div>
               </div>
 
-              <!-- Section 2: Nội dung & Mô tả -->
+              <!-- Section 2: Nội dung sản phẩm (Tên H1, Mô tả H2 và Chi tiết tính năng đi liền một mạch) -->
               <div class="canvas-section">
                 <div class="canvas-section-header">
-                  <span class="canvas-section-title">Mô tả & Tính năng nổi bật</span>
-                  <span class="canvas-section-hint">Nội dung hiển thị chi tiết khi khách xem sản phẩm</span>
+                  <span class="canvas-section-title">Nội dung sản phẩm & Tính năng</span>
+                  <span class="canvas-section-hint">Tên (Heading 1), Mô tả ngắn (Heading 2) & Chi tiết phân hệ Modules</span>
                 </div>
 
                 <div class="canvas-field-group">
-                  <label for="productDescription" class="canvas-label">Mô tả ngắn (Heading 2 hiển thị dưới Tên sản phẩm) <span class="req">*</span></label>
+                  <label for="productName" class="canvas-label">Tên sản phẩm (Heading 1) <span class="req">*</span></label>
+                  <input type="text" id="productName" class="canvas-input" required placeholder="VD: Bảng tính Quản lý Kho Thông Minh Mini">
+                  <small class="canvas-help-text">Tiêu đề chính lớn nhất (H1) hiển thị trên cùng ở trang chi tiết sản phẩm.</small>
+                </div>
+
+                <div class="canvas-field-group">
+                  <label for="productDescription" class="canvas-label">Mô tả ngắn (Heading 2) <span class="req">*</span></label>
                   <textarea id="productDescription" class="canvas-textarea" rows="2" style="min-height:64px;" required placeholder="VD: Phần Mềm Quản Lý Khách Hàng Bất Động Sản (Phân Quyền – Mua dùng cho cả team – mua 1 lần dùng mãi mãi)"></textarea>
                   <small class="canvas-help-text">Đóng vai trò là Sub-heading 2 súc tích định vị giải pháp ngay dưới tiêu đề sản phẩm.</small>
                 </div>
@@ -2157,7 +2158,7 @@
   <script src="/__/firebase/10.7.1/firebase-storage-compat.js"></script>
   <script src="/__/firebase/init.js"></script>
   
-  <script src="./admin.js?v=150"></script>
+  <script src="./admin.js?v=160"></script>
   <!-- Agentation: Visual Feedback & Annotation for AI agents -->
   <script src="./agentation-vanilla.js"></script>
 
