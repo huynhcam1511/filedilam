@@ -12,6 +12,14 @@ from email.mime.multipart import MIMEMultipart
 SMTP_USER = "kiencam.work@gmail.com"
 SMTP_PASS = "eohmiuavreukunhk"
 
+def ensure_copy_link(url):
+    raw = str(url or "").strip()
+    if "docs.google.com/spreadsheets" in raw:
+        m = re.search(r"docs\.google\.com/spreadsheets/d/([a-zA-Z0-9_-]+)", raw)
+        if m:
+            return f"https://docs.google.com/spreadsheets/d/{m.group(1)}/copy"
+    return raw
+
 def send_order_success_email(customer_email, customer_name, order_id, order_data):
     if not customer_email or "@" not in customer_email:
         print(f"[Email] Bỏ qua gửi email do địa chỉ không hợp lệ: {customer_email}")
@@ -19,65 +27,258 @@ def send_order_success_email(customer_email, customer_name, order_id, order_data
     
     try:
         product_name = order_data.get("product_name") or "File Quản Lý Google Sheets"
-        file_url = order_data.get("product_file_url") or "https://filedilam.web.app"
+        raw_file_url = order_data.get("product_file_url") or "https://filedilam.web.app"
+        file_url = ensure_copy_link(raw_file_url)
         items = order_data.get("items") or []
 
-        # Tạo danh sách file nếu là combo nhiều file
-        files_html = ""
+        # Kiểm tra xem đơn hàng có file Apps Script / Web App hay chỉ là Google Sheets thuần
+        has_appscript = False
+        all_names = (product_name or "").lower()
         if isinstance(items, list) and len(items) > 0:
-            files_html += "<ul style='margin: 10px 0; padding-left: 20px; line-height: 1.8;'>"
             for it in items:
-                it_name = it.get("title") or it.get("name") or "File Google Sheets"
-                it_url = it.get("file_url") or file_url
-                files_html += f"<li><strong>{it_name}</strong>: <a href='{it_url}' style='color: #059669; font-weight: 600;' target='_blank'>[Bấm vào đây để tạo bản sao /copy]</a></li>"
-            files_html += "</ul>"
-        else:
-            files_html = f"<div style='margin: 16px 0; text-align: center;'><a href='{file_url}' style='display: inline-block; padding: 14px 28px; background-color: #059669; color: #ffffff; text-decoration: none; border-radius: 8px; font-weight: 700; font-size: 16px;' target='_blank'>Mở Bản Sao Google Sheet Ngay</a></div>"
+                all_names += " " + (it.get("product_name") or it.get("name") or it.get("title") or "").lower()
+                all_names += " " + (it.get("product_id") or "").lower()
+        if any(kw in all_names for kw in ["cost", "appscript", "web app", "webapp", "smart", "kho mini smart"]):
+            has_appscript = True
 
-        html_content = f"""
-<!DOCTYPE html>
+        # Bóc tách danh sách file (đơn lẻ hoặc combo)
+        resolved_files = []
+        if isinstance(items, list) and len(items) > 0:
+            for it in items:
+                it_name = it.get("product_name") or it.get("name") or it.get("title") or "File Google Sheets"
+                it_raw_url = it.get("product_file_url") or it.get("file_url") or file_url
+                resolved_files.append({
+                    "name": it_name,
+                    "url": ensure_copy_link(it_raw_url)
+                })
+        else:
+            resolved_files.append({
+                "name": product_name,
+                "url": file_url
+            })
+
+        # Danh sách nút / link nhận file chuẩn Fintech phẳng, sạch, không bọc pill rườm rà
+        if len(resolved_files) == 1:
+            single = resolved_files[0]
+            files_html = f"""
+            <div style="margin: 28px 0 20px 0;">
+              <a href="{single['url']}" target="_blank" rel="noopener noreferrer" style="display: block; text-align: center; background-color: #059669; color: #ffffff; text-decoration: none; font-size: 15px; font-weight: 600; padding: 14px 24px; border-radius: 8px; letter-spacing: 0.2px;">
+                Tạo bản sao Google Sheets ({single['name']})
+              </a>
+              <div style="margin-top: 10px; font-size: 12.5px; color: #64748b; text-align: center; line-height: 1.5;">
+                Link dự phòng: <a href="{single['url']}" target="_blank" style="color: #059669; text-decoration: underline; word-break: break-all;">{single['url']}</a>
+              </div>
+            </div>
+            """
+        else:
+            items_list = ""
+            for idx, f in enumerate(resolved_files, 1):
+                items_list += f"""
+                <div style="padding: 14px 0; border-bottom: 1px solid #f1f5f9;">
+                  <div style="font-size: 14.5px; font-weight: 600; color: #0f172a; margin-bottom: 8px;">{idx}. {f['name']}</div>
+                  <a href="{f['url']}" target="_blank" rel="noopener noreferrer" style="display: inline-block; background-color: #059669; color: #ffffff; text-decoration: none; font-size: 13.5px; font-weight: 600; padding: 9px 18px; border-radius: 6px;">
+                    Tạo bản sao /copy
+                  </a>
+                  <div style="margin-top: 6px; font-size: 12px; color: #64748b;">
+                    Link trực tiếp: <a href="{f['url']}" target="_blank" style="color: #059669; text-decoration: underline;">{f['url']}</a>
+                  </div>
+                </div>
+                """
+            files_html = f"""
+            <div style="margin: 20px 0 16px 0; border-top: 1px solid #f1f5f9;">
+              {items_list}
+            </div>
+            """
+
+        pkg_name = order_data.get("package_name") or "Bản Tự Dùng"
+
+        if has_appscript:
+            guide_section_html = """<!-- Hướng dẫn sử dụng & Khởi động Web App Apps Script chuẩn xác từng bước -->
+      <div style="margin-top: 28px; padding-top: 22px; border-top: 1px solid #e2e8f0;">
+        <div style="font-size: 15px; font-weight: 700; color: #0f172a; margin-bottom: 12px; letter-spacing: -0.2px;">
+          Hướng dẫn kích hoạt và mở ứng dụng (Thực hiện trên máy tính):
+        </div>
+
+        <!-- Video hướng dẫn thao tác thực tế -->
+        <div style="margin-bottom: 22px; padding: 14px 16px; background: #ecfdf5; border: 1px solid #a7f3d0; border-radius: 8px;">
+          <div style="font-size: 13.5px; font-weight: 600; color: #065f46; margin-bottom: 6px;">
+            Video quay màn hình thao tác thực tế (Khuyên xem):
+          </div>
+          <div style="font-size: 13px; color: #047857; line-height: 1.5; margin-bottom: 10px;">
+            Bạn có thể bấm nút bên dưới để xem video quay lại toàn bộ quá trình tạo bản sao và cấp quyền hệ thống trong 30 giây:
+          </div>
+          <a href="https://filedilam.web.app/assets/guide/huong_dan_kich_hoat_appscript.mp4" target="_blank" rel="noopener noreferrer" style="display: inline-block; background-color: #059669; color: #ffffff; text-decoration: none; font-size: 13px; font-weight: 600; padding: 8px 18px; border-radius: 6px;">
+            Xem video hướng dẫn thao tác thực tế
+          </a>
+        </div>
+        
+        <div style="font-size: 13.5px; color: #334155; line-height: 1.6;">
+          
+          <!-- Bước 1 -->
+          <div style="margin-bottom: 24px;">
+            <div style="margin-bottom: 8px;">
+              <strong style="color: #0f172a;">Bước 1. Mở link bằng máy tính &rarr; Bấm "Tạo một bản sao" (Make a copy):</strong><br>
+              <span style="color: #64748b; font-size: 13px;">File sẽ được tự động nhân bản và lưu trữ riêng tư vào Google Drive cá nhân của bạn.</span>
+            </div>
+            <div style="border: 1px solid #e2e8f0; border-radius: 8px; overflow: hidden; max-width: 520px;">
+              <img src="https://filedilam.web.app/assets/guide/01_tao_ban_sao.jpg" alt="Bước 1: Bấm Tạo một bản sao" style="display: block; width: 100%; height: auto;" />
+            </div>
+          </div>
+
+          <!-- Bước 2 -->
+          <div style="margin-bottom: 24px;">
+            <div style="margin-bottom: 8px;">
+              <strong style="color: #0f172a;">Bước 2. Bấm vào Menu ứng dụng trên thanh công cụ trang tính:</strong><br>
+              <span style="color: #64748b; font-size: 13px;">Nhìn lên thanh menu bên phải trên cùng (cạnh Trợ giúp) &rarr; Bấm vào menu ứng dụng (VD: <strong>File Đi Làm Cost &rarr; Mở ứng dụng tính cost</strong>).</span>
+            </div>
+            <div style="border: 1px solid #e2e8f0; border-radius: 8px; overflow: hidden; max-width: 520px;">
+              <img src="https://filedilam.web.app/assets/guide/02_menu_mo_ung_dung.jpg" alt="Bước 2: Bấm menu mở ứng dụng" style="display: block; width: 100%; height: auto;" />
+            </div>
+          </div>
+
+          <!-- Bước 3 -->
+          <div style="margin-bottom: 24px;">
+            <div style="margin-bottom: 8px;">
+              <strong style="color: #0f172a;">Bước 3. Hộp thoại "Phải uỷ quyền" xuất hiện &rarr; Bấm OK:</strong><br>
+              <span style="color: #64748b; font-size: 13px;">Google thông báo tập lệnh cần quyền để chạy trên bảng tính của bạn &rarr; Bấm <strong>OK</strong> rồi chọn tài khoản Gmail của bạn.</span>
+            </div>
+            <div style="border: 1px solid #e2e8f0; border-radius: 8px; overflow: hidden; max-width: 520px;">
+              <img src="https://filedilam.web.app/assets/guide/03_phai_uy_quyen_ok.jpg" alt="Bước 3: Hộp thoại uỷ quyền bấm OK" style="display: block; width: 100%; height: auto;" />
+            </div>
+          </div>
+
+          <!-- Bước 4 -->
+          <div style="margin-bottom: 24px;">
+            <div style="margin-bottom: 8px;">
+              <strong style="color: #0f172a;">Bước 4. Màn hình cảnh báo xác minh &rarr; Bấm Nâng cao (Advanced):</strong><br>
+              <span style="color: #64748b; font-size: 13px;">Vì đây là bản sao file của bạn, Google hiện cảnh báo lần đầu &rarr; Bấm vào dòng chữ <strong>Nâng cao (Advanced)</strong> ở góc trái bên dưới.</span>
+            </div>
+            <div style="border: 1px solid #e2e8f0; border-radius: 8px; overflow: hidden; max-width: 520px;">
+              <img src="https://filedilam.web.app/assets/guide/04_canh_bao_bam_nang_cao.jpg" alt="Bước 4: Bấm Nâng cao" style="display: block; width: 100%; height: auto;" />
+            </div>
+          </div>
+
+          <!-- Bước 5 -->
+          <div style="margin-bottom: 24px;">
+            <div style="margin-bottom: 8px;">
+              <strong style="color: #0f172a;">Bước 5. Bấm vào dòng "Đi tới hệ thống / Menu bản sao (Không an toàn)":</strong><br>
+              <span style="color: #64748b; font-size: 13px;">Bấm trực tiếp vào đường link bên dưới để xác nhận mở ứng dụng trên tài khoản của bạn.</span>
+            </div>
+            <div style="border: 1px solid #e2e8f0; border-radius: 8px; overflow: hidden; max-width: 520px;">
+              <img src="https://filedilam.web.app/assets/guide/05_di_toi_he_thong_khong_an_toan.jpg" alt="Bước 5: Đi tới hệ thống không an toàn" style="display: block; width: 100%; height: auto;" />
+            </div>
+          </div>
+
+          <!-- Bước 6 -->
+          <div style="margin-bottom: 24px;">
+            <div style="margin-bottom: 8px;">
+              <strong style="color: #0f172a;">Bước 6. Bấm "Tiếp tục" (Hoặc Cho phép / Allow):</strong><br>
+              <span style="color: #64748b; font-size: 13px;">Ứng dụng sẽ tự động tải và hiển thị ngay trên màn hình. Chỉ cần cấp quyền duy nhất 1 lần đầu tiên này!</span>
+            </div>
+            <div style="border: 1px solid #e2e8f0; border-radius: 8px; overflow: hidden; max-width: 520px;">
+              <img src="https://filedilam.web.app/assets/guide/06_cho_phep_tiep_tuc.jpg" alt="Bước 6: Bấm Tiếp tục / Cho phép" style="display: block; width: 100%; height: auto;" />
+            </div>
+          </div>
+
+          <!-- Bước 7: Mở trên điện thoại & Safari Home screen -->
+          <div style="margin-bottom: 12px; padding: 16px 18px; background-color: #f8fafc; border: 1px solid #e2e8f0; border-left: 4px solid #059669; border-radius: 8px;">
+            <div style="font-size: 14px; font-weight: 700; color: #0f172a; margin-bottom: 8px;">
+              Cách mở trên Điện thoại hoặc Laptop sau khi cấp quyền:
+            </div>
+            <div style="font-size: 13px; color: #334155; line-height: 1.6;">
+              Sau khi ứng dụng Web App mở ra, bạn chỉ cần <strong>copy đường link trình duyệt của ứng dụng</strong> để mở trực tiếp trên điện thoại hoặc laptop bất kỳ lúc nào mà không cần mở lại file Sheet.<br><br>
+              <strong style="color: #0f172a;">Mẹo tạo biểu tượng App ra màn hình chính:</strong><br>
+              • <strong>Riêng trên iPhone (Safari):</strong> Bấm biểu tượng <strong>Chia sẻ (Share)</strong> ở thanh dưới cùng &rarr; Chọn <strong>Thêm vào MH chính (Add to Home Screen)</strong> để tạo icon mở 1 chạm như App thật.<br>
+              • <strong>Trên Android (Chrome):</strong> Bấm dấu 3 chấm góc phải trên &rarr; Chọn <strong>Cài đặt ứng dụng / Thêm vào màn hình chính</strong>.
+            </div>
+          </div>
+
+        </div>
+      </div>"""
+        else:
+            guide_section_html = """      <!-- Hướng dẫn sử dụng file Google Sheets thông thường -->
+      <div style="margin-top: 28px; padding-top: 22px; border-top: 1px solid #e2e8f0;">
+        <div style="font-size: 15px; font-weight: 700; color: #0f172a; margin-bottom: 14px; letter-spacing: -0.2px;">
+          Hướng dẫn nhận và sử dụng file Google Sheets:
+        </div>
+        <div style="font-size: 13.5px; color: #334155; line-height: 1.65;">
+          <div style="margin-bottom: 12px;">
+            <strong style="color: #0f172a;">1. Bấm vào nút Tạo bản sao ở trên:</strong><br>
+            Hệ thống Google Drive sẽ mở trang nhân bản &rarr; Bạn bấm <strong>Tạo một bản sao (Make a copy)</strong>.
+          </div>
+          <div style="margin-bottom: 12px;">
+            <strong style="color: #0f172a;">2. File được lưu vĩnh viễn trên Drive cá nhân:</strong><br>
+            Bản sao này hoàn toàn thuộc quyền sở hữu của riêng bạn. Bạn có thể chỉnh sửa dữ liệu, thêm dòng cột hoặc chia sẻ cho nhân sự / cộng sự tùy ý.
+          </div>
+          <div style="margin-bottom: 8px;">
+            <strong style="color: #0f172a;">3. Tương thích mọi thiết bị:</strong><br>
+            Bạn có thể mở chỉnh sửa trên máy tính hoặc tải ứng dụng <strong>Google Trang tính (Google Sheets)</strong> trên điện thoại (App Store / CH Play) để theo dõi và nhập liệu mọi lúc mọi nơi.
+          </div>
+        </div>
+      </div>"""
+
+        html_content = f"""<!DOCTYPE html>
 <html>
 <head>
 <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kích hoạt đơn hàng #{order_id} - File Đi Làm</title>
 </head>
-<body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: #f8fafc; margin: 0; padding: 24px; color: #1e293b;">
-  <div style="max-width: 600px; margin: 0 auto; background: #ffffff; border-radius: 12px; border: 1px solid #e2e8f0; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);">
-    <div style="background-color: #059669; padding: 24px; text-align: center; color: #ffffff;">
-      <h1 style="margin: 0; font-size: 22px; font-weight: 800; letter-spacing: -0.5px;">FILE ĐI LÀM</h1>
-      <p style="margin: 6px 0 0 0; font-size: 14px; opacity: 0.9;">Xác nhận kích hoạt đơn hàng thành công</p>
+<body style="margin: 0; padding: 32px 16px; background-color: #f8fafc; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; color: #0f172a; line-height: 1.6; -webkit-font-smoothing: antialiased;">
+  <div style="max-width: 580px; margin: 0 auto; background-color: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden;">
+    
+    <!-- Header: Thanh lịch, tối giản (Fintech Classy) -->
+    <div style="padding: 28px 32px 20px 32px; border-bottom: 1px solid #f1f5f9;">
+      <div style="font-size: 18px; font-weight: 700; color: #0f172a; letter-spacing: -0.4px;">File Đi Làm</div>
+      <div style="font-size: 13.5px; color: #64748b; margin-top: 4px;">Xác nhận kích hoạt đơn hàng thành công</div>
     </div>
-    <div style="padding: 28px;">
-      <p style="font-size: 15px; margin-top: 0;">Xin chào <strong>{customer_name or 'Quý khách'}</strong>,</p>
-      <p style="font-size: 15px; line-height: 1.6;">Hệ thống <strong>File Đi Làm</strong> đã nhận được thanh toán cho mã đơn hàng <strong style="color: #059669; font-family: monospace;">{order_id}</strong>.</p>
-      
-      <div style="background-color: #f1f5f9; border-radius: 8px; padding: 16px; margin: 20px 0; font-size: 14px;">
-        <div style="margin-bottom: 8px;"><strong>Sản phẩm:</strong> {product_name}</div>
-        <div style="margin-bottom: 8px;"><strong>Mã đơn hàng:</strong> <span style="font-family: monospace;">{order_id}</span></div>
-        <div><strong>Gói bản quyền:</strong> {order_data.get('package_name', 'Bản Tự Dùng')}</div>
-      </div>
 
-      <h3 style="font-size: 16px; color: #0f172a; margin-top: 24px;">Link truy cập và tạo bản sao:</h3>
+    <!-- Body Content -->
+    <div style="padding: 28px 32px 32px 32px;">
+      <p style="font-size: 15px; margin: 0 0 16px 0; color: #334155;">
+        Xin chào <strong>{customer_name or 'Quý khách'}</strong>,
+      </p>
+      <p style="font-size: 14.5px; margin: 0 0 24px 0; color: #334155; line-height: 1.6;">
+        Hệ thống File Đi Làm đã nhận đủ thanh toán cho đơn hàng của bạn. Bản quyền file Google Sheets đã được cấp phép vĩnh viễn vào tài khoản của bạn.
+      </p>
+
+      <!-- Bảng thông tin đơn hàng dạng phẳng -->
+      <table style="width: 100%; border-collapse: collapse; margin-bottom: 24px; font-size: 13.5px;">
+        <tbody>
+          <tr>
+            <td style="padding: 8px 0; color: #64748b; width: 110px; border-bottom: 1px solid #f8fafc;">Sản phẩm:</td>
+            <td style="padding: 8px 0; font-weight: 600; color: #0f172a; border-bottom: 1px solid #f8fafc;">{product_name}</td>
+          </tr>
+          <tr>
+            <td style="padding: 8px 0; color: #64748b; border-bottom: 1px solid #f8fafc;">Mã đơn:</td>
+            <td style="padding: 8px 0; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; font-weight: 600; color: #059669; border-bottom: 1px solid #f8fafc;">#{order_id}</td>
+          </tr>
+          <tr>
+            <td style="padding: 8px 0; color: #64748b; border-bottom: 1px solid #f8fafc;">Gói sở hữu:</td>
+            <td style="padding: 8px 0; color: #0f172a; border-bottom: 1px solid #f8fafc;">{pkg_name}</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <!-- Danh sách nút nhận file -->
+      <div style="font-size: 14px; font-weight: 600; color: #0f172a; margin-top: 8px;">Liên kết nhận file Google Sheets:</div>
       {files_html}
 
-      <div style="margin-top: 24px; padding: 16px; background-color: #ecfdf5; border: 1px solid #a7f3d0; border-radius: 8px; font-size: 13.5px; line-height: 1.6; color: #065f46;">
-        <strong>3 bước bắt đầu sử dụng nhanh:</strong><br>
-        1. Bấm vào link mở bản sao ở trên.<br>
-        2. Bấm nút <strong>"Tạo bản sao" (Make a copy)</strong> để lưu file về Drive cá nhân của bạn.<br>
-        3. File là của bạn vĩnh viễn, bạn có thể chỉnh sửa dữ liệu và chia sẻ cho cộng sự tùy ý.
+{guide_section_html}
+      <!-- Hỗ trợ kỹ thuật -->
+      <div style="margin-top: 24px; padding-top: 18px; border-top: 1px solid #f1f5f9; font-size: 13px; color: #64748b; line-height: 1.5;">
+        Nếu cần hỗ trợ kỹ thuật hoặc có bất kỳ câu hỏi nào trong quá trình thao tác, bạn vui lòng liên hệ Zalo/Hotline: <strong style="color: #0f172a;">0938 134 576</strong> (hoặc phản hồi trực tiếp email này). Đội ngũ kỹ thuật hỗ trợ cả Thứ 7 và Chủ Nhật.
       </div>
-
-      <p style="font-size: 14px; color: #64748b; margin-top: 24px; line-height: 1.5;">
-        Nếu cần hỗ trợ trong quá trình sử dụng, bạn có thể liên hệ trực tiếp qua Zalo/Hotline: <strong>0938 134 576</strong> (hoặc phản hồi trực tiếp email này).
-      </p>
     </div>
-    <div style="background-color: #f8fafc; padding: 16px 28px; border-top: 1px solid #e2e8f0; font-size: 12px; color: #94a3b8; text-align: center;">
-      © File Đi Làm · Kho File Quản Lý Tự Động Trên Google Sheets<br>
-      Email này được gửi tự động từ hệ thống quản lý đơn hàng.
+
+    <!-- Footer phẳng, tối giản -->
+    <div style="padding: 16px 32px; background-color: #f8fafc; border-top: 1px solid #f1f5f9; font-size: 12px; color: #94a3b8; text-align: center; line-height: 1.5;">
+      File Đi Làm &middot; Hệ thống quản lý và tự động hoá quy trình trên Google Sheets<br>
+      Website: <a href="https://filedilam.web.app" target="_blank" style="color: #64748b; text-decoration: underline;">filedilam.web.app</a>
     </div>
   </div>
 </body>
-</html>
-        """
+</html>"""
 
         msg = MIMEMultipart("alternative")
         msg["Subject"] = f"[File Đi Làm] Kích hoạt đơn hàng #{order_id} - Link nhận file Google Sheet"

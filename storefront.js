@@ -15,6 +15,8 @@
     profile: null,
     pendingCheckout: false,
     selectedPackage: "standard",
+    appliedCoupon: null,
+    discountAmount: 0,
   };
 
   var folderGrid = document.getElementById("folderGrid");
@@ -107,6 +109,7 @@
   var checkoutDividerText = document.getElementById("checkoutDividerText");
   var quickBuyForm = document.getElementById("quickBuyForm");
   var quickPhoneLabel = document.getElementById("quickPhoneLabel");
+  var quickName = document.getElementById("quickName");
   var quickPhone = document.getElementById("quickPhone");
   var quickPassGroup = document.getElementById("quickPassGroup");
   var quickPassword = document.getElementById("quickPassword");
@@ -1503,9 +1506,26 @@
       }).filter(Boolean);
     }
 
-    if (checkoutHeroTotal) checkoutHeroTotal.textContent = formatCurrency(total);
-    if (checkoutSubTotal) checkoutSubTotal.textContent = formatCurrency(total);
-    if (checkoutGrandTotal) checkoutGrandTotal.textContent = formatCurrency(total);
+    var subtotal = getCartSubtotal();
+    var discount = state.discountAmount || 0;
+    var grandTotal = Math.max(0, subtotal - discount);
+
+    if (checkoutHeroTotal) checkoutHeroTotal.textContent = formatCurrency(grandTotal);
+    if (checkoutSubTotal) checkoutSubTotal.textContent = formatCurrency(subtotal);
+    if (checkoutGrandTotal) checkoutGrandTotal.textContent = formatCurrency(grandTotal);
+
+    var discountRow = document.getElementById("checkoutDiscountRow");
+    var discountVal = document.getElementById("checkoutDiscountVal");
+    var discountLabel = document.getElementById("checkoutDiscountLabel");
+    if (discountRow) {
+      if (discount > 0 && state.appliedCoupon) {
+        discountRow.style.display = "flex";
+        if (discountVal) discountVal.textContent = "-" + formatCurrency(discount);
+        if (discountLabel) discountLabel.textContent = "Giảm giá (" + state.appliedCoupon.code + ")";
+      } else {
+        discountRow.style.display = "none";
+      }
+    }
 
     if (!checkoutItems) return;
     if (!detailedCart.length) {
@@ -2289,13 +2309,30 @@
   }
 
   function handleQuickBuySubmit(e) {
+    if (e && e.preventDefault) e.preventDefault();
+
     var fullName = quickName ? quickName.value.trim() : "";
     if (!fullName) {
       showToast("Vui lòng nhập họ và tên của bạn.");
       if (quickName) quickName.focus();
       return;
     }
-    e.preventDefault();
+
+    var phoneInput = quickPhone ? quickPhone.value.trim() : "";
+    var phone = normalizePhone(phoneInput);
+    if (!isValidPhone(phone)) {
+      showToast("Vui lòng nhập đúng số điện thoại/Zalo (9–11 số).");
+      if (quickPhone) quickPhone.focus();
+      return;
+    }
+
+    var emailInput = quickEmail ? quickEmail.value.trim().toLowerCase() : "";
+    if (!isValidEmail(emailInput)) {
+      showToast("Vui lòng nhập đúng địa chỉ Gmail để nhận link bản sao Google Sheets.");
+      if (quickEmail) quickEmail.focus();
+      return;
+    }
+
     if (typeof firebase === 'undefined' || !firebase.auth) {
       showToast("Hệ thống đang tải dữ liệu. Vui lòng thử lại sau giây lát.");
       return;
@@ -2304,112 +2341,66 @@
     var auth = firebase.auth();
     if (btnQuickSubmit) btnQuickSubmit.disabled = true;
 
-    // Nếu người dùng đã đăng nhập (ví dụ qua Google) nhưng chưa có SĐT
-    if (state.user) {
-      var loggedInPhoneInput = quickPhone.value.trim();
-      var loggedInPhone = normalizePhone(loggedInPhoneInput);
-      if (!isValidPhone(loggedInPhone)) {
-        showToast("Vui lòng nhập đúng số điện thoại/Zalo (9–11 số).");
-        if (btnQuickSubmit) btnQuickSubmit.disabled = false;
-        return;
-      }
-      state.profile = Object.assign({}, state.profile || {}, { phone: loggedInPhone, email: state.user.email || "" });
-      saveProfile({ phone: loggedInPhone, email: state.user.email || "", auth_provider: "quick_phone" });
-      createOrderAndRenderQr({ customer_phone: loggedInPhone, customer_email: state.user.email || "" });
+    var customerEmail = emailInput;
+    var authEmail = phone + "@khachhang.filedilam.vn";
+    var autoPassword = "FDL@" + phone + "#2026";
+
+    showToast("Đang tạo thông tin đơn hàng...");
+
+    function finalizeOrder(user) {
+      state.user = user;
+      state.profile = { full_name: fullName, email: customerEmail, phone: phone, user_id: user.uid };
+      saveProfile({ full_name: fullName, email: customerEmail, phone: phone, auth_provider: "quick_checkout" });
+      createOrderAndRenderQr({
+        customer_name: fullName,
+        customer_phone: phone,
+        customer_email: customerEmail
+      });
       if (btnQuickSubmit) btnQuickSubmit.disabled = false;
+    }
+
+    if (state.user) {
+      finalizeOrder(state.user);
       return;
     }
 
-    if (!isQuickLoginMode) {
-      // --- CHẾ ĐỘ: KHÁCH MUA LẦN ĐẦU ---
-      // 1. Gmail bắt buộc
-      var emailInput = quickEmail ? quickEmail.value.trim().toLowerCase() : "";
-      if (!isValidEmail(emailInput)) {
-        showToast("Vui lòng nhập đúng địa chỉ Gmail để nhận link bản sao Google Sheets.");
-        if (quickEmail) quickEmail.focus();
-        if (btnQuickSubmit) btnQuickSubmit.disabled = false;
-        return;
-      }
-
-      // 2. Số điện thoại bắt buộc
-      var phoneInput = quickPhone.value.trim();
-      var phone = normalizePhone(phoneInput);
-      if (!isValidPhone(phone)) {
-        showToast("Vui lòng nhập đúng số điện thoại/Zalo (9–11 số).");
-        if (quickPhone) quickPhone.focus();
-        if (btnQuickSubmit) btnQuickSubmit.disabled = false;
-        return;
-      }
-
-      // 3. Mật khẩu
-      var password = quickPassword.value;
-      if (!password || password.length < 6) {
-        showToast("Mật khẩu cần ít nhất 6 ký tự để bảo mật đơn hàng.");
-        if (quickPassword) quickPassword.focus();
-        if (btnQuickSubmit) btnQuickSubmit.disabled = false;
-        return;
-      }
-
-      var customerEmail = emailInput;
-      var authEmail = phone + "@khachhang.filedilam.vn";
-
-      showToast("Đang tạo thông tin đơn hàng...");
-
-      auth.createUserWithEmailAndPassword(authEmail, password)
-        .then(function(result) {
-          state.user = result.user;
-          state.profile = { email: customerEmail, phone: phone, user_id: result.user.uid };
-          saveProfile({ email: customerEmail, phone: phone, auth_provider: "phone_password" });
-          createOrderAndRenderQr({ customer_phone: phone, customer_email: customerEmail });
-        })
-        .catch(function(error) {
-          var code = error && error.code ? String(error.code) : "";
-          if (code.indexOf("email-already-in-use") !== -1) {
-            // SĐT này đã có tài khoản -> thử đăng nhập bằng mật khẩu vừa nhập
-            auth.signInWithEmailAndPassword(authEmail, password)
-              .then(function(result) {
-                state.user = result.user;
-                createOrderAndRenderQr({ customer_phone: phone, customer_email: customerEmail });
-              })
-              .catch(function() {
-                showToast("Số điện thoại này đã có tài khoản. Vui lòng bấm 'Đăng nhập ngay' bên dưới.");
-                isQuickLoginMode = true;
-                updateQuickUI();
-              });
+    auth.createUserWithEmailAndPassword(authEmail, autoPassword)
+      .then(function(result) {
+        finalizeOrder(result.user);
+      })
+      .catch(function(error) {
+        var code = error && error.code ? String(error.code) : "";
+        if (code.indexOf("email-already-in-use") !== -1) {
+          auth.signInWithEmailAndPassword(authEmail, autoPassword)
+            .then(function(result) {
+              finalizeOrder(result.user);
+            })
+            .catch(function() {
+              if (auth.signInAnonymously) {
+                auth.signInAnonymously().then(function(result) {
+                  finalizeOrder(result.user);
+                }).catch(function(anonErr) {
+                  showToast("Vui lòng thử lại sau giây lát: " + (anonErr.message || ""));
+                  if (btnQuickSubmit) btnQuickSubmit.disabled = false;
+                });
+              } else {
+                finalizeOrder({ uid: "guest_" + phone, email: customerEmail });
+              }
+            });
+        } else {
+          if (auth.signInAnonymously) {
+            auth.signInAnonymously().then(function(result) {
+              finalizeOrder(result.user);
+            }).catch(function() {
+              showToast(authErrorMessage(error, "register"));
+              if (btnQuickSubmit) btnQuickSubmit.disabled = false;
+            });
           } else {
             showToast(authErrorMessage(error, "register"));
+            if (btnQuickSubmit) btnQuickSubmit.disabled = false;
           }
-        })
-        .finally(function() {
-          if (btnQuickSubmit) btnQuickSubmit.disabled = false;
-        });
-
-    } else {
-      // --- CHẾ ĐỘ: ĐĂNG NHẬP KHÁCH CŨ ---
-      var identifier = quickPhone.value.trim();
-      var authEmail = identifierToAuthEmail(identifier);
-      var password = quickPassword.value;
-      if (!password) {
-        showToast("Vui lòng nhập mật khẩu tài khoản.");
-        if (btnQuickSubmit) btnQuickSubmit.disabled = false;
-        return;
-      }
-
-      auth.signInWithEmailAndPassword(authEmail, password)
-        .then(function(result) {
-          state.user = result.user;
-          showToast("Đăng nhập thành công!");
-          loadProfile().then(function() {
-            createOrderAndRenderQr();
-          });
-        })
-        .catch(function(error) {
-          showToast("Sai số điện thoại/email hoặc mật khẩu.");
-        })
-        .finally(function() {
-          if (btnQuickSubmit) btnQuickSubmit.disabled = false;
-        });
-    }
+        }
+      });
   }
 
   function signInWithGoogleCheckout() {
@@ -2549,7 +2540,9 @@
       };
     }).filter(Boolean);
 
+    var finalAmount = getCartTotal();
     var orderData = {
+      customer_name: (customInfo && customInfo.customer_name) || (quickName ? quickName.value.trim() : ""),
       customer_email: email,
       customer_phone: phone,
       product_id: product.id,
@@ -2557,7 +2550,9 @@
       product_file_url: product.sheetUrl || product.delivery_link || product.fileUrl || "./outputs/1_Quan_Ly_Kho_Sample.xlsx",
       product_type: (product.type === "google_sheets" || !!product.sheetUrl) ? "google_sheets" : "excel",
       items: orderItems,
-      amount: getCartTotal(),
+      amount: finalAmount,
+      coupon_code: state.appliedCoupon ? state.appliedCoupon.code : null,
+      discount_amount: state.discountAmount || 0,
       package_type: state.selectedPackage || "standard",
       package_name: state.selectedPackage === "coaching" ? (product.coachingTitle || "Bản Kèm 1-1 (1 buổi 1 tiếng)") : "Bản Tự Dùng"
     };
@@ -3440,7 +3435,7 @@
     }];
   }
 
-  function getCartTotal() {
+  function getCartSubtotal() {
     if (!state.cart || !state.cart.length) return 0;
     var base = getCartBaseTotal();
     if (state.selectedPackage === "coaching") {
@@ -3453,6 +3448,13 @@
       }
     }
     return base;
+  }
+
+  function getCartTotal() {
+    var subtotal = getCartSubtotal();
+    if (!subtotal) return 0;
+    var discount = state.discountAmount || 0;
+    return Math.max(0, subtotal - discount);
   }
 
   function getCartCount() {
@@ -3561,6 +3563,149 @@
       downloads: realDownloads,
       isCustom: true
     };
+  }
+
+  // ==========================================
+  // --- STOREFRONT COUPON ENGINE & VALIDATION ---
+  // ==========================================
+  var checkoutCouponInput = document.getElementById("checkoutCouponInput");
+  var btnApplyCheckoutCoupon = document.getElementById("btnApplyCheckoutCoupon");
+  var checkoutCouponMsg = document.getElementById("checkoutCouponMsg");
+  var checkoutCouponCondition = document.getElementById("checkoutCouponCondition");
+  var btnRemoveCoupon = document.getElementById("btnRemoveCoupon");
+
+  function showCouponMessage(text, isError) {
+    if (!checkoutCouponMsg) return;
+    checkoutCouponMsg.textContent = text;
+    checkoutCouponMsg.style.display = "block";
+    checkoutCouponMsg.style.color = isError ? "#ef4444" : "#059669";
+    checkoutCouponMsg.style.fontWeight = isError ? "500" : "600";
+  }
+
+  function clearCouponMessage() {
+    if (!checkoutCouponMsg) return;
+    checkoutCouponMsg.textContent = "";
+    checkoutCouponMsg.style.display = "none";
+  }
+
+  function removeCheckoutCoupon() {
+    state.appliedCoupon = null;
+    state.discountAmount = 0;
+    if (checkoutCouponInput) checkoutCouponInput.value = "";
+    clearCouponMessage();
+    renderCart();
+    showToast("Đã hủy áp dụng mã giảm giá.");
+  }
+
+  async function applyCheckoutCoupon() {
+    var rawCode = checkoutCouponInput ? checkoutCouponInput.value.trim().toUpperCase() : "";
+    if (!rawCode) {
+      showCouponMessage("Vui lòng nhập mã giảm giá.", true);
+      showToast("Vui lòng nhập mã giảm giá.");
+      return;
+    }
+
+    var subtotal = getCartSubtotal();
+    if (subtotal <= 0) {
+      showCouponMessage("Giỏ hàng chưa có sản phẩm nào.", true);
+      return;
+    }
+
+    showCouponMessage("Đang kiểm tra mã...", false);
+
+    try {
+      var coupon = null;
+
+      // 1. Fetch from Firestore collection 'coupons'
+      if (typeof db !== 'undefined' && db.collection) {
+        try {
+          var docSnap = await db.collection('coupons').doc(rawCode).get();
+          if (docSnap.exists) {
+            coupon = docSnap.data();
+            coupon.id = docSnap.id;
+          } else {
+            var querySnap = await db.collection('coupons').where('code', '==', rawCode).limit(1).get();
+            if (!querySnap.empty) {
+              var fDoc = querySnap.docs[0];
+              coupon = fDoc.data();
+              coupon.id = fDoc.id;
+            }
+          }
+        } catch (dbErr) {
+          console.warn("Firestore coupon fetch warning:", dbErr);
+        }
+      }
+
+      // 2. Default fallback for FILEDILAM if Firestore document not yet created
+      if (!coupon && rawCode === "FILEDILAM") {
+        coupon = {
+          code: "FILEDILAM",
+          type: "percent",
+          value: 10,
+          min_order: 160000,
+          is_active: true,
+          description: "Giảm 10% cho đơn từ 160.000 đ"
+        };
+      }
+
+      if (!coupon || coupon.is_active === false) {
+        showCouponMessage("Mã giảm giá '" + rawCode + "' không tồn tại hoặc đã hết hạn.", true);
+        showToast("Mã '" + rawCode + "' không hợp lệ hoặc đã hết hạn.");
+        return;
+      }
+
+      // Check min order condition
+      var minOrder = Number(coupon.min_order || 0);
+      if (minOrder > 0 && subtotal < minOrder) {
+        var msg = "Mã " + coupon.code + " chỉ áp dụng cho đơn từ " + formatCurrency(minOrder) + ". Hiện tại đơn của bạn là " + formatCurrency(subtotal) + ".";
+        showCouponMessage(msg, true);
+        showToast(msg);
+        return;
+      }
+
+      // Calculate discount amount
+      var discount = 0;
+      if (coupon.type === "fixed") {
+        discount = Number(coupon.value || 0);
+      } else {
+        var pct = Number(coupon.value || 0);
+        discount = Math.round((subtotal * pct) / 100);
+      }
+
+      var maxDisc = Number(coupon.max_discount || 0);
+      if (maxDisc > 0 && discount > maxDisc) {
+        discount = maxDisc;
+      }
+      if (discount > subtotal) {
+        discount = subtotal;
+      }
+
+      state.appliedCoupon = coupon;
+      state.discountAmount = discount;
+
+      showCouponMessage("Áp mã thành công! Bạn được giảm " + formatCurrency(discount) + ".", false);
+      showToast("Áp mã thành công! Giảm " + formatCurrency(discount));
+
+      renderCart();
+    } catch (err) {
+      console.error("Lỗi áp mã:", err);
+      showCouponMessage("Có lỗi khi kiểm tra mã. Vui lòng thử lại.", true);
+    }
+  }
+
+  if (btnApplyCheckoutCoupon) {
+    btnApplyCheckoutCoupon.addEventListener("click", applyCheckoutCoupon);
+  }
+  if (btnRemoveCoupon) {
+    btnRemoveCoupon.addEventListener("click", removeCheckoutCoupon);
+  }
+  if (checkoutCouponInput) {
+    checkoutCouponInput.addEventListener("keydown", function(e) {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        applyCheckoutCoupon();
+      }
+    });
   }
 
   function escapeHtml(value) {

@@ -1385,6 +1385,12 @@
               </div>
               <span class="sidebar-badge danger" id="sidebarPendingOrderCount" style="display:none;">0</span>
             </li>
+            <li data-tab="couponsTab">
+              <div class="menu-left">
+                <span>Mã giảm giá</span>
+              </div>
+              <span class="sidebar-badge mint" id="sidebarCouponCount">1</span>
+            </li>
           </ul>
         </div>
       </div>
@@ -1875,6 +1881,118 @@
         </div>
       </div>
 
+      <!-- TAB 5: COUPONS MANAGEMENT (MÃ GIẢM GIÁ) -->
+      <div id="couponsTab" class="tab-pane">
+        <!-- Action Toolbar -->
+        <div class="action-toolbar">
+          <div class="toolbar-left">
+            <div class="search-box-pill">
+              <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+              <input type="search" id="couponSearchInput" placeholder="Tìm theo mã coupon..." />
+            </div>
+
+            <select id="couponStatusFilter" class="pill-select">
+              <option value="ALL">Tất cả trạng thái</option>
+              <option value="ACTIVE">Đang kích hoạt</option>
+              <option value="INACTIVE">Tạm dừng</option>
+            </select>
+          </div>
+
+          <div class="toolbar-right">
+            <div class="status-counter-text" id="couponCountCounter">
+              Đã kết nối Firestore • <b id="couponTotalNum">0</b> mã
+            </div>
+            <button type="button" class="btn-create-pill" id="btnOpenAddCoupon" title="Tạo mã giảm giá mới">
+              <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"></path></svg>
+              Thêm mã mới
+            </button>
+          </div>
+        </div>
+
+        <!-- Coupons Table -->
+        <div class="data-table-card">
+          <div class="table-responsive">
+            <table class="alocal-table">
+              <thead>
+                <tr>
+                  <th style="width: 160px;">Mã giảm giá</th>
+                  <th>Loại ưu đãi</th>
+                  <th>Mức giảm</th>
+                  <th>Điều kiện đơn tối thiểu</th>
+                  <th>Thời hạn</th>
+                  <th>Trạng thái</th>
+                  <th style="text-align: right; width: 140px;">Thao tác</th>
+                </tr>
+              </thead>
+              <tbody id="couponsListBody">
+                <tr>
+                  <td colspan="7" style="text-align: center; padding: 40px; color: var(--slate-muted);">Đang tải dữ liệu mã giảm giá...</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Add/Edit Coupon Modal -->
+        <div id="couponModal" class="modal-overlay" style="display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.45); backdrop-filter: blur(4px); z-index: 1000; align-items: center; justify-content: center; padding: 20px;">
+          <div style="background: #ffffff; border-radius: 14px; width: 100%; max-width: 520px; box-shadow: 0 20px 40px -15px rgba(0,0,0,0.2); border: 1px solid #e2e8f0; overflow: hidden; animation: fadeIn 0.15s ease-out;">
+            <div style="padding: 18px 24px; border-bottom: 1px solid #f1f5f9; display: flex; align-items: center; justify-content: space-between;">
+              <h3 id="couponModalTitle" style="margin: 0; font-size: 1.1rem; color: #0f172a; font-weight: 700;">Thêm mã giảm giá mới</h3>
+              <button type="button" id="btnCloseCouponModal" style="background: none; border: none; font-size: 1.4rem; line-height: 1; color: #94a3b8; cursor: pointer; padding: 4px;">&times;</button>
+            </div>
+            
+            <form id="couponForm" style="padding: 24px; display: flex; flex-direction: column; gap: 16px;">
+              <input type="hidden" id="couponDocId" value="" />
+
+              <div>
+                <label style="display: block; font-size: 0.85rem; font-weight: 600; color: #334155; margin-bottom: 6px;">Mã Voucher (Code) <span style="color: #ef4444;">*</span></label>
+                <input type="text" id="couponCodeInput" placeholder="Ví dụ: FILEDILAM, TRIAN20..." required style="width: 100%; height: 42px; border: 1px solid #cbd5e1; border-radius: 8px; padding: 0 14px; font-family: monospace; font-size: 0.95rem; font-weight: 700; text-transform: uppercase; color: #0f172a;" />
+              </div>
+
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px;">
+                <div>
+                  <label style="display: block; font-size: 0.85rem; font-weight: 600; color: #334155; margin-bottom: 6px;">Loại giảm giá <span style="color: #ef4444;">*</span></label>
+                  <select id="couponTypeSelect" style="width: 100%; height: 42px; border: 1px solid #cbd5e1; border-radius: 8px; padding: 0 12px; font-size: 0.9rem; color: #0f172a; background: #fff;">
+                    <option value="percent">Phần trăm (%)</option>
+                    <option value="fixed">Số tiền cố định (đ)</option>
+                  </select>
+                </div>
+                <div>
+                  <label style="display: block; font-size: 0.85rem; font-weight: 600; color: #334155; margin-bottom: 6px;">Giá trị giảm <span style="color: #ef4444;">*</span></label>
+                  <input type="number" id="couponValueInput" placeholder="VD: 10 (cho 10%) hoặc 20000" min="1" required style="width: 100%; height: 42px; border: 1px solid #cbd5e1; border-radius: 8px; padding: 0 14px; font-size: 0.92rem; color: #0f172a;" />
+                </div>
+              </div>
+
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px;">
+                <div>
+                  <label style="display: block; font-size: 0.85rem; font-weight: 600; color: #334155; margin-bottom: 6px;">Đơn tối thiểu (đ)</label>
+                  <input type="number" id="couponMinOrderInput" placeholder="VD: 160000 (để 0 nếu không yêu cầu)" min="0" value="0" style="width: 100%; height: 42px; border: 1px solid #cbd5e1; border-radius: 8px; padding: 0 14px; font-size: 0.92rem; color: #0f172a;" />
+                </div>
+                <div>
+                  <label style="display: block; font-size: 0.85rem; font-weight: 600; color: #334155; margin-bottom: 6px;">Giảm tối đa (đ - tuỳ chọn)</label>
+                  <input type="number" id="couponMaxDiscountInput" placeholder="Để trống nếu không giới hạn" min="0" style="width: 100%; height: 42px; border: 1px solid #cbd5e1; border-radius: 8px; padding: 0 14px; font-size: 0.92rem; color: #0f172a;" />
+                </div>
+              </div>
+
+              <div>
+                <label style="display: block; font-size: 0.85rem; font-weight: 600; color: #334155; margin-bottom: 6px;">Ghi chú / Mô tả điều kiện</label>
+                <input type="text" id="couponDescInput" placeholder="Ví dụ: Giảm 10% cho đơn từ 160.000 đ" style="width: 100%; height: 42px; border: 1px solid #cbd5e1; border-radius: 8px; padding: 0 14px; font-size: 0.9rem; color: #0f172a;" />
+              </div>
+
+              <div style="display: flex; align-items: center; gap: 8px; margin-top: 4px;">
+                <input type="checkbox" id="couponIsActive" checked style="width: 18px; height: 18px; accent-color: #059669; cursor: pointer;" />
+                <label for="couponIsActive" style="font-size: 0.9rem; font-weight: 600; color: #1e293b; cursor: pointer;">Kích hoạt mã ngay</label>
+              </div>
+
+              <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 14px; padding-top: 14px; border-top: 1px solid #f1f5f9;">
+                <button type="button" id="btnCancelCoupon" style="height: 42px; padding: 0 18px; border: 1px solid #e2e8f0; background: #fff; border-radius: 8px; font-weight: 600; font-size: 0.88rem; color: #64748b; cursor: pointer;">Hủy</button>
+                <button type="submit" id="btnSaveCoupon" class="btn-create-pill" style="height: 42px; padding: 0 22px; border-radius: 8px; font-size: 0.9rem;">Lưu mã</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+
     </main>
     </div> <!-- /.main-workspace -->
   </div> <!-- /#adminSection.app-shell -->
@@ -1887,7 +2005,7 @@
   <script src="/__/firebase/10.7.1/firebase-storage-compat.js"></script>
   <script src="/__/firebase/init.js"></script>
   
-  <script src="./admin.js?v=130"></script>
+  <script src="./admin.js?v=135"></script>
   <!-- Agentation: Visual Feedback & Annotation for AI agents -->
   <script src="./agentation-vanilla.js"></script>
 </body>

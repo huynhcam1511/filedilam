@@ -84,6 +84,8 @@ document.addEventListener('DOMContentLoaded', () => {
       loadAdminOrders();
     } else if (tabId === 'statsTab') {
       loadAdminStats();
+    } else if (tabId === 'couponsTab') {
+      loadCoupons();
     }
   }
 
@@ -1542,4 +1544,261 @@ document.addEventListener('DOMContentLoaded', () => {
   });
   document.getElementById('orderStatusFilter')?.addEventListener('change', renderFilteredOrders);
 
-  });
+  
+  // ==========================================
+  // --- MODULE QUẢN LÝ MÃ GIẢM GIÁ (COUPONS) ---
+  // ==========================================
+  let currentCoupons = [];
+  const couponsListBody = document.getElementById('couponsListBody');
+  const couponModal = document.getElementById('couponModal');
+  const couponForm = document.getElementById('couponForm');
+  const couponCodeInput = document.getElementById('couponCodeInput');
+  const couponTypeSelect = document.getElementById('couponTypeSelect');
+  const couponValueInput = document.getElementById('couponValueInput');
+  const couponMinOrderInput = document.getElementById('couponMinOrderInput');
+  const couponMaxDiscountInput = document.getElementById('couponMaxDiscountInput');
+  const couponDescInput = document.getElementById('couponDescInput');
+  const couponIsActive = document.getElementById('couponIsActive');
+  const couponDocId = document.getElementById('couponDocId');
+  const couponModalTitle = document.getElementById('couponModalTitle');
+  const couponSearchInput = document.getElementById('couponSearchInput');
+  const couponStatusFilter = document.getElementById('couponStatusFilter');
+  const sidebarCouponCount = document.getElementById('sidebarCouponCount');
+  const couponTotalNum = document.getElementById('couponTotalNum');
+
+  async function loadCoupons() {
+    try {
+      if (couponsListBody) {
+        couponsListBody.innerHTML = '<tr><td colspan="7" style="text-align: center; padding: 32px; color: var(--slate-muted);">Đang tải dữ liệu từ Firestore...</td></tr>';
+      }
+      const snapshot = await db.collection('coupons').get();
+      currentCoupons = [];
+
+      // If empty, auto-seed default FILEDILAM coupon
+      if (snapshot.empty) {
+        const defaultCoupon = {
+          code: "FILEDILAM",
+          type: "percent",
+          value: 10,
+          min_order: 160000,
+          max_discount: 0,
+          description: "Giảm 10% cho đơn từ 160.000 đ",
+          is_active: true,
+          created_at: new Date().toISOString()
+        };
+        await db.collection('coupons').doc('FILEDILAM').set(defaultCoupon);
+        currentCoupons.push({ ...defaultCoupon, id: 'FILEDILAM' });
+      } else {
+        snapshot.forEach(doc => {
+          currentCoupons.push({ ...doc.data(), id: doc.id });
+        });
+      }
+
+      // Sort: active first, then newest
+      currentCoupons.sort((a, b) => (b.is_active ? 1 : 0) - (a.is_active ? 1 : 0));
+
+      const activeCount = currentCoupons.filter(c => c.is_active).length;
+      if (sidebarCouponCount) sidebarCouponCount.textContent = activeCount;
+      if (couponTotalNum) couponTotalNum.textContent = currentCoupons.length;
+
+      renderFilteredCoupons();
+    } catch (err) {
+      console.error("Lỗi tải mã giảm giá:", err);
+      if (couponsListBody) {
+        couponsListBody.innerHTML = '<tr><td colspan="7" style="text-align: center; color: #ef4444; padding: 24px;">Lỗi tải mã giảm giá: ' + escapeHtml(err.message) + '</td></tr>';
+      }
+    }
+  }
+
+  function renderFilteredCoupons() {
+    if (!couponsListBody) return;
+    const searchVal = (couponSearchInput?.value || '').trim().toUpperCase();
+    const statusVal = couponStatusFilter?.value || 'ALL';
+
+    const filtered = currentCoupons.filter(c => {
+      const matchSearch = !searchVal || (c.code && c.code.toUpperCase().includes(searchVal)) || (c.description && c.description.toLowerCase().includes(searchVal.toLowerCase()));
+      const matchStatus = statusVal === 'ALL' || (statusVal === 'ACTIVE' && c.is_active) || (statusVal === 'INACTIVE' && !c.is_active);
+      return matchSearch && matchStatus;
+    });
+
+    if (filtered.length === 0) {
+      couponsListBody.innerHTML = '<tr><td colspan="7" style="text-align: center; padding: 32px; color: var(--slate-muted);">Không tìm thấy mã giảm giá phù hợp.</td></tr>';
+      return;
+    }
+
+    couponsListBody.innerHTML = filtered.map(c => {
+      const isPercent = c.type === 'percent';
+      const discountText = isPercent ? (c.value + '%') : (formatCurrency(c.value));
+      const minOrderText = (c.min_order && c.min_order > 0) ? formatCurrency(c.min_order) : 'Không yêu cầu';
+      const statusHtml = c.is_active
+        ? '<span style="display: inline-flex; align-items: center; gap: 6px; color: #059669; font-weight: 600; font-size: 0.82rem;"><span style="width: 7px; height: 7px; border-radius: 50%; background: #059669;"></span>Đang hoạt động</span>'
+        : '<span style="display: inline-flex; align-items: center; gap: 6px; color: #94a3b8; font-weight: 500; font-size: 0.82rem;"><span style="width: 7px; height: 7px; border-radius: 50%; background: #cbd5e1;"></span>Tạm dừng</span>';
+
+      return `
+        <tr>
+          <td>
+            <div style="font-family: monospace; font-size: 0.96rem; font-weight: 700; color: #0f172a; letter-spacing: 0.05em;">${escapeHtml(c.code)}</div>
+            ${c.description ? `<div style="font-size: 0.76rem; color: #64748b; margin-top: 2px;">${escapeHtml(c.description)}</div>` : ''}
+          </td>
+          <td>${isPercent ? 'Giảm theo phần trăm' : 'Giảm tiền cố định'}</td>
+          <td><strong style="color: #059669; font-size: 0.95rem;">${discountText}</strong></td>
+          <td>${minOrderText}</td>
+          <td>${c.expires_at ? escapeHtml(c.expires_at) : 'Vĩnh viễn'}</td>
+          <td>${statusHtml}</td>
+          <td style="text-align: right; white-space: nowrap;">
+            <button type="button" class="btn-toggle-coupon" data-id="${escapeHtml(c.id)}" style="background: none; border: 1px solid #e2e8f0; border-radius: 6px; padding: 4px 8px; font-size: 0.78rem; font-weight: 600; color: ${c.is_active ? '#475569' : '#059669'}; cursor: pointer; margin-right: 4px;">
+              ${c.is_active ? 'Tắt' : 'Bật'}
+            </button>
+            <button type="button" class="btn-edit-coupon" data-id="${escapeHtml(c.id)}" style="background: none; border: 1px solid #e2e8f0; border-radius: 6px; padding: 4px 8px; font-size: 0.78rem; font-weight: 600; color: #2563eb; cursor: pointer; margin-right: 4px;">
+              Sửa
+            </button>
+            <button type="button" class="btn-delete-coupon" data-id="${escapeHtml(c.id)}" style="background: none; border: 1px solid #fee2e2; border-radius: 6px; padding: 4px 8px; font-size: 0.78rem; font-weight: 600; color: #ef4444; cursor: pointer;">
+              Xóa
+            </button>
+          </td>
+        </tr>
+      `;
+    }).join('');
+
+    // Attach actions
+    couponsListBody.querySelectorAll('.btn-toggle-coupon').forEach(btn => {
+      btn.addEventListener('click', () => toggleCouponStatus(btn.dataset.id));
+    });
+    couponsListBody.querySelectorAll('.btn-edit-coupon').forEach(btn => {
+      btn.addEventListener('click', () => openEditCouponModal(btn.dataset.id));
+    });
+    couponsListBody.querySelectorAll('.btn-delete-coupon').forEach(btn => {
+      btn.addEventListener('click', () => deleteCoupon(btn.dataset.id));
+    });
+  }
+
+  function openAddCouponModal() {
+    if (!couponModal) return;
+    if (couponModalTitle) couponModalTitle.textContent = "Thêm mã giảm giá mới";
+    if (couponDocId) couponDocId.value = "";
+    if (couponForm) couponForm.reset();
+    if (couponCodeInput) {
+      couponCodeInput.readOnly = false;
+      couponCodeInput.focus();
+    }
+    if (couponIsActive) couponIsActive.checked = true;
+    couponModal.style.display = 'flex';
+  }
+
+  function openEditCouponModal(id) {
+    const coupon = currentCoupons.find(c => c.id === id);
+    if (!coupon || !couponModal) return;
+
+    if (couponModalTitle) couponModalTitle.textContent = "Chỉnh sửa mã " + coupon.code;
+    if (couponDocId) couponDocId.value = coupon.id;
+    if (couponCodeInput) {
+      couponCodeInput.value = coupon.code;
+      couponCodeInput.readOnly = true; // Prevent changing code key
+    }
+    if (couponTypeSelect) couponTypeSelect.value = coupon.type || 'percent';
+    if (couponValueInput) couponValueInput.value = coupon.value || 0;
+    if (couponMinOrderInput) couponMinOrderInput.value = coupon.min_order || 0;
+    if (couponMaxDiscountInput) couponMaxDiscountInput.value = coupon.max_discount || '';
+    if (couponDescInput) couponDescInput.value = coupon.description || '';
+    if (couponIsActive) couponIsActive.checked = coupon.is_active !== false;
+
+    couponModal.style.display = 'flex';
+  }
+
+  function closeCouponModal() {
+    if (couponModal) couponModal.style.display = 'none';
+  }
+
+  async function handleSaveCoupon(e) {
+    e.preventDefault();
+    const id = couponDocId ? couponDocId.value.trim() : "";
+    const rawCode = couponCodeInput ? couponCodeInput.value.trim().toUpperCase() : "";
+    if (!rawCode) {
+      showToast("Vui lòng nhập mã giảm giá.");
+      return;
+    }
+
+    const type = couponTypeSelect ? couponTypeSelect.value : 'percent';
+    const value = Number(couponValueInput ? couponValueInput.value : 0);
+    const minOrder = Number(couponMinOrderInput ? couponMinOrderInput.value : 0);
+    const maxDiscount = Number(couponMaxDiscountInput && couponMaxDiscountInput.value ? couponMaxDiscountInput.value : 0);
+    const description = couponDescInput ? couponDescInput.value.trim() : "";
+    const isActive = couponIsActive ? couponIsActive.checked : true;
+
+    if (value <= 0) {
+      showToast("Giá trị giảm phải lớn hơn 0.");
+      return;
+    }
+    if (type === 'percent' && value > 100) {
+      showToast("Giảm theo % không được vượt quá 100%.");
+      return;
+    }
+
+    const docKey = id || rawCode;
+    const payload = {
+      code: rawCode,
+      type: type,
+      value: value,
+      min_order: minOrder,
+      max_discount: maxDiscount,
+      description: description,
+      is_active: isActive,
+      updated_at: new Date().toISOString()
+    };
+    if (!id) {
+      payload.created_at = new Date().toISOString();
+    }
+
+    try {
+      showToast("Đang lưu mã giảm giá...");
+      await db.collection('coupons').doc(docKey).set(payload, { merge: true });
+      showToast("Đã lưu mã giảm giá " + rawCode);
+      closeCouponModal();
+      await loadCoupons();
+    } catch (err) {
+      console.error("Lỗi lưu coupon:", err);
+      showToast("Không thể lưu: " + err.message);
+    }
+  }
+
+  async function toggleCouponStatus(id) {
+    const coupon = currentCoupons.find(c => c.id === id);
+    if (!coupon) return;
+    const nextStatus = !coupon.is_active;
+    try {
+      await db.collection('coupons').doc(id).update({
+        is_active: nextStatus,
+        updated_at: new Date().toISOString()
+      });
+      showToast((nextStatus ? "Đã kích hoạt mã " : "Đã tạm dừng mã ") + coupon.code);
+      await loadCoupons();
+    } catch (err) {
+      console.error("Lỗi đổi trạng thái coupon:", err);
+      showToast("Lỗi: " + err.message);
+    }
+  }
+
+  async function deleteCoupon(id) {
+    const coupon = currentCoupons.find(c => c.id === id);
+    if (!coupon) return;
+    if (!confirm("Bạn có chắc chắn muốn xóa vĩnh viễn mã giảm giá " + coupon.code + " không?")) {
+      return;
+    }
+    try {
+      await db.collection('coupons').doc(id).delete();
+      showToast("Đã xóa mã " + coupon.code);
+      await loadCoupons();
+    } catch (err) {
+      console.error("Lỗi xóa coupon:", err);
+      showToast("Lỗi xóa mã: " + err.message);
+    }
+  }
+
+  document.getElementById('btnOpenAddCoupon')?.addEventListener('click', openAddCouponModal);
+  document.getElementById('btnCloseCouponModal')?.addEventListener('click', closeCouponModal);
+  document.getElementById('btnCancelCoupon')?.addEventListener('click', closeCouponModal);
+  couponForm?.addEventListener('submit', handleSaveCoupon);
+  couponSearchInput?.addEventListener('input', renderFilteredCoupons);
+  couponStatusFilter?.addEventListener('change', renderFilteredCoupons);
+
+});
