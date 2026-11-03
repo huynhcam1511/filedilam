@@ -2979,9 +2979,50 @@ function escapeHtml(value) {
     if (checkoutSummaryOriginal) {
       checkoutSummaryOriginal.textContent = originalTotal > total ? formatCurrency(originalTotal) : "";
     }
+    // Tự động khởi tạo thông tin ngân hàng và mã QR chuẩn ngay khi mở Checkout
+    var bankAccount = (window.StorefrontData && window.StorefrontData.store && window.StorefrontData.store.bankAccount) || {};
+    var bankShortName = bankAccount.bankShortName || bankAccount.bankName || "TPBank";
+    var vietQrCode = "TPB";
+    var accNo = bankAccount.number || "59215112002";
+    var owner = bankAccount.owner || "HUYNH KIEN CAM";
+
+    if (bankName) bankName.textContent = bankShortName;
+    if (bankOwner) bankOwner.textContent = owner;
+    if (bankNumber) bankNumber.textContent = accNo;
     var bankAmountEl = document.getElementById("bankAmount");
-    if (bankAmountEl) {
-      bankAmountEl.textContent = formatCurrency(total);
+    if (bankAmountEl) bankAmountEl.textContent = formatCurrency(total);
+
+    var existingActiveOrder = null;
+    try {
+      var rawActive = localStorage.getItem("filedilam_active_order");
+      if (rawActive) {
+        var pActive = JSON.parse(rawActive);
+        if (pActive && pActive.amount === total && (Date.now() - (pActive.time || 0) < 600000)) {
+          existingActiveOrder = pActive;
+        }
+      }
+    } catch(e) {}
+
+    if (existingActiveOrder) {
+      currentActiveOrderId = existingActiveOrder.order_id;
+      if (bankTransferNote) bankTransferNote.textContent = existingActiveOrder.transfer_note || existingActiveOrder.order_id;
+      var activeQr = "https://img.vietqr.io/image/" + vietQrCode + "-" + accNo + "-compact.png?amount=" + existingActiveOrder.amount + "&addInfo=" + encodeURIComponent(existingActiveOrder.transfer_note || existingActiveOrder.order_id) + "&accountName=" + encodeURIComponent(owner);
+      currentQrImageUrl = activeQr;
+      if (qrBox) {
+        qrBox.innerHTML = '<img src="' + activeQr + '" alt="Mã QR chuyển khoản" style="max-width:175px; width:100%; height:auto; border-radius:8px; display:block; margin:0 auto;" />';
+      }
+      startQrCountdown(existingActiveOrder.time);
+      pollOrderStatus(existingActiveOrder.order_id);
+    } else {
+      var previewNote = "FDL " + (product ? (product.sku || product.id).toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 10) : "ORDER");
+      if (bankTransferNote) bankTransferNote.textContent = previewNote;
+      var previewQr = "https://img.vietqr.io/image/" + vietQrCode + "-" + accNo + "-compact.png?amount=" + total + "&addInfo=" + encodeURIComponent(previewNote) + "&accountName=" + encodeURIComponent(owner);
+      currentQrImageUrl = previewQr;
+      if (qrBox) {
+        qrBox.innerHTML = '<img src="' + previewQr + '" alt="Mã VietQR thanh toán" style="max-width:175px; width:100%; height:auto; border-radius:8px; display:block; margin:0 auto;" />';
+      }
+      var timerDisplay = document.getElementById("qrTimerDisplay");
+      if (timerDisplay) timerDisplay.textContent = "10:00";
     }
 
     checkoutModal.classList.add("is-open");
