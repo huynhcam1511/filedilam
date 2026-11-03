@@ -3590,84 +3590,56 @@
 
     var statYearsEl = document.getElementById("statYears");
     var statMonthsEl = document.getElementById("statMonths");
-    var statExpContainer = document.getElementById("statExperienceContainer");
+    var statTotalFilesEl = document.getElementById("statTotalFiles");
+    var statsSectionEl = document.querySelector(".stats-section");
 
-    function animateExperience() {
+    var hasAnimated = false;
+    function runSynchronizedStatsAnimation() {
+      if (hasAnimated) return;
+      hasAnimated = true;
+
       var duration = 1200;
       var startTime = null;
+      var targetFiles = (statTotalFilesEl && parseInt(statTotalFilesEl.getAttribute("data-target"), 10)) || 30;
+
       function step(timestamp) {
         if (!startTime) startTime = timestamp;
         var progress = Math.min((timestamp - startTime) / duration, 1);
+        // Easing function: cubic ease-out
         var ease = 1 - Math.pow(1 - progress, 3);
+
         if (statYearsEl) statYearsEl.textContent = Math.floor(targetYears * ease);
         if (statMonthsEl) statMonthsEl.textContent = Math.floor(targetMonths * ease);
+        if (statTotalFilesEl) statTotalFilesEl.textContent = Math.floor(targetFiles * ease);
+
         if (progress < 1) {
           requestAnimationFrame(step);
         } else {
           if (statYearsEl) statYearsEl.textContent = targetYears;
           if (statMonthsEl) statMonthsEl.textContent = targetMonths;
+          if (statTotalFilesEl) statTotalFilesEl.textContent = targetFiles;
         }
       }
       requestAnimationFrame(step);
     }
 
-    if (statExpContainer) {
+    if (statsSectionEl) {
       if ("IntersectionObserver" in window) {
-        var expObserver = new IntersectionObserver(function(entries, obs) {
+        var obs = new IntersectionObserver(function(entries, observer) {
           entries.forEach(function(entry) {
             if (entry.isIntersecting) {
-              animateExperience();
-              obs.unobserve(entry.target);
+              runSynchronizedStatsAnimation();
+              observer.unobserve(entry.target);
             }
           });
-        }, { threshold: 0.2 });
-        expObserver.observe(statExpContainer);
+        }, { threshold: 0.15 });
+        obs.observe(statsSectionEl);
       } else {
-        animateExperience();
+        runSynchronizedStatsAnimation();
       }
     }
-
-    var counters = document.querySelectorAll(".counter[data-target]");
-    if (!counters.length) return;
-    
-    var observer = new IntersectionObserver(function(entries, obs) {
-      entries.forEach(function(entry) {
-        if (entry.isIntersecting) {
-          var el = entry.target;
-          var target = parseInt(el.getAttribute("data-target"), 10) || 0;
-          var duration = 1200;
-          var start = target > 2000 ? target - 10 : 0;
-          var startTime = null;
-
-          function updateNum(timestamp) {
-            if (!startTime) startTime = timestamp;
-            var progress = Math.min((timestamp - startTime) / duration, 1);
-            var easeProgress = 1 - Math.pow(1 - progress, 3);
-            var current = Math.floor(start + (target - start) * easeProgress);
-
-            if (target >= 10000) {
-              el.textContent = current.toLocaleString("vi-VN");
-            } else {
-              el.textContent = current;
-            }
-
-            if (progress < 1) {
-              requestAnimationFrame(updateNum);
-            } else {
-              el.textContent = target >= 10000 ? target.toLocaleString("vi-VN") : target;
-            }
-          }
-          requestAnimationFrame(updateNum);
-          obs.unobserve(el);
-        }
-      });
-    }, { threshold: 0.2 });
-
-    counters.forEach(function(c) {
-      observer.observe(c);
-    });
   }
-  if (document.readyState === "loading") {
+if (document.readyState === "loading") {
     document.addEventListener("DOMContentLoaded", initStatsCounters);
   } else {
     setTimeout(initStatsCounters, 200);

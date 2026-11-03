@@ -3356,3 +3356,8 @@ h2 { letter-spacing: -1.03px !important; }
   height: auto !important;
   margin: 0 auto !important;
 }
+
+/* Hide register & login buttons permanently from navbar */
+#registerButton, #loginButton {
+  display: none !important;
+}
