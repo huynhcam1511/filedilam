@@ -10,83 +10,69 @@ function escapeHtml(value) {
 
 
   function formatProductRichContent(content, fallbackHighlights) {
-    if (!content && (!fallbackHighlights || !fallbackHighlights.length)) return '';
-    var text = content || (fallbackHighlights || []).map(function(h) { return '- ' + h; }).join('\n');
-
-    // If already stored as HTML from the Visual WYSIWYG editor
-    if (/<[a-z][\s\S]*>/i.test(text)) {
-      // Enhance list items with check icons if they are standard ul/li
-      var enhancedHtml = text.replace(/<li>((?:(?!<li).)*?)<\/li>/gi, function(match, inner) {
-        if (inner.indexOf('module-check') !== -1) return match;
-        return '<li class="product-module-item"><span class="module-check">✓</span><span>' + inner + '</span></li>';
-      });
-      // Enhance h3 as module headers
-      enhancedHtml = enhancedHtml.replace(/<h3>((?:(?!<h3).)*?)<\/h3>/gi, function(match, inner) {
-        return '<div class="product-module-header"><h4 class="product-module-title">' + inner + '</h4></div>';
-      });
-      return '<div class="product-features-rich-wrapper">' + enhancedHtml + '</div>';
+  if (!content && (!fallbackHighlights || !fallbackHighlights.length)) return '';
+  var text = content || (fallbackHighlights || []).map(function(h) { return '- ' + h; }).join('\n');
+  
+  var lines = text.split('\n');
+  var html = '';
+  var inList = false;
+  
+  for (var i = 0; i < lines.length; i++) {
+    var line = lines[i].trim();
+    if (!line) {
+      if (inList) { html += '</ul>'; inList = false; }
+      continue;
     }
-
-    var lines = text.split('\n');
-    var html = '';
-    var inList = false;
-
-    for (var i = 0; i < lines.length; i++) {
-      var line = lines[i].trim();
-      if (!line) {
-        if (inList) { html += '</ul>'; inList = false; }
-        continue;
-      }
-
-      // Heading 1 (# Title)
-      if (line.indexOf('# ') === 0) {
-        if (inList) { html += '</ul>'; inList = false; }
-        var h1Text = line.replace(/^#\s*/, '');
-        html += '<h2 class="product-rich-h1">' + escapeHtml(h1Text) + '</h2>';
-      }
-      // Heading 2 (## Subheading)
-      else if (line.indexOf('## ') === 0) {
-        if (inList) { html += '</ul>'; inList = false; }
-        var h2Text = line.replace(/^##\s*/, '');
-        html += '<h3 class="product-rich-h2">' + escapeHtml(h2Text) + '</h3>';
-      }
-      // Heading 3 (### Module heading)
-      else if (line.indexOf('###') === 0) {
-        if (inList) { html += '</ul>'; inList = false; }
-        var title = line.replace(/^###\s*/, '');
-        html += '<div class="product-module-header">' +
-                  '<h4 class="product-module-title">' + escapeHtml(title) + '</h4>' +
-                '</div>';
-      }
-      // Bullet item (- or *)
-      else if (line.indexOf('- ') === 0 || line.indexOf('* ') === 0) {
-        if (!inList) { html += '<ul class="product-module-list">'; inList = true; }
-        var bulletText = line.replace(/^[-*]\s*/, '');
-        bulletText = escapeHtml(bulletText)
-          .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-          .replace(/\*(.*?)\*/g, '<em>$1</em>');
-        html += '<li class="product-module-item"><span class="module-check">✓</span><span>' + bulletText + '</span></li>';
-      }
-      // Numbered step (1. Step)
-      else if (/^\d+\.\s/.test(line)) {
-        if (inList) { html += '</ul>'; inList = false; }
-        var numText = escapeHtml(line)
-          .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-          .replace(/\*(.*?)\*/g, '<em>$1</em>');
-        html += '<p class="product-module-step">' + numText + '</p>';
-      }
-      // Regular paragraph
-      else {
-        if (inList) { html += '</ul>'; inList = false; }
-        var normalText = escapeHtml(line)
-          .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-          .replace(/\*(.*?)\*/g, '<em>$1</em>');
-        html += '<p class="product-module-p">' + normalText + '</p>';
-      }
+    
+    // Heading 1 (# Title)
+    if (line.indexOf('# ') === 0) {
+      if (inList) { html += '</ul>'; inList = false; }
+      var h1Text = line.replace(/^#\s*/, '');
+      html += '<h2 class="product-rich-h1">' + escapeHtml(h1Text) + '</h2>';
     }
-    if (inList) { html += '</ul>'; }
-    return '<div class="product-features-rich-wrapper">' + html + '</div>';
+    // Heading 2 (## Subheading)
+    else if (line.indexOf('## ') === 0) {
+      if (inList) { html += '</ul>'; inList = false; }
+      var h2Text = line.replace(/^##\s*/, '');
+      html += '<h3 class="product-rich-h2">' + escapeHtml(h2Text) + '</h3>';
+    }
+    // Heading 3 (### Module heading)
+    else if (line.indexOf('###') === 0) {
+      if (inList) { html += '</ul>'; inList = false; }
+      var title = line.replace(/^###\s*/, '');
+      html += '<div class="product-module-header">' +
+                '<h4 class="product-module-title">' + escapeHtml(title) + '</h4>' +
+              '</div>';
+    }
+    // Bullet item (- or *)
+    else if (line.indexOf('- ') === 0 || line.indexOf('* ') === 0) {
+      if (!inList) { html += '<ul class="product-module-list">'; inList = true; }
+      var bulletText = line.replace(/^[-*]\s*/, '');
+      bulletText = escapeHtml(bulletText)
+        .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+        .replace(/\*(.*?)\*/g, '<em>$1</em>');
+      html += '<li class="product-module-item"><span class="module-check">✓</span><span>' + bulletText + '</span></li>';
+    }
+    // Numbered step (1. Step)
+    else if (/^\d+\.\s/.test(line)) {
+      if (inList) { html += '</ul>'; inList = false; }
+      var numText = escapeHtml(line)
+        .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+        .replace(/\*(.*?)\*/g, '<em>$1</em>');
+      html += '<p class="product-module-step">' + numText + '</p>';
+    }
+    // Regular paragraph
+    else {
+      if (inList) { html += '</ul>'; inList = false; }
+      var normalText = escapeHtml(line)
+        .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+        .replace(/\*(.*?)\*/g, '<em>$1</em>');
+      html += '<p class="product-module-p">' + normalText + '</p>';
+    }
   }
+  if (inList) { html += '</ul>'; }
+  return '<div class="product-features-rich-wrapper">' + html + '</div>';
+}
 
 (function () {
   var data = window.StorefrontData;
