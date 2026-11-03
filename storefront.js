@@ -685,8 +685,8 @@
           document.body.classList.remove("is-logged-in");
           document.body.classList.add("is-logged-out");
           closeUserMenu();
-          if (registerButton) registerButton.style.display = "inline-block";
-          if (loginButton) loginButton.style.display = "inline-block";
+          if (registerButton) registerButton.style.display = "none";
+          if (loginButton) loginButton.style.display = "none";
           if (userProfile) userProfile.style.display = "none";
           closePurchasesDrawer();
         }

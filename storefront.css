@@ -3361,3 +3361,21 @@ h2 { letter-spacing: -1.03px !important; }
 #registerButton, #loginButton {
   display: none !important;
 }
+
+
+/* Permanent Navbar Clean: Completely remove Login/Register buttons */
+#registerButton,
+#loginButton,
+.button-primary#registerButton,
+.button-secondary#loginButton {
+  display: none !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+  width: 0 !important;
+  height: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: none !important;
+  overflow: hidden !important;
+}
+
