@@ -556,11 +556,10 @@
       });
     }
 
+        // Fullpage Checkout: Khóa không cho đóng khi bấm vào nền hoặc khoảng trống
     if (checkoutModal) {
       checkoutModal.addEventListener("click", function (event) {
-        if (event.target === checkoutModal) {
-          closeCheckout();
-        }
+        // Chỉ đóng khi người dùng chủ động bấm vào nút [Trở lại cửa hàng] hoặc nút [X]
       });
     }
     
