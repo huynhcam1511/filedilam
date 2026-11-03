@@ -16,7 +16,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="./storefront.css?v=119" />
+    <link rel="stylesheet" href="./storefront.css?v=121" />
     <style>
     :root {
       --bg: #ffffff;
@@ -371,7 +371,7 @@
       border-bottom: 1px solid var(--line-subtle);
       background: #ffffff;
     }
-    .stats-grid {
+      grid-template-columns: repeat(3, 1fr);
       display: grid;
       grid-template-columns: repeat(4, 1fr);
       gap: 40px;
@@ -2220,27 +2220,23 @@
   </section>
 
   <!-- STATS STRIP -->
+  <!-- STATS STRIP -->
   <section class="stats-section">
     <div class="container stats-grid">
       <div class="stat-card">
-        <div class="stat-number"><span class="counter" data-target="60000">0</span>+</div>
-        <div class="stat-label">lượt theo dõi trên TikTok, Facebook và YouTube</div>
+        <div class="stat-number mint">0đ</div>
+        <div class="stat-label">phí duy trì hằng tháng cho mọi file</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number" id="statExperienceContainer">+<span id="statYears" class="exp-counter">0</span> năm <span id="statMonths" class="exp-counter">0</span> tháng</div>
+        <div class="stat-label">Từ 04/2023 bên mình bán file và hỗ trợ khách qua Zalo</div>
       </div>
       <div class="stat-card">
         <div class="stat-number" id="statTotalFilesContainer"><span id="statTotalFiles" class="counter" data-target="30">0</span>+</div>
-        <div class="stat-label">mẫu file cho bán hàng, kho, nhân sự và học tập</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-number">Từ <span class="counter" data-target="2024">2020</span></div>
-        <div class="stat-label">bên mình bán file và hỗ trợ khách qua Zalo</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-number">0đ</div>
-        <div class="stat-label">phí duy trì hằng tháng cho mọi file</div>
+        <div class="stat-label">file Google Sheets sẵn dùng cho doanh nghiệp</div>
       </div>
     </div>
   </section>
-
   
 
     <!-- CATALOG & FILTER SECTION (DYNAMIC FIRESTORE PRODUCTS) -->
@@ -3524,7 +3520,7 @@
     <script src="/__/firebase/init.js"></script>
     <script src="./storefront-data.js?v=16"></script>
     <script src="./storefront-products.generated.js?v=6"></script>
-    <script src="storefront.js?v=104"></script>
+    <script src="storefront.js?v=121"></script>
     <!-- Agentation: Visual Feedback & Annotation for AI agents -->
   <script src="./agentation-vanilla.js"></script>
 </body>

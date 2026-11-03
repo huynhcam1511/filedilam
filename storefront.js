@@ -3567,6 +3567,7 @@
   }
 
   // Khởi động Animation số chạy mượt mà
+  // Khởi động Animation số chạy mượt mà
   function initStatsCounters() {
     // Kích hoạt animation nhấp nháy cho 11 thanh tháng ở Card 1
     var pills = document.querySelectorAll(".cost-pills-bar .cost-pill-item:not(.is-paid)");
@@ -3576,6 +3577,56 @@
         pill.style.animationDelay = (idx * 0.12) + "s";
       });
     }
+
+    // Tự động tính thời gian hoạt động từ tháng 04/2023
+    var startDate = new Date(2023, 3, 1); // 01/04/2023 (tháng 4, index 3)
+    var nowDate = new Date();
+    var targetYears = nowDate.getFullYear() - startDate.getFullYear();
+    var targetMonths = nowDate.getMonth() - startDate.getMonth();
+    if (targetMonths < 0) {
+      targetYears -= 1;
+      targetMonths += 12;
+    }
+
+    var statYearsEl = document.getElementById("statYears");
+    var statMonthsEl = document.getElementById("statMonths");
+    var statExpContainer = document.getElementById("statExperienceContainer");
+
+    function animateExperience() {
+      var duration = 1200;
+      var startTime = null;
+      function step(timestamp) {
+        if (!startTime) startTime = timestamp;
+        var progress = Math.min((timestamp - startTime) / duration, 1);
+        var ease = 1 - Math.pow(1 - progress, 3);
+        if (statYearsEl) statYearsEl.textContent = Math.floor(targetYears * ease);
+        if (statMonthsEl) statMonthsEl.textContent = Math.floor(targetMonths * ease);
+        if (progress < 1) {
+          requestAnimationFrame(step);
+        } else {
+          if (statYearsEl) statYearsEl.textContent = targetYears;
+          if (statMonthsEl) statMonthsEl.textContent = targetMonths;
+        }
+      }
+      requestAnimationFrame(step);
+    }
+
+    if (statExpContainer) {
+      if ("IntersectionObserver" in window) {
+        var expObserver = new IntersectionObserver(function(entries, obs) {
+          entries.forEach(function(entry) {
+            if (entry.isIntersecting) {
+              animateExperience();
+              obs.unobserve(entry.target);
+            }
+          });
+        }, { threshold: 0.2 });
+        expObserver.observe(statExpContainer);
+      } else {
+        animateExperience();
+      }
+    }
+
     var counters = document.querySelectorAll(".counter[data-target]");
     if (!counters.length) return;
     
@@ -3616,7 +3667,6 @@
       observer.observe(c);
     });
   }
-
   if (document.readyState === "loading") {
     document.addEventListener("DOMContentLoaded", initStatsCounters);
   } else {
