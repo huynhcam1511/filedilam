@@ -660,7 +660,7 @@
           // Chỉ hiển thị menu tài khoản trên Topbar nếu là tài khoản ADMIN
           var isAdminUser = (user.email === 'huynhkiencam151102@gmail.com');
           if (userProfile) {
-            userProfile.style.display = isAdminUser ? "flex" : "none";
+            if (userProfile) userProfile.style.display = "none";
           }
           if (purchasesDrawer && purchasesDrawer.classList.contains("is-open")) {
             loadMyPurchases();
@@ -697,7 +697,7 @@
           closeUserMenu();
           if (registerButton) registerButton.style.display = "none";
           if (loginButton) loginButton.style.display = "none";
-          if (userProfile) userProfile.style.display = "none";
+          if (userProfile) if (userProfile) userProfile.style.display = "none";
           closePurchasesDrawer();
         }
       });
@@ -1247,7 +1247,7 @@
   }
 
   function renderFolders() {
-    var categoryOptions = [{ id: "all", name: "Tất cả" }].concat(data.categories || []);
+    var categoryOptions = (data.categories || []).slice();
     if (folderGrid) {
       folderGrid.innerHTML = categoryOptions
         .map(function (category) {
@@ -1278,7 +1278,12 @@
 
       Array.prototype.forEach.call(folderGrid.querySelectorAll("[data-folder-id]"), function (li) {
         li.addEventListener("click", function () {
-          state.activeCategoryId = li.getAttribute("data-folder-id");
+          var targetId = li.getAttribute("data-folder-id");
+          if (state.activeCategoryId === targetId) {
+            state.activeCategoryId = "all";
+          } else {
+            state.activeCategoryId = targetId;
+          }
           if (categorySelect) categorySelect.value = state.activeCategoryId;
           renderFolders();
           renderProducts();

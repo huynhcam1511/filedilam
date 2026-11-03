@@ -3441,3 +3441,8 @@ h2 { letter-spacing: -1.03px !important; }
 body:not(.is-admin) #userProfile {
   display: none !important;
 }
+
+
+#userProfile, .user-menu-container, #userMenuBtn {
+  display: none !important;
+}

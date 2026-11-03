@@ -1570,6 +1570,8 @@ document.addEventListener('DOMContentLoaded', () => {
   const couponMinOrderInput = document.getElementById('couponMinOrderInput');
   const couponMaxDiscountInput = document.getElementById('couponMaxDiscountInput');
   const couponDescInput = document.getElementById('couponDescInput');
+  const couponStartDateInput = document.getElementById('couponStartDateInput');
+  const couponEndDateInput = document.getElementById('couponEndDateInput');
   const couponIsActive = document.getElementById('couponIsActive');
   const couponDocId = document.getElementById('couponDocId');
   const couponModalTitle = document.getElementById('couponModalTitle');
@@ -1722,11 +1724,47 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   
+  
+  function formatNumberInputValue(input) {
+    if (!input) return;
+    input.addEventListener('input', function(e) {
+      let val = e.target.value.replace(/\D/g, '');
+      if (val) {
+        e.target.value = new Intl.NumberFormat('vi-VN').format(parseInt(val, 10));
+      } else {
+        e.target.value = '';
+      }
+      updateCouponDescPreview();
+    });
+  }
+
+  function parseVND(val) {
+    if (!val) return 0;
+    const num = Number(String(val).replace(/\D/g, ''));
+    return isNaN(num) ? 0 : num;
+  }
+
+  function formatDateVN(dateStr) {
+    if (!dateStr) return '';
+    try {
+      const parts = dateStr.split('-');
+      if (parts.length === 3) {
+        return `${parts[2]}/${parts[1]}/${parts[0]}`;
+      }
+      return dateStr;
+    } catch (e) {
+      return dateStr;
+    }
+  }
+
   function generateCouponDescription() {
     const type = couponTypeSelect ? couponTypeSelect.value : 'percent';
-    const val = Number(couponValueInput ? couponValueInput.value : 0);
-    const minOrder = Number(couponMinOrderInput ? couponMinOrderInput.value : 0);
-    const maxDiscount = Number(couponMaxDiscountInput && couponMaxDiscountInput.value ? couponMaxDiscountInput.value : 0);
+    const rawVal = couponValueInput ? couponValueInput.value : '0';
+    const val = type === 'percent' ? Number(rawVal) : parseVND(rawVal);
+    const minOrder = parseVND(couponMinOrderInput?.value);
+    const maxDiscount = parseVND(couponMaxDiscountInput?.value);
+    const startDate = couponStartDateInput?.value;
+    const endDate = couponEndDateInput?.value;
 
     if (val <= 0) return '';
 
@@ -1739,6 +1777,15 @@ document.addEventListener('DOMContentLoaded', () => {
     } else {
       text += ' cho mọi đơn hàng';
     }
+
+    if (startDate && endDate) {
+      text += ` (từ ${formatDateVN(startDate)} đến ${formatDateVN(endDate)})`;
+    } else if (endDate) {
+      text += ` (hạn chót ${formatDateVN(endDate)})`;
+    } else if (startDate) {
+      text += ` (áp dụng từ ${formatDateVN(startDate)})`;
+    }
+
     return text;
   }
 
@@ -1757,6 +1804,10 @@ document.addEventListener('DOMContentLoaded', () => {
     if (couponDocId) couponDocId.value = "";
     isCouponDescManuallyEdited = false;
     if (couponForm) couponForm.reset();
+    if (couponMinOrderInput) couponMinOrderInput.value = '0';
+    if (couponMaxDiscountInput) couponMaxDiscountInput.value = '';
+    if (couponStartDateInput) couponStartDateInput.value = '';
+    if (couponEndDateInput) couponEndDateInput.value = '';
     if (couponCodeInput) {
       couponCodeInput.readOnly = false;
       couponCodeInput.focus();
@@ -1777,8 +1828,10 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     if (couponTypeSelect) couponTypeSelect.value = coupon.type || 'percent';
     if (couponValueInput) couponValueInput.value = coupon.value || 0;
-    if (couponMinOrderInput) couponMinOrderInput.value = coupon.min_order || 0;
-    if (couponMaxDiscountInput) couponMaxDiscountInput.value = coupon.max_discount || '';
+    if (couponMinOrderInput) couponMinOrderInput.value = coupon.min_order ? new Intl.NumberFormat('vi-VN').format(coupon.min_order) : '0';
+    if (couponMaxDiscountInput) couponMaxDiscountInput.value = coupon.max_discount ? new Intl.NumberFormat('vi-VN').format(coupon.max_discount) : '';
+    if (couponStartDateInput) couponStartDateInput.value = coupon.start_date || '';
+    if (couponEndDateInput) couponEndDateInput.value = coupon.end_date || '';
     if (couponDescInput) couponDescInput.value = coupon.description || '';
     isCouponDescManuallyEdited = !!(coupon.description);
     if (!coupon.description) updateCouponDescPreview();
@@ -1801,11 +1854,23 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     const type = couponTypeSelect ? couponTypeSelect.value : 'percent';
-    const value = Number(couponValueInput ? couponValueInput.value : 0);
-    const minOrder = Number(couponMinOrderInput ? couponMinOrderInput.value : 0);
-    const maxDiscount = Number(couponMaxDiscountInput && couponMaxDiscountInput.value ? couponMaxDiscountInput.value : 0);
+    const rawVal = couponValueInput ? couponValueInput.value : '0';
+    const value = type === 'percent' ? Number(rawVal) : parseVND(rawVal);
+    const minOrder = parseVND(couponMinOrderInput?.value);
+    const maxDiscount = parseVND(couponMaxDiscountInput?.value);
+    const startDate = couponStartDateInput ? couponStartDateInput.value : "";
+    const endDate = couponEndDateInput ? couponEndDateInput.value : "";
     const description = couponDescInput ? couponDescInput.value.trim() : "";
     const isActive = couponIsActive ? couponIsActive.checked : true;
+
+    let expiresAtText = 'Vĩnh viễn';
+    if (startDate && endDate) {
+      expiresAtText = `${formatDateVN(startDate)} - ${formatDateVN(endDate)}`;
+    } else if (endDate) {
+      expiresAtText = `Đến ${formatDateVN(endDate)}`;
+    } else if (startDate) {
+      expiresAtText = `Từ ${formatDateVN(startDate)}`;
+    }
 
     if (value <= 0) {
       showToast("Giá trị giảm phải lớn hơn 0.");
@@ -1823,6 +1888,9 @@ document.addEventListener('DOMContentLoaded', () => {
       value: value,
       min_order: minOrder,
       max_discount: maxDiscount,
+      start_date: startDate,
+      end_date: endDate,
+      expires_at: expiresAtText,
       description: description,
       is_active: isActive,
       updated_at: new Date().toISOString()
@@ -1882,10 +1950,12 @@ document.addEventListener('DOMContentLoaded', () => {
   couponForm?.addEventListener('submit', handleSaveCoupon);
   couponSearchInput?.addEventListener('input', renderFilteredCoupons);
   couponStatusFilter?.addEventListener('change', renderFilteredCoupons);
+  formatNumberInputValue(couponMinOrderInput);
+  formatNumberInputValue(couponMaxDiscountInput);
   couponTypeSelect?.addEventListener('change', updateCouponDescPreview);
   couponValueInput?.addEventListener('input', updateCouponDescPreview);
-  couponMinOrderInput?.addEventListener('input', updateCouponDescPreview);
-  couponMaxDiscountInput?.addEventListener('input', updateCouponDescPreview);
+  couponStartDateInput?.addEventListener('change', updateCouponDescPreview);
+  couponEndDateInput?.addEventListener('change', updateCouponDescPreview);
   couponDescInput?.addEventListener('input', () => {
     isCouponDescManuallyEdited = couponDescInput.value.trim().length > 0;
   });
