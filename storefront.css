@@ -3642,11 +3642,14 @@ body:not(.is-admin) #userProfile {
 
 /* LEFT COLUMN: 1x1 Media & Thumbnails */
 .detail-col-media {
-  position: sticky;
-  top: 24px;
+  position: -webkit-sticky !important;
+  position: sticky !important;
+  top: 24px !important;
+  align-self: flex-start !important;
   display: flex;
   flex-direction: column;
   gap: 16px;
+  z-index: 10;
 }
 
 .detail-media-square {
@@ -3661,6 +3664,7 @@ body:not(.is-admin) #userProfile {
   justify-content: center;
   position: relative;
   box-shadow: 0 4px 20px -4px rgba(0, 0, 0, 0.05);
+  user-select: none;
 }
 
 .detail-media-square img {
@@ -3668,6 +3672,112 @@ body:not(.is-admin) #userProfile {
   height: 100%;
   object-fit: cover;
   display: block;
+  transition: opacity 0.2s ease, transform 0.25s ease;
+}
+
+/* Gallery Navigation Arrows */
+.detail-gallery-nav-btn {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.92);
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.12);
+  color: #1e293b;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  z-index: 5;
+  padding: 0;
+}
+
+.detail-gallery-nav-btn:hover {
+  background: #ffffff;
+  color: #059669;
+  border-color: #cbd5e1;
+  transform: translateY(-50%) scale(1.06);
+}
+
+.detail-gallery-nav-btn.prev {
+  left: 12px;
+}
+
+.detail-gallery-nav-btn.next {
+  right: 12px;
+}
+
+.detail-gallery-nav-btn svg {
+  width: 18px;
+  height: 18px;
+  stroke-width: 2.2;
+}
+
+/* Thumbnails Row Underneath Main Image */
+.detail-thumbnails-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  overflow-x: auto;
+  padding: 4px 2px;
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+}
+
+.detail-thumbnails-row::-webkit-scrollbar {
+  height: 4px;
+}
+
+.detail-thumbnails-row::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 4px;
+}
+
+.detail-thumb-btn {
+  flex: 0 0 68px;
+  width: 68px;
+  height: 68px;
+  aspect-ratio: 1 / 1;
+  border-radius: 10px;
+  overflow: hidden;
+  border: 2px solid transparent;
+  background: #f1f5f9;
+  cursor: pointer;
+  padding: 0;
+  transition: all 0.15s ease;
+  outline: none;
+  box-sizing: border-box;
+  position: relative;
+}
+
+.detail-thumb-btn img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  opacity: 0.75;
+  transition: opacity 0.15s ease;
+}
+
+.detail-thumb-btn:hover {
+  border-color: #94a3b8;
+}
+
+.detail-thumb-btn:hover img {
+  opacity: 1;
+}
+
+.detail-thumb-btn.active {
+  border-color: #059669;
+  box-shadow: 0 0 0 2px rgba(5, 150, 105, 0.2);
+}
+
+.detail-thumb-btn.active img {
+  opacity: 1;
 }
 
 .detail-media-badges {

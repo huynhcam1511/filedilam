@@ -1642,7 +1642,49 @@ function escapeHtml(value) {
     var ratingInfo = getProductRatingDisplay(product);
     var coverImg = product.previewImageUrl || product.thumbnailUrl || '';
 
-    // LEFT COLUMN: 1x1 Media
+    // BUILD GALLERY IMAGES
+    var galleryList = [];
+    if (Array.isArray(product.gallery) && product.gallery.length > 0) {
+      galleryList = product.gallery.slice();
+    } else if (Array.isArray(product.previewImages) && product.previewImages.length > 0) {
+      galleryList = product.previewImages.slice();
+    } else if (Array.isArray(product.images) && product.images.length > 0) {
+      galleryList = product.images.slice();
+    } else {
+      if (coverImg) galleryList.push(coverImg);
+    }
+    // Filter out falsy or empty strings
+    galleryList = galleryList.filter(function(url) { return typeof url === 'string' && url.trim().length > 0; });
+    if (galleryList.length === 0 && coverImg) {
+      galleryList = [coverImg];
+    }
+
+    var hasMultipleImages = galleryList.length > 1;
+
+    // LEFT COLUMN: 1x1 Media & Carousel/Thumbnails
+    var initialImage = galleryList[0] || coverImg;
+    var thumbsHtml = '';
+    if (hasMultipleImages) {
+      thumbsHtml = '<div class="detail-thumbnails-row" id="detailThumbnailsRow">' +
+        galleryList.map(function(url, idx) {
+          return '<button type="button" class="detail-thumb-btn ' + (idx === 0 ? 'active' : '') + '" data-index="' + idx + '" aria-label="Xem ảnh ' + (idx + 1) + '">' +
+            '<img src="' + escapeHtml(url) + '" alt="Thumb ' + (idx + 1) + '" loading="lazy" />' +
+          '</button>';
+        }).join('') +
+      '</div>';
+    }
+
+    var arrowsHtml = '';
+    if (hasMultipleImages) {
+      arrowsHtml =
+        '<button type="button" class="detail-gallery-nav-btn prev" id="btnGalleryPrev" aria-label="Ảnh trước">' +
+          '<svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>' +
+        '</button>' +
+        '<button type="button" class="detail-gallery-nav-btn next" id="btnGalleryNext" aria-label="Ảnh kế tiếp">' +
+          '<svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>' +
+        '</button>';
+    }
+
     var mediaHtml =
       '<div class="detail-col-media">' +
         '<div class="detail-media-square">' +
@@ -1650,10 +1692,12 @@ function escapeHtml(value) {
             '<span class="detail-media-badge-type">' + typeLabel + '</span>' +
             (hasDiscount ? '<span class="detail-media-badge-discount">-' + discountPercent + '%</span>' : '') +
           '</div>' +
-          (coverImg
-            ? '<img src="' + escapeHtml(coverImg) + '" alt="' + escapeHtml(product.name) + '" />'
+          (initialImage
+            ? '<img id="detailMainFeaturedImage" src="' + escapeHtml(initialImage) + '" alt="' + escapeHtml(product.name) + '" />'
             : '<div style="font-size:2.5rem; font-weight:800; color:#059669;">FILE</div>') +
+          arrowsHtml +
         '</div>' +
+        thumbsHtml +
       '</div>';
 
     // RIGHT COLUMN: Info, Price, Actions, Full Specs
@@ -1869,6 +1913,59 @@ function escapeHtml(value) {
     }
 
     detailBody.scrollTop = 0;
+
+    // Attach gallery switcher handlers
+    if (hasMultipleImages) {
+      var currentGalleryIdx = 0;
+      var mainImgEl = document.getElementById("detailMainFeaturedImage");
+      var thumbBtns = detailBody.querySelectorAll(".detail-thumb-btn");
+
+      var switchGalleryImage = function(index) {
+        if (index < 0) index = galleryList.length - 1;
+        if (index >= galleryList.length) index = 0;
+        currentGalleryIdx = index;
+        if (mainImgEl) {
+          mainImgEl.style.opacity = '0.3';
+          mainImgEl.src = galleryList[index];
+          setTimeout(function() {
+            mainImgEl.style.opacity = '1';
+          }, 60);
+        }
+        Array.prototype.forEach.call(thumbBtns, function(btn, i) {
+          if (i === index) {
+            btn.classList.add("active");
+            btn.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+          } else {
+            btn.classList.remove("active");
+          }
+        });
+      };
+
+      Array.prototype.forEach.call(thumbBtns, function(btn) {
+        btn.addEventListener("click", function() {
+          var idx = parseInt(btn.getAttribute("data-index"), 10);
+          if (!isNaN(idx)) {
+            switchGalleryImage(idx);
+          }
+        });
+      });
+
+      var btnPrev = document.getElementById("btnGalleryPrev");
+      if (btnPrev) {
+        btnPrev.addEventListener("click", function(e) {
+          e.stopPropagation();
+          switchGalleryImage(currentGalleryIdx - 1);
+        });
+      }
+
+      var btnNext = document.getElementById("btnGalleryNext");
+      if (btnNext) {
+        btnNext.addEventListener("click", function(e) {
+          e.stopPropagation();
+          switchGalleryImage(currentGalleryIdx + 1);
+        });
+      }
+    }
 
     // Attach button handlers inside detail
     var btnDetailAdd = document.getElementById("detailAddToCart");
