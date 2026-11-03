@@ -1981,12 +1981,7 @@ body.cart-drawer-open .page-layout {
     display: none !important;
   }
 
-  body.is-logged-in #userProfile {
-    display: flex !important;
-    align-items: center !important;
-    gap: 6px !important;
-    margin: 0 !important;
-  }
+  body.is-logged-in.is-admin #userProfile { display: flex !important; align-items: center !important; gap: 6px !important; margin: 0 !important; }
 
   .user-menu-trigger {
     padding: 4px 8px !important;
@@ -3439,4 +3434,10 @@ h2 { letter-spacing: -1.03px !important; }
   margin: 0 !important;
   padding: 0 !important;
   border: none !important;
+}
+
+
+/* Force hide user profile pill for non-admin */
+body:not(.is-admin) #userProfile {
+  display: none !important;
 }
