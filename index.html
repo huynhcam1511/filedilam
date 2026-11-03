@@ -16,7 +16,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="./storefront.css?v=230" />
+    <link rel="stylesheet" href="./storefront.css?v=240" />
     <style>
     :root {
       --bg: #ffffff;
@@ -152,7 +152,7 @@
 
     /* HERO SECTION */
     .hero {
-      padding: 40px 0 44px;
+      padding: 58px 0 62px;
       background: #f0fdf4;
       border-bottom: 1px solid #dcfce7;
     }
@@ -1748,10 +1748,10 @@
     }
 
     @media (max-width: 900px) {
-      .hero { padding: 40px 0 32px; }
+      .hero { padding: 48px 0 44px; }
       .hero-grid, .custom-banner, .coupon-ticket, .faq-grid { grid-template-columns: 1fr; }
       .hero-grid { gap: 32px; }
-      .stats-section { padding: 32px 0 36px; }
+      .stats-section { padding: 40px 0 44px; }
       .stats-grid { gap: 24px; }
       .stat-card {
         padding: 0 4px;
@@ -2529,25 +2529,29 @@
   </section>
 
   <!-- COUPON VOUCHER TICKET -->
-  <section class="container ticket-section">
+  <section class="container ticket-section" id="landingCouponSection">
     <div class="coupon-ticket">
       <div class="ticket-left">
-        <span class="section-tag" style="margin-bottom: 8px;">Mã giảm giá</span>
-        <h2 class="section-title" style="font-size: 1.8rem; font-weight: 600; letter-spacing: -1.03px; margin-bottom: 8px;">Giảm 10% cho đơn từ 160k</h2>
-        <div style="font-size: 0.82rem; color: var(--muted);">Chỉ đến ngày 29/11/2026</div>
+        <span class="section-tag" style="margin-bottom: 8px;">MÃ GIẢM GIÁ</span>
+        <h2 class="section-title" id="landingCouponTitle" style="font-size: 1.8rem; font-weight: 600; letter-spacing: -1.03px; margin-bottom: 8px;">Giảm 10% cho đơn từ 160k</h2>
+        <div id="landingCouponDate" style="font-size: 0.82rem; color: var(--muted);">Chỉ đến ngày 29/11/2026</div>
         <div class="ticket-code-pill">
-          <span>FILEDILAM</span>
-          <button class="ticket-copy-btn" type="button" onclick="copyVoucherCode(this, 'FILEDILAM');">Sao chép</button>
+          <span id="landingCouponCode" style="font-family: monospace; font-weight: 700; letter-spacing: 0.05em;">FILEDILAM</span>
+          <button class="ticket-copy-btn" id="landingCouponCopyBtn" type="button" onclick="copyVoucherCode(this);">Sao chép</button>
         </div>
-        <p style="font-size: 0.82rem; color: var(--muted);">Nhập mã ở bước thanh toán, hệ thống tự trừ 10%.</p>
+        <p id="landingCouponHint" style="font-size: 0.82rem; color: var(--muted);">Nhập mã ở bước thanh toán hoặc bấm sao chép để tự động áp dụng.</p>
       </div>
       <div class="ticket-right">
-        <div class="summary-row"><span>Đơn hàng của bạn</span><span>2 file</span></div>
-        <div class="summary-row"><span>Quản lý bán hàng</span><span>599.000</span></div>
-        <div class="summary-row"><span>Quản lý kho</span><span>95.000</span></div>
-        <div class="summary-row"><span>Tạm tính</span><span>694.000</span></div>
-        <div class="summary-row" style="color: var(--mint-primary);"><span>Mã FILEDILAM</span><span>-69.400</span></div>
-        <div class="summary-total"><span>Thanh toán</span><span>624.600 đ</span></div>
+        <div class="receipt-header" style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px dashed #cbd5e1;">
+          <span class="receipt-badge" style="font-size: 0.74rem; font-weight: 600; color: #64748b; text-transform: uppercase;">Ví dụ minh họa</span>
+          <span class="receipt-watermark" style="font-size: 0.72rem; color: var(--mint-primary); font-weight: 600;">Tiết kiệm ngay</span>
+        </div>
+        <div class="summary-row"><span>Đơn hàng mẫu</span><span id="demoItemCount">2 file</span></div>
+        <div class="summary-row"><span id="demoItem1Name">Quản lý bán hàng</span><span id="demoItem1Price">599.000</span></div>
+        <div class="summary-row"><span id="demoItem2Name">Quản lý kho</span><span id="demoItem2Price">95.000</span></div>
+        <div class="summary-row"><span>Tạm tính</span><span id="demoSubtotal">694.000</span></div>
+        <div class="summary-row" style="color: var(--mint-primary);"><span id="demoDiscountLabel">Mã FILEDILAM</span><span id="demoDiscountVal">-69.400</span></div>
+        <div class="summary-total"><span>Thanh toán</span><span id="demoTotalVal">624.600 đ</span></div>
       </div>
     </div>
   </section>
@@ -3514,7 +3518,7 @@
     <script src="/__/firebase/init.js"></script>
     <script src="./storefront-data.js?v=20"></script>
     <script src="./storefront-products.generated.js?v=6"></script>
-    <script src="storefront.js?v=230"></script>
+    <script src="storefront.js?v=240"></script>
     <!-- Agentation: Visual Feedback & Annotation for AI agents -->
   <script src="./agentation-vanilla.js"></script>
 </body>
