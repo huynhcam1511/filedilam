@@ -1590,7 +1590,9 @@
     }
 
     @media (max-width: 900px) {
+      .hero { padding: 40px 0 32px; }
       .hero-grid, .custom-banner, .coupon-ticket, .faq-grid { grid-template-columns: 1fr; }
+      .hero-grid { gap: 32px; }
       .stats-grid, .usp-grid, .social-strip, .product-grid, .steps-grid { grid-template-columns: 1fr; }
       .footer-columns { grid-template-columns: 1fr 1fr; }
       .nav-links { display: none; }
@@ -1598,11 +1600,113 @@
       .ticket-left { border-right: none; border-bottom: 2px dashed #e2e8f0; }
     }
     @media (max-width: 640px) {
+      .hero {
+        padding: 24px 0 28px;
+        background: radial-gradient(circle at 50% 0%, rgba(236, 253, 245, 0.9) 0%, rgba(255, 255, 255, 0) 70%);
+      }
+      .container { padding: 0 16px; }
+      .hero-grid { gap: 24px; }
+      .hero-pill {
+        margin-bottom: 12px;
+        font-size: 0.78rem;
+        padding: 4px 12px;
+      }
+      .hero-title {
+        font-size: 1.65rem;
+        line-height: 1.22;
+        letter-spacing: -0.6px;
+        margin-bottom: 12px;
+      }
+      .hero-desc {
+        font-size: 0.92rem;
+        line-height: 1.5;
+        margin-bottom: 20px;
+      }
+      .hero-cta {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+        margin-bottom: 14px;
+        width: 100%;
+      }
+      .btn-primary, .btn-secondary {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 12px 14px;
+        font-size: 0.88rem;
+        text-align: center;
+        white-space: nowrap;
+      }
+      .hero-coupon-hint {
+        font-size: 0.82rem;
+        line-height: 1.4;
+      }
+      .hero-mockup-wrapper {
+        margin-top: 6px;
+      }
+      .sheet-card {
+        padding: 22px 14px 16px;
+        min-height: auto;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+      }
+      .sheet-status-tag {
+        top: -10px;
+        left: 14px;
+        font-size: 0.72rem;
+        padding: 3px 10px;
+      }
+      .sheet-header-bar {
+        margin-bottom: 8px;
+        padding-top: 4px;
+      }
+      .sheet-title {
+        font-size: 0.82rem;
+      }
+      .google-sheets-badge {
+        font-size: 0.65rem;
+        padding: 2px 6px;
+      }
+      .fx-bar {
+        font-size: 0.7rem;
+        padding: 5px 8px;
+        margin-bottom: 10px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+      .sheet-table {
+        font-size: 0.75rem;
+        margin-bottom: 12px;
+      }
+      .sheet-table th, .sheet-table td {
+        padding: 7px 8px;
+      }
+      .sheet-tabs {
+        padding-top: 10px;
+        font-size: 0.7rem;
+        gap: 6px;
+      }
+      .sheet-tab {
+        padding: 2px 8px;
+      }
       .custom-banner { padding: 36px 20px; gap: 24px; }
       .ticket-left, .ticket-right { padding: 28px 20px; }
       .footer-columns { grid-template-columns: 1fr; }
-      .hero-title { font-size: 1.85rem; }
-      .floating-revenue-card { right: 0; bottom: -16px; }
+      .floating-revenue-card {
+        right: 8px;
+        bottom: -14px;
+        width: 170px;
+        padding: 10px 12px;
+      }
+      .revenue-title {
+        font-size: 0.65rem;
+        margin-bottom: 6px;
+      }
+      .bar-chart {
+        height: 38px;
+        gap: 4px;
+      }
     }
   </style>
   </head>

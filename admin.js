@@ -327,6 +327,8 @@ document.addEventListener('DOMContentLoaded', () => {
           document.getElementById('formTitle').textContent = 'Sửa Sản Phẩm';
           document.getElementById('formDescription').textContent = 'Cập nhật thông tin cho sản phẩm đang chọn.';
           document.getElementById('submitBtn').textContent = 'Cập nhật sản phẩm';
+          const topSubmitText = document.getElementById('topSubmitText');
+          if (topSubmitText) topSubmitText.textContent = 'Cập nhật sản phẩm';
           
           document.getElementById('productName').value = product.name || '';
           document.getElementById('productCategory').value = product.categoryId || '';
@@ -464,6 +466,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     submitBtn.disabled = true;
     submitBtn.textContent = 'Đang xử lý (Xin vui lòng chờ)...';
+    const topSubmitText = document.getElementById('topSubmitText');
+    if (topSubmitText) topSubmitText.textContent = 'Đang lưu...';
 
     try {
       const id = editingId || (name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '') + '-' + Date.now());
@@ -526,6 +530,8 @@ document.addEventListener('DOMContentLoaded', () => {
       document.getElementById('formTitle').textContent = 'Thêm Sản Phẩm Mới';
       document.getElementById('formDescription').textContent = 'Điền đầy đủ thông tin để đăng bán một file Excel hoặc Google Sheets mới.';
       document.getElementById('submitBtn').textContent = 'Tải lên & Đăng bán';
+      const topSubmitText = document.getElementById('topSubmitText');
+      if (topSubmitText) topSubmitText.textContent = 'Lưu & Đăng bán';
       document.getElementById('productImage').required = true;
       document.getElementById('imageBtnText').innerHTML = '<svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg> Chọn file ảnh';
       document.getElementById('fileBtnText').innerHTML = '<svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"></path></svg> Chọn file đính kèm';
@@ -538,6 +544,8 @@ document.addEventListener('DOMContentLoaded', () => {
     } finally {
       submitBtn.disabled = false;
       submitBtn.textContent = editingId ? 'Cập nhật sản phẩm' : 'Tải lên & Đăng bán';
+      const topSubmitText = document.getElementById('topSubmitText');
+      if (topSubmitText) topSubmitText.textContent = editingId ? 'Cập nhật sản phẩm' : 'Lưu & Đăng bán';
     }
   });
 

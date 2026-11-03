@@ -647,6 +647,239 @@
     }
     .form-group textarea { resize: vertical; min-height: 100px; }
 
+    /* ==========================================================================
+       FULL-BLEED FLAT CANVAS 2-COLUMN FORM (PRODUCT ADD & EDIT)
+       ========================================================================== */
+    #addTab.tab-pane.active {
+      margin: -24px -32px -48px;
+      background: #ffffff;
+      min-height: calc(100vh - 64px);
+    }
+    @media (max-width: 768px) {
+      #addTab.tab-pane.active {
+        margin: -16px -16px -32px;
+      }
+    }
+    .product-flat-canvas {
+      width: 100%;
+      background: #ffffff;
+      min-height: 100%;
+      display: flex;
+      flex-direction: column;
+    }
+    .canvas-header-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 18px 32px;
+      border-bottom: 1px solid var(--slate-border);
+      background: #ffffff;
+      position: sticky;
+      top: 0;
+      z-index: 20;
+    }
+    @media (max-width: 768px) {
+      .canvas-header-bar {
+        padding: 14px 18px;
+        flex-direction: column;
+        align-items: flex-start;
+      }
+    }
+    .canvas-title {
+      margin: 0;
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: #0f172a;
+      letter-spacing: -0.01em;
+    }
+    .canvas-sub {
+      margin: 4px 0 0 0;
+      font-size: 0.84rem;
+      color: var(--slate-muted);
+    }
+    .canvas-actions {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .btn-cancel-flat {
+      background: #ffffff;
+      color: #475569;
+      border: 1px solid var(--slate-border);
+      padding: 9px 18px;
+      font-size: 0.88rem;
+      font-weight: 500;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+    .btn-cancel-flat:hover {
+      background: #f8fafc;
+      color: #0f172a;
+      border-color: #cbd5e1;
+    }
+    .btn-save-flat {
+      background: var(--mint-primary);
+      color: #ffffff;
+      border: none;
+      padding: 9px 20px;
+      font-size: 0.88rem;
+      font-weight: 600;
+      border-radius: 6px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.15s ease;
+      box-shadow: 0 1px 2px rgba(5, 150, 105, 0.2);
+    }
+    .btn-save-flat:hover {
+      background: #047857;
+    }
+    .product-form-2col {
+      display: grid;
+      grid-template-columns: 1.6fr 1fr;
+      width: 100%;
+      flex: 1;
+      background: #ffffff;
+    }
+    @media (max-width: 1024px) {
+      .product-form-2col {
+        grid-template-columns: 1fr;
+      }
+    }
+    .canvas-col-main {
+      padding: 28px 32px 48px;
+      border-right: 1px solid var(--slate-border);
+    }
+    @media (max-width: 1024px) {
+      .canvas-col-main {
+        border-right: none;
+        border-bottom: 1px solid var(--slate-border);
+        padding: 20px 18px 32px;
+      }
+    }
+    .canvas-col-side {
+      padding: 28px 32px 48px;
+      background: #fbfcfd;
+    }
+    @media (max-width: 1024px) {
+      .canvas-col-side {
+        padding: 20px 18px 32px;
+      }
+    }
+    .canvas-section {
+      margin-bottom: 32px;
+    }
+    .canvas-section:last-child {
+      margin-bottom: 0;
+    }
+    .canvas-section-header {
+      margin-bottom: 18px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid #f1f5f9;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+    .canvas-section-title {
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: #0f172a;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+    .canvas-section-hint {
+      font-size: 0.78rem;
+      color: var(--slate-muted);
+    }
+    .canvas-field-group {
+      margin-bottom: 18px;
+    }
+    .canvas-field-group:last-child {
+      margin-bottom: 0;
+    }
+    .canvas-row-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-bottom: 18px;
+    }
+    @media (max-width: 640px) {
+      .canvas-row-2 {
+        grid-template-columns: 1fr;
+      }
+    }
+    .canvas-label {
+      display: block;
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: #334155;
+      margin-bottom: 6px;
+    }
+    .canvas-label .req {
+      color: #ef4444;
+      margin-left: 2px;
+    }
+    .canvas-input, .canvas-select, .canvas-textarea {
+      width: 100%;
+      padding: 9px 12px;
+      border: 1px solid var(--slate-border);
+      border-radius: 6px;
+      font-family: inherit;
+      font-size: 0.88rem;
+      background: #ffffff;
+      color: #0f172a;
+      transition: all 0.15s ease;
+      box-sizing: border-box;
+    }
+    .canvas-input:focus, .canvas-select:focus, .canvas-textarea:focus {
+      outline: none;
+      border-color: var(--mint-primary);
+      box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.12);
+      background: #ffffff;
+    }
+    .canvas-textarea {
+      resize: vertical;
+      min-height: 95px;
+      line-height: 1.5;
+    }
+    .canvas-help-text {
+      display: block;
+      margin-top: 5px;
+      font-size: 0.76rem;
+      color: var(--slate-muted);
+    }
+    .canvas-checkbox-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      cursor: pointer;
+      margin-bottom: 0;
+      user-select: none;
+      padding: 10px 14px;
+      background: #ffffff;
+      border: 1px solid var(--slate-border);
+      border-radius: 6px;
+      transition: border-color 0.15s ease;
+    }
+    .canvas-checkbox-row:hover {
+      border-color: #cbd5e1;
+    }
+    .canvas-checkbox {
+      width: 17px;
+      height: 17px;
+      accent-color: var(--mint-primary);
+      cursor: pointer;
+      margin: 0;
+    }
+    .canvas-checkbox-label {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: #0f172a;
+    }
+
     .file-input-wrapper { position: relative; overflow: hidden; display: inline-block; width: 100%; }
     .file-input-wrapper input[type=file] { font-size: 100px; position: absolute; left: 0; top: 0; opacity: 0; cursor: pointer; height: 100%; }
     .file-input-btn {
@@ -1016,126 +1249,176 @@
 
       <!-- TAB 2: ADD / EDIT PRODUCT -->
       <div id="addTab" class="tab-pane">
-        <div class="admin-form-card">
-          <div style="border-bottom: 1px solid var(--slate-border); padding-bottom: 16px; margin-bottom: 24px;">
-            <h2 id="formTitle" style="margin: 0; font-size: 1.35rem; color: #0f172a;">Thêm Sản Phẩm Mới</h2>
-            <p id="formDescription" style="margin: 6px 0 0 0; color: var(--slate-muted); font-size: 0.88rem;">Điền đầy đủ thông tin để đăng bán một file Excel hoặc Google Sheets mới.</p>
+        <div class="product-flat-canvas">
+          <!-- Canvas Top Action Bar (Flat Header) -->
+          <div class="canvas-header-bar">
+            <div>
+              <h2 id="formTitle" class="canvas-title">Thêm Sản Phẩm Mới</h2>
+              <p id="formDescription" class="canvas-sub">Điền đầy đủ thông tin để đăng bán một file Excel hoặc Google Sheets mới.</p>
+            </div>
+            <div class="canvas-actions">
+              <button type="button" class="btn-cancel-flat" onclick="switchTab('productsTab')">Hủy bỏ</button>
+              <button type="button" class="btn-save-flat" onclick="document.getElementById('productForm').requestSubmit()">
+                <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg>
+                <span id="topSubmitText">Lưu & Đăng bán</span>
+              </button>
+            </div>
           </div>
-          <form id="productForm">
+
+          <form id="productForm" class="product-form-2col">
             <input type="hidden" id="editingProductId" value="">
-            
-            <div class="form-group">
-              <label for="productName">Tên sản phẩm *</label>
-              <input type="text" id="productName" required placeholder="VD: Quản lý kho Mini Smart">
-            </div>
-            
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
-              <div class="form-group">
-                <label for="productCategory">Danh mục *</label>
-                <select id="productCategory" required>
-                  <option value="ban-hang-online">Bán hàng online</option>
-                  <option value="cong-no">Công nợ</option>
-                  <option value="quan-ly-kho">Quản lý kho</option>
-                  <option value="combo">Combo tiết kiệm</option>
-                </select>
-              </div>
 
-              <div class="form-group">
-                <label for="productFormat">Loại file cung cấp *</label>
-                <select id="productFormat" required>
-                  <option value="google_sheets">Google Sheets • Tự động tạo bản sao</option>
-                  <option value="excel">File Excel (.xlsx) • Tải trực tiếp</option>
-                  <option value="combo">Combo Tiết Kiệm (Folder Drive / Zip)</option>
-                </select>
-              </div>
-            </div>
-
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
-              <div class="form-group">
-                <label for="productPrice">Giá bán khuyến mãi (VNĐ) *</label>
-                <input type="text" id="productPrice" required placeholder="VD: 44,500">
-              </div>
-              <div class="form-group">
-                <label for="productOriginalPrice">Giá gốc niêm yết (VNĐ)</label>
-                <input type="text" id="productOriginalPrice" placeholder="VD: 99,000 (Để gạch ngang)">
-              </div>
-            </div>
-
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
-              <div class="form-group">
-                <label for="productTag">Huy hiệu nổi bật (Badge)</label>
-                <input type="text" id="productTag" placeholder="VD: Bán chạy, Khuyên dùng, -30%">
-              </div>
-              <div class="form-group">
-                <label for="productSuitableFor">Đối tượng phù hợp</label>
-                <input type="text" id="productSuitableFor" placeholder="VD: Shop online TikTok, Shopee, quán Cafe...">
-              </div>
-            </div>
-
-            <div class="form-group">
-              <label for="productDescription">Mô tả ngắn *</label>
-              <textarea id="productDescription" required placeholder="Mô tả công dụng và lợi ích chính của file..."></textarea>
-            </div>
-
-            <div class="form-group">
-              <label for="productFeatures">Tính năng chính (mỗi dòng 1 gạch đầu dòng)</label>
-              <textarea id="productFeatures" placeholder="- Tính năng tự động tính&#10;- Báo cáo Dashboard tự cập nhật"></textarea>
-            </div>
-
-            <div class="form-group">
-              <label>Ảnh bìa sản phẩm (Image) *</label>
-              <div class="file-input-wrapper">
-                <div class="file-input-btn" id="imageBtnText">
-                  <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
-                  Chọn file ảnh bìa
+            <!-- CỘT TRÁI (62%): THÔNG TIN CHÍNH, ĐỊNH DANH & NỘI DUNG -->
+            <div class="canvas-col-main">
+              <!-- Section 1: Định danh sản phẩm -->
+              <div class="canvas-section">
+                <div class="canvas-section-header">
+                  <span class="canvas-section-title">Thông tin chung</span>
+                  <span class="canvas-section-hint">Tên gọi, phân loại & nhận diện sản phẩm</span>
                 </div>
-                <input type="file" id="productImage" accept="image/*" required onchange="document.getElementById('imageBtnText').innerHTML = 'Đã chọn: ' + this.files[0].name">
-              </div>
-            </div>
-
-            <div class="form-group" id="sheetUrlGroup">
-              <label for="productSheetUrl">Link Google Sheets hoặc Thư mục Google Drive</label>
-              <input type="url" id="productSheetUrl" placeholder="https://docs.google.com/spreadsheets/d/... hoặc link folder Drive">
-              <small style="color: var(--slate-muted); display: block; margin-top: 4px;">Khách hàng sẽ nhận link tạo bản sao vào Google Drive cá nhân của họ.</small>
-            </div>
-
-            <div class="form-group" id="fileUploadGroup">
-              <label>File đính kèm (.xlsx, .zip)</label>
-              <div class="file-input-wrapper">
-                <div class="file-input-btn" id="fileBtnText">
-                  <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"></path></svg>
-                  Chọn file đính kèm
+                
+                <div class="canvas-field-group">
+                  <label for="productName" class="canvas-label">Tên sản phẩm <span class="req">*</span></label>
+                  <input type="text" id="productName" class="canvas-input" required placeholder="VD: Bảng tính Quản lý Kho Thông Minh Mini">
                 </div>
-                <input type="file" id="productFile" onchange="if(this.files[0]) document.getElementById('fileBtnText').innerHTML = 'Đã chọn: ' + this.files[0].name; else document.getElementById('fileBtnText').innerHTML = 'Chọn file đính kèm'">
-              </div>
-              <small style="color: var(--slate-muted); display: block; margin-top: 4px;">Dành cho file Excel hoặc file nén .zip chứa combo nhiều file.</small>
-            </div>
 
-            <!-- Gói Dịch vụ Kèm 1-1 -->
-            <div class="form-group" style="background: #f8fafc; padding: 14px 16px; border-radius: 10px; border: 1.5px dashed #cbd5e1; margin-top: 14px;">
-              <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; margin-bottom: 0; font-weight: 600; color: #0f172a;">
-                <input type="checkbox" id="productHasCoaching" style="width: 18px; height: 18px; accent-color: #059669; cursor: pointer;">
-                <span>🎓 Cung cấp gói Dịch vụ Kèm 1-1 cho sản phẩm này</span>
-              </label>
-              
-              <div id="coachingFieldsGroup" style="display: none; margin-top: 14px; padding-top: 12px; border-top: 1px solid #e2e8f0;">
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
-                  <div class="form-group" style="margin-bottom: 0;">
-                    <label for="productCoachingPrice">Giá trọn gói Kèm 1-1 (VNĐ) *</label>
-                    <input type="text" id="productCoachingPrice" placeholder="VD: 199,000">
+                <div class="canvas-row-2">
+                  <div class="canvas-field-group">
+                    <label for="productCategory" class="canvas-label">Danh mục sản phẩm <span class="req">*</span></label>
+                    <select id="productCategory" class="canvas-select" required>
+                      <option value="ban-hang-online">Bán hàng online</option>
+                      <option value="cong-no">Công nợ</option>
+                      <option value="quan-ly-kho">Quản lý kho</option>
+                      <option value="combo">Combo tiết kiệm</option>
+                    </select>
                   </div>
-                  <div class="form-group" style="margin-bottom: 0;">
-                    <label for="productCoachingTitle">Tên gói Kèm 1-1 hiển thị</label>
-                    <input type="text" id="productCoachingTitle" placeholder="Bản Kèm 1-1 (1 buổi 1 tiếng)">
+
+                  <div class="canvas-field-group">
+                    <label for="productFormat" class="canvas-label">Loại định dạng file <span class="req">*</span></label>
+                    <select id="productFormat" class="canvas-select" required>
+                      <option value="google_sheets">Google Sheets • Tự động tạo bản sao</option>
+                      <option value="excel">File Excel (.xlsx) • Tải trực tiếp</option>
+                      <option value="combo">Combo Tiết Kiệm (Folder Drive / Zip)</option>
+                    </select>
                   </div>
                 </div>
-                <small style="color: #64748b; margin-top: 6px; display: block;">
-                  Khi bật, khách mua file này sẽ thấy lựa chọn: <b>Bản Tự Dùng</b> và <b>Bản Kèm 1-1</b>.
-                </small>
+
+                <div class="canvas-row-2">
+                  <div class="canvas-field-group">
+                    <label for="productTag" class="canvas-label">Huy hiệu nổi bật (Badge)</label>
+                    <input type="text" id="productTag" class="canvas-input" placeholder="VD: Bán chạy, Khuyên dùng, -30%">
+                  </div>
+
+                  <div class="canvas-field-group">
+                    <label for="productSuitableFor" class="canvas-label">Đối tượng phù hợp</label>
+                    <input type="text" id="productSuitableFor" class="canvas-input" placeholder="VD: Shop online TikTok, Shopee, quán Cafe...">
+                  </div>
+                </div>
+              </div>
+
+              <!-- Section 2: Nội dung & Mô tả -->
+              <div class="canvas-section">
+                <div class="canvas-section-header">
+                  <span class="canvas-section-title">Mô tả & Tính năng nổi bật</span>
+                  <span class="canvas-section-hint">Nội dung hiển thị chi tiết khi khách xem sản phẩm</span>
+                </div>
+
+                <div class="canvas-field-group">
+                  <label for="productDescription" class="canvas-label">Mô tả ngắn sản phẩm <span class="req">*</span></label>
+                  <textarea id="productDescription" class="canvas-textarea" rows="4" required placeholder="Mô tả công dụng và lợi ích chính của file giúp người dùng giải quyết vấn đề gì..."></textarea>
+                </div>
+
+                <div class="canvas-field-group">
+                  <label for="productFeatures" class="canvas-label">Tính năng chính (mỗi dòng 1 gạch đầu dòng)</label>
+                  <textarea id="productFeatures" class="canvas-textarea" rows="4" placeholder="- Tự động tính toán doanh thu và chi phí&#10;- Báo cáo Dashboard phân tích trực quan&#10;- Hỗ trợ import/export dữ liệu nhanh chóng"></textarea>
+                </div>
               </div>
             </div>
 
-            <button type="submit" class="btn-create-pill" id="submitBtn" style="margin-top: 24px; height: 46px; width: 100%; justify-content: center; font-size: 0.95rem; border-radius: 8px;">Tải lên & Đăng bán</button>
+            <!-- CỘT PHẢI (38%): THIẾT LẬP GIÁ, FILE PHÂN PHỐI & COACHING -->
+            <div class="canvas-col-side">
+              <!-- Side Section 1: Giá bán -->
+              <div class="canvas-section">
+                <div class="canvas-section-header">
+                  <span class="canvas-section-title">Giá bán & Niêm yết</span>
+                  <span class="canvas-section-hint">Đơn vị tiền tệ: VNĐ</span>
+                </div>
+
+                <div class="canvas-field-group">
+                  <label for="productPrice" class="canvas-label">Giá bán khuyến mãi <span class="req">*</span></label>
+                  <input type="text" id="productPrice" class="canvas-input" required placeholder="VD: 44,500">
+                </div>
+
+                <div class="canvas-field-group">
+                  <label for="productOriginalPrice" class="canvas-label">Giá gốc niêm yết</label>
+                  <input type="text" id="productOriginalPrice" class="canvas-input" placeholder="VD: 99,000 (Để gạch ngang)">
+                </div>
+              </div>
+
+              <!-- Side Section 2: File phân phối -->
+              <div class="canvas-section">
+                <div class="canvas-section-header">
+                  <span class="canvas-section-title">File & Tài nguyên phân phối</span>
+                  <span class="canvas-section-hint">Cấp quyền tự động sau thanh toán</span>
+                </div>
+
+                <div class="canvas-field-group">
+                  <label class="canvas-label">Ảnh bìa sản phẩm (Image) <span class="req">*</span></label>
+                  <div class="file-input-wrapper">
+                    <div class="file-input-btn" id="imageBtnText">
+                      <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                      Chọn file ảnh bìa
+                    </div>
+                    <input type="file" id="productImage" accept="image/*" required onchange="document.getElementById('imageBtnText').innerHTML = 'Đã chọn: ' + (this.files[0] ? this.files[0].name : '')">
+                  </div>
+                </div>
+
+                <div class="canvas-field-group" id="sheetUrlGroup">
+                  <label for="productSheetUrl" class="canvas-label">Link Google Sheets hoặc Thư mục Drive</label>
+                  <input type="url" id="productSheetUrl" class="canvas-input" placeholder="https://docs.google.com/spreadsheets/d/...">
+                  <small class="canvas-help-text">Khách hàng sẽ nhận link tạo bản sao vào Google Drive cá nhân.</small>
+                </div>
+
+                <div class="canvas-field-group" id="fileUploadGroup">
+                  <label class="canvas-label">File đính kèm (.xlsx, .zip)</label>
+                  <div class="file-input-wrapper">
+                    <div class="file-input-btn" id="fileBtnText">
+                      <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"></path></svg>
+                      Chọn file đính kèm
+                    </div>
+                    <input type="file" id="productFile" onchange="if(this.files[0]) document.getElementById('fileBtnText').innerHTML = 'Đã chọn: ' + this.files[0].name; else document.getElementById('fileBtnText').innerHTML = 'Chọn file đính kèm'">
+                  </div>
+                  <small class="canvas-help-text">Dành cho file Excel hoặc file nén .zip chứa combo nhiều file.</small>
+                </div>
+              </div>
+
+              <!-- Side Section 3: Coaching Upsell -->
+              <div class="canvas-section">
+                <div class="canvas-section-header">
+                  <span class="canvas-section-title">Gói Dịch vụ Kèm 1-1</span>
+                  <span class="canvas-section-hint">Tăng giá trị trung bình đơn hàng (AOV)</span>
+                </div>
+
+                <label class="canvas-checkbox-row">
+                  <input type="checkbox" id="productHasCoaching" class="canvas-checkbox">
+                  <span class="canvas-checkbox-label">Cung cấp gói Dịch vụ Kèm 1-1 cho sản phẩm này</span>
+                </label>
+
+                <div id="coachingFieldsGroup" style="display: none; margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--slate-border);">
+                  <div class="canvas-field-group">
+                    <label for="productCoachingPrice" class="canvas-label">Giá trọn gói Kèm 1-1 (VNĐ) <span class="req">*</span></label>
+                    <input type="text" id="productCoachingPrice" class="canvas-input" placeholder="VD: 199,000">
+                  </div>
+                  <div class="canvas-field-group" style="margin-top: 12px;">
+                    <label for="productCoachingTitle" class="canvas-label">Tên gói hiển thị</label>
+                    <input type="text" id="productCoachingTitle" class="canvas-input" placeholder="Bản Kèm 1-1 (1 buổi 1 tiếng)">
+                  </div>
+                </div>
+              </div>
+
+              <!-- Nút Submit chính phía dưới -->
+              <button type="submit" class="btn-create-pill" id="submitBtn" style="margin-top: 8px; height: 46px; width: 100%; justify-content: center; font-size: 0.95rem; border-radius: 8px;">Tải lên & Đăng bán</button>
+            </div>
           </form>
         </div>
       </div>
@@ -1321,7 +1604,7 @@
   <script src="/__/firebase/10.7.1/firebase-storage-compat.js"></script>
   <script src="/__/firebase/init.js"></script>
   
-  <script src="./admin.js?v=97"></script>
+  <script src="./admin.js?v=100"></script>
   <!-- Agentation: Visual Feedback & Annotation for AI agents -->
   <script src="./agentation-vanilla.js"></script>
 </body>
