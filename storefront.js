@@ -1881,7 +1881,7 @@ function escapeHtml(value) {
       '<div class="detail-col-info">' +
         '<h1 class="detail-product-title">' + escapeHtml(product.name) + '</h1>' +
         '<div class="detail-rating-row">' +
-          '<div class="detail-rating-pill">⭐ ' + ratingInfo.score + ' <span style="color:#cbd5e1; margin:0 4px;">•</span> ' + ratingInfo.sales + ' lượt mua</div>' +
+          '<div class="detail-rating-pill"><span class="star-val">★ ' + ratingInfo.score + '</span><span class="sep">•</span><span class="sales-val">' + ratingInfo.sales + ' lượt mua</span></div>' +
         '</div>' +
 
         '<div class="detail-price-box">' +
