@@ -3598,26 +3598,43 @@
       if (hasAnimated) return;
       hasAnimated = true;
 
-      var duration = 1200;
+      var duration = 1500; // 1.5 giây tăng dần từng số cực mượt
       var startTime = null;
-      var targetFiles = (statTotalFilesEl && parseInt(statTotalFilesEl.getAttribute("data-target"), 10)) || 30;
+
+      function getTargetFiles() {
+        if (data.products && data.products.length > 0) return data.products.length;
+        if (statTotalFilesEl) {
+          var parsed = parseInt(statTotalFilesEl.getAttribute("data-target"), 10);
+          if (parsed && !isNaN(parsed)) return parsed;
+        }
+        return 30;
+      }
+      var targetFiles = getTargetFiles();
 
       function step(timestamp) {
         if (!startTime) startTime = timestamp;
-        var progress = Math.min((timestamp - startTime) / duration, 1);
-        // Easing function: cubic ease-out
+        var elapsed = timestamp - startTime;
+        var progress = Math.min(elapsed / duration, 1);
+
+        // Smooth cubic ease-out curve
         var ease = 1 - Math.pow(1 - progress, 3);
 
-        if (statYearsEl) statYearsEl.textContent = Math.floor(targetYears * ease);
-        if (statMonthsEl) statMonthsEl.textContent = Math.floor(targetMonths * ease);
-        if (statTotalFilesEl) statTotalFilesEl.textContent = Math.floor(targetFiles * ease);
+        // Tính toán số tăng dần
+        var currentYears = Math.min(Math.floor(targetYears * ease), targetYears);
+        var currentMonths = Math.min(Math.floor(targetMonths * ease), targetMonths);
+        var currentFiles = Math.min(Math.floor(targetFiles * ease), targetFiles);
+
+        if (statYearsEl) statYearsEl.textContent = String(currentYears);
+        if (statMonthsEl) statMonthsEl.textContent = String(currentMonths);
+        if (statTotalFilesEl) statTotalFilesEl.textContent = String(currentFiles);
 
         if (progress < 1) {
           requestAnimationFrame(step);
         } else {
-          if (statYearsEl) statYearsEl.textContent = targetYears;
-          if (statMonthsEl) statMonthsEl.textContent = targetMonths;
-          if (statTotalFilesEl) statTotalFilesEl.textContent = targetFiles;
+          window.__statsAnimationFinished = true;
+          if (statYearsEl) statYearsEl.textContent = String(targetYears);
+          if (statMonthsEl) statMonthsEl.textContent = String(targetMonths);
+          if (statTotalFilesEl) statTotalFilesEl.textContent = String(targetFiles);
         }
       }
       requestAnimationFrame(step);
@@ -3632,7 +3649,7 @@
               observer.unobserve(entry.target);
             }
           });
-        }, { threshold: 0.15 });
+        }, { threshold: 0.1 });
         obs.observe(statsSectionEl);
       } else {
         runSynchronizedStatsAnimation();
