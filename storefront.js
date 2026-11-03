@@ -3274,17 +3274,16 @@ function escapeHtml(value) {
       if (demoSubtotal) demoSubtotal.textContent = formatCurrency(subtotal);
       if (demoTotalVal) demoTotalVal.textContent = formatCurrency(finalAmount);
 
-      var inlineWarnEl = document.getElementById('ticketInlineWarning');
-      var inlineWarnText = document.getElementById('ticketInlineWarningText');
+      var alertSub = document.getElementById('landingCouponAlertSub');
 
-      if (inlineWarnEl && inlineWarnText) {
-        if (isRealCart && !isEligible) {
-          var thiếuTiền = minOrder - subtotal;
-          inlineWarnText.textContent = 'Đơn của bạn là ' + formatCurrency(subtotal) + '. Cần thêm ' + formatCurrency(thiếuTiền) + ' nữa để áp dụng mã ' + featured.code + ' (từ ' + formatCurrency(minOrder) + ').';
-          inlineWarnEl.style.display = 'flex';
-        } else {
-          inlineWarnEl.style.display = 'none';
+      if (isRealCart && !isEligible) {
+        var thiếuTiền = minOrder - subtotal;
+        if (alertSub) {
+          alertSub.textContent = 'Đơn của bạn là ' + formatCurrency(subtotal) + ' (cần thêm ' + formatCurrency(thiếuTiền) + ' để áp dụng mã từ ' + formatCurrency(minOrder) + ').';
+          alertSub.style.display = 'block';
         }
+      } else {
+        if (alertSub) alertSub.style.display = 'none';
       }
 
       if (btnActionText) {
@@ -3330,8 +3329,14 @@ function escapeHtml(value) {
       state.discountAmount = 0;
       var thiếu = curMinOrder - curSubtotal;
       var warnMsg = "Mã " + currentFeaturedCoupon.code + " chỉ áp dụng cho đơn từ " + formatCurrency(curMinOrder) + ". Bạn cần thêm " + formatCurrency(thiếu) + " nữa.";
+      
+      var alertSub = document.getElementById('landingCouponAlertSub');
+      if (alertSub) {
+        alertSub.textContent = 'Đơn của bạn là ' + formatCurrency(curSubtotal) + ' (cần thêm ' + formatCurrency(thiếu) + ' để áp dụng mã từ ' + formatCurrency(curMinOrder) + ').';
+        alertSub.style.display = 'block';
+      }
+
       showToast(warnMsg);
-      openCart();
       syncLandingCouponTicket();
       return;
     }
