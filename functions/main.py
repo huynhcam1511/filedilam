@@ -536,6 +536,11 @@ def api(req: https_fn.Request) -> https_fn.Response:
                         except Exception:
                             pass
                     if age_sec <= 600:
+                        doc.reference.set({
+                            "customer_name": str(data.get("customer_name") or ""),
+                            "customer_email": data.get("customer_email") or user.get("email", ""),
+                            "customer_phone": phone,
+                        }, merge=True)
                         c_at_str = c_at.isoformat() if hasattr(c_at, "isoformat") else str(c_at)
                         return json_response({
                             "order_id": o_data.get("id"),
@@ -568,6 +573,7 @@ def api(req: https_fn.Request) -> https_fn.Response:
         doc_ref = db.collection("orders").document(order_id)
         order_doc_data = {
             "id": order_id,
+            "customer_name": str(data.get("customer_name") or ""),
             "customer_email": customer_email,
             "customer_phone": phone,
             "user_id": user["uid"],

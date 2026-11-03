@@ -16,7 +16,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="./storefront.css?v=286" />
+    <link rel="stylesheet" href="./storefront.css?v=300" />
     <style>
     :root {
       --bg: #ffffff;
@@ -2832,7 +2832,7 @@
             <div class="detail-nav-left">
               <strong class="detail-nav-brand" id="detailNavBrand">File Đi Làm</strong>
               <nav class="detail-nav-links">
-                <a href="javascript:void(0)" class="detail-nav-home-link">Trang chủ</a>
+                <a href="javascript:void(0)" class="detail-nav-home-link active">Trang chủ</a>
                 <a href="javascript:void(0)" class="detail-nav-catalog-link">Template</a>
                 <a href="https://zalo.me/0938134576" target="_blank" rel="noopener">Hỗ trợ</a>
                 <a href="#custom">Đặt theo yêu cầu</a>
@@ -2855,8 +2855,8 @@
       </div>
     </div>
 
-    <!-- Checkout Modal (Unified Quick Buy & VietQR) -->
-    <div class="modal-backdrop checkout-modal-backdrop" id="checkoutModal" aria-hidden="true" style="z-index: 10006;">
+    <!-- Checkout Page (Unified Quick Buy & VietQR) -->
+    <section class="checkout-page" id="checkoutModal" aria-hidden="true">
       <div class="modal-card checkout-card">
         
         <!-- TOPBAR INSIDE CHECKOUT FULLPAGE (Luxury Fintech Standard) -->
@@ -2865,19 +2865,16 @@
             <div class="checkout-nav-left">
               <strong class="checkout-nav-brand" id="checkoutNavBrand">File Đi Làm</strong>
               <nav class="checkout-nav-links">
-                <a href="javascript:void(0)" class="checkout-nav-home-link">Trang chủ</a>
+                <a href="javascript:void(0)" class="checkout-nav-home-link active">Trang chủ</a>
                 <a href="javascript:void(0)" class="checkout-nav-catalog-link">Template</a>
                 <a href="https://zalo.me/0938134576" target="_blank" rel="noopener">Hỗ trợ</a>
                 <a href="#custom">Đặt theo yêu cầu</a>
               </nav>
             </div>
-            <div class="checkout-nav-actions">
-              <button class="icon-button" id="closeCheckout" type="button" aria-label="Đóng" style="width: 36px; height: 36px; font-size: 1.4rem; display: flex; align-items: center; justify-content: center;">×</button>
-            </div>
           </div>
         </header>
 
-        <!-- 2-COLUMN CHECKOUT BODY: Left = Customer Form | Right = QR Box (Top) + Order Summary (Bottom) -->
+        <!-- Order summary on the left, recipient and payment on the right -->
         <div id="checkoutAuthStep" class="modal-body checkout-modal-body-split">
           <div class="checkout-subbar">
             <div class="checkout-subbar-inner">
@@ -2889,10 +2886,30 @@
             </div>
           </div>
           
-          <!-- LEFT COLUMN: Customer Payment Form Card -->
+          <!-- RIGHT COLUMN: Customer information form -->
           <div class="checkout-form-col">
             <div class="checkout-form-card">
-              <h4 class="checkout-form-card-title">Thông tin thanh toán</h4>
+              <div class="checkout-recipient-heading">
+                <h4 class="checkout-form-card-title">Thông tin nhận file</h4>
+                <button type="button" class="checkout-edit-customer" id="btnEditCheckoutCustomer">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 5 4 4M4 20l4.5-1 12-12a2.8 2.8 0 0 0-4-4l-12 12L4 20Z"/></svg>
+                  Sửa thông tin
+                </button>
+              </div>
+              <div class="checkout-customer-summary" id="checkoutCustomerSummary">
+                <div class="checkout-customer-summary-row">
+                  <span>Người nhận</span>
+                  <strong id="checkoutCustomerName"></strong>
+                </div>
+                <div class="checkout-customer-summary-row">
+                  <span>Số điện thoại</span>
+                  <strong id="checkoutCustomerPhone"></strong>
+                </div>
+                <div class="checkout-customer-summary-row">
+                  <span>Gmail nhận file</span>
+                  <strong id="checkoutCustomerEmail"></strong>
+                </div>
+              </div>
 
               <!-- Package Selection Card (Shopee Upsell) -->
               <div class="package-selection-wrap" id="packageSelectionWrap" style="margin-bottom: 16px; display: none;">
@@ -2961,14 +2978,15 @@
 
                 <!-- Submit Button -->
                 <button class="button-primary button-full btn-place-order" id="btnQuickSubmit" type="submit" style="margin-top: 14px;">
-                  <span id="btnQuickSubmitText">Đặt hàng</span>
+                  <span id="btnQuickSubmitText">Xác nhận thông tin &amp; tạo đơn</span>
                 </button>
+                <div class="checkout-submit-help">Sau bước này, mã QR thanh toán sẽ được tạo và có hiệu lực trong 10 phút.</div>
               </form>
 
               <!-- Helpful Note (Optimate Inspired) -->
               <div class="checkout-help-note">
                 <p><strong>Lưu ý:</strong> Hãy nhập chính xác địa chỉ Gmail của bạn vì email này sẽ được dùng để nhận bản sao file khi bạn thanh toán thành công. Nếu bạn có thắc mắc gì trong quá trình mua hàng / thanh toán xin liên hệ SĐT/Zalo: <strong>0938 134 576</strong>.</p>
-                <div class="checkout-terms-note">Khi đặt hàng, bạn đồng ý với <a href="/chinh-sach.html#dieu-khoan-su-dung" target="_blank">Điều khoản</a>, <a href="/chinh-sach.html#doi-tra-va-hoan-tien" target="_blank">Đổi trả</a> và <a href="/chinh-sach.html#bao-mat-thong-tin" target="_blank">Bảo mật</a>.</div>
+                <div class="checkout-terms-note">Khi tạo đơn, bạn đồng ý với <a href="/chinh-sach.html#dieu-khoan-su-dung" target="_blank">Điều khoản</a>, <a href="/chinh-sach.html#doi-tra-va-hoan-tien" target="_blank">Đổi trả</a> và <a href="/chinh-sach.html#bao-mat-thong-tin" target="_blank">Bảo mật</a>.</div>
               </div>
 
               <!-- Hidden elements for backward compatibility -->
@@ -2981,12 +2999,7 @@
               <span id="quickToggleText" style="display:none;"></span>
               <a href="#" id="quickToggleLink" style="display:none;"></a>
             </div>
-          </div>
-
-          <!-- RIGHT COLUMN: Mã ở trên (VietQR Box) + Đơn hàng ở dưới (Order Summary & Coupon) -->
-          <div class="checkout-right-col">
-            
-            <!-- TOP RIGHT: VietQR Payment Box (Mã ở trên) -->
+            <!-- QR payment appears after the order is created -->
             <div class="checkout-qr-card">
               <div class="bank-box" style="padding: 12px 14px; border-radius: 12px; background: #f8fafc; border: 1px solid var(--line);">
                 
@@ -3025,84 +3038,55 @@
                   Đã lưu ảnh QR. Mở App Bank để quét từ thư viện ảnh.
                 </div>
 
-                <div class="bank-details" style="text-align: left; margin-top: 10px;">
-                  <div class="bank-detail-row">
-                    <span class="detail-label">Ngân hàng:</span>
-                    <span class="detail-val" id="bankName"></span>
-                  </div>
-                  <div class="bank-detail-row">
-                    <span class="detail-label">Chủ TK:</span>
-                    <span class="detail-val" id="bankOwner"></span>
-                  </div>
-                  <div class="bank-detail-row highlight-row">
-                    <span class="detail-label">Số TK:</span>
-                    <span class="detail-val font-mono" id="bankNumber"></span>
-                    <button class="btn-copy-mini" id="copyBankNumberBtn" type="button" title="Sao chép Số tài khoản">Sao chép</button>
-                  </div>
-                  <div class="bank-detail-row highlight-row">
-                    <span class="detail-label">Số tiền:</span>
-                    <span class="detail-val font-mono" id="bankAmount" style="color: var(--mint-strong); font-weight: 700;">0 đ</span>
-                    <button class="btn-copy-mini" id="copyBankAmountBtn" type="button" title="Sao chép Số tiền">Sao chép</button>
-                  </div>
-                  <div class="bank-detail-row highlight-row">
-                    <span class="detail-label">Nội dung CK:</span>
-                    <span class="detail-val font-mono" id="bankTransferNote"></span>
-                    <button class="btn-copy-mini" id="copyTransferNoteBtn" type="button" title="Sao chép Nội dung">Sao chép</button>
-                  </div>
+                <div class="payment-auto-status" aria-live="polite">
+                  <span class="payment-status-dot"></span>
+                  <span>Hệ thống đang tự động chờ và xác nhận giao dịch</span>
                 </div>
-
-                <div style="margin-top: 14px;">
-                  <button class="button-primary button-full" id="confirmPayment" type="button" style="height: 46px; font-size: 0.98rem; font-weight: 600;">
-                    Kiểm tra thanh toán
-                  </button>
-                  <button id="backToInfoBtn" type="button" style="display: none;"></button>
-                </div>
+                <button id="backToInfoBtn" type="button" style="display: none;"></button>
               </div>
             </div>
 
-            <!-- BOTTOM RIGHT: Order Summary Card (Đơn hàng ở dưới) -->
+          </div>
+
+          <div class="checkout-order-col">
             <div class="checkout-summary-card">
               <div class="checkout-summary-col">
                 <div class="checkout-hero-section">
-                  <div class="checkout-hero-label">Tổng đơn</div>
-                  <div class="checkout-hero-total font-mono" id="checkoutHeroTotal">0 đ</div>
+                  <div class="checkout-section-title">Đơn hàng của bạn</div>
                 </div>
 
                 <!-- List of items in checkout -->
                 <div class="checkout-items-list" id="checkoutItems"></div>
+              </div>
 
-                <div class="checkout-calc-divider"></div>
-
-                <div class="checkout-calc-row">
-                  <span class="calc-label">Tổng phụ</span>
-                  <span class="calc-val font-mono" id="checkoutSubTotal">0 đ</span>
-                </div>
-
+              <div class="checkout-totals">
                 <!-- Discount coupon row -->
                 <div class="checkout-coupon-box">
-                  <div class="coupon-box-title">Thêm mã giảm giá</div>
+                  <label class="coupon-box-title" for="checkoutCouponInput">Chọn mã giảm giá</label>
                   <div class="coupon-input-group">
                     <input type="text" id="checkoutCouponInput" class="checkout-coupon-input" placeholder="Điền mã (VD: FILEDILAM)" style="text-transform: uppercase;" />
                     <button type="button" id="btnApplyCheckoutCoupon" class="btn-apply-coupon">Áp mã</button>
                   </div>
                   <div id="checkoutCouponMsg" style="font-size: 0.78rem; margin-top: 6px; padding: 6px 10px; border-radius: 6px; display: none; line-height: 1.4;"></div>
-                  <div class="checkout-coupon-condition" id="checkoutCouponCondition" style="font-size: 0.76rem; color: #64748b; margin-top: 5px; line-height: 1.4;">
-                    Mã <strong>FILEDILAM</strong>: Giảm 10% cho đơn từ 160.000 đ.
+                  <div class="checkout-coupon-list" id="checkoutCouponList" aria-live="polite">
+                    <div class="checkout-coupon-empty">Đang tải mã giảm giá...</div>
                   </div>
                 </div>
 
-                <div class="checkout-calc-divider"></div>
-
-                <div class="checkout-calc-row" id="checkoutDiscountRow" style="display: none; color: #059669; font-weight: 600; margin-bottom: 4px;">
-                  <span class="calc-label" style="color: #059669;" id="checkoutDiscountLabel">Giảm giá</span>
-                  <div style="display: flex; align-items: center; gap: 8px;">
-                    <span class="calc-val font-mono" id="checkoutDiscountVal" style="color: #059669;">-0 đ</span>
-                    <button type="button" id="btnRemoveCoupon" style="background: none; border: none; color: #94a3b8; cursor: pointer; padding: 0 4px; font-size: 1.1rem; line-height: 1;" title="Hủy mã giảm giá">&times;</button>
+                <div class="checkout-calc-row">
+                  <span>Tổng số tiền</span>
+                  <span id="checkoutSubTotal">0 đ</span>
+                </div>
+                <div class="checkout-calc-row" id="checkoutDiscountRow" style="display: none;">
+                  <div class="checkout-discount-label">
+                    <span id="checkoutDiscountLabel">Giảm giá</span>
+                    <button type="button" id="btnRemoveCoupon" title="Hủy mã giảm giá" aria-label="Hủy mã giảm giá">&times;</button>
                   </div>
+                  <span id="checkoutDiscountVal">-0 đ</span>
                 </div>
                 <div class="checkout-calc-row checkout-grand-row">
-                  <span class="calc-label-grand">Tổng cộng</span>
-                  <span class="calc-val-grand font-mono" id="checkoutGrandTotal">0 đ</span>
+                  <span>Tổng thanh toán</span>
+                  <span id="checkoutGrandTotal">0 đ</span>
                 </div>
               </div>
             </div>
@@ -3112,9 +3096,9 @@
 
         <!-- Hidden container for backward compatibility -->
         <div id="checkoutPaymentStep" style="display: none !important;"></div>
+        <div class="checkout-footer-mount" id="checkoutFooterMount"></div>
       </div>
-    </div>
-    </div>
+    </section>
 
     <!-- Bank App Picker Modal -->
     <div class="modal-backdrop" id="bankPickerModal" aria-hidden="true" style="z-index: 10008;">
@@ -3558,7 +3542,8 @@
     <script src="/__/firebase/init.js"></script>
     <script src="./storefront-data.js?v=20"></script>
     <script src="./storefront-products.generated.js?v=6"></script>
-    <script src="storefront.js?v=159"></script>
+    <script src="assets/qrcode-generator-1.4.4.js"></script>
+    <script src="storefront.js?v=171"></script>
     <!-- Agentation: Visual Feedback & Annotation for AI agents -->
   <script src="./agentation-vanilla.js"></script>
 </body>

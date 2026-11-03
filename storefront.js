@@ -114,6 +114,7 @@ function escapeHtml(value) {
   var closeMobileMenuBtn = document.getElementById("closeMobileMenu");
   var mobileNavDrawer = document.getElementById("mobileNavDrawer");
   var checkoutModal = document.getElementById("checkoutModal");
+  var checkoutFooterMount = document.getElementById("checkoutFooterMount");
   var detailModal = document.getElementById("detailModal");
   var detailTitle = document.getElementById("detailTitle");
   var detailBody = document.getElementById("detailBody");
@@ -171,7 +172,7 @@ function escapeHtml(value) {
   var authPhone = document.getElementById("authPhone");
   var isRegisterMode = false;
 
-  // Unified Checkout Modal elements
+  // Unified checkout page elements
   var checkoutModalTitle = document.getElementById("checkoutModalTitle");
   var checkoutBackBtn = document.getElementById("checkoutBackBtn");
   var currentActiveOrderId = null;
@@ -192,6 +193,10 @@ function escapeHtml(value) {
   var quickPassword = document.getElementById("quickPassword");
   var quickEmailGroup = document.getElementById("quickEmailGroup");
   var quickEmail = document.getElementById("quickEmail");
+  var checkoutCustomerName = document.getElementById("checkoutCustomerName");
+  var checkoutCustomerPhone = document.getElementById("checkoutCustomerPhone");
+  var checkoutCustomerEmail = document.getElementById("checkoutCustomerEmail");
+  var btnEditCheckoutCustomer = document.getElementById("btnEditCheckoutCustomer");
   var btnQuickSubmit = document.getElementById("btnQuickSubmit");
   var btnQuickSubmitText = document.getElementById("btnQuickSubmitText");
   var quickToggleText = document.getElementById("quickToggleText");
@@ -348,8 +353,13 @@ function escapeHtml(value) {
   renderPriceFilter();
   renderProducts();
   renderCart();
+  mountCheckoutFooter();
   bindEvents();
   initAuth();
+
+  if (window.location.hash === "#thanh-toan") {
+    window.setTimeout(function () { openCheckout(true); }, 0);
+  }
 
   // Load dynamic products from Firestore (Single Source of Truth)
   if (typeof firebase !== 'undefined' && firebase.firestore) {
@@ -413,11 +423,16 @@ function escapeHtml(value) {
     var elCheckoutButton = document.getElementById("checkoutButton");
     if (elCheckoutButton) elCheckoutButton.addEventListener("click", openCheckout);
 
-    var elCloseCheckout = document.getElementById("closeCheckout");
-    if (elCloseCheckout) elCloseCheckout.addEventListener("click", closeCheckout);
     if (checkoutBackBtn) {
       checkoutBackBtn.addEventListener("click", function () {
         closeCheckout();
+      });
+    }
+    if (btnEditCheckoutCustomer) {
+      btnEditCheckoutCustomer.addEventListener("click", function () {
+        setCheckoutCustomerConfirmed(false);
+        checkoutModal.classList.remove("has-active-order");
+        if (quickName) quickName.focus();
       });
     }
 
@@ -638,9 +653,17 @@ function escapeHtml(value) {
         // Fullpage Checkout: Khóa không cho đóng khi bấm vào nền hoặc khoảng trống
     if (checkoutModal) {
       checkoutModal.addEventListener("click", function (event) {
-        // Chỉ đóng khi người dùng chủ động bấm vào nút [Trở lại cửa hàng] hoặc nút [X]
+        // Trang thanh toán chỉ đóng qua điều hướng rõ ràng.
       });
     }
+
+    window.addEventListener("popstate", function () {
+      if (window.location.hash === "#thanh-toan") {
+        openCheckout(true);
+      } else if (checkoutModal && checkoutModal.classList.contains("is-open")) {
+        closeCheckout(true);
+      }
+    });
     
     if (authModal) {
       authModal.addEventListener("click", function (event) {
@@ -1611,6 +1634,8 @@ function escapeHtml(value) {
     if (cartTotal) cartTotal.textContent = formatCurrency(getCartTotal());
     if (checkoutTotal) checkoutTotal.textContent = formatCurrency(getCartTotal());
     if (cartCount) cartCount.textContent = String(getCartCount());
+    var cartCountDetail = document.getElementById("cartCountDetail");
+    if (cartCountDetail) cartCountDetail.textContent = String(getCartCount());
     var checkoutSummaryPrice = document.getElementById("checkoutSummaryPrice");
     if (checkoutSummaryPrice) checkoutSummaryPrice.textContent = formatCurrency(getCartTotal());
     renderCheckoutSummary(detailedCart);
@@ -1641,14 +1666,6 @@ function escapeHtml(value) {
     var subtotal = getCartSubtotal();
     var discount = state.discountAmount || 0;
 
-    // Cập nhật câu điều kiện động theo coupon đang active
-    if (checkoutCouponCondition && currentFeaturedCoupon) {
-      var cMin = Number(currentFeaturedCoupon.min_order || 0);
-      var cVal = currentFeaturedCoupon.type === 'percent' ? (currentFeaturedCoupon.value + '%') : formatCurrency(currentFeaturedCoupon.value);
-      var cMinText = cMin > 0 ? ('đơn từ ' + formatCurrency(cMin)) : 'mọi đơn hàng';
-      checkoutCouponCondition.innerHTML = 'Mã <strong>' + escapeHtml(currentFeaturedCoupon.code) + '</strong>: Giảm ' + cVal + ' cho ' + cMinText + '.';
-    }
-
     if (checkoutHeroTotal) checkoutHeroTotal.textContent = formatCurrency(grandTotal);
     if (checkoutSubTotal) checkoutSubTotal.textContent = formatCurrency(subtotal);
     if (checkoutGrandTotal) checkoutGrandTotal.textContent = formatCurrency(grandTotal);
@@ -1675,12 +1692,16 @@ function escapeHtml(value) {
 
     checkoutItems.innerHTML = detailedCart
       .map(function (item) {
+        var productImage = item.product.thumbnailUrl || item.product.previewImageUrl || "";
+        var productDescription = item.product.subtitle || item.product.shortDescription || item.product.description || "File làm việc sẵn sàng sử dụng";
         return (
-          '<div class="checkout-product-row" style="display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; margin-bottom: 12px; font-size: 0.92rem;">' +
-            '<div style="color: #1e293b; font-weight: 500; line-height: 1.4; flex: 1;">' +
-              escapeHtml(item.product.name) +
+          '<div class="checkout-product-row">' +
+            '<div class="checkout-product-avatar"' + (productImage ? ' style="background-image:url(&quot;' + escapeHtml(productImage) + '&quot;)"' : '') + '></div>' +
+            '<div class="checkout-product-copy">' +
+              '<div class="checkout-product-heading-1">' + escapeHtml(item.product.name) + '</div>' +
+              '<div class="checkout-product-heading-2">' + escapeHtml(productDescription) + '</div>' +
             '</div>' +
-            '<div class="font-mono" style="color: #0f172a; font-weight: 600; white-space: nowrap;">' +
+            '<div class="checkout-product-price font-mono">' +
               formatCurrency(item.total) +
             '</div>' +
           '</div>'
@@ -2163,7 +2184,7 @@ function escapeHtml(value) {
     if (quickPhone) quickPhone.placeholder = "Ví dụ: 0912345678";
     if (quickEmailGroup) quickEmailGroup.style.display = "block";
     if (quickPassGroup) quickPassGroup.style.display = "none";
-    if (btnQuickSubmitText) btnQuickSubmitText.textContent = "Đặt hàng";
+    if (btnQuickSubmitText) btnQuickSubmitText.textContent = "Xác nhận thông tin & tạo đơn";
   }
 
   function handleBackToInfo() {
@@ -2279,8 +2300,13 @@ function escapeHtml(value) {
       clearInterval(qrCountdownTimer);
       qrCountdownTimer = null;
     }
-    var timerDisplay = document.getElementById("qrTimerDisplay");
     var container = document.getElementById("qrCountdownContainer");
+    if (container) {
+      container.style.background = "#fef2f2";
+      container.style.color = "#b91c1c";
+      container.innerHTML = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg><span>Mã có hiệu lực trong: <strong id="qrTimerDisplay" style="font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace;font-size:0.95rem;color:#dc2626;">10:00</strong></span>';
+    }
+    var timerDisplay = document.getElementById("qrTimerDisplay");
     var floatingTimer = document.getElementById("floatingOrderTimer");
 
     var totalDuration = 10 * 60 * 1000; // 10 phút hiệu lực
@@ -2298,12 +2324,11 @@ function escapeHtml(value) {
         if (container) {
           container.style.background = "#fff1f2";
           container.style.color = "#991b1b";
-          container.innerHTML = '<span style="font-size: 0.85rem;">⚠️ Mã thanh toán đã hết hạn 10 phút.</span>';
+          container.innerHTML = '<span style="font-size:0.85rem;">Mã thanh toán đã hết hạn 10 phút.</span>';
         }
         if (qrBox) {
           qrBox.innerHTML = 
             '<div class="empty-state" style="padding:28px 16px; background:#f8fafc; border-radius:12px; border:1.5px dashed #cbd5e1;">' +
-              '<div style="font-size:32px; margin-bottom:6px;">⌛</div>' +
               '<div style="font-weight:700; color:#991b1b; font-size:0.95rem; margin-bottom:4px;">Mã thanh toán đã hết hạn</div>' +
               '<div style="font-size:0.8rem; color:#64748b; margin-bottom:14px;">Để đảm bảo an toàn giao dịch, vui lòng tạo mã mới.</div>' +
               '<button type="button" class="button-primary" id="btnRefreshExpiredQr" style="padding:8px 20px; font-size:0.88rem; margin:0 auto;">Tạo mã QR mới</button>' +
@@ -2331,7 +2356,7 @@ function escapeHtml(value) {
       }
 
       // Đếm từ 09:59 ngay khi bắt đầu (hoặc số giây thực tế còn lại)
-      var remainingSec = Math.max(0, Math.floor((remainingMs - 1) / 1000));
+      var remainingSec = Math.max(0, Math.ceil(remainingMs / 1000));
       var mins = Math.floor(remainingSec / 60);
       var secs = remainingSec % 60;
       var pad = function(n) { return String(n).padStart(2, "0"); };
@@ -2437,7 +2462,6 @@ function escapeHtml(value) {
 
     var bankAccount = (window.StorefrontData && window.StorefrontData.store && window.StorefrontData.store.bankAccount) || {};
     var bankShortName = bankAccount.bankShortName || bankAccount.bankName || "TPBank";
-    var vietQrCode = "TPB";
     var accNo = bankAccount.number || "59215112002";
     var owner = bankAccount.owner || "HUYNH KIEN CAM";
 
@@ -2448,12 +2472,7 @@ function escapeHtml(value) {
     if (bankAmountEl) bankAmountEl.textContent = formatCurrency(activeOrder.amount);
     if (bankTransferNote) bankTransferNote.textContent = activeOrder.transfer_note || activeOrder.order_id;
 
-    var qrUrl = "https://img.vietqr.io/image/" + vietQrCode + "-" + accNo + "-compact.png?amount=" + activeOrder.amount + "&addInfo=" + encodeURIComponent(activeOrder.transfer_note || activeOrder.order_id) + "&accountName=" + encodeURIComponent(owner);
-    currentQrImageUrl = qrUrl;
-
-    if (qrBox) {
-      qrBox.innerHTML = '<img src="' + qrUrl + '" alt="Mã QR chuyển khoản" style="max-width:175px; width:100%; height:auto; border-radius:8px; display:block; margin:0 auto;" />';
-    }
+    renderOrderQr(activeOrder, accNo, owner);
 
     resetQrActions();
     startQrCountdown(activeOrder.time);
@@ -2709,8 +2728,16 @@ function escapeHtml(value) {
       return;
     }
 
+    if (checkoutModal) checkoutModal.classList.add("has-active-order");
+
     var phone = (customInfo && customInfo.customer_phone) || getResolvedPhone();
     var email = (customInfo && customInfo.customer_email) || (state.profile && state.profile.email) || (state.user ? state.user.email : "");
+    var customerName = (customInfo && customInfo.customer_name) || (quickName ? quickName.value.trim() : "");
+    setCheckoutCustomerConfirmed(true, {
+      name: customerName,
+      phone: phone,
+      email: email
+    });
 
     // Tự động lưu profile nếu trên server chưa có số điện thoại
     if (phone && (!state.profile || !state.profile.phone)) {
@@ -2721,7 +2748,6 @@ function escapeHtml(value) {
     // Hiển thị ngay thông tin ngân hàng để tránh bị trống các trường trong lúc chờ server
     var bankAccount = (window.StorefrontData && window.StorefrontData.store && window.StorefrontData.store.bankAccount) || {};
     var bankShortName = bankAccount.bankShortName || bankAccount.bankName || "TPBank";
-    var vietQrCode = "TPB";
     var accNo = bankAccount.number || "59215112002";
     var owner = bankAccount.owner || "HUYNH KIEN CAM";
 
@@ -2746,11 +2772,7 @@ function escapeHtml(value) {
       currentActiveOrderId = cachedOrder.order_id;
       if (bankTransferNote) bankTransferNote.textContent = cachedOrder.transfer_note || cachedOrder.order_id;
       if (bankAmount) bankAmount.textContent = formatCurrency(cachedOrder.amount);
-      var preQr = "https://img.vietqr.io/image/" + vietQrCode + "-" + accNo + "-compact.png?amount=" + cachedOrder.amount + "&addInfo=" + encodeURIComponent(cachedOrder.transfer_note || cachedOrder.order_id) + "&accountName=" + encodeURIComponent(owner);
-      currentQrImageUrl = preQr;
-      if (qrBox) {
-        qrBox.innerHTML = '<img src="' + preQr + '" alt="Mã QR chuyển khoản" style="max-width:175px; width:100%; height:auto; border-radius:8px; display:block; margin:0 auto;" />';
-      }
+      renderOrderQr(cachedOrder, accNo, owner);
       startQrCountdown(cachedOrder.time);
       pollOrderStatus(cachedOrder.order_id);
     } else {
@@ -2785,7 +2807,7 @@ function escapeHtml(value) {
 
     var finalAmount = getCartTotal();
     var orderData = {
-      customer_name: (customInfo && customInfo.customer_name) || (quickName ? quickName.value.trim() : ""),
+      customer_name: customerName,
       customer_email: email,
       customer_phone: phone,
       product_id: product.id,
@@ -2805,7 +2827,8 @@ function escapeHtml(value) {
       body: JSON.stringify(orderData)
     })
     .then(function(resData) {
-      var orderStartTime = (resData.created_at ? new Date(resData.created_at).getTime() : Date.now());
+      var parsedCreatedAt = resData.created_at ? new Date(resData.created_at).getTime() : NaN;
+      var orderStartTime = resData.reused && Number.isFinite(parsedCreatedAt) ? parsedCreatedAt : Date.now();
       currentActiveOrderId = resData.order_id;
       try {
         localStorage.setItem("filedilam_pending_order_id", resData.order_id);
@@ -2824,12 +2847,7 @@ function escapeHtml(value) {
       if (bankTransferNote) bankTransferNote.textContent = resData.transfer_note;
       if (bankAmount) bankAmount.textContent = formatCurrency(resData.amount || getCartTotal());
 
-      var qrUrl = "https://img.vietqr.io/image/" + vietQrCode + "-" + accNo + "-compact.png?amount=" + resData.amount + "&addInfo=" + encodeURIComponent(resData.transfer_note) + "&accountName=" + encodeURIComponent(owner);
-      currentQrImageUrl = qrUrl;
-
-      if (qrBox) {
-        qrBox.innerHTML = '<img src="' + qrUrl + '" alt="Mã QR chuyển khoản" style="max-width:175px; width:100%; height:auto; border-radius:8px; display:block; margin:0 auto;" />';
-      }
+      renderOrderQr(resData, accNo, owner);
 
       startQrCountdown(orderStartTime);
       showToast("Vui lòng quét mã QR để thanh toán.");
@@ -2867,7 +2885,7 @@ function escapeHtml(value) {
     }
   }
 
-  function openCheckout() {
+  function openCheckout(skipHistory) {
     cleanCart();
     if (!state.cart.length) {
       showToast("Giỏ hàng đang trống.");
@@ -2955,7 +2973,6 @@ function escapeHtml(value) {
     // Tự động khởi tạo thông tin ngân hàng và mã QR chuẩn ngay khi mở Checkout
     var bankAccount = (window.StorefrontData && window.StorefrontData.store && window.StorefrontData.store.bankAccount) || {};
     var bankShortName = bankAccount.bankShortName || bankAccount.bankName || "TPBank";
-    var vietQrCode = "TPB";
     var accNo = bankAccount.number || "59215112002";
     var owner = bankAccount.owner || "HUYNH KIEN CAM";
 
@@ -2970,37 +2987,46 @@ function escapeHtml(value) {
       var rawActive = localStorage.getItem("filedilam_active_order");
       if (rawActive) {
         var pActive = JSON.parse(rawActive);
-        if (pActive && pActive.amount === total && (Date.now() - (pActive.time || 0) < 600000)) {
+        if (pActive && String(pActive.product_id || "") === String(product.id) && pActive.amount === total && (pActive.package_type || "standard") === (state.selectedPackage || "standard") && (Date.now() - (pActive.time || 0) < 600000)) {
           existingActiveOrder = pActive;
         }
       }
     } catch(e) {}
 
     if (existingActiveOrder) {
+      checkoutModal.classList.add("has-active-order");
+      setCheckoutCustomerConfirmed(true, {
+        name: quickName ? quickName.value.trim() : "",
+        phone: quickPhone ? quickPhone.value.trim() : "",
+        email: quickEmail ? quickEmail.value.trim() : ""
+      });
       currentActiveOrderId = existingActiveOrder.order_id;
       if (bankTransferNote) bankTransferNote.textContent = existingActiveOrder.transfer_note || existingActiveOrder.order_id;
-      var activeQr = "https://img.vietqr.io/image/" + vietQrCode + "-" + accNo + "-compact.png?amount=" + existingActiveOrder.amount + "&addInfo=" + encodeURIComponent(existingActiveOrder.transfer_note || existingActiveOrder.order_id) + "&accountName=" + encodeURIComponent(owner);
-      currentQrImageUrl = activeQr;
-      if (qrBox) {
-        qrBox.innerHTML = '<img src="' + activeQr + '" alt="Mã QR chuyển khoản" style="max-width:175px; width:100%; height:auto; border-radius:8px; display:block; margin:0 auto;" />';
-      }
+      renderOrderQr(existingActiveOrder, accNo, owner);
       startQrCountdown(existingActiveOrder.time);
       pollOrderStatus(existingActiveOrder.order_id);
     } else {
-      var previewNote = "FDL " + (product ? (product.sku || product.id).toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 10) : "ORDER");
-      if (bankTransferNote) bankTransferNote.textContent = previewNote;
-      var previewQr = "https://img.vietqr.io/image/" + vietQrCode + "-" + accNo + "-compact.png?amount=" + total + "&addInfo=" + encodeURIComponent(previewNote) + "&accountName=" + encodeURIComponent(owner);
-      currentQrImageUrl = previewQr;
+      checkoutModal.classList.remove("has-active-order");
+      setCheckoutCustomerConfirmed(false);
+      currentActiveOrderId = null;
+      currentQrImageUrl = "";
+      if (bankTransferNote) bankTransferNote.textContent = "Tạo sau khi đặt hàng";
       if (qrBox) {
-        qrBox.innerHTML = '<img src="' + previewQr + '" alt="Mã VietQR thanh toán" style="max-width:175px; width:100%; height:auto; border-radius:8px; display:block; margin:0 auto;" />';
+        qrBox.innerHTML = '<div class="empty-state" style="padding:40px 16px;"><div style="font-weight:600; font-size:0.95rem; color:#475569; margin-bottom:5px;">Mã thanh toán chưa được tạo</div><div style="font-size:0.8rem; color:#64748b;">Xác nhận thông tin để nhận mã đơn DH và mã QR.</div></div>';
       }
       var timerDisplay = document.getElementById("qrTimerDisplay");
-      if (timerDisplay) timerDisplay.textContent = "10:00";
+      if (timerDisplay) timerDisplay.textContent = "--:--";
     }
 
     checkoutModal.classList.add("is-open");
     checkoutModal.setAttribute("aria-hidden", "false");
     document.body.classList.add("drawer-open");
+    document.body.classList.add("checkout-page-open");
+    if (!skipHistory && window.location.hash !== "#thanh-toan") {
+      window.history.pushState({ page: "checkout" }, "", "#thanh-toan");
+    }
+    checkoutModal.scrollTop = 0;
+    loadCheckoutCoupons();
 
     // Luôn hiển thị Form thanh toán 3 trường sạch sẽ, phẳng, chuẩn Fintech
     if (checkoutBackBtn) checkoutBackBtn.style.display = "none";
@@ -3026,8 +3052,15 @@ function escapeHtml(value) {
     if (state.user && state.user.email && quickEmail && !quickEmail.value) {
       quickEmail.value = state.user.email;
     }
+    if (existingActiveOrder) {
+      setCheckoutCustomerConfirmed(true, {
+        name: quickName ? quickName.value.trim() : "",
+        phone: quickPhone ? quickPhone.value.trim() : "",
+        email: quickEmail ? quickEmail.value.trim() : ""
+      });
+    }
 
-    if (btnQuickSubmitText) btnQuickSubmitText.textContent = "Đặt hàng";
+    if (btnQuickSubmitText) btnQuickSubmitText.textContent = "Xác nhận thông tin & tạo đơn";
     if (checkoutAuthStep) checkoutAuthStep.style.display = "grid";
     if (checkoutPaymentStep) checkoutPaymentStep.style.display = "none";
     if (quickName && !quickName.value) {
@@ -3037,13 +3070,37 @@ function escapeHtml(value) {
     }
   }
 
-  function closeCheckout() {
+  function closeCheckout(fromHistory) {
     userClosedCheckout = true;
     checkoutModal.classList.remove("is-open");
+    checkoutModal.classList.remove("is-customer-confirmed");
     checkoutModal.setAttribute("aria-hidden", "true");
+    document.body.classList.remove("checkout-page-open");
     if (checkoutBackBtn) checkoutBackBtn.style.display = "none";
     unlockBodyIfNeeded();
     updateFloatingOrderBar();
+    if (!fromHistory && window.location.hash === "#thanh-toan") {
+      window.history.back();
+    }
+  }
+
+  function setCheckoutCustomerConfirmed(confirmed, customer) {
+    if (!checkoutModal) return;
+    checkoutModal.classList.toggle("is-customer-confirmed", !!confirmed);
+    if (!confirmed) return;
+    customer = customer || {};
+    if (checkoutCustomerName) checkoutCustomerName.textContent = customer.name || "Chưa cập nhật";
+    if (checkoutCustomerPhone) checkoutCustomerPhone.textContent = customer.phone || "Chưa cập nhật";
+    if (checkoutCustomerEmail) checkoutCustomerEmail.textContent = customer.email || "Chưa cập nhật";
+  }
+
+  function mountCheckoutFooter() {
+    if (!checkoutFooterMount || checkoutFooterMount.children.length) return;
+    var storefrontFooter = document.querySelector("body > .footer");
+    if (!storefrontFooter) return;
+    var checkoutFooter = storefrontFooter.cloneNode(true);
+    checkoutFooter.classList.add("checkout-page-footer");
+    checkoutFooterMount.appendChild(checkoutFooter);
   }
 
   function addToCart(productId, options) {
@@ -3417,7 +3474,7 @@ function escapeHtml(value) {
     // Cập nhật lại card để hiển thị dòng giảm giá vừa được kích hoạt
     syncLandingCouponTicket();
 
-    // 4. Mở thẳng màn hình thông tin thanh toán (Checkout Modal)
+    // 4. Mở thẳng trang thông tin thanh toán
     openCheckout();
 
     // 5. Kích hoạt áp mã
@@ -3460,6 +3517,95 @@ function escapeHtml(value) {
     if (hint) {
       hint.style.display = "none";
     }
+  }
+
+  function makeLocalVietQr(order, account, owner, template) {
+    // VietQR account transfer (NAPAS 247, TPBank). Order transfer notes are ASCII.
+    function field(tag, value) {
+      value = String(value);
+      return tag + String(value.length).padStart(2, "0") + value;
+    }
+    var recipient = field("00", "970423") + field("01", account);
+    var provider = field("00", "A000000727") + field("01", recipient) + field("02", "QRIBFTTA");
+    var payload = "000201010212" + field("38", provider) + "5303704" + field("54", order.amount) +
+      "5802VN" + field("62", field("08", order.transfer_note || order.order_id)) + "6304";
+    var crc = 0xffff;
+    for (var i = 0; i < payload.length; i++) {
+      crc ^= payload.charCodeAt(i) << 8;
+      for (var bit = 0; bit < 8; bit++) {
+        crc = ((crc << 1) ^ ((crc & 0x8000) ? 0x1021 : 0)) & 0xffff;
+      }
+    }
+    var qr = qrcode(0, "M");
+    qr.addData(payload + crc.toString(16).toUpperCase().padStart(4, "0"));
+    qr.make();
+    var modules = qr.getModuleCount();
+    var canvas = document.createElement("canvas");
+    canvas.width = 1080;
+    canvas.height = 1280;
+    var ctx = canvas.getContext("2d");
+    ctx.drawImage(template, 0, 0, canvas.width, canvas.height);
+    // Center whole pixels inside the compact2 frame, with a four-module quiet zone.
+    var scale = Math.floor(740 / (modules + 8));
+    var left = Math.round(540 - modules * scale / 2);
+    var top = Math.round(546 - modules * scale / 2);
+    ctx.fillStyle = "#000";
+    for (var row = 0; row < modules; row++) {
+      for (var col = 0; col < modules; col++) {
+        if (qr.isDark(row, col)) ctx.fillRect(left + col * scale, top + row * scale, scale, scale);
+      }
+    }
+    ctx.textAlign = "center";
+    ctx.fillStyle = "#0f172a";
+    ctx.font = "600 30px sans-serif";
+    ctx.fillText(owner, 540, 1122, 1000);
+    ctx.font = "28px sans-serif";
+    ctx.fillText(account, 540, 1172);
+    ctx.fillText("Số tiền: " + formatCurrency(order.amount), 540, 1220);
+    return canvas;
+  }
+
+  function renderOrderQr(order, account, owner) {
+    currentQrImageUrl = "";
+    if (!qrBox) return;
+
+    var img = new Image();
+    var label = "Mã đơn hàng: " + order.order_id;
+    img.className = "checkout-vietqr-image";
+    img.alt = "VietQR thanh toán. " + label;
+    img.crossOrigin = "anonymous";
+    qrBox.replaceChildren(img);
+    function showLabeledImage(source) {
+      if (!qrBox.contains(img)) return;
+      var canvas = document.createElement("canvas");
+      canvas.width = source.naturalWidth || source.width;
+      var footer = Math.ceil(canvas.width * 0.14);
+      canvas.height = (source.naturalHeight || source.height) + footer;
+      var ctx = canvas.getContext("2d");
+      ctx.fillStyle = "#fff";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      ctx.drawImage(source, 0, 0);
+      ctx.fillStyle = "#0f172a";
+      ctx.font = "600 " + Math.round(footer * 0.42) + "px sans-serif";
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.fillText(label, canvas.width / 2, canvas.height - footer / 2, canvas.width * 0.94);
+      currentQrImageUrl = canvas.toDataURL("image/png");
+      img.onload = img.onerror = null;
+      img.src = currentQrImageUrl;
+    }
+    img.onload = function () {
+      if (qrBox.contains(img)) showLabeledImage(makeLocalVietQr(order, account, owner, img));
+    };
+    img.onerror = function () {
+      if (!qrBox.contains(img)) return;
+      img.onload = function () { showLabeledImage(img); };
+      img.onerror = function () { qrBox.textContent = "Chưa tải được ảnh VietQR. Vui lòng thử lại."; };
+      img.src = "https://img.vietqr.io/image/TPB-" + encodeURIComponent(account) +
+        "-compact2.png?amount=" + encodeURIComponent(order.amount) + "&addInfo=" +
+        encodeURIComponent(order.transfer_note || order.order_id) + "&accountName=" + encodeURIComponent(owner);
+    };
+    img.src = "assets/vietqr-tpb-compact2.png";
   }
 
   function saveQrImage() {
@@ -4129,8 +4275,84 @@ function escapeHtml(value) {
   var checkoutCouponInput = document.getElementById("checkoutCouponInput");
   var btnApplyCheckoutCoupon = document.getElementById("btnApplyCheckoutCoupon");
   var checkoutCouponMsg = document.getElementById("checkoutCouponMsg");
-  var checkoutCouponCondition = document.getElementById("checkoutCouponCondition");
+  var checkoutCouponList = document.getElementById("checkoutCouponList");
   var btnRemoveCoupon = document.getElementById("btnRemoveCoupon");
+  var checkoutCouponLoadId = 0;
+
+  function getLocalDateKey() {
+    var now = new Date();
+    var year = now.getFullYear();
+    var month = String(now.getMonth() + 1).padStart(2, "0");
+    var day = String(now.getDate()).padStart(2, "0");
+    return year + "-" + month + "-" + day;
+  }
+
+  function getCouponConditionText(coupon) {
+    if (coupon.description) return coupon.description;
+    var discountText = coupon.type === "fixed"
+      ? "Giảm " + formatCurrency(Number(coupon.value || 0))
+      : "Giảm " + Number(coupon.value || 0) + "%";
+    var minOrder = Number(coupon.min_order || 0);
+    return discountText + (minOrder > 0 ? " cho đơn từ " + formatCurrency(minOrder) : " cho mọi đơn hàng");
+  }
+
+  async function loadCheckoutCoupons() {
+    if (!checkoutCouponList) return;
+    var requestId = ++checkoutCouponLoadId;
+    checkoutCouponList.innerHTML = '<div class="checkout-coupon-empty">Đang tải mã giảm giá...</div>';
+
+    try {
+      if (typeof firebase === "undefined" || !firebase.firestore) throw new Error("FIRESTORE_UNAVAILABLE");
+      var couponDb = firebase.firestore();
+      var snapshot = await Promise.race([
+        couponDb.collection("coupons").where("is_active", "==", true).get(),
+        new Promise(function (_, reject) {
+          window.setTimeout(function () { reject(new Error("COUPON_LOAD_TIMEOUT")); }, 5000);
+        })
+      ]);
+      if (requestId !== checkoutCouponLoadId) return;
+      var today = getLocalDateKey();
+      var coupons = [];
+
+      snapshot.forEach(function (doc) {
+        var coupon = doc.data() || {};
+        coupon.id = doc.id;
+        coupon.code = String(coupon.code || doc.id).toUpperCase();
+        if (coupon.start_date && today < coupon.start_date) return;
+        if (coupon.end_date && today > coupon.end_date) return;
+        coupons.push(coupon);
+      });
+
+      coupons.sort(function (a, b) {
+        return String(a.end_date || "9999-12-31").localeCompare(String(b.end_date || "9999-12-31"));
+      });
+
+      if (!coupons.length) {
+        checkoutCouponList.innerHTML = '<div class="checkout-coupon-empty">Hiện chưa có mã giảm giá đang hiệu lực.</div>';
+        return;
+      }
+
+      checkoutCouponList.innerHTML = coupons.map(function (coupon) {
+        return '<button type="button" class="checkout-coupon-option" data-coupon-code="' + escapeHtml(coupon.code) + '">' +
+          '<span class="checkout-coupon-option-code">' + escapeHtml(coupon.code) + '</span>' +
+          '<span class="checkout-coupon-option-condition">' + escapeHtml(getCouponConditionText(coupon)) + '</span>' +
+        '</button>';
+      }).join("");
+
+      Array.prototype.forEach.call(checkoutCouponList.querySelectorAll("[data-coupon-code]"), function (button) {
+        button.addEventListener("click", function () {
+          if (checkoutCouponInput) checkoutCouponInput.value = button.getAttribute("data-coupon-code") || "";
+          applyCheckoutCoupon();
+        });
+      });
+    } catch (error) {
+      if (requestId !== checkoutCouponLoadId) return;
+      console.warn("Could not load checkout coupons:", error);
+      checkoutCouponList.innerHTML = '<button type="button" class="checkout-coupon-retry" id="checkoutCouponRetry">Chưa tải được mã giảm giá. Thử lại</button>';
+      var retryButton = document.getElementById("checkoutCouponRetry");
+      if (retryButton) retryButton.addEventListener("click", loadCheckoutCoupons);
+    }
+  }
 
   function showCouponMessage(text, isError) {
     if (!checkoutCouponMsg) return;
@@ -4203,18 +4425,6 @@ function escapeHtml(value) {
         }
       }
 
-      // 2. Default fallback for FILEDILAM if Firestore document not yet created
-      if (!coupon && rawCode === "FILEDILAM") {
-        coupon = {
-          code: "FILEDILAM",
-          type: "percent",
-          value: 10,
-          min_order: 160000,
-          is_active: true,
-          description: "Giảm 10% cho đơn từ 160.000 đ"
-        };
-      }
-
       if (!coupon || coupon.is_active === false) {
         showCouponMessage("Mã giảm giá '" + rawCode + "' không tồn tại hoặc đã hết hạn.", true);
         showToast("Mã '" + rawCode + "' không hợp lệ hoặc đã hết hạn.");
@@ -4222,7 +4432,7 @@ function escapeHtml(value) {
       }
 
       // Check date validity
-      var nowYMD = new Date().toISOString().slice(0, 10);
+      var nowYMD = getLocalDateKey();
       if (coupon.start_date && nowYMD < coupon.start_date) {
         var msgStart = "Chương trình giảm giá của mã " + coupon.code + " bắt đầu từ ngày " + coupon.start_date.split('-').reverse().join('/') + ".";
         showCouponMessage(msgStart, true);
@@ -4268,8 +4478,7 @@ function escapeHtml(value) {
       state.appliedCoupon = coupon;
       state.discountAmount = discount;
 
-      showCouponMessage("Áp mã thành công! Bạn được giảm " + formatCurrency(discount) + ".", false);
-      showToast("Áp mã thành công! Giảm " + formatCurrency(discount));
+      showCouponMessage("Đã áp dụng mã " + coupon.code, false);
 
       renderCart();
     } catch (err) {
@@ -4292,6 +4501,7 @@ function escapeHtml(value) {
       }
     });
   }
+  loadCheckoutCoupons();
 
   function escapeHtml(value) {
     return String(value)
