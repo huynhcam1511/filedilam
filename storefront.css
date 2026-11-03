@@ -3446,3 +3446,360 @@ body:not(.is-admin) #userProfile {
 #userProfile, .user-menu-container, #userMenuBtn {
   display: none !important;
 }
+
+/* Web App (Apps Script) badge styling */
+.product-type-badge.is-apps-script {
+  background: #6d28d9;
+  color: #ffffff;
+  box-shadow: 0 1px 3px rgba(109, 40, 217, 0.3);
+}
+
+
+/* ==========================================================================
+   PRODUCT DETAIL FULLPAGE 2-COLUMN (OPTIMATE / SHOPEE LUXURY STYLE)
+   ========================================================================== */
+
+#detailModal.modal-backdrop.detail-modal-backdrop {
+  position: fixed !important;
+  inset: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  height: 100dvh !important;
+  background: #ffffff !important;
+  z-index: 99999 !important;
+  display: none;
+  align-items: stretch !important;
+  justify-content: stretch !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  overflow: hidden !important;
+}
+
+#detailModal.detail-modal-backdrop.is-open {
+  display: flex !important;
+}
+
+#detailModal .detail-fullpage-card {
+  width: 100vw !important;
+  max-width: 100vw !important;
+  height: 100vh !important;
+  height: 100dvh !important;
+  max-height: 100vh !important;
+  max-height: 100dvh !important;
+  border-radius: 0 !important;
+  background: #ffffff !important;
+  box-shadow: none !important;
+  border: none !important;
+  display: flex !important;
+  flex-direction: column !important;
+  overflow: hidden !important;
+  margin: 0 !important;
+}
+
+.detail-drawer-header {
+  padding: 14px 24px !important;
+  border-bottom: 1px solid #f1f5f9 !important;
+  background: #ffffff !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  flex-shrink: 0 !important;
+  height: 56px !important;
+  max-width: 1320px !important;
+  width: 100% !important;
+  margin: 0 auto !important;
+}
+
+.detail-modal-body {
+  padding: 0 !important;
+  overflow-y: auto !important;
+  -webkit-overflow-scrolling: touch !important;
+  flex: 1 1 auto !important;
+  background: #ffffff !important;
+}
+
+/* 2-Column Split Container */
+.detail-fullpage-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr);
+  gap: 48px;
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 36px 32px 80px;
+  align-items: start;
+}
+
+/* LEFT COLUMN: 1x1 Media & Thumbnails */
+.detail-col-media {
+  position: sticky;
+  top: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.detail-media-square {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  background: #f8fafc;
+  border-radius: 16px;
+  overflow: hidden;
+  border: 1px solid #e2e8f0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  box-shadow: 0 4px 20px -4px rgba(0, 0, 0, 0.05);
+}
+
+.detail-media-square img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.detail-media-badges {
+  position: absolute;
+  top: 14px;
+  left: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  z-index: 2;
+}
+
+.detail-media-badge-type {
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding: 4px 10px;
+  border-radius: 6px;
+  background: #0f172a;
+  color: #ffffff;
+}
+
+.detail-media-badge-discount {
+  font-size: 0.75rem;
+  font-weight: 800;
+  padding: 4px 8px;
+  border-radius: 6px;
+  background: #ef4444;
+  color: #ffffff;
+  width: fit-content;
+}
+
+/* RIGHT COLUMN: Info, Price, Actions, Full Specs */
+.detail-col-info {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.detail-product-title {
+  font-size: 1.85rem;
+  font-weight: 700;
+  color: #0f172a;
+  line-height: 1.25;
+  letter-spacing: -0.02em;
+  margin: 0;
+}
+
+.detail-rating-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.detail-rating-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.85rem;
+  color: #d97706;
+  font-weight: 700;
+  background: #fef3c7;
+  padding: 5px 12px;
+  border-radius: 8px;
+}
+
+.detail-downloads-badge {
+  font-size: 0.85rem;
+  color: #64748b;
+  font-weight: 500;
+}
+
+/* Pricing Card Inside Right Column */
+.detail-price-box {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  padding: 18px 22px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.detail-price-numbers {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.detail-price-row-wrap {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+}
+
+.detail-price-current {
+  font-size: 2rem;
+  font-weight: 800;
+  color: #059669;
+  font-family: var(--font-mono, monospace);
+  line-height: 1;
+}
+
+.detail-price-original {
+  font-size: 1.05rem;
+  color: #94a3b8;
+  text-decoration: line-through;
+  font-family: var(--font-mono, monospace);
+}
+
+.detail-cta-group {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.detail-btn-cart {
+  height: 48px;
+  padding: 0 24px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  border-radius: 9999px;
+  background: #0f172a;
+  color: #ffffff;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.detail-btn-cart:hover {
+  background: #1e293b;
+  transform: translateY(-1px);
+}
+
+.detail-btn-buy {
+  height: 48px;
+  padding: 0 28px;
+  font-size: 0.95rem;
+  font-weight: 700;
+  border-radius: 9999px;
+  background: #059669;
+  color: #ffffff;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 14px rgba(5, 150, 105, 0.25);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.detail-btn-buy:hover {
+  background: #047857;
+  transform: translateY(-1px);
+}
+
+.detail-zalo-hint {
+  font-size: 0.88rem;
+  color: #64748b;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.detail-zalo-hint a {
+  color: #0068ff;
+  font-weight: 600;
+  text-decoration: underline;
+}
+
+/* Detailed Description Blocks */
+.detail-desc-content {
+  font-size: 0.98rem;
+  line-height: 1.7;
+  color: #334155;
+  border-top: 1px solid #f1f5f9;
+  padding-top: 20px;
+}
+
+.detail-spec-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 14px;
+  margin: 10px 0;
+}
+
+.detail-spec-card {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 12px 16px;
+}
+
+.detail-spec-title {
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: #64748b;
+  letter-spacing: 0.5px;
+  margin-bottom: 4px;
+}
+
+.detail-spec-val {
+  font-size: 0.92rem;
+  color: #0f172a;
+  font-weight: 600;
+}
+
+/* Mobile Responsiveness: Stack vertically cleanly */
+@media (max-width: 960px) {
+  .detail-fullpage-layout {
+    grid-template-columns: 1fr;
+    gap: 28px;
+    padding: 20px 18px 100px;
+  }
+
+  .detail-col-media {
+    position: static;
+  }
+
+  .detail-product-title {
+    font-size: 1.45rem;
+  }
+
+  .detail-price-box {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .detail-cta-group {
+    width: 100%;
+  }
+
+  .detail-btn-cart, .detail-btn-buy {
+    flex: 1;
+  }
+}

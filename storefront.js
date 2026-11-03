@@ -1566,59 +1566,77 @@
     }
 
     state.selectedProductId = productId;
-    detailTitle.textContent = product.name;
+    if (detailTitle) detailTitle.textContent = product.name;
 
-    var suitableHtml = (product.suitableFor && String(product.suitableFor).trim() !== '' && product.suitableFor !== 'undefined') 
-      ? '<div><strong>Phù hợp với:</strong> ' + escapeHtml(product.suitableFor) + '</div>' 
+    var isGoogleSheet = product.type === "google_sheets" || !!product.sheetUrl;
+    var isCombo = product.categoryId === "combo" || product.type === "combo";
+    var typeLabel = isCombo ? "Combo" : (isGoogleSheet ? "Google Sheets" : "Excel");
+
+    var hasDiscount = product.originalPrice && product.originalPrice > product.price;
+    var discountPercent = hasDiscount ? Math.round((1 - product.price / product.originalPrice) * 100) : 0;
+
+    var ratingInfo = getProductRatingDisplay(product);
+    var coverImg = product.previewImageUrl || product.thumbnailUrl || '';
+
+    // LEFT COLUMN: 1x1 Media
+    var mediaHtml =
+      '<div class="detail-col-media">' +
+        '<div class="detail-media-square">' +
+          '<div class="detail-media-badges">' +
+            '<span class="detail-media-badge-type">' + typeLabel + '</span>' +
+            (hasDiscount ? '<span class="detail-media-badge-discount">-' + discountPercent + '%</span>' : '') +
+          '</div>' +
+          (coverImg
+            ? '<img src="' + escapeHtml(coverImg) + '" alt="' + escapeHtml(product.name) + '" />'
+            : '<div style="font-size:2.5rem; font-weight:800; color:#059669;">FILE</div>') +
+        '</div>' +
+      '</div>';
+
+    // RIGHT COLUMN: All product info, ratings, pricing, CTAs, specs, highlights, reviews
+    var priceFormatted = formatCurrency(product.price);
+    var originalPriceHtml = hasDiscount
+      ? '<span class="detail-price-original">' + formatCurrency(product.originalPrice) + '</span>'
       : '';
+
+    var suitableHtml = (product.suitableFor && String(product.suitableFor).trim() !== '' && product.suitableFor !== 'undefined')
+      ? '<div class="detail-spec-card"><div class="detail-spec-title">Phù hợp với</div><div class="detail-spec-val">' + escapeHtml(product.suitableFor) + '</div></div>'
+      : '';
+
     var deliveryHtml = (product.delivery && String(product.delivery).trim() !== '' && product.delivery !== 'undefined')
-      ? '<div><strong>Nhận file:</strong> ' + escapeHtml(product.delivery) + '</div>'
+      ? '<div class="detail-spec-card"><div class="detail-spec-title">Hình thức nhận file</div><div class="detail-spec-val">' + escapeHtml(product.delivery) + '</div></div>'
+      : '<div class="detail-spec-card"><div class="detail-spec-title">Hình thức nhận file</div><div class="detail-spec-val">Tự động cấp quyền Drive / Tải file ngay sau khi thanh toán</div></div>';
+
+    var coachingOptionHtml = (product.hasCoaching && product.coachingPrice)
+      ? '<div style="display:flex; align-items:center; justify-content:space-between; background:#fffbeb; border:1px solid #fde68a; padding:12px 16px; border-radius:12px;">' +
+          '<div style="font-size:0.88rem; color:#92400e; font-weight:600;">' +
+            '<span>🎓 ' + escapeHtml(product.coachingTitle || 'Có tùy chọn Kèm 1-1') + '</span>' +
+            '<div style="font-size:0.78rem; color:#b45309; font-weight:normal; margin-top:2px;">Kèm riêng 1 buổi ráp số liệu thực tế</div>' +
+          '</div>' +
+          '<span style="font-weight:700; color:#b45309; font-size:0.95rem; white-space:nowrap;">' + formatCurrency(product.coachingPrice) + '</span>' +
+        '</div>'
       : '';
-    
+
     var highlightsHtml = '';
     if (product.highlights && product.highlights.length) {
-      highlightsHtml = '<div><strong>Điểm nổi bật:</strong>' +
-        '<ul style="margin:8px 0 0; padding:0; list-style:none; display:flex; flex-direction:column; gap:6px;">' +
+      highlightsHtml = '<div style="margin-top: 10px;">' +
+        '<div style="font-weight:700; color:#0f172a; margin-bottom:8px; font-size:1rem;">Điểm nổi bật:</div>' +
+        '<ul style="margin:0; padding:0; list-style:none; display:flex; flex-direction:column; gap:8px;">' +
         product.highlights.map(function (item) {
-          return '<li style="display:flex; align-items:flex-start; gap:8px; font-size:0.92rem; color:#334155;">' +
-            '<span style="color:var(--mint-strong); font-weight:bold; line-height:1.4;">✓</span>' +
+          return '<li style="display:flex; align-items:flex-start; gap:10px; font-size:0.94rem; color:#334155; line-height:1.5;">' +
+            '<span style="color:#059669; font-weight:bold; font-size:1.1rem; line-height:1;">✓</span>' +
             '<span>' + escapeHtml(item) + '</span>' +
             '</li>';
         }).join('') +
         '</ul></div>';
     }
 
-    var priceHtml = '<div><strong>Giá:</strong> <span style="color:var(--mint-strong); font-weight:bold; font-size:1.3rem;">' + formatCurrency(product.price) + '</span>';
-    if (product.originalPrice && product.originalPrice > product.price) {
-      priceHtml += ' <span style="color:var(--muted); text-decoration:line-through; font-size:0.95rem; margin-left:8px;">' + formatCurrency(product.originalPrice) + '</span>';
-    }
-    priceHtml += '</div>';
-
-    var ratingInfo = getProductRatingDisplay(product);
-    var socialProofDetailHtml = '<div style="display:flex; align-items:center; gap:8px; font-size:0.85rem; color:#d97706; font-weight:600; background:#fef3c7; padding:6px 12px; border-radius:8px; width:fit-content;">' +
-      '<span>⭐ ' + ratingInfo.score + ' (' + ratingInfo.count + ' đánh giá)</span>' +
-      (ratingInfo.downloads > 0 ? '<span style="color:#6b7280; font-weight:normal;">• ' + ratingInfo.downloads + ' lượt tải</span>' : '') +
-    '</div>';
-
-    var coachingOptionHtml = (product.hasCoaching && product.coachingPrice)
-      ? '<div style="display:flex; align-items:center; justify-content:space-between; background:#fffbeb; border:1px solid #fde68a; padding:10px 14px; border-radius:10px;">' +
-          '<div style="font-size:0.85rem; color:#92400e; font-weight:600;">' +
-            '<span>🎓 ' + escapeHtml(product.coachingTitle || 'Có tùy chọn Kèm 1-1') + '</span>' +
-            '<div style="font-size:0.75rem; color:#b45309; font-weight:normal; margin-top:2px;">Kèm riêng 1 buổi ráp số liệu thực tế</div>' +
-          '</div>' +
-          '<span style="font-weight:700; color:#b45309; font-size:0.92rem; white-space:nowrap;">' + formatCurrency(product.coachingPrice) + '</span>' +
-        '</div>'
-      : '';
-
     var versionsHtml = '';
     if (product.versions && product.versions.length > 0) {
-      // Sort versions by date descending
       var sortedV = [...product.versions].sort(function(a, b) {
         var da = parseDateObj(a.createdAt) || new Date(0);
         var db = parseDateObj(b.createdAt) || new Date(0);
         return db - da;
       });
-      
       var vList = sortedV.map(function(v) {
         var tObj = formatDateTime(v.createdAt);
         return '<div style="margin-bottom:8px; padding-bottom:8px; border-bottom:1px dashed #e2e8f0;">' +
@@ -1629,8 +1647,7 @@
                  '<div style="font-size:0.85rem; color:#475569;">' + escapeHtml(v.description) + '</div>' +
                '</div>';
       }).join('');
-      
-      versionsHtml = '<div class="detail-section" style="background:#f8fafc; padding:12px; border-radius:8px; border:1px solid #e2e8f0;">' +
+      versionsHtml = '<div style="background:#f8fafc; padding:14px; border-radius:12px; border:1px solid #e2e8f0; margin-top:10px;">' +
                        '<strong style="display:block; margin-bottom:8px; font-size:0.95rem; color:#0f172a;">Lịch sử cập nhật:</strong>' +
                        vList +
                      '</div>';
@@ -1638,182 +1655,115 @@
 
     var reviewsList = product.reviews;
     if (!reviewsList || !Array.isArray(reviewsList) || reviewsList.length === 0) {
-      if (product.categoryId === 'quan-ly-kho' || (product.name && product.name.toLowerCase().indexOf('kho') !== -1)) {
-        reviewsList = [
-          { author: "Lê Anh Tuấn", role: "Chủ kho hàng gia dụng", stars: 5, comment: "File quản lý xuất nhập tồn rất nhẹ và chính xác. Tính năng cảnh báo hàng sắp hết giúp shop mình luôn nhập hàng kịp thời.", date: "3 ngày trước" },
-          { author: "Vũ Thị Thanh", role: "Shop Giày dép Online", stars: 5, comment: "Theo dõi tồn kho theo thời gian thực rất mượt. Tư vấn khách xem tồn kho trực tiếp trên điện thoại siêu tiện luôn.", date: "1 tuần trước" },
-          { author: "Đặng Hoàng Nam", role: "Shop Phụ kiện", stars: 5, comment: "Giao diện chuẩn chỉ, hướng dẫn sử dụng rõ ràng. Mua gói kèm 1-1 được hỗ trợ ráp số thực tế rất tận tình.", date: "2 tuần trước" }
-        ];
-      } else {
-        reviewsList = [
-          { author: "Nguyễn Thị Mai", role: "Chủ shop Thời trang", stars: 5, comment: "File dùng cực kỳ tiện lợi, giao diện gọn gàng trực quan. Dễ dàng theo dõi đơn COD và biết được lợi nhuận chuẩn xác hàng tháng mà không bị thất thoát.", date: "2 ngày trước" },
-          { author: "Trần Quốc Tuấn", role: "Shop Đồ gia dụng TP.HCM", stars: 5, comment: "Dashboard tự động vẽ biểu đồ chi tiết rất thích. Nhập đơn trên điện thoại mượt mà, anh chủ shop hỗ trợ nhiệt tình 100%!", date: "1 tuần trước" },
-          { author: "Phạm Lê Phương", role: "Kinh doanh Online", stars: 5, comment: "Tự động tạo bản sao vào Google Drive cá nhân nên rất bảo mật. Rất đáng đồng tiền, tiết kiệm bao nhiêu thời gian làm file thủ công.", date: "2 tuần trước" }
-        ];
-      }
+      reviewsList = [
+        { author: "Nguyễn Thị Mai", role: "Khách đã mua file", stars: 5, comment: "File dùng cực kỳ tiện lợi, giao diện gọn gàng trực quan. Tự động hóa rất tốt, hỗ trợ nhiệt tình!", date: "2 ngày trước" },
+        { author: "Trần Quốc Tuấn", role: "Chủ cửa hàng", stars: 5, comment: "Dashboard chi tiết rất đẹp, mở ra là dùng được ngay không cần chỉnh sửa công thức phức tạp.", date: "1 tuần trước" }
+      ];
     }
+    var reviewsHtml = '<div class="detail-section" id="detailReviewsContainer" style="background:#f8fafc; padding:14px 16px; border-radius:12px; border:1px solid #e2e8f0; margin-top:10px;">' +
+      '<div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:10px; padding-bottom:8px; border-bottom:1px solid #e2e8f0;">' +
+        '<strong style="font-size:0.95rem; color:#0f172a;">Nhận xét từ khách hàng:</strong>' +
+        '<span style="font-size:0.8rem; color:#d97706; font-weight:700; background:#fef3c7; padding:2px 8px; border-radius:6px;">⭐ 5.0 (' + reviewsList.length + ' đánh giá)</span>' +
+      '</div>' +
+      '<div style="display:flex; flex-direction:column; gap:10px;">' +
+        reviewsList.map(function(r) {
+          var firstChar = escapeHtml((r.author || 'K').charAt(0).toUpperCase());
+          return '<div style="background:#ffffff; padding:10px 12px; border-radius:8px; border:1px solid #f1f5f9;">' +
+            '<div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:4px;">' +
+              '<div style="display:flex; align-items:center; gap:6px;">' +
+                '<span style="width:24px; height:24px; border-radius:50%; background:#dcfce7; color:#15803d; font-weight:bold; font-size:0.75rem; display:flex; align-items:center; justify-content:center;">' + firstChar + '</span>' +
+                '<strong style="font-size:0.86rem; color:#1e293b;">' + escapeHtml(r.author || 'Khách hàng') + '</strong>' +
+              '</div>' +
+              '<span style="font-size:0.75rem; color:#f59e0b;">⭐⭐⭐⭐⭐</span>' +
+            '</div>' +
+            '<div style="font-size:0.85rem; color:#475569; line-height:1.45;">"' + escapeHtml(r.comment || '') + '"</div>' +
+          '</div>';
+        }).join('') +
+      '</div>' +
+    '</div>';
 
-    var reviewsHtml = '';
-    if (reviewsList && reviewsList.length > 0) {
-      var reviewCards = reviewsList.map(function(r) {
-        var firstChar = escapeHtml((r.author || 'K').charAt(0).toUpperCase());
-        var starsStr = '';
-        var starCount = parseInt(r.stars || 5, 10);
-        for (var s = 0; s < starCount; s++) { starsStr += '⭐'; }
+    // Format formatted description (allow paragraphs and strong markdown)
+    var formattedDesc = escapeHtml(product.description || '')
+      .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+      .replace(/\n\n/g, '</p><p style="margin-top:10px;">')
+      .replace(/\n/g, '<br/>');
 
-        return '<div style="background:#ffffff; padding:10px 12px; border-radius:8px; border:1px solid #f1f5f9; box-shadow:0 1px 2px rgba(0,0,0,0.03);">' +
-                 '<div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:4px;">' +
-                   '<div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">' +
-                     '<span style="width:24px; height:24px; border-radius:50%; background:#dcfce7; color:#15803d; font-weight:bold; font-size:0.75rem; display:flex; align-items:center; justify-content:center; flex-shrink:0;">' + firstChar + '</span>' +
-                     '<strong style="font-size:0.85rem; color:#1e293b;">' + escapeHtml(r.author || 'Khách hàng') + '</strong>' +
-                     (r.role ? '<span style="font-size:0.75rem; color:#64748b;">(' + escapeHtml(r.role) + ')</span>' : '') +
-                     '<span style="font-size:0.72rem; color:#166534; background:#dcfce7; padding:1px 6px; border-radius:4px; font-weight:500;">✓ Đã mua hàng</span>' +
-                   '</div>' +
-                   '<span style="font-size:0.75rem; color:#f59e0b; font-weight:600; white-space:nowrap;">' + starsStr + '</span>' +
-                 '</div>' +
-                 '<div style="font-size:0.84rem; color:#334155; line-height:1.45; margin-top:4px;">"' + escapeHtml(r.comment || '') + '"</div>' +
-                 (r.date ? '<div style="font-size:0.72rem; color:#94a3b8; margin-top:4px; text-align:right;">' + escapeHtml(r.date) + '</div>' : '') +
-               '</div>';
-      }).join('');
+    var infoHtml =
+      '<div class="detail-col-info">' +
+        '<h1 class="detail-product-title">' + escapeHtml(product.name) + '</h1>' +
+        '<div class="detail-rating-row">' +
+          '<div class="detail-rating-pill">⭐ ' + ratingInfo.score + ' (' + ratingInfo.count + ' đánh giá)</div>' +
+          (ratingInfo.downloads > 0 ? '<span class="detail-downloads-badge">• ' + ratingInfo.downloads + ' lượt tải</span>' : '') +
+        '</div>' +
 
-      reviewsHtml = '<div class="detail-section" id="detailReviewsContainer" style="background:#f8fafc; padding:12px 14px; border-radius:10px; border:1px solid #e2e8f0;">' +
-                      '<div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:10px; padding-bottom:8px; border-bottom:1px solid #e2e8f0;">' +
-                        '<strong style="font-size:0.92rem; color:#0f172a; display:flex; align-items:center; gap:6px;">' +
-                          '<span>💬 Nhận xét & đánh giá từ khách hàng:</span>' +
-                        '</strong>' +
-                        '<span style="font-size:0.78rem; color:#d97706; font-weight:600; background:#fef3c7; padding:2px 8px; border-radius:6px;">' +
-                          '⭐ 5.0 (' + reviewsList.length + ' đánh giá)' +
-                        '</span>' +
-                      '</div>' +
-                      '<div style="display:flex; flex-direction:column; gap:8px;">' +
-                        reviewCards +
-                      '</div>' +
-                    '</div>';
-    }
+        '<div class="detail-price-box">' +
+          '<div class="detail-price-numbers">' +
+            '<div class="detail-price-row-wrap">' +
+              '<span class="detail-price-current">' + priceFormatted + '</span>' +
+              originalPriceHtml +
+            '</div>' +
+          '</div>' +
+          '<div class="detail-cta-group">' +
+            '<button class="detail-btn-cart" id="detailAddToCart" type="button">' +
+              '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"></path><line x1="3" y1="6" x2="21" y2="6"></line><path d="M16 10a4 4 0 0 1-8 0"></path></svg>' +
+              '<span>Thêm vào giỏ</span>' +
+            '</button>' +
+            '<button class="detail-btn-buy" id="detailBuyNow" type="button">Mua ngay</button>' +
+          '</div>' +
+        '</div>' +
 
-    // Content inside scrollable body
-    detailBody.innerHTML =
-      '<div style="display:flex; flex-direction:column; gap: 16px;">' +
-      renderDetailThumb(product) +
-      socialProofDetailHtml +
-      coachingOptionHtml +
-      '<p class="detail-desc" style="line-height:1.6; color:#475569; margin:0;">' + escapeHtml(product.description) + '</p>' +
-      suitableHtml +
-      deliveryHtml +
-      (product.usageGuide ? '<div class="detail-section"><strong>Dùng nhanh:</strong> ' + escapeHtml(product.usageGuide) + '</div>' : '') +
-      highlightsHtml +
-      reviewsHtml +
-      (product.sheets && product.sheets.length ? '<div class="detail-section"><strong>Gồm:</strong> ' + escapeHtml(product.sheets.join(', ')) + '</div>' : '') +
-      versionsHtml +
-      '<div style="height: 12px;"></div>' +
+        '<div class="detail-zalo-hint">' +
+          '<span>Cần tư vấn thêm? Nhắn Zalo:</span>' +
+          '<a href="https://zalo.me/0938134576" target="_blank" rel="noopener">0938 134 576</a>' +
+        '</div>' +
+
+        coachingOptionHtml +
+
+        '<div class="detail-desc-content">' +
+          '<p style="margin:0;">' + formattedDesc + '</p>' +
+        '</div>' +
+
+        '<div class="detail-spec-grid">' +
+          suitableHtml +
+          deliveryHtml +
+        '</div>' +
+
+        (product.usageGuide ? '<div style="background:#f1f5f9; padding:12px 16px; border-radius:10px; font-size:0.92rem; color:#334155;"><strong>Cách dùng nhanh:</strong> ' + escapeHtml(product.usageGuide) + '</div>' : '') +
+        highlightsHtml +
+        (product.sheets && product.sheets.length ? '<div style="font-size:0.92rem; color:#475569;"><strong>Bao gồm các Sheet:</strong> ' + escapeHtml(product.sheets.join(', ')) + '</div>' : '') +
+        versionsHtml +
+        reviewsHtml +
       '</div>';
+
+    // Mount into detailBody as 2-column layout
+    detailBody.innerHTML =
+      '<div class="detail-fullpage-layout">' +
+        mediaHtml +
+        infoHtml +
+      '</div>';
+
+    // Hide footer because price & buttons are now embedded in the top of Right Column (Optimate style)
+    if (detailFooter) {
+      detailFooter.style.display = 'none';
+    }
 
     detailBody.scrollTop = 0;
 
-    // Async check: Replace with real Firestore reviews if buyers submitted any for this product
-    if (typeof firebase !== 'undefined' && firebase.firestore) {
-      try {
-        var db = firebase.firestore();
-        db.collection('reviews').where('product_id', '==', productId).limit(10).get().then(function(snapshot) {
-          if (snapshot && !snapshot.empty) {
-            var realRevArr = [];
-            snapshot.forEach(function(doc) {
-              var d = doc.data();
-              if (d && d.comment) {
-                var tObj = d.created_at ? formatDateTime(d.created_at) : null;
-                realRevArr.push({
-                  author: d.customer_name || d.author || (d.customer_phone ? 'Khách hàng ' + d.customer_phone.slice(-4) : 'Khách hàng'),
-                  role: d.product_name || 'Khách đã mua file',
-                  stars: d.stars || 5,
-                  comment: d.comment,
-                  date: tObj ? tObj.date : 'Đánh giá thực tế'
-                });
-              }
-            });
-            if (realRevArr.length > 0) {
-              product.reviews = realRevArr;
-              var revContainer = document.getElementById("detailReviewsContainer");
-              if (revContainer) {
-                var newCards = realRevArr.map(function(r) {
-                  var firstChar = escapeHtml((r.author || 'K').charAt(0).toUpperCase());
-                  var starsStr = '';
-                  var starCount = parseInt(r.stars || 5, 10);
-                  for (var s = 0; s < starCount; s++) { starsStr += '⭐'; }
-                  return '<div style="background:#ffffff; padding:10px 12px; border-radius:8px; border:1px solid #f1f5f9; box-shadow:0 1px 2px rgba(0,0,0,0.03);">' +
-                           '<div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:4px;">' +
-                             '<div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">' +
-                               '<span style="width:24px; height:24px; border-radius:50%; background:#dcfce7; color:#15803d; font-weight:bold; font-size:0.75rem; display:flex; align-items:center; justify-content:center; flex-shrink:0;">' + firstChar + '</span>' +
-                               '<strong style="font-size:0.85rem; color:#1e293b;">' + escapeHtml(r.author || 'Khách hàng') + '</strong>' +
-                               '<span style="font-size:0.72rem; color:#166534; background:#dcfce7; padding:1px 6px; border-radius:4px; font-weight:500;">✓ Đã mua hàng</span>' +
-                             '</div>' +
-                             '<span style="font-size:0.75rem; color:#f59e0b; font-weight:600; white-space:nowrap;">' + starsStr + '</span>' +
-                           '</div>' +
-                           '<div style="font-size:0.84rem; color:#334155; line-height:1.45; margin-top:4px;">"' + escapeHtml(r.comment || '') + '"</div>' +
-                           (r.date ? '<div style="font-size:0.72rem; color:#94a3b8; margin-top:4px; text-align:right;">' + escapeHtml(r.date) + '</div>' : '') +
-                         '</div>';
-                }).join('');
-                revContainer.innerHTML =
-                  '<div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:10px; padding-bottom:8px; border-bottom:1px solid #e2e8f0;">' +
-                    '<strong style="font-size:0.92rem; color:#0f172a; display:flex; align-items:center; gap:6px;">' +
-                      '<span>💬 Nhận xét & đánh giá từ khách hàng:</span>' +
-                    '</strong>' +
-                    '<span style="font-size:0.78rem; color:#d97706; font-weight:600; background:#fef3c7; padding:2px 8px; border-radius:6px;">' +
-                      '⭐ 5.0 (' + realRevArr.length + ' đánh giá thật từ Firestore)' +
-                    '</span>' +
-                  '</div>' +
-                  '<div style="display:flex; flex-direction:column; gap:8px;">' +
-                    newCards +
-                  '</div>';
-              }
-            }
-          }
-        }).catch(function(err) {});
-      } catch(e) {}
+    // Attach button handlers
+    var btnDetailAdd = document.getElementById("detailAddToCart");
+    if (btnDetailAdd) {
+      btnDetailAdd.addEventListener("click", function () {
+        closeDetail();
+        addToCart(product.id, { openDrawer: true });
+      });
     }
 
-    // Sticky Bottom Footer: Price + Action Buttons
-    if (detailFooter) {
-      var priceFormatted = formatCurrency(product.price);
-      var priceLabel = (product.originalPrice && product.originalPrice > product.price) ? 'Giá ưu đãi' : 'Giá bán';
-      var originalPriceHtml = '';
-      if (product.originalPrice && product.originalPrice > product.price) {
-        var discountPercent = Math.round((1 - product.price / product.originalPrice) * 100);
-        originalPriceHtml = '<div style="display:flex; align-items:center; gap:6px; line-height:1; margin-bottom:3px;">' +
-          '<span class="detail-original-price" style="color:var(--muted); text-decoration:line-through; font-size:0.85rem;">' + formatCurrency(product.originalPrice) + '</span>' +
-          '<span class="product-discount-pill">-' + discountPercent + '%</span>' +
-          '</div>';
-      }
-
-      detailFooter.innerHTML =
-        '<div class="detail-footer-inner">' +
-          '<div class="detail-price-col">' +
-            '<span class="detail-price-label">' + priceLabel + '</span>' +
-            '<div class="detail-price-val" style="display:flex; flex-direction:column; align-items:flex-start;">' +
-              originalPriceHtml +
-              '<strong class="detail-current-price">' + priceFormatted + '</strong>' +
-            '</div>' +
-          '</div>' +
-          '<div class="detail-actions-row">' +
-            '<button class="button-secondary" id="detailAddToCart" type="button">Thêm vào giỏ</button>' +
-            '<button class="button-primary" id="detailBuyNow" type="button">Mua ngay</button>' +
-          '</div>' +
-        '</div>';
-
-      var btnDetailAdd = document.getElementById("detailAddToCart");
-      if (btnDetailAdd) {
-        btnDetailAdd.addEventListener("click", function () {
-          closeDetail();
-          addToCart(product.id, { openDrawer: true });
-        });
-      }
-
-      var btnDetailBuy = document.getElementById("detailBuyNow");
-      if (btnDetailBuy) {
-        btnDetailBuy.addEventListener("click", function () {
-          closeDetail();
-          buyNow(product.id);
-        });
-      }
+    var btnDetailBuy = document.getElementById("detailBuyNow");
+    if (btnDetailBuy) {
+      btnDetailBuy.addEventListener("click", function () {
+        closeDetail();
+        buyNow(product.id);
+      });
     }
 
     detailModal.style.setProperty("top", "0px", "important");
@@ -1824,10 +1774,11 @@
   }
 
   function renderProductThumb(product) {
-    var isGoogleSheet = product.type === "google_sheets" || !!product.sheetUrl;
+    var isAppsScript = product.type === "apps_script" || product.type === "web_app";
+    var isGoogleSheet = !isAppsScript && (product.type === "google_sheets" || !!product.sheetUrl);
     var isCombo = product.categoryId === "combo" || product.type === "combo";
-    var typeLabel = isCombo ? "Combo" : (isGoogleSheet ? "Google Sheets" : "Excel");
-    var typeClass = isCombo ? " is-combo" : (isGoogleSheet ? " is-google-sheets" : " is-excel");
+    var typeLabel = isAppsScript ? "Web App" : (isCombo ? "Combo" : (isGoogleSheet ? "Google Sheets" : "Excel"));
+    var typeClass = isAppsScript ? " is-apps-script" : (isCombo ? " is-combo" : (isGoogleSheet ? " is-google-sheets" : " is-excel"));
     
     var hasDiscount = product.originalPrice && product.originalPrice > product.price;
     var discountPercent = hasDiscount ? Math.round((1 - product.price / product.originalPrice) * 100) : 0;
@@ -3640,6 +3591,21 @@
       if (!coupon || coupon.is_active === false) {
         showCouponMessage("Mã giảm giá '" + rawCode + "' không tồn tại hoặc đã hết hạn.", true);
         showToast("Mã '" + rawCode + "' không hợp lệ hoặc đã hết hạn.");
+        return;
+      }
+
+      // Check date validity
+      var nowYMD = new Date().toISOString().slice(0, 10);
+      if (coupon.start_date && nowYMD < coupon.start_date) {
+        var msgStart = "Chương trình giảm giá của mã " + coupon.code + " bắt đầu từ ngày " + coupon.start_date.split('-').reverse().join('/') + ".";
+        showCouponMessage(msgStart, true);
+        showToast(msgStart);
+        return;
+      }
+      if (coupon.end_date && nowYMD > coupon.end_date) {
+        var msgEnd = "Mã giảm giá " + coupon.code + " đã hết hạn từ ngày " + coupon.end_date.split('-').reverse().join('/') + ".";
+        showCouponMessage(msgEnd, true);
+        showToast(msgEnd);
         return;
       }
 

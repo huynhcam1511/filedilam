@@ -277,7 +277,7 @@ document.addEventListener('DOMContentLoaded', () => {
       if (['cong-no', 'thu-chi-dong-tien'].includes(pNormCat)) pNormCat = 'ke-toan';
       const matchCat = catVal === 'ALL' || p.categoryId === catVal || pNormCat === catVal;
       const pFormat = p.type || (p.sheetUrl ? 'google_sheets' : 'excel');
-      const matchFormat = formatVal === 'ALL' || pFormat === formatVal;
+      const matchFormat = formatVal === 'ALL' || pFormat === formatVal || (formatVal === 'google_sheets' && (pFormat === 'google_sheets' || p.sheetUrl));
       if (!matchCat || !matchFormat) return false;
 
       if (!searchVal) return true;
@@ -309,10 +309,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
     productListBody.innerHTML = filtered.map(p => {
       const catName = catMap[p.categoryId] || p.categoryId || 'Khác';
-      const isSheets = (p.type === 'google_sheets') || !!p.sheetUrl;
-      const formatHtml = isSheets
-        ? '<span style="font-size:0.84rem; font-weight:500; color:#059669;">Google Sheets</span>'
-        : '<span style="font-size:0.84rem; font-weight:500; color:#475569;">Excel (.xlsx)</span>';
+      let formatHtml = '<span style="font-size:0.84rem; font-weight:500; color:#475569;">Excel (.xlsx)</span>';
+      if (p.type === 'apps_script' || p.type === 'web_app') {
+        formatHtml = '<span style="font-size:0.82rem; font-weight:600; color:#6d28d9; background:#f5f3ff; border:1px solid #ddd6fe; padding:2px 7px; border-radius:4px;">Web App (Apps Script)</span>';
+      } else if (p.type === 'combo') {
+        formatHtml = '<span style="font-size:0.82rem; font-weight:500; color:#b45309; background:#fef3c7; border:1px solid #fde68a; padding:2px 7px; border-radius:4px;">Combo File</span>';
+      } else if (p.type === 'google_sheets' || p.sheetUrl) {
+        formatHtml = '<span style="font-size:0.82rem; font-weight:500; color:#059669; background:#ecfdf5; border:1px solid #a7f3d0; padding:2px 7px; border-radius:4px;">Google Sheets</span>';
+      }
       
       const downloads = p.downloads_count || 0;
       const statusHtml = '<span class="status-text-item success">Đang bán</span>';
@@ -469,7 +473,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function updateFormatFields() {
     const val = formatSelect ? formatSelect.value : 'google_sheets';
-    if (val === 'google_sheets') {
+    if (val === 'google_sheets' || val === 'apps_script') {
       if (sheetGroup) sheetGroup.style.display = 'block';
       if (fileGroup) fileGroup.style.display = 'none';
     } else if (val === 'excel') {
@@ -542,9 +546,11 @@ document.addEventListener('DOMContentLoaded', () => {
         sheetUrl,
         type: format,
         delivery_link: sheetUrl || "",
-        delivery: format === 'google_sheets' 
-          ? "Nhận link tạo bản sao Google Sheets vào Google Drive" 
-          : (format === 'combo' ? "Nhận trọn bộ link/file combo sau thanh toán" : "Tải file Excel (.xlsx) trực tiếp"),
+        delivery: format === 'apps_script'
+          ? "Nhận link tạo bản sao Google Sheets tích hợp Web App tự động vào Drive"
+          : (format === 'google_sheets' 
+            ? "Nhận link tạo bản sao Google Sheets vào Google Drive" 
+            : (format === 'combo' ? "Nhận trọn bộ link/file combo sau thanh toán" : "Tải file Excel (.xlsx) trực tiếp")),
         fileCount: format === 'combo' ? 2 : 1,
         hasCoaching: hasCoaching,
         coachingPrice: hasCoaching && coachingPrice > 0 ? coachingPrice : null,
@@ -1789,10 +1795,7 @@ document.addEventListener('DOMContentLoaded', () => {
     return text;
   }
 
-  let isCouponDescManuallyEdited = false;
-
   function updateCouponDescPreview() {
-    if (isCouponDescManuallyEdited) return;
     if (couponDescInput) {
       couponDescInput.value = generateCouponDescription();
     }
@@ -1802,7 +1805,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!couponModal) return;
     if (couponModalTitle) couponModalTitle.textContent = "Thêm mã giảm giá mới";
     if (couponDocId) couponDocId.value = "";
-    isCouponDescManuallyEdited = false;
+    updateCouponDescPreview();
     if (couponForm) couponForm.reset();
     if (couponMinOrderInput) couponMinOrderInput.value = '0';
     if (couponMaxDiscountInput) couponMaxDiscountInput.value = '';
@@ -1832,9 +1835,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (couponMaxDiscountInput) couponMaxDiscountInput.value = coupon.max_discount ? new Intl.NumberFormat('vi-VN').format(coupon.max_discount) : '';
     if (couponStartDateInput) couponStartDateInput.value = coupon.start_date || '';
     if (couponEndDateInput) couponEndDateInput.value = coupon.end_date || '';
-    if (couponDescInput) couponDescInput.value = coupon.description || '';
-    isCouponDescManuallyEdited = !!(coupon.description);
-    if (!coupon.description) updateCouponDescPreview();
+    updateCouponDescPreview();
     if (couponIsActive) couponIsActive.checked = coupon.is_active !== false;
 
     couponModal.style.display = 'flex';
@@ -1956,9 +1957,7 @@ document.addEventListener('DOMContentLoaded', () => {
   couponValueInput?.addEventListener('input', updateCouponDescPreview);
   couponStartDateInput?.addEventListener('change', updateCouponDescPreview);
   couponEndDateInput?.addEventListener('change', updateCouponDescPreview);
-  couponDescInput?.addEventListener('input', () => {
-    isCouponDescManuallyEdited = couponDescInput.value.trim().length > 0;
-  });
+// couponDescInput is readonly & auto-generated
 
 
 });
