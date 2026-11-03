@@ -16,7 +16,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="./storefront.css?v=284" />
+    <link rel="stylesheet" href="./storefront.css?v=286" />
     <style>
     :root {
       --bg: #ffffff;
@@ -2877,19 +2877,17 @@
           </div>
         </header>
 
-        <!-- SUB-BAR BENEATH TOPBAR: "Trở lại cửa hàng" -->
-        <div class="checkout-subbar">
-          <div class="checkout-subbar-inner">
-            <button class="checkout-back-link" id="checkoutBackBtn" type="button" aria-label="Trở lại cửa hàng">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
-              <span>Trở lại cửa hàng</span>
-            </button>
-            <h3 id="checkoutModalTitle" class="checkout-title-text" style="display: none;">Thông tin thanh toán</h3>
-          </div>
-        </div>
-
         <!-- 2-COLUMN CHECKOUT BODY: Left = Customer Form | Right = QR Box (Top) + Order Summary (Bottom) -->
         <div id="checkoutAuthStep" class="modal-body checkout-modal-body-split">
+          <div class="checkout-subbar">
+            <div class="checkout-subbar-inner">
+              <button class="checkout-back-link" id="checkoutBackBtn" type="button" aria-label="Trở lại cửa hàng">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+                <span>Trở lại cửa hàng</span>
+              </button>
+              <h3 id="checkoutModalTitle" class="checkout-title-text" style="display: none;">Thông tin thanh toán</h3>
+            </div>
+          </div>
           
           <!-- LEFT COLUMN: Customer Payment Form Card -->
           <div class="checkout-form-col">
