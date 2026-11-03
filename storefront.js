@@ -1603,6 +1603,8 @@
   }
 
   function openDetail(productId) {
+    try {
+      console.log('Opening detail for product:', productId);
     var product = getProductById(productId);
     if (!product) {
       return;
@@ -1614,7 +1616,7 @@
     // Update cart badge in detail topbar if present
     var cartBadgeDetail = document.getElementById("cartCountDetail");
     if (cartBadgeDetail) {
-      var totalQty = getCartTotalQuantity();
+      var totalQty = getCartCount();
       cartBadgeDetail.textContent = totalQty;
     }
 
@@ -1683,19 +1685,14 @@
 
     var versionsHtml = '';
     if (product.versions && product.versions.length > 0) {
-      var sortedV = [...product.versions].sort(function(a, b) {
-        var da = parseDateObj(a.createdAt) || new Date(0);
-        var db = parseDateObj(b.createdAt) || new Date(0);
-        return db - da;
-      });
-      var vList = sortedV.map(function(v) {
-        var tObj = formatDateTime(v.createdAt);
+      var vList = product.versions.map(function(v) {
+        var dateStr = v.createdAt ? String(v.createdAt).slice(0, 10) : '';
         return '<div style="margin-bottom:8px; padding-bottom:8px; border-bottom:1px dashed #e2e8f0;">' +
                  '<div style="display:flex; justify-content:space-between; margin-bottom:4px;">' +
-                   '<strong style="color:var(--mint-strong); font-size:0.9rem;">' + escapeHtml(v.name) + '</strong>' +
-                   '<span style="color:#64748b; font-size:0.8rem;">' + escapeHtml(tObj.date) + '</span>' +
+                   '<strong style="color:var(--mint-strong); font-size:0.9rem;">' + escapeHtml(v.name || 'Phiên bản mới') + '</strong>' +
+                   '<span style="color:#64748b; font-size:0.8rem;">' + escapeHtml(dateStr) + '</span>' +
                  '</div>' +
-                 '<div style="font-size:0.85rem; color:#475569;">' + escapeHtml(v.description) + '</div>' +
+                 '<div style="font-size:0.85rem; color:#475569;">' + escapeHtml(v.description || '') + '</div>' +
                '</div>';
       }).join('');
       versionsHtml = '<div style="background:#f8fafc; padding:14px; border-radius:12px; border:1px solid #e2e8f0; margin-top:10px;">' +
@@ -1869,7 +1866,7 @@
         addToCart(product.id, { openDrawer: true });
         // Update detail cart count
         var cB = document.getElementById("cartCountDetail");
-        if (cB) cB.textContent = getCartTotalQuantity();
+        if (cB) cB.textContent = getCartCount();
       });
     }
 
@@ -1889,7 +1886,7 @@
         if (id) {
           addToCart(id, { openDrawer: true });
           var cB = document.getElementById("cartCountDetail");
-          if (cB) cB.textContent = getCartTotalQuantity();
+          if (cB) cB.textContent = getCartCount();
         }
       });
     });
@@ -1908,6 +1905,10 @@
     detailModal.classList.add("is-open");
     detailModal.setAttribute("aria-hidden", "false");
     document.body.classList.add("drawer-open");
+    } catch (err) {
+      console.error('Error opening detail modal:', err);
+      showToast('Không thể mở chi tiết sản phẩm. Vui lòng thử lại.');
+    }
   }
 
   function renderProductThumb(product) {
