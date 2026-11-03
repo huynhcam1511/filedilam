@@ -3252,19 +3252,13 @@ function escapeHtml(value) {
         discountRow.style.display = (isCouponApplied && discount > 0) ? 'flex' : 'none';
       }
       if (watermark) {
-        if (isRealCart && !isEligible) {
-          var thiếu = minOrder - subtotal;
-          watermark.textContent = 'Thiếu ' + formatCurrency(thiếu) + ' để dùng mã';
-          watermark.style.color = '#d97706';
-          watermark.style.background = '#fef3c7';
-        } else if (isCouponApplied) {
+        if (isCouponApplied) {
           watermark.textContent = 'Đã áp mã -' + valText;
           watermark.style.color = 'var(--mint-primary)';
           watermark.style.background = '#ecfdf5';
+          watermark.style.display = 'inline-block';
         } else {
-          watermark.textContent = 'Chưa áp mã';
-          watermark.style.color = '#64748b';
-          watermark.style.background = '#f1f5f9';
+          watermark.style.display = 'none';
         }
       }
 
