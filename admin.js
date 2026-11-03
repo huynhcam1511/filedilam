@@ -1353,8 +1353,18 @@ document.addEventListener('DOMContentLoaded', () => {
           <span class="inspector-label">Phân loại</span>
           <span class="inspector-val" style="color: #b45309; font-weight: 600; font-size: 0.8rem;">Gói Kèm 1-1 Chuyên sâu</span>
         </div>` : ''}
+        ${order.coupon_code ? `
+        <div class="inspector-row">
+          <span class="inspector-label">Mã giảm giá</span>
+          <span class="inspector-val" style="font-family: monospace; font-size: 0.82rem; font-weight: 700; color: #059669;">${escapeHtml(order.coupon_code)}</span>
+        </div>` : ''}
+        ${Number(order.discount_amount || 0) > 0 ? `
+        <div class="inspector-row">
+          <span class="inspector-label">Số tiền giảm</span>
+          <span class="inspector-val" style="font-size: 0.86rem; color: #ef4444; font-weight: 600;">-${formatCurrency(order.discount_amount)}</span>
+        </div>` : ''}
         <div class="inspector-row" style="margin-top: 10px; padding-top: 10px; border-top: 1px dashed #e2e8f0; align-items: baseline;">
-          <span class="inspector-label" style="font-size: 0.84rem; font-weight: 500; color: #334155;">Tổng thanh toán</span>
+          <span class="inspector-label" style="font-size: 0.84rem; font-weight: 500; color: #334155;">Thành tiền</span>
           <span class="inspector-val" style="font-size: 1.08rem; color: var(--mint-primary); font-weight: 700; font-family: ui-monospace, SFMono-Regular, Menlo, monospace;">${formatCurrency(amountVal)}</span>
         </div>
       </div>
@@ -1470,7 +1480,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     if (!filtered.length) {
-      orderListBody.innerHTML = '<tr><td colspan="7" style="text-align: center; color: var(--slate-muted); padding: 32px;">Không tìm thấy đơn hàng nào phù hợp.</td></tr>';
+      orderListBody.innerHTML = '<tr><td colspan="9" style="text-align: center; color: var(--slate-muted); padding: 32px;">Không tìm thấy đơn hàng nào phù hợp.</td></tr>';
       renderOrderDetailInspector(null);
       return;
     }
@@ -1510,6 +1520,16 @@ document.addEventListener('DOMContentLoaded', () => {
         : '';
 
       const isSelected = String(orderId) === String(selectedOrderId);
+      const couponCode = order.coupon_code || '';
+      const discountVal = Number(order.discount_amount || 0);
+
+      const couponHtml = couponCode 
+        ? `<span style="font-family: monospace; font-size: 0.8rem; font-weight: 700; color: #059669; background: #ecfdf5; padding: 2px 6px; border-radius: 4px; border: 1px solid #a7f3d0;">${escapeHtml(couponCode)}</span>`
+        : `<span style="color: #cbd5e1; font-size: 0.85rem;">-</span>`;
+
+      const discountHtml = discountVal > 0
+        ? `<span style="color: #ef4444; font-weight: 600; font-size: 0.84rem;">-${formatCurrency(discountVal)}</span>`
+        : `<span style="color: #cbd5e1; font-size: 0.85rem;">-</span>`;
 
       return `
         <tr data-order-id="${escapeHtml(orderId)}" class="${isSelected ? 'selected-row' : ''}">
@@ -1517,6 +1537,8 @@ document.addEventListener('DOMContentLoaded', () => {
           <td style="white-space: nowrap;">${timeHtml}</td>
           <td><span style="font-weight: 500; color: #1e293b; font-size: 0.86rem;">${escapeHtml(customerInfo)}</span></td>
           <td><span style="font-weight: 600; color: #1e293b; font-size: 0.86rem;">${escapeHtml(order.product_name || 'File')}</span>${coachingBadge}</td>
+          <td style="text-align: center;">${couponHtml}</td>
+          <td style="text-align: right;">${discountHtml}</td>
           <td style="text-align: right;"><strong style="color: var(--mint-primary); font-size: 0.88rem;">${formatCurrency(order.amount || 0)}</strong></td>
           <td style="text-align: center;">${statusBadge}</td>
           <td style="text-align: center; vertical-align: middle;">${qrThumbHtml}</td>

@@ -1568,9 +1568,17 @@
     state.selectedProductId = productId;
     if (detailTitle) detailTitle.textContent = product.name;
 
-    var isGoogleSheet = product.type === "google_sheets" || !!product.sheetUrl;
+    // Update cart badge in detail topbar if present
+    var cartBadgeDetail = document.getElementById("cartCountDetail");
+    if (cartBadgeDetail) {
+      var totalQty = getCartTotalQuantity();
+      cartBadgeDetail.textContent = totalQty;
+    }
+
+    var isAppsScript = product.type === "apps_script" || product.type === "web_app";
+    var isGoogleSheet = !isAppsScript && (product.type === "google_sheets" || !!product.sheetUrl);
     var isCombo = product.categoryId === "combo" || product.type === "combo";
-    var typeLabel = isCombo ? "Combo" : (isGoogleSheet ? "Google Sheets" : "Excel");
+    var typeLabel = isAppsScript ? "Web App" : (isCombo ? "Combo" : (isGoogleSheet ? "Google Sheets" : "Excel"));
 
     var hasDiscount = product.originalPrice && product.originalPrice > product.price;
     var discountPercent = hasDiscount ? Math.round((1 - product.price / product.originalPrice) * 100) : 0;
@@ -1592,7 +1600,7 @@
         '</div>' +
       '</div>';
 
-    // RIGHT COLUMN: All product info, ratings, pricing, CTAs, specs, highlights, reviews
+    // RIGHT COLUMN: Info, Price, Actions, Full Specs
     var priceFormatted = formatCurrency(product.price);
     var originalPriceHtml = hasDiscount
       ? '<span class="detail-price-original">' + formatCurrency(product.originalPrice) + '</span>'
@@ -1682,7 +1690,6 @@
       '</div>' +
     '</div>';
 
-    // Format formatted description (allow paragraphs and strong markdown)
     var formattedDesc = escapeHtml(product.description || '')
       .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
       .replace(/\n\n/g, '</p><p style="margin-top:10px;">')
@@ -1735,26 +1742,91 @@
         reviewsHtml +
       '</div>';
 
-    // Mount into detailBody as 2-column layout
+    // RELATED PRODUCTS BUILDER (Optimate style)
+    var otherProducts = (data.products || []).filter(function(p) { return p.id !== product.id; });
+    var relatedItems = otherProducts.slice(0, 4);
+    var relatedHtml = '';
+    if (relatedItems.length > 0) {
+      relatedHtml =
+        '<div class="detail-related-section">' +
+          '<h3 class="detail-related-title">Các file template liên quan khác</h3>' +
+          '<div class="detail-related-grid">' +
+            relatedItems.map(function(item) {
+              var itemImg = item.thumbnailUrl || item.previewImageUrl || '';
+              var itemRating = getProductRatingDisplay(item);
+              return (
+                '<div class="product-card" data-product-id="' + escapeHtml(item.id) + '">' +
+                  '<div class="product-thumb" style="aspect-ratio:1/1; background-image:url(&quot;' + escapeHtml(itemImg) + '&quot;); background-size:cover; background-position:center; border-radius:12px; border:1px solid #e2e8f0; position:relative;">' +
+                    '<span class="product-type-badge">' + (item.type === 'google_sheets' ? 'Sheets' : 'Web App') + '</span>' +
+                  '</div>' +
+                  '<div class="product-info" style="display:flex; flex-direction:column; gap:6px; margin-top:8px;">' +
+                    '<h4 class="product-name" style="font-size:0.95rem; font-weight:600; color:#0f172a; margin:0; line-height:1.3; min-height:2.6em; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden;">' + escapeHtml(item.name) + '</h4>' +
+                    '<div style="display:flex; align-items:baseline; gap:8px;">' +
+                      '<span style="font-size:1.05rem; font-weight:700; color:#059669; font-family:var(--font-mono);">' + formatCurrency(item.price) + '</span>' +
+                      (item.originalPrice ? '<span style="font-size:0.8rem; color:#94a3b8; text-decoration:line-through;">' + formatCurrency(item.originalPrice) + '</span>' : '') +
+                    '</div>' +
+                    '<div style="display:flex; align-items:center; justify-content:space-between; margin-top:6px;">' +
+                      '<span style="font-size:0.8rem; color:#d97706; font-weight:600;">⭐ ' + itemRating.score + ' (' + itemRating.count + ')</span>' +
+                      '<button type="button" class="btn-item-quick-add" data-id="' + escapeHtml(item.id) + '" style="padding:6px 14px; border-radius:9999px; background:#0f172a; color:#fff; font-size:0.8rem; font-weight:600; border:none; cursor:pointer;">Thêm vào giỏ</button>' +
+                    '</div>' +
+                  '</div>' +
+                '</div>'
+              );
+            }).join('') +
+          '</div>' +
+        '</div>';
+    }
+
+    // FOOTER INSIDE DETAIL FULLPAGE
+    var detailFooterHtml =
+      '<footer class="detail-page-footer">' +
+        '<div style="max-width:1280px; margin:0 auto; display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:32px;">' +
+          '<div>' +
+            '<div style="font-size:1.25rem; font-weight:700; color:#0f172a; margin-bottom:12px;">File Đi Làm</div>' +
+            '<p style="font-size:0.88rem; color:#64748b; line-height:1.6;">Giải pháp Google Sheets & Web App tự động hoá quy trình làm việc cho cá nhân và doanh nghiệp.</p>' +
+          '</div>' +
+          '<div>' +
+            '<h4 style="font-size:0.95rem; font-weight:700; color:#0f172a; margin-bottom:12px;">Liên hệ hỗ trợ</h4>' +
+            '<p style="font-size:0.88rem; color:#64748b; line-height:1.6; margin-bottom:6px;">Hotline/Zalo: <strong style="color:#0f172a;">0938 134 576</strong></p>' +
+            '<p style="font-size:0.88rem; color:#64748b; line-height:1.6;">Email: hotro@nourishgroup.vn</p>' +
+          '</div>' +
+          '<div>' +
+            '<h4 style="font-size:0.95rem; font-weight:700; color:#0f172a; margin-bottom:12px;">Chính sách</h4>' +
+            '<div style="display:flex; flex-direction:column; gap:8px; font-size:0.88rem; color:#64748b;">' +
+              '<a href="/chinh-sach.html#dieu-khoan-su-dung" style="color:#64748b; text-decoration:none;">Điều khoản sử dụng</a>' +
+              '<a href="/chinh-sach.html#bao-mat-thong-tin" style="color:#64748b; text-decoration:none;">Bảo mật thông tin</a>' +
+              '<a href="/chinh-sach.html#giao-hang" style="color:#64748b; text-decoration:none;">Chính sách giao hàng</a>' +
+            '</div>' +
+          '</div>' +
+        '</div>' +
+        '<div style="max-width:1280px; margin:32px auto 0; padding-top:20px; border-top:1px solid #f1f5f9; text-align:center; font-size:0.82rem; color:#94a3b8;">' +
+          '© 2026 File Đi Làm. All rights reserved.' +
+        '</div>' +
+      '</footer>';
+
+    // Mount into detailBody as 2-column layout + Related + Footer
     detailBody.innerHTML =
       '<div class="detail-fullpage-layout">' +
         mediaHtml +
         infoHtml +
-      '</div>';
+      '</div>' +
+      relatedHtml +
+      detailFooterHtml;
 
-    // Hide footer because price & buttons are now embedded in the top of Right Column (Optimate style)
     if (detailFooter) {
       detailFooter.style.display = 'none';
     }
 
     detailBody.scrollTop = 0;
 
-    // Attach button handlers
+    // Attach button handlers inside detail
     var btnDetailAdd = document.getElementById("detailAddToCart");
     if (btnDetailAdd) {
       btnDetailAdd.addEventListener("click", function () {
-        closeDetail();
         addToCart(product.id, { openDrawer: true });
+        // Update detail cart count
+        var cB = document.getElementById("cartCountDetail");
+        if (cB) cB.textContent = getCartTotalQuantity();
       });
     }
 
@@ -1765,6 +1837,28 @@
         buyNow(product.id);
       });
     }
+
+    // Attach related product clicks
+    Array.prototype.forEach.call(detailBody.querySelectorAll(".btn-item-quick-add"), function(btn) {
+      btn.addEventListener("click", function(e) {
+        e.stopPropagation();
+        var id = btn.getAttribute("data-id");
+        if (id) {
+          addToCart(id, { openDrawer: true });
+          var cB = document.getElementById("cartCountDetail");
+          if (cB) cB.textContent = getCartTotalQuantity();
+        }
+      });
+    });
+
+    Array.prototype.forEach.call(detailBody.querySelectorAll(".detail-related-grid .product-card"), function(card) {
+      card.addEventListener("click", function() {
+        var id = card.getAttribute("data-product-id");
+        if (id) {
+          openDetail(id);
+        }
+      });
+    });
 
     detailModal.style.setProperty("top", "0px", "important");
     detailModal.style.setProperty("z-index", "99999", "important");

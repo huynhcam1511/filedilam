@@ -3496,20 +3496,93 @@ body:not(.is-admin) #userProfile {
   margin: 0 !important;
 }
 
-.detail-drawer-header {
-  padding: 14px 24px !important;
+/* TOPBAR INSIDE DETAIL FULLPAGE (Optimate Luxury standard) */
+.detail-top-nav {
+  position: sticky !important;
+  top: 0 !important;
+  z-index: 100 !important;
+  background: rgba(255, 255, 255, 0.95) !important;
+  backdrop-filter: blur(12px) !important;
   border-bottom: 1px solid #f1f5f9 !important;
-  background: #ffffff !important;
+  height: 56px !important;
+  display: flex !important;
+  align-items: center !important;
+  flex-shrink: 0 !important;
+}
+
+.detail-nav-container {
   display: flex !important;
   align-items: center !important;
   justify-content: space-between !important;
-  flex-shrink: 0 !important;
-  height: 56px !important;
-  max-width: 1320px !important;
   width: 100% !important;
+  max-width: 1280px !important;
   margin: 0 auto !important;
+  padding: 0 24px !important;
 }
 
+.detail-nav-left {
+  display: flex !important;
+  align-items: center !important;
+  gap: 28px !important;
+}
+
+.detail-nav-brand {
+  font-family: 'Manrope', sans-serif !important;
+  font-size: 1.25rem !important;
+  font-weight: 700 !important;
+  color: #0f172a !important;
+  letter-spacing: -0.5px !important;
+  cursor: pointer !important;
+}
+
+.detail-nav-links {
+  display: flex !important;
+  align-items: center !important;
+  gap: 24px !important;
+}
+
+.detail-nav-links a {
+  font-size: 0.92rem !important;
+  font-weight: 500 !important;
+  color: #64748b !important;
+  transition: color 0.15s ease !important;
+  cursor: pointer !important;
+  text-decoration: none !important;
+}
+
+.detail-nav-links a:hover {
+  color: #059669 !important;
+}
+
+.detail-nav-actions {
+  display: flex !important;
+  align-items: center !important;
+  gap: 12px !important;
+}
+
+/* Back Link Button */
+.detail-back-pill {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  padding: 6px 14px !important;
+  background: #f8fafc !important;
+  border: 1px solid #e2e8f0 !important;
+  border-radius: 9999px !important;
+  font-size: 0.85rem !important;
+  font-weight: 600 !important;
+  color: #334155 !important;
+  cursor: pointer !important;
+  transition: all 0.2s ease !important;
+}
+
+.detail-back-pill:hover {
+  background: #f1f5f9 !important;
+  color: #0f172a !important;
+  border-color: #cbd5e1 !important;
+}
+
+/* Scrollable Container covering Detail + Related + Footer */
 .detail-modal-body {
   padding: 0 !important;
   overflow-y: auto !important;
@@ -3525,7 +3598,7 @@ body:not(.is-admin) #userProfile {
   gap: 48px;
   max-width: 1280px;
   margin: 0 auto;
-  padding: 36px 32px 80px;
+  padding: 36px 32px 60px;
   align-items: start;
 }
 
@@ -3774,12 +3847,59 @@ body:not(.is-admin) #userProfile {
   font-weight: 600;
 }
 
-/* Mobile Responsiveness: Stack vertically cleanly */
+/* RELATED PRODUCTS SECTION */
+.detail-related-section {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 40px 32px 60px;
+  border-top: 1px solid #f1f5f9;
+}
+
+.detail-related-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #0f172a;
+  margin-bottom: 24px;
+  letter-spacing: -0.5px;
+}
+
+.detail-related-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+}
+
+@media (max-width: 1024px) {
+  .detail-related-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .detail-related-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+  }
+}
+
+/* FOOTER IN DETAIL */
+.detail-page-footer {
+  background: #ffffff;
+  border-top: 1px solid #f1f5f9;
+  padding: 48px 32px 36px;
+  margin-top: 40px;
+}
+
+/* Mobile Responsiveness */
 @media (max-width: 960px) {
+  .detail-nav-links {
+    display: none !important;
+  }
+
   .detail-fullpage-layout {
     grid-template-columns: 1fr;
     gap: 28px;
-    padding: 20px 18px 100px;
+    padding: 20px 18px 40px;
   }
 
   .detail-col-media {
@@ -3801,5 +3921,9 @@ body:not(.is-admin) #userProfile {
 
   .detail-btn-cart, .detail-btn-buy {
     flex: 1;
+  }
+
+  .detail-related-section {
+    padding: 30px 18px 40px;
   }
 }

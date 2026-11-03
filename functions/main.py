@@ -576,6 +576,8 @@ def api(req: https_fn.Request) -> https_fn.Response:
             "product_file_url": data.get("product_file_url", ""),
             "product_type": data.get("product_type", "excel"),
             "amount": req_amount,
+            "coupon_code": data.get("coupon_code"),
+            "discount_amount": int(data.get("discount_amount") or 0),
             "package_type": req_package_type,
             "package_name": req_package_name,
             "status": "PENDING",
