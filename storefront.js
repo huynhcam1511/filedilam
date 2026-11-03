@@ -1483,10 +1483,9 @@ function escapeHtml(value) {
         var discountPercent = hasDiscount ? Math.round((1 - product.price / originalPrice) * 100) : 0;
         
         var ratingInfo = getProductRatingDisplay(product);
-        var countDisplay = ratingInfo.downloads > 0 ? ratingInfo.downloads : ratingInfo.count;
         var socialProofHtml = '<div class="product-social-proof">' +
           '<span class="star-rating">⭐ ' + ratingInfo.score + '</span>' +
-          '<span class="download-count">(' + countDisplay + ')</span>' +
+          '<span class="download-count">(' + ratingInfo.sales + ')</span>' +
         '</div>';
         
         var isCombo = product.categoryId === "combo" || product.type === "combo";
@@ -1882,8 +1881,7 @@ function escapeHtml(value) {
       '<div class="detail-col-info">' +
         '<h1 class="detail-product-title">' + escapeHtml(product.name) + '</h1>' +
         '<div class="detail-rating-row">' +
-          '<div class="detail-rating-pill">⭐ ' + ratingInfo.score + ' (' + ratingInfo.count + ' đánh giá)</div>' +
-          (ratingInfo.downloads > 0 ? '<span class="detail-downloads-badge">• ' + ratingInfo.downloads + ' lượt tải</span>' : '') +
+          '<div class="detail-rating-pill">⭐ ' + ratingInfo.score + ' <span style="color:#cbd5e1; margin:0 4px;">•</span> ' + ratingInfo.sales + ' lượt mua</div>' +
         '</div>' +
 
         '<div class="detail-price-box">' +
@@ -1949,7 +1947,7 @@ function escapeHtml(value) {
                       (item.originalPrice ? '<span style="font-size:0.8rem; color:#94a3b8; text-decoration:line-through;">' + formatCurrency(item.originalPrice) + '</span>' : '') +
                     '</div>' +
                     '<div style="display:flex; align-items:center; justify-content:space-between; margin-top:6px;">' +
-                      '<span style="font-size:0.8rem; color:#d97706; font-weight:600;">⭐ ' + itemRating.score + ' (' + itemRating.count + ')</span>' +
+                      '<span style="font-size:0.8rem; color:#d97706; font-weight:600;">⭐ ' + itemRating.score + ' (' + itemRating.sales + ')</span>' +
                       '<button type="button" class="btn-item-quick-add" data-id="' + escapeHtml(item.id) + '" style="padding:6px 14px; border-radius:9999px; background:#0f172a; color:#fff; font-size:0.8rem; font-weight:600; border:none; cursor:pointer;">Thêm vào giỏ</button>' +
                     '</div>' +
                   '</div>' +
@@ -4085,35 +4083,29 @@ function escapeHtml(value) {
 
   
   function getProductRatingDisplay(product) {
-    var realDownloads = parseInt(product.downloads_count || product.downloadsCount || 0, 10);
+    var realDownloads = parseInt(product.downloads_count || product.downloadsCount || product.sales_count || product.salesCount || 0, 10);
     var realRatingAvg = parseFloat(product.rating_avg || product.ratingAvg || 0);
     var realRatingCount = parseInt(product.rating_count || product.ratingCount || 0, 10);
 
-    if (realRatingCount > 0 && realRatingAvg > 0) {
-      return {
-        score: realRatingAvg.toFixed(1),
-        count: realRatingCount,
-        downloads: realDownloads,
-        isCustom: false
-      };
-    }
-
-    // Dải rating tự nhiên 4.8 - 5.0 (ưu tiên 4.9 và 5.0) cho từng sản phẩm
     var idStr = String(product.id || product.slug || product.name || "fldl");
     var hash = 0;
     for (var i = 0; i < idStr.length; i++) {
       hash = ((hash << 5) - hash) + idStr.charCodeAt(i);
     }
     hash = Math.abs(hash);
+
     var ratingPalette = ["4.9", "4.8", "5.0", "4.9", "4.8", "5.0", "4.9"];
-    var score = ratingPalette[hash % ratingPalette.length];
-    var count = 16 + (hash % 35); // 16 - 50 đánh giá
+    var score = realRatingCount > 0 && realRatingAvg > 0 ? realRatingAvg.toFixed(1) : ratingPalette[hash % ratingPalette.length];
+    
+    // Lượt mua thực tế hoặc seed tự nhiên theo mã sản phẩm
+    var salesCount = realDownloads > 0 ? realDownloads : (24 + (hash % 85));
 
     return {
       score: score,
-      count: count,
-      downloads: realDownloads,
-      isCustom: true
+      sales: salesCount,
+      count: realRatingCount || (16 + (hash % 35)),
+      downloads: salesCount,
+      isCustom: realRatingCount === 0
     };
   }
 
