@@ -3520,7 +3520,6 @@ function escapeHtml(value) {
   }
 
   function makeLocalVietQr(order, account, owner, template) {
-    // VietQR account transfer (NAPAS 247, TPBank). Order transfer notes are ASCII.
     function field(tag, value) {
       value = String(value);
       return tag + String(value.length).padStart(2, "0") + value;
@@ -3540,28 +3539,63 @@ function escapeHtml(value) {
     qr.addData(payload + crc.toString(16).toUpperCase().padStart(4, "0"));
     qr.make();
     var modules = qr.getModuleCount();
+    
+    // Canvas dimensions: width 1080px, height 1400px for luxury fintech card ratio
     var canvas = document.createElement("canvas");
     canvas.width = 1080;
-    canvas.height = 1280;
+    canvas.height = 1400;
     var ctx = canvas.getContext("2d");
-    ctx.drawImage(template, 0, 0, canvas.width, canvas.height);
-    // Center whole pixels inside the compact2 frame, with a four-module quiet zone.
+    
+    // Pure white rounded card base
+    ctx.fillStyle = "#ffffff";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    
+    // Draw official template header/branding
+    if (template) {
+      ctx.drawImage(template, 0, 0, 1080, 1280);
+    }
+    
+    // Center crisp QR Code with quiet zone
     var scale = Math.floor(740 / (modules + 8));
     var left = Math.round(540 - modules * scale / 2);
     var top = Math.round(546 - modules * scale / 2);
-    ctx.fillStyle = "#000";
+    ctx.fillStyle = "#0f172a";
     for (var row = 0; row < modules; row++) {
       for (var col = 0; col < modules; col++) {
-        if (qr.isDark(row, col)) ctx.fillRect(left + col * scale, top + row * scale, scale, scale);
+        if (qr.isDark(row, col)) {
+          ctx.fillRect(left + col * scale, top + row * scale, scale, scale);
+        }
       }
     }
+    
+    // Account Owner (Bold, Classy)
     ctx.textAlign = "center";
     ctx.fillStyle = "#0f172a";
-    ctx.font = "600 30px sans-serif";
-    ctx.fillText(owner, 540, 1122, 1000);
-    ctx.font = "28px sans-serif";
-    ctx.fillText(account, 540, 1172);
-    ctx.fillText("Số tiền: " + formatCurrency(order.amount), 540, 1220);
+    ctx.font = "700 32px sans-serif";
+    ctx.fillText(owner, 540, 1120, 1000);
+    
+    // Account Number (Monospace)
+    ctx.font = "600 26px monospace";
+    ctx.fillStyle = "#64748b";
+    ctx.fillText(account, 540, 1162);
+    
+    // Amount (Vibrant Mint)
+    ctx.font = "700 28px sans-serif";
+    ctx.fillStyle = "#059669";
+    ctx.fillText("Số tiền: " + formatCurrency(order.amount), 540, 1208);
+    
+    // Luxury Integrated Order Code Banner
+    ctx.fillStyle = "#f8fafc";
+    var bx = 60, by = 1260, bw = 960, bh = 92;
+    ctx.fillRect(bx, by, bw, bh);
+    ctx.strokeStyle = "#e2e8f0";
+    ctx.lineWidth = 2;
+    ctx.strokeRect(bx, by, bw, bh);
+    
+    ctx.fillStyle = "#0f172a";
+    ctx.font = "700 30px sans-serif";
+    ctx.fillText("Nội dung chuyển khoản: " + (order.transfer_note || order.order_id), 540, 1316);
+    
     return canvas;
   }
 
@@ -3570,41 +3604,60 @@ function escapeHtml(value) {
     if (!qrBox) return;
 
     var img = new Image();
-    var label = "Mã đơn hàng: " + order.order_id;
     img.className = "checkout-vietqr-image";
-    img.alt = "VietQR thanh toán. " + label;
+    img.alt = "VietQR thanh toán đơn hàng " + order.order_id;
     img.crossOrigin = "anonymous";
     qrBox.replaceChildren(img);
-    function showLabeledImage(source) {
+
+    function showQrCanvas(canvasSource) {
       if (!qrBox.contains(img)) return;
-      var canvas = document.createElement("canvas");
-      canvas.width = source.naturalWidth || source.width;
-      var footer = Math.ceil(canvas.width * 0.14);
-      canvas.height = (source.naturalHeight || source.height) + footer;
-      var ctx = canvas.getContext("2d");
-      ctx.fillStyle = "#fff";
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
-      ctx.drawImage(source, 0, 0);
-      ctx.fillStyle = "#0f172a";
-      ctx.font = "600 " + Math.round(footer * 0.42) + "px sans-serif";
-      ctx.textAlign = "center";
-      ctx.textBaseline = "middle";
-      ctx.fillText(label, canvas.width / 2, canvas.height - footer / 2, canvas.width * 0.94);
-      currentQrImageUrl = canvas.toDataURL("image/png");
+      currentQrImageUrl = canvasSource.toDataURL("image/png");
       img.onload = img.onerror = null;
       img.src = currentQrImageUrl;
     }
+
     img.onload = function () {
-      if (qrBox.contains(img)) showLabeledImage(makeLocalVietQr(order, account, owner, img));
+      if (qrBox.contains(img)) showQrCanvas(makeLocalVietQr(order, account, owner, img));
     };
+
     img.onerror = function () {
       if (!qrBox.contains(img)) return;
-      img.onload = function () { showLabeledImage(img); };
-      img.onerror = function () { qrBox.textContent = "Chưa tải được ảnh VietQR. Vui lòng thử lại."; };
-      img.src = "https://img.vietqr.io/image/TPB-" + encodeURIComponent(account) +
+      var directUrl = "https://img.vietqr.io/image/TPB-" + encodeURIComponent(account) +
         "-compact2.png?amount=" + encodeURIComponent(order.amount) + "&addInfo=" +
         encodeURIComponent(order.transfer_note || order.order_id) + "&accountName=" + encodeURIComponent(owner);
+      var fallbackImg = new Image();
+      fallbackImg.crossOrigin = "anonymous";
+      fallbackImg.onload = function() {
+        var c = document.createElement("canvas");
+        c.width = fallbackImg.naturalWidth || 1080;
+        var bannerH = Math.round(c.width * 0.12);
+        c.height = (fallbackImg.naturalHeight || 1280) + bannerH;
+        var ctx = c.getContext("2d");
+        ctx.fillStyle = "#fff";
+        ctx.fillRect(0, 0, c.width, c.height);
+        ctx.drawImage(fallbackImg, 0, 0);
+        
+        ctx.fillStyle = "#f8fafc";
+        var bx = 40, by = c.height - bannerH + 4, bw = c.width - 80, bh = bannerH - 12;
+        ctx.fillRect(bx, by, bw, bh);
+        ctx.strokeStyle = "#e2e8f0";
+        ctx.lineWidth = 2;
+        ctx.strokeRect(bx, by, bw, bh);
+        
+        ctx.fillStyle = "#0f172a";
+        ctx.font = "700 " + Math.round(bannerH * 0.38) + "px sans-serif";
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.fillText("Nội dung: " + (order.transfer_note || order.order_id), c.width / 2, c.height - bannerH / 2);
+        showQrCanvas(c);
+      };
+      fallbackImg.onerror = function() {
+        img.src = directUrl;
+        currentQrImageUrl = directUrl;
+      };
+      fallbackImg.src = directUrl;
     };
+
     img.src = "assets/vietqr-tpb-compact2.png";
   }
 
