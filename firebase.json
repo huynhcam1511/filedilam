@@ -10,7 +10,16 @@
       "tests/**",
       "file_di_lam_factory/**",
       "*.md",
-      "pyproject.toml"
+      "pyproject.toml",
+      "scratch/**",
+      "outputs/**",
+      "project-brain/**",
+      ".agents/**",
+      "*.xlsx",
+      "*.pickle",
+      "scratch_*",
+      "*.inspect.ndjson",
+      "**/__pycache__/**"
     ],
     "headers": [
       {

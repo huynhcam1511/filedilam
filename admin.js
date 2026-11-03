@@ -1249,29 +1249,30 @@ document.addEventListener('DOMContentLoaded', () => {
     const zaloMsg = `Chào bạn, File Đi Làm gửi bạn thông tin thanh toán đơn hàng #${orderId} (${order.product_name || 'File'}):\n- Số tiền: ${formatCurrency(amountVal)}\n- STK: 59215112002 (TPBank - HUYNH KIEN CAM)\n- Nội dung chuyển khoản: ${orderId}\n\nSau khi chuyển khoản, file sẽ tự động mở ngay tại: https://filedilam.web.app/?tab=my-files nhé!`;
     const zaloChatUrl = cleanPhone ? `https://zalo.me/${cleanPhone}` : '';
 
+    // Zero-card layout complying strictly with AGENTS.md (No nested cards, no pill abuse, flat clean typography)
     contentBox.innerHTML = `
-      <!-- Header Inspector -->
-      <div style="display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 20px; padding-bottom: 16px; border-bottom: 1px solid var(--slate-border);">
+      <!-- Header Flat Inspector -->
+      <div style="display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; margin-bottom: 20px; padding-bottom: 14px; border-bottom: 1px solid var(--slate-border);">
         <div>
-          <div style="font-size: 0.8rem; font-weight: 700; color: #64748b; text-transform: uppercase;">Chi tiết đơn hàng</div>
-          <div style="font-size: 1.35rem; font-weight: 700; color: #0f172a; margin-top: 2px;">#${escapeHtml(orderId)}</div>
+          <div style="font-size: 0.76rem; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.05em;">Đơn hàng</div>
+          <div style="font-size: 1.25rem; font-weight: 700; color: #0f172a; font-family: ui-monospace, monospace; margin-top: 2px;">#${escapeHtml(orderId)}</div>
         </div>
         <div>
           ${isPaid 
-            ? '<span class="badge-status badge-status-paid" style="font-size: 0.82rem; padding: 4px 12px;">✓ ĐÃ THANH TOÁN</span>'
-            : '<span class="badge-status badge-status-pending" style="font-size: 0.82rem; padding: 4px 12px;">⏳ CHỜ THANH TOÁN</span>'}
+            ? '<span class="badge-status badge-status-paid">✓ ĐÃ THANH TOÁN</span>'
+            : '<span class="badge-status badge-status-pending">⏳ CHỜ THANH TOÁN</span>'}
         </div>
       </div>
 
-      <!-- Card 1: Khách hàng & Sản phẩm -->
-      <div class="inspector-card">
-        <div class="inspector-title">
+      <!-- Section 1: Thông tin giao dịch (Flat Section) -->
+      <div class="inspector-flat-section">
+        <div class="inspector-flat-title">
           <span>Thông tin giao dịch</span>
-          <span style="font-size: 0.76rem; font-weight: 500; text-transform: none; color: #64748b;">${escapeHtml(timeObj.full)}</span>
+          <span style="font-size: 0.74rem; font-weight: 500; text-transform: none; color: #64748b;">${escapeHtml(timeObj.full)}</span>
         </div>
         <div class="inspector-row">
           <span class="inspector-label">Khách hàng</span>
-          <span class="inspector-val">${escapeHtml(order.customer_phone || order.customer_email || 'Khách vãng lai')}</span>
+          <span class="inspector-val" style="font-weight: 600;">${escapeHtml(order.customer_phone || order.customer_email || 'Khách vãng lai')}</span>
         </div>
         ${order.customer_email ? `
         <div class="inspector-row">
@@ -1280,61 +1281,61 @@ document.addEventListener('DOMContentLoaded', () => {
         </div>` : ''}
         <div class="inspector-row">
           <span class="inspector-label">Sản phẩm</span>
-          <span class="inspector-val" style="color: #0f172a;">${escapeHtml(order.product_name || 'File')}</span>
+          <span class="inspector-val" style="font-weight: 600;">${escapeHtml(order.product_name || 'File')}</span>
         </div>
         ${isCoaching ? `
         <div class="inspector-row">
           <span class="inspector-label">Phân loại</span>
-          <span class="inspector-val" style="color: #b45309; font-weight: 700;">🎓 Gói Kèm 1-1 Chuyên sâu</span>
+          <span class="inspector-val" style="color: #b45309; font-weight: 600;">Gói Kèm 1-1 Chuyên sâu</span>
         </div>` : ''}
-        <div class="inspector-row" style="margin-top: 12px; padding-top: 12px; border-top: 1px dashed #e2e8f0;">
-          <span class="inspector-label" style="font-size: 0.95rem; font-weight: 600; color: #0f172a;">Tổng thanh toán</span>
-          <span class="inspector-val" style="font-size: 1.15rem; color: var(--mint-primary); font-weight: 700;">${formatCurrency(amountVal)}</span>
+        <div class="inspector-row" style="margin-top: 10px; padding-top: 10px; border-top: 1px dashed #e2e8f0;">
+          <span class="inspector-label" style="font-size: 0.88rem; font-weight: 600; color: #0f172a;">Tổng thanh toán</span>
+          <span class="inspector-val" style="font-size: 1.1rem; color: var(--mint-primary); font-weight: 700;">${formatCurrency(amountVal)}</span>
         </div>
       </div>
 
-      <!-- Card 2: VietQR & Thanh toán -->
-      <div class="inspector-card" style="text-align: center;">
-        <div class="inspector-title" style="text-align: left;">
+      <!-- Section 2: Mã QR Chuyển khoản VietQR (Flat Section) -->
+      <div class="inspector-flat-section" style="text-align: center;">
+        <div class="inspector-flat-title" style="text-align: left;">
           <span>Mã QR Chuyển khoản (VietQR)</span>
           <span style="font-size: 0.74rem; font-weight: 600; color: #059669;">TPBank 59215112002</span>
         </div>
-        <div style="background: #ffffff; padding: 12px; border-radius: 8px; border: 1px solid #e2e8f0; display: inline-block; margin: 6px auto 12px;">
+        <div style="background: #ffffff; padding: 10px; border-radius: 8px; border: 1px solid #e2e8f0; display: inline-block; margin: 4px auto 8px;">
           <a href="${qrImgUrl}" target="_blank" title="Nhấp xem ảnh lớn">
-            <img src="${qrImgUrl}" alt="QR #${escapeHtml(orderId)}" style="width: 140px; height: 140px; object-fit: contain; display: block;" />
+            <img src="${qrImgUrl}" alt="QR #${escapeHtml(orderId)}" style="width: 130px; height: 130px; object-fit: contain; display: block;" />
           </a>
         </div>
         <div style="font-size: 0.8rem; color: #64748b;">
-          Nội dung CK: <strong style="color: #0f172a; font-family: monospace; font-size: 0.95rem; background: #f1f5f9; padding: 2px 6px; border-radius: 4px;">${escapeHtml(orderId)}</strong>
+          Nội dung CK: <strong style="color: #0f172a; font-family: ui-monospace, monospace; font-size: 0.9rem; background: #f1f5f9; padding: 2px 6px; border-radius: 4px;">${escapeHtml(orderId)}</strong>
         </div>
       </div>
 
-      <!-- Card 3: Thao tác & Chăm sóc khách -->
-      <div class="inspector-card">
-        <div class="inspector-title">
+      <!-- Section 3: Thao tác & Chăm sóc khách (Flat Section) -->
+      <div class="inspector-flat-section">
+        <div class="inspector-flat-title">
           <span>Thao tác nhanh</span>
         </div>
         <div style="display: flex; flex-direction: column; gap: 8px;">
           ${isPaid ? `
             ${fileUrl ? `<a href="${escapeHtml(fileUrl)}" target="_blank" class="btn-inspector-action btn-inspector-primary">
-              <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
+              <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
               <span>Mở file Google Sheets / Drive</span>
             </a>` : ''}
             <button type="button" class="btn-inspector-action btn-inspector-secondary btn-copy-magic-link" data-uid="${escapeHtml(order.user_id || '')}" data-order="${escapeHtml(orderId)}">
-              <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
+              <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
               <span>Copy link nhận file cho khách</span>
             </button>
             ${cleanPhone ? `<a href="https://zalo.me/${cleanPhone}" target="_blank" class="btn-inspector-action btn-inspector-zalo">
-              <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path></svg>
+              <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path></svg>
               <span>Chat Zalo với khách (${escapeHtml(cleanPhone)})</span>
             </a>` : ''}
           ` : `
             <button type="button" class="btn-inspector-action btn-inspector-primary btn-copy-zalo-msg" data-msg="${escapeHtml(zaloMsg)}">
-              <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"></path></svg>
+              <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"></path></svg>
               <span>Copy tin nhắn nhắc thanh toán</span>
             </button>
             ${cleanPhone ? `<a href="${zaloChatUrl}" target="_blank" class="btn-inspector-action btn-inspector-zalo">
-              <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path></svg>
+              <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path></svg>
               <span>Chat Zalo gửi QR (${escapeHtml(cleanPhone)})</span>
             </a>` : ''}
           `}
@@ -1386,7 +1387,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  function renderFilteredOrders() {
+    function renderFilteredOrders() {
     const orderListBody = document.getElementById('orderListBody');
     if (!orderListBody) return;
     const searchVal = (document.getElementById('orderSearchInput')?.value || '').trim().toLowerCase();

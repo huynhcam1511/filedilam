@@ -650,67 +650,94 @@
     .form-group textarea { resize: vertical; min-height: 100px; }
 
     /* ==========================================================================
-       FULL-BLEED FLAT CANVAS 2-COLUMN (ORDERS MANAGEMENT)
+       FULL-BLEED FLAT CANVAS 2-COLUMN (ORDERS MANAGEMENT - ZERO-CARD STRICT AGENTS.MD)
        ========================================================================== */
     #ordersTab.tab-pane.active {
       margin: -24px -32px -48px;
       background: #ffffff;
-      min-height: calc(100vh - 64px);
+      height: calc(100vh - 64px);
+      max-height: calc(100vh - 64px);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
     }
     @media (max-width: 768px) {
       #ordersTab.tab-pane.active {
         margin: -16px -16px -32px;
+        height: auto;
+        max-height: none;
+        overflow: visible;
       }
     }
     .orders-flat-canvas {
       width: 100%;
       background: #ffffff;
-      min-height: 100%;
+      height: 100%;
       display: flex;
       flex-direction: column;
+      overflow: hidden;
     }
     .orders-canvas-2col {
       display: grid;
-      grid-template-columns: 1.65fr 1fr;
+      grid-template-columns: 1.6fr 1fr;
       width: 100%;
       flex: 1;
+      min-height: 0;
       background: #ffffff;
-      min-height: calc(100vh - 135px);
+      overflow: hidden;
     }
     @media (max-width: 1024px) {
       .orders-canvas-2col {
         grid-template-columns: 1fr;
+        overflow: visible;
       }
     }
+    /* Cột Trái: Độc lập cuộn dọc danh sách đơn */
     .orders-col-list {
       border-right: 1px solid var(--slate-border);
+      height: 100%;
+      overflow-y: auto;
       overflow-x: auto;
       background: #ffffff;
+      -webkit-overflow-scrolling: touch;
     }
     @media (max-width: 1024px) {
       .orders-col-list {
         border-right: none;
         border-bottom: 1px solid var(--slate-border);
+        height: auto;
       }
     }
+    /* Cột Phải: Inspector cố định 100% viewport, chỉ cuộn nội dung khi dài */
     .orders-col-detail {
-      background: #fbfcfd;
-      padding: 24px 28px 48px;
-      position: sticky;
-      top: 64px;
-      height: calc(100vh - 64px);
+      background: #fafafa;
+      height: 100%;
       overflow-y: auto;
+      padding: 24px 28px 36px;
+      box-sizing: border-box;
+      -webkit-overflow-scrolling: touch;
     }
     @media (max-width: 1024px) {
       .orders-col-detail {
-        position: static;
         height: auto;
         padding: 20px 18px 32px;
       }
     }
+    .orders-table-canvas {
+      width: 100%;
+      border-collapse: separate;
+      border-spacing: 0;
+    }
+    .orders-table-canvas thead th {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      background: #f8fafc;
+      box-shadow: 0 1px 0 var(--slate-border);
+    }
     .orders-table-canvas tbody tr {
       cursor: pointer;
-      transition: background 0.15s ease;
+      transition: background 0.12s ease;
     }
     .orders-table-canvas tbody tr:hover {
       background: #f8fafc;
@@ -723,7 +750,7 @@
     }
     .order-inspector-empty {
       height: 100%;
-      min-height: 300px;
+      min-height: 280px;
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -731,22 +758,23 @@
       text-align: center;
       padding: 40px 20px;
     }
-    .inspector-card {
-      background: #ffffff;
-      border: 1px solid var(--slate-border);
-      border-radius: 12px;
-      padding: 18px 20px;
-      margin-bottom: 18px;
+    /* Zero-Card Flat Sections (Thay thế thẻ card lồng card theo AGENTS.md) */
+    .inspector-flat-section {
+      margin-bottom: 22px;
+      padding-bottom: 18px;
+      border-bottom: 1px solid #eef2f6;
     }
-    .inspector-card:last-child {
+    .inspector-flat-section:last-child {
       margin-bottom: 0;
+      padding-bottom: 0;
+      border-bottom: none;
     }
-    .inspector-title {
-      font-size: 0.8rem;
+    .inspector-flat-title {
+      font-size: 0.76rem;
       font-weight: 700;
       color: #64748b;
       text-transform: uppercase;
-      letter-spacing: 0.04em;
+      letter-spacing: 0.05em;
       margin-bottom: 12px;
       display: flex;
       align-items: center;
@@ -757,7 +785,7 @@
       align-items: flex-start;
       justify-content: space-between;
       gap: 12px;
-      margin-bottom: 10px;
+      margin-bottom: 8px;
       font-size: 0.88rem;
     }
     .inspector-row:last-child {
@@ -769,7 +797,7 @@
       font-size: 0.84rem;
     }
     .inspector-val {
-      font-weight: 600;
+      font-weight: 500;
       color: #0f172a;
       text-align: right;
       word-break: break-word;
@@ -781,8 +809,8 @@
       gap: 8px;
       width: 100%;
       height: 42px;
-      border-radius: 8px;
-      font-size: 0.88rem;
+      border-radius: 6px;
+      font-size: 0.86rem;
       font-weight: 600;
       cursor: pointer;
       transition: all 0.15s ease;
