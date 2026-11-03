@@ -4228,3 +4228,21 @@ body:not(.is-admin) #userProfile {
   color: #059669;
 }
 
+
+
+.product-rich-h1 {
+  font-size: 1.25rem !important;
+  font-weight: 700 !important;
+  color: #0f172a !important;
+  margin: 24px 0 12px 0 !important;
+  line-height: 1.4 !important;
+}
+
+.product-rich-h2 {
+  font-size: 1.1rem !important;
+  font-weight: 700 !important;
+  color: #1e293b !important;
+  margin: 20px 0 10px 0 !important;
+  line-height: 1.4 !important;
+}
+

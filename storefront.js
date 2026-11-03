@@ -10,47 +10,69 @@ function escapeHtml(value) {
 
 
   function formatProductRichContent(content, fallbackHighlights) {
-    if (!content && (!fallbackHighlights || !fallbackHighlights.length)) return '';
-    var text = content || (fallbackHighlights || []).map(function(h) { return '- ' + h; }).join('\n');
-    
-    // Parse ### Heading 3 as module headings
-    var lines = text.split('\n');
-    var html = '';
-    var inList = false;
-    
-    for (var i = 0; i < lines.length; i++) {
-      var line = lines[i].trim();
-      if (!line) {
-        if (inList) { html += '</ul>'; inList = false; }
-        continue;
-      }
-      
-      // Module heading (### or 1. MODULE / Phân hệ)
-      if (line.indexOf('###') === 0) {
-        if (inList) { html += '</ul>'; inList = false; }
-        var title = line.replace(/^###s*/, '');
-        html += '<div class="product-module-header">' +
-                  '<h3 class="product-module-title">' + escapeHtml(title) + '</h3>' +
-                '</div>';
-      } else if (line.indexOf('- ') === 0 || line.indexOf('* ') === 0) {
-        if (!inList) { html += '<ul class="product-module-list">'; inList = true; }
-        var bulletText = line.replace(/^[-*]s*/, '');
-        // Parse bold **text**
-        bulletText = escapeHtml(bulletText).replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-        html += '<li class="product-module-item"><span class="module-check">✓</span><span>' + bulletText + '</span></li>';
-      } else if (/^\d+\.\s/.test(line)) {
-        if (inList) { html += '</ul>'; inList = false; }
-        var numText = escapeHtml(line).replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-        html += '<p class="product-module-step">' + numText + '</p>';
-      } else {
-        if (inList) { html += '</ul>'; inList = false; }
-        var normalText = escapeHtml(line).replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-        html += '<p class="product-module-p">' + normalText + '</p>';
-      }
+  if (!content && (!fallbackHighlights || !fallbackHighlights.length)) return '';
+  var text = content || (fallbackHighlights || []).map(function(h) { return '- ' + h; }).join('\n');
+  
+  var lines = text.split('\n');
+  var html = '';
+  var inList = false;
+  
+  for (var i = 0; i < lines.length; i++) {
+    var line = lines[i].trim();
+    if (!line) {
+      if (inList) { html += '</ul>'; inList = false; }
+      continue;
     }
-    if (inList) { html += '</ul>'; }
-    return '<div class="product-features-rich-wrapper">' + html + '</div>';
+    
+    // Heading 1 (# Title)
+    if (line.indexOf('# ') === 0) {
+      if (inList) { html += '</ul>'; inList = false; }
+      var h1Text = line.replace(/^#\s*/, '');
+      html += '<h2 class="product-rich-h1">' + escapeHtml(h1Text) + '</h2>';
+    }
+    // Heading 2 (## Subheading)
+    else if (line.indexOf('## ') === 0) {
+      if (inList) { html += '</ul>'; inList = false; }
+      var h2Text = line.replace(/^##\s*/, '');
+      html += '<h3 class="product-rich-h2">' + escapeHtml(h2Text) + '</h3>';
+    }
+    // Heading 3 (### Module heading)
+    else if (line.indexOf('###') === 0) {
+      if (inList) { html += '</ul>'; inList = false; }
+      var title = line.replace(/^###\s*/, '');
+      html += '<div class="product-module-header">' +
+                '<h4 class="product-module-title">' + escapeHtml(title) + '</h4>' +
+              '</div>';
+    }
+    // Bullet item (- or *)
+    else if (line.indexOf('- ') === 0 || line.indexOf('* ') === 0) {
+      if (!inList) { html += '<ul class="product-module-list">'; inList = true; }
+      var bulletText = line.replace(/^[-*]\s*/, '');
+      bulletText = escapeHtml(bulletText)
+        .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+        .replace(/\*(.*?)\*/g, '<em>$1</em>');
+      html += '<li class="product-module-item"><span class="module-check">✓</span><span>' + bulletText + '</span></li>';
+    }
+    // Numbered step (1. Step)
+    else if (/^\d+\.\s/.test(line)) {
+      if (inList) { html += '</ul>'; inList = false; }
+      var numText = escapeHtml(line)
+        .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+        .replace(/\*(.*?)\*/g, '<em>$1</em>');
+      html += '<p class="product-module-step">' + numText + '</p>';
+    }
+    // Regular paragraph
+    else {
+      if (inList) { html += '</ul>'; inList = false; }
+      var normalText = escapeHtml(line)
+        .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+        .replace(/\*(.*?)\*/g, '<em>$1</em>');
+      html += '<p class="product-module-p">' + normalText + '</p>';
+    }
   }
+  if (inList) { html += '</ul>'; }
+  return '<div class="product-features-rich-wrapper">' + html + '</div>';
+}
 
 (function () {
   var data = window.StorefrontData;
@@ -3252,9 +3274,22 @@ function escapeHtml(value) {
       if (demoSubtotal) demoSubtotal.textContent = formatCurrency(subtotal);
       if (demoTotalVal) demoTotalVal.textContent = formatCurrency(finalAmount);
 
+      var inlineWarnEl = document.getElementById('ticketInlineWarning');
+      var inlineWarnText = document.getElementById('ticketInlineWarningText');
+
+      if (inlineWarnEl && inlineWarnText) {
+        if (isRealCart && !isEligible) {
+          var thiếuTiền = minOrder - subtotal;
+          inlineWarnText.textContent = 'Đơn của bạn là ' + formatCurrency(subtotal) + '. Cần thêm ' + formatCurrency(thiếuTiền) + ' nữa để áp dụng mã ' + featured.code + ' (từ ' + formatCurrency(minOrder) + ').';
+          inlineWarnEl.style.display = 'flex';
+        } else {
+          inlineWarnEl.style.display = 'none';
+        }
+      }
+
       if (btnActionText) {
         if (isRealCart && !isEligible) {
-          btnActionText.textContent = 'Mua thêm để được giảm ' + valText;
+          btnActionText.textContent = 'Thanh toán không dùng mã';
         } else if (isCouponApplied) {
           btnActionText.textContent = 'Tiến hành thanh toán ngay';
         } else {
@@ -3293,8 +3328,9 @@ function escapeHtml(value) {
     if (curMinOrder > 0 && curSubtotal < curMinOrder) {
       state.appliedCoupon = null;
       state.discountAmount = 0;
-      var msg = "Mã " + currentFeaturedCoupon.code + " chỉ áp dụng cho đơn từ " + formatCurrency(curMinOrder) + ". Bạn cần thêm " + formatCurrency(curMinOrder - curSubtotal) + " nữa.";
-      showToast(msg);
+      var thiếu = curMinOrder - curSubtotal;
+      var warnMsg = "Mã " + currentFeaturedCoupon.code + " chỉ áp dụng cho đơn từ " + formatCurrency(curMinOrder) + ". Bạn cần thêm " + formatCurrency(thiếu) + " nữa.";
+      showToast(warnMsg);
       openCart();
       syncLandingCouponTicket();
       return;
