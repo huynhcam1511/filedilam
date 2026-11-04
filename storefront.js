@@ -51,7 +51,7 @@ function escapeHtml(value) {
       bulletText = escapeHtml(bulletText)
         .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
         .replace(/\*(.*?)\*/g, '<em>$1</em>');
-      html += '<li class="product-module-item"><span class="module-check">✓</span><span>' + bulletText + '</span></li>';
+      html += '<li class="product-module-item"><span class="module-check"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg></span><span>' + bulletText + '</span></li>';
     }
     // Numbered step (1. Step)
     else if (/^\d+\.\s/.test(line)) {
@@ -1809,9 +1809,9 @@ function escapeHtml(value) {
       '</div>';
 
     // RIGHT COLUMN: Info, Price, Actions, Full Specs
-    var priceFormatted = formatCurrency(product.price);
+    var priceFormatted = Number(product.price || 0).toLocaleString('vi-VN') + '<span class="detail-currency">đ</span>';
     var originalPriceHtml = hasDiscount
-      ? '<span class="detail-price-original">' + formatCurrency(product.originalPrice) + '</span>'
+      ? '<span class="detail-price-original">' + Number(product.originalPrice || 0).toLocaleString('vi-VN') + '<span class="detail-currency-sub">đ</span></span>'
       : '';
 
     var suitableHtml = (product.suitableFor && String(product.suitableFor).trim() !== '' && product.suitableFor !== 'undefined')
@@ -1839,7 +1839,7 @@ function escapeHtml(value) {
         '<ul style="margin:0; padding:0; list-style:none; display:flex; flex-direction:column; gap:8px;">' +
         product.highlights.map(function (item) {
           return '<li style="display:flex; align-items:flex-start; gap:10px; font-size:0.94rem; color:#334155; line-height:1.5;">' +
-            '<span style="color:#059669; font-weight:bold; font-size:1.1rem; line-height:1;">✓</span>' +
+            '<span style="color:#059669; display:inline-flex; align-items:center; flex-shrink:0; margin-top:2px;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg></span>' +
             '<span>' + escapeHtml(item) + '</span>' +
             '</li>';
         }).join('') +
@@ -1885,13 +1885,14 @@ function escapeHtml(value) {
               originalPriceHtml +
             '</div>' +
           '</div>' +
-          '<div class="detail-cta-group">' +
-            '<button class="detail-btn-cart" id="detailAddToCart" type="button">' +
-              '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"></path><line x1="3" y1="6" x2="21" y2="6"></line><path d="M16 10a4 4 0 0 1-8 0"></path></svg>' +
-              '<span>Thêm vào giỏ</span>' +
-            '</button>' +
-            '<button class="detail-btn-buy" id="detailBuyNow" type="button">Mua ngay</button>' +
-          '</div>' +
+        '</div>' +
+
+        '<div class="detail-cta-row">' +
+          '<button class="detail-btn-cart" id="detailAddToCart" type="button">' +
+            '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"></path><line x1="3" y1="6" x2="21" y2="6"></line><path d="M16 10a4 4 0 0 1-8 0"></path></svg>' +
+            '<span>Thêm vào giỏ</span>' +
+          '</button>' +
+          '<button class="detail-btn-buy" id="detailBuyNow" type="button">Mua ngay</button>' +
         '</div>' +
 
         '<div class="detail-zalo-hint">' +
@@ -3519,7 +3520,7 @@ function escapeHtml(value) {
     }
   }
 
-  function makeLocalVietQr(order, account, owner, template) {
+  function makeLocalVietQr(order, account, owner) {
     function field(tag, value) {
       value = String(value);
       return tag + String(value.length).padStart(2, "0") + value;
@@ -3539,63 +3540,29 @@ function escapeHtml(value) {
     qr.addData(payload + crc.toString(16).toUpperCase().padStart(4, "0"));
     qr.make();
     var modules = qr.getModuleCount();
-    
-    // Canvas dimensions: width 1080px, height 1400px for luxury fintech card ratio
+
+    // Canvas 800x800 - Crisp high-res square QR with generous quiet zone
     var canvas = document.createElement("canvas");
-    canvas.width = 1080;
-    canvas.height = 1400;
+    canvas.width = 800;
+    canvas.height = 800;
     var ctx = canvas.getContext("2d");
-    
-    // Pure white rounded card base
+
     ctx.fillStyle = "#ffffff";
     ctx.fillRect(0, 0, canvas.width, canvas.height);
-    
-    // Draw official template header/branding
-    if (template) {
-      ctx.drawImage(template, 0, 0, 1080, 1280);
-    }
-    
-    // Center crisp QR Code with quiet zone
-    var scale = Math.floor(740 / (modules + 8));
-    var left = Math.round(540 - modules * scale / 2);
-    var top = Math.round(546 - modules * scale / 2);
+
+    var padding = 40;
+    var available = canvas.width - padding * 2;
+    var scale = Math.floor(available / modules);
+    var offset = Math.round((canvas.width - modules * scale) / 2);
+
     ctx.fillStyle = "#0f172a";
     for (var row = 0; row < modules; row++) {
       for (var col = 0; col < modules; col++) {
         if (qr.isDark(row, col)) {
-          ctx.fillRect(left + col * scale, top + row * scale, scale, scale);
+          ctx.fillRect(offset + col * scale, offset + row * scale, scale, scale);
         }
       }
     }
-    
-    // Account Owner (Bold, Classy)
-    ctx.textAlign = "center";
-    ctx.fillStyle = "#0f172a";
-    ctx.font = "700 32px sans-serif";
-    ctx.fillText(owner, 540, 1120, 1000);
-    
-    // Account Number (Monospace)
-    ctx.font = "600 26px monospace";
-    ctx.fillStyle = "#64748b";
-    ctx.fillText(account, 540, 1162);
-    
-    // Amount (Vibrant Mint)
-    ctx.font = "700 28px sans-serif";
-    ctx.fillStyle = "#059669";
-    ctx.fillText("Số tiền: " + formatCurrency(order.amount), 540, 1208);
-    
-    // Luxury Integrated Order Code Banner
-    ctx.fillStyle = "#f8fafc";
-    var bx = 60, by = 1260, bw = 960, bh = 92;
-    ctx.fillRect(bx, by, bw, bh);
-    ctx.strokeStyle = "#e2e8f0";
-    ctx.lineWidth = 2;
-    ctx.strokeRect(bx, by, bw, bh);
-    
-    ctx.fillStyle = "#0f172a";
-    ctx.font = "700 30px sans-serif";
-    ctx.fillText("Nội dung chuyển khoản: " + (order.transfer_note || order.order_id), 540, 1316);
-    
     return canvas;
   }
 

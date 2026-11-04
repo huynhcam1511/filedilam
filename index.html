@@ -16,7 +16,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="./storefront.css?v=300" />
+    <link rel="stylesheet" href="./storefront.css?v=301" />
     <style>
     :root {
       --bg: #ffffff;
@@ -3013,29 +3013,63 @@
                   </button>
                 </div>
 
-                <!-- 10-Minute Countdown Timer Badge (09:59) -->
-                <div id="qrCountdownContainer" style="display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 10px; padding: 7px 14px; background: #fef2f2; border: 1px solid #fee2e2; border-radius: 10px; color: #b91c1c; font-size: 0.85rem; font-weight: 600;">
-                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
-                  <span>Mã có hiệu lực trong: <strong id="qrTimerDisplay" style="font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; font-size: 0.95rem; color: #dc2626;">09:59</strong></span>
+                <!-- 10-Minute Countdown Timer (Clean & Compact) -->
+                <div id="qrCountdownContainer" style="display: flex; align-items: center; justify-content: center; gap: 6px; margin-bottom: 8px; padding: 6px 12px; background: #fef2f2; border: 1px solid #fee2e2; border-radius: 8px; color: #b91c1c; font-size: 0.82rem; font-weight: 600;">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                  <span>Mã có hiệu lực trong: <strong id="qrTimerDisplay" style="font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; font-size: 0.9rem; color: #dc2626;">09:59</strong></span>
                 </div>
 
-                <div class="qr-box" id="qrBox" style="min-height: 175px; display: flex; align-items: center; justify-content: center; margin-bottom: 8px;">
+                <div class="qr-box" id="qrBox" style="min-height: 220px; display: flex; align-items: center; justify-content: center; margin-bottom: 10px;">
                   <div class="empty-state">Đang tạo mã VietQR...</div>
                 </div>
 
-                <!-- Quick Mobile Actions -->
-                <div class="qr-action-buttons" id="qrActionButtons">
+                <!-- Structured Bank Transfer Details (Crisp typography & One-click copy) -->
+                <div id="qrBankInfoBox" style="margin-bottom: 12px; background: #ffffff; border: 1px solid #e2e8f0; border-radius: 10px; padding: 10px 12px; display: flex; flex-direction: column; gap: 8px; font-size: 0.84rem;">
+                  <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <span style="color: #64748b; font-size: 0.78rem;">Ngân hàng</span>
+                    <span style="font-weight: 600; color: #0f172a;">TPBank (Tiên Phong)</span>
+                  </div>
+                  <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <span style="color: #64748b; font-size: 0.78rem;">Chủ tài khoản</span>
+                    <span id="qrOwnerDisplay" style="font-weight: 700; color: #0f172a; text-transform: uppercase;">HUYNH KIEN CAM</span>
+                  </div>
+                  <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <span style="color: #64748b; font-size: 0.78rem;">Số tài khoản</span>
+                    <div style="display: flex; align-items: center; gap: 6px;">
+                      <span id="qrAccDisplay" style="font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; font-weight: 700; color: #0f172a;">59215112002</span>
+                      <button type="button" id="copyBankNumberBtn" title="Sao chép số tài khoản" style="background: none; border: none; padding: 2px 4px; cursor: pointer; color: #059669; display: inline-flex; align-items: center;">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                      </button>
+                    </div>
+                  </div>
+                  <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <span style="color: #64748b; font-size: 0.78rem;">Số tiền</span>
+                    <span id="qrAmountDisplay" style="font-weight: 700; color: #059669; font-size: 0.92rem;">0 đ</span>
+                  </div>
+                  <div style="display: flex; justify-content: space-between; align-items: center; background: #f8fafc; padding: 6px 8px; border-radius: 6px; border: 1px dashed #cbd5e1;">
+                    <span style="color: #475569; font-size: 0.78rem; font-weight: 600;">Nội dung CK</span>
+                    <div style="display: flex; align-items: center; gap: 6px;">
+                      <span id="qrTransferNoteDisplay" style="font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; font-weight: 700; color: #dc2626;">Đang tạo...</span>
+                      <button type="button" id="copyTransferNoteBtn" title="Sao chép nội dung chuyển khoản" style="background: none; border: none; padding: 2px 4px; cursor: pointer; color: #dc2626; display: inline-flex; align-items: center;">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Quick Mobile Actions (Always 2 Balanced Buttons: Tải ảnh QR & Mở App Bank) -->
+                <div class="qr-action-buttons" id="qrActionButtons" style="display: flex; gap: 8px; margin-bottom: 10px;">
                   <button class="btn-qr-action btn-save-qr" id="saveQrBtn" type="button" title="Tải mã QR về máy">
-                    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
                     <span>Tải ảnh QR</span>
                   </button>
-                  <button class="btn-qr-action btn-open-bank" id="openBankBtn" type="button" title="Mở ứng dụng ngân hàng" style="display: none;">
-                    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="3" y1="9" x2="21" y2="9"></line><line x1="9" y1="21" x2="9" y2="9"></line></svg>
+                  <button class="btn-qr-action btn-open-bank" id="openBankBtn" type="button" title="Mở ứng dụng ngân hàng">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="3" y1="9" x2="21" y2="9"></line><line x1="9" y1="21" x2="9" y2="9"></line></svg>
                     <span>Mở App Bank</span>
                   </button>
                 </div>
-                <div id="qrDownloadedHint" style="display: none; margin-top: 8px; font-size: 0.8rem; color: #047857; background: #ecfdf5; border: 1px solid #a7f3d0; padding: 7px 12px; border-radius: 8px; text-align: center; font-weight: 500; line-height: 1.4;">
-                  Đã lưu ảnh QR. Mở App Bank để quét từ thư viện ảnh.
+                <div id="qrDownloadedHint" style="display: none; margin-bottom: 10px; font-size: 0.78rem; color: #047857; background: #ecfdf5; border: 1px solid #a7f3d0; padding: 6px 10px; border-radius: 6px; text-align: center; font-weight: 500; line-height: 1.4;">
+                  Đã tải ảnh QR. Mở App Bank để quét từ thư viện ảnh.
                 </div>
 
                 <div class="payment-auto-status" aria-live="polite">
@@ -3543,7 +3577,7 @@
     <script src="./storefront-data.js?v=20"></script>
     <script src="./storefront-products.generated.js?v=6"></script>
     <script src="assets/qrcode-generator-1.4.4.js"></script>
-    <script src="storefront.js?v=173"></script>
+    <script src="storefront.js?v=174"></script>
     <!-- Agentation: Visual Feedback & Annotation for AI agents -->
   <script src="./agentation-vanilla.js"></script>
 </body>

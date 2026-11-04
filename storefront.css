@@ -3755,10 +3755,12 @@ body.checkout-page-open {
   width: 100%;
 }
 #checkoutPaymentStep .qr-box img {
-  max-width: 210px !important;
-  width: 100% !important;
+  max-width: 250px !important;
+  width: auto !important;
   height: auto !important;
   margin: 0 auto !important;
+  border-radius: 12px;
+  box-shadow: 0 4px 16px rgba(15, 23, 42, 0.08);
 }
 
 /* Hide register & login buttons permanently from navbar */
@@ -4247,11 +4249,10 @@ body:not(.is-admin) #userProfile {
   background: transparent !important;
   border: none !important;
   border-radius: 0 !important;
-  padding: 0 0 12px 0 !important;
+  padding: 0 !important;
+  margin: 0 0 16px 0 !important;
   display: flex;
   align-items: center;
-  gap: 24px;
-  flex-wrap: wrap;
 }
 
 .detail-price-numbers {
@@ -4267,11 +4268,22 @@ body:not(.is-admin) #userProfile {
 }
 
 .detail-price-current {
-  font-size: 2rem;
+  font-size: 28px;
   font-weight: 800;
   color: #059669;
   font-family: var(--font-mono, monospace);
   line-height: 1;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: baseline;
+}
+
+.detail-currency {
+  font-size: 18px;
+  font-weight: 700;
+  vertical-align: super;
+  text-decoration: none;
+  margin-left: 2px;
 }
 
 .detail-price-original {
@@ -4279,17 +4291,28 @@ body:not(.is-admin) #userProfile {
   color: #94a3b8;
   text-decoration: line-through;
   font-family: var(--font-mono, monospace);
+  display: inline-flex;
+  align-items: baseline;
 }
 
-.detail-cta-group {
+.detail-currency-sub {
+  font-size: 0.82rem;
+  font-weight: 600;
+  text-decoration: line-through;
+  margin-left: 2px;
+}
+
+/* Row 2: CTA Action Buttons */
+.detail-cta-row {
   display: flex;
   align-items: center;
   gap: 12px;
-  flex-wrap: wrap;
+  width: 100%;
+  margin-bottom: 8px;
 }
 
 .detail-btn-cart {
-  height: 48px;
+  height: 46px;
   padding: 0 24px;
   font-size: 0.95rem;
   font-weight: 600;
@@ -4303,6 +4326,7 @@ body:not(.is-admin) #userProfile {
   align-items: center;
   justify-content: center;
   gap: 8px;
+  flex-shrink: 0;
 }
 
 .detail-btn-cart:hover {
@@ -4311,8 +4335,8 @@ body:not(.is-admin) #userProfile {
 }
 
 .detail-btn-buy {
-  height: 48px;
-  padding: 0 28px;
+  height: 46px;
+  padding: 0 32px;
   font-size: 0.95rem;
   font-weight: 700;
   border-radius: 9999px;
@@ -4325,6 +4349,8 @@ body:not(.is-admin) #userProfile {
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  flex: 1;
+  max-width: 280px;
 }
 
 .detail-btn-buy:hover {
@@ -4332,13 +4358,26 @@ body:not(.is-admin) #userProfile {
   transform: translateY(-1px);
 }
 
+@media (max-width: 640px) {
+  .detail-cta-row {
+    flex-direction: column;
+    gap: 10px;
+  }
+  .detail-btn-cart, .detail-btn-buy {
+    width: 100%;
+    max-width: none;
+  }
+}
+
+/* Micro-copy Zalo Consultation */
 .detail-zalo-hint {
   font-size: 0.85rem;
-  color: #94a3b8;
+  color: #64748b;
   display: flex;
   align-items: center;
   gap: 6px;
-  margin-top: -2px;
+  margin-top: 0;
+  margin-bottom: 20px;
 }
 
 .detail-zalo-hint a {
@@ -4354,19 +4393,20 @@ body:not(.is-admin) #userProfile {
 /* Detailed Description Blocks */
 .detail-desc-content {
   font-size: 0.98rem;
-  line-height: 1.7;
-  color: #334155;
+  line-height: 1.65;
+  color: #475569;
   border-top: 1px solid #f1f5f9;
-  padding-top: 24px;
+  padding-top: 22px;
+  margin-top: 4px;
 }
 
 .detail-spec-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 20px;
-  margin: 18px 0 0 0;
-  padding: 16px 0 0 0;
-  border-top: 1px dashed #f1f5f9;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 28px;
+  margin: 20px 0 0 0;
+  padding: 20px 0 0 0;
+  border-top: 1px dashed #e2e8f0;
   border-bottom: none !important;
 }
 
@@ -4380,10 +4420,10 @@ body:not(.is-admin) #userProfile {
 .detail-spec-title {
   font-size: 0.76rem;
   text-transform: uppercase;
-  font-weight: 600;
-  color: #94a3b8;
+  font-weight: 700;
+  color: #64748b;
   letter-spacing: 0.5px;
-  margin-bottom: 4px;
+  margin-bottom: 6px;
 }
 
 .detail-spec-val {
@@ -4518,7 +4558,7 @@ body:not(.is-admin) #userProfile {
   list-style: none;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 12px;
 }
 .product-module-item {
   display: flex;
