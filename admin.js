@@ -1283,7 +1283,7 @@ document.addEventListener('DOMContentLoaded', () => {
         chartDataMap[ds] = { key: ds, label: String(day).padStart(2, '0') + '/' + String(m).padStart(2, '0'), fullDate: ds, revenue: 0, count: 0 };
       }
       if (chartTitle) chartTitle.textContent = 'Biểu đồ Doanh thu (Tháng ' + m + '/' + y + ')';
-      if (chartSubTitle) chartSubTitle.textContent = 'Chi tiết từng ngày trong tháng ' + m + '/' + y;
+      if (chartSubTitle) chartSubTitle.textContent = 'Doanh số (Cột) & Số lượng đơn hàng (Đường xu hướng)';
     } else if (periodDays) {
       for (let i = periodDays - 1; i >= 0; i--) {
         const d = new Date(now.getTime() - i * 24 * 60 * 60 * 1000);
@@ -1291,10 +1291,10 @@ document.addEventListener('DOMContentLoaded', () => {
         chartDataMap[ds] = { key: ds, label: ds.slice(8, 10) + '/' + ds.slice(5, 7), fullDate: ds, revenue: 0, count: 0 };
       }
       if (chartTitle) chartTitle.textContent = 'Biểu đồ Doanh thu (' + periodDays + ' ngày qua)';
-      if (chartSubTitle) chartSubTitle.textContent = 'Doanh số chi tiết theo từng ngày';
+      if (chartSubTitle) chartSubTitle.textContent = 'Doanh số (Cột) & Số lượng đơn hàng (Đường xu hướng)';
     } else {
       if (chartTitle) chartTitle.textContent = 'Biểu đồ Doanh thu (Toàn thời gian theo Tháng)';
-      if (chartSubTitle) chartSubTitle.textContent = 'Tổng hợp doanh số và số lượng đơn theo từng tháng';
+      if (chartSubTitle) chartSubTitle.textContent = 'Doanh số (Cột) & Số lượng đơn hàng (Đường xu hướng)';
     }
 
     filteredOrders.forEach(o => {
@@ -1390,7 +1390,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (kpiPaidOrders) kpiPaidOrders.textContent = paidCount + ' đơn';
     if (kpiCustomers) kpiCustomers.textContent = customers.size + ' khách';
 
-    // 1. Biểu đồ Doanh thu (Bar + Line)
+    // 1. Biểu đồ Doanh thu (COMBO CHART: Bar Doanh thu + Line Số đơn, KHÔNG đè chữ)
     const dailyList = Object.values(chartDataMap).sort((a, b) => a.key.localeCompare(b.key));
     const revenues = dailyList.map(d => d.revenue);
     const orderCounts = dailyList.map(d => d.count);
@@ -1399,54 +1399,68 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (revenueChartContainer) {
       if (!dailyList.length) {
-        revenueChartContainer.innerHTML = '<div style="margin: auto; color: var(--muted); font-size: 0.9rem;">Không có dữ liệu trong khoảng thời gian này.</div>';
+        revenueChartContainer.innerHTML = '<div style="margin: auto; color: var(--muted); font-size: 0.85rem;">Không có dữ liệu trong khoảng thời gian này.</div>';
       } else {
-        const itemMinWidth = isAllTime ? 64 : (dailyList.length > 20 ? 32 : (dailyList.length <= 14 ? 54 : 36));
-        const chartHeight = 220;
+        const itemMinWidth = isAllTime ? 60 : (dailyList.length > 20 ? 30 : (dailyList.length <= 14 ? 48 : 34));
+        const chartHeight = 170;
         const totalItems = dailyList.length;
         const linePoints = [];
 
         dailyList.forEach((d, idx) => {
-          const y = chartHeight - Math.round((d.revenue / maxRev) * (chartHeight - 45)) - 15;
+          // Line Y đại diện cho Số đơn hàng
+          const y = chartHeight - Math.round((d.count / maxCount) * (chartHeight - 40)) - 15;
           linePoints.push({ idx, y, rev: d.revenue, count: d.count, key: d.key });
         });
 
+        // Combo Chart: Bar đại diện cho Doanh thu (VND), Line đại diện cho Số đơn
         const barsHtml = dailyList.map((d, idx) => {
-          const barHeightPx = d.count > 0 ? Math.max(Math.round((d.count / maxCount) * (chartHeight - 50)), 22) : 6;
+          const barHeightPx = d.revenue > 0 ? Math.max(Math.round((d.revenue / maxRev) * (chartHeight - 45)), 8) : 3;
           const displayLabel = d.label || d.key;
           const isToday = d.key === todayStr;
-          const barColor = d.count > 0 ? '#bbf7d0' : '#f8fafc';
-          const barTextColor = '#065f46';
-          const lineY = chartHeight - Math.round((d.revenue / maxRev) * (chartHeight - 45)) - 15;
+          const barColor = d.revenue > 0 ? '#bbf7d0' : '#f1f5f9';
 
           return (
-            '<div style="flex: ' + (dailyList.length > 14 ? '0 0 ' + itemMinWidth + 'px' : '1') + '; min-width: ' + itemMinWidth + 'px; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; position: relative;" title="' + (d.fullDate || d.key) + '&#10;• Số đơn: ' + d.count + ' đơn&#10;• Doanh thu: ' + formatCurrency(d.revenue) + '">' +
-              (d.revenue > 0 ? '<div style="position: absolute; top: ' + (lineY - 14) + 'px; z-index: 5; font-size: 0.65rem; font-weight: 700; color: #059669; font-family: monospace; white-space: nowrap; pointer-events: none;">' + (Math.round(d.revenue / 1000) + 'k') + '</div>' : '') +
-              '<div style="width: 100%; max-width: 24px; height: ' + barHeightPx + 'px; background: ' + barColor + '; border-radius: 3px 3px 0 0; transition: height 0.3s ease; display: flex; align-items: center; justify-content: center; position: relative;">' +
-                (d.count > 0 ? '<span style="font-size: 0.62rem; font-weight: 700; color: ' + barTextColor + '; line-height: 1; user-select: none;">' + d.count + 'đ</span>' : '') +
-              '</div>' +
-              '<div style="font-size: 0.72rem; color: ' + (isToday ? '#059669' : '#64748b') + '; font-weight: ' + (isToday ? '700' : '500') + '; margin-top: 5px; white-space: nowrap;">' + displayLabel + '</div>' +
+            '<div style="flex: ' + (dailyList.length > 14 ? '0 0 ' + itemMinWidth + 'px' : '1') + '; min-width: ' + itemMinWidth + 'px; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; position: relative;" title="' + (d.fullDate || d.key) + '&#10;• Doanh thu: ' + formatCurrency(d.revenue) + '&#10;• Số đơn: ' + d.count + ' đơn">' +
+              (d.revenue > 0 ? '<div style="position: absolute; bottom: ' + (barHeightPx + 18) + 'px; z-index: 5; font-size: 0.63rem; font-weight: 700; color: #059669; font-family: monospace; white-space: nowrap; pointer-events: none;">' + (Math.round(d.revenue / 1000) + 'k') + '</div>' : '') +
+              '<div style="width: 100%; max-width: 18px; height: ' + barHeightPx + 'px; background: ' + barColor + '; border-radius: 2px 2px 0 0; transition: height 0.3s ease; position: relative;"></div>' +
+              '<div style="font-size: 0.68rem; color: ' + (isToday ? '#059669' : '#64748b') + '; font-weight: ' + (isToday ? '700' : '400') + '; margin-top: 5px; white-space: nowrap;">' + displayLabel + '</div>' +
             '</div>'
           );
         }).join('');
 
+        // Line SVG cho Số đơn
         const svgPathD = linePoints.map((pt, i) => {
           const xPercent = ((i + 0.5) / totalItems) * 100;
           return (i === 0 ? 'M ' : 'L ') + xPercent + ' ' + pt.y;
         }).join(' ');
 
+        const dotsSvg = linePoints.filter(pt => pt.count > 0).map(pt => {
+          const xPercent = ((pt.idx + 0.5) / totalItems) * 100;
+          return '<circle cx="' + xPercent + '%" cy="' + pt.y + '" r="3" fill="#ffffff" stroke="#059669" stroke-width="2"></circle>' +
+                 '<text x="' + xPercent + '%" y="' + (pt.y - 6) + '" text-anchor="middle" font-size="8.5" font-weight="700" fill="#047857" font-family="monospace">' + pt.count + 'đ</text>';
+        }).join('');
+
         revenueChartContainer.innerHTML = (
-          '<div style="width: 100%; height: 100%; display: flex; align-items: flex-end; position: relative; min-width: ' + (dailyList.length * itemMinWidth) + 'px;">' +
-            '<svg style="position: absolute; top: 0; left: 0; width: 100%; height: ' + chartHeight + 'px; pointer-events: none; z-index: 4;" preserveAspectRatio="none" viewBox="0 0 100 ' + chartHeight + '">' +
-              '<path d="' + svgPathD + '" fill="none" stroke="#10b981" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" vector-effect="non-scaling-stroke"></path>' +
-            '</svg>' +
-            barsHtml +
+          '<div style="width: 100%; height: 100%; display: flex; flex-direction: column;">' +
+            '<div style="display: flex; justify-content: flex-end; gap: 14px; font-size: 0.72rem; color: #64748b; margin-bottom: 6px;">' +
+              '<span style="display: flex; align-items: center; gap: 5px;"><span style="display:inline-block; width:10px; height:8px; background:#bbf7d0; border-radius:1px;"></span>Cột: Doanh thu</span>' +
+              '<span style="display: flex; align-items: center; gap: 5px;"><span style="display:inline-block; width:12px; height:2px; background:#059669;"></span>Đường: Số đơn</span>' +
+            '</div>' +
+            '<div style="width: 100%; height: ' + chartHeight + 'px; display: flex; align-items: flex-end; position: relative; min-width: ' + (dailyList.length * itemMinWidth) + 'px;">' +
+              '<svg style="position: absolute; top: 0; left: 0; width: 100%; height: ' + chartHeight + 'px; pointer-events: none; z-index: 4;" preserveAspectRatio="none" viewBox="0 0 100 ' + chartHeight + '">' +
+                '<path d="' + svgPathD + '" fill="none" stroke="#059669" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" vector-effect="non-scaling-stroke"></path>' +
+              '</svg>' +
+              '<svg style="position: absolute; top: 0; left: 0; width: 100%; height: ' + chartHeight + 'px; pointer-events: none; z-index: 5;">' +
+                dotsSvg +
+              '</svg>' +
+              barsHtml +
+            '</div>' +
           '</div>'
         );
       }
     }
 
-    // 2. Top File Bán Chạy Nhất (Flat list, zero card nesting)
+    // 2. Top File Bán Chạy Nhất (TRUE HORIZONTAL BAR CHART)
     const bestSellers = Object.values(productMap).sort((a, b) => {
       if (a.id === '__ARCHIVED_TEST__') return 1;
       if (b.id === '__ARCHIVED_TEST__') return -1;
@@ -1455,22 +1469,31 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (bestSellersContainer) {
       if (!bestSellers.length) {
-        bestSellersContainer.innerHTML = '<div style="margin: 20px 0; text-align: center; color: var(--muted); font-size: 0.9rem;">Chưa có dữ liệu bán hàng.</div>';
+        bestSellersContainer.innerHTML = '<div style="margin: 20px 0; text-align: center; color: var(--muted); font-size: 0.85rem;">Chưa có dữ liệu bán hàng.</div>';
       } else {
-        bestSellersContainer.innerHTML = bestSellers.map((item, idx) => {
+        const maxItemRev = Math.max(...bestSellers.map(b => b.revenue), 1);
+        const barColors = ['#059669', '#0284c7', '#d97706', '#8b5cf6', '#64748b'];
+
+        bestSellersContainer.innerHTML = bestSellers.slice(0, 5).map((item, idx) => {
           const rank = idx + 1;
-          const rankClass = rank <= 3 ? ('top-' + rank) : '';
+          const pct = Math.max(Math.round((item.revenue / maxItemRev) * 100), 4);
+          const color = barColors[idx % barColors.length];
+
           return (
-            '<div class="best-seller-item">' +
-              '<div style="display: flex; align-items: center; min-width: 0; flex: 1; margin-right: 12px;">' +
-                '<div class="rank-badge ' + rankClass + '">' + rank + '</div>' +
-                '<div style="min-width: 0;">' +
-                  '<div style="font-weight: 600; font-size: 0.92rem; color: #1e293b; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">' + escapeHtml(item.name) + '</div>' +
-                  '<div style="font-size: 0.78rem; color: var(--muted);">' + item.count + ' lượt mua thành công</div>' +
+            '<div style="margin-bottom: 11px;">' +
+              '<div style="display: flex; justify-content: space-between; align-items: baseline; font-size: 0.78rem; margin-bottom: 3px;">' +
+                '<div style="min-width: 0; flex: 1; margin-right: 10px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">' +
+                  '<span style="font-weight: 700; color: ' + color + '; font-family: monospace; margin-right: 6px;">0' + rank + '</span>' +
+                  '<span style="font-weight: 600; color: #1e293b;">' + escapeHtml(item.name) + '</span>' +
                 '</div>' +
+                '<div style="font-weight: 700; color: #0f172a; font-family: monospace; flex-shrink: 0;">' + formatCurrency(item.revenue) + '</div>' +
               '</div>' +
-              '<div style="text-align: right; flex-shrink: 0;">' +
-                '<div style="font-weight: 700; font-size: 0.95rem; color: var(--mint-strong);">' + formatCurrency(item.revenue) + '</div>' +
+              '<div style="width: 100%; height: 6px; background: #f1f5f9; border-radius: 2px; overflow: hidden;">' +
+                '<div style="width: ' + pct + '%; height: 100%; background: ' + color + '; border-radius: 2px; transition: width 0.4s ease;"></div>' +
+              '</div>' +
+              '<div style="display: flex; justify-content: space-between; font-size: 0.7rem; color: #64748b; margin-top: 2px;">' +
+                '<span>' + item.count + ' lượt mua thành công</span>' +
+                '<span>' + (totalRevenue > 0 ? Math.round((item.revenue / totalRevenue) * 100) : 0) + '% doanh số</span>' +
               '</div>' +
             '</div>'
           );
@@ -1478,7 +1501,7 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     }
 
-    // 3. Khung Giờ Mua Hàng Sôi Động Nhất (24 Cột)
+    // 3. Khung Giờ Mua Hàng Sôi Động Nhất (Vertical Column Chart 24 Cột)
     if (hourlyChartContainer) {
       const maxHourly = Math.max(...hourlyMap, 1);
       const peakHourCount = Math.max(...hourlyMap);
@@ -1486,20 +1509,20 @@ document.addEventListener('DOMContentLoaded', () => {
       hourlyChartContainer.innerHTML = hourlyMap.map((cnt, hr) => {
         const heightPct = Math.max(Math.round((cnt / maxHourly) * 110), 4);
         const isPeak = cnt === peakHourCount && cnt > 0;
-        const barColor = isPeak ? '#059669' : (cnt > 0 ? '#34d399' : '#e2e8f0');
+        const barColor = isPeak ? '#059669' : (cnt > 0 ? '#34d399' : '#f1f5f9');
         const showLabel = hr % 3 === 0;
 
         return (
           '<div style="flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; height: 100%; justify-content: flex-end;" title="' + hr + ':00 - ' + hr + ':59: ' + cnt + ' đơn mua">' +
             '<div style="font-size: 0.65rem; font-weight: 600; color: #059669;">' + (cnt > 0 ? cnt : '') + '</div>' +
-            '<div style="width: 100%; max-width: 16px; height: ' + heightPct + 'px; background: ' + barColor + '; border-radius: 4px 4px 0 0; transition: height 0.3s ease;"></div>' +
+            '<div style="width: 100%; max-width: 14px; height: ' + heightPct + 'px; background: ' + barColor + '; border-radius: 2px 2px 0 0; transition: height 0.3s ease;"></div>' +
             '<div style="font-size: 0.68rem; color: #64748b; font-weight: ' + (showLabel ? '600' : '400') + '; margin-top: 4px;">' + (showLabel ? (hr + 'h') : '') + '</div>' +
           '</div>'
         );
       }).join('');
     }
 
-    // 4. Cơ Cấu Doanh Thu Theo Danh Mục (Clean flat breakdown, zero nested cards)
+    // 4. Cơ Cấu Doanh Thu Theo Danh Mục (SVG DONUT / PIE CHART)
     if (categoryChartContainer) {
       const catList = Object.values(categoryMap).sort((a, b) => b.revenue - a.revenue);
       const palette = ['#059669', '#0284c7', '#f59e0b', '#8b5cf6', '#ec4899', '#64748b'];
@@ -1507,7 +1530,6 @@ document.addEventListener('DOMContentLoaded', () => {
       if (!catList.length || totalRevenue <= 0) {
         categoryChartContainer.innerHTML = '<div style="margin: auto; color: var(--slate-muted); font-size: 0.85rem; text-align: center; padding: 20px 0;">Chưa có dữ liệu danh mục trong kỳ.</div>';
       } else {
-        // SVG DONUT CHART CALCULATION
         const radius = 38;
         const circumference = 2 * Math.PI * radius; // ~238.76
         let strokeOffset = 0;
@@ -1532,7 +1554,6 @@ document.addEventListener('DOMContentLoaded', () => {
           '</div>'
         );
 
-        // Legend list on the right
         const legendListHtml = catList.map((c, i) => {
           const pct = Math.round((c.revenue / totalRevenue) * 100);
           const color = palette[i % palette.length];
@@ -1561,9 +1582,8 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     }
 
-    // 5. Chu Kỳ Mua Hàng Theo Thứ Trong Tuần (T2 -> CN)
+    // 5. Chu Kỳ Mua Hàng Theo Thứ Trong Tuần (Column Bar Chart T2 -> CN)
     if (weekdayChartContainer) {
-      // Thứ tự T2 -> CN: [1, 2, 3, 4, 5, 6, 0]
       const daySeq = [1, 2, 3, 4, 5, 6, 0];
       const dayLabels = ['T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'CN'];
       const dayFullNames = ['Thứ Hai', 'Thứ Ba', 'Thứ Tư', 'Thứ Năm', 'Thứ Sáu', 'Thứ Bảy', 'Chủ Nhật'];
@@ -1574,28 +1594,27 @@ document.addEventListener('DOMContentLoaded', () => {
       weekdayChartContainer.innerHTML = daySeq.map((dow, idx) => {
         const cnt = weekdayMap[dow];
         const rev = weekdayRevMap[dow];
-        const heightPct = Math.max(Math.round((cnt / maxWeekdayCount) * 110), 4);
+        const heightPct = Math.max(Math.round((cnt / maxWeekdayCount) * 105), 4);
         const isPeak = cnt === peakDayCount && cnt > 0;
         const isToday = dow === currentDow;
-        const barColor = isPeak ? '#059669' : (cnt > 0 ? '#34d399' : '#e2e8f0');
+        const barColor = isPeak ? '#059669' : (cnt > 0 ? '#34d399' : '#f1f5f9');
 
         return (
           '<div style="flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; height: 100%; justify-content: flex-end;" title="' + dayFullNames[idx] + ': ' + cnt + ' đơn&#10;• Doanh thu: ' + formatCurrency(rev) + '">' +
             '<div style="font-size: 0.68rem; font-weight: 700; color: #059669; font-family: monospace;">' + (cnt > 0 ? cnt + 'đ' : '') + '</div>' +
-            '<div style="width: 100%; max-width: 22px; height: ' + heightPct + 'px; background: ' + barColor + '; border-radius: 4px 4px 0 0; transition: height 0.3s ease;"></div>' +
+            '<div style="width: 100%; max-width: 18px; height: ' + heightPct + 'px; background: ' + barColor + '; border-radius: 2px 2px 0 0; transition: height 0.3s ease;"></div>' +
             '<div style="font-size: 0.72rem; color: ' + (isToday ? '#059669' : '#64748b') + '; font-weight: ' + (isToday ? '700' : '500') + '; margin-top: 4px;">' + dayLabels[idx] + '</div>' +
           '</div>'
         );
       }).join('');
     }
 
-    // 6. Chuyển Đổi & Giữ Chân Khách Hàng (Funnel & Retention)
+    // 6. Chuyển Đổi & Giữ Chân Khách Hàng (Funnel & Retention Progress Bars)
     if (conversionContainer) {
       const totalOrdersInFilter = paidCount + pendingCount;
       const payRate = totalOrdersInFilter > 0 ? Math.round((paidCount / totalOrdersInFilter) * 100) : 0;
       const coachingRate = paidCount > 0 ? Math.round((coachingCount / paidCount) * 100) : 0;
 
-      // Tính tỷ lệ khách mua lặp lại (Retention) qua toàn bộ đơn đã thanh toán
       const customerPaidCounts = {};
       (cachedOrders || []).forEach(o => {
         if (String(o.status || '').toUpperCase() === 'PAID') {
@@ -1612,55 +1631,42 @@ document.addEventListener('DOMContentLoaded', () => {
 
       conversionContainer.innerHTML = (
         '<div>' +
-          '<div style="display: flex; justify-content: space-between; font-size: 0.86rem; margin-bottom: 5px;">' +
+          '<div style="display: flex; justify-content: space-between; font-size: 0.82rem; margin-bottom: 4px;">' +
             '<span style="font-weight: 500; color: #1e293b;">Tỉ lệ thanh toán thành công</span>' +
             '<span style="font-weight: 700; color: #059669; font-family: monospace;">' + payRate + '% (' + paidCount + '/' + totalOrdersInFilter + ' đơn)</span>' +
           '</div>' +
-          '<div style="width: 100%; height: 8px; background: #f1f5f9; border-radius: 999px; overflow: hidden; display: flex;">' +
+          '<div style="width: 100%; height: 7px; background: #f1f5f9; border-radius: 999px; overflow: hidden; display: flex;">' +
             '<div style="width: ' + payRate + '%; background: #10b981; border-radius: 999px;"></div>' +
           '</div>' +
         '</div>' +
 
         '<div>' +
-          '<div style="display: flex; justify-content: space-between; font-size: 0.86rem; margin-bottom: 5px;">' +
+          '<div style="display: flex; justify-content: space-between; font-size: 0.82rem; margin-bottom: 4px;">' +
             '<span style="font-weight: 500; color: #1e293b;">Khách quay lại mua lặp lại (Retention)</span>' +
             '<span style="font-weight: 700; color: #0284c7; font-family: monospace;">' + repeatRate + '% (' + returningCount + '/' + totalUniqueCust + ' khách)</span>' +
           '</div>' +
-          '<div style="width: 100%; height: 8px; background: #f1f5f9; border-radius: 999px; overflow: hidden; display: flex;">' +
+          '<div style="width: 100%; height: 7px; background: #f1f5f9; border-radius: 999px; overflow: hidden; display: flex;">' +
             '<div style="width: ' + repeatRate + '%; background: #0284c7; border-radius: 999px;"></div>' +
           '</div>' +
         '</div>' +
 
         '<div>' +
-          '<div style="display: flex; justify-content: space-between; font-size: 0.86rem; margin-bottom: 5px;">' +
+          '<div style="display: flex; justify-content: space-between; font-size: 0.82rem; margin-bottom: 4px;">' +
             '<span style="font-weight: 500; color: #1e293b;">Tỷ lệ chọn gói Kèm Coaching 1-1</span>' +
             '<span style="font-weight: 700; color: #d97706; font-family: monospace;">' + coachingRate + '% (' + coachingCount + ' đơn Kèm 1-1)</span>' +
           '</div>' +
-          '<div style="width: 100%; height: 8px; background: #f1f5f9; border-radius: 999px; overflow: hidden; display: flex;">' +
+          '<div style="width: 100%; height: 7px; background: #f1f5f9; border-radius: 999px; overflow: hidden; display: flex;">' +
             '<div style="width: ' + coachingRate + '%; background: #f59e0b; border-radius: 999px;"></div>' +
           '</div>' +
         '</div>' +
 
-        '<div style="display: flex; align-items: flex-start; gap: 8px; margin-top: 4px; padding: 10px 12px; background: #f8fafc; border-radius: 8px; border: 1px solid #e2e8f0; font-size: 0.8rem; color: #475569;">' +
-          '<svg width="15" height="15" fill="none" stroke="#059669" stroke-width="2" viewBox="0 0 24 24" style="flex-shrink: 0; margin-top: 2px;"><path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>' +
+        '<div style="display: flex; align-items: flex-start; gap: 8px; margin-top: 4px; padding: 9px 12px; background: #f8fafc; border-radius: 6px; border: 1px solid #e2e8f0; font-size: 0.78rem; color: #475569;">' +
+          '<svg width="15" height="15" fill="none" stroke="#059669" stroke-width="2" viewBox="0 0 24 24" style="flex-shrink: 0; margin-top: 1px;"><path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>' +
           '<div>Giờ chốt đơn nhiều nhất là <b>' + calcPeakHour(hourlyMap) + '</b> và <b>' + calcPeakWeekday(weekdayMap) + '</b>. Đăng clip hoặc chạy tin trước khung giờ này 30 phút để tối ưu tỷ lệ mua hàng.</div>' +
         '</div>'
       );
     }
   }
-
-  function calcPeakHour(hourlyMap) {
-    let max = 0;
-    let peak = 14;
-    hourlyMap.forEach((v, idx) => {
-      if (v > max) {
-        max = v;
-        peak = idx;
-      }
-    });
-    return peak + 'h - ' + (peak + 1) + 'h';
-  }
-
 
   async function loadAdminOrders() {
     const orderListBody = document.getElementById('orderListBody');
