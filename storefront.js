@@ -3082,10 +3082,17 @@ function escapeHtml(value) {
     if (state.profile) {
       if (quickName && state.profile.full_name && !quickName.value) quickName.value = state.profile.full_name;
       if (quickPhone && state.profile.phone && !quickPhone.value) quickPhone.value = state.profile.phone;
-      if (quickEmail && state.profile.email && !quickEmail.value) quickEmail.value = state.profile.email;
+      // Chỉ điền email nếu là email thật của khách (không điền email ảo hệ thống @khachhang.filedilam.vn)
+      var savedEmail = state.profile.email || "";
+      if (quickEmail && savedEmail && savedEmail.indexOf("@khachhang.filedilam.vn") === -1 && !quickEmail.value) {
+        quickEmail.value = savedEmail;
+      }
     }
     if (state.user && state.user.email && quickEmail && !quickEmail.value) {
-      quickEmail.value = state.user.email;
+      var userMail = state.user.email || "";
+      if (userMail.indexOf("@khachhang.filedilam.vn") === -1) {
+        quickEmail.value = userMail;
+      }
     }
     if (existingActiveOrder) {
       setCheckoutCustomerConfirmed(true, {
