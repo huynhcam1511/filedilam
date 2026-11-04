@@ -3697,19 +3697,40 @@ function escapeHtml(value) {
     if (saveQrBtn) {
       saveQrBtn.disabled = true;
       saveQrBtn.classList.add("is-downloading");
-      saveQrBtn.innerHTML = '<span>Đang chuẩn bị ảnh...</span>';
+      saveQrBtn.innerHTML = '<span>Đang tải ảnh...</span>';
     }
 
-    function handleQrBlob(blob) {
-      var filename = "ma-qr-filedilam.png";
-      // 1. Ưu tiên Web Share API trên iOS/Android để người dùng chọn 'Lưu hình ảnh' thẳng vào Album ảnh
+    var filename = "ma-qr-filedilam.png";
+
+    // Chuyển dataURL sang Blob trực tiếp bằng synchronous Base64 decode (Tức thì 0ms, không fetch mạng)
+    function dataUrlToBlob(dataUrl) {
+      try {
+        var arr = dataUrl.split(',');
+        var mime = arr[0].match(/:(.*?);/)[1];
+        var bstr = atob(arr[1]);
+        var n = bstr.length;
+        var u8arr = new Uint8Array(n);
+        while (n--) {
+          u8arr[n] = bstr.charCodeAt(n);
+        }
+        return new Blob([u8arr], { type: mime });
+      } catch (e) {
+        return null;
+      }
+    }
+
+    // 1. Kiểm tra nếu là thiết bị di động hỗ trợ Web Share API với files (Lưu thẳng vào Photo Album)
+    var isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent || "");
+    var blob = dataUrlToBlob(currentQrImageUrl);
+
+    if (isMobile && blob && navigator.canShare) {
       try {
         var file = new File([blob], filename, { type: "image/png" });
-        if (navigator.canShare && navigator.canShare({ files: [file] })) {
+        if (navigator.canShare({ files: [file] })) {
           navigator.share({
             files: [file],
             title: "Mã VietQR thanh toán",
-            text: "Lưu hình ảnh để quét trên ứng dụng ngân hàng"
+            text: "Lưu ảnh vào máy để quét trên App ngân hàng"
           })
           .then(function() {
             onQrDownloaded();
@@ -3718,51 +3739,25 @@ function escapeHtml(value) {
             if (err && err.name === "AbortError") {
               resetQrActions();
             } else {
-              downloadBlobDirectly(blob, filename);
+              directDownload(blob, filename);
             }
           });
           return;
         }
       } catch (e) {
-        console.warn("Web Share API fallback:", e);
+        console.warn("Share API fallback:", e);
       }
-
-      // 2. Fallback trên Desktop hoặc trình duyệt không hỗ trợ Web Share API
-      downloadBlobDirectly(blob, filename);
     }
 
-    fetch(currentQrImageUrl)
-      .then(function (res) {
-        if (!res.ok) throw new Error("Network error");
-        return res.blob();
-      })
-      .then(function (blob) {
-        handleQrBlob(blob);
-      })
-      .catch(function () {
-        try {
-          var img = qrBox ? qrBox.querySelector("img") : null;
-          if (img && img.complete && img.naturalWidth > 0) {
-            var canvas = document.createElement("canvas");
-            canvas.width = img.naturalWidth;
-            canvas.height = img.naturalHeight;
-            var ctx = canvas.getContext("2d");
-            ctx.drawImage(img, 0, 0);
-            canvas.toBlob(function (blob) {
-              if (blob) {
-                handleQrBlob(blob);
-              } else {
-                fallbackDownloadUrl(currentQrImageUrl);
-              }
-            }, "image/png");
-            return;
-          }
-        } catch (e) {}
-        fallbackDownloadUrl(currentQrImageUrl);
-      });
+    // 2. Tải ngay lập tức (Direct download)
+    if (blob) {
+      directDownload(blob, filename);
+    } else {
+      fallbackDownloadUrl(currentQrImageUrl);
+    }
   }
 
-  function downloadBlobDirectly(blob, filename) {
+  function directDownload(blob, filename) {
     var blobUrl = window.URL.createObjectURL(blob);
     var a = document.createElement("a");
     a.style.display = "none";
@@ -3773,7 +3768,7 @@ function escapeHtml(value) {
     setTimeout(function () {
       if (a.parentNode) a.parentNode.removeChild(a);
       window.URL.revokeObjectURL(blobUrl);
-    }, 2000);
+    }, 1500);
     onQrDownloaded();
   }
 
