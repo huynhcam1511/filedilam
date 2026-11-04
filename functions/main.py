@@ -8,6 +8,7 @@ from html import escape
 import json
 import re
 import smtplib
+import email.utils
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 
@@ -297,10 +298,28 @@ def send_order_success_email(customer_email, customer_name, order_id, order_data
 </body>
 </html>"""
 
+        plain_text = f"""Xin chào {customer_name or 'Quý khách'},
+
+Hệ thống File Đi Làm xác nhận đã nhận đủ thanh toán cho đơn hàng #{order_id}.
+Sản phẩm: {product_name}
+Phân loại: {pkg_name}
+
+Bạn có thể truy cập link nhận file Google Sheets trực tiếp tại:
+{file_url}
+
+Nếu cần hỗ trợ kỹ thuật hoặc có bất kỳ câu hỏi nào, vui lòng liên hệ Zalo/Hotline: 0938 134 576.
+Trân trọng,
+File Đi Làm - https://filedilam.web.app
+"""
+
         msg = MIMEMultipart("alternative")
-        msg["Subject"] = f"[File Đi Làm] Kích hoạt đơn hàng #{order_id} - Link nhận file Google Sheet"
+        msg["Subject"] = f"[File Đi Làm] Kích hoạt đơn hàng #{order_id} - {product_name}"
         msg["From"] = f'"File Đi Làm" <{SMTP_USER}>'
         msg["To"] = customer_email
+        msg["Reply-To"] = "huynhkiencam151102@gmail.com"
+        msg["Date"] = email.utils.formatdate(localtime=True)
+        msg["Message-ID"] = email.utils.make_msgid(domain="gmail.com")
+        msg.attach(MIMEText(plain_text, "plain", "utf-8"))
         msg.attach(MIMEText(html_content, "html", "utf-8"))
 
         server = smtplib.SMTP_SSL("smtp.gmail.com", 465, timeout=15)
@@ -420,10 +439,37 @@ def send_payment_reminder_email(customer_email, customer_name, order_id, order_d
 </body>
 </html>"""
 
+        plain_text = f"""Xin chào {cust_display_name},
+
+Hệ thống File Đi Làm gửi bạn thông tin hoàn tất đơn hàng #{order_id}:
+- Họ tên khách hàng: {customer_name or 'Quý khách'}
+- Số điện thoại: {phone or 'Chưa cập nhật'}
+- Email nhận file: {customer_email}
+- Sản phẩm: {product_name}
+- Số tiền thanh toán: {amount_fmt}
+
+Thông tin chuyển khoản ngân hàng:
+- Ngân hàng: TPBank (Ngân hàng Tiên Phong)
+- Số tài khoản: 59215112002
+- Chủ tài khoản: HUYNH KIEN CAM
+- Số tiền: {amount_fmt}
+- Nội dung chuyển khoản: {order_id}
+
+Ngay sau khi ngân hàng báo nhận tiền thành công, hệ thống sẽ tự động gửi email kèm đường dẫn nhận file Google Sheets về hòm thư này trong vòng 3 - 5 giây.
+Nếu cần hỗ trợ thêm, vui lòng liên hệ Hotline/Zalo: 0938 134 576.
+
+Trân trọng,
+File Đi Làm - https://filedilam.web.app
+"""
+
         msg = MIMEMultipart("alternative")
-        msg["Subject"] = f"[File Đi Làm] Hướng dẫn hoàn tất đơn hàng #{order_id} - {product_name}"
+        msg["Subject"] = f"[File Đi Làm] Hoàn tất đơn hàng #{order_id}"
         msg["From"] = f'"File Đi Làm" <{SMTP_USER}>'
         msg["To"] = customer_email
+        msg["Reply-To"] = "huynhkiencam151102@gmail.com"
+        msg["Date"] = email.utils.formatdate(localtime=True)
+        msg["Message-ID"] = email.utils.make_msgid(domain="gmail.com")
+        msg.attach(MIMEText(plain_text, "plain", "utf-8"))
         msg.attach(MIMEText(html_content, "html", "utf-8"))
 
         server = smtplib.SMTP_SSL("smtp.gmail.com", 465, timeout=15)
