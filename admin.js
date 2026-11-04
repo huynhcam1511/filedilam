@@ -293,10 +293,16 @@ document.addEventListener('DOMContentLoaded', () => {
     const formatVal = document.getElementById('productFormatFilter')?.value || 'ALL';
 
     const filtered = currentProducts.filter(p => {
-      let pNormCat = p.categoryId || 'kinh-doanh';
-      if (['ban-hang-online', 'quan-ly-kho', 'fnb-cost', 'combo'].includes(pNormCat)) pNormCat = 'kinh-doanh';
-      if (['cong-no', 'thu-chi-dong-tien'].includes(pNormCat)) pNormCat = 'ke-toan';
-      const matchCat = catVal === 'ALL' || p.categoryId === catVal || pNormCat === catVal;
+      const sName = String(p.name || '').toLowerCase();
+      let pEffectiveCat = p.categoryId || 'kinh-doanh';
+      if (sName.includes('kho') || sName.includes('tồn kho')) pEffectiveCat = 'quan-ly-kho';
+      else if (sName.includes('bán hàng') || sName.includes('shop') || sName.includes('bán lẻ')) pEffectiveCat = 'ban-hang-online';
+      else if (sName.includes('cost') || sName.includes('giá vốn') || sName.includes('f&b')) pEffectiveCat = 'fnb-cost';
+      else if (sName.includes('công nợ') || sName.includes('thu chi') || sName.includes('kế toán')) pEffectiveCat = 'ke-toan';
+      else if (sName.includes('nhân sự') || sName.includes('tiền lương')) pEffectiveCat = 'nhan-su';
+      else if (sName.includes('marketing')) pEffectiveCat = 'marketing';
+
+      const matchCat = catVal === 'ALL' || p.categoryId === catVal || pEffectiveCat === catVal;
       const pFormat = p.type || (p.sheetUrl ? 'google_sheets' : 'excel');
       const matchFormat = formatVal === 'ALL' || pFormat === formatVal || (formatVal === 'google_sheets' && (pFormat === 'google_sheets' || p.sheetUrl));
       if (!matchCat || !matchFormat) return false;
@@ -313,23 +319,30 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     const catMap = {
-      'kinh-doanh': 'Kinh doanh',
-      'nhan-su': 'Nhân sự',
-      'cong-viec': 'Công việc',
-      'marketing': 'Marketing',
-      'ke-toan': 'Kế toán',
+      'quan-ly-kho': 'Quản lý kho vận',
+      'ban-hang-online': 'Bán hàng online & Shop',
+      'fnb-cost': 'F&B & Tính giá vốn',
+      'ke-toan': 'Kế toán & Dòng tiền',
+      'kinh-doanh': 'Kinh doanh & Quản trị',
+      'nhan-su': 'Nhân sự & Chấm công',
+      'marketing': 'Marketing & Truyền thông',
+      'cong-viec': 'Hiệu suất công việc',
       'phat-trien-ban-than': 'Phát triển bản thân',
-      // Tương thích ngược với các file cũ trên Firestore
-      'ban-hang-online': 'Kinh doanh',
-      'fnb-cost': 'Kinh doanh',
-      'quan-ly-kho': 'Kinh doanh',
-      'cong-no': 'Kế toán',
-      'thu-chi-dong-tien': 'Kế toán',
-      'combo': 'Kinh doanh'
+      'combo': 'Gói Combo đa năng'
     };
 
     productListBody.innerHTML = filtered.map(p => {
-      const catName = catMap[p.categoryId] || p.categoryId || 'Khác';
+      // Tự động nhận diện danh mục chính xác từ tên sản phẩm hoặc categoryId
+      const s = String(p.name || '').toLowerCase();
+      let effectiveCatKey = p.categoryId;
+      if (s.includes('kho') || s.includes('tồn kho')) effectiveCatKey = 'quan-ly-kho';
+      else if (s.includes('bán hàng') || s.includes('shop') || s.includes('bán lẻ')) effectiveCatKey = 'ban-hang-online';
+      else if (s.includes('cost') || s.includes('giá vốn') || s.includes('f&b') || s.includes('định lượng')) effectiveCatKey = 'fnb-cost';
+      else if (s.includes('công nợ') || s.includes('thu chi') || s.includes('dòng tiền') || s.includes('kế toán')) effectiveCatKey = 'ke-toan';
+      else if (s.includes('nhân sự') || s.includes('tiền lương') || s.includes('chấm công')) effectiveCatKey = 'nhan-su';
+      else if (s.includes('marketing') || s.includes('kế hoạch') || s.includes('content')) effectiveCatKey = 'marketing';
+      
+      const catName = catMap[effectiveCatKey] || catMap[p.categoryId] || p.categoryId || 'Kinh doanh & Quản trị';
       let formatHtml = '<span style="font-size:0.85rem; font-weight:500; color:#475569;">Excel (.xlsx)</span>';
       if (p.type === 'apps_script' || p.type === 'web_app') {
         formatHtml = '<span style="font-size:0.85rem; font-weight:500; color:#7c3aed;">Web App (Apps Script)</span>';
