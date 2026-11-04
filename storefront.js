@@ -604,7 +604,17 @@ function escapeHtml(value) {
 
     // Unified Checkout events
     if (btnGoogleCheckout) btnGoogleCheckout.addEventListener("click", signInWithGoogleCheckout);
-    if (quickBuyForm) quickBuyForm.addEventListener("submit", handleQuickBuySubmit);
+    if (quickBuyForm) {
+      quickBuyForm.addEventListener("submit", handleQuickBuySubmit);
+    }
+    if (btnQuickSubmit) {
+      btnQuickSubmit.addEventListener("click", function (e) {
+        // Prevent double trigger if submit fires, but ensure execution if submit is swallowed by Safari
+        if (e && e.type === "click") {
+          handleQuickBuySubmit(e);
+        }
+      });
+    }
     if (quickToggleLink) quickToggleLink.addEventListener("click", toggleQuickMode);
     if (backToInfoBtn) backToInfoBtn.addEventListener("click", handleBackToInfo);
 
@@ -2626,7 +2636,18 @@ function escapeHtml(value) {
     }
 
     var auth = firebase.auth();
-    if (btnQuickSubmit) btnQuickSubmit.disabled = true;
+    if (btnQuickSubmit) {
+      btnQuickSubmit.disabled = true;
+      if (btnQuickSubmitText) btnQuickSubmitText.textContent = "Đang xử lý...";
+    }
+
+    // Safety timeout: Never keep the button stuck disabled on Safari if network/auth hangs
+    var submitSafetyTimer = setTimeout(function() {
+      if (btnQuickSubmit && btnQuickSubmit.disabled) {
+        btnQuickSubmit.disabled = false;
+        if (btnQuickSubmitText) btnQuickSubmitText.textContent = "Xác nhận thông tin & tạo đơn";
+      }
+    }, 8000);
 
     var customerEmail = emailInput;
     var authEmail = phone + "@khachhang.filedilam.vn";
@@ -2634,7 +2655,11 @@ function escapeHtml(value) {
 
     showToast("Đang tạo thông tin đơn hàng...");
 
+    var orderFinalized = false;
     function finalizeOrder(user) {
+      if (orderFinalized) return;
+      orderFinalized = true;
+      clearTimeout(submitSafetyTimer);
       state.user = user;
       state.profile = { full_name: fullName, email: customerEmail, phone: phone, user_id: user.uid };
       saveProfile({ full_name: fullName, email: customerEmail, phone: phone, auth_provider: "quick_checkout" });
@@ -2643,7 +2668,10 @@ function escapeHtml(value) {
         customer_phone: phone,
         customer_email: customerEmail
       });
-      if (btnQuickSubmit) btnQuickSubmit.disabled = false;
+      if (btnQuickSubmit) {
+        btnQuickSubmit.disabled = false;
+        if (btnQuickSubmitText) btnQuickSubmitText.textContent = "Xác nhận thông tin & tạo đơn";
+      }
     }
 
     if (state.user) {
@@ -2689,8 +2717,18 @@ function escapeHtml(value) {
             });
           } else {
             showToast(authErrorMessage(error, "register"));
-            if (btnQuickSubmit) btnQuickSubmit.disabled = false;
+            clearTimeout(submitSafetyTimer);
+            if (btnQuickSubmit) {
+              btnQuickSubmit.disabled = false;
+              if (btnQuickSubmitText) btnQuickSubmitText.textContent = "Xác nhận thông tin & tạo đơn";
+            }
           }
+        }
+      }).catch(function(unexpectedErr) {
+        clearTimeout(submitSafetyTimer);
+        if (btnQuickSubmit) {
+          btnQuickSubmit.disabled = false;
+          if (btnQuickSubmitText) btnQuickSubmitText.textContent = "Xác nhận thông tin & tạo đơn";
         }
       });
   }
