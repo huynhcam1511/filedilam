@@ -508,19 +508,21 @@ function escapeHtml(value) {
     }
     if (copyBankNumberBtn) {
       copyBankNumberBtn.addEventListener("click", function () {
-        copyTextToClipboard(bankNumber ? bankNumber.textContent.trim() : "", copyBankNumberBtn, "Đã sao chép Số tài khoản");
+        var num = (bankNumber && bankNumber.textContent.trim()) || (document.getElementById("qrAccDisplay") ? document.getElementById("qrAccDisplay").textContent.trim() : "59215112002");
+        copyTextToClipboard(num, copyBankNumberBtn, "Đã sao chép Số tài khoản");
       });
     }
     var copyBankAmountBtn = document.getElementById("copyBankAmountBtn");
     if (copyBankAmountBtn) {
       copyBankAmountBtn.addEventListener("click", function () {
-        var bankAmt = document.getElementById("bankAmount");
+        var bankAmt = document.getElementById("bankAmount") || document.getElementById("qrAmountDisplay");
         copyTextToClipboard(bankAmt ? bankAmt.textContent.replace(/[^\d]/g, "") : "", copyBankAmountBtn, "Đã sao chép Số tiền");
       });
     }
     if (copyTransferNoteBtn) {
       copyTransferNoteBtn.addEventListener("click", function () {
-        copyTextToClipboard(bankTransferNote ? bankTransferNote.textContent.trim() : "", copyTransferNoteBtn, "Đã sao chép Nội dung CK");
+        var note = (bankTransferNote && bankTransferNote.textContent.trim()) || (document.getElementById("qrTransferNoteDisplay") ? document.getElementById("qrTransferNoteDisplay").textContent.trim() : "");
+        copyTextToClipboard(note, copyTransferNoteBtn, "Đã sao chép Nội dung CK");
       });
     }
     if (loginButton) loginButton.addEventListener("click", openAuthModal);
@@ -3493,25 +3495,24 @@ function escapeHtml(value) {
 
     function onQrDownloaded() {
     if (saveQrBtn) {
-      saveQrBtn.innerHTML = '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg><span>Đã lưu (Tải lại)</span>';
+      saveQrBtn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg><span>Đã lưu ảnh</span>';
       saveQrBtn.classList.add("btn-saved-qr");
-    }
-    if (openBankBtn) {
-      openBankBtn.style.display = "inline-flex";
+      setTimeout(function() {
+        if (saveQrBtn) {
+          saveQrBtn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg><span>Tải lại ảnh</span>';
+        }
+      }, 2500);
     }
     var hint = document.getElementById("qrDownloadedHint");
     if (hint) {
       hint.style.display = "block";
     }
-    showToast("Đã chuẩn bị ảnh QR. Hãy chọn 'Lưu hình ảnh' để lưu vào Album ảnh!");
+    showToast("Đã chuẩn bị ảnh QR. Mở App Bank để quét từ Album ảnh!");
   }
 
   function resetQrActions() {
-    if (openBankBtn) {
-      openBankBtn.style.display = "none";
-    }
     if (saveQrBtn) {
-      saveQrBtn.innerHTML = '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg><span>Tải ảnh QR</span>';
+      saveQrBtn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg><span>Tải ảnh QR</span>';
       saveQrBtn.classList.remove("btn-saved-qr");
     }
     var hint = document.getElementById("qrDownloadedHint");
@@ -3570,62 +3571,24 @@ function escapeHtml(value) {
     currentQrImageUrl = "";
     if (!qrBox) return;
 
+    // Cập nhật thông tin ngân hàng hiển thị bên dưới QR
+    var qrOwnerEl = document.getElementById("qrOwnerDisplay");
+    var qrAccEl = document.getElementById("qrAccDisplay");
+    var qrAmountEl = document.getElementById("qrAmountDisplay");
+    var qrNoteEl = document.getElementById("qrTransferNoteDisplay");
+    if (qrOwnerEl) qrOwnerEl.textContent = owner || "HUYNH KIEN CAM";
+    if (qrAccEl) qrAccEl.textContent = account || "59215112002";
+    if (qrAmountEl) qrAmountEl.textContent = formatCurrency(order.amount || 0);
+    if (qrNoteEl) qrNoteEl.textContent = order.transfer_note || order.order_id || "";
+
+    var canvas = makeLocalVietQr(order, account, owner);
+    currentQrImageUrl = canvas.toDataURL("image/png");
+
     var img = new Image();
     img.className = "checkout-vietqr-image";
     img.alt = "VietQR thanh toán đơn hàng " + order.order_id;
-    img.crossOrigin = "anonymous";
+    img.src = currentQrImageUrl;
     qrBox.replaceChildren(img);
-
-    function showQrCanvas(canvasSource) {
-      if (!qrBox.contains(img)) return;
-      currentQrImageUrl = canvasSource.toDataURL("image/png");
-      img.onload = img.onerror = null;
-      img.src = currentQrImageUrl;
-    }
-
-    img.onload = function () {
-      if (qrBox.contains(img)) showQrCanvas(makeLocalVietQr(order, account, owner, img));
-    };
-
-    img.onerror = function () {
-      if (!qrBox.contains(img)) return;
-      var directUrl = "https://img.vietqr.io/image/TPB-" + encodeURIComponent(account) +
-        "-compact2.png?amount=" + encodeURIComponent(order.amount) + "&addInfo=" +
-        encodeURIComponent(order.transfer_note || order.order_id) + "&accountName=" + encodeURIComponent(owner);
-      var fallbackImg = new Image();
-      fallbackImg.crossOrigin = "anonymous";
-      fallbackImg.onload = function() {
-        var c = document.createElement("canvas");
-        c.width = fallbackImg.naturalWidth || 1080;
-        var bannerH = Math.round(c.width * 0.12);
-        c.height = (fallbackImg.naturalHeight || 1280) + bannerH;
-        var ctx = c.getContext("2d");
-        ctx.fillStyle = "#fff";
-        ctx.fillRect(0, 0, c.width, c.height);
-        ctx.drawImage(fallbackImg, 0, 0);
-        
-        ctx.fillStyle = "#f8fafc";
-        var bx = 40, by = c.height - bannerH + 4, bw = c.width - 80, bh = bannerH - 12;
-        ctx.fillRect(bx, by, bw, bh);
-        ctx.strokeStyle = "#e2e8f0";
-        ctx.lineWidth = 2;
-        ctx.strokeRect(bx, by, bw, bh);
-        
-        ctx.fillStyle = "#0f172a";
-        ctx.font = "700 " + Math.round(bannerH * 0.38) + "px sans-serif";
-        ctx.textAlign = "center";
-        ctx.textBaseline = "middle";
-        ctx.fillText("Nội dung: " + (order.transfer_note || order.order_id), c.width / 2, c.height - bannerH / 2);
-        showQrCanvas(c);
-      };
-      fallbackImg.onerror = function() {
-        img.src = directUrl;
-        currentQrImageUrl = directUrl;
-      };
-      fallbackImg.src = directUrl;
-    };
-
-    img.src = "assets/vietqr-tpb-compact2.png";
   }
 
   function saveQrImage() {
