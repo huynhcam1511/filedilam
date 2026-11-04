@@ -2662,23 +2662,28 @@ function escapeHtml(value) {
             .then(function(result) {
               finalizeOrder(result.user);
             })
-            .catch(function() {
+            .catch(function(signInErr) {
+              console.warn("Auto-login failed, falling back to anonymous auth:", signInErr);
               if (auth.signInAnonymously) {
                 auth.signInAnonymously().then(function(result) {
                   finalizeOrder(result.user);
                 }).catch(function(anonErr) {
+                  console.error("Anonymous auth failed:", anonErr);
                   showToast("Vui lòng thử lại sau giây lát: " + (anonErr.message || ""));
                   if (btnQuickSubmit) btnQuickSubmit.disabled = false;
                 });
               } else {
-                finalizeOrder({ uid: "guest_" + phone, email: customerEmail });
+                showToast("Vui lòng thử lại sau giây lát.");
+                if (btnQuickSubmit) btnQuickSubmit.disabled = false;
               }
             });
         } else {
+          console.warn("createUser failed, falling back to anonymous auth:", error);
           if (auth.signInAnonymously) {
             auth.signInAnonymously().then(function(result) {
               finalizeOrder(result.user);
-            }).catch(function() {
+            }).catch(function(anonErr) {
+              console.error("Anonymous auth failed:", anonErr);
               showToast(authErrorMessage(error, "register"));
               if (btnQuickSubmit) btnQuickSubmit.disabled = false;
             });
@@ -2808,6 +2813,7 @@ function escapeHtml(value) {
     if (checkoutAuthStep) checkoutAuthStep.style.display = "grid";
     if (checkoutModalTitle) checkoutModalTitle.textContent = "Quét mã QR thanh toán";
     if (checkoutBackBtn) checkoutBackBtn.style.display = "inline-flex";
+    if (checkoutModal) checkoutModal.scrollTop = 0;
     resetQrActions();
 
     var productNames = state.cart.map(function(e) {
