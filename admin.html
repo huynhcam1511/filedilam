@@ -1363,27 +1363,39 @@
     .rank-badge.top-2 { background: #f1f5f9; color: #334155; }
     .rank-badge.top-3 { background: #ffedd5; color: #c2410c; }
 
-    /* Badge Status */
+    /* Flat Status Badge (Fintech Standard, Dot status, Zero pill abuse) */
     .badge-status {
       display: inline-flex;
       align-items: center;
-      gap: 4px;
-      padding: 3px 10px;
-      border-radius: 999px;
+      gap: 6px;
       font-size: 0.76rem;
       font-weight: 600;
-      letter-spacing: 0.02em;
+      letter-spacing: 0.01em;
       white-space: nowrap;
+      background: transparent !important;
+      border: none !important;
+      padding: 0 !important;
+    }
+    .status-dot {
+      width: 6.5px;
+      height: 6.5px;
+      border-radius: 50%;
+      display: inline-block;
+      flex-shrink: 0;
     }
     .badge-status-paid {
-      background: #ecfdf5;
-      color: #047857;
-      border: 1px solid #a7f3d0;
+      color: #059669;
+    }
+    .badge-status-paid .status-dot {
+      background-color: #10b981;
+      box-shadow: 0 0 0 2.5px rgba(16, 185, 129, 0.2);
     }
     .badge-status-pending {
-      background: #fffbeb;
-      color: #b45309;
-      border: 1px solid #fde68a;
+      color: #d97706;
+    }
+    .badge-status-pending .status-dot {
+      background-color: #f59e0b;
+      box-shadow: 0 0 0 2.5px rgba(245, 158, 11, 0.2);
     }
 
     /* Action buttons in Table */
@@ -2046,11 +2058,13 @@
                   <thead>
                     <tr>
                       <th style="width: 95px;">Mã đơn</th>
-                      <th style="width: 100px;">Thời gian</th>
-                      <th>Khách hàng</th>
+                      <th style="width: 95px;">Thời gian</th>
+                      <th style="width: 170px;">Khách hàng</th>
                       <th>Sản phẩm</th>
+                      <th style="text-align: center; width: 85px;">Mã giảm</th>
+                      <th style="text-align: right; width: 85px;">Giảm giá</th>
                       <th style="text-align: right; width: 95px;">Số tiền</th>
-                      <th style="text-align: center; width: 130px;">Trạng thái</th>
+                      <th style="text-align: center; width: 125px;">Trạng thái</th>
                       <th style="text-align: center; width: 55px;">Mã QR</th>
                     </tr>
                   </thead>
@@ -2359,7 +2373,7 @@
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-storage-compat.js"></script>
   <script src="/__/firebase/init.js"></script>
   
-  <script src="./admin.js?v=189"></script>
+  <script src="./admin.js?v=132"></script>
   <!-- Agentation: Visual Feedback & Annotation for AI agents -->
   <script src="./agentation-vanilla.js"></script>
 

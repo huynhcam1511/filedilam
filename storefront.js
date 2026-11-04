@@ -367,6 +367,23 @@ function escapeHtml(value) {
     var db = firebase.firestore();
     // Real-time synchronization: Any change in Admin Dashboard reflects immediately on Storefront!
     syncLandingCouponTicket();
+    syncHeroCoupons();
+    db.collection('coupons').where('is_active', '==', true).onSnapshot(function(snapshot) {
+      var activeCoupons = [];
+      var today = getLocalDateKey();
+      snapshot.forEach(function(doc) {
+        var c = doc.data() || {};
+        c.id = doc.id;
+        c.code = String(c.code || doc.id).toUpperCase();
+        if (c.start_date && today < c.start_date) return;
+        if (c.end_date && today > c.end_date) return;
+        activeCoupons.push(c);
+      });
+      renderHeroCoupons(activeCoupons);
+      syncLandingCouponTicket();
+    }, function(err) {
+      console.warn('Coupons real-time sync error:', err);
+    });
     db.collection('products').onSnapshot(function(snapshot) {
       var newProducts = [];
       snapshot.forEach(function(doc) {
@@ -3318,6 +3335,82 @@ function escapeHtml(value) {
   // --- REAL-TIME LANDING COUPON TICKET SYNC ---
   var currentFeaturedCoupon = null;
 
+  
+  // --- REAL-TIME HERO COUPONS SYNC ---
+  function renderHeroCoupons(activeCoupons) {
+    var container = document.getElementById("heroCouponsList");
+    var wrapper = document.getElementById("heroCouponsContainer");
+    if (!container) return;
+
+    if (!activeCoupons || !activeCoupons.length) {
+      if (wrapper) wrapper.style.display = "none";
+      container.innerHTML = "";
+      return;
+    }
+
+    if (wrapper) wrapper.style.display = "";
+
+    container.innerHTML = activeCoupons.map(function(c) {
+      var code = String(c.code || c.id || "").toUpperCase();
+      var desc = c.description || getCouponConditionText(c);
+      return (
+        '<div class="hero-coupon-tag" data-code="' + escapeHtml(code) + '" title="Bấm để sao chép mã">' +
+          '<span class="hero-coupon-code">' + escapeHtml(code) + '</span>' +
+          '<span class="hero-coupon-detail">' + escapeHtml(desc) + '</span>' +
+          '<span class="hero-coupon-copy-btn">Sao chép</span>' +
+        '</div>'
+      );
+    }).join("");
+
+    // Click to copy with feedback
+    Array.prototype.forEach.call(container.querySelectorAll(".hero-coupon-tag"), function(tag) {
+      tag.addEventListener("click", function() {
+        var code = tag.getAttribute("data-code");
+        if (code) {
+          if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(code).then(function() {
+              showToast("Đã sao chép mã: " + code);
+            }).catch(function() {
+              showToast("Mã: " + code);
+            });
+          } else {
+            showToast("Mã: " + code);
+          }
+        }
+      });
+    });
+  }
+
+  async function syncHeroCoupons() {
+    var container = document.getElementById("heroCouponsList");
+    if (!container) return;
+
+    try {
+      if (typeof db === "undefined" || !db.collection) return;
+      var snapshot = await db.collection("coupons").where("is_active", "==", true).get();
+      if (snapshot.empty) {
+        renderHeroCoupons([]);
+        return;
+      }
+
+      var activeCoupons = [];
+      var today = getLocalDateKey();
+
+      snapshot.forEach(function(doc) {
+        var c = doc.data() || {};
+        c.id = doc.id;
+        c.code = String(c.code || doc.id).toUpperCase();
+        if (c.start_date && today < c.start_date) return;
+        if (c.end_date && today > c.end_date) return;
+        activeCoupons.push(c);
+      });
+
+      renderHeroCoupons(activeCoupons);
+    } catch (err) {
+      console.warn("Could not sync hero coupons:", err);
+    }
+  }
+
   async function syncLandingCouponTicket() {
     var ticketSec = document.getElementById('landingCouponSection');
     if (!ticketSec) return;
@@ -4785,70 +4878,3 @@ if (document.readyState === "loading") {
     setTimeout(initStatsCounters, 200);
   }
 })();
-
-
-  // Load and render all active coupons in Hero Section
-  async function loadHeroCoupons() {
-    var container = document.getElementById("heroCouponsList");
-    if (!container) return;
-
-    var activeCoupons = [
-      {
-        code: "FILEDILAM",
-        description: "Giảm 10% cho đơn từ 160.000 đ",
-        min_order: 160000,
-        value: 10,
-        type: "percent"
-      }
-    ];
-
-    if (typeof firebase !== 'undefined' && firebase.firestore) {
-      try {
-        var db = firebase.firestore();
-        var snapshot = await db.collection("coupons").where("is_active", "==", true).get();
-        if (!snapshot.empty) {
-          var fetched = [];
-          var nowYMD = getLocalDateKey();
-          snapshot.forEach(function(doc) {
-            var c = doc.data();
-            c.id = doc.id;
-            // Check dates
-            if (c.start_date && nowYMD < c.start_date) return;
-            if (c.end_date && nowYMD > c.end_date) return;
-            fetched.push(c);
-          });
-          if (fetched.length > 0) {
-            activeCoupons = fetched;
-          }
-        }
-      } catch (err) {
-        console.warn("Could not load coupons from Firestore:", err);
-      }
-    }
-
-    container.innerHTML = activeCoupons.map(function(c) {
-      var desc = c.description || (c.type === 'percent' ? 'Giảm ' + c.value + '%' : 'Giảm ' + formatCurrency(c.value));
-      return (
-        '<div class="hero-coupon-tag" data-code="' + escapeHtml(c.code) + '" title="Bấm để sao chép mã">' +
-          '<span class="hero-coupon-code">' + escapeHtml(c.code) + '</span>' +
-          '<span class="hero-coupon-detail">' + escapeHtml(desc) + '</span>' +
-          '<span class="hero-coupon-copy-btn">Sao chép</span>' +
-        '</div>'
-      );
-    }).join('');
-
-    // Attach click to copy
-    Array.prototype.forEach.call(container.querySelectorAll(".hero-coupon-tag"), function(tag) {
-      tag.addEventListener("click", function() {
-        var code = tag.getAttribute("data-code");
-        if (code) {
-          navigator.clipboard.writeText(code).then(function() {
-            showToast("Đã sao chép mã: " + code);
-          }).catch(function() {
-            showToast("Mã: " + code);
-          });
-        }
-      });
-    });
-  }
-

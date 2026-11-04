@@ -1551,8 +1551,8 @@ document.addEventListener('DOMContentLoaded', () => {
         </div>
         <div>
           ${isPaid 
-            ? '<span class="badge-status badge-status-paid" style="font-size: 0.74rem; font-weight: 600; padding: 3px 9px;">✓ ĐÃ THANH TOÁN</span>'
-            : '<span class="badge-status badge-status-pending" style="font-size: 0.74rem; font-weight: 600; padding: 3px 9px;">⏳ CHỜ THANH TOÁN</span>'}
+            ? '<span class="badge-status badge-status-paid"><span class="status-dot"></span>Đã thanh toán</span>'
+            : '<span class="badge-status badge-status-pending"><span class="status-dot"></span>Chờ thanh toán</span>'}
         </div>
       </div>
 
@@ -1604,7 +1604,7 @@ document.addEventListener('DOMContentLoaded', () => {
         </div>
         <div style="background: #ffffff; padding: 8px; border-radius: 8px; border: 1px solid #e2e8f0; display: inline-block; margin: 4px auto 8px;">
           <a href="${qrImgUrl}" target="_blank" title="Nhấp xem ảnh lớn">
-            <img src="${qrImgUrl}" alt="QR #${escapeHtml(orderId)}" style="width: 120px; height: 120px; object-fit: contain; display: block;" />
+            <img src="${qrImgUrl}" alt="QR #${escapeHtml(orderId)}" style="width: 96px; height: 96px; object-fit: contain; display: block;" />
           </a>
         </div>
         <div style="font-size: 0.78rem; color: #64748b;">
@@ -1715,8 +1715,8 @@ document.addEventListener('DOMContentLoaded', () => {
     orderListBody.innerHTML = filtered.map(order => {
       const isPaid = (order.status || '').toUpperCase() === 'PAID';
       const statusBadge = isPaid
-        ? '<span class="badge-status badge-status-paid">✓ ĐÃ THANH TOÁN</span>'
-        : '<span class="badge-status badge-status-pending">⏳ CHỜ THANH TOÁN</span>';
+        ? '<span class="badge-status badge-status-paid"><span class="status-dot"></span>Đã thanh toán</span>'
+        : '<span class="badge-status badge-status-pending"><span class="status-dot"></span>Chờ thanh toán</span>';
 
       const timeObj = formatDateTime(order.created_at || order.paid_at);
       const timeHtml = timeObj.date 
@@ -1724,10 +1724,12 @@ document.addEventListener('DOMContentLoaded', () => {
           `<div style="font-size: 0.74rem; color: #64748b; white-space: nowrap; margin-top: 1px;">${escapeHtml(timeObj.date)}</div>`
         : `<span style="font-size: 0.82rem; color: #64748b;">${escapeHtml(timeObj.time)}</span>`;
 
-      const rawEmail = order.customer_email || '';
+            const rawEmail = order.customer_email || '';
       const isVirtualEmail = rawEmail.endsWith('@khachhang.filedilam.vn');
       const cleanEmail = isVirtualEmail ? '' : rawEmail;
-      const customerInfo = order.customer_phone || cleanEmail || (order.user_id ? order.user_id.slice(0, 8) + '...' : 'Khách vãng lai');
+      const phoneDisplay = order.customer_phone || (order.user_id ? order.user_id.slice(0, 8) + '...' : 'Khách vãng lai');
+      const customerHtml = `<div style="font-weight: 600; color: #0f172a; font-size: 0.84rem; font-family: ui-monospace, SFMono-Regular, Menlo, monospace;">${escapeHtml(phoneDisplay)}</div>` +
+        (cleanEmail ? `<div style="font-size: 0.72rem; color: #64748b; margin-top: 1px; max-width: 155px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${escapeHtml(cleanEmail)}">${escapeHtml(cleanEmail)}</div>` : '');
 
       const orderId = order.order_id || '';
       const amountVal = order.amount || 0;
@@ -1762,8 +1764,8 @@ document.addEventListener('DOMContentLoaded', () => {
         <tr data-order-id="${escapeHtml(orderId)}" class="${isSelected ? 'selected-row' : ''}">
           <td><strong style="font-size: 0.88rem; color: #1e293b; font-family: monospace;">#${escapeHtml(orderId)}</strong></td>
           <td style="white-space: nowrap;">${timeHtml}</td>
-          <td><span style="font-weight: 500; color: #1e293b; font-size: 0.86rem;">${escapeHtml(customerInfo)}</span></td>
-          <td><span style="font-weight: 600; color: #1e293b; font-size: 0.86rem;">${escapeHtml(order.product_name || 'File')}</span>${coachingBadge}</td>
+          <td>${customerHtml}</td>
+          <td><div style="font-weight: 600; color: #1e293b; font-size: 0.84rem; line-height: 1.35; max-height: 2.7em; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;" title="${escapeHtml(order.product_name || 'File')}">${escapeHtml(order.product_name || 'File')}</div>${coachingBadge}</td>
           <td style="text-align: center;">${couponHtml}</td>
           <td style="text-align: right;">${discountHtml}</td>
           <td style="text-align: right;"><strong style="color: var(--mint-primary); font-size: 0.88rem;">${formatCurrency(order.amount || 0)}</strong></td>
