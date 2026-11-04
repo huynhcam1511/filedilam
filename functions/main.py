@@ -131,7 +131,8 @@ def send_order_success_email(customer_email, customer_name, order_id, order_data
           <div style="margin-bottom: 24px;">
             <div style="margin-bottom: 8px;">
               <strong style="color: #0f172a;">Bước 2. Bấm vào Menu ứng dụng trên thanh công cụ trang tính:</strong><br>
-              <span style="color: #64748b; font-size: 13px;">Nhìn lên thanh menu bên phải trên cùng (cạnh Trợ giúp) &rarr; Bấm vào menu ứng dụng (VD: <strong>File Đi Làm Cost &rarr; Mở ứng dụng tính cost</strong>).</span>
+              <span style="color: #64748b; font-size: 13px;">Nhìn lên thanh menu bên phải trên cùng (cạnh Trợ giúp) &rarr; Bấm vào menu ứng dụng (VD: <strong>File Đi Làm Cost &rarr; Mở ứng dụng tính cost</strong>).</span><br>
+              <span style="color: #b45309; font-size: 12.5px; font-weight: 600; display: inline-block; margin-top: 5px; background: #fef3c7; padding: 4px 10px; border-radius: 4px; border: 1px solid #fde68a; line-height: 1.45;">Lưu ý: Nếu vừa tạo bản sao xong mà chưa thấy menu xuất hiện ngay, do Google Sheets cần vài giây nạp tập lệnh, bạn hãy tải lại trang (reload / F5) sau khoảng 30 giây là menu sẽ hiển thị đầy đủ.</span>
             </div>
             <div style="border: 1px solid #e2e8f0; border-radius: 8px; overflow: hidden; max-width: 520px;">
               <img src="https://filedilam.web.app/assets/guide/02_menu_mo_ung_dung.jpg" alt="Bước 2: Bấm menu mở ứng dụng" style="display: block; width: 100%; height: auto;" />
@@ -210,7 +211,7 @@ def send_order_success_email(customer_email, customer_name, order_id, order_data
           </div>
           <div style="margin-bottom: 12px;">
             <strong style="color: #0f172a;">2. File được lưu vĩnh viễn trên Drive cá nhân:</strong><br>
-            Bản sao này hoàn toàn thuộc quyền sở hữu của riêng bạn. Bạn có thể chỉnh sửa dữ liệu, thêm dòng cột hoặc chia sẻ cho nhân sự / cộng sự tùy ý.
+            Bản sao này hoàn toàn thuộc quyền sở hữu của riêng bạn. Bạn có thể chỉnh sửa dữ liệu, thêm dòng cột hoặc chia sẻ cho nhân sự / cộng sự tùy ý. (Nếu vừa tạo bản sao mà chưa thấy Menu tiện ích, vui lòng tải lại trang sau 30 giây để Google Sheets nạp tập lệnh).
           </div>
           <div style="margin-bottom: 8px;">
             <strong style="color: #0f172a;">3. Tương thích mọi thiết bị:</strong><br>
