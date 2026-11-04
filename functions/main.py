@@ -313,6 +313,129 @@ def send_order_success_email(customer_email, customer_name, order_id, order_data
         print(f"[Email] Lỗi gửi email cho đơn {order_id} ({customer_email}): {e}")
         return False
 
+def send_payment_reminder_email(customer_email, customer_name, order_id, order_data):
+    if not customer_email or "@" not in customer_email:
+        print(f"[Email] Bỏ qua gửi email nhắc do địa chỉ không hợp lệ: {customer_email}")
+        return False
+    
+    try:
+        product_name = order_data.get("product_name") or "File Quản Lý Google Sheets"
+        amount = int(order_data.get("amount") or 0)
+        amount_fmt = f"{amount:,}".replace(",", ".") + " đ"
+        phone = order_data.get("customer_phone") or ""
+        
+        # QR Code VietQR TPBank
+        qr_url = f"https://img.vietqr.io/image/TPB-59215112002-compact.png?amount={amount}&addInfo={order_id}&accountName=HUYNH%20KIEN%20CAM"
+        
+        cust_display_name = customer_name if customer_name else "Quý khách"
+
+        customer_name_row = f'<div style="display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 13.5px;"><span style="color: #64748b;">Họ tên khách hàng:</span><strong style="color: #0f172a;">{escape(customer_name)}</strong></div>' if customer_name else ''
+        phone_row = f'<div style="display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 13.5px;"><span style="color: #64748b;">Số điện thoại:</span><strong style="color: #0f172a; font-family: monospace;">{escape(phone)}</strong></div>' if phone else ''
+
+        html_content = f"""<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Thông tin hoàn tất đơn hàng #{order_id} - File Đi Làm</title>
+</head>
+<body style="margin: 0; padding: 32px 16px; background-color: #f8fafc; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; color: #0f172a; line-height: 1.6; -webkit-font-smoothing: antialiased;">
+  <div style="max-width: 580px; margin: 0 auto; background-color: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden;">
+    
+    <!-- Header -->
+    <div style="padding: 28px 32px 20px 32px; border-bottom: 1px solid #f1f5f9;">
+      <div style="font-size: 18px; font-weight: 700; color: #0f172a; letter-spacing: -0.4px;">File Đi Làm</div>
+      <div style="font-size: 13.5px; color: #64748b; margin-top: 4px;">Thông tin hoàn tất thanh toán đơn hàng</div>
+    </div>
+
+    <!-- Body Content -->
+    <div style="padding: 28px 32px 32px 32px;">
+      <p style="font-size: 15px; margin: 0 0 16px 0; color: #334155;">
+        Xin chào <strong>{escape(cust_display_name)}</strong>,
+      </p>
+      <p style="font-size: 14.5px; margin: 0 0 20px 0; color: #334155; line-height: 1.6;">
+        Hệ thống File Đi Làm đã tiếp nhận đơn hàng của bạn. Bạn vui lòng quét mã VietQR bên dưới để hoàn tất thanh toán và kích hoạt file:
+      </p>
+
+      <!-- Bảng thông tin đối chiếu đơn hàng & khách hàng -->
+      <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 18px 20px; margin-bottom: 24px;">
+        <div style="font-size: 12px; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 12px;">Thông tin đối chiếu đơn hàng</div>
+        {customer_name_row}
+        {phone_row}
+        <div style="display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 13.5px;">
+          <span style="color: #64748b;">Email nhận file:</span>
+          <strong style="color: #0f172a;">{escape(customer_email)}</strong>
+        </div>
+        <div style="display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 13.5px;">
+          <span style="color: #64748b;">Mã đơn hàng:</span>
+          <strong style="color: #0f172a; font-family: monospace;">#{order_id}</strong>
+        </div>
+        <div style="display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 13.5px;">
+          <span style="color: #64748b;">Sản phẩm:</span>
+          <strong style="color: #0f172a;">{escape(product_name)}</strong>
+        </div>
+        <div style="display: flex; justify-content: space-between; padding-top: 10px; margin-top: 8px; border-top: 1px dashed #cbd5e1; font-size: 14.5px;">
+          <span style="color: #0f172a; font-weight: 600;">Số tiền thanh toán:</span>
+          <strong style="color: #059669; font-size: 16px; font-family: monospace;">{amount_fmt}</strong>
+        </div>
+      </div>
+
+      <!-- Khung VietQR Quét mã thanh toán -->
+      <div style="text-align: center; background-color: #ffffff; border: 1px solid #e2e8f0; border-radius: 8px; padding: 20px; margin-bottom: 24px;">
+        <div style="font-size: 14px; font-weight: 600; color: #0f172a; margin-bottom: 4px;">Mã QR chuyển khoản tự động (VietQR):</div>
+        <div style="font-size: 12.5px; color: #64748b; margin-bottom: 14px;">Mở ứng dụng ngân hàng bất kỳ để quét mã</div>
+        
+        <div style="display: inline-block; padding: 10px; background: #ffffff; border: 1px solid #e2e8f0; border-radius: 8px;">
+          <a href="{qr_url}" target="_blank">
+            <img src="{qr_url}" alt="Mã QR VietQR đơn #{order_id}" style="width: 200px; height: 200px; display: block; margin: 0 auto; object-fit: contain;" />
+          </a>
+        </div>
+
+        <div style="margin-top: 14px; font-size: 13px; color: #334155; line-height: 1.6; text-align: left; max-width: 380px; margin-left: auto; margin-right: auto; background: #f8fafc; padding: 12px 16px; border-radius: 6px;">
+          <div>• <strong>Ngân hàng:</strong> TPBank (Ngân hàng Tiên Phong)</div>
+          <div>• <strong>Số tài khoản:</strong> <span style="font-family: monospace; font-weight: 700; color: #0f172a;">59215112002</span></div>
+          <div>• <strong>Chủ tài khoản:</strong> HUYNH KIEN CAM</div>
+          <div>• <strong>Số tiền:</strong> <strong style="color: #059669;">{amount_fmt}</strong></div>
+          <div>• <strong>Nội dung CK:</strong> <span style="font-family: monospace; font-weight: 700; color: #0f172a; background: #e2e8f0; padding: 2px 6px; border-radius: 4px;">{order_id}</span></div>
+        </div>
+      </div>
+
+      <!-- Kích hoạt tự động & Hỗ trợ -->
+      <div style="padding: 14px 16px; background-color: #ecfdf5; border: 1px solid #a7f3d0; border-radius: 8px; font-size: 13px; color: #065f46; line-height: 1.5; margin-bottom: 20px;">
+        <strong>Bàn giao tự động 24/7:</strong> Ngay sau khi ngân hàng báo nhận tiền thành công, hệ thống sẽ tự động gửi email kèm đường dẫn nhận file Google Sheets về đúng hòm thư này trong vòng 3 - 5 giây.
+      </div>
+
+      <div style="font-size: 13px; color: #64748b; line-height: 1.5; border-top: 1px solid #f1f5f9; padding-top: 16px;">
+        Nếu bạn đã chuyển khoản hoặc cần hỗ trợ thêm, vui lòng phản hồi trực tiếp email này hoặc liên hệ Hotline/Zalo: <strong style="color: #0f172a;">0938 134 576</strong>.
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div style="padding: 16px 32px; background-color: #f8fafc; border-top: 1px solid #f1f5f9; font-size: 12px; color: #94a3b8; text-align: center; line-height: 1.5;">
+      File Đi Làm &bull; Hệ thống quản lý và tự động hoá quy trình trên Google Sheets<br>
+      Website: <a href="https://filedilam.web.app" target="_blank" style="color: #64748b; text-decoration: underline;">filedilam.web.app</a>
+    </div>
+
+  </div>
+</body>
+</html>"""
+
+        msg = MIMEMultipart("alternative")
+        msg["Subject"] = f"[File Đi Làm] Hướng dẫn hoàn tất đơn hàng #{order_id} - {product_name}"
+        msg["From"] = f'"File Đi Làm" <{SMTP_USER}>'
+        msg["To"] = customer_email
+        msg.attach(MIMEText(html_content, "html", "utf-8"))
+
+        server = smtplib.SMTP_SSL("smtp.gmail.com", 465, timeout=15)
+        server.login(SMTP_USER, SMTP_PASS)
+        server.sendmail(SMTP_USER, [customer_email], msg.as_string())
+        server.quit()
+        print(f"[Email] Gửi email nhắc thanh toán thành công tới {customer_email} cho đơn {order_id}")
+        return True
+    except Exception as e:
+        print(f"[Email] Lỗi gửi email nhắc thanh toán cho đơn {order_id} ({customer_email}): {e}")
+        return False
+
 try:
     get_app()
 except ValueError:
@@ -429,6 +552,34 @@ def api(req: https_fn.Request) -> https_fn.Response:
             "order_id": order_id,
             "status": "PAID"
         })
+
+    if path == "/admin/send-payment-reminder" and method == "POST":
+        user = require_user(req)
+        if not user or user.get("email") != "huynhkiencam151102@gmail.com":
+            return json_response({"error": "ADMIN_AUTH_REQUIRED"}, 403)
+        data = req.get_json(silent=True) or {}
+        order_id = str(data.get("order_id") or "").strip().upper()
+        if not order_id:
+            return json_response({"error": "MISSING_ORDER_ID"}, 400)
+
+        doc_ref = db.collection("orders").document(order_id)
+        doc = doc_ref.get()
+        if not doc.exists:
+            return json_response({"error": "ORDER_NOT_FOUND"}, 404)
+
+        order_data = doc.to_dict()
+        cust_email = str(order_data.get("customer_email") or "").strip()
+        if not cust_email or "@" not in cust_email or cust_email.endswith("@khachhang.filedilam.vn"):
+            return json_response({"error": "CUSTOMER_EMAIL_INVALID"}, 400)
+
+        cust_name = order_data.get("customer_name") or ""
+        success = send_payment_reminder_email(cust_email, cust_name, order_id, order_data)
+        if success:
+            now = datetime.now(timezone.utc)
+            doc_ref.update({"reminder_sent_at": now})
+            return json_response({"success": True, "email": cust_email})
+        else:
+            return json_response({"error": "FAILED_TO_SEND_EMAIL"}, 500)
 
     if path == "/admin/generate-magic-link" and method == "POST":
         user = require_user(req)
