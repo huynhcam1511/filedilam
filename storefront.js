@@ -3349,11 +3349,17 @@ function escapeHtml(value) {
     container.innerHTML = activeCoupons.map(function(c) {
       var code = String(c.code || c.id || "").toUpperCase();
       var desc = c.description || getCouponConditionText(c);
+      // Clean dates or redundant parentheses for minimalist display if any
+      var cleanDesc = desc.replace(/\s*\(từ.*?\)/gi, '').replace(/\s*\(hạn chót.*?\)/gi, '').replace(/\s*\(áp dụng.*?\)/gi, '');
       return (
         '<div class="hero-coupon-tag" data-code="' + escapeHtml(code) + '" title="Bấm để sao chép mã">' +
           '<span class="hero-coupon-code">' + escapeHtml(code) + '</span>' +
-          '<span class="hero-coupon-detail">' + escapeHtml(desc) + '</span>' +
-          '<span class="hero-coupon-copy-btn">Sao chép</span>' +
+          '<span class="hero-coupon-sep">•</span>' +
+          '<span class="hero-coupon-detail">' + escapeHtml(cleanDesc) + '</span>' +
+          '<span class="hero-coupon-copy-btn">' +
+            '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>' +
+            '<span>Sao chép</span>' +
+          '</span>' +
         '</div>'
       );
     }).join("");

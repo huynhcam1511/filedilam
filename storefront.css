@@ -4724,86 +4724,95 @@ body:not(.is-admin) #userProfile {
 }
 
 
-/* HERO COUPONS CAROUSEL / LIST STYLING */
+/* HERO COUPONS - MINIMALIST FINTECH STANDARD (Zero Pill / Zero Card Abuse) */
 .hero-coupons-wrapper {
-  margin-top: 18px;
+  margin-top: 14px;
   display: flex;
   flex-direction: column;
-  gap: 8px;
-}
-
-.hero-coupons-header {
-  display: flex;
-  align-items: center;
   gap: 6px;
-  font-size: 0.82rem;
-  font-weight: 600;
-  color: #059669;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
 }
 
 .hero-coupons-list {
   display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  align-items: center;
+  flex-direction: column;
+  gap: 6px;
+  align-items: flex-start;
 }
 
 .hero-coupon-tag {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  background: #ffffff;
-  border: 1px dashed #10b981;
-  padding: 6px 12px;
-  border-radius: 8px;
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  padding: 3px 0 !important;
+  border-radius: 0 !important;
   font-size: 0.84rem;
-  color: #1e293b;
+  color: #475569;
   cursor: pointer;
-  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-  box-shadow: 0 1px 2px rgba(16, 185, 129, 0.08);
+  transition: opacity 0.15s ease, transform 0.15s ease;
+  user-select: none;
 }
 
 .hero-coupon-tag:hover {
-  background: #ecfdf5;
-  border-color: #059669;
-  transform: translateY(-1px);
+  background: transparent !important;
+  transform: translateX(2px);
+}
+
+.hero-coupon-tag:hover .hero-coupon-code {
+  color: #047857;
+  text-decoration: underline;
+}
+
+.hero-coupon-tag:hover .hero-coupon-copy-btn {
+  color: #047857;
+  border-color: #a7f3d0;
 }
 
 .hero-coupon-code {
   font-family: var(--font-mono, monospace);
   font-weight: 700;
+  font-size: 0.82rem;
   color: #059669;
-  background: #f0fdf4;
-  padding: 2px 6px;
-  border-radius: 4px;
-  letter-spacing: 0.5px;
+  background: transparent !important;
+  padding: 0 !important;
+  border-radius: 0 !important;
+  letter-spacing: 0.04em;
+}
+
+.hero-coupon-sep {
+  color: #cbd5e1;
+  font-size: 0.75rem;
+  user-select: none;
 }
 
 .hero-coupon-detail {
-  color: #475569;
+  color: #64748b;
   font-weight: 500;
   font-size: 0.82rem;
+  line-height: 1.4;
 }
 
 .hero-coupon-copy-btn {
   font-size: 0.72rem;
   font-weight: 600;
   color: #059669;
-  background: #ecfdf5;
-  padding: 2px 6px;
-  border-radius: 4px;
-  margin-left: 2px;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  padding: 1px 7px;
+  border-radius: 6px;
+  margin-left: 4px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  transition: all 0.15s ease;
 }
 
 @media (max-width: 640px) {
-  .hero-coupons-list {
-    flex-direction: column;
-    align-items: stretch;
-  }
   .hero-coupon-tag {
-    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 6px;
   }
 }
 
