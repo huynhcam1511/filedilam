@@ -1321,6 +1321,140 @@
       font-weight: 500;
     }
 
+    
+    /* ========================================================
+       POWER BI ZERO-SPACING SEAMLESS MATRIX DASHBOARD (COMPACT & REFINED)
+       ======================================================== */
+    .pbi-dashboard-matrix {
+      background: #ffffff;
+      border: 1px solid var(--slate-border);
+      border-radius: 6px;
+      overflow: hidden;
+      margin-bottom: 24px;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02);
+    }
+
+    /* KPI Row: 4 contiguous metric blocks, zero gap, zero decorative icons */
+    .pbi-kpi-row {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      border-bottom: 1px solid var(--slate-border);
+      background: #ffffff;
+      gap: 0;
+    }
+
+    .pbi-kpi-cell {
+      padding: 16px 20px;
+      border-right: 1px solid var(--slate-border);
+      background: #ffffff;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      border-radius: 0;
+      box-shadow: none;
+    }
+    .pbi-kpi-cell:last-child {
+      border-right: none;
+    }
+
+    .pbi-kpi-header {
+      color: #64748b;
+      font-size: 0.72rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .pbi-kpi-value {
+      font-size: 1.35rem;
+      font-weight: 700;
+      color: #0f172a;
+      margin: 6px 0 2px 0;
+      letter-spacing: -0.02em;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    }
+
+    .pbi-kpi-sub {
+      font-size: 0.74rem;
+      font-weight: 500;
+      color: #64748b;
+    }
+
+    /* Chart Rows: contiguous cells, zero gap */
+    .pbi-chart-row {
+      display: grid;
+      border-bottom: 1px solid var(--slate-border);
+      background: #ffffff;
+      gap: 0;
+    }
+    .pbi-chart-row:last-child {
+      border-bottom: none;
+    }
+    .pbi-row-2-1 {
+      grid-template-columns: 2fr 1fr;
+    }
+    .pbi-row-1-1 {
+      grid-template-columns: 1fr 1fr;
+    }
+
+    .pbi-chart-cell {
+      padding: 18px 20px;
+      border-right: 1px solid var(--slate-border);
+      background: #ffffff;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      border-radius: 0;
+      box-shadow: none;
+    }
+    .pbi-chart-cell:last-child {
+      border-right: none;
+    }
+
+    .pbi-chart-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 12px;
+    }
+    .pbi-chart-title {
+      margin: 0;
+      font-size: 0.88rem;
+      font-weight: 600;
+      color: #0f172a;
+      letter-spacing: -0.01em;
+    }
+    .pbi-chart-subtitle {
+      margin: 2px 0 0 0;
+      font-size: 0.73rem;
+      color: var(--slate-muted);
+    }
+
+    /* Responsive Power BI Matrix */
+    @media (max-width: 1024px) {
+      .pbi-kpi-row {
+        grid-template-columns: repeat(2, 1fr);
+      }
+      .pbi-kpi-cell:nth-child(2) {
+        border-right: none;
+      }
+      .pbi-kpi-cell:nth-child(1),
+      .pbi-kpi-cell:nth-child(2) {
+        border-bottom: 1px solid var(--slate-border);
+      }
+      .pbi-row-2-1,
+      .pbi-row-1-1 {
+        grid-template-columns: 1fr;
+      }
+      .pbi-chart-cell {
+        border-right: none;
+        border-bottom: 1px solid var(--slate-border);
+      }
+      .pbi-chart-row:last-child .pbi-chart-cell:last-child {
+        border-bottom: none;
+      }
+    }
+
     .analytics-two-col {
       display: grid;
       grid-template-columns: 2fr 1fr;
@@ -2094,8 +2228,7 @@
 
       <!-- TAB 4: REVENUE & ANALYTICS -->
       <div id="statsTab" class="tab-pane">
-        <!-- Toolbar Card for Filters -->
-        <div class="action-toolbar">
+<div class="action-toolbar">
           <div class="toolbar-left">
             <span style="font-size: 0.84rem; font-weight: 600; color: #64748b; text-transform: uppercase;">Khoảng thời gian:</span>
             <div class="pill-btn-group" id="statsPeriodSlicer">
@@ -2126,88 +2259,114 @@
           </div>
         </div>
 
-        <!-- KPI Cards Grid -->
-        <div class="stats-grid">
-          <div class="stat-card">
-            <div class="stat-card-label">
-              <span>Doanh thu kỳ lọc</span>
-              <span class="stat-card-icon" style="background: #ecfdf5; color: #059669;">💰</span>
+        <!-- Power BI Seamless Zero-Spacing Analytics Matrix -->
+        <div class="pbi-dashboard-matrix">
+          <!-- KPI Row: 4 contiguous metric blocks (No decorative icons, clean typography) -->
+          <div class="pbi-kpi-row">
+            <div class="pbi-kpi-cell">
+              <div class="pbi-kpi-header">Doanh thu kỳ lọc</div>
+              <div class="pbi-kpi-value" id="kpiTotalRevenue">0 đ</div>
+              <div class="pbi-kpi-sub" id="kpiTotalRevenueSub" style="color: #059669;">Đang cập nhật...</div>
             </div>
-            <div class="stat-card-value" id="kpiTotalRevenue">0 đ</div>
-            <div class="stat-card-sub" id="kpiTotalRevenueSub" style="color: #059669;">Đang cập nhật...</div>
+
+            <div class="pbi-kpi-cell">
+              <div class="pbi-kpi-header">Giá trị TB / Đơn (AOV)</div>
+              <div class="pbi-kpi-value" id="kpiMonthRevenue">0 đ</div>
+              <div class="pbi-kpi-sub" id="kpiMonthRevenueSub" style="color: #2563eb;">Doanh thu / đơn thành công</div>
+            </div>
+
+            <div class="pbi-kpi-cell">
+              <div class="pbi-kpi-header">Đơn thành công</div>
+              <div class="pbi-kpi-value" id="kpiPaidOrders">0</div>
+              <div class="pbi-kpi-sub" id="kpiPaidOrdersSub" style="color: #d97706;">Tỉ lệ thanh toán tốt</div>
+            </div>
+
+            <div class="pbi-kpi-cell">
+              <div class="pbi-kpi-header">Khách mua độc lập</div>
+              <div class="pbi-kpi-value" id="kpiCustomers">0</div>
+              <div class="pbi-kpi-sub" id="kpiCustomersSub" style="color: #9333ea;">Khách thanh toán</div>
+            </div>
           </div>
 
-          <div class="stat-card">
-            <div class="stat-card-label">
-              <span>Giá trị TB / Đơn (AOV)</span>
-              <span class="stat-card-icon" style="background: #eff6ff; color: #2563eb;">📈</span>
-            </div>
-            <div class="stat-card-value" id="kpiMonthRevenue">0 đ</div>
-            <div class="stat-card-sub" id="kpiMonthRevenueSub" style="color: #2563eb;">Doanh thu / đơn thành công</div>
-          </div>
-
-          <div class="stat-card">
-            <div class="stat-card-label">
-              <span>Đơn thành công</span>
-              <span class="stat-card-icon" style="background: #fef3c7; color: #d97706;">📦</span>
-            </div>
-            <div class="stat-card-value" id="kpiPaidOrders">0</div>
-            <div class="stat-card-sub" id="kpiPaidOrdersSub" style="color: #d97706;">Tỉ lệ thanh toán tốt</div>
-          </div>
-
-          <div class="stat-card">
-            <div class="stat-card-label">
-              <span>Khách mua độc lập</span>
-              <span class="stat-card-icon" style="background: #f3e8ff; color: #9333ea;">👥</span>
-            </div>
-            <div class="stat-card-value" id="kpiCustomers">0</div>
-            <div class="stat-card-sub" id="kpiCustomersSub" style="color: #9333ea;">Khách thanh toán</div>
-          </div>
-        </div>
-
-        <!-- Row 1: Revenue Chart & Best Sellers -->
-        <div class="analytics-two-col">
-          <div class="chart-box">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-              <div>
-                <h3 style="margin: 0; font-size: 1.05rem; color: #0f172a;" id="chartTitle">Biểu đồ Doanh thu</h3>
-                <p style="margin: 4px 0 0 0; font-size: 0.8rem; color: var(--slate-muted);" id="chartSubTitle">Doanh số chi tiết theo từng ngày</p>
+          <!-- Row 1: Revenue Combo Chart & Best Sellers Horizontal Bar (2fr : 1fr) -->
+          <div class="pbi-chart-row pbi-row-2-1">
+            <div class="pbi-chart-cell">
+              <div class="pbi-chart-header">
+                <div>
+                  <h3 class="pbi-chart-title" id="chartTitle">Biểu đồ Doanh thu (Combo Line + Bar)</h3>
+                  <p class="pbi-chart-subtitle" id="chartSubTitle">Doanh số (Cột) & Số lượng đơn hàng (Đường xu hướng)</p>
+                </div>
+                <div id="chartTotalLabel" style="font-weight: 700; color: var(--mint-primary); font-size: 0.95rem; font-family: monospace;"></div>
               </div>
-              <div id="chartTotalLabel" style="font-weight: 700; color: var(--mint-primary); font-size: 0.95rem;"></div>
+              <div id="revenueChartContainer" style="min-height: 200px; display: flex; flex-direction: column; border-bottom: 1px solid var(--slate-border); overflow-x: auto;">
+                <div style="margin: auto; color: var(--slate-muted); font-size: 0.85rem;">Đang tải biểu đồ...</div>
+              </div>
             </div>
-            <div id="revenueChartContainer" style="min-height: 220px; display: flex; align-items: flex-end; justify-content: space-between; gap: 8px; padding: 20px 10px 10px 10px; border-bottom: 1px solid var(--slate-border); background: #f8fafc; border-radius: 10px; overflow-x: auto;">
-              <div style="margin: auto; color: var(--slate-muted); font-size: 0.88rem;">Đang tải biểu đồ...</div>
+
+            <div class="pbi-chart-cell">
+              <div class="pbi-chart-header">
+                <div>
+                  <h3 class="pbi-chart-title">Top File Bán Chạy Nhất (Horizontal Bar)</h3>
+                  <p class="pbi-chart-subtitle">Xếp hạng theo lượt mua & tỷ trọng doanh thu</p>
+                </div>
+              </div>
+              <div id="bestSellersContainer" style="display: flex; flex-direction: column; justify-content: center; min-height: 200px;">
+                <div style="text-align: center; color: var(--slate-muted); padding: 30px 0; font-size: 0.85rem;">Đang tải xếp hạng...</div>
+              </div>
             </div>
           </div>
 
-          <div class="chart-box">
-            <h3 style="margin: 0 0 4px 0; font-size: 1.05rem; color: #0f172a;">Top File Bán Chạy Nhất</h3>
-            <p style="margin: 0 0 16px 0; font-size: 0.8rem; color: var(--slate-muted);">Xếp hạng theo lượt mua thực tế</p>
-            <div id="bestSellersContainer">
-              <div style="text-align: center; color: var(--slate-muted); padding: 30px 0; font-size: 0.88rem;">Đang tải xếp hạng...</div>
+          <!-- Row 2: Hourly Distribution & Category Breakdown SVG Donut (2fr : 1fr) -->
+          <div class="pbi-chart-row pbi-row-2-1">
+            <div class="pbi-chart-cell">
+              <div class="pbi-chart-header">
+                <div>
+                  <h3 class="pbi-chart-title">Khung Giờ Mua Hàng Sôi Động Nhất</h3>
+                  <p class="pbi-chart-subtitle">Phân bố đơn hàng theo các mốc giờ trong ngày (0h - 23h)</p>
+                </div>
+              </div>
+              <div id="hourlyChartContainer" style="min-height: 150px; display: flex; align-items: flex-end; justify-content: space-between; gap: 4px; padding: 12px 4px 6px 4px; border-bottom: 1px solid var(--slate-border);">
+                <div style="margin: auto; color: var(--slate-muted); font-size: 0.85rem;">Đang tải dữ liệu giờ...</div>
+              </div>
+            </div>
+
+            <div class="pbi-chart-cell">
+              <div class="pbi-chart-header">
+                <div>
+                  <h3 class="pbi-chart-title">Cơ Cấu Doanh Thu Theo Danh Mục (Donut Chart)</h3>
+                  <p class="pbi-chart-subtitle">Tỷ trọng doanh số theo từng nhóm sản phẩm</p>
+                </div>
+              </div>
+              <div id="categoryChartContainer" style="min-height: 150px; display: flex; flex-direction: column; justify-content: center;">
+                <div style="text-align: center; color: var(--slate-muted); padding: 20px 0; font-size: 0.85rem;">Đang tải cơ cấu danh mục...</div>
+              </div>
             </div>
           </div>
-        </div>
 
-        <!-- Row 2: Hourly Distribution & Conversion -->
-        <div class="analytics-two-col" style="margin-bottom: 0;">
-          <div class="chart-box">
-            <div style="margin-bottom: 18px;">
-              <h3 style="margin: 0; font-size: 1.05rem; color: #0f172a;">Khung Giờ Mua Hàng Sôi Động Nhất</h3>
-              <p style="margin: 4px 0 0 0; font-size: 0.8rem; color: var(--slate-muted);">Phân bố đơn hàng theo các mốc giờ trong ngày</p>
+          <!-- Row 3: Day-of-Week Distribution & Customer Retention/Conversion (1fr : 1fr) -->
+          <div class="pbi-chart-row pbi-row-1-1">
+            <div class="pbi-chart-cell">
+              <div class="pbi-chart-header">
+                <div>
+                  <h3 class="pbi-chart-title">Chu Kỳ Mua Hàng Theo Thứ Trong Tuần</h3>
+                  <p class="pbi-chart-subtitle">Tập trung số đơn và doanh thu từ Thứ 2 đến Chủ Nhật</p>
+                </div>
+              </div>
+              <div id="weekdayChartContainer" style="min-height: 150px; display: flex; align-items: flex-end; justify-content: space-around; gap: 8px; padding: 12px 4px 6px 4px; border-bottom: 1px solid var(--slate-border);">
+                <div style="margin: auto; color: var(--slate-muted); font-size: 0.85rem;">Đang tải chu kỳ tuần...</div>
+              </div>
             </div>
-            <div id="hourlyChartContainer" style="min-height: 160px; display: flex; align-items: flex-end; justify-content: space-between; gap: 4px; padding: 14px 6px 6px 6px; border-bottom: 1px solid var(--slate-border); background: #f8fafc; border-radius: 10px;">
-              <div style="margin: auto; color: var(--slate-muted); font-size: 0.88rem;">Đang tải dữ liệu giờ...</div>
-            </div>
-          </div>
 
-          <div class="chart-box">
-            <div style="margin-bottom: 16px;">
-              <h3 style="margin: 0; font-size: 1.05rem; color: #0f172a;">Cơ Cấu Đơn & Dịch Vụ Kèm</h3>
-              <p style="margin: 4px 0 0 0; font-size: 0.8rem; color: var(--slate-muted);">Tỷ lệ chuyển đổi thanh toán & đóng góp gói Kèm 1-1</p>
-            </div>
-            <div id="conversionContainer" style="display: flex; flex-direction: column; gap: 14px; padding-top: 6px;">
-              <div style="text-align: center; color: var(--slate-muted); padding: 20px 0; font-size: 0.88rem;">Đang tính tỷ lệ...</div>
+            <div class="pbi-chart-cell">
+              <div class="pbi-chart-header">
+                <div>
+                  <h3 class="pbi-chart-title">Chuyển Đổi & Giữ Chân Khách Hàng</h3>
+                  <p class="pbi-chart-subtitle">Tỷ lệ hoàn tất thanh toán, khách quay lại & gói Coaching</p>
+                </div>
+              </div>
+              <div id="conversionContainer" style="display: flex; flex-direction: column; gap: 12px; padding-top: 4px;">
+                <div style="text-align: center; color: var(--slate-muted); padding: 20px 0; font-size: 0.85rem;">Đang tính tỷ lệ...</div>
+              </div>
             </div>
           </div>
         </div>
@@ -2373,7 +2532,7 @@
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-storage-compat.js"></script>
   <script src="/__/firebase/init.js"></script>
   
-  <script src="./admin.js?v=193"></script>
+  <script src="./admin.js?v=200"></script>
   <!-- Agentation: Visual Feedback & Annotation for AI agents -->
   <script src="./agentation-vanilla.js"></script>
 
