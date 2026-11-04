@@ -2747,16 +2747,9 @@ document.addEventListener('DOMContentLoaded', () => {
 // couponDescInput is readonly & auto-generated
 
 
-});
-
-// Global listener to close popovers when clicking outside
-document.addEventListener('click', () => {
-  document.querySelectorAll('.action-dropdown-popover.show').forEach(p => p.classList.remove('show'));
-  document.querySelectorAll('.action-dots-btn.active').forEach(b => b.classList.remove('active'));
-}); // closeAllPopoversListener
 
 
-  // ==========================================================================
+// ==========================================================================
   // ADS CAMPAIGN MANAGEMENT (QUẢN LÝ QUẢNG CÁO TIKTOK / META ADS)
   // ==========================================================================
   let currentAds = [];
@@ -3115,3 +3108,14 @@ document.addEventListener('click', () => {
   document.getElementById('adsChannelFilter')?.addEventListener('change', renderFilteredAds);
   document.getElementById('adsProductFilter')?.addEventListener('change', renderFilteredAds);
   document.getElementById('adsStatusFilter')?.addEventListener('change', renderFilteredAds);
+
+});
+
+// Global listener to close popovers when clicking outside
+document.addEventListener('click', () => {
+  document.querySelectorAll('.action-dropdown-popover.show').forEach(p => p.classList.remove('show'));
+  document.querySelectorAll('.action-dots-btn.active').forEach(b => b.classList.remove('active'));
+}); // closeAllPopoversListener
+
+
+  
