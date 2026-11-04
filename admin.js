@@ -324,17 +324,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
     productListBody.innerHTML = filtered.map(p => {
       const catName = catMap[p.categoryId] || p.categoryId || 'Khác';
-      let formatHtml = '<span style="font-size:0.84rem; font-weight:500; color:#475569;">Excel (.xlsx)</span>';
+      let formatHtml = '<span style="font-size:0.85rem; font-weight:500; color:#475569;">Excel (.xlsx)</span>';
       if (p.type === 'apps_script' || p.type === 'web_app') {
-        formatHtml = '<span style="font-size:0.82rem; font-weight:600; color:#6d28d9; background:#f5f3ff; border:1px solid #ddd6fe; padding:2px 7px; border-radius:4px;">Web App (Apps Script)</span>';
+        formatHtml = '<span style="font-size:0.85rem; font-weight:500; color:#7c3aed;">Web App (Apps Script)</span>';
       } else if (p.type === 'combo') {
-        formatHtml = '<span style="font-size:0.82rem; font-weight:500; color:#b45309; background:#fef3c7; border:1px solid #fde68a; padding:2px 7px; border-radius:4px;">Combo File</span>';
+        formatHtml = '<span style="font-size:0.85rem; font-weight:500; color:#b45309;">Combo File</span>';
       } else if (p.type === 'google_sheets' || p.sheetUrl) {
-        formatHtml = '<span style="font-size:0.82rem; font-weight:500; color:#059669; background:#ecfdf5; border:1px solid #a7f3d0; padding:2px 7px; border-radius:4px;">Google Sheets</span>';
+        formatHtml = '<span style="font-size:0.85rem; font-weight:500; color:#059669;">Google Sheets</span>';
       }
       
       const downloads = p.downloads_count || 0;
-      const statusHtml = '<span class="status-text-item success">Đang bán</span>';
+      const statusHtml = '<span class="badge-status badge-status-paid"><span class="status-dot"></span>Đang bán</span>';
 
       return `
         <tr>
@@ -360,13 +360,20 @@ document.addEventListener('DOMContentLoaded', () => {
           </td>
           <td>${statusHtml}</td>
           <td style="text-align: right;">
-            <div style="display: inline-flex; align-items: center; gap: 4px;">
-              <button class="action-icon-btn btn-edit" data-id="${p.id}" title="Chỉnh sửa">
-                <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
+            <div class="action-menu-wrap">
+              <button type="button" class="action-dots-btn btn-product-dots" data-id="${p.id}" title="Thao tác">
+                <svg width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="1.5"></circle><circle cx="12" cy="5" r="1.5"></circle><circle cx="12" cy="19" r="1.5"></circle></svg>
               </button>
-              <button class="action-icon-btn danger btn-delete" data-id="${p.id}" title="Xóa file">
-                <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
-              </button>
+              <div class="action-dropdown-popover" id="popover-product-${p.id}">
+                <button type="button" class="action-dropdown-item btn-edit" data-id="${p.id}">
+                  <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
+                  <span>Chỉnh sửa</span>
+                </button>
+                <button type="button" class="action-dropdown-item danger btn-delete" data-id="${p.id}">
+                  <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                  <span>Xóa file</span>
+                </button>
+              </div>
             </div>
           </td>
         </tr>
@@ -377,6 +384,22 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function bindProductActions() {
+    // 3-dots popover dropdown listeners
+    document.querySelectorAll('.btn-product-dots').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const wrap = btn.closest('.action-menu-wrap');
+        const popover = wrap?.querySelector('.action-dropdown-popover');
+        const isShown = popover?.classList.contains('show');
+        document.querySelectorAll('.action-dropdown-popover.show').forEach(p => p.classList.remove('show'));
+        document.querySelectorAll('.action-dots-btn.active').forEach(b => b.classList.remove('active'));
+        if (!isShown && popover) {
+          popover.classList.add('show');
+          btn.classList.add('active');
+        }
+      });
+    });
+
     document.querySelectorAll('.btn-delete').forEach(btn => {
       btn.addEventListener('click', async (e) => {
         const targetBtn = e.currentTarget;
