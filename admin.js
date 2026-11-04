@@ -1573,8 +1573,13 @@ document.addEventListener('DOMContentLoaded', () => {
           <span>Thông tin giao dịch</span>
           <span style="font-size: 0.72rem; font-weight: 400; text-transform: none; color: #94a3b8;">${escapeHtml(timeObj.full)}</span>
         </div>
+        ${order.customer_name ? `
         <div class="inspector-row">
-          <span class="inspector-label">Khách hàng</span>
+          <span class="inspector-label">Họ tên</span>
+          <span class="inspector-val" style="font-weight: 700; color: #0f172a; font-size: 0.88rem;">${escapeHtml(order.customer_name)}</span>
+        </div>` : ''}
+        <div class="inspector-row">
+          <span class="inspector-label">Số điện thoại</span>
           <span class="inspector-val" style="font-weight: 600; color: #0f172a; font-family: ui-monospace, SFMono-Regular, Menlo, monospace;">${escapeHtml(order.customer_phone || 'Khách vãng lai')}</span>
         </div>
         ${order.customer_email ? `
@@ -1712,9 +1717,10 @@ document.addEventListener('DOMContentLoaded', () => {
       if (!searchVal) return true;
       const oId = String(order.order_id || '').toLowerCase();
       const phone = String(order.customer_phone || '').toLowerCase();
+      const name = String(order.customer_name || '').toLowerCase();
       const email = String(order.customer_email || '').toLowerCase();
       const pName = String(order.product_name || '').toLowerCase();
-      return oId.includes(searchVal) || phone.includes(searchVal) || email.includes(searchVal) || pName.includes(searchVal);
+      return oId.includes(searchVal) || name.includes(searchVal) || phone.includes(searchVal) || email.includes(searchVal) || pName.includes(searchVal);
     });
 
     if (!filtered.length) {
@@ -1738,9 +1744,19 @@ document.addEventListener('DOMContentLoaded', () => {
             const rawEmail = order.customer_email || '';
       const isVirtualEmail = rawEmail.endsWith('@khachhang.filedilam.vn');
       const cleanEmail = isVirtualEmail ? '' : rawEmail;
+      const customerName = order.customer_name || '';
       const phoneDisplay = order.customer_phone || (order.user_id ? order.user_id.slice(0, 8) + '...' : 'Khách vãng lai');
-      const customerHtml = `<div style="font-weight: 600; color: #0f172a; font-size: 0.84rem; font-family: ui-monospace, SFMono-Regular, Menlo, monospace;">${escapeHtml(phoneDisplay)}</div>` +
-        (cleanEmail ? `<div style="font-size: 0.72rem; color: #64748b; margin-top: 1px; max-width: 155px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${escapeHtml(cleanEmail)}">${escapeHtml(cleanEmail)}</div>` : '');
+      
+      let customerHtml = '';
+      if (customerName) {
+        customerHtml += `<div style="font-weight: 700; color: #0f172a; font-size: 0.86rem; line-height: 1.3;">${escapeHtml(customerName)}</div>`;
+        customerHtml += `<div style="font-weight: 500; color: #475569; font-size: 0.78rem; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; margin-top: 2px;">${escapeHtml(phoneDisplay)}</div>`;
+      } else {
+        customerHtml += `<div style="font-weight: 600; color: #0f172a; font-size: 0.84rem; font-family: ui-monospace, SFMono-Regular, Menlo, monospace;">${escapeHtml(phoneDisplay)}</div>`;
+      }
+      if (cleanEmail) {
+        customerHtml += `<div style="font-size: 0.72rem; color: #64748b; margin-top: 2px; max-width: 155px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${escapeHtml(cleanEmail)}">${escapeHtml(cleanEmail)}</div>`;
+      }
 
       const orderId = order.order_id || '';
       const amountVal = order.amount || 0;
