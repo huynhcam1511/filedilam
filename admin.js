@@ -2140,6 +2140,55 @@ document.addEventListener('DOMContentLoaded', () => {
   }
   // Event Listeners for Orders & Stats
   document.getElementById('refreshStatsBtn')?.addEventListener('click', loadAdminStats);
+
+  // Bộ lọc khoảng thời gian doanh thu (7, 14, 30, Tất cả)
+  const statsPeriodGroup = document.getElementById('statsPeriodSlicer');
+  if (statsPeriodGroup) {
+    statsPeriodGroup.addEventListener('click', (e) => {
+      const btn = e.target.closest('button[data-period]');
+      if (!btn) return;
+      statsPeriodGroup.querySelectorAll('button').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      statsFilterPeriod = btn.dataset.period;
+      // Khi chọn số ngày, đồng bộ lại dropdown tháng về ALL
+      const monthSel = document.getElementById('statsMonthSlicer');
+      if (monthSel) monthSel.value = 'ALL';
+      statsFilterMonth = 'ALL';
+      renderStatsDashboard();
+    });
+  }
+
+  // Bộ lọc doanh thu theo tháng
+  const statsMonthSel = document.getElementById('statsMonthSlicer');
+  if (statsMonthSel) {
+    statsMonthSel.addEventListener('change', (e) => {
+      statsFilterMonth = e.target.value;
+      if (statsFilterMonth !== 'ALL') {
+        if (statsPeriodGroup) {
+          statsPeriodGroup.querySelectorAll('button').forEach(b => b.classList.remove('active'));
+        }
+      } else {
+        if (statsPeriodGroup) {
+          const defaultBtn = statsPeriodGroup.querySelector('button[data-period="14"]') || statsPeriodGroup.querySelector('button[data-period="all"]');
+          if (defaultBtn) {
+            statsPeriodGroup.querySelectorAll('button').forEach(b => b.classList.remove('active'));
+            defaultBtn.classList.add('active');
+            statsFilterPeriod = defaultBtn.dataset.period;
+          }
+        }
+      }
+      renderStatsDashboard();
+    });
+  }
+
+  // Bộ lọc loại gói bán (Tất cả / File tự dùng / Gói Kèm 1-1)
+  const statsTypeSel = document.getElementById('statsTypeSlicer');
+  if (statsTypeSel) {
+    statsTypeSel.addEventListener('change', (e) => {
+      statsFilterType = e.target.value;
+      renderStatsDashboard();
+    });
+  }
   document.getElementById('refreshOrdersBtn')?.addEventListener('click', loadAdminOrders);
   document.getElementById('orderSearchInput')?.addEventListener('input', renderFilteredOrders);
   document.getElementById('productSearchInput')?.addEventListener('input', renderFilteredProducts);
