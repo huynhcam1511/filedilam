@@ -23,6 +23,20 @@ html, body {
   width: 100%;
   max-width: 100vw;
   position: relative;
+  overflow-x: hidden;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+/* iOS Safari: Ngăn chặn tự động zoom in khi focus vào input (< 16px) */
+input, select, textarea {
+  font-size: 16px !important;
+}
+
+@media (min-width: 769px) {
+  input, select, textarea {
+    font-size: inherit !important;
+  }
 }
 
 body {
