@@ -9,6 +9,16 @@
   'use strict';
 
   if (typeof window === 'undefined') return;
+
+  // CHỈ chạy trên localhost / 127.0.0.1 / file:// (Tuyệt đối KHÔNG chạy trên webapp production như filedilam.web.app)
+  const isLocalHost = Boolean(
+    window.location.hostname === 'localhost' ||
+    window.location.hostname === '127.0.0.1' ||
+    window.location.hostname === '[::1]' ||
+    window.location.protocol === 'file:'
+  );
+  if (!isLocalHost) return;
+
   if (window.__agentationVanilla) return; // prevent double-init
   window.__agentationVanilla = true;
 
