@@ -1538,7 +1538,18 @@ document.addEventListener('DOMContentLoaded', () => {
     const timeObj = formatDateTime(order.created_at || order.paid_at);
     const fileUrl = order.product_file_url || '';
     const isCoaching = order.package_type === 'coaching' || parseInt(order.amount || 0, 10) >= 199000;
-    const zaloMsg = `Chào bạn, File Đi Làm gửi bạn thông tin thanh toán đơn hàng #${orderId} (${order.product_name || 'File'}):\n- Số tiền: ${formatCurrency(amountVal)}\n- STK: 59215112002 (TPBank - HUYNH KIEN CAM)\n- Nội dung chuyển khoản: ${orderId}\n\nSau khi chuyển khoản, file sẽ tự động mở ngay tại: https://filedilam.web.app/?tab=my-files nhé!`;
+    const rawEmail = order.customer_email || '';
+    const isVirtualEmail = rawEmail.endsWith('@khachhang.filedilam.vn');
+    const cleanEmail = isVirtualEmail ? '' : rawEmail;
+    const customerName = order.customer_name || '';
+    const phoneDisplay = order.customer_phone || cleanPhone || '';
+
+    let customerInfoLines = '';
+    if (customerName) customerInfoLines += `\n- Khách hàng: ${customerName}`;
+    if (phoneDisplay) customerInfoLines += `\n- Số điện thoại: ${phoneDisplay}`;
+    if (cleanEmail) customerInfoLines += `\n- Email nhận file: ${cleanEmail}`;
+
+    const zaloMsg = `Chào bạn, File Đi Làm gửi bạn thông tin thanh toán đơn hàng #${orderId} (${order.product_name || 'File'}):${customerInfoLines}\n- Số tiền: ${formatCurrency(amountVal)}\n- STK: 59215112002 (TPBank - HUYNH KIEN CAM)\n- Nội dung chuyển khoản: ${orderId}\n\nSau khi chuyển khoản thành công, hệ thống sẽ tự động kích hoạt và gửi file về email của quý khách nhé!`;
     const zaloChatUrl = cleanPhone ? `https://zalo.me/${cleanPhone}` : '';
 
     // Chuẩn Typography Fintech tinh tế, font phẳng, không lạm dụng in đậm to sừng sững

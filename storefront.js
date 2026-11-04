@@ -806,9 +806,7 @@ function escapeHtml(value) {
             showToast("Link đăng nhập đã hết hạn hoặc không hợp lệ.");
           });
       } else if (urlParams.get("tab") === "my-files" || urlParams.get("view") === "purchases") {
-        setTimeout(function() {
-          openPurchases();
-        }, 600);
+        // Drawer File của tôi đã được loại bỏ do file tự động gửi trực tiếp về email
       }
     } catch(e) {}
   }
@@ -1164,12 +1162,10 @@ function escapeHtml(value) {
     closeCart();
     closeDetail();
     closeCheckout();
-
+    // Drawer File của tôi đã bỏ do chuyển sang nhận file qua email và mở trực tiếp
     if (purchasesDrawer) {
-      purchasesDrawer.classList.add("is-open");
-      purchasesDrawer.setAttribute("aria-hidden", "false");
-      document.body.classList.add("drawer-open");
-      document.body.classList.add("cart-drawer-open");
+      purchasesDrawer.classList.remove("is-open");
+      purchasesDrawer.setAttribute("aria-hidden", "true");
     }
 
     if (!state.user) {
@@ -2279,7 +2275,7 @@ function escapeHtml(value) {
       ? "Đơn hàng của bạn gồm " + orderSuccessItems.length + " file đã được kích hoạt. Hãy bấm vào từng nút bên dưới để tạo bản sao vào Google Drive cá nhân của bạn:"
       : (orderSuccessItems[0] && orderSuccessItems[0].is_cloud
           ? "Bấm nút bên dưới, đăng nhập Google rồi chọn Tạo bản sao. File sẽ được lưu trong Drive của bạn."
-          : "Đơn hàng đã được xác nhận. Bạn có thể tải file ngay hoặc mở lại trong File của tôi.");
+          : "Đơn hàng đã được xác nhận và link file đã được gửi về email của bạn. Bạn có thể tải file ngay bên dưới.");
 
     var isCoaching = (data.package_type === "coaching") || (data.amount && data.amount >= 199000) || (state.selectedPackage === "coaching");
     var coachingCardHtml = "";
@@ -2314,7 +2310,7 @@ function escapeHtml(value) {
       '<p class="checkout-delivery-description">' + descText + '</p>' +
       coachingCardHtml +
       actionButtonsHtml +
-      '<button type="button" class="button-secondary button-full" id="btnSuccessViewPurchases" style="height: 44px; margin-top: 12px; font-size: 0.95rem;">Mở danh sách File của tôi</button>' +
+      '' +
       "</div>";
     
     var btnVP = document.getElementById("btnSuccessViewPurchases");
