@@ -95,6 +95,8 @@ document.addEventListener('DOMContentLoaded', () => {
       loadAdminStats();
     } else if (tabId === 'couponsTab') {
       loadCoupons();
+    } else if (tabId === 'adsTab') {
+      loadAdsCampaigns();
     }
   }
 
@@ -1303,18 +1305,21 @@ document.addEventListener('DOMContentLoaded', () => {
       const daysInMonth = new Date(y, m, 0).getDate();
       for (let day = 1; day <= daysInMonth; day++) {
         const ds = y + '-' + String(m).padStart(2, '0') + '-' + String(day).padStart(2, '0');
-        chartDataMap[ds] = { key: ds, label: String(day).padStart(2, '0') + '/' + String(m).padStart(2, '0'), fullDate: ds, revenue: 0, count: 0 };
+        chartDataMap[ds] = { key: ds, label: String(day), dayNum: day, fullDate: ds, revenue: 0, count: 0 };
       }
       if (chartTitle) chartTitle.textContent = 'Biểu đồ Doanh thu (Tháng ' + m + '/' + y + ')';
-      if (chartSubTitle) chartSubTitle.textContent = 'Doanh số (Cột Pastel) & Số lượng đơn hàng (Đường xu hướng)';
+      if (chartSubTitle) chartSubTitle.textContent = 'Thời gian: Tháng ' + m + '/' + y + ' (Trục hoành: Ngày trong tháng)';
     } else if (periodDays) {
       for (let i = periodDays - 1; i >= 0; i--) {
         const d = new Date(now.getTime() - i * 24 * 60 * 60 * 1000);
         const ds = d.toISOString().slice(0, 10);
-        chartDataMap[ds] = { key: ds, label: ds.slice(8, 10) + '/' + ds.slice(5, 7), fullDate: ds, revenue: 0, count: 0 };
+        chartDataMap[ds] = { key: ds, label: String(parseInt(ds.slice(8, 10), 10)), monthStr: ds.slice(5, 7), fullDate: ds, revenue: 0, count: 0 };
       }
+      const startDateObj = new Date(now.getTime() - (periodDays - 1) * 24 * 60 * 60 * 1000);
+      const startStr = String(startDateObj.getDate()).padStart(2, '0') + '/' + String(startDateObj.getMonth() + 1).padStart(2, '0') + '/' + startDateObj.getFullYear();
+      const endStr = String(now.getDate()).padStart(2, '0') + '/' + String(now.getMonth() + 1).padStart(2, '0') + '/' + now.getFullYear();
       if (chartTitle) chartTitle.textContent = 'Biểu đồ Doanh thu (' + periodDays + ' ngày qua)';
-      if (chartSubTitle) chartSubTitle.textContent = 'Doanh số (Cột Pastel) & Số lượng đơn hàng (Đường xu hướng)';
+      if (chartSubTitle) chartSubTitle.textContent = 'Thời gian: ' + startStr + ' - ' + endStr + ' (Trục hoành: Ngày trong tháng)';
     } else {
       if (chartTitle) chartTitle.textContent = 'Biểu đồ Doanh thu (Toàn thời gian theo Tháng)';
       if (chartSubTitle) chartSubTitle.textContent = 'Doanh số (Cột Pastel) & Số lượng đơn hàng (Đường xu hướng)';
@@ -1476,11 +1481,10 @@ document.addEventListener('DOMContentLoaded', () => {
           return (i === 0 ? 'M ' : 'L ') + xPercent + ' ' + pt.y;
         }).join(' ');
 
-        // Điểm tròn trên đường Line: chỉ hiển thị số nguyên rõ ràng ("4", "5", tooltip: "X đơn", TUYỆT ĐỐI KHÔNG GHI "4đ" gây hiểu nhầm 4 đồng)
+        // Bỏ hoàn toàn marker chấm tròn (<circle>), chỉ giữ text số đơn hàng thanh lịch phía trên đỉnh đường line khi có đơn
         const dotsSvg = linePoints.filter(pt => pt.count > 0).map(pt => {
           const xPercent = ((pt.idx + 0.5) / totalItems) * 100;
-          return '<circle cx="' + xPercent + '%" cy="' + pt.y + '" r="3" fill="#ffffff" stroke="#10b981" stroke-width="2"></circle>' +
-                 '<text x="' + xPercent + '%" y="' + (pt.y - 6) + '" text-anchor="middle" font-size="8" font-weight="700" fill="#065f46" font-family="monospace">' + pt.count + '</text>';
+          return '<text x="' + xPercent + '%" y="' + (pt.y - 5) + '" text-anchor="middle" font-size="8.5" font-weight="700" fill="#047857" font-family="monospace">' + pt.count + '</text>';
         }).join('');
 
         revenueChartContainer.innerHTML = (
@@ -1805,7 +1809,7 @@ document.addEventListener('DOMContentLoaded', () => {
       <div style="display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; margin-bottom: 18px; padding-bottom: 14px; border-bottom: 1px solid var(--slate-border);">
         <div>
           <div style="font-size: 0.72rem; font-weight: 600; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.05em;">Đơn hàng</div>
-          <div style="font-size: 1.15rem; font-weight: 700; color: #0f172a; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; letter-spacing: -0.01em; margin-top: 2px;">#${escapeHtml(orderId)}</div>
+          <div style="font-size: 1.05rem; font-weight: 700; color: #0f172a; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; letter-spacing: -0.01em; margin-top: 2px;">#${escapeHtml(orderId)}</div>
         </div>
         <div>
           ${isPaid 
@@ -1823,7 +1827,7 @@ document.addEventListener('DOMContentLoaded', () => {
         ${order.customer_name ? `
         <div class="inspector-row">
           <span class="inspector-label">Họ tên</span>
-          <span class="inspector-val" style="font-weight: 700; color: #0f172a; font-size: 0.88rem;">${escapeHtml(order.customer_name)}</span>
+          <span class="inspector-val" style="font-weight: 600; color: #0f172a; font-size: 0.82rem;">${escapeHtml(order.customer_name)}</span>
         </div>` : ''}
         <div class="inspector-row">
           <span class="inspector-label">Số điện thoại</span>
@@ -1855,7 +1859,7 @@ document.addEventListener('DOMContentLoaded', () => {
         </div>` : ''}
         <div class="inspector-row" style="margin-top: 10px; padding-top: 10px; border-top: 1px dashed #e2e8f0; align-items: baseline;">
           <span class="inspector-label" style="font-size: 0.84rem; font-weight: 500; color: #334155;">Thành tiền</span>
-          <span class="inspector-val" style="font-size: 1.08rem; color: var(--mint-primary); font-weight: 700; font-family: ui-monospace, SFMono-Regular, Menlo, monospace;">${formatCurrency(amountVal)}</span>
+          <span class="inspector-val" style="font-size: 0.98rem; color: var(--mint-primary); font-weight: 700; font-family: ui-monospace, SFMono-Regular, Menlo, monospace;">${formatCurrency(amountVal)}</span>
         </div>
       </div>
 
@@ -2057,8 +2061,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
       const timeObj = formatDateTime(order.created_at || order.paid_at);
       const timeHtml = timeObj.date 
-        ? `<div style="font-weight: 600; color: #0f172a; font-size: 0.84rem; white-space: nowrap;">${escapeHtml(timeObj.time)}</div>` +
-          `<div style="font-size: 0.74rem; color: #64748b; white-space: nowrap; margin-top: 1px;">${escapeHtml(timeObj.date)}</div>`
+        ? `<div style="font-weight: 600; color: #0f172a; font-size: 0.78rem; white-space: nowrap;">${escapeHtml(timeObj.time)}</div>` +
+          `<div style="font-size: 0.70rem; color: #94a3b8; white-space: nowrap; margin-top: 1px;">${escapeHtml(timeObj.date)}</div>`
         : `<span style="font-size: 0.82rem; color: #64748b;">${escapeHtml(timeObj.time)}</span>`;
 
             const rawEmail = order.customer_email || '';
@@ -2069,13 +2073,13 @@ document.addEventListener('DOMContentLoaded', () => {
       
       let customerHtml = '';
       if (customerName) {
-        customerHtml += `<div style="font-weight: 700; color: #0f172a; font-size: 0.86rem; line-height: 1.3;">${escapeHtml(customerName)}</div>`;
-        customerHtml += `<div style="font-weight: 500; color: #475569; font-size: 0.78rem; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; margin-top: 2px;">${escapeHtml(phoneDisplay)}</div>`;
+        customerHtml += `<div style="font-weight: 600; color: #0f172a; font-size: 0.79rem; line-height: 1.3;">${escapeHtml(customerName)}</div>`;
+        customerHtml += `<div style="font-weight: 500; color: #64748b; font-size: 0.74rem; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; margin-top: 1px;">${escapeHtml(phoneDisplay)}</div>`;
       } else {
-        customerHtml += `<div style="font-weight: 600; color: #0f172a; font-size: 0.84rem; font-family: ui-monospace, SFMono-Regular, Menlo, monospace;">${escapeHtml(phoneDisplay)}</div>`;
+        customerHtml += `<div style="font-weight: 600; color: #0f172a; font-size: 0.79rem; font-family: ui-monospace, SFMono-Regular, Menlo, monospace;">${escapeHtml(phoneDisplay)}</div>`;
       }
       if (cleanEmail) {
-        customerHtml += `<div style="font-size: 0.72rem; color: #64748b; margin-top: 2px; max-width: 155px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${escapeHtml(cleanEmail)}">${escapeHtml(cleanEmail)}</div>`;
+        customerHtml += `<div style="font-size: 0.70rem; color: #94a3b8; margin-top: 1px; max-width: 145px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${escapeHtml(cleanEmail)}">${escapeHtml(cleanEmail)}</div>`;
       }
 
       const orderId = order.order_id || '';
@@ -2109,13 +2113,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
       return `
         <tr data-order-id="${escapeHtml(orderId)}" class="${isSelected ? 'selected-row' : ''}">
-          <td><strong style="font-size: 0.88rem; color: #1e293b; font-family: monospace;">#${escapeHtml(orderId)}</strong></td>
+          <td><strong style="font-size: 0.80rem; color: #1e293b; font-family: ui-monospace, SFMono-Regular, Menlo, monospace;">#${escapeHtml(orderId)}</strong></td>
           <td style="white-space: nowrap;">${timeHtml}</td>
           <td>${customerHtml}</td>
-          <td><div style="font-weight: 600; color: #1e293b; font-size: 0.84rem; line-height: 1.35; max-height: 2.7em; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;" title="${escapeHtml(order.product_name || 'File')}">${escapeHtml(order.product_name || 'File')}</div>${coachingBadge}</td>
+          <td><div style="font-weight: 600; color: #1e293b; font-size: 0.79rem; line-height: 1.35; max-height: 2.7em; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;" title="${escapeHtml(order.product_name || 'File')}">${escapeHtml(order.product_name || 'File')}</div>${coachingBadge}</td>
           <td style="text-align: center;">${couponHtml}</td>
           <td style="text-align: right;">${discountHtml}</td>
-          <td style="text-align: right;"><strong style="color: var(--mint-primary); font-size: 0.88rem;">${formatCurrency(order.amount || 0)}</strong></td>
+          <td style="text-align: right;"><strong style="color: var(--mint-primary); font-size: 0.82rem; font-family: ui-monospace, SFMono-Regular, Menlo, monospace;">${formatCurrency(order.amount || 0)}</strong></td>
           <td style="text-align: center;">${statusBadge}</td>
           <td style="text-align: center; vertical-align: middle;">${qrThumbHtml}</td>
         </tr>
@@ -2750,3 +2754,364 @@ document.addEventListener('click', () => {
   document.querySelectorAll('.action-dropdown-popover.show').forEach(p => p.classList.remove('show'));
   document.querySelectorAll('.action-dots-btn.active').forEach(b => b.classList.remove('active'));
 }); // closeAllPopoversListener
+
+
+  // ==========================================================================
+  // ADS CAMPAIGN MANAGEMENT (QUẢN LÝ QUẢNG CÁO TIKTOK / META ADS)
+  // ==========================================================================
+  let currentAds = [];
+  const adsListBody = document.getElementById('adsListBody');
+  const adsModal = document.getElementById('adsModal');
+  const adsForm = document.getElementById('adsForm');
+  const btnOpenAddAds = document.getElementById('btnOpenAddAds');
+  const btnCloseAdsModal = document.getElementById('btnCloseAdsModal');
+  const btnCancelAds = document.getElementById('btnCancelAds');
+  const adsProductFilter = document.getElementById('adsProductFilter');
+  const adsProductSelect = document.getElementById('adsProductSelect');
+  const adsSpentInput = document.getElementById('adsSpentInput');
+
+  // Format currency for adsSpentInput
+  if (adsSpentInput) {
+    adsSpentInput.addEventListener('input', (e) => {
+      let val = e.target.value.replace(/\D/g, '');
+      if (val) {
+        e.target.value = new Intl.NumberFormat('vi-VN').format(parseInt(val, 10));
+      } else {
+        e.target.value = '';
+      }
+    });
+  }
+
+  function populateAdsProductDropdowns() {
+    if (!adsProductFilter || !adsProductSelect) return;
+    const currentValFilter = adsProductFilter.value;
+    const currentValSelect = adsProductSelect.value;
+
+    let filterOptions = '<option value="ALL">Tất cả sản phẩm</option>';
+    let selectOptions = '<option value="">Chọn sản phẩm</option>';
+
+    currentProducts.forEach(p => {
+      filterOptions += `<option value="${escapeHtml(p.id)}">${escapeHtml(p.name)}</option>`;
+      selectOptions += `<option value="${escapeHtml(p.id)}">${escapeHtml(p.name)} (${escapeHtml(p.id)})</option>`;
+    });
+
+    adsProductFilter.innerHTML = filterOptions;
+    adsProductSelect.innerHTML = selectOptions;
+
+    if (currentValFilter) adsProductFilter.value = currentValFilter;
+    if (currentValSelect) adsProductSelect.value = currentValSelect;
+  }
+
+  async function loadAdsCampaigns() {
+    try {
+      if (adsListBody) {
+        adsListBody.innerHTML = '<tr><td colspan="7" style="text-align: center; padding: 36px; color: var(--slate-muted);">Đang tải dữ liệu từ Firestore...</td></tr>';
+      }
+      populateAdsProductDropdowns();
+
+      const snapshot = await db.collection('ads_campaigns').orderBy('created_at', 'desc').get();
+      currentAds = [];
+      snapshot.forEach(doc => {
+        currentAds.push({ ...doc.data(), id: doc.id });
+      });
+
+      renderFilteredAds();
+      updateAdsSidebarBadge();
+    } catch (err) {
+      console.warn('Lỗi loadAdsCampaigns hoặc chưa tạo index:', err);
+      // Fallback load without orderBy if index not yet generated
+      try {
+        const snapshot = await db.collection('ads_campaigns').get();
+        currentAds = [];
+        snapshot.forEach(doc => {
+          currentAds.push({ ...doc.data(), id: doc.id });
+        });
+        currentAds.sort((a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0));
+        renderFilteredAds();
+        updateAdsSidebarBadge();
+      } catch (e2) {
+        console.error('Lỗi fallback loadAdsCampaigns:', e2);
+        if (adsListBody) {
+          adsListBody.innerHTML = '<tr><td colspan="7" style="text-align: center; color: #ef4444; padding: 30px;">Không thể tải dữ liệu chiến dịch quảng cáo.</td></tr>';
+        }
+      }
+    }
+  }
+
+  function updateAdsSidebarBadge() {
+    const badge = document.getElementById('sidebarAdsCount');
+    if (!badge) return;
+    const activeAds = currentAds.filter(a => a.status === 'ACTIVE').length;
+    if (activeAds > 0) {
+      badge.textContent = activeAds;
+      badge.style.display = 'inline-flex';
+    } else {
+      badge.style.display = 'none';
+    }
+  }
+
+  function renderFilteredAds() {
+    if (!adsListBody) return;
+
+    const searchVal = (document.getElementById('adsSearchInput')?.value || '').trim().toLowerCase();
+    const channelVal = document.getElementById('adsChannelFilter')?.value || 'ALL';
+    const productVal = document.getElementById('adsProductFilter')?.value || 'ALL';
+    const statusVal = document.getElementById('adsStatusFilter')?.value || 'ALL';
+
+    const filtered = currentAds.filter(a => {
+      const matchSearch = !searchVal || 
+        String(a.title || '').toLowerCase().includes(searchVal) || 
+        String(a.url || '').toLowerCase().includes(searchVal) ||
+        String(a.notes || '').toLowerCase().includes(searchVal);
+      const matchChannel = channelVal === 'ALL' || a.channel === channelVal;
+      const matchProduct = productVal === 'ALL' || a.product_id === productVal;
+      const matchStatus = statusVal === 'ALL' || a.status === statusVal;
+
+      return matchSearch && matchChannel && matchProduct && matchStatus;
+    });
+
+    // Update total spent
+    const totalSpent = filtered.reduce((sum, a) => sum + (Number(a.spent) || 0), 0);
+    const totalSpentEl = document.getElementById('adsTotalSpent');
+    if (totalSpentEl) totalSpentEl.textContent = formatCurrency(totalSpent);
+
+    if (!filtered.length) {
+      adsListBody.innerHTML = '<tr><td colspan="7" style="text-align: center; color: var(--slate-muted); padding: 48px 20px;">Chưa có chiến dịch quảng cáo nào. Bấm <b>Thêm chiến dịch</b> để ghi nhận đợt chạy ads đầu tiên!</td></tr>';
+      return;
+    }
+
+    adsListBody.innerHTML = filtered.map(a => {
+      const prod = currentProducts.find(p => p.id === a.product_id);
+      const prodName = prod ? prod.name : (a.product_name || a.product_id || 'Chưa gắn file');
+      
+      let channelIcon = '';
+      let channelLabel = 'Kênh khác';
+      if (a.channel === 'tiktok') {
+        channelLabel = 'TikTok';
+        channelIcon = '<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" style="color: #000;"><path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 5 20.1a6.34 6.34 0 0 0 10.86-4.43v-7a8.16 8.16 0 0 0 4.77 1.52v-3.4a4.85 4.85 0 0 1-1.04-.1z"/></svg>';
+      } else if (a.channel === 'facebook') {
+        channelLabel = 'Facebook';
+        channelIcon = '<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" style="color: #1877f2;"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>';
+      }
+
+      let statusHtml = '';
+      if (a.status === 'ACTIVE') {
+        statusHtml = '<span class="badge-status badge-status-paid"><span class="status-dot"></span>Đang chạy</span>';
+      } else if (a.status === 'COMPLETED') {
+        statusHtml = '<span style="color: #64748b; font-size: 0.82rem; font-weight: 500;">Đã hoàn tất</span>';
+      } else {
+        statusHtml = '<span class="badge-status badge-status-pending"><span class="status-dot"></span>Tạm dừng</span>';
+      }
+
+      // Format date
+      let dateDisplay = a.date || 'Chưa đặt';
+      if (a.date && a.date.includes('-')) {
+        const parts = a.date.split('-');
+        if (parts.length === 3) dateDisplay = `${parts[2]}/${parts[1]}/${parts[0]}`;
+      }
+
+      return `
+        <tr>
+          <td>
+            <div style="font-weight: 600; color: #0f172a; font-size: 0.88rem;">${escapeHtml(dateDisplay)}</div>
+            <div style="font-size: 0.74rem; color: #64748b; margin-top: 2px;">${escapeHtml(a.time_frame || 'Cả ngày')}</div>
+          </td>
+          <td>
+            <div style="display: flex; align-items: center; gap: 6px; font-weight: 600; color: #0f172a; font-size: 0.88rem;">
+              ${channelIcon}
+              <span>${escapeHtml(a.title)}</span>
+            </div>
+            ${a.url ? `
+              <div style="margin-top: 3px;">
+                <a href="${escapeHtml(a.url)}" target="_blank" rel="noopener" style="font-size: 0.76rem; color: #059669; text-decoration: none; display: inline-flex; align-items: center; gap: 4px;" title="Mở link video">
+                  <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
+                  <span style="max-width: 260px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${escapeHtml(a.url)}</span>
+                </a>
+              </div>` : ''}
+          </td>
+          <td>
+            <span style="font-size: 0.86rem; color: #334155; font-weight: 500;">${escapeHtml(prodName)}</span>
+          </td>
+          <td>
+            <strong style="color: #0f172a; font-family: monospace; font-size: 0.95rem;">${formatCurrency(a.spent || 0)}</strong>
+          </td>
+          <td>
+            <span style="font-size: 0.82rem; color: #475569;">${escapeHtml(a.time_frame || 'Không ghi')}</span>
+            ${a.notes ? `<div style="font-size: 0.75rem; color: #64748b; margin-top: 2px; max-width: 220px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${escapeHtml(a.notes)}">${escapeHtml(a.notes)}</div>` : ''}
+          </td>
+          <td>${statusHtml}</td>
+          <td style="text-align: center;">
+            <div class="action-menu-wrap">
+              <button type="button" class="action-dots-btn btn-ads-dots" data-id="${escapeHtml(a.id)}" title="Thao tác">
+                <svg width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="1.5"></circle><circle cx="12" cy="5" r="1.5"></circle><circle cx="12" cy="19" r="1.5"></circle></svg>
+              </button>
+              <div class="action-dropdown-popover" id="popover-ads-${escapeHtml(a.id)}">
+                <button type="button" class="action-dropdown-item btn-edit-ads" data-id="${escapeHtml(a.id)}">
+                  <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
+                  <span>Chỉnh sửa</span>
+                </button>
+                <button type="button" class="action-dropdown-item danger btn-delete-ads" data-id="${escapeHtml(a.id)}">
+                  <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                  <span>Xóa chiến dịch</span>
+                </button>
+              </div>
+            </div>
+          </td>
+        </tr>
+      `;
+    }).join('');
+
+    bindAdsTableEvents();
+  }
+
+  function bindAdsTableEvents() {
+    if (!adsListBody) return;
+
+    adsListBody.querySelectorAll('.btn-ads-dots').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const wrap = btn.closest('.action-menu-wrap');
+        const popover = wrap?.querySelector('.action-dropdown-popover');
+        const isShown = popover?.classList.contains('show');
+        document.querySelectorAll('.action-dropdown-popover.show').forEach(p => p.classList.remove('show'));
+        document.querySelectorAll('.action-dots-btn.active').forEach(b => b.classList.remove('active'));
+        if (!isShown && popover) {
+          popover.classList.add('show');
+          btn.classList.add('active');
+        }
+      });
+    });
+
+    adsListBody.querySelectorAll('.btn-edit-ads').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        document.querySelectorAll('.action-dropdown-popover.show').forEach(p => p.classList.remove('show'));
+        openEditAdsModal(btn.dataset.id);
+      });
+    });
+
+    adsListBody.querySelectorAll('.btn-delete-ads').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        document.querySelectorAll('.action-dropdown-popover.show').forEach(p => p.classList.remove('show'));
+        deleteAds(btn.dataset.id);
+      });
+    });
+  }
+
+  function openAddAdsModal() {
+    if (!adsForm || !adsModal) return;
+    adsForm.reset();
+    document.getElementById('adsDocId').value = '';
+    document.getElementById('adsModalTitle').textContent = 'Thêm chiến dịch quảng cáo';
+    populateAdsProductDropdowns();
+
+    // Default date to today
+    const today = new Date().toISOString().split('T')[0];
+    document.getElementById('adsDateInput').value = today;
+    document.getElementById('adsStatusSelect').value = 'ACTIVE';
+
+    adsModal.style.display = 'flex';
+  }
+
+  function openEditAdsModal(id) {
+    const item = currentAds.find(a => a.id === id);
+    if (!item || !adsForm || !adsModal) return;
+
+    populateAdsProductDropdowns();
+    document.getElementById('adsDocId').value = item.id;
+    document.getElementById('adsModalTitle').textContent = 'Chỉnh sửa chiến dịch quảng cáo';
+
+    document.getElementById('adsTitleInput').value = item.title || '';
+    document.getElementById('adsChannelSelect').value = item.channel || 'tiktok';
+    document.getElementById('adsProductSelect').value = item.product_id || '';
+    document.getElementById('adsUrlInput').value = item.url || '';
+    document.getElementById('adsSpentInput').value = item.spent ? new Intl.NumberFormat('vi-VN').format(item.spent) : '';
+    document.getElementById('adsStatusSelect').value = item.status || 'ACTIVE';
+    document.getElementById('adsDateInput').value = item.date || '';
+    document.getElementById('adsTimeFrameInput').value = item.time_frame || '';
+    document.getElementById('adsNotesInput').value = item.notes || '';
+
+    adsModal.style.display = 'flex';
+  }
+
+  function closeAdsModal() {
+    if (adsModal) adsModal.style.display = 'none';
+  }
+
+  async function deleteAds(id) {
+    if (!confirm('Bạn có chắc chắn muốn xóa chiến dịch quảng cáo này không?')) return;
+    try {
+      showToast('Đang xóa...');
+      await db.collection('ads_campaigns').doc(id).delete();
+      showToast('Đã xóa chiến dịch.');
+      loadAdsCampaigns();
+    } catch (err) {
+      console.error(err);
+      showToast('Lỗi khi xóa: ' + err.message, true);
+    }
+  }
+
+  if (adsForm) {
+    adsForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const submitBtn = adsForm.querySelector('button[type="submit"]');
+      if (submitBtn) submitBtn.disabled = true;
+
+      try {
+        const docId = document.getElementById('adsDocId').value.trim();
+        const title = document.getElementById('adsTitleInput').value.trim();
+        const channel = document.getElementById('adsChannelSelect').value;
+        const product_id = document.getElementById('adsProductSelect').value;
+        const url = document.getElementById('adsUrlInput').value.trim();
+        const spentVal = document.getElementById('adsSpentInput').value.replace(/\D/g, '');
+        const spent = parseInt(spentVal, 10) || 0;
+        const status = document.getElementById('adsStatusSelect').value;
+        const date = document.getElementById('adsDateInput').value;
+        const time_frame = document.getElementById('adsTimeFrameInput').value.trim();
+        const notes = document.getElementById('adsNotesInput').value.trim();
+
+        const prod = currentProducts.find(p => p.id === product_id);
+        const product_name = prod ? prod.name : '';
+
+        const data = {
+          title,
+          channel,
+          product_id,
+          product_name,
+          url,
+          spent,
+          status,
+          date,
+          time_frame,
+          notes,
+          updated_at: new Date().toISOString()
+        };
+
+        if (docId) {
+          await db.collection('ads_campaigns').doc(docId).update(data);
+          showToast('Đã cập nhật chiến dịch quảng cáo thành công.');
+        } else {
+          data.created_at = new Date().toISOString();
+          await db.collection('ads_campaigns').add(data);
+          showToast('Đã thêm chiến dịch quảng cáo thành công.');
+        }
+
+        closeAdsModal();
+        loadAdsCampaigns();
+      } catch (err) {
+        console.error('Lỗi lưu ads campaign:', err);
+        showToast('Lỗi: ' + err.message, true);
+      } finally {
+        if (submitBtn) submitBtn.disabled = false;
+      }
+    });
+  }
+
+  btnOpenAddAds?.addEventListener('click', openAddAdsModal);
+  btnCloseAdsModal?.addEventListener('click', closeAdsModal);
+  btnCancelAds?.addEventListener('click', closeAdsModal);
+  document.getElementById('adsSearchInput')?.addEventListener('input', renderFilteredAds);
+  document.getElementById('adsChannelFilter')?.addEventListener('change', renderFilteredAds);
+  document.getElementById('adsProductFilter')?.addEventListener('change', renderFilteredAds);
+  document.getElementById('adsStatusFilter')?.addEventListener('change', renderFilteredAds);
