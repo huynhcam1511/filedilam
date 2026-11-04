@@ -195,7 +195,8 @@ document.addEventListener('DOMContentLoaded', () => {
         loginSection.classList.add('hidden');
         adminSection.classList.remove('hidden');
         logoutBtn.classList.remove('hidden');
-        loadProducts(); // Load table
+        loadAdminStats(); // Load Dashboard first by default
+        loadProducts(); // Preload products
       } else {
         auth.signOut();
         showToast('Tài khoản không có quyền truy cập Admin', true);
