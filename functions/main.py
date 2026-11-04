@@ -14,6 +14,7 @@ import urllib.parse
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from email.mime.image import MIMEImage
+import base64
 
 SMTP_USER = "kiencam.work@gmail.com"
 SMTP_PASS = "eohmiuavreukunhk"
@@ -365,35 +366,56 @@ def send_payment_reminder_email(customer_email, customer_name, order_id, order_d
         amount_fmt = f"{amount:,}".replace(",", ".") + " đ"
         phone = order_data.get("customer_phone") or ""
         
-        # Sinh chuỗi chuẩn ngân hàng EMVCo VietQR và lấy ảnh PNG chuẩn 100%
-        emvco = generate_vietqr_emvco(amount, order_id)
-        qr_png_url = f"https://quickchart.io/qr?size=360&text={urllib.parse.quote(emvco)}"
-        backup_png_url = f"https://api.qrserver.com/v1/create-qr-code/?size=360x360&data={urllib.parse.quote(emvco)}"
-        
+        # 1. Gọi trực tiếp API chính thức của VietQR để lấy mẫu tem chuẩn đẹp đầy đủ Logo Napas + TPBank dạng PNG
         qr_bytes = None
-        img_src = qr_png_url
+        img_src = ""
+        emvco = generate_vietqr_emvco(amount, order_id)
+        backup_png_url = f"https://quickchart.io/qr?size=360&text={urllib.parse.quote(emvco)}"
+        
         try:
-            req = urllib.request.Request(qr_png_url, headers={"User-Agent": "Mozilla/5.0"})
-            with urllib.request.urlopen(req, timeout=4) as resp:
-                if resp.status == 200:
-                    qr_bytes = resp.read()
+            api_payload = json.dumps({
+                "accountNo": "59215112002",
+                "accountName": "HUYNH KIEN CAM",
+                "acqId": "970423",
+                "amount": amount,
+                "addInfo": order_id,
+                "format": "text",
+                "template": "compact2"
+            }).encode("utf-8")
+            
+            v_req = urllib.request.Request(
+                "https://api.vietqr.io/v2/generate",
+                data=api_payload,
+                headers={
+                    "Content-Type": "application/json",
+                    "User-Agent": "Mozilla/5.0"
+                }
+            )
+            with urllib.request.urlopen(v_req, timeout=5) as v_resp:
+                res_data = json.loads(v_resp.read().decode("utf-8"))
+                if res_data.get("code") == "00" and res_data.get("data", {}).get("qrDataURL"):
+                    raw_b64 = res_data["data"]["qrDataURL"].split(",")[1]
+                    qr_bytes = base64.b64decode(raw_b64)
                     img_src = "cid:vietqr_code"
-        except Exception as qre:
-            print(f"[Email] QuickChart QR fetch failed: {qre}")
+        except Exception as ve:
+            print(f"[Email] VietQR official API failed, fallback to QuickChart: {ve}")
+
+        # Dự phòng nếu VietQR API bận: Tải ảnh PNG raster từ QuickChart
+        if not qr_bytes:
             try:
-                req = urllib.request.Request(backup_png_url, headers={"User-Agent": "Mozilla/5.0"})
-                with urllib.request.urlopen(req, timeout=4) as resp:
-                    if resp.status == 200:
-                        qr_bytes = resp.read()
+                q_req = urllib.request.Request(backup_png_url, headers={"User-Agent": "Mozilla/5.0"})
+                with urllib.request.urlopen(q_req, timeout=4) as q_resp:
+                    if q_resp.status == 200:
+                        qr_bytes = q_resp.read()
                         img_src = "cid:vietqr_code"
-            except Exception as bke:
-                print(f"[Email] Backup QR fetch failed: {bke}")
+            except Exception as qe:
+                print(f"[Email] QuickChart backup failed: {qe}")
                 img_src = backup_png_url
 
         cust_display_name = customer_name if customer_name else "Quý khách"
 
-        customer_name_row = f'<tr><td align="left" style="padding: 7px 18px; font-size: 13px; color: #64748b;">Họ tên khách hàng:</td><td align="right" style="padding: 7px 18px; font-size: 13px; font-weight: 600; color: #0f172a;">{escape(customer_name)}</td></tr>' if customer_name else ''
-        phone_row = f'<tr><td align="left" style="padding: 7px 18px; font-size: 13px; color: #64748b;">Số điện thoại:</td><td align="right" style="padding: 7px 18px; font-size: 13px; font-weight: 600; color: #0f172a; font-family: ui-monospace, SFMono-Regular, Menlo, monospace;">{escape(phone)}</td></tr>' if phone else ''
+        customer_name_row = f'<tr><td align="left" style="white-space: nowrap; width: 120px; padding: 7px 12px; font-size: 13px; color: #64748b;">Họ tên:</td><td align="right" style="padding: 7px 12px; font-size: 13px; font-weight: 600; color: #0f172a;">{escape(customer_name)}</td></tr>' if customer_name else ''
+        phone_row = f'<tr><td align="left" style="white-space: nowrap; width: 120px; padding: 7px 12px; font-size: 13px; color: #64748b;">Số điện thoại:</td><td align="right" style="white-space: nowrap; padding: 7px 12px; font-size: 13px; font-weight: 600; color: #0f172a; font-family: ui-monospace, SFMono-Regular, Menlo, monospace;">{escape(phone)}</td></tr>' if phone else ''
 
         html_content = f"""<!DOCTYPE html>
 <html>
@@ -402,9 +424,9 @@ def send_payment_reminder_email(customer_email, customer_name, order_id, order_d
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Hoàn tất đơn hàng #{order_id}</title>
 </head>
-<body style="margin: 0; padding: 24px 12px; background-color: #f1f5f9; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; color: #0f172a; line-height: 1.5; -webkit-font-smoothing: antialiased;">
+<body style="margin: 0; padding: 16px 8px; background-color: #f1f5f9; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; color: #0f172a; line-height: 1.5; -webkit-font-smoothing: antialiased;">
   
-  <table width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width: 560px; margin: 0 auto; background-color: #ffffff; border-radius: 12px; overflow: hidden; border: 1px solid #e2e8f0;">
+  <table width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width: 500px; margin: 0 auto; background-color: #ffffff; border-radius: 12px; overflow: hidden; border: 1px solid #e2e8f0;">
     
     <!-- Thanh viền màu xanh Mint nhận diện thương hiệu -->
     <tr>
@@ -413,14 +435,14 @@ def send_payment_reminder_email(customer_email, customer_name, order_id, order_d
 
     <!-- Header đơn giản, thanh lịch -->
     <tr>
-      <td style="padding: 22px 28px 16px 28px; border-bottom: 1px solid #f1f5f9;">
+      <td style="padding: 20px 20px 14px 20px; border-bottom: 1px solid #f1f5f9;">
         <table width="100%" cellpadding="0" cellspacing="0" border="0">
           <tr>
-            <td align="left">
+            <td align="left" style="vertical-align: middle;">
               <div style="font-size: 17px; font-weight: 700; color: #0f172a; letter-spacing: -0.3px;">FILE ĐI LÀM</div>
               <div style="font-size: 12.5px; color: #64748b; margin-top: 2px;">Thông tin hoàn tất thanh toán đơn hàng</div>
             </td>
-            <td align="right">
+            <td align="right" style="vertical-align: middle;">
               <span style="display: inline-block; padding: 4px 10px; background: #ecfdf5; border: 1px solid #a7f3d0; border-radius: 6px; font-size: 12px; font-weight: 600; color: #059669; font-family: ui-monospace, SFMono-Regular, Menlo, monospace;">#{order_id}</span>
             </td>
           </tr>
@@ -430,80 +452,80 @@ def send_payment_reminder_email(customer_email, customer_name, order_id, order_d
 
     <!-- Thân thư -->
     <tr>
-      <td style="padding: 24px 28px;">
+      <td style="padding: 20px 18px;">
         
-        <p style="margin: 0 0 12px 0; font-size: 15px; color: #1e293b; line-height: 1.5;">
+        <p style="margin: 0 0 10px 0; font-size: 15px; color: #1e293b; line-height: 1.5;">
           Xin chào <strong>{escape(cust_display_name)}</strong>,
         </p>
         
-        <p style="margin: 0 0 20px 0; font-size: 13.5px; color: #475569; line-height: 1.6;">
+        <p style="margin: 0 0 18px 0; font-size: 13.5px; color: #475569; line-height: 1.6;">
           Hệ thống File Đi Làm đã tiếp nhận thông tin đơn hàng của bạn. Bạn vui lòng quét mã VietQR bên dưới hoặc chuyển khoản theo thông tin để kích hoạt file:
         </p>
 
-        <!-- Bảng đối chiếu thông tin (Table chuẩn Gmail 100%, không bị xô lệch) -->
-        <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; margin-bottom: 22px;">
+        <!-- Bảng đối chiếu thông tin (Chống co chữ, chống wraptext vô lý) -->
+        <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; margin-bottom: 20px;">
           <tr>
-            <td style="padding: 12px 18px 8px 18px; font-size: 11px; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.05em; border-bottom: 1px solid #edf2f7;" colspan="2">
+            <td style="padding: 10px 14px 6px 14px; font-size: 11px; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.05em; border-bottom: 1px solid #edf2f7;" colspan="2">
               Thông tin đơn hàng & Khách hàng
             </td>
           </tr>
           {customer_name_row}
           {phone_row}
           <tr>
-            <td align="left" style="padding: 7px 18px; font-size: 13px; color: #64748b;">Email nhận file:</td>
-            <td align="right" style="padding: 7px 18px; font-size: 13px; font-weight: 600; color: #0f172a;">{escape(customer_email)}</td>
+            <td align="left" style="white-space: nowrap; width: 120px; padding: 7px 12px; font-size: 13px; color: #64748b;">Email nhận file:</td>
+            <td align="right" style="padding: 7px 12px; font-size: 13px; font-weight: 600; color: #0f172a; word-break: break-all;">{escape(customer_email)}</td>
           </tr>
           <tr>
-            <td align="left" style="padding: 7px 18px; font-size: 13px; color: #64748b;">Mã đơn hàng:</td>
-            <td align="right" style="padding: 7px 18px; font-size: 13px; font-weight: 600; color: #0f172a; font-family: ui-monospace, SFMono-Regular, Menlo, monospace;">#{order_id}</td>
+            <td align="left" style="white-space: nowrap; width: 120px; padding: 7px 12px; font-size: 13px; color: #64748b;">Mã đơn hàng:</td>
+            <td align="right" style="white-space: nowrap; padding: 7px 12px; font-size: 13px; font-weight: 600; color: #0f172a; font-family: ui-monospace, SFMono-Regular, Menlo, monospace;">#{order_id}</td>
           </tr>
           <tr>
-            <td align="left" style="padding: 7px 18px; font-size: 13px; color: #64748b;">Sản phẩm:</td>
-            <td align="right" style="padding: 7px 18px; font-size: 13px; font-weight: 600; color: #0f172a;">{escape(product_name)}</td>
+            <td align="left" style="white-space: nowrap; width: 120px; padding: 7px 12px; font-size: 13px; color: #64748b;">Sản phẩm:</td>
+            <td align="right" style="padding: 7px 12px; font-size: 13px; font-weight: 600; color: #0f172a;">{escape(product_name)}</td>
           </tr>
           <tr>
-            <td align="left" style="padding: 12px 18px; font-size: 13.5px; font-weight: 600; color: #0f172a; border-top: 1px dashed #cbd5e1;">Số tiền thanh toán:</td>
-            <td align="right" style="padding: 12px 18px; font-size: 16px; font-weight: 700; color: #059669; border-top: 1px dashed #cbd5e1; font-family: ui-monospace, SFMono-Regular, Menlo, monospace;">{amount_fmt}</td>
+            <td align="left" style="white-space: nowrap; width: 120px; padding: 10px 12px; font-size: 13.5px; font-weight: 600; color: #0f172a; border-top: 1px dashed #cbd5e1;">Số tiền:</td>
+            <td align="right" style="white-space: nowrap; padding: 10px 12px; font-size: 16px; font-weight: 700; color: #059669; border-top: 1px dashed #cbd5e1; font-family: ui-monospace, SFMono-Regular, Menlo, monospace;">{amount_fmt}</td>
           </tr>
         </table>
 
-        <!-- Khung quét mã VietQR chuẩn xác từng ô -->
-        <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color: #ffffff; border: 1px solid #e2e8f0; border-radius: 8px; margin-bottom: 22px;">
+        <!-- Khung quét mã VietQR chuẩn mẫu ngân hàng -->
+        <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color: #ffffff; border: 1px solid #e2e8f0; border-radius: 8px; margin-bottom: 20px;">
           <tr>
-            <td align="center" style="padding: 20px 18px 16px 18px;">
+            <td align="center" style="padding: 18px 14px 14px 14px;">
               <div style="font-size: 14.5px; font-weight: 700; color: #0f172a;">Mã QR chuyển khoản tự động (VietQR)</div>
-              <div style="font-size: 12.5px; color: #64748b; margin-top: 3px;">Mở ứng dụng ngân hàng bất kỳ để quét mã</div>
+              <div style="font-size: 12px; color: #64748b; margin-top: 3px;">Mở ứng dụng ngân hàng bất kỳ để quét mã</div>
               
-              <!-- Khung viền ảnh QR (Luôn giữ nền trắng chuẩn kể cả khi bật Dark Mode) -->
-              <table align="center" cellpadding="0" cellspacing="0" border="0" style="background-color: #ffffff !important; border: 1px solid #e2e8f0; border-radius: 10px; margin: 14px auto 14px auto;">
+              <!-- Ảnh VietQR mẫu chuẩn Napas + TPBank -->
+              <table align="center" cellpadding="0" cellspacing="0" border="0" style="background-color: #ffffff !important; border: 1px solid #e2e8f0; border-radius: 10px; margin: 12px auto 12px auto;">
                 <tr>
-                  <td style="padding: 12px; background-color: #ffffff !important; border-radius: 10px;">
-                    <img src="{img_src}" alt="VietQR đơn #{order_id}" width="180" height="180" style="display: block; border: 0; outline: none; margin: 0 auto; background-color: #ffffff !important;" />
+                  <td style="padding: 6px; background-color: #ffffff !important; border-radius: 10px;">
+                    <img src="{img_src}" alt="VietQR đơn #{order_id}" width="260" style="display: block; width: 100%; max-width: 260px; height: auto; border: 0; outline: none; margin: 0 auto; background-color: #ffffff !important; border-radius: 6px;" />
                   </td>
                 </tr>
               </table>
 
-              <!-- Bảng thông tin chuyển khoản 2 cột rõ ràng -->
-              <table align="center" cellpadding="0" cellspacing="0" border="0" style="max-width: 400px; width: 100%; background: #f8fafc; border: 1px solid #edf2f7; border-radius: 6px; margin: 0 auto;">
+              <!-- Bảng thông tin chuyển khoản 2 cột rõ ràng, chống co chữ -->
+              <table align="center" cellpadding="0" cellspacing="0" border="0" style="max-width: 380px; width: 100%; background: #f8fafc; border: 1px solid #edf2f7; border-radius: 6px; margin: 0 auto;">
                 <tr>
-                  <td align="left" style="padding: 8px 14px; font-size: 12.5px; color: #64748b; border-bottom: 1px solid #f1f5f9;">Ngân hàng:</td>
-                  <td align="right" style="padding: 8px 14px; font-size: 12.5px; font-weight: 600; color: #0f172a; border-bottom: 1px solid #f1f5f9;">TPBank (Tiên Phong)</td>
+                  <td align="left" style="white-space: nowrap; width: 100px; padding: 7px 12px; font-size: 12.5px; color: #64748b; border-bottom: 1px solid #f1f5f9;">Ngân hàng:</td>
+                  <td align="right" style="white-space: nowrap; padding: 7px 12px; font-size: 12.5px; font-weight: 600; color: #0f172a; border-bottom: 1px solid #f1f5f9;">TPBank (Tiên Phong)</td>
                 </tr>
                 <tr>
-                  <td align="left" style="padding: 8px 14px; font-size: 12.5px; color: #64748b; border-bottom: 1px solid #f1f5f9;">Số tài khoản:</td>
-                  <td align="right" style="padding: 8px 14px; font-size: 13.5px; font-weight: 700; color: #0f172a; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; border-bottom: 1px solid #f1f5f9;">59215112002</td>
+                  <td align="left" style="white-space: nowrap; width: 100px; padding: 7px 12px; font-size: 12.5px; color: #64748b; border-bottom: 1px solid #f1f5f9;">Số tài khoản:</td>
+                  <td align="right" style="white-space: nowrap; padding: 7px 12px; font-size: 13.5px; font-weight: 700; color: #0f172a; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; border-bottom: 1px solid #f1f5f9;">59215112002</td>
                 </tr>
                 <tr>
-                  <td align="left" style="padding: 8px 14px; font-size: 12.5px; color: #64748b; border-bottom: 1px solid #f1f5f9;">Chủ tài khoản:</td>
-                  <td align="right" style="padding: 8px 14px; font-size: 12.5px; font-weight: 600; color: #0f172a; border-bottom: 1px solid #f1f5f9;">HUYNH KIEN CAM</td>
+                  <td align="left" style="white-space: nowrap; width: 100px; padding: 7px 12px; font-size: 12.5px; color: #64748b; border-bottom: 1px solid #f1f5f9;">Chủ tài khoản:</td>
+                  <td align="right" style="white-space: nowrap; padding: 7px 12px; font-size: 12.5px; font-weight: 600; color: #0f172a; border-bottom: 1px solid #f1f5f9;">HUYNH KIEN CAM</td>
                 </tr>
                 <tr>
-                  <td align="left" style="padding: 8px 14px; font-size: 12.5px; color: #64748b; border-bottom: 1px solid #f1f5f9;">Số tiền:</td>
-                  <td align="right" style="padding: 8px 14px; font-size: 13.5px; font-weight: 700; color: #059669; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; border-bottom: 1px solid #f1f5f9;">{amount_fmt}</td>
+                  <td align="left" style="white-space: nowrap; width: 100px; padding: 7px 12px; font-size: 12.5px; color: #64748b; border-bottom: 1px solid #f1f5f9;">Số tiền:</td>
+                  <td align="right" style="white-space: nowrap; padding: 7px 12px; font-size: 13.5px; font-weight: 700; color: #059669; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; border-bottom: 1px solid #f1f5f9;">{amount_fmt}</td>
                 </tr>
                 <tr>
-                  <td align="left" style="padding: 8px 14px; font-size: 12.5px; color: #64748b;">Nội dung CK:</td>
-                  <td align="right" style="padding: 8px 14px;">
+                  <td align="left" style="white-space: nowrap; width: 100px; padding: 7px 12px; font-size: 12.5px; color: #64748b;">Nội dung CK:</td>
+                  <td align="right" style="white-space: nowrap; padding: 7px 12px;">
                     <span style="display: inline-block; background: #0f172a; color: #ffffff; padding: 2px 8px; border-radius: 4px; font-size: 13px; font-weight: 700; font-family: ui-monospace, SFMono-Regular, Menlo, monospace;">{order_id}</span>
                   </td>
                 </tr>
@@ -514,16 +536,16 @@ def send_payment_reminder_email(customer_email, customer_name, order_id, order_d
         </table>
 
         <!-- Khung kích hoạt tự động -->
-        <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color: #ecfdf5; border: 1px solid #a7f3d0; border-radius: 8px; margin-bottom: 18px;">
+        <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color: #ecfdf5; border: 1px solid #a7f3d0; border-radius: 8px; margin-bottom: 16px;">
           <tr>
-            <td style="padding: 12px 16px; font-size: 12.5px; color: #065f46; line-height: 1.5;">
+            <td style="padding: 12px 14px; font-size: 12.5px; color: #065f46; line-height: 1.5;">
               <strong>Bàn giao tự động 24/7:</strong> Ngay sau khi ngân hàng báo nhận tiền thành công, hệ thống sẽ tự động gửi email kèm đường dẫn nhận file Google Sheets về đúng hòm thư này trong vòng 3 - 5 giây.
             </td>
           </tr>
         </table>
 
         <!-- Hỗ trợ kỹ thuật -->
-        <div style="font-size: 12.5px; color: #64748b; line-height: 1.5; border-top: 1px solid #f1f5f9; padding-top: 14px;">
+        <div style="font-size: 12.5px; color: #64748b; line-height: 1.5; border-top: 1px solid #f1f5f9; padding-top: 12px;">
           Nếu bạn đã chuyển khoản hoặc cần hỗ trợ thêm, vui lòng phản hồi trực tiếp email này hoặc liên hệ Hotline/Zalo: <strong style="color: #0f172a;">0938 134 576</strong>.
         </div>
 
@@ -532,7 +554,7 @@ def send_payment_reminder_email(customer_email, customer_name, order_id, order_d
 
     <!-- Footer phẳng, tối giản -->
     <tr>
-      <td style="padding: 16px 28px; background-color: #f8fafc; border-top: 1px solid #f1f5f9; font-size: 12px; color: #94a3b8; text-align: center; line-height: 1.5;">
+      <td style="padding: 14px 20px; background-color: #f8fafc; border-top: 1px solid #f1f5f9; font-size: 12px; color: #94a3b8; text-align: center; line-height: 1.5;">
         File Đi Làm &bull; Hệ thống quản lý và tự động hoá quy trình trên Google Sheets<br>
         Website: <a href="https://filedilam.web.app" target="_blank" style="color: #64748b; text-decoration: underline;">filedilam.web.app</a>
       </td>
@@ -1202,9 +1224,13 @@ def api(req: https_fn.Request) -> https_fn.Response:
                 "product_file_url": o.get("product_file_url", ""),
                 "product_type": o.get("product_type", "excel"),
                 "items": o.get("items") or [],
+                "customer_name": o.get("customer_name", ""),
                 "customer_phone": o.get("customer_phone", ""),
                 "customer_email": o.get("customer_email", ""),
                 "user_id": o.get("user_id", ""),
+                "coupon_code": o.get("coupon_code") or "",
+                "coupon_codes": o.get("coupon_codes") or [],
+                "discount_amount": int(o.get("discount_amount") or 0),
                 "has_reviewed": bool(o.get("has_reviewed")),
                 "review_stars": o.get("review_stars", 0),
                 "review_comment": o.get("review_comment", ""),
