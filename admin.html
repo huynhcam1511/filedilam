@@ -61,9 +61,7 @@
       white-space: nowrap;
       z-index: 50;
     }
-    .sidebar-top {
-      width: 260px;
-      height: 64px;
+    .sidebar-top { width: 260px; height: 50px;
       padding: 0 16px;
       display: flex;
       align-items: center;
@@ -397,6 +395,20 @@
     @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
 
     /* Alocal Action Toolbar Card */
+    
+    .action-toolbar {
+      padding: 10px 16px;
+      margin-bottom: 12px;
+      background: #ffffff;
+      border: 1px solid var(--slate-border);
+      border-radius: 6px;
+    }
+    .action-toolbar .pill-btn,
+    .action-toolbar .pill-select {
+      height: 32px;
+      font-size: 0.78rem;
+    }
+
     .action-toolbar {
       background: #ffffff;
       border-bottom: 1px solid var(--slate-border);
@@ -1322,29 +1334,30 @@
     }
 
     
+    
     /* ========================================================
-       POWER BI ZERO-SPACING SEAMLESS MATRIX DASHBOARD (COMPACT & REFINED)
+       POWER BI ZERO-SPACING SEAMLESS MATRIX (6 COMPACT KPIS & PASTEL)
        ======================================================== */
     .pbi-dashboard-matrix {
       background: #ffffff;
       border: 1px solid var(--slate-border);
       border-radius: 6px;
       overflow: hidden;
-      margin-bottom: 24px;
+      margin-bottom: 20px;
       box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02);
     }
 
-    /* KPI Row: 4 contiguous metric blocks, zero gap, zero decorative icons */
+    /* KPI Row: 6 compact columns, zero gap, ultra low vertical profile */
     .pbi-kpi-row {
       display: grid;
-      grid-template-columns: repeat(4, 1fr);
+      grid-template-columns: repeat(6, 1fr);
       border-bottom: 1px solid var(--slate-border);
       background: #ffffff;
       gap: 0;
     }
 
     .pbi-kpi-cell {
-      padding: 16px 20px;
+      padding: 10px 14px;
       border-right: 1px solid var(--slate-border);
       background: #ffffff;
       display: flex;
@@ -1359,25 +1372,31 @@
 
     .pbi-kpi-header {
       color: #64748b;
-      font-size: 0.72rem;
+      font-size: 0.67rem;
       font-weight: 600;
       text-transform: uppercase;
-      letter-spacing: 0.05em;
+      letter-spacing: 0.04em;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
 
     .pbi-kpi-value {
-      font-size: 1.35rem;
+      font-size: 1.15rem;
       font-weight: 700;
       color: #0f172a;
-      margin: 6px 0 2px 0;
+      margin: 3px 0 1px 0;
       letter-spacing: -0.02em;
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     }
 
     .pbi-kpi-sub {
-      font-size: 0.74rem;
+      font-size: 0.68rem;
       font-weight: 500;
       color: #64748b;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
 
     /* Chart Rows: contiguous cells, zero gap */
@@ -1398,7 +1417,7 @@
     }
 
     .pbi-chart-cell {
-      padding: 18px 20px;
+      padding: 16px 18px;
       border-right: 1px solid var(--slate-border);
       background: #ffffff;
       min-width: 0;
@@ -1415,32 +1434,45 @@
       display: flex;
       justify-content: space-between;
       align-items: flex-start;
-      margin-bottom: 12px;
+      margin-bottom: 10px;
     }
     .pbi-chart-title {
       margin: 0;
-      font-size: 0.88rem;
+      font-size: 0.85rem;
       font-weight: 600;
       color: #0f172a;
       letter-spacing: -0.01em;
     }
     .pbi-chart-subtitle {
       margin: 2px 0 0 0;
-      font-size: 0.73rem;
+      font-size: 0.7rem;
       color: var(--slate-muted);
     }
 
-    /* Responsive Power BI Matrix */
-    @media (max-width: 1024px) {
+    @media (max-width: 1200px) {
       .pbi-kpi-row {
-        grid-template-columns: repeat(2, 1fr);
+        grid-template-columns: repeat(3, 1fr);
       }
-      .pbi-kpi-cell:nth-child(2) {
+      .pbi-kpi-cell:nth-child(3) {
         border-right: none;
       }
       .pbi-kpi-cell:nth-child(1),
-      .pbi-kpi-cell:nth-child(2) {
+      .pbi-kpi-cell:nth-child(2),
+      .pbi-kpi-cell:nth-child(3) {
         border-bottom: 1px solid var(--slate-border);
+      }
+    }
+
+    @media (max-width: 900px) {
+      .pbi-kpi-row {
+        grid-template-columns: repeat(2, 1fr);
+      }
+      .pbi-kpi-cell {
+        border-right: 1px solid var(--slate-border) !important;
+        border-bottom: 1px solid var(--slate-border) !important;
+      }
+      .pbi-kpi-cell:nth-child(2n) {
+        border-right: none !important;
       }
       .pbi-row-2-1,
       .pbi-row-1-1 {
@@ -1454,6 +1486,7 @@
         border-bottom: none;
       }
     }
+
 
     .analytics-two-col {
       display: grid;
@@ -2270,21 +2303,33 @@
             </div>
 
             <div class="pbi-kpi-cell">
-              <div class="pbi-kpi-header">Giá trị TB / Đơn (AOV)</div>
+              <div class="pbi-kpi-header">Giá trị TB / đơn (AOV)</div>
               <div class="pbi-kpi-value" id="kpiMonthRevenue">0 đ</div>
-              <div class="pbi-kpi-sub" id="kpiMonthRevenueSub" style="color: #2563eb;">Doanh thu / đơn thành công</div>
+              <div class="pbi-kpi-sub" id="kpiMonthRevenueSub" style="color: #2563eb;">Doanh thu / đơn</div>
             </div>
 
             <div class="pbi-kpi-cell">
               <div class="pbi-kpi-header">Đơn thành công</div>
-              <div class="pbi-kpi-value" id="kpiPaidOrders">0</div>
-              <div class="pbi-kpi-sub" id="kpiPaidOrdersSub" style="color: #d97706;">Tỉ lệ thanh toán tốt</div>
+              <div class="pbi-kpi-value" id="kpiPaidOrders">0 đơn</div>
+              <div class="pbi-kpi-sub" id="kpiPaidOrdersSub" style="color: #059669;">Đã thanh toán</div>
             </div>
 
             <div class="pbi-kpi-cell">
-              <div class="pbi-kpi-header">Khách mua độc lập</div>
-              <div class="pbi-kpi-value" id="kpiCustomers">0</div>
-              <div class="pbi-kpi-sub" id="kpiCustomersSub" style="color: #9333ea;">Khách thanh toán</div>
+              <div class="pbi-kpi-header">Tỉ lệ thanh toán</div>
+              <div class="pbi-kpi-value" id="kpiConversionRate">0%</div>
+              <div class="pbi-kpi-sub" id="kpiConversionRateSub" style="color: #64748b;">Đơn thành công / tạo</div>
+            </div>
+
+            <div class="pbi-kpi-cell">
+              <div class="pbi-kpi-header">Khách độc lập</div>
+              <div class="pbi-kpi-value" id="kpiCustomers">0 khách</div>
+              <div class="pbi-kpi-sub" id="kpiCustomersSub" style="color: #7c3aed;">Khách thanh toán</div>
+            </div>
+
+            <div class="pbi-kpi-cell">
+              <div class="pbi-kpi-header">Khách quay lại (LTV)</div>
+              <div class="pbi-kpi-value" id="kpiRetentionRate">0%</div>
+              <div class="pbi-kpi-sub" id="kpiRetentionRateSub" style="color: #0284c7;">Khách mua lần 2+</div>
             </div>
           </div>
 
@@ -2532,7 +2577,7 @@
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-storage-compat.js"></script>
   <script src="/__/firebase/init.js"></script>
   
-  <script src="./admin.js?v=200"></script>
+  <script src="./admin.js?v=205"></script>
   <!-- Agentation: Visual Feedback & Annotation for AI agents -->
   <script src="./agentation-vanilla.js"></script>
 

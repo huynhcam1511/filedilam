@@ -1189,10 +1189,27 @@ document.addEventListener('DOMContentLoaded', () => {
     return labels[catKey] || 'Sản phẩm khác';
   }
 
+  
+
+  
+  function calcPeakHour(hourlyMap) {
+    if (!hourlyMap || !hourlyMap.length) return '20h - 21h';
+    let max = 0;
+    let peak = 20;
+    hourlyMap.forEach((v, idx) => {
+      if (v > max) {
+        max = v;
+        peak = idx;
+      }
+    });
+    return peak + 'h - ' + (peak + 1) + 'h';
+  }
+
   function calcPeakWeekday(weekdayMap) {
     const days = ['Chủ Nhật', 'Thứ Hai', 'Thứ Ba', 'Thứ Tư', 'Thứ Năm', 'Thứ Sáu', 'Thứ Bảy'];
+    if (!weekdayMap || !weekdayMap.length) return 'Thứ Sáu';
     let max = 0;
-    let peak = 1;
+    let peak = 5;
     weekdayMap.forEach((v, idx) => {
       if (v > max) {
         max = v;
@@ -1202,11 +1219,17 @@ document.addEventListener('DOMContentLoaded', () => {
     return days[peak];
   }
 
+
   function renderStatsDashboard() {
     const kpiTotalRevenue = document.getElementById('kpiTotalRevenue');
     const kpiMonthRevenue = document.getElementById('kpiMonthRevenue');
     const kpiPaidOrders = document.getElementById('kpiPaidOrders');
     const kpiCustomers = document.getElementById('kpiCustomers');
+    const kpiConversionRate = document.getElementById('kpiConversionRate');
+    const kpiConversionRateSub = document.getElementById('kpiConversionRateSub');
+    const kpiRetentionRate = document.getElementById('kpiRetentionRate');
+    const kpiRetentionRateSub = document.getElementById('kpiRetentionRateSub');
+
     const revenueChartContainer = document.getElementById('revenueChartContainer');
     const bestSellersContainer = document.getElementById('bestSellersContainer');
     const hourlyChartContainer = document.getElementById('hourlyChartContainer');
@@ -1283,7 +1306,7 @@ document.addEventListener('DOMContentLoaded', () => {
         chartDataMap[ds] = { key: ds, label: String(day).padStart(2, '0') + '/' + String(m).padStart(2, '0'), fullDate: ds, revenue: 0, count: 0 };
       }
       if (chartTitle) chartTitle.textContent = 'Biểu đồ Doanh thu (Tháng ' + m + '/' + y + ')';
-      if (chartSubTitle) chartSubTitle.textContent = 'Doanh số (Cột) & Số lượng đơn hàng (Đường xu hướng)';
+      if (chartSubTitle) chartSubTitle.textContent = 'Doanh số (Cột Pastel) & Số lượng đơn hàng (Đường xu hướng)';
     } else if (periodDays) {
       for (let i = periodDays - 1; i >= 0; i--) {
         const d = new Date(now.getTime() - i * 24 * 60 * 60 * 1000);
@@ -1291,10 +1314,10 @@ document.addEventListener('DOMContentLoaded', () => {
         chartDataMap[ds] = { key: ds, label: ds.slice(8, 10) + '/' + ds.slice(5, 7), fullDate: ds, revenue: 0, count: 0 };
       }
       if (chartTitle) chartTitle.textContent = 'Biểu đồ Doanh thu (' + periodDays + ' ngày qua)';
-      if (chartSubTitle) chartSubTitle.textContent = 'Doanh số (Cột) & Số lượng đơn hàng (Đường xu hướng)';
+      if (chartSubTitle) chartSubTitle.textContent = 'Doanh số (Cột Pastel) & Số lượng đơn hàng (Đường xu hướng)';
     } else {
       if (chartTitle) chartTitle.textContent = 'Biểu đồ Doanh thu (Toàn thời gian theo Tháng)';
-      if (chartSubTitle) chartSubTitle.textContent = 'Doanh số (Cột) & Số lượng đơn hàng (Đường xu hướng)';
+      if (chartSubTitle) chartSubTitle.textContent = 'Doanh số (Cột Pastel) & Số lượng đơn hàng (Đường xu hướng)';
     }
 
     filteredOrders.forEach(o => {
@@ -1318,9 +1341,7 @@ document.addEventListener('DOMContentLoaded', () => {
           weekdayMap[dow] = (weekdayMap[dow] || 0) + 1;
         }
 
-        // Bóc tách Pivot chi tiết từng dòng sản phẩm
         const lineItems = resolveOrderLineItems(o, knownProductsMap);
-        
         let effectiveOrderRev = 0;
         lineItems.forEach(it => {
           if (statsFilterProduct !== 'ALL' && it.productId !== statsFilterProduct) {
@@ -1342,7 +1363,6 @@ document.addEventListener('DOMContentLoaded', () => {
           productMap[key].count += 1;
           productMap[key].revenue += it.revenue;
 
-          // Gom theo danh mục sản phẩm
           const catKey = resolveProductCategory(it, knownProductsMap);
           if (!categoryMap[catKey]) {
             categoryMap[catKey] = {
@@ -1384,13 +1404,37 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     });
 
+    // Tính toán tỷ lệ chuyển đổi & Khách hàng lặp lại (Retention)
+    const totalOrdersInFilter = paidCount + pendingCount;
+    const payRate = totalOrdersInFilter > 0 ? Math.round((paidCount / totalOrdersInFilter) * 100) : 0;
+    const coachingRate = paidCount > 0 ? Math.round((coachingCount / paidCount) * 100) : 0;
+
+    const customerPaidCounts = {};
+    (cachedOrders || []).forEach(o => {
+      if (String(o.status || '').toUpperCase() === 'PAID') {
+        const id = o.customer_phone || o.customer_email || o.user_id;
+        if (id) customerPaidCounts[id] = (customerPaidCounts[id] || 0) + 1;
+      }
+    });
+    let returningCount = 0;
+    customers.forEach(id => {
+      if ((customerPaidCounts[id] || 0) >= 2) returningCount++;
+    });
+    const totalUniqueCust = customers.size;
+    const repeatRate = totalUniqueCust > 0 ? Math.round((returningCount / totalUniqueCust) * 100) : 0;
+
+    // Cập nhật 6 KPI CELLS
     const aov = paidCount > 0 ? Math.round(totalRevenue / paidCount) : 0;
     if (kpiTotalRevenue) kpiTotalRevenue.textContent = formatCurrency(totalRevenue);
     if (kpiMonthRevenue) kpiMonthRevenue.textContent = formatCurrency(aov);
     if (kpiPaidOrders) kpiPaidOrders.textContent = paidCount + ' đơn';
-    if (kpiCustomers) kpiCustomers.textContent = customers.size + ' khách';
+    if (kpiCustomers) kpiCustomers.textContent = totalUniqueCust + ' khách';
+    if (kpiConversionRate) kpiConversionRate.textContent = payRate + '%';
+    if (kpiConversionRateSub) kpiConversionRateSub.textContent = paidCount + '/' + totalOrdersInFilter + ' đơn tạo';
+    if (kpiRetentionRate) kpiRetentionRate.textContent = repeatRate + '%';
+    if (kpiRetentionRateSub) kpiRetentionRateSub.textContent = returningCount + '/' + totalUniqueCust + ' khách lặp';
 
-    // 1. Biểu đồ Doanh thu (COMBO CHART: Bar Doanh thu + Line Số đơn, KHÔNG đè chữ)
+    // 1. Biểu đồ Doanh thu (COMBO CHART: Cột Pastel Doanh thu + Line Số đơn, KHÔNG đè chữ, NO '6đ')
     const dailyList = Object.values(chartDataMap).sort((a, b) => a.key.localeCompare(b.key));
     const revenues = dailyList.map(d => d.revenue);
     const orderCounts = dailyList.map(d => d.count);
@@ -1402,53 +1446,52 @@ document.addEventListener('DOMContentLoaded', () => {
         revenueChartContainer.innerHTML = '<div style="margin: auto; color: var(--muted); font-size: 0.85rem;">Không có dữ liệu trong khoảng thời gian này.</div>';
       } else {
         const itemMinWidth = isAllTime ? 60 : (dailyList.length > 20 ? 30 : (dailyList.length <= 14 ? 48 : 34));
-        const chartHeight = 170;
+        const chartHeight = 160;
         const totalItems = dailyList.length;
         const linePoints = [];
 
         dailyList.forEach((d, idx) => {
-          // Line Y đại diện cho Số đơn hàng
-          const y = chartHeight - Math.round((d.count / maxCount) * (chartHeight - 40)) - 15;
+          const y = chartHeight - Math.round((d.count / maxCount) * (chartHeight - 40)) - 14;
           linePoints.push({ idx, y, rev: d.revenue, count: d.count, key: d.key });
         });
 
-        // Combo Chart: Bar đại diện cho Doanh thu (VND), Line đại diện cho Số đơn
+        // Pastel Palette: Cột Mint Pastel mềm mại (#bbf7d0), viền nhạt
         const barsHtml = dailyList.map((d, idx) => {
-          const barHeightPx = d.revenue > 0 ? Math.max(Math.round((d.revenue / maxRev) * (chartHeight - 45)), 8) : 3;
+          const barHeightPx = d.revenue > 0 ? Math.max(Math.round((d.revenue / maxRev) * (chartHeight - 45)), 8) : 2;
           const displayLabel = d.label || d.key;
           const isToday = d.key === todayStr;
-          const barColor = d.revenue > 0 ? '#bbf7d0' : '#f1f5f9';
+          const barColor = d.revenue > 0 ? '#bbf7d0' : '#f8fafc';
 
           return (
             '<div style="flex: ' + (dailyList.length > 14 ? '0 0 ' + itemMinWidth + 'px' : '1') + '; min-width: ' + itemMinWidth + 'px; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; position: relative;" title="' + (d.fullDate || d.key) + '&#10;• Doanh thu: ' + formatCurrency(d.revenue) + '&#10;• Số đơn: ' + d.count + ' đơn">' +
-              (d.revenue > 0 ? '<div style="position: absolute; bottom: ' + (barHeightPx + 18) + 'px; z-index: 5; font-size: 0.63rem; font-weight: 700; color: #059669; font-family: monospace; white-space: nowrap; pointer-events: none;">' + (Math.round(d.revenue / 1000) + 'k') + '</div>' : '') +
-              '<div style="width: 100%; max-width: 18px; height: ' + barHeightPx + 'px; background: ' + barColor + '; border-radius: 2px 2px 0 0; transition: height 0.3s ease; position: relative;"></div>' +
-              '<div style="font-size: 0.68rem; color: ' + (isToday ? '#059669' : '#64748b') + '; font-weight: ' + (isToday ? '700' : '400') + '; margin-top: 5px; white-space: nowrap;">' + displayLabel + '</div>' +
+              (d.revenue > 0 ? '<div style="position: absolute; bottom: ' + (barHeightPx + 16) + 'px; z-index: 5; font-size: 0.62rem; font-weight: 700; color: #059669; font-family: monospace; white-space: nowrap; pointer-events: none;">' + (Math.round(d.revenue / 1000) + 'k') + '</div>' : '') +
+              '<div style="width: 100%; max-width: 16px; height: ' + barHeightPx + 'px; background: ' + barColor + '; border-radius: 2px 2px 0 0; transition: height 0.3s ease; position: relative;"></div>' +
+              '<div style="font-size: 0.67rem; color: ' + (isToday ? '#059669' : '#64748b') + '; font-weight: ' + (isToday ? '700' : '400') + '; margin-top: 5px; white-space: nowrap;">' + displayLabel + '</div>' +
             '</div>'
           );
         }).join('');
 
-        // Line SVG cho Số đơn
         const svgPathD = linePoints.map((pt, i) => {
           const xPercent = ((i + 0.5) / totalItems) * 100;
           return (i === 0 ? 'M ' : 'L ') + xPercent + ' ' + pt.y;
         }).join(' ');
 
+        // Điểm tròn trên đường Line: chỉ hiển thị số nguyên rõ ràng ("4", "5", tooltip: "X đơn", TUYỆT ĐỐI KHÔNG GHI "4đ" gây hiểu nhầm 4 đồng)
         const dotsSvg = linePoints.filter(pt => pt.count > 0).map(pt => {
           const xPercent = ((pt.idx + 0.5) / totalItems) * 100;
-          return '<circle cx="' + xPercent + '%" cy="' + pt.y + '" r="3" fill="#ffffff" stroke="#059669" stroke-width="2"></circle>' +
-                 '<text x="' + xPercent + '%" y="' + (pt.y - 6) + '" text-anchor="middle" font-size="8.5" font-weight="700" fill="#047857" font-family="monospace">' + pt.count + 'đ</text>';
+          return '<circle cx="' + xPercent + '%" cy="' + pt.y + '" r="3" fill="#ffffff" stroke="#10b981" stroke-width="2"></circle>' +
+                 '<text x="' + xPercent + '%" y="' + (pt.y - 6) + '" text-anchor="middle" font-size="8" font-weight="700" fill="#065f46" font-family="monospace">' + pt.count + '</text>';
         }).join('');
 
         revenueChartContainer.innerHTML = (
           '<div style="width: 100%; height: 100%; display: flex; flex-direction: column;">' +
-            '<div style="display: flex; justify-content: flex-end; gap: 14px; font-size: 0.72rem; color: #64748b; margin-bottom: 6px;">' +
-              '<span style="display: flex; align-items: center; gap: 5px;"><span style="display:inline-block; width:10px; height:8px; background:#bbf7d0; border-radius:1px;"></span>Cột: Doanh thu</span>' +
-              '<span style="display: flex; align-items: center; gap: 5px;"><span style="display:inline-block; width:12px; height:2px; background:#059669;"></span>Đường: Số đơn</span>' +
+            '<div style="display: flex; justify-content: flex-end; gap: 14px; font-size: 0.7rem; color: #64748b; margin-bottom: 6px;">' +
+              '<span style="display: flex; align-items: center; gap: 5px;"><span style="display:inline-block; width:10px; height:7px; background:#bbf7d0; border-radius:1px;"></span>Cột: Doanh thu</span>' +
+              '<span style="display: flex; align-items: center; gap: 5px;"><span style="display:inline-block; width:12px; height:2px; background:#10b981;"></span>Đường: Số đơn</span>' +
             '</div>' +
             '<div style="width: 100%; height: ' + chartHeight + 'px; display: flex; align-items: flex-end; position: relative; min-width: ' + (dailyList.length * itemMinWidth) + 'px;">' +
               '<svg style="position: absolute; top: 0; left: 0; width: 100%; height: ' + chartHeight + 'px; pointer-events: none; z-index: 4;" preserveAspectRatio="none" viewBox="0 0 100 ' + chartHeight + '">' +
-                '<path d="' + svgPathD + '" fill="none" stroke="#059669" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" vector-effect="non-scaling-stroke"></path>' +
+                '<path d="' + svgPathD + '" fill="none" stroke="#10b981" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" vector-effect="non-scaling-stroke"></path>' +
               '</svg>' +
               '<svg style="position: absolute; top: 0; left: 0; width: 100%; height: ' + chartHeight + 'px; pointer-events: none; z-index: 5;">' +
                 dotsSvg +
@@ -1460,38 +1503,39 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     }
 
-    // 2. Top File Bán Chạy Nhất (TRUE HORIZONTAL BAR CHART)
+    // 2. Top File Bán Chạy Nhất (PASTEL HORIZONTAL BAR CHART)
     const bestSellers = Object.values(productMap).sort((a, b) => {
       if (a.id === '__ARCHIVED_TEST__') return 1;
       if (b.id === '__ARCHIVED_TEST__') return -1;
       return b.revenue - a.revenue;
-    }).slice(0, 10);
+    }).slice(0, 5);
 
     if (bestSellersContainer) {
       if (!bestSellers.length) {
         bestSellersContainer.innerHTML = '<div style="margin: 20px 0; text-align: center; color: var(--muted); font-size: 0.85rem;">Chưa có dữ liệu bán hàng.</div>';
       } else {
         const maxItemRev = Math.max(...bestSellers.map(b => b.revenue), 1);
-        const barColors = ['#059669', '#0284c7', '#d97706', '#8b5cf6', '#64748b'];
+        // Palette pastel dịu
+        const barPastelColors = ['#6ee7b7', '#7dd3fc', '#fde047', '#c4b5fd', '#cbd5e1'];
 
-        bestSellersContainer.innerHTML = bestSellers.slice(0, 5).map((item, idx) => {
+        bestSellersContainer.innerHTML = bestSellers.map((item, idx) => {
           const rank = idx + 1;
           const pct = Math.max(Math.round((item.revenue / maxItemRev) * 100), 4);
-          const color = barColors[idx % barColors.length];
+          const color = barPastelColors[idx % barPastelColors.length];
 
           return (
-            '<div style="margin-bottom: 11px;">' +
-              '<div style="display: flex; justify-content: space-between; align-items: baseline; font-size: 0.78rem; margin-bottom: 3px;">' +
+            '<div style="margin-bottom: 10px;">' +
+              '<div style="display: flex; justify-content: space-between; align-items: baseline; font-size: 0.77rem; margin-bottom: 3px;">' +
                 '<div style="min-width: 0; flex: 1; margin-right: 10px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">' +
-                  '<span style="font-weight: 700; color: ' + color + '; font-family: monospace; margin-right: 6px;">0' + rank + '</span>' +
+                  '<span style="font-weight: 700; color: #475569; font-family: monospace; margin-right: 6px;">0' + rank + '</span>' +
                   '<span style="font-weight: 600; color: #1e293b;">' + escapeHtml(item.name) + '</span>' +
                 '</div>' +
                 '<div style="font-weight: 700; color: #0f172a; font-family: monospace; flex-shrink: 0;">' + formatCurrency(item.revenue) + '</div>' +
               '</div>' +
-              '<div style="width: 100%; height: 6px; background: #f1f5f9; border-radius: 2px; overflow: hidden;">' +
+              '<div style="width: 100%; height: 6px; background: #f8fafc; border: 1px solid #f1f5f9; border-radius: 2px; overflow: hidden;">' +
                 '<div style="width: ' + pct + '%; height: 100%; background: ' + color + '; border-radius: 2px; transition: width 0.4s ease;"></div>' +
               '</div>' +
-              '<div style="display: flex; justify-content: space-between; font-size: 0.7rem; color: #64748b; margin-top: 2px;">' +
+              '<div style="display: flex; justify-content: space-between; font-size: 0.69rem; color: #64748b; margin-top: 2px;">' +
                 '<span>' + item.count + ' lượt mua thành công</span>' +
                 '<span>' + (totalRevenue > 0 ? Math.round((item.revenue / totalRevenue) * 100) : 0) + '% doanh số</span>' +
               '</div>' +
@@ -1501,31 +1545,33 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     }
 
-    // 3. Khung Giờ Mua Hàng Sôi Động Nhất (Vertical Column Chart 24 Cột)
+    // 3. Khung Giờ Mua Hàng Sôi Động Nhất (PASTEL COLUMN BAR CHART)
     if (hourlyChartContainer) {
       const maxHourly = Math.max(...hourlyMap, 1);
       const peakHourCount = Math.max(...hourlyMap);
 
       hourlyChartContainer.innerHTML = hourlyMap.map((cnt, hr) => {
-        const heightPct = Math.max(Math.round((cnt / maxHourly) * 110), 4);
+        const heightPct = Math.max(Math.round((cnt / maxHourly) * 100), 4);
         const isPeak = cnt === peakHourCount && cnt > 0;
-        const barColor = isPeak ? '#059669' : (cnt > 0 ? '#34d399' : '#f1f5f9');
+        // Pastel: Peak là Mint #10b981, thường là #a7f3d0, rỗng là #f8fafc
+        const barColor = isPeak ? '#10b981' : (cnt > 0 ? '#a7f3d0' : '#f8fafc');
         const showLabel = hr % 3 === 0;
 
         return (
-          '<div style="flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; height: 100%; justify-content: flex-end;" title="' + hr + ':00 - ' + hr + ':59: ' + cnt + ' đơn mua">' +
-            '<div style="font-size: 0.65rem; font-weight: 600; color: #059669;">' + (cnt > 0 ? cnt : '') + '</div>' +
-            '<div style="width: 100%; max-width: 14px; height: ' + heightPct + 'px; background: ' + barColor + '; border-radius: 2px 2px 0 0; transition: height 0.3s ease;"></div>' +
-            '<div style="font-size: 0.68rem; color: #64748b; font-weight: ' + (showLabel ? '600' : '400') + '; margin-top: 4px;">' + (showLabel ? (hr + 'h') : '') + '</div>' +
+          '<div style="flex: 1; display: flex; flex-direction: column; align-items: center; gap: 3px; height: 100%; justify-content: flex-end;" title="' + hr + ':00 - ' + hr + ':59: ' + cnt + ' đơn mua">' +
+            '<div style="font-size: 0.64rem; font-weight: 700; color: ' + (isPeak ? '#047857' : '#059669') + '; font-family: monospace;">' + (cnt > 0 ? cnt : '') + '</div>' +
+            '<div style="width: 100%; max-width: 13px; height: ' + heightPct + 'px; background: ' + barColor + '; border-radius: 2px 2px 0 0; transition: height 0.3s ease;"></div>' +
+            '<div style="font-size: 0.66rem; color: #64748b; font-weight: ' + (showLabel ? '600' : '400') + '; margin-top: 4px;">' + (showLabel ? (hr + 'h') : '') + '</div>' +
           '</div>'
         );
       }).join('');
     }
 
-    // 4. Cơ Cấu Doanh Thu Theo Danh Mục (SVG DONUT / PIE CHART)
+    // 4. Cơ Cấu Doanh Thu Theo Danh Mục (PASTEL SVG DONUT / PIE CHART)
     if (categoryChartContainer) {
       const catList = Object.values(categoryMap).sort((a, b) => b.revenue - a.revenue);
-      const palette = ['#059669', '#0284c7', '#f59e0b', '#8b5cf6', '#ec4899', '#64748b'];
+      // Pastel Palette: Mint dịu, Sky pastel, Lavender pastel, Amber pastel, Rose pastel
+      const pastelDonutPalette = ['#6ee7b7', '#7dd3fc', '#fde047', '#c4b5fd', '#f9a8d4', '#cbd5e1'];
 
       if (!catList.length || totalRevenue <= 0) {
         categoryChartContainer.innerHTML = '<div style="margin: auto; color: var(--slate-muted); font-size: 0.85rem; text-align: center; padding: 20px 0;">Chưa có dữ liệu danh mục trong kỳ.</div>';
@@ -1537,42 +1583,42 @@ document.addEventListener('DOMContentLoaded', () => {
         const donutSlicesSvg = catList.map((c, i) => {
           const ratio = c.revenue / totalRevenue;
           const sliceLen = ratio * circumference;
-          const color = palette[i % palette.length];
+          const color = pastelDonutPalette[i % pastelDonutPalette.length];
           const sliceSvg = '<circle cx="55" cy="55" r="' + radius + '" fill="transparent" stroke="' + color + '" stroke-width="14" stroke-dasharray="' + sliceLen.toFixed(1) + ' ' + (circumference - sliceLen).toFixed(1) + '" stroke-dashoffset="' + (-strokeOffset).toFixed(1) + '" transform="rotate(-90 55 55)"></circle>';
           strokeOffset += sliceLen;
           return sliceSvg;
         }).join('');
 
         const donutSvg = (
-          '<div style="display: flex; align-items: center; justify-content: center; flex-shrink: 0; width: 110px; height: 110px;">' +
+          '<div style="display: flex; align-items: center; justify-content: center; flex-shrink: 0; width: 105px; height: 105px;">' +
             '<svg viewBox="0 0 110 110" style="width: 100%; height: 100%;">' +
-              '<circle cx="55" cy="55" r="' + radius + '" fill="transparent" stroke="#f1f5f9" stroke-width="14"></circle>' +
+              '<circle cx="55" cy="55" r="' + radius + '" fill="transparent" stroke="#f8fafc" stroke-width="14"></circle>' +
               donutSlicesSvg +
-              '<text x="55" y="53" text-anchor="middle" font-size="10" font-weight="700" fill="#0f172a" font-family="monospace">' + (Math.round(totalRevenue / 1000) + 'k ₫') + '</text>' +
-              '<text x="55" y="64" text-anchor="middle" font-size="7" font-weight="500" fill="#64748b">TỔNG</text>' +
+              '<text x="55" y="52" text-anchor="middle" font-size="9.5" font-weight="700" fill="#0f172a" font-family="monospace">' + (Math.round(totalRevenue / 1000) + 'k ₫') + '</text>' +
+              '<text x="55" y="63" text-anchor="middle" font-size="7" font-weight="500" fill="#64748b">TỔNG</text>' +
             '</svg>' +
           '</div>'
         );
 
         const legendListHtml = catList.map((c, i) => {
           const pct = Math.round((c.revenue / totalRevenue) * 100);
-          const color = palette[i % palette.length];
+          const color = pastelDonutPalette[i % pastelDonutPalette.length];
           return (
-            '<div style="display: flex; align-items: center; justify-content: space-between; font-size: 0.76rem; padding: 3px 0;">' +
+            '<div style="display: flex; align-items: center; justify-content: space-between; font-size: 0.74rem; padding: 2px 0;">' +
               '<div style="display: flex; align-items: center; gap: 6px; min-width: 0;">' +
                 '<span style="width: 7px; height: 7px; border-radius: 50%; background: ' + color + '; flex-shrink: 0;"></span>' +
                 '<span style="font-weight: 500; color: #1e293b; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">' + escapeHtml(c.label) + '</span>' +
               '</div>' +
               '<div style="display: flex; align-items: center; gap: 8px; flex-shrink: 0; margin-left: 8px;">' +
                 '<span style="font-weight: 700; color: #0f172a; font-family: monospace;">' + pct + '%</span>' +
-                '<span style="font-size: 0.72rem; color: #64748b; font-family: monospace;">' + formatCurrency(c.revenue) + '</span>' +
+                '<span style="font-size: 0.7rem; color: #64748b; font-family: monospace;">' + formatCurrency(c.revenue) + '</span>' +
               '</div>' +
             '</div>'
           );
         }).join('');
 
         categoryChartContainer.innerHTML = (
-          '<div style="display: flex; align-items: center; gap: 14px; min-height: 120px;">' +
+          '<div style="display: flex; align-items: center; gap: 12px; min-height: 110px;">' +
             donutSvg +
             '<div style="flex: 1; min-width: 0; display: flex; flex-direction: column; justify-content: center;">' +
               legendListHtml +
@@ -1582,7 +1628,7 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     }
 
-    // 5. Chu Kỳ Mua Hàng Theo Thứ Trong Tuần (Column Bar Chart T2 -> CN)
+    // 5. Chu Kỳ Mua Hàng Theo Thứ Trong Tuần (PASTEL COLUMN BAR CHART)
     if (weekdayChartContainer) {
       const daySeq = [1, 2, 3, 4, 5, 6, 0];
       const dayLabels = ['T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'CN'];
@@ -1594,77 +1640,67 @@ document.addEventListener('DOMContentLoaded', () => {
       weekdayChartContainer.innerHTML = daySeq.map((dow, idx) => {
         const cnt = weekdayMap[dow];
         const rev = weekdayRevMap[dow];
-        const heightPct = Math.max(Math.round((cnt / maxWeekdayCount) * 105), 4);
+        const heightPct = Math.max(Math.round((cnt / maxWeekdayCount) * 100), 4);
         const isPeak = cnt === peakDayCount && cnt > 0;
         const isToday = dow === currentDow;
-        const barColor = isPeak ? '#059669' : (cnt > 0 ? '#34d399' : '#f1f5f9');
+        const barColor = isPeak ? '#10b981' : (cnt > 0 ? '#a7f3d0' : '#f8fafc');
 
         return (
-          '<div style="flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; height: 100%; justify-content: flex-end;" title="' + dayFullNames[idx] + ': ' + cnt + ' đơn&#10;• Doanh thu: ' + formatCurrency(rev) + '">' +
-            '<div style="font-size: 0.68rem; font-weight: 700; color: #059669; font-family: monospace;">' + (cnt > 0 ? cnt + 'đ' : '') + '</div>' +
+          '<div style="flex: 1; display: flex; flex-direction: column; align-items: center; gap: 3px; height: 100%; justify-content: flex-end;" title="' + dayFullNames[idx] + ': ' + cnt + ' đơn&#10;• Doanh thu: ' + formatCurrency(rev) + '">' +
+            '<div style="font-size: 0.66rem; font-weight: 700; color: ' + (isPeak ? '#047857' : '#059669') + '; font-family: monospace;">' + (cnt > 0 ? (cnt + ' đơn') : '') + '</div>' +
             '<div style="width: 100%; max-width: 18px; height: ' + heightPct + 'px; background: ' + barColor + '; border-radius: 2px 2px 0 0; transition: height 0.3s ease;"></div>' +
-            '<div style="font-size: 0.72rem; color: ' + (isToday ? '#059669' : '#64748b') + '; font-weight: ' + (isToday ? '700' : '500') + '; margin-top: 4px;">' + dayLabels[idx] + '</div>' +
+            '<div style="font-size: 0.7rem; color: ' + (isToday ? '#059669' : '#64748b') + '; font-weight: ' + (isToday ? '700' : '400') + '; margin-top: 4px;">' + dayLabels[idx] + '</div>' +
           '</div>'
         );
       }).join('');
     }
 
-    // 6. Chuyển Đổi & Giữ Chân Khách Hàng (Funnel & Retention Progress Bars)
+    // 6. Chuyển Đổi & Giữ Chân Khách Hàng (TÍNH TOÁN CHUẨN XÁC, AN TOÀN TUYỆT ĐỐI)
     if (conversionContainer) {
-      const totalOrdersInFilter = paidCount + pendingCount;
-      const payRate = totalOrdersInFilter > 0 ? Math.round((paidCount / totalOrdersInFilter) * 100) : 0;
-      const coachingRate = paidCount > 0 ? Math.round((coachingCount / paidCount) * 100) : 0;
+      try {
+        const peakHr = calcPeakHour(hourlyMap);
+        const peakWd = calcPeakWeekday(weekdayMap);
 
-      const customerPaidCounts = {};
-      (cachedOrders || []).forEach(o => {
-        if (String(o.status || '').toUpperCase() === 'PAID') {
-          const id = o.customer_phone || o.customer_email || o.user_id;
-          if (id) customerPaidCounts[id] = (customerPaidCounts[id] || 0) + 1;
-        }
-      });
-      let returningCount = 0;
-      customers.forEach(id => {
-        if ((customerPaidCounts[id] || 0) >= 2) returningCount++;
-      });
-      const totalUniqueCust = customers.size;
-      const repeatRate = totalUniqueCust > 0 ? Math.round((returningCount / totalUniqueCust) * 100) : 0;
+        conversionContainer.innerHTML = (
+          '<div>' +
+            '<div style="display: flex; justify-content: space-between; font-size: 0.78rem; margin-bottom: 3px;">' +
+              '<span style="font-weight: 500; color: #1e293b;">Tỉ lệ thanh toán thành công</span>' +
+              '<span style="font-weight: 700; color: #059669; font-family: monospace;">' + payRate + '% (' + paidCount + '/' + totalOrdersInFilter + ' đơn)</span>' +
+            '</div>' +
+            '<div style="width: 100%; height: 6px; background: #f8fafc; border: 1px solid #f1f5f9; border-radius: 999px; overflow: hidden; display: flex;">' +
+              '<div style="width: ' + payRate + '%; background: #6ee7b7; border-radius: 999px;"></div>' +
+            '</div>' +
+          '</div>' +
 
-      conversionContainer.innerHTML = (
-        '<div>' +
-          '<div style="display: flex; justify-content: space-between; font-size: 0.82rem; margin-bottom: 4px;">' +
-            '<span style="font-weight: 500; color: #1e293b;">Tỉ lệ thanh toán thành công</span>' +
-            '<span style="font-weight: 700; color: #059669; font-family: monospace;">' + payRate + '% (' + paidCount + '/' + totalOrdersInFilter + ' đơn)</span>' +
+          '<div>' +
+            '<div style="display: flex; justify-content: space-between; font-size: 0.78rem; margin-bottom: 3px;">' +
+              '<span style="font-weight: 500; color: #1e293b;">Khách quay lại mua lặp lại (Retention)</span>' +
+              '<span style="font-weight: 700; color: #0284c7; font-family: monospace;">' + repeatRate + '% (' + returningCount + '/' + totalUniqueCust + ' khách)</span>' +
+            '</div>' +
+            '<div style="width: 100%; height: 6px; background: #f8fafc; border: 1px solid #f1f5f9; border-radius: 999px; overflow: hidden; display: flex;">' +
+              '<div style="width: ' + repeatRate + '%; background: #7dd3fc; border-radius: 999px;"></div>' +
+            '</div>' +
           '</div>' +
-          '<div style="width: 100%; height: 7px; background: #f1f5f9; border-radius: 999px; overflow: hidden; display: flex;">' +
-            '<div style="width: ' + payRate + '%; background: #10b981; border-radius: 999px;"></div>' +
-          '</div>' +
-        '</div>' +
 
-        '<div>' +
-          '<div style="display: flex; justify-content: space-between; font-size: 0.82rem; margin-bottom: 4px;">' +
-            '<span style="font-weight: 500; color: #1e293b;">Khách quay lại mua lặp lại (Retention)</span>' +
-            '<span style="font-weight: 700; color: #0284c7; font-family: monospace;">' + repeatRate + '% (' + returningCount + '/' + totalUniqueCust + ' khách)</span>' +
+          '<div>' +
+            '<div style="display: flex; justify-content: space-between; font-size: 0.78rem; margin-bottom: 3px;">' +
+              '<span style="font-weight: 500; color: #1e293b;">Tỷ lệ chọn gói Kèm Coaching 1-1</span>' +
+              '<span style="font-weight: 700; color: #d97706; font-family: monospace;">' + coachingRate + '% (' + coachingCount + ' đơn Kèm 1-1)</span>' +
+            '</div>' +
+            '<div style="width: 100%; height: 6px; background: #f8fafc; border: 1px solid #f1f5f9; border-radius: 999px; overflow: hidden; display: flex;">' +
+              '<div style="width: ' + coachingRate + '%; background: #fde047; border-radius: 999px;"></div>' +
+            '</div>' +
           '</div>' +
-          '<div style="width: 100%; height: 7px; background: #f1f5f9; border-radius: 999px; overflow: hidden; display: flex;">' +
-            '<div style="width: ' + repeatRate + '%; background: #0284c7; border-radius: 999px;"></div>' +
-          '</div>' +
-        '</div>' +
 
-        '<div>' +
-          '<div style="display: flex; justify-content: space-between; font-size: 0.82rem; margin-bottom: 4px;">' +
-            '<span style="font-weight: 500; color: #1e293b;">Tỷ lệ chọn gói Kèm Coaching 1-1</span>' +
-            '<span style="font-weight: 700; color: #d97706; font-family: monospace;">' + coachingRate + '% (' + coachingCount + ' đơn Kèm 1-1)</span>' +
-          '</div>' +
-          '<div style="width: 100%; height: 7px; background: #f1f5f9; border-radius: 999px; overflow: hidden; display: flex;">' +
-            '<div style="width: ' + coachingRate + '%; background: #f59e0b; border-radius: 999px;"></div>' +
-          '</div>' +
-        '</div>' +
-
-        '<div style="display: flex; align-items: flex-start; gap: 8px; margin-top: 4px; padding: 9px 12px; background: #f8fafc; border-radius: 6px; border: 1px solid #e2e8f0; font-size: 0.78rem; color: #475569;">' +
-          '<svg width="15" height="15" fill="none" stroke="#059669" stroke-width="2" viewBox="0 0 24 24" style="flex-shrink: 0; margin-top: 1px;"><path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>' +
-          '<div>Giờ chốt đơn nhiều nhất là <b>' + calcPeakHour(hourlyMap) + '</b> và <b>' + calcPeakWeekday(weekdayMap) + '</b>. Đăng clip hoặc chạy tin trước khung giờ này 30 phút để tối ưu tỷ lệ mua hàng.</div>' +
-        '</div>'
-      );
+          '<div style="display: flex; align-items: flex-start; gap: 8px; margin-top: 4px; padding: 8px 10px; background: #f8fafc; border-radius: 6px; border: 1px solid #e2e8f0; font-size: 0.74rem; color: #475569;">' +
+            '<svg width="14" height="14" fill="none" stroke="#059669" stroke-width="2" viewBox="0 0 24 24" style="flex-shrink: 0; margin-top: 1px;"><path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>' +
+            '<div>Giờ chốt đơn nhiều nhất là <b>' + peakHr + '</b> và <b>' + peakWd + '</b>. Đăng clip hoặc chạy tin trước khung giờ này 30 phút để tối ưu tỷ lệ mua hàng.</div>' +
+          '</div>'
+        );
+      } catch (convErr) {
+        console.error("Lỗi render conversionContainer:", convErr);
+        conversionContainer.innerHTML = '<div style="color: #64748b; font-size: 0.8rem; padding: 10px;">Tỉ lệ thanh toán: <b>' + payRate + '%</b> • Tỉ lệ khách lặp: <b>' + repeatRate + '%</b></div>';
+      }
     }
   }
 
