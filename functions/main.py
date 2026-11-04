@@ -10,6 +10,7 @@ import re
 import smtplib
 import email.utils
 import urllib.request
+import urllib.parse
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from email.mime.image import MIMEImage
@@ -334,6 +335,25 @@ File Đi Làm - https://filedilam.web.app
         print(f"[Email] Lỗi gửi email cho đơn {order_id} ({customer_email}): {e}")
         return False
 
+def generate_vietqr_emvco(amount, order_id, account="59215112002"):
+    def field(tag, val):
+        s = str(val)
+        return f"{tag}{len(s):02d}{s}"
+
+    recipient = field("00", "970423") + field("01", account)
+    provider = field("00", "A000000727") + field("01", recipient) + field("02", "QRIBFTTA")
+    payload = "000201010212" + field("38", provider) + "5303704" + field("54", amount) + "5802VN" + field("62", field("08", order_id)) + "6304"
+
+    crc = 0xFFFF
+    for ch in payload:
+        crc ^= ord(ch) << 8
+        for _ in range(8):
+            if crc & 0x8000:
+                crc = ((crc << 1) ^ 0x1021) & 0xFFFF
+            else:
+                crc = (crc << 1) & 0xFFFF
+    return payload + f"{crc:04X}"
+
 def send_payment_reminder_email(customer_email, customer_name, order_id, order_data):
     if not customer_email or "@" not in customer_email:
         print(f"[Email] Bỏ qua gửi email nhắc do địa chỉ không hợp lệ: {customer_email}")
@@ -345,22 +365,30 @@ def send_payment_reminder_email(customer_email, customer_name, order_id, order_d
         amount_fmt = f"{amount:,}".replace(",", ".") + " đ"
         phone = order_data.get("customer_phone") or ""
         
-        # QR Code VietQR TPBank
-        qr_url = f"https://img.vietqr.io/image/TPB-59215112002-compact.png?amount={amount}&addInfo={order_id}&accountName=HUYNH%20KIEN%20CAM"
+        # Sinh chuỗi chuẩn ngân hàng EMVCo VietQR và lấy ảnh PNG chuẩn 100%
+        emvco = generate_vietqr_emvco(amount, order_id)
+        qr_png_url = f"https://quickchart.io/qr?size=360&text={urllib.parse.quote(emvco)}"
+        backup_png_url = f"https://api.qrserver.com/v1/create-qr-code/?size=360x360&data={urllib.parse.quote(emvco)}"
         
-        # Tải ảnh QR về nhúng trực tiếp dạng CID (tránh bị Gmail chặn ảnh ngoài hòm thư)
         qr_bytes = None
-        img_src = qr_url
+        img_src = qr_png_url
         try:
-            req = urllib.request.Request(qr_url, headers={"User-Agent": "Mozilla/5.0"})
-            with urllib.request.urlopen(req, timeout=5) as resp:
+            req = urllib.request.Request(qr_png_url, headers={"User-Agent": "Mozilla/5.0"})
+            with urllib.request.urlopen(req, timeout=4) as resp:
                 if resp.status == 200:
                     qr_bytes = resp.read()
                     img_src = "cid:vietqr_code"
         except Exception as qre:
-            print(f"[Email] Không tải được QR để nhúng CID, dùng link ngoài: {qre}")
-            qr_bytes = None
-            img_src = qr_url
+            print(f"[Email] QuickChart QR fetch failed: {qre}")
+            try:
+                req = urllib.request.Request(backup_png_url, headers={"User-Agent": "Mozilla/5.0"})
+                with urllib.request.urlopen(req, timeout=4) as resp:
+                    if resp.status == 200:
+                        qr_bytes = resp.read()
+                        img_src = "cid:vietqr_code"
+            except Exception as bke:
+                print(f"[Email] Backup QR fetch failed: {bke}")
+                img_src = backup_png_url
 
         cust_display_name = customer_name if customer_name else "Quý khách"
 
@@ -446,11 +474,11 @@ def send_payment_reminder_email(customer_email, customer_name, order_id, order_d
               <div style="font-size: 14.5px; font-weight: 700; color: #0f172a;">Mã QR chuyển khoản tự động (VietQR)</div>
               <div style="font-size: 12.5px; color: #64748b; margin-top: 3px;">Mở ứng dụng ngân hàng bất kỳ để quét mã</div>
               
-              <!-- Khung viền ảnh QR -->
-              <table align="center" cellpadding="0" cellspacing="0" border="0" style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 8px; margin: 14px auto 14px auto;">
+              <!-- Khung viền ảnh QR (Luôn giữ nền trắng chuẩn kể cả khi bật Dark Mode) -->
+              <table align="center" cellpadding="0" cellspacing="0" border="0" style="background-color: #ffffff !important; border: 1px solid #e2e8f0; border-radius: 10px; margin: 14px auto 14px auto;">
                 <tr>
-                  <td style="padding: 8px;">
-                    <img src="{img_src}" alt="VietQR đơn #{order_id}" width="180" height="180" style="display: block; border: 0; outline: none; margin: 0 auto;" />
+                  <td style="padding: 12px; background-color: #ffffff !important; border-radius: 10px;">
+                    <img src="{img_src}" alt="VietQR đơn #{order_id}" width="180" height="180" style="display: block; border: 0; outline: none; margin: 0 auto; background-color: #ffffff !important;" />
                   </td>
                 </tr>
               </table>
