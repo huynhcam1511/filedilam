@@ -54,6 +54,15 @@ document.addEventListener('DOMContentLoaded', () => {
   const productListBody = document.getElementById('productListBody');
 
   // Firebase services
+  if (typeof firebase === 'undefined' || !firebase.auth || !firebase.firestore || !firebase.storage || !firebase.apps.length) {
+    document.getElementById('authStatusTitle').textContent = 'Không tải được kết nối Admin';
+    document.getElementById('authStatusDesc').textContent = 'Vui lòng tải lại trang để thử kết nối Google.';
+    document.getElementById('authSpinner').classList.add('hidden');
+    loginBtn.classList.remove('hidden');
+    loginBtn.querySelector('span').textContent = 'Tải lại trang';
+    loginBtn.addEventListener('click', () => window.location.reload());
+    return;
+  }
   const auth = firebase.auth();
   const db = firebase.firestore();
   const storage = firebase.storage();
@@ -113,6 +122,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // --- AUTH LOGIC ---
   let isAutoLoggingIn = false;
+  let hasAttemptedAutoLogin = false;
 
   async function triggerGoogleLogin(isManual = false) {
     const authStatusTitle = document.getElementById('authStatusTitle');
@@ -129,6 +139,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     try {
       isAutoLoggingIn = true;
+      hasAttemptedAutoLogin = true;
       await auth.signInWithPopup(provider);
     } catch (error) {
       console.warn('Google sign-in exception:', error);
@@ -189,7 +200,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (authSpinner) authSpinner.classList.add('hidden');
         if (loginBtn) loginBtn.classList.remove('hidden');
         if (authStatusTitle) authStatusTitle.textContent = 'Truy cập bị từ chối';
-        if (authStatusDesc) authStatusDesc.textContent = 'Tài khoản ${user.email} không phải Admin. Vui lòng đăng nhập đúng tài khoản:';
+        if (authStatusDesc) authStatusDesc.textContent = `Tài khoản ${user.email} không phải Admin. Vui lòng đăng nhập đúng tài khoản.`;
       }
     } else {
       loginSection.classList.remove('hidden');
@@ -199,8 +210,12 @@ document.addEventListener('DOMContentLoaded', () => {
       logoutBtn.classList.add('hidden');
 
       // Tự động kích hoạt Google popup nếu chưa thử
-      if (!isAutoLoggingIn) {
+      if (!isAutoLoggingIn && !hasAttemptedAutoLogin) {
         triggerGoogleLogin(false);
+      } else if (!isAutoLoggingIn) {
+        if (authSpinner) authSpinner.classList.add('hidden');
+        if (loginBtn) loginBtn.classList.remove('hidden');
+        if (authStatusTitle && authStatusTitle.textContent === 'Đang kết nối Google') authStatusTitle.textContent = 'Đăng nhập Admin';
       }
     }
   });
@@ -1881,8 +1896,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     couponsListBody.innerHTML = filtered.map(c => {
-      const isPercent = c.type === 'percent';
-      const discountText = isPercent ? (c.value + '%') : (formatCurrency(c.value));
+      const discountText = ['percent','cheapest'].includes(c.type) ? c.value + '%' : ['gift','choice','tier'].includes(c.type) ? 'Theo chương trình' : formatCurrency(c.value);
       const minOrderText = (c.min_order && c.min_order > 0) ? formatCurrency(c.min_order) : 'Không yêu cầu';
       const statusHtml = c.is_active
         ? '<span style="display: inline-flex; align-items: center; gap: 6px; color: #059669; font-weight: 600; font-size: 0.82rem;"><span style="width: 7px; height: 7px; border-radius: 50%; background: #059669;"></span>Đang hoạt động</span>'
@@ -1894,7 +1908,7 @@ document.addEventListener('DOMContentLoaded', () => {
             <div style="font-family: monospace; font-size: 0.92rem; font-weight: 700; color: #0f172a; letter-spacing: 0.05em;">${escapeHtml(c.code)}</div>
             ${c.description ? `<div style="font-size: 0.75rem; color: #64748b; margin-top: 2px;">${escapeHtml(c.description)}</div>` : ''}
           </td>
-          <td><span style="color: #475569; font-size: 0.86rem;">${isPercent ? 'Giảm theo phần trăm' : 'Giảm tiền cố định'}</span></td>
+          <td><span style="color: #475569; font-size: 0.86rem;">${escapeHtml([...couponTypeSelect.options].find(o => o.value === c.type)?.text || c.type)}</span></td>
           <td><strong style="color: #059669; font-size: 0.92rem;">${discountText}</strong></td>
           <td><span style="color: #334155; font-size: 0.86rem;">${minOrderText}</span></td>
           <td><span style="color: #64748b; font-size: 0.84rem;">${c.expires_at ? escapeHtml(c.expires_at) : 'Vĩnh viễn'}</span></td>
@@ -1997,6 +2011,110 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
+  function bindCouponDate(picker) {
+    if (!picker) return;
+    const field = document.getElementById(picker.id + 'Text');
+    field.addEventListener('input', () => {
+      const parts = /^(\d{2})\/(\d{2})\/(\d{4})$/.exec(field.value);
+      picker.value = parts ? parts[3] + '-' + parts[2] + '-' + parts[1] : '';
+      field.setCustomValidity(field.value && !picker.value ? 'Vui lòng nhập ngày hợp lệ theo dạng dd/mm/yyyy.' : '');
+      updateCouponDescPreview();
+    });
+    picker.addEventListener('click', () => picker.showPicker?.());
+    picker.addEventListener('change', () => {
+      field.value = picker.value ? formatDateVN(picker.value) : '';
+      field.setCustomValidity('');
+      updateCouponDescPreview();
+    });
+  }
+
+  const promoScope = document.getElementById('promoScope');
+  const promoCount = document.getElementById('promoCount');
+  const promoRewards = document.getElementById('promoRewards');
+  const promoTiers = document.getElementById('promoTiers');
+  const templates = [
+    ['Giảm 20.000đ cho lần mua sau trong 30 ngày', 'returning', 20000, 0, 99000],
+    ['Giảm 15% cho đơn từ 199.000đ', 'percent', 15, 0, 199000],
+    ['Chọn 3 file lẻ giảm 30.000đ', 'fixed', 30000, 3],
+    ['Chọn 2, 3 hoặc 5 file lẻ, giảm theo bậc', 'tier', 0, 2],
+    ['Chọn 3 file lẻ, giảm 50% cho file rẻ nhất', 'cheapest', 50, 3],
+    ['Đồng giá 99.000đ cho nhóm 3 file lẻ', 'bundle', 99000, 3],
+    ['Mua sản phẩm đủ điều kiện, tặng một file', 'gift', 0, 1],
+    ['Đơn từ 199.000đ, chọn một file quà', 'choice', 0, 1, 199000],
+    ['Mua sản phẩm chính, mua kèm file với giá 19.000đ', 'addon', 19000, 1]
+  ];
+  const promoLibrary = document.getElementById('promoLibrary');
+  templates.forEach(([title], i) => {
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.dataset.template = i;
+    button.textContent = title;
+    button.onclick = () => {
+      promoLibrary.close();
+      openAddCouponModal();
+      const [, type, value, count, minimum] = templates[i];
+      couponTypeSelect.value = type;
+      couponValueInput.value = value || '';
+      couponMinOrderInput.value = minimum || 0;
+      promoScope.value = ['tier', 'cheapest', 'bundle', 'fixed'].includes(type) ? 'single' : 'all';
+      promoCount.value = count;
+      if (type === 'tier') promoTiers.value = '2 = 10000\n3 = 30000\n5 = 60000';
+      refreshProgram();
+    };
+    document.getElementById('promoTemplates').append(button);
+  });
+  document.getElementById('btnPromoLibrary').onclick = () => promoLibrary.showModal();
+
+  function loadProgram(coupon = {}) {
+    promoScope.replaceChildren(new Option('Tất cả sản phẩm','all'), new Option('File lẻ','single'), new Option('Combo','combo'));
+    promoRewards.replaceChildren();
+    for (const category of document.getElementById('productCategory').options) {
+      if (category.value) promoScope.add(new Option(category.text, 'category:' + category.value));
+    }
+    for (const product of currentProducts) {
+      promoScope.add(new Option(product.name, 'product:' + product.id));
+      promoRewards.add(new Option(product.name, product.id));
+    }
+    const scope = coupon.scope || 'all';
+    if (![...promoScope.options].some(o => o.value === scope)) promoScope.add(new Option(scope, scope));
+    promoScope.value = scope;
+    promoCount.value = coupon.min_items || 0;
+    document.getElementById('promoDays').value = coupon.return_days || 30;
+    promoRewards.multiple = coupon.type === 'choice';
+    const ids = coupon.reward_ids || [];
+    for (const id of ids) if (![...promoRewards.options].some(o => o.value === id)) promoRewards.add(new Option(id, id));
+    for (const o of promoRewards.options) o.selected = ids.includes(o.value);
+    if (!ids.length) promoRewards.selectedIndex = -1;
+    promoTiers.value = (coupon.tiers || []).map(t => t.count + ' = ' + t.amount).join('\n');
+    refreshProgram();
+  }
+
+  function refreshProgram() {
+    const type = couponTypeSelect.value;
+    document.getElementById('promoDaysWrap').hidden = type !== 'returning';
+    document.getElementById('promoDays').disabled = type !== 'returning';
+    const reward = ['gift','choice','addon'].includes(type);
+    document.getElementById('promoRewardWrap').hidden = !reward;
+    promoRewards.multiple = type === 'choice';
+    promoRewards.size = type === 'choice' ? 4 : 1;
+    promoRewards.required = reward;
+    promoRewards.disabled = !reward;
+    document.getElementById('promoRewardHint').textContent = type === 'choice' ? 'Chọn các file được tặng. Khách thêm đúng một file quà vào giỏ.' : type === 'addon' ? 'Khách thêm cả file chính và file mua kèm vào giỏ.' : 'File này được thêm vào đơn sau khi khách áp mã.';
+    document.getElementById('promoTierWrap').hidden = type !== 'tier';
+    couponValueInput.disabled = ['gift','choice','tier'].includes(type);
+    couponValueInput.parentElement.hidden = couponValueInput.disabled;
+    couponValueInput.previousElementSibling.textContent = ({bundle:'Giá cả nhóm (đ)',addon:'Giá mua kèm (đ)',cheapest:'Phần trăm giảm (%)'})[type] || 'Giá trị giảm';
+    couponMaxDiscountInput.parentElement.hidden = !['percent','cheapest'].includes(type);
+    updateCouponDescPreview();
+  }
+
+  function readTiers() {
+    return promoTiers.value.trim().split(/\n/).map(line => {
+      const match = /^\s*([1-9]\d*)\s*=\s*([1-9]\d*)\s*$/.exec(line);
+      return match ? {count:Number(match[1]), amount:Number(match[2])} : null;
+    });
+  }
+
   function generateCouponDescription() {
     const type = couponTypeSelect ? couponTypeSelect.value : 'percent';
     const rawVal = couponValueInput ? couponValueInput.value : '0';
@@ -2006,16 +2124,26 @@ document.addEventListener('DOMContentLoaded', () => {
     const startDate = couponStartDateInput?.value;
     const endDate = couponEndDateInput?.value;
 
-    if (val <= 0) return '';
+    if (!val && !couponValueInput.disabled) return '';
 
     let text = type === 'percent' ? ('Giảm ' + val + '%') : ('Giảm ' + formatCurrency(val));
-    if (type === 'percent' && maxDiscount > 0) {
+    const names = [...promoRewards.selectedOptions].map(o => o.text).join(', ');
+    if (type === 'returning') text += ' trong ' + document.getElementById('promoDays').value + ' ngày sau lần thanh toán gần nhất';
+    if (type === 'gift') text = 'Tặng ' + (names || 'file quà');
+    if (type === 'choice') text = 'Thêm một file quà vào giỏ để nhận miễn phí (' + names + ')';
+    if (type === 'addon') text = 'Mua kèm ' + names + ' với giá ' + formatCurrency(val);
+    if (type === 'bundle') text = 'Đồng giá ' + formatCurrency(val) + ' cho nhóm đủ đúng ' + promoCount.value + ' sản phẩm';
+    if (type === 'cheapest') text = 'Giảm ' + val + '% cho file rẻ nhất';
+    if (type === 'tier') text = readTiers().filter(Boolean).map(t => t.count + ' file giảm ' + formatCurrency(t.amount)).join(', ');
+    if (Number(promoCount.value) && type !== 'bundle') text += ' khi mua từ ' + promoCount.value + ' sản phẩm khác nhau';
+    if (promoScope.value !== 'all') text += ' thuộc phạm vi ' + (promoScope.selectedOptions[0]?.text || '');
+    if (['percent','cheapest'].includes(type) && maxDiscount > 0) {
       text += ' (tối đa ' + formatCurrency(maxDiscount) + ')';
     }
     if (minOrder > 0) {
       text += ' cho đơn từ ' + formatCurrency(minOrder);
     } else {
-      text += ' cho mọi đơn hàng';
+      if (!Number(promoCount.value) && promoScope.value === 'all' && ['fixed','percent'].includes(type)) text += ' cho mọi đơn hàng';
     }
 
     if (startDate && endDate) {
@@ -2039,18 +2167,20 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!couponModal) return;
     if (couponModalTitle) couponModalTitle.textContent = "Thêm mã giảm giá mới";
     if (couponDocId) couponDocId.value = "";
-    updateCouponDescPreview();
     if (couponForm) couponForm.reset();
+    loadProgram();
     if (couponMinOrderInput) couponMinOrderInput.value = '0';
     if (couponMaxDiscountInput) couponMaxDiscountInput.value = '';
     if (couponStartDateInput) couponStartDateInput.value = '';
     if (couponEndDateInput) couponEndDateInput.value = '';
+    couponStartDateInput?.dispatchEvent(new Event('change'));
+    couponEndDateInput?.dispatchEvent(new Event('change'));
     if (couponCodeInput) {
       couponCodeInput.readOnly = false;
-      couponCodeInput.focus();
     }
     if (couponIsActive) couponIsActive.checked = true;
     couponModal.style.display = 'flex';
+    couponCodeInput?.focus();
   }
 
   function openEditCouponModal(id) {
@@ -2064,11 +2194,14 @@ document.addEventListener('DOMContentLoaded', () => {
       couponCodeInput.readOnly = true; // Prevent changing code key
     }
     if (couponTypeSelect) couponTypeSelect.value = coupon.type || 'percent';
+    loadProgram(coupon);
     if (couponValueInput) couponValueInput.value = coupon.value || 0;
     if (couponMinOrderInput) couponMinOrderInput.value = coupon.min_order ? new Intl.NumberFormat('vi-VN').format(coupon.min_order) : '0';
     if (couponMaxDiscountInput) couponMaxDiscountInput.value = coupon.max_discount ? new Intl.NumberFormat('vi-VN').format(coupon.max_discount) : '';
     if (couponStartDateInput) couponStartDateInput.value = coupon.start_date || '';
     if (couponEndDateInput) couponEndDateInput.value = coupon.end_date || '';
+    couponStartDateInput?.dispatchEvent(new Event('change'));
+    couponEndDateInput?.dispatchEvent(new Event('change'));
     updateCouponDescPreview();
     if (couponIsActive) couponIsActive.checked = coupon.is_active !== false;
 
@@ -2107,20 +2240,32 @@ document.addEventListener('DOMContentLoaded', () => {
       expiresAtText = `Từ ${formatDateVN(startDate)}`;
     }
 
-    if (value <= 0) {
+    if (!couponValueInput.disabled && value <= 0) {
       showToast("Giá trị giảm phải lớn hơn 0.");
       return;
     }
-    if (type === 'percent' && value > 100) {
+    if (['percent','cheapest'].includes(type) && value > 100) {
       showToast("Giảm theo % không được vượt quá 100%.");
       return;
     }
 
+    const tiers = type === 'tier' ? readTiers() : [];
+    if (tiers.some((t,i) => !t || (i && (t.count <= tiers[i-1].count || t.amount <= tiers[i-1].amount)))) return showToast('Nhập các bậc với số lượng và mức giảm tăng dần.');
+    if (type === 'bundle' && !Number(promoCount.value)) return showToast('Nhập số sản phẩm trong nhóm đồng giá.');
+    if (endDate && startDate && endDate < startDate) return showToast('Ngày hết hạn phải từ ngày hiệu lực trở đi.');
+    const rewardIds = promoRewards.disabled ? [] : [...promoRewards.selectedOptions].map(o => o.value);
+    if (rewardIds.some(id => promoScope.value === 'product:' + id)) return showToast('File quà hoặc mua kèm phải khác sản phẩm chính.');
+    if (rawCode.includes('/')) return showToast('Mã giảm giá không được chứa dấu /.');
     const docKey = id || rawCode;
     const payload = {
       code: rawCode,
       type: type,
-      value: value,
+      value: couponValueInput.disabled ? 0 : value,
+      scope: promoScope.value,
+      min_items: Number(promoCount.value || 0),
+      return_days: type === 'returning' ? Number(document.getElementById('promoDays').value) : 0,
+      reward_ids: rewardIds,
+      tiers,
       min_order: minOrder,
       max_discount: maxDiscount,
       start_date: startDate,
@@ -2136,7 +2281,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
     try {
       showToast("Đang lưu mã giảm giá...");
-      await db.collection('coupons').doc(docKey).set(payload, { merge: true });
+      const ref = db.collection('coupons').doc(docKey);
+      await db.runTransaction(async transaction => {
+        const existing = await transaction.get(ref);
+        if (!id && existing.exists) throw new Error('Mã này đã tồn tại.');
+        transaction.set(ref, payload, { merge: true });
+      });
       showToast("Đã lưu mã giảm giá " + rawCode);
       closeCouponModal();
       await loadCoupons();
@@ -2187,10 +2337,11 @@ document.addEventListener('DOMContentLoaded', () => {
   couponStatusFilter?.addEventListener('change', renderFilteredCoupons);
   formatNumberInputValue(couponMinOrderInput);
   formatNumberInputValue(couponMaxDiscountInput);
-  couponTypeSelect?.addEventListener('change', updateCouponDescPreview);
+  couponTypeSelect?.addEventListener('change', refreshProgram);
+  [promoCount,promoScope,promoRewards,promoTiers,document.getElementById('promoDays')].forEach(el => el.addEventListener('input', updateCouponDescPreview));
   couponValueInput?.addEventListener('input', updateCouponDescPreview);
-  couponStartDateInput?.addEventListener('change', updateCouponDescPreview);
-  couponEndDateInput?.addEventListener('change', updateCouponDescPreview);
+  bindCouponDate(couponStartDateInput);
+  bindCouponDate(couponEndDateInput);
 // couponDescInput is readonly & auto-generated
 
 

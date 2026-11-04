@@ -92,6 +92,7 @@ function escapeHtml(value) {
     pendingCheckout: false,
     selectedPackage: "standard",
     appliedCoupon: null,
+    appliedCoupons: [],
     discountAmount: 0,
   };
 
@@ -425,7 +426,14 @@ function escapeHtml(value) {
 
     if (checkoutBackBtn) {
       checkoutBackBtn.addEventListener("click", function () {
-        closeCheckout();
+        if (!checkoutModal.classList.contains("has-active-order")) {
+          closeCheckout();
+          window.scrollTo({ top: 0, behavior: "smooth" });
+          return;
+        }
+        checkoutModal.classList.remove("has-active-order");
+        setCheckoutCustomerConfirmed(false);
+        checkoutModal.scrollTop = 0;
       });
     }
     if (btnEditCheckoutCustomer) {
@@ -1676,12 +1684,13 @@ function escapeHtml(value) {
     var discountVal = document.getElementById("checkoutDiscountVal");
     var discountLabel = document.getElementById("checkoutDiscountLabel");
     if (discountRow) {
-      if (discount > 0 && state.appliedCoupon) {
+      if (discount > 0 && state.appliedCoupons.length) {
         discountRow.style.display = "flex";
         if (discountVal) discountVal.textContent = "-" + formatCurrency(discount);
-        if (discountLabel) discountLabel.textContent = "Giảm giá (" + state.appliedCoupon.code + ")";
+        if (discountLabel) discountLabel.textContent = "Giảm giá";
       } else {
         discountRow.style.display = "none";
+        if (discountVal) discountVal.textContent = "0 đ";
       }
     }
 
@@ -1692,6 +1701,9 @@ function escapeHtml(value) {
       return;
     }
 
+    const giftCoupon = state.appliedCoupons.find(c => c.type === 'gift');
+    const gift = giftCoupon && getProductById(giftCoupon.reward_ids[0]);
+    if (gift) detailedCart = detailedCart.concat({product:{...gift, name:'Quà tặng · ' + gift.name}, quantity:1, total:0});
     checkoutItems.innerHTML = detailedCart
       .map(function (item) {
         var productImage = item.product.thumbnailUrl || item.product.previewImageUrl || "";
@@ -2212,6 +2224,9 @@ function escapeHtml(value) {
     state.cart = [];
     persistCart();
     renderCart();
+    if (window.location.hash === "#thanh-toan") {
+      window.history.replaceState({}, "", window.location.pathname + window.location.search);
+    }
     closeCheckout();
     if (quickBuyForm) quickBuyForm.reset();
     
@@ -2227,7 +2242,7 @@ function escapeHtml(value) {
         itemSetup = '<div style="text-align:left;background:#ecfdf5;border:1px solid #a7f3d0;border-radius:10px;padding:12px;margin:10px 0;color:#065f46;font-size:.85rem;line-height:1.5"><b>Mở Web App rất nhanh:</b><br>1. Tạo bản sao và mở file trong Google Drive.<br>2. Tải lại trang một lần để thấy menu <b>📦 Kho Mini Smart</b>.<br>3. Chọn <b>Mở ứng dụng quản lý kho</b> và cấp quyền Google lần đầu.</div>';
       }
       return '<div style="background: ' + (isMultipleFiles ? '#f8fafc' : 'transparent') + '; padding: ' + (isMultipleFiles ? '14px' : '0') + '; border-radius: 12px; border: ' + (isMultipleFiles ? '1px solid #e2e8f0' : 'none') + '; margin-bottom: 12px; text-align: left;">' +
-               (isMultipleFiles ? '<div style="font-weight: 700; font-size: 0.95rem; color: #1e293b; margin-bottom: 8px; display:flex; align-items:center; gap:6px;"><span style="color:var(--mint-strong); font-size: 1.1rem;">📄</span> ' + escapeHtml(item.product_name) + '</div>' : '') +
+               (isMultipleFiles ? '<div style="font-weight: 700; font-size: 0.95rem; color: #1e293b; margin-bottom: 8px;">' + escapeHtml(item.product_name) + '</div>' : '') +
                '<a href="' + escapeHtml(item.delivery_url) + '" target="_blank" rel="noopener noreferrer" class="button-primary button-full" style="height: 48px; font-size: 1rem; text-decoration: none; display:flex; align-items:center; justify-content:center; border-radius: 8px;">' + btnText + (isMultipleFiles ? ' (' + escapeHtml(item.product_name) + ')' : '') + '</a>' +
                itemSetup +
              '</div>';
@@ -2265,10 +2280,11 @@ function escapeHtml(value) {
     }
     
     detailBody.innerHTML =
-      '<div style="text-align:center; padding: 40px 20px;">' +
-      '<div style="font-size: 64px; margin-bottom: 16px;">🎉</div>' +
-      '<h3 style="color: var(--mint-strong); margin-bottom: 12px; font-size: 1.5rem;">Thanh toán thành công!</h3>' +
-      "<p style='color: var(--muted); margin-bottom: 24px;'>" + descText + "</p>" +
+      '<div class="checkout-delivery">' +
+      '<div class="checkout-delivery-progress">Đơn hàng đã hoàn tất <span>1 Đơn hàng · 2 Thanh toán · <strong>3 Nhận file</strong></span></div>' +
+      '<p class="checkout-delivery-status">Đã thanh toán' + (data.amount ? ' ' + formatCurrency(data.amount) : '') + '</p>' +
+      '<h3>File của bạn đã sẵn sàng</h3>' +
+      '<p class="checkout-delivery-description">' + descText + '</p>' +
       coachingCardHtml +
       actionButtonsHtml +
       '<button type="button" class="button-secondary button-full" id="btnSuccessViewPurchases" style="height: 44px; margin-top: 12px; font-size: 0.95rem;">Mở danh sách File của tôi</button>' +
@@ -2305,6 +2321,7 @@ function escapeHtml(value) {
     }
     var container = document.getElementById("qrCountdownContainer");
     if (container) {
+      container.classList.remove("is-expired", "is-ending");
       container.style.background = "#fef2f2";
       container.style.color = "#b91c1c";
       container.innerHTML = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg><span>Mã có hiệu lực trong: <strong id="qrTimerDisplay" style="font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace;font-size:0.95rem;color:#dc2626;">10:00</strong></span>';
@@ -2320,6 +2337,9 @@ function escapeHtml(value) {
       var remainingMs = Math.max(0, totalDuration - elapsed);
 
       if (remainingMs <= 0) {
+        qrRenderToken++;
+        if (container) container.classList.add("is-expired");
+        currentQrImageUrl = "";
         clearInterval(qrCountdownTimer);
         qrCountdownTimer = null;
         if (timerDisplay) timerDisplay.textContent = "00:00";
@@ -2360,6 +2380,7 @@ function escapeHtml(value) {
 
       // Đếm từ 09:59 ngay khi bắt đầu (hoặc số giây thực tế còn lại)
       var remainingSec = Math.max(0, Math.ceil(remainingMs / 1000));
+      if (container) container.classList.toggle("is-ending", remainingSec <= 60);
       var mins = Math.floor(remainingSec / 60);
       var secs = remainingSec % 60;
       var pad = function(n) { return String(n).padStart(2, "0"); };
@@ -2765,7 +2786,7 @@ function escapeHtml(value) {
       var rawActive = localStorage.getItem("filedilam_active_order");
       if (rawActive) {
         var parsedActive = JSON.parse(rawActive);
-        if (parsedActive && parsedActive.product_id === product.id && parsedActive.amount === getCartTotal() && (parsedActive.package_type || "standard") === (state.selectedPackage || "standard") && (Date.now() - (parsedActive.time || 0) < 600000)) {
+        if (!state.appliedCoupons.length && parsedActive && !parsedActive.has_coupon && parsedActive.product_id === product.id && parsedActive.amount === getCartTotal() && (parsedActive.package_type || "standard") === (state.selectedPackage || "standard") && (Date.now() - (parsedActive.time || 0) < 600000)) {
           cachedOrder = parsedActive;
         }
       }
@@ -2804,6 +2825,7 @@ function escapeHtml(value) {
         product_name: p.name,
         product_file_url: getSafeDeliveryUrl(pRawUrl, pIsCloud ? "google_sheets" : "excel", p.id),
         product_type: pIsCloud ? "google_sheets" : (p.type || "excel"),
+        quantity: e.quantity,
         price: p.price || 0
       };
     }).filter(Boolean);
@@ -2819,7 +2841,8 @@ function escapeHtml(value) {
       product_type: (product.type === "google_sheets" || !!product.sheetUrl) ? "google_sheets" : "excel",
       items: orderItems,
       amount: finalAmount,
-      coupon_code: state.appliedCoupon ? state.appliedCoupon.code : null,
+      coupon_code: state.appliedCoupons.length ? state.appliedCoupons[0].code : null,
+      coupon_codes: state.appliedCoupons.map(function(coupon) { return coupon.code; }),
       discount_amount: state.discountAmount || 0,
       package_type: state.selectedPackage || "standard",
       package_name: state.selectedPackage === "coaching" ? (product.coachingTitle || "Bản Kèm 1-1 (1 buổi 1 tiếng)") : "Bản Tự Dùng"
@@ -2836,6 +2859,7 @@ function escapeHtml(value) {
       try {
         localStorage.setItem("filedilam_pending_order_id", resData.order_id);
         localStorage.setItem("filedilam_active_order", JSON.stringify({
+          has_coupon: state.appliedCoupons.length > 0,
           order_id: resData.order_id,
           amount: resData.amount || getCartTotal(),
           transfer_note: resData.transfer_note,
@@ -2843,7 +2867,9 @@ function escapeHtml(value) {
           product_name: productNames || product.name,
           package_type: state.selectedPackage || "standard",
           package_name: state.selectedPackage === "coaching" ? (product.coachingTitle || "Bản Kèm 1-1 (1 buổi 1 tiếng)") : "Bản Tự Dùng",
+          customer_name: customerName,
           customer_phone: phone,
+          customer_email: email,
           time: orderStartTime
         }));
       } catch (e) {}
@@ -2999,9 +3025,9 @@ function escapeHtml(value) {
     if (existingActiveOrder) {
       checkoutModal.classList.add("has-active-order");
       setCheckoutCustomerConfirmed(true, {
-        name: quickName ? quickName.value.trim() : "",
-        phone: quickPhone ? quickPhone.value.trim() : "",
-        email: quickEmail ? quickEmail.value.trim() : ""
+        name: (quickName && quickName.value.trim()) || existingActiveOrder.customer_name || "",
+        phone: (quickPhone && quickPhone.value.trim()) || existingActiveOrder.customer_phone || "",
+        email: (quickEmail && quickEmail.value.trim()) || existingActiveOrder.customer_email || ""
       });
       currentActiveOrderId = existingActiveOrder.order_id;
       if (bankTransferNote) bankTransferNote.textContent = existingActiveOrder.transfer_note || existingActiveOrder.order_id;
@@ -3032,7 +3058,7 @@ function escapeHtml(value) {
     loadCheckoutCoupons();
 
     // Luôn hiển thị Form thanh toán 3 trường sạch sẽ, phẳng, chuẩn Fintech
-    if (checkoutBackBtn) checkoutBackBtn.style.display = "none";
+    if (checkoutBackBtn) checkoutBackBtn.style.display = "inline-flex";
     if (checkoutModalTitle) checkoutModalTitle.textContent = "Thông tin thanh toán";
 
     var tabs = document.querySelector(".checkout-segmented-tabs");
@@ -3090,11 +3116,29 @@ function escapeHtml(value) {
   function setCheckoutCustomerConfirmed(confirmed, customer) {
     if (!checkoutModal) return;
     checkoutModal.classList.toggle("is-customer-confirmed", !!confirmed);
+    if (checkoutBackBtn) {
+      checkoutBackBtn.style.display = "inline-flex";
+      var backLabel = checkoutBackBtn.querySelector("span");
+      var label = confirmed ? "Quay lại đơn hàng" : "Quay lại trang chủ";
+      if (backLabel) backLabel.textContent = label;
+      checkoutBackBtn.setAttribute("aria-label", label);
+    }
+    document.querySelectorAll(".checkout-progress-step").forEach(function(step) {
+      var number = Number(step.getAttribute("data-checkout-step"));
+      step.classList.toggle("is-current", number === (confirmed ? 2 : 1));
+      step.classList.toggle("is-complete", confirmed && number === 1);
+    });
     if (!confirmed) return;
     customer = customer || {};
     if (checkoutCustomerName) checkoutCustomerName.textContent = customer.name || "Chưa cập nhật";
     if (checkoutCustomerPhone) checkoutCustomerPhone.textContent = customer.phone || "Chưa cập nhật";
     if (checkoutCustomerEmail) checkoutCustomerEmail.textContent = customer.email || "Chưa cập nhật";
+    var paymentName = document.getElementById("checkoutPaymentCustomerName");
+    var paymentPhone = document.getElementById("checkoutPaymentCustomerPhone");
+    var paymentEmail = document.getElementById("checkoutPaymentCustomerEmail");
+    if (paymentName) paymentName.textContent = customer.name || "Chưa cập nhật";
+    if (paymentPhone) paymentPhone.textContent = customer.phone || "Chưa cập nhật";
+    if (paymentEmail) paymentEmail.textContent = customer.email || "Chưa cập nhật";
   }
 
   function mountCheckoutFooter() {
@@ -3234,18 +3278,19 @@ function escapeHtml(value) {
       if (snapshot.empty) return;
 
       var activeCoupons = [];
-      var nowYMD = new Date().toISOString().slice(0, 10);
+      var nowYMD = getLocalDateKey();
 
       snapshot.forEach(function(doc) {
         var c = doc.data();
         c.id = doc.id;
-        if (c.is_active !== false) {
+        if (c.is_active !== false && !advancedCoupon(c) && (!c.start_date || nowYMD >= c.start_date)) {
           if (c.end_date && nowYMD > c.end_date) return;
           activeCoupons.push(c);
         }
       });
 
       if (!activeCoupons.length) {
+        currentFeaturedCoupon = null;
         ticketSec.style.display = 'none';
         return;
       }
@@ -3354,7 +3399,7 @@ function escapeHtml(value) {
 
       // Kiểm tra điều kiện đơn tối thiểu (min_order)
       var isEligible = (minOrder <= 0 || subtotal >= minOrder);
-      var isCouponApplied = !!(state.appliedCoupon && state.appliedCoupon.code === featured.code && isEligible);
+      var isCouponApplied = state.appliedCoupons.some(function(coupon) { return coupon.code === featured.code; }) && isEligible;
 
       var discountRow = document.getElementById('demoDiscountRow');
       var watermark = document.getElementById('ticketCardWatermark');
@@ -3444,6 +3489,7 @@ function escapeHtml(value) {
 
     if (curMinOrder > 0 && curSubtotal < curMinOrder) {
       state.appliedCoupon = null;
+      state.appliedCoupons = [];
       state.discountAmount = 0;
       var thiếu = curMinOrder - curSubtotal;
       var warnMsg = "Mã " + currentFeaturedCoupon.code + " chỉ áp dụng cho đơn từ " + formatCurrency(curMinOrder) + ". Bạn cần thêm " + formatCurrency(thiếu) + " nữa.";
@@ -3463,13 +3509,10 @@ function escapeHtml(value) {
 
     if (currentFeaturedCoupon) {
       state.appliedCoupon = currentFeaturedCoupon;
+      state.appliedCoupons = [currentFeaturedCoupon];
     }
 
     // 3. Điền mã vào input
-    var couponInput = document.getElementById('checkoutCouponInput');
-    if (couponInput) {
-      couponInput.value = code;
-    }
     try {
       sessionStorage.setItem('filedilam_auto_coupon', code);
     } catch(e) {}
@@ -3493,31 +3536,26 @@ function escapeHtml(value) {
   };
 
 
-    function onQrDownloaded() {
+  var qrFeedbackTimer = null;
+
+  function onQrDownloaded() {
     if (saveQrBtn) {
-      saveQrBtn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg><span>Đã lưu ảnh</span>';
+      saveQrBtn.disabled = false;
+      saveQrBtn.classList.remove("is-downloading");
+      saveQrBtn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg><span>Đã tải ảnh</span>';
       saveQrBtn.classList.add("btn-saved-qr");
-      setTimeout(function() {
-        if (saveQrBtn) {
-          saveQrBtn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg><span>Tải lại ảnh</span>';
-        }
-      }, 2500);
     }
-    var hint = document.getElementById("qrDownloadedHint");
-    if (hint) {
-      hint.style.display = "block";
-    }
-    showToast("Đã chuẩn bị ảnh QR. Mở App Bank để quét từ Album ảnh!");
+    if (qrFeedbackTimer) clearTimeout(qrFeedbackTimer);
+    qrFeedbackTimer = setTimeout(resetQrActions, 2400);
   }
 
   function resetQrActions() {
+    if (qrFeedbackTimer) clearTimeout(qrFeedbackTimer);
+    qrFeedbackTimer = null;
     if (saveQrBtn) {
+      saveQrBtn.disabled = false;
       saveQrBtn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg><span>Tải ảnh QR</span>';
-      saveQrBtn.classList.remove("btn-saved-qr");
-    }
-    var hint = document.getElementById("qrDownloadedHint");
-    if (hint) {
-      hint.style.display = "none";
+      saveQrBtn.classList.remove("btn-saved-qr", "is-downloading");
     }
   }
 
@@ -3567,9 +3605,12 @@ function escapeHtml(value) {
     return canvas;
   }
 
+  var qrRenderToken = 0;
+
   function renderOrderQr(order, account, owner) {
     currentQrImageUrl = "";
     if (!qrBox) return;
+    var renderToken = ++qrRenderToken;
 
     // Cập nhật thông tin ngân hàng hiển thị bên dưới QR
     var qrOwnerEl = document.getElementById("qrOwnerDisplay");
@@ -3581,14 +3622,58 @@ function escapeHtml(value) {
     if (qrAmountEl) qrAmountEl.textContent = formatCurrency(order.amount || 0);
     if (qrNoteEl) qrNoteEl.textContent = order.transfer_note || order.order_id || "";
 
-    var canvas = makeLocalVietQr(order, account, owner);
-    currentQrImageUrl = canvas.toDataURL("image/png");
+    var qrCanvas = makeLocalVietQr(order, account, owner);
+    var template = new Image();
+    template.onload = function () {
+      if (renderToken !== qrRenderToken) return;
+      var canvas = document.createElement("canvas");
+      canvas.width = 1080;
+      canvas.height = 1400;
+      var ctx = canvas.getContext("2d");
+      ctx.fillStyle = "#ffffff";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      ctx.drawImage(template, 0, 0, 540, 550, 0, 0, 1080, 1100);
+      ctx.drawImage(qrCanvas, 168, 176, 744, 744);
 
-    var img = new Image();
-    img.className = "checkout-vietqr-image";
-    img.alt = "VietQR thanh toán đơn hàng " + order.order_id;
-    img.src = currentQrImageUrl;
-    qrBox.replaceChildren(img);
+      ctx.fillStyle = "#ffffff";
+      ctx.beginPath();
+      ctx.arc(540, 548, 38, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.strokeStyle = "#e11d30";
+      ctx.lineWidth = 13;
+      ctx.lineCap = "round";
+      ctx.beginPath();
+      ctx.moveTo(518, 531);
+      ctx.lineTo(540, 565);
+      ctx.lineTo(562, 531);
+      ctx.stroke();
+
+      ctx.textAlign = "center";
+      ctx.fillStyle = "#17447e";
+      ctx.font = "29px Arial, sans-serif";
+      ctx.fillText("Số tiền: " + Number(order.amount || 0).toLocaleString("vi-VN") + " VND", 540, 1150);
+      ctx.fillText("Nội dung CK: " + (order.transfer_note || order.order_id || ""), 540, 1198, 950);
+      ctx.fillText("Tên chủ TK: " + (owner || "HUYNH KIEN CAM"), 540, 1246, 950);
+      ctx.fillText("Số TK: " + (account || "59215112002"), 540, 1294);
+      ctx.fillText("Ngân hàng TMCP Tiên Phong", 540, 1342);
+      currentQrImageUrl = canvas.toDataURL("image/png");
+
+      var img = new Image();
+      img.className = "checkout-vietqr-image";
+      img.alt = "VietQR thanh toán đơn hàng " + order.order_id;
+      img.src = currentQrImageUrl;
+      qrBox.replaceChildren(img);
+    };
+    template.onerror = function () {
+      if (renderToken !== qrRenderToken) return;
+      currentQrImageUrl = qrCanvas.toDataURL("image/png");
+      var img = new Image();
+      img.className = "checkout-vietqr-image";
+      img.alt = "VietQR thanh toán đơn hàng " + order.order_id;
+      img.src = currentQrImageUrl;
+      qrBox.replaceChildren(img);
+    };
+    template.src = "./assets/vietqr-tpb-compact2.png";
   }
 
   function saveQrImage() {
@@ -3596,7 +3681,11 @@ function escapeHtml(value) {
       showToast("Chưa có mã QR để tải.");
       return;
     }
-    showToast("Đang chuẩn bị ảnh mã QR...");
+    if (saveQrBtn) {
+      saveQrBtn.disabled = true;
+      saveQrBtn.classList.add("is-downloading");
+      saveQrBtn.innerHTML = '<span>Đang chuẩn bị ảnh...</span>';
+    }
 
     function handleQrBlob(blob) {
       var filename = "ma-qr-filedilam.png";
@@ -3611,11 +3700,10 @@ function escapeHtml(value) {
           })
           .then(function() {
             onQrDownloaded();
-            showToast("Đã mở bảng chia sẻ. Bấm 'Lưu hình ảnh' để lưu vào Album ảnh.");
           })
           .catch(function(err) {
             if (err && err.name === "AbortError") {
-              onQrDownloaded();
+              resetQrActions();
             } else {
               downloadBlobDirectly(blob, filename);
             }
@@ -4058,7 +4146,7 @@ function escapeHtml(value) {
           product_type: isCloud ? "google_sheets" : (it.product_type || "excel"),
           delivery_url: deliveryUrl,
           is_cloud: isCloud,
-          price: it.price || (p && p.price) || 0
+          price: it.price ?? (p && p.price) ?? 0
         };
       });
     }
@@ -4123,30 +4211,74 @@ function escapeHtml(value) {
     return base;
   }
 
+  function advancedCoupon(c) {
+    return !['percent','fixed'].includes(c.type) || (c.scope && c.scope !== 'all') || Number(c.min_items) > 0;
+  }
+
+  function evaluateCoupon(c, subtotal) {
+    const scope = c.scope || 'all';
+    const rewardIds = c.reward_ids || [];
+    const products = state.cart.map(e => getProductById(e.productId)).filter(Boolean);
+    const eligible = products.filter(p => p.price > 0 && !rewardIds.includes(p.id) && (
+      scope === 'all' || (scope === 'single' && p.type !== 'combo') || (scope === 'combo' && p.type === 'combo') ||
+      scope === 'category:' + p.categoryId || scope === 'product:' + p.id));
+    const count = new Set(eligible.map(p => p.id)).size;
+    const required = Number(c.min_items || 0);
+    const base = scope === 'all' && !rewardIds.length ? subtotal : eligible.reduce((sum,p) =>
+      sum + p.price * state.cart.find(e => e.productId === p.id).quantity, 0);
+    const invalid = error => ({error, amount:0});
+    if (!count || count < required) return invalid('Chưa đủ sản phẩm phù hợp. ' + getCouponConditionText(c));
+    if (base < Number(c.min_order || 0)) return invalid('Giá trị sản phẩm đủ điều kiện chưa đạt ' + formatCurrency(c.min_order) + '.');
+    const value = Number(c.value || 0);
+    let amount = 0;
+    let gift = null;
+    const selected = products.filter(p => rewardIds.includes(p.id));
+    switch (c.type) {
+      case 'returning':
+        if (!state.user || c.verifiedUser !== state.user.uid || Date.now() > c.returnUntil)
+          return invalid('Mã dành cho khách có đơn đã thanh toán trong ' + c.return_days + ' ngày gần nhất.');
+        amount = value;
+        break;
+      case 'fixed': amount = value; break;
+      case 'percent': amount = Math.round(base * value / 100); break;
+      case 'cheapest': amount = Math.round(Math.min(...eligible.map(p => p.price)) * value / 100); break;
+      case 'bundle':
+        if (count !== required) return invalid('Chọn đúng ' + required + ' sản phẩm phù hợp để hưởng giá nhóm.');
+        amount = eligible.reduce((sum,p) => sum + p.price,0) - value;
+        break;
+      case 'tier':
+        amount = Math.max(0,...(c.tiers || []).filter(t => count >= t.count).map(t => t.amount));
+        break;
+      case 'gift':
+        gift = getProductById(rewardIds[0]);
+        if (!gift || selected.length) return invalid('File quà cần có trong danh mục và chưa có trong giỏ.');
+        break;
+      case 'choice':
+      case 'addon':
+        if (selected.length !== 1) return invalid('Thêm đúng một file quà hoặc mua kèm được nêu trong điều kiện vào giỏ.');
+        amount = selected[0].price - (c.type === 'addon' ? value : 0);
+        break;
+      default: return invalid('Loại chương trình không được hỗ trợ.');
+    }
+    if (!gift && amount <= 0) return invalid('Giỏ hàng chưa có mức giảm phù hợp với mã này.');
+    const cap = Number(c.max_discount || 0);
+    if (cap && (['percent','cheapest'].includes(c.type) || !advancedCoupon(c))) amount = Math.min(amount,cap);
+    return {amount:Math.min(amount, ['choice','addon'].includes(c.type) ? subtotal : base), gift};
+  }
+
   function getCartTotal() {
     var subtotal = getCartSubtotal();
-    if (!subtotal) return 0;
     var discount = 0;
-    if (state.appliedCoupon) {
-      var minOrder = Number(state.appliedCoupon.min_order || 0);
-      if (minOrder > 0 && subtotal < minOrder) {
-        // Tự động vô hiệu hóa giảm giá nếu đơn hàng dưới điều kiện tối thiểu!
-        state.appliedCoupon = null;
-        state.discountAmount = 0;
-      } else {
-        // Tính lại số tiền giảm chính xác theo subtotal hiện tại
-        if (state.appliedCoupon.type === "fixed") {
-          discount = Number(state.appliedCoupon.value || 0);
-        } else {
-          var pct = Number(state.appliedCoupon.value || 0);
-          discount = Math.round((subtotal * pct) / 100);
-        }
-        var maxDisc = Number(state.appliedCoupon.max_discount || 0);
-        if (maxDisc > 0 && discount > maxDisc) discount = maxDisc;
-        if (discount > subtotal) discount = subtotal;
-        state.discountAmount = discount;
-      }
-    }
+    state.appliedCoupons = state.appliedCoupons.filter(coupon => {
+      const result = evaluateCoupon(coupon, subtotal);
+      const today = getLocalDateKey();
+      if (result.error || (coupon.start_date && today < coupon.start_date) || (coupon.end_date && today > coupon.end_date)) return false;
+      discount += result.amount;
+      return true;
+    });
+    discount = Math.min(subtotal, discount);
+    state.appliedCoupon = state.appliedCoupons[0] || null;
+    state.discountAmount = discount;
     return Math.max(0, subtotal - discount);
   }
 
@@ -4255,19 +4387,12 @@ function escapeHtml(value) {
   // ==========================================
   // --- STOREFRONT COUPON ENGINE & VALIDATION ---
   // ==========================================
-  var checkoutCouponInput = document.getElementById("checkoutCouponInput");
-  var btnApplyCheckoutCoupon = document.getElementById("btnApplyCheckoutCoupon");
   var checkoutCouponMsg = document.getElementById("checkoutCouponMsg");
   var checkoutCouponList = document.getElementById("checkoutCouponList");
-  var btnRemoveCoupon = document.getElementById("btnRemoveCoupon");
   var checkoutCouponLoadId = 0;
 
   function getLocalDateKey() {
-    var now = new Date();
-    var year = now.getFullYear();
-    var month = String(now.getMonth() + 1).padStart(2, "0");
-    var day = String(now.getDate()).padStart(2, "0");
-    return year + "-" + month + "-" + day;
+    return new Intl.DateTimeFormat('sv-SE', {timeZone:'Asia/Ho_Chi_Minh',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());
   }
 
   function getCouponConditionText(coupon) {
@@ -4316,16 +4441,17 @@ function escapeHtml(value) {
       }
 
       checkoutCouponList.innerHTML = coupons.map(function (coupon) {
-        return '<button type="button" class="checkout-coupon-option" data-coupon-code="' + escapeHtml(coupon.code) + '">' +
+        var selected = state.appliedCoupons.some(function(active) { return active.code === coupon.code; });
+        return '<button type="button" class="checkout-coupon-option' + (selected ? ' is-selected' : '') + '" aria-pressed="' + selected + '" data-coupon-code="' + escapeHtml(coupon.code) + '">' +
           '<span class="checkout-coupon-option-code">' + escapeHtml(coupon.code) + '</span>' +
           '<span class="checkout-coupon-option-condition">' + escapeHtml(getCouponConditionText(coupon)) + '</span>' +
+          '<span class="checkout-coupon-option-selected">' + (selected ? 'Bỏ chọn' : 'Chọn mã') + '</span>' +
         '</button>';
       }).join("");
 
       Array.prototype.forEach.call(checkoutCouponList.querySelectorAll("[data-coupon-code]"), function (button) {
         button.addEventListener("click", function () {
-          if (checkoutCouponInput) checkoutCouponInput.value = button.getAttribute("data-coupon-code") || "";
-          applyCheckoutCoupon();
+          applyCheckoutCoupon(button.getAttribute("data-coupon-code") || "");
         });
       });
     } catch (error) {
@@ -4360,6 +4486,19 @@ function escapeHtml(value) {
     checkoutCouponMsg.style.display = "none";
   }
 
+  function updateCheckoutCouponSelection() {
+    if (!checkoutCouponList) return;
+    checkoutCouponList.querySelectorAll("[data-coupon-code]").forEach(function(button) {
+      var selected = state.appliedCoupons.some(function(coupon) {
+        return coupon.code === button.getAttribute("data-coupon-code");
+      });
+      button.classList.toggle("is-selected", selected);
+      button.setAttribute("aria-pressed", String(selected));
+      var action = button.querySelector(".checkout-coupon-option-selected");
+      if (action) action.textContent = selected ? "Bỏ chọn" : "Chọn mã";
+    });
+  }
+
   function invalidateActiveOrderOnCartOrCouponChange(message) {
     if (currentActiveOrderId || localStorage.getItem("filedilam_active_order")) {
       currentActiveOrderId = null;
@@ -4384,21 +4523,10 @@ function escapeHtml(value) {
     }
   }
 
-  function removeCheckoutCoupon() {
-    state.appliedCoupon = null;
-    state.discountAmount = 0;
-    if (checkoutCouponInput) checkoutCouponInput.value = "";
-    clearCouponMessage();
-    invalidateActiveOrderOnCartOrCouponChange("Bạn đã hủy mã giảm giá. Vui lòng xác nhận lại để cập nhật số tiền.");
-    renderCart();
-    showToast("Đã hủy áp dụng mã giảm giá.");
-  }
-
-  async function applyCheckoutCoupon() {
-    var rawCode = checkoutCouponInput ? checkoutCouponInput.value.trim().toUpperCase() : "";
+  async function applyCheckoutCoupon(code) {
+    var rawCode = String(code || "").trim().toUpperCase();
     if (!rawCode) {
-      showCouponMessage("Vui lòng nhập mã giảm giá.", true);
-      showToast("Vui lòng nhập mã giảm giá.");
+      showCouponMessage("Vui lòng chọn mã giảm giá.", true);
       return;
     }
 
@@ -4408,7 +4536,15 @@ function escapeHtml(value) {
       return;
     }
 
-    showCouponMessage("Đang kiểm tra mã...", false);
+    var alreadySelected = state.appliedCoupons.some(function(coupon) { return coupon.code === rawCode; });
+    if (alreadySelected) {
+      state.appliedCoupons = state.appliedCoupons.filter(function(coupon) { return coupon.code !== rawCode; });
+      clearCouponMessage();
+      invalidateActiveOrderOnCartOrCouponChange("Đơn hàng đã thay đổi. Vui lòng xác nhận lại để tạo mã QR mới.");
+      renderCart();
+      updateCheckoutCouponSelection();
+      return;
+    }
 
     try {
       var coupon = null;
@@ -4454,66 +4590,34 @@ function escapeHtml(value) {
         return;
       }
 
-      // Check min order condition
-      var minOrder = Number(coupon.min_order || 0);
-      if (minOrder > 0 && subtotal < minOrder) {
-        state.appliedCoupon = null;
-        state.discountAmount = 0;
-        var msg = "Mã " + coupon.code + " chỉ áp dụng cho đơn từ " + formatCurrency(minOrder) + ". Hiện tại đơn của bạn là " + formatCurrency(subtotal) + ".";
-        showCouponMessage(msg, true);
-        showToast(msg);
-        invalidateActiveOrderOnCartOrCouponChange();
-        renderCart();
-        return;
+      if (coupon.type === 'returning') {
+        if (!state.user) return showCouponMessage('Vui lòng đăng nhập để kiểm tra ưu đãi lần mua sau.', true);
+        const uid = state.user.uid;
+        const history = await authFetch('/my-orders');
+        const latest = Math.max(0,...history.map(o => Date.parse(o.paid_at || o.created_at)).filter(Number.isFinite));
+        coupon.verifiedUser = uid;
+        coupon.returnUntil = latest + Number(coupon.return_days) * 86400000;
       }
-
-      // Calculate discount amount
-      var discount = 0;
-      if (coupon.type === "fixed") {
-        discount = Number(coupon.value || 0);
-      } else {
-        var pct = Number(coupon.value || 0);
-        discount = Math.round((subtotal * pct) / 100);
+      const result = evaluateCoupon(coupon, getCartSubtotal());
+      if (result.error) return showCouponMessage(result.error, true);
+      if (state.appliedCoupons.some(c => c.code === rawCode)) return;
+      if (state.appliedCoupons.length && (advancedCoupon(coupon) || state.appliedCoupons.some(advancedCoupon))) {
+        return showCouponMessage('Chương trình này áp dụng riêng. Vui lòng bỏ mã đang chọn trước.', true);
       }
-
-      var maxDisc = Number(coupon.max_discount || 0);
-      if (maxDisc > 0 && discount > maxDisc) {
-        discount = maxDisc;
-      }
-      if (discount > subtotal) {
-        discount = subtotal;
-      }
-
-      state.appliedCoupon = coupon;
-      state.discountAmount = discount;
+      state.appliedCoupons.push(coupon);
 
       // Hủy mã QR cũ ngay lập tức nếu khách đã tạo đơn trước đó
       invalidateActiveOrderOnCartOrCouponChange("Đã áp dụng mã giảm giá mới! Vui lòng bấm Xác nhận thông tin để tạo lại mã QR.");
 
-      showCouponMessage("Đã áp dụng mã " + coupon.code + "! Bấm xác nhận lại để tạo mã QR mới.", false);
-      showToast("Áp mã " + coupon.code + " thành công! Vui lòng xác nhận lại đơn.");
-
+      clearCouponMessage();
       renderCart();
+      updateCheckoutCouponSelection();
     } catch (err) {
       console.error("Lỗi áp mã:", err);
       showCouponMessage("Có lỗi khi kiểm tra mã. Vui lòng thử lại.", true);
     }
   }
 
-    if (btnApplyCheckoutCoupon) {
-    btnApplyCheckoutCoupon.addEventListener("click", applyCheckoutCoupon);
-  }
-  if (btnRemoveCoupon) {
-    btnRemoveCoupon.addEventListener("click", removeCheckoutCoupon);
-  }
-  if (checkoutCouponInput) {
-    checkoutCouponInput.addEventListener("keydown", function(e) {
-      if (e.key === "Enter") {
-        e.preventDefault();
-        applyCheckoutCoupon();
-      }
-    });
-  }
   loadCheckoutCoupons();
 
   function escapeHtml(value) {
@@ -4658,7 +4762,7 @@ if (document.readyState === "loading") {
         var snapshot = await db.collection("coupons").where("is_active", "==", true).get();
         if (!snapshot.empty) {
           var fetched = [];
-          var nowYMD = new Date().toISOString().slice(0, 10);
+          var nowYMD = getLocalDateKey();
           snapshot.forEach(function(doc) {
             var c = doc.data();
             c.id = doc.id;

@@ -2,7 +2,9 @@ from firebase_functions import https_fn, options
 from firebase_admin import initialize_app, get_app, firestore, auth
 import random
 import string
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
+from promotions import build_promotion_order
+from html import escape
 import json
 import re
 import smtplib
@@ -217,6 +219,18 @@ def send_order_success_email(customer_email, customer_name, order_id, order_data
         </div>
       </div>"""
 
+        return_offers = []
+        try:
+            today = (datetime.now(timezone.utc) + timedelta(hours=7)).date().isoformat()
+            for snapshot in get_db().collection("coupons").where("type", "==", "returning").stream():
+                campaign = snapshot.to_dict()
+                if campaign.get("is_active") and (campaign.get("start_date") or "") <= today <= (campaign.get("end_date") or "9999"):
+                    code = escape(str(campaign.get("code") or snapshot.id))
+                    terms = escape(str(campaign.get("description") or ""))
+                    return_offers.append(f"<p>Mã cho lần mua sau <strong>{code}</strong><br>{terms}</p>")
+        except Exception as error:
+            print(f"Không tải được ưu đãi lần sau cho email bàn giao: {error}")
+
         html_content = f"""<!DOCTYPE html>
 <html>
 <head>
@@ -263,6 +277,7 @@ def send_order_success_email(customer_email, customer_name, order_id, order_data
       <!-- Danh sách nút nhận file -->
       <div style="font-size: 14px; font-weight: 600; color: #0f172a; margin-top: 8px;">Liên kết nhận file Google Sheets:</div>
       {files_html}
+      {"".join(return_offers)}
 
 {guide_section_html}
       <!-- Hỗ trợ kỹ thuật -->
@@ -518,11 +533,27 @@ def api(req: https_fn.Request) -> https_fn.Response:
         req_package_type = str(data.get("package_type") or "standard")
         req_package_name = str(data.get("package_name") or ("Bản Kèm 1-1 (1 buổi 1 tiếng)" if req_package_type == "coaching" else "Bản Tự Dùng"))
 
+        codes = data.get("coupon_codes") or ([data["coupon_code"]] if data.get("coupon_code") else [])
+        if not isinstance(codes, list):
+            return json_response({"error": "Mã giảm giá không hợp lệ."}, 400)
+        quoted_items = None
+        quoted_discount = 0
+        if codes or data.get("discount_amount"):
+            try:
+                today = (now + timedelta(hours=7)).date().isoformat()
+                quoted_items, quoted_discount = build_promotion_order(db, data, codes, today, user["uid"], now)
+            except (ValueError, KeyError, TypeError) as error:
+                return json_response({"error": str(error)}, 400)
+
         # Check for existing PENDING order to reuse (prevents lost/duplicate orders on mobile app-switching)
         user_orders = db.collection("orders").where("user_id", "==", user["uid"]).stream()
         for doc in user_orders:
             o_data = doc.to_dict()
             if o_data.get("status") == "PENDING":
+                if (o_data.get("coupon_codes") or []) != codes:
+                    continue
+                if quoted_items is not None and (o_data.get("items") != quoted_items or o_data.get("package_type") != req_package_type):
+                    continue
                 if str(o_data.get("product_id") or "") == req_product_id and int(o_data.get("amount") or 0) == req_amount:
                     c_at = o_data.get("created_at")
                     age_sec = 999999
@@ -583,13 +614,20 @@ def api(req: https_fn.Request) -> https_fn.Response:
             "product_type": data.get("product_type", "excel"),
             "amount": req_amount,
             "coupon_code": data.get("coupon_code"),
+            "coupon_codes": data.get("coupon_codes") if isinstance(data.get("coupon_codes"), list) else [],
             "discount_amount": int(data.get("discount_amount") or 0),
             "package_type": req_package_type,
             "package_name": req_package_name,
             "status": "PENDING",
             "created_at": now
         }
-        if items:
+        if quoted_items is not None:
+            order_doc_data.update(product_id=quoted_items[0]["product_id"],
+                                  product_file_url=quoted_items[0]["product_file_url"],
+                                  product_type=quoted_items[0]["product_type"],
+                                  items=quoted_items, discount_amount=quoted_discount,
+                                  coupon_codes=codes, coupon_code=codes[0] if codes else None)
+        elif items:
             order_doc_data["items"] = items
 
         doc_ref.set(order_doc_data)
@@ -649,6 +687,7 @@ def api(req: https_fn.Request) -> https_fn.Response:
                 "package_name": order_data.get("package_name", "Bản Tự Dùng"),
                 "items": order_data.get("items") or [],
                 "amount": order_data.get("amount"),
+                "paid_at": order_data.get("paid_at"),
                 "has_reviewed": bool(order_data.get("has_reviewed")),
                 "review_stars": order_data.get("review_stars", 0),
                 "review_comment": order_data.get("review_comment", ""),
@@ -752,7 +791,6 @@ def api(req: https_fn.Request) -> https_fn.Response:
         product_sales = {}
         daily_revenue_map = {}
         
-        from datetime import timedelta
         for i in range(13, -1, -1):
             day = (now - timedelta(days=i)).strftime("%Y-%m-%d")
             daily_revenue_map[day] = {"date": day, "revenue": 0, "count": 0}

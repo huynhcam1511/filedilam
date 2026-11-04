@@ -1564,6 +1564,18 @@
       box-shadow: 0 10px 25px rgba(0,0,0,0.2);
     }
     #toast.show { opacity: 1; transform: translateX(-50%) translateY(-4px); }
+    .coupon-date { position: relative; display: flex; align-items: center; height: 42px; border: 1px solid #cbd5e1; border-radius: 8px; padding: 0 12px; gap: 8px; }
+    .coupon-date input[type=text] { width: 100%; min-width: 0; border: 0; font: inherit; font-size: .88rem; }
+    .coupon-date input[type=date] { width: 26px; min-width: 26px; height: 32px; border: 0; padding: 0; color: transparent; background: transparent; }
+    .coupon-date input[type=date]::-webkit-datetime-edit { display: none; }
+    #couponForm {overflow-y:auto;max-height:calc(90dvh - 68px)}
+    .promo-control {display:grid;gap:5px;color:#334155;font-size:.85rem;font-weight:600}
+    .promo-control select,.promo-control input,.promo-control textarea {width:100%;padding:10px;border:1px solid #cbd5e1;border-radius:8px;background:white;color:#0f172a;font:inherit}
+    #promoLibrary {width:min(460px,94vw);max-height:82dvh;border:1px solid #e2e8f0;border-radius:12px;padding:20px;color:#0f172a}
+    #promoLibrary::backdrop {background:#0f172a66}
+    #promoLibrary button[data-template] {text-align:left;width:100%;background:white;color:#065f46;border:0;border-bottom:1px solid #e2e8f0;padding:12px 4px;cursor:pointer}
+    #promoLibrary button:hover {background:#f8fafc}
+    #couponForm [hidden] {display:none}
   </style>
 </head>
 <body>
@@ -2208,6 +2220,7 @@
             <div class="status-counter-text" id="couponCountCounter">
               Đã kết nối Firestore • <b id="couponTotalNum">0</b> mã
             </div>
+            <button type="button" class="btn-create-pill" style="background:white;color:#047857;border:1px solid #cbd5e1" id="btnPromoLibrary">Gợi ý chương trình</button>
             <button type="button" class="btn-create-pill" id="btnOpenAddCoupon" title="Tạo mã giảm giá mới">
               <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"></path></svg>
               Thêm mã mới
@@ -2240,6 +2253,11 @@
         </div>
 
         <!-- Add/Edit Coupon Modal -->
+        <dialog id="promoLibrary" aria-labelledby="promoHeading">
+          <form method="dialog" style="float:right"><button aria-label="Đóng">Đóng</button></form>
+          <h3 id="promoHeading">Gợi ý chương trình</h3><p>Chọn mẫu rồi chỉnh điều kiện trước khi lưu mã.</p>
+          <div id="promoTemplates"></div>
+        </dialog>
         <div id="couponModal" class="modal-overlay" style="display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.45); backdrop-filter: blur(4px); z-index: 1000; align-items: center; justify-content: center; padding: 20px;">
           <div style="background: #ffffff; border-radius: 14px; width: 100%; max-width: 520px; box-shadow: 0 20px 40px -15px rgba(0,0,0,0.2); border: 1px solid #e2e8f0; overflow: hidden; animation: fadeIn 0.15s ease-out;">
             <div style="padding: 18px 24px; border-bottom: 1px solid #f1f5f9; display: flex; align-items: center; justify-content: space-between;">
@@ -2249,6 +2267,11 @@
             
             <form id="couponForm" style="padding: 24px; display: flex; flex-direction: column; gap: 16px;">
               <input type="hidden" id="couponDocId" value="" />
+              <label class="promo-control">Phạm vi sản phẩm<select id="promoScope"></select></label>
+              <label class="promo-control">Số sản phẩm khác nhau tối thiểu<input id="promoCount" type="number" min="0" step="1" value="0"></label>
+              <label class="promo-control" hidden id="promoRewardWrap">File quà hoặc file mua kèm<select id="promoRewards"></select><small id="promoRewardHint"></small></label>
+              <label class="promo-control" hidden id="promoDaysWrap">Số ngày kể từ lần thanh toán gần nhất<input type="number" id="promoDays" value="30" min="1" max="365" required></label>
+              <label class="promo-control" hidden id="promoTierWrap">Các bậc giảm (số file = số tiền giảm, mỗi dòng một bậc)<textarea id="promoTiers" placeholder="2 = 10000&#10;3 = 30000"></textarea></label>
 
               <div>
                 <label style="display: block; font-size: 0.85rem; font-weight: 600; color: #334155; margin-bottom: 6px;">Mã Voucher (Code) <span style="color: #ef4444;">*</span></label>
@@ -2261,6 +2284,13 @@
                   <select id="couponTypeSelect" style="width: 100%; height: 42px; border: 1px solid #cbd5e1; border-radius: 8px; padding: 0 12px; font-size: 0.9rem; color: #0f172a; background: #fff;">
                     <option value="percent">Phần trăm (%)</option>
                     <option value="fixed">Số tiền cố định (đ)</option>
+                    <option value="tier">Giảm tiền theo bậc số lượng</option>
+                    <option value="cheapest">Giảm % cho file rẻ nhất</option>
+                    <option value="bundle">Đồng giá một nhóm file</option>
+                    <option value="returning">Giảm tiền cho lần mua sau</option>
+                    <option value="gift">Tặng một file cố định</option>
+                    <option value="choice">Tặng một file khách chọn trong giỏ</option>
+                    <option value="addon">Mua kèm giá ưu đãi</option>
                   </select>
                 </div>
                 <div>
@@ -2283,11 +2313,17 @@
               <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px;">
                 <div>
                   <label style="display: block; font-size: 0.85rem; font-weight: 600; color: #334155; margin-bottom: 6px;">Hiệu lực từ ngày (tuỳ chọn)</label>
-                  <input type="date" id="couponStartDateInput" style="width: 100%; height: 42px; border: 1px solid #cbd5e1; border-radius: 8px; padding: 0 12px; font-size: 0.88rem; color: #0f172a; background: #fff;" />
+                  <div class="coupon-date">
+                    <input type="text" id="couponStartDateInputText" aria-label="Hiệu lực từ ngày (dd/mm/yyyy)" placeholder="dd/mm/yyyy" maxlength="10" autocomplete="off" />
+                    <input type="date" id="couponStartDateInput" aria-label="Chọn hiệu lực từ ngày trên lịch" />
+                  </div>
                 </div>
                 <div>
                   <label style="display: block; font-size: 0.85rem; font-weight: 600; color: #334155; margin-bottom: 6px;">Hết hạn lúc (tuỳ chọn)</label>
-                  <input type="date" id="couponEndDateInput" style="width: 100%; height: 42px; border: 1px solid #cbd5e1; border-radius: 8px; padding: 0 12px; font-size: 0.88rem; color: #0f172a; background: #fff;" />
+                  <div class="coupon-date">
+                    <input type="text" id="couponEndDateInputText" aria-label="Hết hạn lúc (dd/mm/yyyy)" placeholder="dd/mm/yyyy" maxlength="10" autocomplete="off" />
+                    <input type="date" id="couponEndDateInput" aria-label="Chọn hết hạn lúc trên lịch" />
+                  </div>
                 </div>
               </div>
 
@@ -2317,13 +2353,13 @@
 
   <div id="toast">Thông báo</div>
 
-  <script src="/__/firebase/10.7.1/firebase-app-compat.js"></script>
-  <script src="/__/firebase/10.7.1/firebase-auth-compat.js"></script>
-  <script src="/__/firebase/10.7.1/firebase-firestore-compat.js"></script>
-  <script src="/__/firebase/10.7.1/firebase-storage-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-storage-compat.js"></script>
   <script src="/__/firebase/init.js"></script>
   
-  <script src="./admin.js?v=185"></script>
+  <script src="./admin.js?v=189"></script>
   <!-- Agentation: Visual Feedback & Annotation for AI agents -->
   <script src="./agentation-vanilla.js"></script>
 
