@@ -2019,7 +2019,7 @@ function escapeHtml(value) {
 
     // RELATED PRODUCTS BUILDER (Optimate style)
     var otherProducts = (data.products || []).filter(function(p) { return p.id !== product.id; });
-    var relatedItems = otherProducts.slice(0, 4);
+    var relatedItems = otherProducts.slice(0, 3);
     var relatedHtml = '';
     if (relatedItems.length > 0) {
       relatedHtml =

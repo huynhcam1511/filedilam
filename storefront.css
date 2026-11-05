@@ -2736,11 +2736,11 @@ h2 { letter-spacing: -1.03px !important; }
   }
 }
 
-/* Product Card Styling on Flat Canvas (4 Cards per Row) */
+/* Product Card Styling on Flat Canvas (3 Cards per Row on Desktop) */
 .product-grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr) !important;
-  gap: 20px !important;
+  grid-template-columns: repeat(3, 1fr) !important;
+  gap: 24px !important;
 }
 
 @media (max-width: 1100px) {
@@ -4590,8 +4590,8 @@ body:not(.is-admin) #userProfile {
 
 .detail-related-grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 20px;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
 }
 
 @media (max-width: 1024px) {
