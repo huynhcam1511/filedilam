@@ -3025,25 +3025,41 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('adsStartDateInput')?.addEventListener('change', updateCalculatedEndTime);
   document.getElementById('adsStartTimeInput')?.addEventListener('change', updateCalculatedEndTime);
 
-  function calculateCPM() {
+  function calculateCPMAndCPC() {
     const spentVal = document.getElementById('adsSpentInput')?.value.replace(/\D/g, '') || '';
     const spent = parseInt(spentVal, 10) || 0;
     const views = parseInt(document.getElementById('adsViewsInput')?.value, 10) || 0;
+    const clicks = parseInt(document.getElementById('adsButtonClicksInput')?.value, 10) || 0;
+
     const cpmInput = document.getElementById('adsCpmInput');
-    if (!cpmInput) return 0;
-
-    if (spent > 0 && views > 0) {
-      const cpm = Math.round((spent / views) * 1000);
-      cpmInput.value = new Intl.NumberFormat('vi-VN').format(cpm) + ' đ';
-      return cpm;
-    } else {
-      cpmInput.value = '';
-      return 0;
+    let cpm = 0;
+    if (cpmInput) {
+      if (spent > 0 && views > 0) {
+        cpm = Math.round((spent / views) * 1000);
+        cpmInput.value = new Intl.NumberFormat('vi-VN').format(cpm) + ' đ';
+      } else {
+        cpmInput.value = '';
+      }
     }
-  }
 
-  document.getElementById('adsSpentInput')?.addEventListener('input', calculateCPM);
-  document.getElementById('adsViewsInput')?.addEventListener('input', calculateCPM);
+    const cpcInput = document.getElementById('adsCpcInput');
+    let cpc = 0;
+    if (cpcInput) {
+      if (spent > 0 && clicks > 0) {
+        cpc = Math.round(spent / clicks);
+        cpcInput.value = new Intl.NumberFormat('vi-VN').format(cpc) + ' đ';
+      } else {
+        cpcInput.value = '';
+      }
+    }
+
+    return { cpm, cpc };
+  }
+  const calculateCPM = () => calculateCPMAndCPC().cpm;
+
+  document.getElementById('adsSpentInput')?.addEventListener('input', calculateCPMAndCPC);
+  document.getElementById('adsViewsInput')?.addEventListener('input', calculateCPMAndCPC);
+  document.getElementById('adsButtonClicksInput')?.addEventListener('input', calculateCPMAndCPC);
 
 
   // adsEndDateInput replaced by duration selector
@@ -3231,28 +3247,54 @@ document.addEventListener('DOMContentLoaded', () => {
           </td>
           <td>
             ${(() => {
+              const spent = Number(a.spent) || 0;
+              const views = Number(a.views) || 0;
+              const clicks = Number(a.button_clicks) || 0;
+              const cpm = a.cpm || (spent > 0 && views > 0 ? Math.round((spent / views) * 1000) : 0);
+              const cpc = a.cpc || (spent > 0 && clicks > 0 ? Math.round(spent / clicks) : 0);
+
+              // Dòng 1: Views • Nhấp nút • CPM • CPC
               const p1 = [];
-              if (a.views) p1.push(`${new Intl.NumberFormat('vi-VN').format(a.views)} views`);
-              if (a.focused_views) p1.push(`${new Intl.NumberFormat('vi-VN').format(a.focused_views)} tập trung`);
-              if (a.button_clicks) p1.push(`${new Intl.NumberFormat('vi-VN').format(a.button_clicks)} nhấp nút`);
-              if (a.cpm) p1.push(`CPM ${new Intl.NumberFormat('vi-VN').format(a.cpm)}đ`);
+              if (views) p1.push(`${new Intl.NumberFormat('vi-VN').format(views)} views`);
+              if (clicks) p1.push(`${new Intl.NumberFormat('vi-VN').format(clicks)} nhấp nút`);
+              if (cpm) p1.push(`CPM ${new Intl.NumberFormat('vi-VN').format(cpm)}đ`);
+              if (cpc) p1.push(`CPC ${new Intl.NumberFormat('vi-VN').format(cpc)}đ`);
 
-              const p2 = [];
-              if (a.likes) p2.push(`${a.likes} like`);
-              if (a.followers) p2.push(`+${a.followers} follow`);
-              if (a.comments) p2.push(`${a.comments} cmt`);
-              if (a.shares) p2.push(`${a.shares} share`);
+              // Dòng 2: Tỷ lệ giữ chân video (Xem 2s: 40.4% • 6s: 10.0% • Hết video: 1.3%)
+              const fmtPct = (val) => {
+                if (!val && val !== 0) return '';
+                const s = String(val).trim();
+                return s.endsWith('%') ? s : `${s}%`;
+              };
+              const v2s = fmtPct(a.view_2s || a.view_2s_rate);
+              const v6s = fmtPct(a.view_6s || a.view_6s_rate);
+              const vFull = fmtPct(a.watch_full || a.view_full || a.view_full_rate);
 
-              if (!p1.length && !p2.length) {
+              const pRetention = [];
+              if (v2s) pRetention.push(`Xem 2s: ${v2s}`);
+              if (v6s) pRetention.push(`6s: ${v6s}`);
+              if (vFull) pRetention.push(`Hết video: ${vFull}`);
+
+              // Dòng 3: Tương tác cộng đồng
+              const pEngagement = [];
+              if (a.likes) pEngagement.push(`${a.likes} like`);
+              if (a.followers) pEngagement.push(`+${a.followers} follow`);
+              if (a.comments) pEngagement.push(`${a.comments} cmt`);
+              if (a.shares) pEngagement.push(`${a.shares} share`);
+              if (a.focused_views) pEngagement.push(`${new Intl.NumberFormat('vi-VN').format(a.focused_views)} tập trung`);
+              if (a.profile_visits) pEngagement.push(`${a.profile_visits} bio`);
+
+              if (!p1.length && !pRetention.length && !pEngagement.length) {
                 return `<span style="font-size: 0.82rem; color: #94a3b8;">${escapeHtml(a.time_frame || 'Chưa nhập số liệu')}</span>`;
               }
 
               return `
-                <div style="font-size: 0.84rem; font-weight: 600; color: #0f172a; font-family: monospace;">${escapeHtml(p1.join(' • '))}</div>
-                ${p2.length ? `<div style="font-size: 0.74rem; color: #64748b; margin-top: 2px;">${escapeHtml(p2.join(' • '))}</div>` : ''}
+                ${p1.length ? `<div style="font-size: 0.82rem; font-weight: 600; color: #0f172a; font-family: monospace;">${escapeHtml(p1.join(' • '))}</div>` : ''}
+                ${pRetention.length ? `<div style="font-size: 0.74rem; font-weight: 600; color: #047857; margin-top: 2px; font-family: monospace;">${escapeHtml(pRetention.join(' • '))}</div>` : ''}
+                ${pEngagement.length ? `<div style="font-size: 0.72rem; color: #64748b; margin-top: 2px;">${escapeHtml(pEngagement.join(' • '))}</div>` : ''}
               `;
             })()}
-            ${a.notes ? `<div style="font-size: 0.74rem; color: #64748b; margin-top: 3px; max-width: 240px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${escapeHtml(a.notes)}">${escapeHtml(a.notes)}</div>` : ''}
+            ${a.notes ? `<div style="font-size: 0.72rem; color: #94a3b8; margin-top: 3px; max-width: 260px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${escapeHtml(a.notes)}">${escapeHtml(a.notes)}</div>` : ''}
           </td>
           <td>${statusHtml}</td>
           <td style="text-align: center;">
@@ -3359,7 +3401,7 @@ document.addEventListener('DOMContentLoaded', () => {
     setTimeSelectVal('adsStartTimeInput', '00:00');
     setAdsDuration(24);
     updateCalculatedEndTime();
-    calculateCPM();
+    calculateCPMAndCPC();
     
     
 
@@ -3420,7 +3462,7 @@ document.addEventListener('DOMContentLoaded', () => {
     setField('adsButtonClicksInput', item.button_clicks);
     setField('adsCommentsInput', item.comments);
     setField('adsSharesInput', item.shares);
-    calculateCPM();
+    calculateCPMAndCPC();
 
     setField('adsViewsInput', item.views);
     setField('adsLikesInput', item.likes);
@@ -3493,7 +3535,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const views = parseInt(document.getElementById('adsViewsInput')?.value, 10) || 0;
         const focused_views = parseInt(document.getElementById('adsFocusedViewsInput')?.value, 10) || 0;
         const button_clicks = parseInt(document.getElementById('adsButtonClicksInput')?.value, 10) || 0;
-        const cpm = calculateCPM();
+        const { cpm, cpc } = calculateCPMAndCPC();
         const likes = parseInt(document.getElementById('adsLikesInput')?.value, 10) || 0;
         const followers = parseInt(document.getElementById('adsFollowersInput')?.value, 10) || 0;
         const comments = parseInt(document.getElementById('adsCommentsInput')?.value, 10) || 0;
@@ -3524,6 +3566,7 @@ document.addEventListener('DOMContentLoaded', () => {
           focused_views,
           button_clicks,
           cpm,
+          cpc,
           likes,
           followers,
           comments,

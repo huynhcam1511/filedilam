@@ -2775,7 +2775,7 @@
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-storage-compat.js"></script>
   <script src="/__/firebase/init.js"></script>
   
-  <script src="./admin.js?v=258"></script>
+  <script src="./admin.js?v=259"></script>
   <!-- Agentation: Visual Feedback & Annotation for AI agents -->
   <script src="./agentation-vanilla.js"></script>
 
@@ -2940,23 +2940,27 @@
                   3. Chỉ số hiệu quả chiến dịch
                 </div>
 
-                <!-- Hàng 1: Lượt xem, Xem tập trung, CPM (Tự tính), Lượt nhấp vào nút -->
-                <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px;">
+                <!-- Hàng 1: Lượt xem, Xem tập trung, Lượt nhấp nút, CPM (Tự tính), CPC (Tự tính) -->
+                <div style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px;">
                   <div>
-                    <label style="display: block; font-size: 0.75rem; font-weight: 600; color: #475569; margin-bottom: 4px;">Lượt xem (Views)</label>
-                    <input type="number" id="adsViewsInput" min="0" placeholder="9189" style="width: 100%; height: 38px; border: 1px solid #cbd5e1; border-radius: 6px; padding: 0 4px; font-size: 0.88rem; font-family: monospace; font-weight: 600; color: #0f172a; box-sizing: border-box; background: #ffffff; text-align: center;" />
+                    <label style="display: block; font-size: 0.72rem; font-weight: 600; color: #475569; margin-bottom: 4px;">Lượt xem (Views)</label>
+                    <input type="number" id="adsViewsInput" min="0" placeholder="6131" style="width: 100%; height: 38px; border: 1px solid #cbd5e1; border-radius: 6px; padding: 0 4px; font-size: 0.86rem; font-family: monospace; font-weight: 600; color: #0f172a; box-sizing: border-box; background: #ffffff; text-align: center;" />
                   </div>
                   <div>
-                    <label style="display: block; font-size: 0.75rem; font-weight: 600; color: #475569; margin-bottom: 4px;">Xem tập trung</label>
-                    <input type="number" id="adsFocusedViewsInput" min="0" placeholder="1277" style="width: 100%; height: 38px; border: 1px solid #cbd5e1; border-radius: 6px; padding: 0 4px; font-size: 0.88rem; font-family: monospace; font-weight: 600; color: #0f172a; box-sizing: border-box; background: #ffffff; text-align: center;" />
+                    <label style="display: block; font-size: 0.72rem; font-weight: 600; color: #475569; margin-bottom: 4px;">Xem tập trung</label>
+                    <input type="number" id="adsFocusedViewsInput" min="0" placeholder="1277" style="width: 100%; height: 38px; border: 1px solid #cbd5e1; border-radius: 6px; padding: 0 4px; font-size: 0.86rem; font-family: monospace; font-weight: 600; color: #0f172a; box-sizing: border-box; background: #ffffff; text-align: center;" />
                   </div>
                   <div>
-                    <label style="display: block; font-size: 0.75rem; font-weight: 600; color: #059669; margin-bottom: 4px;" title="Chi phí mỗi nghìn lượt hiển thị (Tự động tính theo Chi phí & Lượt xem)">CPM (1K view)</label>
-                    <input type="text" id="adsCpmInput" readonly placeholder="Tự tính..." style="width: 100%; height: 38px; border: 1px solid #a7f3d0; border-radius: 6px; padding: 0 4px; font-size: 0.85rem; font-family: monospace; font-weight: 700; color: #059669; box-sizing: border-box; background: #f0fdf4; text-align: center; cursor: default;" />
+                    <label style="display: block; font-size: 0.72rem; font-weight: 600; color: #2563eb; margin-bottom: 4px;">Lượt nhấp nút</label>
+                    <input type="number" id="adsButtonClicksInput" min="0" placeholder="15" style="width: 100%; height: 38px; border: 1px solid #93c5fd; border-radius: 6px; padding: 0 4px; font-size: 0.86rem; font-family: monospace; font-weight: 600; color: #1d4ed8; box-sizing: border-box; background: #eff6ff; text-align: center;" />
                   </div>
                   <div>
-                    <label style="display: block; font-size: 0.75rem; font-weight: 600; color: #2563eb; margin-bottom: 4px;">Lượt nhấp nút</label>
-                    <input type="number" id="adsButtonClicksInput" min="0" placeholder="45" style="width: 100%; height: 38px; border: 1px solid #93c5fd; border-radius: 6px; padding: 0 4px; font-size: 0.88rem; font-family: monospace; font-weight: 600; color: #1d4ed8; box-sizing: border-box; background: #eff6ff; text-align: center;" />
+                    <label style="display: block; font-size: 0.72rem; font-weight: 600; color: #059669; margin-bottom: 4px;" title="Chi phí mỗi 1.000 lượt hiển thị (Tự động tính)">CPM (1K view)</label>
+                    <input type="text" id="adsCpmInput" readonly placeholder="Tự tính..." style="width: 100%; height: 38px; border: 1px solid #a7f3d0; border-radius: 6px; padding: 0 4px; font-size: 0.82rem; font-family: monospace; font-weight: 700; color: #059669; box-sizing: border-box; background: #f0fdf4; text-align: center; cursor: default;" />
+                  </div>
+                  <div>
+                    <label style="display: block; font-size: 0.72rem; font-weight: 600; color: #059669; margin-bottom: 4px;" title="Chi phí mỗi lượt nhấp nút (Tự động tính)">CPC (Mỗi nhấp)</label>
+                    <input type="text" id="adsCpcInput" readonly placeholder="Tự tính..." style="width: 100%; height: 38px; border: 1px solid #a7f3d0; border-radius: 6px; padding: 0 4px; font-size: 0.82rem; font-family: monospace; font-weight: 700; color: #059669; box-sizing: border-box; background: #f0fdf4; text-align: center; cursor: default;" />
                   </div>
                 </div>
 
