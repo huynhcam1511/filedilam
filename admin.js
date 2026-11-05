@@ -3445,7 +3445,14 @@ document.addEventListener('click', () => {
   }
 
   // Event khi đổi Sản phẩm hoặc Kênh trong Drawer Ads
-  document.getElementById('adsProductSelect')?.addEventListener('change', () => {
+  // Event khi chọn Sản phẩm trong Drawer Ads -> Gợi ý tên chiến dịch & sync bài viết
+  document.getElementById('adsProductSelect')?.addEventListener('change', (e) => {
+    const prodId = e.target.value;
+    const titleInp = document.getElementById('adsTitleInput');
+    const prod = (currentProducts || []).find(p => p.id === prodId);
+    if (prod && titleInp && (!titleInp.value.trim() || titleInp.value.startsWith('Ads:'))) {
+      titleInp.value = 'Ads: ' + prod.name;
+    }
     syncAdsSavedPostsDropdown(document.getElementById('adsUrlInput')?.value);
   });
   document.getElementById('adsChannelSelect')?.addEventListener('change', () => {

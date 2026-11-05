@@ -2775,7 +2775,7 @@
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-storage-compat.js"></script>
   <script src="/__/firebase/init.js"></script>
   
-  <script src="./admin.js?v=246"></script>
+  <script src="./admin.js?v=247"></script>
   <!-- Agentation: Visual Feedback & Annotation for AI agents -->
   <script src="./agentation-vanilla.js"></script>
 
@@ -2800,16 +2800,13 @@
 
               <!-- NHÓM 1: Cấu hình cơ bản & Liên kết -->
               <div style="display: flex; flex-direction: column; gap: 14px;">
-                <div style="font-size: 0.75rem; font-weight: 700; color: #059669; text-transform: uppercase; letter-spacing: 0.06em; padding-bottom: 6px; border-bottom: 1px solid #f1f5f9;">
-                  1. Cấu hình & Liên kết
-                </div>
-
-                <div>
-                  <label style="display: block; font-size: 0.85rem; font-weight: 600; color: #334155; margin-bottom: 6px;">Tên chiến dịch / Nội dung video <span style="font-size: 0.75rem; color: #94a3b8; font-weight: normal;">(Tùy chọn)</span></label>
-                  <input type="text" id="adsTitleInput" placeholder="Ví dụ: Video TikTok Cost F&B - Trend tính cost ly trà sữa" style="width: 100%; height: 42px; border: 1px solid #cbd5e1; border-radius: 6px; padding: 0 14px; font-size: 0.9rem; color: #0f172a; box-sizing: border-box; background: #ffffff;" />
-                </div>
-
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                <div style="display: grid; grid-template-columns: 1.2fr 1fr; gap: 12px;">
+                  <div>
+                    <label style="display: block; font-size: 0.85rem; font-weight: 600; color: #334155; margin-bottom: 6px;">Sản phẩm chạy ads <span style="color: #ef4444;">*</span></label>
+                    <select id="adsProductSelect" required style="width: 100%; height: 42px; border: 1px solid #cbd5e1; border-radius: 6px; padding: 0 10px; font-size: 0.88rem; color: #0f172a; background: #ffffff; box-sizing: border-box;">
+                      <option value="">Chọn sản phẩm</option>
+                    </select>
+                  </div>
                   <div>
                     <label style="display: block; font-size: 0.85rem; font-weight: 600; color: #334155; margin-bottom: 6px;">Kênh quảng cáo <span style="color: #ef4444;">*</span></label>
                     <select id="adsChannelSelect" style="width: 100%; height: 42px; border: 1px solid #cbd5e1; border-radius: 6px; padding: 0 10px; font-size: 0.88rem; color: #0f172a; background: #ffffff; box-sizing: border-box;">
@@ -2818,12 +2815,10 @@
                       <option value="other">Kênh khác</option>
                     </select>
                   </div>
-                  <div>
-                    <label style="display: block; font-size: 0.85rem; font-weight: 600; color: #334155; margin-bottom: 6px;">Sản phẩm chạy ads <span style="color: #ef4444;">*</span></label>
-                    <select id="adsProductSelect" required style="width: 100%; height: 42px; border: 1px solid #cbd5e1; border-radius: 6px; padding: 0 10px; font-size: 0.88rem; color: #0f172a; background: #ffffff; box-sizing: border-box;">
-                      <option value="">Chọn sản phẩm</option>
-                    </select>
-                  </div>
+                </div>
+                <div>
+                  <label style="display: block; font-size: 0.85rem; font-weight: 600; color: #334155; margin-bottom: 6px;">Tên chiến dịch / Nội dung video <span style="font-size: 0.75rem; color: #94a3b8; font-weight: normal;">(Tùy chọn - Tự điền theo sản phẩm)</span></label>
+                  <input type="text" id="adsTitleInput" placeholder="VD: Video TikTok Cost F&B - Trend tính cost ly trà sữa" style="width: 100%; height: 42px; border: 1px solid #cbd5e1; border-radius: 6px; padding: 0 14px; font-size: 0.9rem; color: #0f172a; box-sizing: border-box; background: #ffffff;" />
                 </div>
 
                 <div>
