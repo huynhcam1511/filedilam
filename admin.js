@@ -3025,6 +3025,27 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('adsStartDateInput')?.addEventListener('change', updateCalculatedEndTime);
   document.getElementById('adsStartTimeInput')?.addEventListener('change', updateCalculatedEndTime);
 
+  function calculateCPM() {
+    const spentVal = document.getElementById('adsSpentInput')?.value.replace(/\D/g, '') || '';
+    const spent = parseInt(spentVal, 10) || 0;
+    const views = parseInt(document.getElementById('adsViewsInput')?.value, 10) || 0;
+    const cpmInput = document.getElementById('adsCpmInput');
+    if (!cpmInput) return 0;
+
+    if (spent > 0 && views > 0) {
+      const cpm = Math.round((spent / views) * 1000);
+      cpmInput.value = new Intl.NumberFormat('vi-VN').format(cpm) + ' đ';
+      return cpm;
+    } else {
+      cpmInput.value = '';
+      return 0;
+    }
+  }
+
+  document.getElementById('adsSpentInput')?.addEventListener('input', calculateCPM);
+  document.getElementById('adsViewsInput')?.addEventListener('input', calculateCPM);
+
+
   // adsEndDateInput replaced by duration selector
 
   function populateAdsProductDropdowns() {
@@ -3317,6 +3338,7 @@ document.addEventListener('DOMContentLoaded', () => {
     setTimeSelectVal('adsStartTimeInput', '00:00');
     setAdsDuration(24);
     updateCalculatedEndTime();
+    calculateCPM();
     
     
 
@@ -3373,6 +3395,10 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     setAdsDuration(durationHours);
     updateCalculatedEndTime();
+    setField('adsFocusedViewsInput', item.focused_views);
+    setField('adsCommentsInput', item.comments);
+    setField('adsSharesInput', item.shares);
+    calculateCPM();
 
     setField('adsViewsInput', item.views);
     setField('adsLikesInput', item.likes);
@@ -3443,8 +3469,12 @@ document.addEventListener('DOMContentLoaded', () => {
         const time_frame = `${durationLabel} (${startTime} - ${endTime})`;
         
         const views = parseInt(document.getElementById('adsViewsInput')?.value, 10) || 0;
+        const focused_views = parseInt(document.getElementById('adsFocusedViewsInput')?.value, 10) || 0;
+        const cpm = calculateCPM();
         const likes = parseInt(document.getElementById('adsLikesInput')?.value, 10) || 0;
         const followers = parseInt(document.getElementById('adsFollowersInput')?.value, 10) || 0;
+        const comments = parseInt(document.getElementById('adsCommentsInput')?.value, 10) || 0;
+        const shares = parseInt(document.getElementById('adsSharesInput')?.value, 10) || 0;
         const profile_visits = parseInt(document.getElementById('adsProfileVisitsInput')?.value, 10) || 0;
         const view_2s = document.getElementById('adsView2sInput')?.value.trim() || '';
         const view_6s = document.getElementById('adsView6sInput')?.value.trim() || '';
@@ -3468,8 +3498,12 @@ document.addEventListener('DOMContentLoaded', () => {
           ad_url,
           manager_url: ad_url,
           views,
+          focused_views,
+          cpm,
           likes,
           followers,
+          comments,
+          shares,
           profile_visits,
           view_2s,
           view_6s,
