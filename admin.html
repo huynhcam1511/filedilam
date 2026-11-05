@@ -2610,7 +2610,7 @@
           <div id="promoTemplates"></div>
         </dialog>
         <div id="couponModal" class="modal-overlay" style="display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.45); backdrop-filter: blur(4px); z-index: 1000; align-items: center; justify-content: center; padding: 20px;">
-          <div style="background: #ffffff; border-radius: 14px; width: 100%; max-width: 520px; box-shadow: 0 20px 40px -15px rgba(0,0,0,0.2); border: 1px solid #e2e8f0; overflow: hidden; animation: fadeIn 0.15s ease-out;">
+          <div style="background: #ffffff; border-radius: 14px; width: 100%; max-width: 500px; box-shadow: 0 20px 40px -15px rgba(0,0,0,0.2); border: 1px solid #e2e8f0; overflow: hidden; animation: fadeIn 0.15s ease-out;">
             <div style="padding: 18px 24px; border-bottom: 1px solid #f1f5f9; display: flex; align-items: center; justify-content: space-between;">
               <h3 id="couponModalTitle" style="margin: 0; font-size: 1.1rem; color: #0f172a; font-weight: 700;">Thêm mã giảm giá mới</h3>
               <button type="button" id="btnCloseCouponModal" style="background: none; border: none; font-size: 1.4rem; line-height: 1; color: #94a3b8; cursor: pointer; padding: 4px;">&times;</button>
@@ -2731,7 +2731,7 @@
             <div class="toolbar-meta-text" style="color: #64748b; font-size: 0.85rem;">
               Tổng chi phí: <strong id="adsTotalSpent" style="color: #0f172a; font-family: monospace;">0 đ</strong>
             </div>
-            <button type="button" class="btn-create-pill" id="btnOpenAddAds" title="Thêm đợt chạy quảng cáo mới">
+            <button type="button" class="btn-create-pill" id="btnOpenAddAds" onclick="window.openAddAdsModal && window.openAddAdsModal()" title="Thêm chiến dịch quảng cáo mới">
               <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"></path></svg>
               Thêm chiến dịch
             </button>
@@ -2762,9 +2762,28 @@
           </div>
         </div>
 
+
+    </main>
+    </div> <!-- /.main-workspace -->
+  </div> <!-- /#adminSection.app-shell -->
+
+  <div id="toast">Thông báo</div>
+
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-storage-compat.js"></script>
+  <script src="/__/firebase/init.js"></script>
+  
+  <script src="./admin.js?v=245"></script>
+  <!-- Agentation: Visual Feedback & Annotation for AI agents -->
+  <script src="./agentation-vanilla.js"></script>
+
+  
+
         <!-- Add/Edit Ads Drawer (Trượt từ phải sang chuẩn SaaS) -->
-        <div id="adsDrawerBackdrop" style="display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.45); backdrop-filter: blur(4px); z-index: 1000; transition: opacity 0.25s ease;">
-          <div id="adsDrawer" style="position: absolute; top: 0; right: 0; width: 100%; max-width: 520px; height: 100%; background: #ffffff; box-shadow: -10px 0 30px rgba(0,0,0,0.12); display: flex; flex-direction: column; transform: translateX(100%); transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);">
+        <div id="adsDrawerBackdrop" style="display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.45); z-index: 99999; justify-content: flex-end; align-items: stretch;">
+          <div id="adsDrawer" style="position: relative; width: 100%; max-width: 500px; height: 100%; background: #ffffff; box-shadow: -10px 0 30px rgba(0,0,0,0.15); display: flex; flex-direction: column;">
             
             <!-- Drawer Header (Phẳng, tối giản chuẩn AGENTS.md) -->
             <div style="padding: 20px 24px 16px; border-bottom: 1px solid #e2e8f0; display: flex; align-items: center; justify-content: space-between; background: #ffffff; flex-shrink: 0;">
@@ -2900,38 +2919,38 @@
                 <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px;">
                   <div>
                     <label style="display: block; font-size: 0.75rem; font-weight: 600; color: #475569; margin-bottom: 4px;">Lượt xem (Views)</label>
-                    <input type="number" id="adsViewsInput" min="0" placeholder="2672" style="width: 100%; height: 38px; border: 1px solid #cbd5e1; border-radius: 6px; padding: 0 10px; font-size: 0.88rem; font-family: monospace; color: #0f172a; box-sizing: border-box; background: #ffffff;" />
+                    <input type="number" id="adsViewsInput" min="0" placeholder="2672" style="width: 100%; height: 38px; border: 1px solid #cbd5e1; border-radius: 6px; padding: 0 4px; font-size: 0.88rem; font-family: monospace; font-weight: 600; color: #0f172a; box-sizing: border-box; background: #ffffff; text-align: center;" />
                   </div>
                   <div>
                     <label style="display: block; font-size: 0.75rem; font-weight: 600; color: #475569; margin-bottom: 4px;">Lượt thích (Likes)</label>
-                    <input type="number" id="adsLikesInput" min="0" placeholder="401" style="width: 100%; height: 38px; border: 1px solid #cbd5e1; border-radius: 6px; padding: 0 10px; font-size: 0.88rem; font-family: monospace; color: #0f172a; box-sizing: border-box; background: #ffffff;" />
+                    <input type="number" id="adsLikesInput" min="0" placeholder="401" style="width: 100%; height: 38px; border: 1px solid #cbd5e1; border-radius: 6px; padding: 0 4px; font-size: 0.88rem; font-family: monospace; font-weight: 600; color: #e11d48; box-sizing: border-box; background: #ffffff; text-align: center;" />
                   </div>
                   <div>
                     <label style="display: block; font-size: 0.75rem; font-weight: 600; color: #475569; margin-bottom: 4px;">Follower mới</label>
-                    <input type="number" id="adsFollowersInput" min="0" placeholder="5" style="width: 100%; height: 38px; border: 1px solid #cbd5e1; border-radius: 6px; padding: 0 10px; font-size: 0.88rem; font-family: monospace; color: #0f172a; box-sizing: border-box; background: #ffffff;" />
+                    <input type="number" id="adsFollowersInput" min="0" placeholder="5" style="width: 100%; height: 38px; border: 1px solid #cbd5e1; border-radius: 6px; padding: 0 4px; font-size: 0.88rem; font-family: monospace; font-weight: 600; color: #059669; box-sizing: border-box; background: #ffffff; text-align: center;" />
                   </div>
                   <div>
                     <label style="display: block; font-size: 0.75rem; font-weight: 600; color: #475569; margin-bottom: 4px;">Xem hồ sơ (Bio)</label>
-                    <input type="number" id="adsProfileVisitsInput" min="0" placeholder="8" style="width: 100%; height: 38px; border: 1px solid #cbd5e1; border-radius: 6px; padding: 0 10px; font-size: 0.88rem; font-family: monospace; color: #0f172a; box-sizing: border-box; background: #ffffff;" />
+                    <input type="number" id="adsProfileVisitsInput" min="0" placeholder="8" style="width: 100%; height: 38px; border: 1px solid #cbd5e1; border-radius: 6px; padding: 0 4px; font-size: 0.88rem; font-family: monospace; font-weight: 600; color: #2563eb; box-sizing: border-box; background: #ffffff; text-align: center;" />
                   </div>
                 </div>
 
                 <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px;">
                   <div>
                     <label style="display: block; font-size: 0.75rem; font-weight: 600; color: #475569; margin-bottom: 4px;">Xem 2 giây (%)</label>
-                    <input type="text" id="adsView2sInput" placeholder="28.4%" style="width: 100%; height: 38px; border: 1px solid #cbd5e1; border-radius: 6px; padding: 0 10px; font-size: 0.85rem; font-family: monospace; color: #0f172a; box-sizing: border-box; background: #ffffff;" />
+                    <input type="text" id="adsView2sInput" placeholder="28.4%" style="width: 100%; height: 38px; border: 1px solid #cbd5e1; border-radius: 6px; padding: 0 4px; font-size: 0.82rem; font-family: monospace; color: #0f172a; box-sizing: border-box; background: #ffffff; text-align: center;" />
                   </div>
                   <div>
                     <label style="display: block; font-size: 0.75rem; font-weight: 600; color: #475569; margin-bottom: 4px;">Xem 6 giây (%)</label>
-                    <input type="text" id="adsView6sInput" placeholder="8.6%" style="width: 100%; height: 38px; border: 1px solid #cbd5e1; border-radius: 6px; padding: 0 10px; font-size: 0.85rem; font-family: monospace; color: #0f172a; box-sizing: border-box; background: #ffffff;" />
+                    <input type="text" id="adsView6sInput" placeholder="8.6%" style="width: 100%; height: 38px; border: 1px solid #cbd5e1; border-radius: 6px; padding: 0 4px; font-size: 0.82rem; font-family: monospace; color: #0f172a; box-sizing: border-box; background: #ffffff; text-align: center;" />
                   </div>
                   <div>
                     <label style="display: block; font-size: 0.75rem; font-weight: 600; color: #475569; margin-bottom: 4px;">Xem hết video (%)</label>
-                    <input type="text" id="adsWatchFullInput" placeholder="0.5%" style="width: 100%; height: 38px; border: 1px solid #cbd5e1; border-radius: 6px; padding: 0 10px; font-size: 0.85rem; font-family: monospace; color: #0f172a; box-sizing: border-box; background: #ffffff;" />
+                    <input type="text" id="adsWatchFullInput" placeholder="0.5%" style="width: 100%; height: 38px; border: 1px solid #cbd5e1; border-radius: 6px; padding: 0 4px; font-size: 0.82rem; font-family: monospace; color: #0f172a; box-sizing: border-box; background: #ffffff; text-align: center;" />
                   </div>
                   <div>
                     <label style="display: block; font-size: 0.75rem; font-weight: 600; color: #475569; margin-bottom: 4px;">Tỷ lệ thích (%)</label>
-                    <input type="text" id="adsLikeRateInput" placeholder="15.0%" style="width: 100%; height: 38px; border: 1px solid #cbd5e1; border-radius: 6px; padding: 0 10px; font-size: 0.85rem; font-family: monospace; color: #0f172a; box-sizing: border-box; background: #ffffff;" />
+                    <input type="text" id="adsLikeRateInput" placeholder="15.0%" style="width: 100%; height: 38px; border: 1px solid #cbd5e1; border-radius: 6px; padding: 0 4px; font-size: 0.82rem; font-family: monospace; color: #0f172a; box-sizing: border-box; background: #ffffff; text-align: center;" />
                   </div>
                 </div>
               </div>
@@ -2953,24 +2972,5 @@
           </div>
         </div>
       </div>
-
-    </main>
-    </div> <!-- /.main-workspace -->
-  </div> <!-- /#adminSection.app-shell -->
-
-  <div id="toast">Thông báo</div>
-
-  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-storage-compat.js"></script>
-  <script src="/__/firebase/init.js"></script>
-  
-  <script src="./admin.js?v=211"></script>
-  <!-- Agentation: Visual Feedback & Annotation for AI agents -->
-  <script src="./agentation-vanilla.js"></script>
-
-  
-
 </body>
 </html>

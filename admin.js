@@ -3146,92 +3146,106 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function openAddAdsModal() {
-    if (!adsForm || !adsDrawerBackdrop) return;
-    adsForm.reset();
+    const backdrop = document.getElementById('adsDrawerBackdrop');
+    const form = document.getElementById('adsForm');
+    if (!backdrop || !form) {
+      console.error('Không tìm thấy adsDrawerBackdrop hoặc adsForm');
+      return;
+    }
+    form.reset();
     document.getElementById('adsDocId').value = '';
-    document.getElementById('adsModalTitle').textContent = 'Thêm chiến dịch quảng cáo';
-    populateAdsProductDropdowns();
+    const titleModal = document.getElementById('adsModalTitle');
+    if (titleModal) titleModal.textContent = 'Thêm chiến dịch quảng cáo';
+    
+    try { populateAdsProductDropdowns(); } catch (e) {}
 
     // Default date to today
     const today = new Date().toISOString().split('T')[0];
-    if (adsDateInput) adsDateInput.value = today;
-    if (adsDateInputText) adsDateInputText.value = formatDateVN(today);
-    document.getElementById('adsStatusSelect').value = 'ACTIVE';
-    document.getElementById('adsTimeStartInput').value = '00:00';
-    document.getElementById('adsTimeEndInput').value = '23:59';
-    document.getElementById('adsManagerUrlInput').value = '';
-    syncAdsSavedPostsDropdown();
-    document.getElementById('adsViewsInput').value = '';
-    document.getElementById('adsLikesInput').value = '';
-    document.getElementById('adsFollowersInput').value = '';
-    document.getElementById('adsProfileVisitsInput').value = '';
-    document.getElementById('adsView2sInput').value = '';
-    document.getElementById('adsView6sInput').value = '';
-    document.getElementById('adsWatchFullInput').value = '';
-    document.getElementById('adsLikeRateInput').value = '';
+    const dateInput = document.getElementById('adsDateInput');
+    const dateText = document.getElementById('adsDateInputText');
+    if (dateInput) dateInput.value = today;
+    if (dateText) dateText.value = formatDateVN(today);
+    
+    const statusSel = document.getElementById('adsStatusSelect');
+    if (statusSel) statusSel.value = 'ACTIVE';
+    const timeStart = document.getElementById('adsTimeStartInput');
+    const timeEnd = document.getElementById('adsTimeEndInput');
+    if (timeStart) timeStart.value = '00:00';
+    if (timeEnd) timeEnd.value = '23:59';
+    
+    try { syncAdsSavedPostsDropdown(); } catch (e) {}
 
-    adsDrawerBackdrop.style.display = 'block';
-    setTimeout(() => {
-      if (adsDrawer) adsDrawer.style.transform = 'translateX(0)';
-    }, 10);
+    backdrop.style.display = 'flex';
   }
 
   function openEditAdsModal(id) {
-    const item = currentAds.find(a => a.id === id);
-    if (!item || !adsForm || !adsDrawerBackdrop) return;
+    const backdrop = document.getElementById('adsDrawerBackdrop');
+    const form = document.getElementById('adsForm');
+    const item = (currentAds || []).find(a => String(a.id) === String(id));
+    if (!backdrop || !form || !item) {
+      console.error('Không tìm thấy item hoặc modal ads:', id);
+      return;
+    }
 
-    populateAdsProductDropdowns();
+    try { populateAdsProductDropdowns(); } catch (e) {}
+
     document.getElementById('adsDocId').value = item.id;
-    document.getElementById('adsModalTitle').textContent = 'Chỉnh sửa chiến dịch quảng cáo';
+    const titleModal = document.getElementById('adsModalTitle');
+    if (titleModal) titleModal.textContent = 'Chỉnh sửa chiến dịch quảng cáo';
 
-    document.getElementById('adsTitleInput').value = item.title || '';
-    document.getElementById('adsChannelSelect').value = item.channel || 'tiktok';
-    document.getElementById('adsProductSelect').value = item.product_id || '';
-    document.getElementById('adsUrlInput').value = item.url || '';
-    document.getElementById('adsManagerUrlInput').value = item.ad_url || item.manager_url || '';
-    syncAdsSavedPostsDropdown(item.url || '');
-    document.getElementById('adsSpentInput').value = item.spent ? new Intl.NumberFormat('vi-VN').format(item.spent) : '';
-    document.getElementById('adsStatusSelect').value = item.status || 'ACTIVE';
-    
+    const setField = (idEl, val) => {
+      const el = document.getElementById(idEl);
+      if (el) el.value = (val !== undefined && val !== null) ? val : '';
+    };
+
+    setField('adsTitleInput', item.title);
+    setField('adsChannelSelect', item.channel || 'tiktok');
+    setField('adsProductSelect', item.product_id);
+    setField('adsUrlInput', item.url);
+    setField('adsManagerUrlInput', item.ad_url || item.manager_url);
+    setField('adsSpentInput', item.spent ? new Intl.NumberFormat('vi-VN').format(item.spent) : '');
+    setField('adsStatusSelect', item.status || 'ACTIVE');
+
     const itemDate = item.date || '';
-    if (adsDateInput) adsDateInput.value = itemDate;
-    if (adsDateInputText) adsDateInputText.value = itemDate ? formatDateVN(itemDate) : '';
+    const dateInput = document.getElementById('adsDateInput');
+    const dateText = document.getElementById('adsDateInputText');
+    if (dateInput) dateInput.value = itemDate;
+    if (dateText) dateText.value = itemDate ? formatDateVN(itemDate) : '';
 
-    // Parse time frame
     const timeFrame = item.time_frame || '';
     if (timeFrame.includes('-')) {
       const [start, end] = timeFrame.split('-').map(s => s.trim());
-      if (start) document.getElementById('adsTimeStartInput').value = start;
-      if (end) document.getElementById('adsTimeEndInput').value = end;
+      setField('adsTimeStartInput', start);
+      setField('adsTimeEndInput', end);
     } else {
-      document.getElementById('adsTimeStartInput').value = '00:00';
-      document.getElementById('adsTimeEndInput').value = '23:59';
+      setField('adsTimeStartInput', '00:00');
+      setField('adsTimeEndInput', '23:59');
     }
 
-    document.getElementById('adsOrderIdInput').value = item.order_id || '';
-    document.getElementById('adsViewsInput').value = item.views !== undefined ? item.views : '';
-    document.getElementById('adsLikesInput').value = item.likes !== undefined ? item.likes : '';
-    document.getElementById('adsFollowersInput').value = item.followers !== undefined ? item.followers : '';
-    document.getElementById('adsProfileVisitsInput').value = item.profile_visits !== undefined ? item.profile_visits : '';
-    document.getElementById('adsView2sInput').value = item.view_2s || '';
-    document.getElementById('adsView6sInput').value = item.view_6s || '';
-    document.getElementById('adsWatchFullInput').value = item.watch_full || '';
-    document.getElementById('adsLikeRateInput').value = item.like_rate || '';
-    document.getElementById('adsNotesInput').value = item.notes || '';
+    setField('adsViewsInput', item.views);
+    setField('adsLikesInput', item.likes);
+    setField('adsFollowersInput', item.followers);
+    setField('adsProfileVisitsInput', item.profile_visits);
+    setField('adsView2sInput', item.view_2s);
+    setField('adsView6sInput', item.view_6s);
+    setField('adsWatchFullInput', item.watch_full);
+    setField('adsLikeRateInput', item.like_rate);
+    setField('adsNotesInput', item.notes);
 
-    adsDrawerBackdrop.style.display = 'block';
-    setTimeout(() => {
-      if (adsDrawer) adsDrawer.style.transform = 'translateX(0)';
-    }, 10);
+    try { syncAdsSavedPostsDropdown(item.url || ''); } catch (e) {}
+
+    backdrop.style.display = 'flex';
   }
 
   function closeAdsModal() {
-    if (!adsDrawerBackdrop) return;
-    if (adsDrawer) adsDrawer.style.transform = 'translateX(100%)';
-    setTimeout(() => {
-      adsDrawerBackdrop.style.display = 'none';
-    }, 280);
+    const backdrop = document.getElementById('adsDrawerBackdrop');
+    if (backdrop) backdrop.style.display = 'none';
   }
+
+  // Gán trực tiếp ra Window toàn cục
+  window.openAddAdsModal = openAddAdsModal;
+  window.openEditAdsModal = openEditAdsModal;
+  window.closeAdsModal = closeAdsModal;
 
   async function deleteAds(id) {
     if (!confirm('Bạn có chắc chắn muốn xóa chiến dịch quảng cáo này không?')) return;
