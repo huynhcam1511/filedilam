@@ -487,6 +487,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
           updateFormatFields();
           document.getElementById('productImage').required = false;
+          const coverWrap = document.getElementById('coverPreviewWrap');
+          const coverImg = document.getElementById('coverPreviewImg');
+          const coverName = document.getElementById('coverPreviewName');
+          if (product.previewImageUrl && coverWrap && coverImg) {
+            coverImg.src = product.previewImageUrl;
+            if (coverName) coverName.textContent = product.name || 'Ảnh bìa hiện tại';
+            coverWrap.style.display = 'flex';
+          } else if (coverWrap) {
+            coverWrap.style.display = 'none';
+          }
           switchTab('addTab');
           window.scrollTo(0, 0);
         }
@@ -653,6 +663,29 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         renderGalleryPreviews();
       });
+    });
+  }
+
+  // Instant cover image local preview
+  const productImgInput = document.getElementById('productImage');
+  if (productImgInput) {
+    productImgInput.addEventListener('change', function(e) {
+      const file = this.files && this.files[0];
+      const btnText = document.getElementById('imageBtnText');
+      const coverWrap = document.getElementById('coverPreviewWrap');
+      const coverImg = document.getElementById('coverPreviewImg');
+      const coverName = document.getElementById('coverPreviewName');
+
+      if (file) {
+        if (btnText) {
+          btnText.innerHTML = '<svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg> Đã chọn: ' + escapeHtml(file.name);
+        }
+        if (coverWrap && coverImg) {
+          coverImg.src = URL.createObjectURL(file);
+          if (coverName) coverName.textContent = file.name;
+          coverWrap.style.display = 'flex';
+        }
+      }
     });
   }
 
@@ -861,6 +894,8 @@ document.addEventListener('DOMContentLoaded', () => {
       if (document.getElementById('productCoachingTitle')) document.getElementById('productCoachingTitle').value = '';
 
       document.getElementById('editingProductId').value = '';
+      const resetCoverWrap = document.getElementById('coverPreviewWrap');
+      if (resetCoverWrap) resetCoverWrap.style.display = 'none';
       document.getElementById('formTitle').textContent = 'Thêm Sản Phẩm Mới';
       document.getElementById('formDescription').textContent = 'Điền đầy đủ thông tin để đăng bán một file Excel hoặc Google Sheets mới.';
       document.getElementById('submitBtn').textContent = 'Tải lên & Đăng bán';
