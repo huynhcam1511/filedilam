@@ -4146,7 +4146,7 @@ body:not(.is-admin) #userProfile {
   gap: 48px;
   max-width: 1280px;
   margin: 0 auto;
-  padding: 36px 32px 60px;
+  padding: 18px 32px 60px;
   align-items: start;
 }
 
@@ -4620,10 +4620,14 @@ body:not(.is-admin) #userProfile {
     display: none !important;
   }
 
+  .detail-back-bar-wrapper {
+    padding: 16px 16px 0;
+  }
+
   .detail-fullpage-layout {
     grid-template-columns: 1fr;
-    gap: 24px;
-    padding: 16px 16px 36px;
+    gap: 20px;
+    padding: 12px 16px 36px;
   }
 
   .detail-col-media {
@@ -4844,6 +4848,19 @@ body:not(.is-admin) #userProfile {
 
 
 
+.detail-back-bar-wrapper {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 24px 32px 0;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.detail-back-bar-container {
+  display: flex;
+  align-items: center;
+}
+
 .detail-back-bar-left {
   display: flex !important;
   align-items: center !important;
@@ -4856,7 +4873,7 @@ body:not(.is-admin) #userProfile {
   gap: 8px !important;
   background: none !important;
   border: none !important;
-  padding: 6px 0 !important;
+  padding: 4px 0 !important;
   font-size: 0.95rem !important;
   font-weight: 600 !important;
   color: #334155 !important;
