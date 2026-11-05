@@ -1789,30 +1789,22 @@ function escapeHtml(value) {
 
     // BUILD GALLERY IMAGES
     var galleryList = [];
+    if (coverImg) {
+      galleryList.push(coverImg);
+    }
+    var rawGallery = [];
     if (Array.isArray(product.gallery) && product.gallery.length > 0) {
-      galleryList = product.gallery.slice();
+      rawGallery = product.gallery;
     } else if (Array.isArray(product.previewImages) && product.previewImages.length > 0) {
-      galleryList = product.previewImages.slice();
+      rawGallery = product.previewImages;
     } else if (Array.isArray(product.images) && product.images.length > 0) {
-      galleryList = product.images.slice();
-    } else {
-      if (coverImg) galleryList.push(coverImg);
+      rawGallery = product.images;
     }
-    // Filter out falsy or empty strings
-    galleryList = galleryList.filter(function(url) { return typeof url === 'string' && url.trim().length > 0; });
-    
-    // If product only has 1 image, supply template mock sheets so user can switch between views (Optimate standard)
-    if (galleryList.length <= 1) {
-      var baseImg = coverImg || galleryList[0];
-      var mockScreens = [
-        baseImg,
-        'https://filedilam.web.app/assets/guide/01_tao_ban_sao.jpg',
-        'https://filedilam.web.app/assets/guide/02_menu_mo_ung_dung.jpg',
-        'https://filedilam.web.app/assets/guide/06_cho_phep_tiep_tuc.jpg'
-      ].filter(Boolean);
-      // Remove duplicates if any
-      galleryList = mockScreens.filter(function(item, pos) { return mockScreens.indexOf(item) === pos; });
-    }
+    rawGallery.forEach(function(url) {
+      if (typeof url === 'string' && url.trim().length > 0 && galleryList.indexOf(url) === -1) {
+        galleryList.push(url);
+      }
+    });
 
     var hasMultipleImages = galleryList.length > 1;
 
@@ -2125,11 +2117,7 @@ function escapeHtml(value) {
         if (index >= galleryList.length) index = 0;
         currentGalleryIdx = index;
         if (mainImgEl) {
-          mainImgEl.style.opacity = '0.3';
           mainImgEl.src = galleryList[index];
-          setTimeout(function() {
-            mainImgEl.style.opacity = '1';
-          }, 60);
         }
         Array.prototype.forEach.call(thumbBtns, function(btn, i) {
           if (i === index) {
@@ -2142,12 +2130,15 @@ function escapeHtml(value) {
       };
 
       Array.prototype.forEach.call(thumbBtns, function(btn) {
-        btn.addEventListener("click", function() {
+        var onSelect = function(e) {
+          e.preventDefault();
           var idx = parseInt(btn.getAttribute("data-index"), 10);
           if (!isNaN(idx)) {
             switchGalleryImage(idx);
           }
-        });
+        };
+        btn.addEventListener("click", onSelect);
+        btn.addEventListener("pointerdown", onSelect);
       });
 
       var btnPrev = document.getElementById("btnGalleryPrev");
