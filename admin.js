@@ -3098,22 +3098,25 @@ document.addEventListener('DOMContentLoaded', () => {
             <div style="font-size: 0.74rem; color: #64748b; margin-top: 2px;">${escapeHtml(timeDisplay)}</div>
           </td>
           <td>
-            <div style="display: flex; align-items: center; gap: 6px; font-weight: 600; color: #0f172a; font-size: 0.88rem;">
-              ${channelIcon}
-              <span>${escapeHtml(a.title || 'Chiến dịch')}</span>
-            </div>
-            <div style="margin-top: 5px; display: flex; align-items: center; gap: 10px;">
+            <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;" title="${escapeHtml(a.title || '')}">
+              <span style="display: inline-flex; align-items: center; justify-content: center; width: 24px; height: 24px; border-radius: 4px; background: #f8fafc; border: 1px solid #e2e8f0; flex-shrink: 0;" title="${escapeHtml(channelLabel)}">
+                ${channelIcon}
+              </span>
               ${a.url ? `
-                <a href="${escapeHtml(a.url)}" target="_blank" rel="noopener" style="font-size: 0.74rem; font-weight: 500; color: #059669; text-decoration: none; display: inline-flex; align-items: center; gap: 3px;" title="Xem video / bài viết">
+                <a href="${escapeHtml(a.url)}" target="_blank" rel="noopener" style="font-size: 0.76rem; font-weight: 600; color: #059669; text-decoration: none; display: inline-flex; align-items: center; gap: 3px; padding: 2px 8px; background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 4px;" title="Xem video / bài viết">
                   <svg width="11" height="11" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
                   <span>Link bài</span>
                 </a>` : ''}
               ${a.ad_url || a.manager_url ? `
-                <a href="${escapeHtml(a.ad_url || a.manager_url)}" target="_blank" rel="noopener" style="font-size: 0.74rem; font-weight: 500; color: #2563eb; text-decoration: none; display: inline-flex; align-items: center; gap: 3px;" title="Xem báo cáo Ads">
+                <a href="${escapeHtml(a.ad_url || a.manager_url)}" target="_blank" rel="noopener" style="font-size: 0.76rem; font-weight: 600; color: #2563eb; text-decoration: none; display: inline-flex; align-items: center; gap: 3px; padding: 2px 8px; background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 4px;" title="Xem báo cáo Ads">
                   <svg width="11" height="11" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
                   <span>Link Ads</span>
                 </a>` : ''}
+              ${!a.url && !a.ad_url && !a.manager_url ? `
+                <span style="font-size: 0.76rem; color: #94a3b8;">Chưa gắn link</span>` : ''}
             </div>
+            ${(a.title && !a.title.startsWith('Ads: ') && a.title !== prodName) ? `
+              <div style="font-size: 0.72rem; color: #64748b; margin-top: 3px;" title="${escapeHtml(a.title)}">${escapeHtml(a.title)}</div>` : ''}
           </td>
           <td>
             <span style="font-size: 0.86rem; color: #334155; font-weight: 500;">${escapeHtml(prodName)}</span>
