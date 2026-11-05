@@ -3221,7 +3221,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (timeStart) timeStart.value = '00:00';
     if (timeEnd) timeEnd.value = '23:59';
     
-    try { syncAdsSavedPostsDropdown(); } catch (e) {}
+    
 
     backdrop.style.display = 'flex';
   }
@@ -3287,7 +3287,7 @@ document.addEventListener('DOMContentLoaded', () => {
     setField('adsLikeRateInput', item.like_rate);
     setField('adsNotesInput', item.notes);
 
-    try { syncAdsSavedPostsDropdown(item.url || ''); } catch (e) {}
+    
 
     backdrop.style.display = 'flex';
   }
@@ -3436,118 +3436,12 @@ document.addEventListener('click', () => {
 
   
 
-  function syncAdsSavedPostsDropdown(selectedUrl) {
-    const prodId = document.getElementById('adsProductSelect')?.value;
-    const channel = document.getElementById('adsChannelSelect')?.value || 'tiktok';
-    const selectEl = document.getElementById('adsSavedPostSelect');
-    const inputWrap = document.getElementById('adsUrlInputWrapper');
-    const selectWrap = document.getElementById('adsUrlSelectWrapper');
-    const toggleBtn = document.getElementById('btnToggleManualAdsUrl');
-    const urlInput = document.getElementById('adsUrlInput');
-    if (!selectEl) return;
-
-    const prod = (currentProducts || []).find(p => p.id === prodId);
-    let posts = (prod && Array.isArray(prod.social_posts)) ? prod.social_posts : [];
-
-    // Nếu sản phẩm hiện tại chưa có social_posts, gom các link video từ các chiến dịch Ads đã lưu trước đó của sản phẩm này (hoặc toàn hệ thống)
-    let extraPosts = [];
-    if (posts.length === 0 && currentAds && currentAds.length > 0) {
-      currentAds.forEach(a => {
-        if (a.url && (!prodId || a.product_id === prodId)) {
-          if (!extraPosts.some(ep => ep.url === a.url)) {
-            extraPosts.push({
-              platform: a.channel || 'tiktok',
-              title: a.title || a.url,
-              url: a.url
-            });
-          }
-        }
-      });
-    }
-
-    const allAvailablePosts = posts.length > 0 ? posts : extraPosts;
-
-    if (allAvailablePosts.length > 0) {
-      let opts = '<option value="">-- Chọn video / bài viết (' + allAvailablePosts.length + ' bài) --</option>';
-      allAvailablePosts.forEach(p => {
-        const titleText = p.title ? p.title : (p.url.length > 40 ? p.url.substring(0, 38) + '...' : p.url);
-        opts += `<option value="${escapeHtml(p.url)}">[${(p.platform||'video').toUpperCase()}] ${escapeHtml(titleText)}</option>`;
-      });
-      selectEl.innerHTML = opts;
-
-      if (selectedUrl) {
-        selectEl.value = selectedUrl;
-        if (urlInput) urlInput.value = selectedUrl;
-      }
-      
-      // Hiển thị dropdown chọn bài viết
-      if (selectWrap) selectWrap.style.display = 'block';
-      if (inputWrap) inputWrap.style.display = 'none';
-      if (toggleBtn) {
-        toggleBtn.textContent = 'Dán link trực tiếp';
-        toggleBtn.style.display = 'inline-block';
-      }
-    } else {
-      // Khi sản phẩm chưa có bài viết nào: TỰ ĐỘNG CHUYỂN SANG Ô NHẬP LINK NGAY LẬP TỨC!
-      selectEl.innerHTML = '<option value="">-- Chưa có bài viết nào được lưu ở sản phẩm --</option>';
-      if (selectWrap) selectWrap.style.display = 'none';
-      if (inputWrap) inputWrap.style.display = 'block';
-      if (toggleBtn) {
-        toggleBtn.textContent = 'Chọn từ bài viết';
-        toggleBtn.style.display = 'none'; // ẩn toggle khi chưa có bài viết
-      }
-      if (selectedUrl && urlInput) urlInput.value = selectedUrl;
-    }
-  }
-
-  // Event khi đổi Sản phẩm trong Drawer Ads -> Gợi ý tên chiến dịch & sync bài viết
+  // Event khi đổi Sản phẩm trong Drawer Ads -> Gợi ý tên chiến dịch nếu chưa nhập
   document.getElementById('adsProductSelect')?.addEventListener('change', (e) => {
     const prodId = e.target.value;
     const titleInp = document.getElementById('adsTitleInput');
     const prod = (currentProducts || []).find(p => p.id === prodId);
     if (prod && titleInp && (!titleInp.value.trim() || titleInp.value.startsWith('Ads:'))) {
       titleInp.value = 'Ads: ' + prod.name;
-    }
-    syncAdsSavedPostsDropdown(document.getElementById('adsUrlInput')?.value);
-  });
-
-  document.getElementById('adsChannelSelect')?.addEventListener('change', () => {
-    syncAdsSavedPostsDropdown(document.getElementById('adsUrlInput')?.value);
-  });
-
-  // Khi chọn một bài viết từ dropdown -> Tự động điền URL và gợi ý tên
-  document.getElementById('adsSavedPostSelect')?.addEventListener('change', (e) => {
-    const val = e.target.value;
-    const urlInput = document.getElementById('adsUrlInput');
-    if (urlInput) urlInput.value = val;
-    const titleInput = document.getElementById('adsTitleInput');
-    if (titleInput && (!titleInput.value.trim() || titleInput.value.startsWith('Ads:')) && e.target.selectedOptions[0]) {
-      const selectedText = e.target.selectedOptions[0].textContent.replace(/^\[.*?\]\s*/, '');
-      if (selectedText && !selectedText.startsWith('http') && !selectedText.startsWith('--')) {
-        titleInput.value = selectedText;
-      }
-    }
-  });
-
-  // Nút toggle Nhập link khác / Chọn từ bài viết
-  document.getElementById('btnToggleManualAdsUrl')?.addEventListener('click', () => {
-    const inputWrap = document.getElementById('adsUrlInputWrapper');
-    const selectWrap = document.getElementById('adsUrlSelectWrapper');
-    const toggleBtn = document.getElementById('btnToggleManualAdsUrl');
-    const urlInput = document.getElementById('adsUrlInput');
-    const selectEl = document.getElementById('adsSavedPostSelect');
-
-    if (inputWrap && inputWrap.style.display === 'none') {
-      inputWrap.style.display = 'block';
-      if (selectWrap) selectWrap.style.display = 'none';
-      if (toggleBtn) toggleBtn.textContent = 'Chọn từ bài viết';
-      urlInput?.focus();
-    } else {
-      if (inputWrap) inputWrap.style.display = 'none';
-      if (selectWrap) selectWrap.style.display = 'block';
-      if (toggleBtn) toggleBtn.textContent = 'Dán link trực tiếp';
-      if (selectEl && selectEl.value && urlInput) {
-        urlInput.value = selectEl.value;
-      }
     }
   });
