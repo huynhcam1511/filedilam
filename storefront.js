@@ -2018,7 +2018,10 @@ function escapeHtml(value) {
                       (item.originalPrice ? '<span style="font-size:0.8rem; color:#94a3b8; text-decoration:line-through;">' + formatCurrency(item.originalPrice) + '</span>' : '') +
                     '</div>' +
                     '<div style="display:flex; align-items:center; justify-content:space-between; margin-top:6px;">' +
-                      '<span style="font-size:0.8rem; color:#d97706; font-weight:600;">⭐ ' + itemRating.score + ' (' + itemRating.sales + ')</span>' +
+                      '<div style="display:inline-flex; align-items:center; gap:4px; font-size:0.8rem;">' +
+                        '<span style="color:#d97706; font-weight:700;">⭐ ' + itemRating.score + '</span>' +
+                        '<span style="color:#64748b; font-weight:500;">(' + itemRating.sales + ')</span>' +
+                      '</div>' +
                       '<button type="button" class="btn-item-quick-add" data-id="' + escapeHtml(item.id) + '" style="padding:6px 14px; border-radius:9999px; background:#0f172a; color:#fff; font-size:0.8rem; font-weight:600; border:none; cursor:pointer;">Thêm vào giỏ</button>' +
                     '</div>' +
                   '</div>' +
