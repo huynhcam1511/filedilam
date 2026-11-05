@@ -11,19 +11,30 @@ function escapeHtml(value) {
 
   function formatProductRichContent(content, fallbackHighlights) {
   if (!content && (!fallbackHighlights || !fallbackHighlights.length)) return '';
-  var text = content || (fallbackHighlights || []).map(function(h) { return '- ' + h; }).join('\n');
-  
-  var lines = text.split('\n');
+  var raw = content || (fallbackHighlights || []).map(function(h) { return '- ' + h; }).join('\n');
+
+  // Nếu content đã là định dạng HTML từ bộ soạn thảo trực quan Admin (có chứa thẻ <p>, <h3>, <ul>, <li>...)
+  if (/<[a-z][\s\S]*>/i.test(raw)) {
+    // Nếu HTML bị bọc nhầm một thẻ <ul> ngoài cùng bao quanh các tiêu đề và đoạn văn (do copy-paste hoặc execCommand)
+    var cleanedHtml = raw;
+    if (cleanedHtml.indexOf('<ul><li><p>') === 0 && cleanedHtml.lastIndexOf('</li></ul>') === cleanedHtml.length - 10) {
+      cleanedHtml = cleanedHtml.substring(8, cleanedHtml.length - 10);
+    }
+    return '<div class="product-features-rich-wrapper formatted-html-content">' + cleanedHtml + '</div>';
+  }
+
+  // Trường hợp dữ liệu dạng Markdown hoặc text gạch đầu dòng truyền thống
+  var lines = raw.split('\n');
   var html = '';
   var inList = false;
-  
+
   for (var i = 0; i < lines.length; i++) {
     var line = lines[i].trim();
     if (!line) {
       if (inList) { html += '</ul>'; inList = false; }
       continue;
     }
-    
+
     // Heading 1 (# Title)
     if (line.indexOf('# ') === 0) {
       if (inList) { html += '</ul>'; inList = false; }

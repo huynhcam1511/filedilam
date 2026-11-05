@@ -13,15 +13,26 @@
 ## 2. CHUẨN THIẾT KẾ UI/UX & GIAO DIỆN HỆ THỐNG
 1. **Thẩm mỹ Fintech cao cấp (Minimalist & Classy)**:
    - Màu chủ đạo: Xanh ngọc Mint (`#059669` / `#10b981`), nền trắng/xám slate thanh lịch, trung tính (`#f8fafc`, `#e2e8f0`).
-   - Tối ưu trải nghiệm mobile-first (khách vào từ TikTok/Facebook bio-link).
+   - Tối ưu trải nghiệm mobile-first (khách vào từ TikTok/Facebook bio-link hoặc môi giới/chủ quán thao tác ngoài hiện trường).
 2. **CẤM emoji & icon trẻ con**: Không gắn emoji (⚡, ✨, 🔑, 🟢, ⏳, ⚠️, ➔) vào nút bấm, tab chuyển đổi, tiêu đề popup hay thông báo. Sử dụng SVG icon đồng bộ, văn phong nhã nhặn.
 3. **Chống lạm dụng thẻ container & pill ("LẬM CARD, LẬM PILL")**:
    - Không bọc thông tin hiển nhiên vào các khối card màu mè chiếm diện tích.
-   - Tránh lạm dụng khung pill bo tròn (badge/viên thuốc) tràn lan cho các trường dữ liệu bình thường (như Mã SKU, Mã đơn, text trạng thái...). Hãy hiển thị văn bản phẳng, sạch, dùng font chữ monospace hoặc màu chữ thanh lịch thay vì bọc border/background pill dày đặc.
-4. **Tính đồng nhất form 100%**: Tất cả modal đăng nhập/đăng ký và checkout phải dùng chung cấu trúc: Segmented Control Tabs, trường `.checkout-field`, nhãn `.checkout-label` kèm `<span class="req">*</span>`, nút toggle mắt mật khẩu, nút chính cao 46px nền Mint, nút Google phẳng.
-5. **Quy chuẩn mã sản phẩm (SKU)**:
-   - Bắt buộc dạng `PRD-` kèm đúng 6 chữ số ngẫu nhiên: `PRD-XXXXXX` (VD: `PRD-102938`).
+   - Tránh lạm dụng khung pill bo tròn (badge/viên thuốc) tràn lan cho các trường dữ liệu bình thường (như Mã SKU, Mã đơn, text trạng thái...). Hãy hiển thị văn bản phẳng, sạch, dùng font chữ monospace (`font-mono text-xs font-semibold text-slate-700`) hoặc màu chữ thanh lịch thay vì bọc border/background pill dày đặc. Trạng thái chỉ dùng chấm tròn nhỏ (`•`) tinh tế.
+4. **Phân định 2 trải nghiệm độc lập: Mobile View vs Desktop View**:
+   - **Giao diện Desktop (Màn hình lớn / Laptop)**:
+     - Sidebar cố định có nút Hamburger thu gọn về dạng Icon-only (~64px).
+     - Bảng Master-Table phẳng tràn viền (Edge-to-Edge Full Bleed), cố định tiêu đề (`Freeze Panes`), không dùng đường kẻ dọc cột Excel, menu 3 chấm (`MoreVertical`) ở cột ngoài cùng bên phải (tiêu đề `<th>` để rỗng).
+     - Màn hình chi tiết ưu tiên Drawer trượt từ bên phải hoặc Flat Canvas toàn màn hình (Zero Popup Policy).
+   - **Giao diện Mobile (Điện thoại thông minh / Hiện trường)**:
+     - **Chuyển bảng thành thẻ gọn (Table-to-Card Transformation)**: Tuyệt đối CẤM bắt người dùng vuốt ngang màn hình tìm cột. Bảng tự động gom thành danh sách các khối thẻ phẳng: Hàng 1 (Mã ID mono + chấm trạng thái), Hàng 2 (Tiêu đề/Tên đậm), Hàng 3 (SĐT có link gọi 1 chạm `tel:` + Giá trị), Nút 3 chấm mở menu thao tác.
+     - **Thanh điều hướng đáy (Bottom Navigation Dock)**: Ẩn hẳn Sidebar, ghim thanh dock 4 icon chính ở đáy màn hình trong tầm với ngón tay cái.
+     - **Nút hành động nổi (Floating Action Button - FAB)**: Nút `+ Thêm Mới` trên desktop tự chuyển thành nút tròn nổi màu Mint xanh ở góc dưới bên phải (`fixed bottom-20 right-4`) để thao tác 1 chạm bằng 1 tay.
+     - **Form nhập liệu Bottom Sheet**: Trượt êm từ đáy màn hình lên, tự bật bàn phím số (`inputmode="numeric"`) khi chạm vào ô SĐT hay Tiền tệ.
+5. **Tính đồng nhất form 100%**: Tất cả modal/form nhập liệu phải dùng chung cấu trúc: Segmented Control Tabs, trường `.checkout-field`, nhãn `.checkout-label` kèm `<span class="req">*</span>`, nút toggle mắt mật khẩu, nút chính cao 46px nền Mint, nút Google phẳng.
+6. **Quy chuẩn mã sản phẩm & định danh (SKU/ID)**:
+   - Bắt buộc dạng tiền tố nghiệp vụ kèm đúng 6 chữ số ngẫu nhiên: `PRD-XXXXXX`, `KH-XXXXXX`, `BDS-XXXXXX`.
    - CẤM sinh slug tiếng Việt cắt dấu lem nhem kèm timestamp miligiây.
+   - Mã ID là bất biến và hiển thị dạng text mono phẳng, không bọc pill.
 
 ---
 
@@ -32,7 +43,21 @@
 - **Nguyên tắc kỹ thuật script**:
   - Menu lấy ID động bằng `SpreadsheetApp.getActiveSpreadsheet().getId()`.
   - Mọi RPC mang ID bản sao tương ứng. Không hardcode Spreadsheet ID master, không fallback về master làm database.
-  - Web App chạy dưới quyền người truy cập (`USER_ACCESSING`) để bảo mật dữ liệu riêng của từng khách.
+  - Web App chạy dưới quyền người truy cập (`USER_ACCESSING`) hoặc cấu hình máy chủ độc lập phù hợp (`EXECUTE_AS_ME` + `ANYONE`) để bảo mật dữ liệu.
+- **Quy chuẩn Deploy Web App & Quản lý phiên bản (Tránh bẫy treo URL của Google)**:
+  - *Cấm phụ thuộc `ScriptApp.getService().getUrl()` khi đang dev nhiều version*: Google bị treo URL ở deployment đầu tiên trong lịch sử dự án.
+  - *Quy trình chuẩn*:
+    1. Kiểm tra và thao tác trực tiếp trên URL của bản deploy mới nhất cho tới khi giao diện và API mượt mà, không lỗi console.
+    2. Dọn sạch (Archive/Delete) các bản deploy rác trong *Quản lý các bản triển khai*, chỉ giữ 1 bản Active duy nhất.
+    3. Ghim URL chính thức đã test thành công vào hằng số `WEB_APP_URL` ở đầu script để menu `onOpen()` và nút Sheet mở chuẩn xác 100%.
+    4. Cẩn trọng tuyệt đối với ký tự Case-Sensitive (như chữ `O` hoa vs số `0`) khi xử lý URL Google Apps Script.
+- **Quy chuẩn Kiến trúc Modular HTML (Component-Based Architecture)**:
+  - Khi Web App mở rộng từ 3 module trở lên, tuyệt đối KHÔNG nhồi toàn bộ CSS, HTML và JS vào một file `Index.html` duy nhất (tránh lỗi token truncation, khó quản lý và dễ ghi đè lỗi).
+  - Bắt buộc áp dụng cơ chế `include()` của Apps Script:
+    - `Mã.gs`: Định nghĩa hàm `include(filename)` helper.
+    - `Index.html`: Giữ vai trò Main Shell / Layout chung nạp các partials.
+    - Phân tách thành các file thành phần độc lập: `Style.html`, `Module_Dashboard.html`, `Module_Customers.html`, `Module_Properties.html`, `Script.html`.
+  - Quy trình nâng cấp theo từng Sprint: Mỗi phiên chat hoàn thiện sâu duy nhất 1 component file tương ứng, không làm ảnh hưởng các phần khác.
 
 ---
 
