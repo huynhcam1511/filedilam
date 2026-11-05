@@ -1933,7 +1933,7 @@ function escapeHtml(value) {
           '<li class="detail-how-item"><span class="detail-how-num">2</span><span>Màn hình hiển thị link nhận file tức thì, đồng thời hệ thống gửi email xác nhận kèm link truy cập vĩnh viễn.</span></li>' +
           '<li class="detail-how-item"><span class="detail-how-num">3</span><span>Mở đường link nhận được từ web hoặc email xác nhận.</span></li>' +
           '<li class="detail-how-item"><span class="detail-how-num">4</span><span>' + step4Text + '</span></li>' +
-          '<li class="detail-how-item"><span class="detail-how-num">5</span><span>Nếu có thắc mắc trong quá trình sử dụng, nhắn Zalo <strong>0938 134 576</strong> hoặc email <strong>hotro@nourishgroup.vn</strong> để được hỗ trợ nhanh chóng.</span></li>' +
+          '<li class="detail-how-item"><span class="detail-how-num">5</span><span>Nếu có thắc mắc trong quá trình sử dụng, nhắn Zalo <strong>0938 134 576</strong> hoặc email <strong>kiencam.work@gmail.com</strong> để được hỗ trợ nhanh chóng.</span></li>' +
           '<li class="detail-how-item"><span class="detail-how-num">6</span><span>Sản phẩm mua 1 lần sở hữu vĩnh viễn, không thu phí duy trì hàng tháng.</span></li>' +
         '</ol>' +
         '<div class="detail-how-sep"></div>' +
@@ -1944,7 +1944,7 @@ function escapeHtml(value) {
         '</ul>' +
         '<div class="detail-how-sep"></div>' +
         '<h4 class="detail-how-title">BẠN CẦN TƯ VẤN THÊM</h4>' +
-        '<p class="detail-how-help-text">Nếu bạn phân vân về tính năng hoặc cần tư vấn thêm, hãy nhắn Zalo <a href="https://zalo.me/0938134576" target="_blank" rel="noopener"><strong>0938 134 576</strong></a> hoặc email <strong>hotro@nourishgroup.vn</strong> để bên mình hỗ trợ nhé.</p>' +
+        '<p class="detail-how-help-text">Nếu bạn phân vân về tính năng hoặc cần tư vấn thêm, hãy nhắn Zalo <a href="https://zalo.me/0938134576" target="_blank" rel="noopener"><strong>0938 134 576</strong></a> hoặc email <strong>kiencam.work@gmail.com</strong> để bên mình hỗ trợ nhé.</p>' +
       '</div>';
 
     var infoHtml =
@@ -2071,7 +2071,7 @@ function escapeHtml(value) {
           '<div>' +
             '<h4 style="font-size:0.95rem; font-weight:700; color:#0f172a; margin-bottom:12px;">Liên hệ hỗ trợ</h4>' +
             '<p style="font-size:0.88rem; color:#64748b; line-height:1.6; margin-bottom:6px;">Hotline/Zalo: <strong style="color:#0f172a;">0938 134 576</strong></p>' +
-            '<p style="font-size:0.88rem; color:#64748b; line-height:1.6;">Email: hotro@nourishgroup.vn</p>' +
+            '<p style="font-size:0.88rem; color:#64748b; line-height:1.6;">Email: kiencam.work@gmail.com</p>' +
           '</div>' +
           '<div>' +
             '<h4 style="font-size:0.95rem; font-weight:700; color:#0f172a; margin-bottom:12px;">Chính sách</h4>' +
