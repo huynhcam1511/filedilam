@@ -1910,31 +1910,31 @@ function escapeHtml(value) {
 
     var infoHtml =
       '<div class="detail-col-info">' +
-        '<h1 class="detail-product-title">' + escapeHtml(product.name) + '</h1>' +
-        '<div class="detail-rating-row">' +
-          '<div class="detail-rating-pill"><span class="star-val">★ ' + ratingInfo.score + '</span><span class="sep">•</span><span class="sales-val">' + ratingInfo.sales + ' lượt mua</span></div>' +
-        '</div>' +
-
-        '<div class="detail-price-box">' +
-          '<div class="detail-price-numbers">' +
-            '<div class="detail-price-row-wrap">' +
-              '<span class="detail-price-current">' + priceFormatted + '</span>' +
-              originalPriceHtml +
-            '</div>' +
+        '<div class="detail-header-group">' +
+          '<h1 class="detail-product-title">' + escapeHtml(product.name) + '</h1>' +
+          '<div class="detail-rating-row">' +
+            '<div class="detail-rating-pill"><span class="star-val">★ ' + ratingInfo.score + '</span><span class="sep">•</span><span class="sales-val">' + ratingInfo.sales + ' lượt mua</span></div>' +
           '</div>' +
         '</div>' +
 
-        '<div class="detail-cta-row">' +
-          '<button class="detail-btn-cart" id="detailAddToCart" type="button">' +
-            '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"></path><line x1="3" y1="6" x2="21" y2="6"></line><path d="M16 10a4 4 0 0 1-8 0"></path></svg>' +
-            '<span>Thêm vào giỏ</span>' +
-          '</button>' +
-          '<button class="detail-btn-buy" id="detailBuyNow" type="button">Mua ngay</button>' +
-        '</div>' +
-
-        '<div class="detail-zalo-hint">' +
-          '<span>Cần tư vấn thêm? Nhắn Zalo:</span>' +
-          '<a href="https://zalo.me/0938134576" target="_blank" rel="noopener">0938 134 576</a>' +
+        '<div class="detail-conversion-card">' +
+          '<div class="detail-action-row">' +
+            '<div class="detail-price-block">' +
+              '<span class="detail-price-current">' + priceFormatted + '</span>' +
+              originalPriceHtml +
+            '</div>' +
+            '<div class="detail-btn-group">' +
+              '<button class="detail-btn-cart" id="detailAddToCart" type="button">' +
+                '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"></path><line x1="3" y1="6" x2="21" y2="6"></line><path d="M16 10a4 4 0 0 1-8 0"></path></svg>' +
+                '<span>Thêm vào giỏ</span>' +
+              '</button>' +
+              '<button class="detail-btn-buy" id="detailBuyNow" type="button">Mua ngay</button>' +
+            '</div>' +
+          '</div>' +
+          '<div class="detail-zalo-hint">' +
+            '<span>Cần tư vấn thêm? Nhắn Zalo:</span>' +
+            '<a href="https://zalo.me/0938134576" target="_blank" rel="noopener">0938 134 576</a>' +
+          '</div>' +
         '</div>' +
 
         coachingOptionHtml +

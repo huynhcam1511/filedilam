@@ -4324,31 +4324,37 @@ body:not(.is-admin) #userProfile {
 .detail-col-info {
   display: flex;
   flex-direction: column;
-  gap: 28px;
+  gap: 16px;
+}
+
+.detail-header-group {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
 }
 
 .detail-product-title {
-  font-size: 1.85rem;
+  font-size: 1.75rem;
   font-weight: 700;
   color: #0f172a;
   line-height: 1.25;
   letter-spacing: -0.02em;
-  margin: 0 0 8px 0;
+  margin: 0;
 }
 
 .detail-rating-row {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 8px;
   flex-wrap: wrap;
-  margin-bottom: 16px;
+  margin: 0;
 }
 
 .detail-rating-pill {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  font-size: 0.9rem;
+  gap: 6px;
+  font-size: 0.88rem;
   color: #0f172a;
   font-weight: 600;
   background: transparent !important;
@@ -4371,37 +4377,31 @@ body:not(.is-admin) #userProfile {
   font-weight: 500;
 }
 
-.detail-downloads-badge {
-  font-size: 0.85rem;
-  color: #64748b;
-  font-weight: 500;
-}
-
-/* Pricing Card Inside Right Column - Clean Flat Fintech */
-.detail-price-box {
-  background: transparent !important;
-  border: none !important;
-  border-radius: 0 !important;
-  padding: 0 !important;
-  margin: 0 0 16px 0 !important;
-  display: flex;
-  align-items: center;
-}
-
-.detail-price-numbers {
+/* CONVERSION BLOCK: Price & Action Buttons in One Integrated Row */
+.detail-conversion-card {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 8px;
+  margin-top: 4px;
 }
 
-.detail-price-row-wrap {
+.detail-action-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  width: 100%;
+}
+
+.detail-price-block {
   display: flex;
   align-items: baseline;
-  gap: 12px;
+  gap: 8px;
+  flex-shrink: 0;
 }
 
 .detail-price-current {
-  font-size: 28px;
+  font-size: 26px;
   font-weight: 800;
   color: #059669;
   font-family: var(--font-mono, monospace);
@@ -4412,7 +4412,7 @@ body:not(.is-admin) #userProfile {
 }
 
 .detail-currency {
-  font-size: 18px;
+  font-size: 16px;
   font-weight: 700;
   vertical-align: super;
   text-decoration: none;
@@ -4420,7 +4420,7 @@ body:not(.is-admin) #userProfile {
 }
 
 .detail-price-original {
-  font-size: 1.05rem;
+  font-size: 0.95rem;
   color: #94a3b8;
   text-decoration: line-through;
   font-family: var(--font-mono, monospace);
@@ -4429,27 +4429,26 @@ body:not(.is-admin) #userProfile {
 }
 
 .detail-currency-sub {
-  font-size: 0.82rem;
+  font-size: 0.78rem;
   font-weight: 600;
   text-decoration: line-through;
   margin-left: 2px;
 }
 
-/* Row 2: CTA Action Buttons */
-.detail-cta-row {
+.detail-btn-group {
   display: flex;
   align-items: center;
-  gap: 12px;
-  width: 100%;
-  margin-bottom: 8px;
+  gap: 10px;
+  flex: 1;
+  justify-content: flex-end;
 }
 
 .detail-btn-cart {
-  height: 46px;
-  padding: 0 24px;
-  font-size: 0.95rem;
+  height: 44px;
+  padding: 0 18px;
+  font-size: 0.92rem;
   font-weight: 600;
-  border-radius: 9999px;
+  border-radius: 10px;
   background: #0f172a;
   color: #ffffff;
   border: none;
@@ -4460,6 +4459,7 @@ body:not(.is-admin) #userProfile {
   justify-content: center;
   gap: 8px;
   flex-shrink: 0;
+  white-space: nowrap;
 }
 
 .detail-btn-cart:hover {
@@ -4468,22 +4468,23 @@ body:not(.is-admin) #userProfile {
 }
 
 .detail-btn-buy {
-  height: 46px;
-  padding: 0 32px;
-  font-size: 0.95rem;
+  height: 44px;
+  padding: 0 24px;
+  font-size: 0.92rem;
   font-weight: 700;
-  border-radius: 9999px;
+  border-radius: 10px;
   background: #059669;
   color: #ffffff;
   border: none;
   cursor: pointer;
   transition: all 0.2s ease;
-  box-shadow: 0 4px 14px rgba(5, 150, 105, 0.25);
+  box-shadow: 0 3px 10px rgba(5, 150, 105, 0.22);
   display: inline-flex;
   align-items: center;
   justify-content: center;
   flex: 1;
-  max-width: 280px;
+  max-width: 220px;
+  white-space: nowrap;
 }
 
 .detail-btn-buy:hover {
@@ -4491,26 +4492,14 @@ body:not(.is-admin) #userProfile {
   transform: translateY(-1px);
 }
 
-@media (max-width: 640px) {
-  .detail-cta-row {
-    flex-direction: column;
-    gap: 10px;
-  }
-  .detail-btn-cart, .detail-btn-buy {
-    width: 100%;
-    max-width: none;
-  }
-}
-
 /* Micro-copy Zalo Consultation */
 .detail-zalo-hint {
-  font-size: 0.85rem;
+  font-size: 0.82rem;
   color: #64748b;
   display: flex;
   align-items: center;
-  gap: 6px;
-  margin-top: 0;
-  margin-bottom: 20px;
+  gap: 5px;
+  margin: 0;
 }
 
 .detail-zalo-hint a {
@@ -4523,14 +4512,30 @@ body:not(.is-admin) #userProfile {
   text-decoration: underline;
 }
 
+@media (max-width: 640px) {
+  .detail-action-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+  .detail-btn-group {
+    width: 100%;
+    justify-content: stretch;
+  }
+  .detail-btn-cart, .detail-btn-buy {
+    flex: 1;
+    max-width: none;
+  }
+}
+
 /* Detailed Description Blocks */
 .detail-desc-content {
-  font-size: 0.98rem;
+  font-size: 0.96rem;
   line-height: 1.65;
   color: #475569;
   border-top: 1px solid #f1f5f9;
-  padding-top: 22px;
-  margin-top: 4px;
+  padding-top: 14px;
+  margin-top: 0;
 }
 
 .detail-spec-grid {
@@ -4610,15 +4615,15 @@ body:not(.is-admin) #userProfile {
 }
 
 /* Mobile Responsiveness */
-@media (max-width: 960px) {
+@media (max-width: 768px) {
   .detail-nav-links {
     display: none !important;
   }
 
   .detail-fullpage-layout {
     grid-template-columns: 1fr;
-    gap: 28px;
-    padding: 20px 18px 40px;
+    gap: 24px;
+    padding: 16px 16px 36px;
   }
 
   .detail-col-media {
