@@ -4388,8 +4388,8 @@ body:not(.is-admin) #userProfile {
 .detail-action-row {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 16px;
+  justify-content: flex-start;
+  gap: 20px;
   width: 100%;
 }
 
@@ -4439,8 +4439,8 @@ body:not(.is-admin) #userProfile {
   display: flex;
   align-items: center;
   gap: 10px;
-  flex: 1;
-  justify-content: flex-end;
+  flex-shrink: 0;
+  justify-content: flex-start;
 }
 
 .detail-btn-cart {
