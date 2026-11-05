@@ -4941,6 +4941,103 @@ body:not(.is-admin) #userProfile {
   margin-top: 2px;
 }
 
+/* HOW IT WORKS & PURCHASE NOTES CARD (Optimate Standard) */
+.detail-how-it-works-box {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  margin-top: 20px;
+}
+
+.detail-how-title {
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: #0f172a;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin: 0;
+}
+
+.detail-how-list {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.detail-how-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  font-size: 0.92rem;
+  color: #334155;
+  line-height: 1.55;
+}
+
+.detail-how-num {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  color: #0f172a;
+  font-weight: 700;
+  font-size: 0.8rem;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.detail-how-sep {
+  height: 1px;
+  background: #e2e8f0;
+  margin: 4px 0;
+}
+
+.detail-how-notice-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 0;
+  padding-left: 20px;
+  font-size: 0.9rem;
+  color: #475569;
+  line-height: 1.55;
+}
+
+.detail-how-notice-list li {
+  margin: 0;
+}
+
+.detail-how-help-text {
+  font-size: 0.9rem;
+  color: #475569;
+  line-height: 1.55;
+  margin: 0;
+}
+
+.detail-how-help-text strong {
+  color: #0f172a;
+}
+
+.detail-how-help-text a {
+  color: #0068ff;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.detail-how-help-text a:hover {
+  text-decoration: underline;
+}
+
 /* STICKY BOTTOM ACTION BAR (Chuẩn Mobile & Tablet khi cuộn đọc nội dung) */
 .detail-sticky-bar {
   position: fixed;

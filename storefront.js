@@ -1920,6 +1920,33 @@ function escapeHtml(value) {
       .replace(/\n\n/g, '</p><p style="margin-top:10px;">')
       .replace(/\n/g, '<br/>');
 
+    // BUILD HOW IT WORKS & PURCHASE NOTES CARD (Optimate Standard)
+    var step4Text = isAppsScript
+      ? 'Bấm tạo bản sao vào Google Drive. Sau khi tải xong, chọn menu <strong>File Đi Làm &gt; Mở ứng dụng</strong> và cấp quyền Google lần đầu để sử dụng ngay.'
+      : 'Bấm <strong>Tạo bản sao</strong> để lưu file trực tiếp vào Google Drive của bạn và bắt đầu sử dụng.';
+
+    var howItWorksHtml =
+      '<div class="detail-how-it-works-box">' +
+        '<h4 class="detail-how-title">CÁCH HOẠT ĐỘNG</h4>' +
+        '<ol class="detail-how-list">' +
+          '<li class="detail-how-item"><span class="detail-how-num">1</span><span>Thêm vào giỏ và hoàn tất thanh toán quét mã VietQR tự động.</span></li>' +
+          '<li class="detail-how-item"><span class="detail-how-num">2</span><span>Màn hình hiển thị link nhận file tức thì, đồng thời hệ thống gửi email xác nhận kèm link truy cập vĩnh viễn.</span></li>' +
+          '<li class="detail-how-item"><span class="detail-how-num">3</span><span>Mở đường link nhận được từ web hoặc email xác nhận.</span></li>' +
+          '<li class="detail-how-item"><span class="detail-how-num">4</span><span>' + step4Text + '</span></li>' +
+          '<li class="detail-how-item"><span class="detail-how-num">5</span><span>Nếu có thắc mắc trong quá trình sử dụng, nhắn Zalo <strong>0938 134 576</strong> hoặc email <strong>hotro@nourishgroup.vn</strong> để được hỗ trợ nhanh chóng.</span></li>' +
+          '<li class="detail-how-item"><span class="detail-how-num">6</span><span>Sản phẩm mua 1 lần sở hữu vĩnh viễn, không thu phí duy trì hàng tháng.</span></li>' +
+        '</ol>' +
+        '<div class="detail-how-sep"></div>' +
+        '<h4 class="detail-how-title">LƯU Ý QUAN TRỌNG KHI MUA HÀNG</h4>' +
+        '<ul class="detail-how-notice-list">' +
+          '<li>Sản phẩm được nghiên cứu, phát triển bởi <strong>File Đi Làm</strong> và chỉ được bán chính thức tại <strong>filedilam.vn</strong>. Mọi quyền lợi hỗ trợ kỹ thuật và cập nhật chỉ áp dụng khi mua tại đây.</li>' +
+          '<li>Chúng tôi từ chối bảo hành và hỗ trợ đối với các file phân phối trái phép từ nguồn không chính thức.</li>' +
+        '</ul>' +
+        '<div class="detail-how-sep"></div>' +
+        '<h4 class="detail-how-title">BẠN CẦN TƯ VẤN THÊM</h4>' +
+        '<p class="detail-how-help-text">Nếu bạn phân vân về tính năng hoặc cần tư vấn thêm, hãy nhắn Zalo <a href="https://zalo.me/0938134576" target="_blank" rel="noopener"><strong>0938 134 576</strong></a> hoặc email <strong>hotro@nourishgroup.vn</strong> để bên mình hỗ trợ nhé.</p>' +
+      '</div>';
+
     var infoHtml =
       '<div class="detail-col-info">' +
         '<div class="detail-header-group">' +
@@ -1976,6 +2003,7 @@ function escapeHtml(value) {
         (product.sheets && product.sheets.length ? '<div style="font-size:0.92rem; color:#475569;"><strong>Bao gồm các Sheet:</strong> ' + escapeHtml(product.sheets.join(', ')) + '</div>' : '') +
         versionsHtml +
         reviewsHtml +
+        howItWorksHtml +
       '</div>';
 
     // RELATED PRODUCTS BUILDER (Optimate style)
