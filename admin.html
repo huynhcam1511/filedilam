@@ -2409,6 +2409,8 @@
               <option value="2026-11">Tháng 11/2026</option>
               <option value="2026-10">Tháng 10/2026</option>
               <option value="2026-09">Tháng 09/2026</option>
+              <option value="2026-08">Tháng 08/2026</option>
+              <option value="2026-07">Tháng 07/2026</option>
             </select>
 
             <select id="statsTypeSlicer" class="pill-select">
@@ -2427,24 +2429,32 @@
 
         <!-- Power BI Seamless Zero-Spacing Analytics Matrix -->
         <div class="pbi-dashboard-matrix">
-          <!-- KPI Row: 4 contiguous metric blocks (No decorative icons, clean typography) -->
+          <!-- KPI Row: 6 contiguous metric blocks (No decorative icons, clean typography) -->
           <div class="pbi-kpi-row">
             <div class="pbi-kpi-cell">
-              <div class="pbi-kpi-header">Doanh thu kỳ lọc</div>
+              <div class="pbi-kpi-header">Doanh thu thuần</div>
               <div class="pbi-kpi-value" id="kpiTotalRevenue">0 đ</div>
               <div class="pbi-kpi-sub" id="kpiTotalRevenueSub" style="color: #059669;">Đang cập nhật...</div>
             </div>
 
             <div class="pbi-kpi-cell">
-              <div class="pbi-kpi-header">Giá trị TB / đơn (AOV)</div>
-              <div class="pbi-kpi-value" id="kpiMonthRevenue">0 đ</div>
-              <div class="pbi-kpi-sub" id="kpiMonthRevenueSub" style="color: #2563eb;">Doanh thu / đơn</div>
+              <div class="pbi-kpi-header">Chi phí Ads (Marketing)</div>
+              <div class="pbi-kpi-value" id="kpiAdsSpent" style="color: #0f172a;">0 đ</div>
+              <div class="pbi-kpi-sub" id="kpiAdsSpentSub" style="color: #64748b;">Chi phí TikTok/Meta Ads</div>
+              <span id="kpiMonthRevenue" style="display:none;"></span>
+              <span id="kpiMonthRevenueSub" style="display:none;"></span>
+            </div>
+
+            <div class="pbi-kpi-cell">
+              <div class="pbi-kpi-header">Lợi nhuận sau Ads</div>
+              <div class="pbi-kpi-value" id="kpiNetProfit" style="color: #059669;">0 đ</div>
+              <div class="pbi-kpi-sub" id="kpiNetProfitSub" style="color: #059669;">ROAS: 0x • MER: 0%</div>
             </div>
 
             <div class="pbi-kpi-cell">
               <div class="pbi-kpi-header">Đơn thành công</div>
               <div class="pbi-kpi-value" id="kpiPaidOrders">0 đơn</div>
-              <div class="pbi-kpi-sub" id="kpiPaidOrdersSub" style="color: #059669;">Đã thanh toán</div>
+              <div class="pbi-kpi-sub" id="kpiPaidOrdersSub" style="color: #059669;">CPA: 0 đ/đơn</div>
             </div>
 
             <div class="pbi-kpi-cell">
@@ -2454,29 +2464,33 @@
             </div>
 
             <div class="pbi-kpi-cell">
-              <div class="pbi-kpi-header">Khách độc lập</div>
+              <div class="pbi-kpi-header">Khách độc lập & LTV</div>
               <div class="pbi-kpi-value" id="kpiCustomers">0 khách</div>
-              <div class="pbi-kpi-sub" id="kpiCustomersSub" style="color: #7c3aed;">Khách thanh toán</div>
-            </div>
-
-            <div class="pbi-kpi-cell">
-              <div class="pbi-kpi-header">Khách quay lại (LTV)</div>
-              <div class="pbi-kpi-value" id="kpiRetentionRate">0%</div>
-              <div class="pbi-kpi-sub" id="kpiRetentionRateSub" style="color: #0284c7;">Khách mua lần 2+</div>
+              <div class="pbi-kpi-sub" id="kpiCustomersSub" style="color: #7c3aed;">0% khách mua lần 2+</div>
+              <span id="kpiRetentionRate" style="display:none;"></span>
+              <span id="kpiRetentionRateSub" style="display:none;"></span>
             </div>
           </div>
 
           <!-- Row 1: Revenue Combo Chart & Best Sellers Horizontal Bar (2fr : 1fr) -->
           <div class="pbi-chart-row pbi-row-2-1">
             <div class="pbi-chart-cell">
-              <div class="pbi-chart-header">
+              <div class="pbi-chart-header" style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px;">
                 <div>
-                  <h3 class="pbi-chart-title" id="chartTitle">Biểu đồ Doanh thu (Combo Line + Bar)</h3>
-                  <p class="pbi-chart-subtitle" id="chartSubTitle">Doanh số (Cột) & Số lượng đơn hàng (Đường xu hướng)</p>
+                  <h3 class="pbi-chart-title" id="chartTitle">Biểu đồ Doanh thu & Chi phí Marketing</h3>
+                  <p class="pbi-chart-subtitle" id="chartSubTitle">So sánh Doanh thu (Cột Mint), Chi phí Ads (Cột Slate) & Số đơn (Đường Line)</p>
                 </div>
-                <div id="chartTotalLabel" style="font-weight: 700; color: var(--mint-primary); font-size: 0.95rem; font-family: monospace;"></div>
+                <!-- CHART VIEW SELECTOR (SEGMENTED PILLS) -->
+                <div class="pill-btn-group" id="statsChartViewSelector" style="margin: 0; display: flex; flex-wrap: wrap; gap: 4px;">
+                  <button type="button" class="pill-btn active" data-view="combo" title="Cột kép Doanh thu & Chi phí Ads">Doanh thu & Ads</button>
+                  <button type="button" class="pill-btn" data-view="lag72h" title="Hiệu ứng trễ 72h: Đo lường đợt nổ đơn sau khi chạy ads">Hiệu ứng trễ 72h</button>
+                  <button type="button" class="pill-btn" data-view="funnel" title="Phễu Marketing: Views -> Xem sâu -> Clicks -> Đơn hàng">Phễu Chuyển Đổi</button>
+                  <button type="button" class="pill-btn" data-view="decision" title="Ma trận ra quyết định: Vít - Sửa web - Nuôi tệp - Tắt">Ma Trận Quyết Định</button>
+                  <button type="button" class="pill-btn" data-view="waterfall" title="Thác nước P&L: Doanh thu - Ads = Lợi nhuận">Waterfall P&L</button>
+                  <button type="button" class="pill-btn" data-view="pareto" title="Quy luật 80/20 đóng góp doanh số">Pareto 80/20</button>
+                </div>
               </div>
-              <div id="revenueChartContainer" style="min-height: 200px; display: flex; flex-direction: column; border-bottom: 1px solid var(--slate-border); overflow-x: auto;">
+              <div id="revenueChartContainer" style="min-height: 220px; display: flex; flex-direction: column; border-bottom: 1px solid var(--slate-border); overflow-x: auto;">
                 <div style="margin: auto; color: var(--slate-muted); font-size: 0.85rem;">Đang tải biểu đồ...</div>
               </div>
             </div>
@@ -2484,11 +2498,11 @@
             <div class="pbi-chart-cell">
               <div class="pbi-chart-header">
                 <div>
-                  <h3 class="pbi-chart-title">Top File Bán Chạy Nhất (Horizontal Bar)</h3>
-                  <p class="pbi-chart-subtitle">Xếp hạng theo lượt mua & tỷ trọng doanh thu</p>
+                  <h3 class="pbi-chart-title" id="bestSellersTitle">Hiệu Quả & P&L Từng File</h3>
+                  <p class="pbi-chart-subtitle" id="bestSellersSubTitle">Doanh thu vs Chi phí Ads • Lợi nhuận & ROAS</p>
                 </div>
               </div>
-              <div id="bestSellersContainer" style="display: flex; flex-direction: column; justify-content: center; min-height: 200px;">
+              <div id="bestSellersContainer" style="display: flex; flex-direction: column; justify-content: center; min-height: 220px;">
                 <div style="text-align: center; color: var(--slate-muted); padding: 30px 0; font-size: 0.85rem;">Đang tải xếp hạng...</div>
               </div>
             </div>
@@ -2500,7 +2514,7 @@
               <div class="pbi-chart-header">
                 <div>
                   <h3 class="pbi-chart-title">Khung Giờ Mua Hàng Sôi Động Nhất</h3>
-                  <p class="pbi-chart-subtitle">Phân bố đơn hàng theo các mốc giờ trong ngày (0h - 23h)</p>
+                  <p class="pbi-chart-subtitle" id="hourlyChartSubTitle">Phân bố đơn hàng theo các mốc giờ trong ngày (0h - 23h)</p>
                 </div>
               </div>
               <div id="hourlyChartContainer" style="min-height: 150px; display: flex; align-items: flex-end; justify-content: space-between; gap: 4px; padding: 12px 4px 6px 4px; border-bottom: 1px solid var(--slate-border);">
@@ -2509,10 +2523,14 @@
             </div>
 
             <div class="pbi-chart-cell">
-              <div class="pbi-chart-header">
+              <div class="pbi-chart-header" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 6px;">
                 <div>
-                  <h3 class="pbi-chart-title">Cơ Cấu Doanh Thu Theo Danh Mục (Donut Chart)</h3>
-                  <p class="pbi-chart-subtitle">Tỷ trọng doanh số theo từng nhóm sản phẩm</p>
+                  <h3 class="pbi-chart-title" id="categoryChartTitle">Cơ Cấu Danh Mục & Ngân Sách</h3>
+                  <p class="pbi-chart-subtitle" id="categoryChartSubTitle">Tỷ trọng doanh số & phân bổ chi phí</p>
+                </div>
+                <div class="pill-btn-group" id="statsCategoryViewSelector" style="margin: 0;">
+                  <button type="button" class="pill-btn active" data-catview="donut" style="padding: 2px 9px; font-size: 0.72rem;">Donut</button>
+                  <button type="button" class="pill-btn" data-catview="treemap" style="padding: 2px 9px; font-size: 0.72rem;">Treemap</button>
                 </div>
               </div>
               <div id="categoryChartContainer" style="min-height: 150px; display: flex; flex-direction: column; justify-content: center;">
@@ -2775,7 +2793,7 @@
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-storage-compat.js"></script>
   <script src="/__/firebase/init.js"></script>
   
-  <script src="./admin.js?v=260"></script>
+  <script src="./admin.js?v=263"></script>
   <!-- Agentation: Visual Feedback & Annotation for AI agents -->
   <script src="./agentation-vanilla.js"></script>
 

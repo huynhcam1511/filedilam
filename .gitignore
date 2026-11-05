@@ -1,4 +1,4 @@
-﻿# Dependencies
+# Dependencies
 node_modules/
 **/node_modules/
 venv/
@@ -31,3 +31,18 @@ serviceAccountKey.json
 .DS_Store
 Thumbs.db
 desktop.ini
+
+# Scratch and build outputs
+scratch/
+scratch_*
+outputs/
+*.reconstructed
+apply_*.js
+index_backup_*.html
+storefront_backup_*.css
+filedilam*.html
+nourishgroup.html
+__/
+*.xlsx
+*.inspect.ndjson
+.agents/

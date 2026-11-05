@@ -2302,10 +2302,21 @@ function escapeHtml(value) {
 
   function openCart() {
     renderCart();
+    if (cartItems) {
+      cartItems.scrollTop = 0;
+    }
+    var cartDrawerBody = cartDrawer ? cartDrawer.querySelector(".drawer-body") : null;
+    if (cartDrawerBody) {
+      cartDrawerBody.scrollTop = 0;
+    }
     cartDrawer.classList.add("is-open");
     cartDrawer.setAttribute("aria-hidden", "false");
     document.body.classList.add("drawer-open");
     document.body.classList.add("cart-drawer-open");
+    setTimeout(function () {
+      if (cartItems) cartItems.scrollTop = 0;
+      if (cartDrawerBody) cartDrawerBody.scrollTop = 0;
+    }, 40);
   }
 
   function closeCart() {
@@ -2986,12 +2997,12 @@ function escapeHtml(value) {
       var p = getProductById(e.productId);
       if (!p) return null;
       var pRawUrl = p.sheetUrl || p.delivery_link || p.fileUrl || "";
-      var pIsCloud = (p.type === "google_sheets" || !!p.sheetUrl || (pRawUrl && pRawUrl.indexOf("docs.google.com/spreadsheets") !== -1));
+      var pFormat = p.type || "google_sheets";
       return {
         product_id: p.id,
         product_name: p.name,
-        product_file_url: getSafeDeliveryUrl(pRawUrl, pIsCloud ? "google_sheets" : "excel", p.id),
-        product_type: pIsCloud ? "google_sheets" : (p.type || "excel"),
+        product_file_url: getSafeDeliveryUrl(pRawUrl, pFormat === "excel" ? "excel" : "google_sheets", p.id),
+        product_type: pFormat,
         quantity: e.quantity,
         price: p.price || 0
       };
@@ -3005,7 +3016,7 @@ function escapeHtml(value) {
       product_id: product.id,
       product_name: productNames || product.name,
       product_file_url: product.sheetUrl || product.delivery_link || product.fileUrl || "./outputs/1_Quan_Ly_Kho_Sample.xlsx",
-      product_type: (product.type === "google_sheets" || !!product.sheetUrl) ? "google_sheets" : "excel",
+      product_type: product.type || "google_sheets",
       items: orderItems,
       amount: finalAmount,
       coupon_code: state.appliedCoupons.length ? state.appliedCoupons[0].code : null,

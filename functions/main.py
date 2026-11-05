@@ -38,15 +38,25 @@ def send_order_success_email(customer_email, customer_name, order_id, order_data
         file_url = ensure_copy_link(raw_file_url)
         items = order_data.get("items") or []
 
-        # Kiểm tra xem đơn hàng có file Apps Script / Web App hay chỉ là Google Sheets thuần
-        has_appscript = False
-        all_names = (product_name or "").lower()
-        if isinstance(items, list) and len(items) > 0:
+        # Nhận diện chính xác dựa trực tiếp vào Định dạng (product_type) do Admin chọn:
+        # apps_script / web_app -> Gửi hướng dẫn Web App Apps Script
+        # google_sheets -> Gửi hướng dẫn Google Sheets
+        order_ptype = str(order_data.get("product_type") or "").lower()
+        has_appscript = order_ptype in ["apps_script", "web_app"]
+
+        # Kiểm tra thêm trong từng item của đơn hàng / combo
+        if not has_appscript and isinstance(items, list) and len(items) > 0:
             for it in items:
-                all_names += " " + (it.get("product_name") or it.get("name") or it.get("title") or "").lower()
-                all_names += " " + (it.get("product_id") or "").lower()
-        if any(kw in all_names for kw in ["cost", "appscript", "web app", "webapp", "smart", "kho mini smart"]):
-            has_appscript = True
+                it_ptype = str(it.get("product_type") or it.get("type") or "").lower()
+                if it_ptype in ["apps_script", "web_app"]:
+                    has_appscript = True
+                    break
+
+        # Fallback bổ trợ nếu dữ liệu cũ chưa có trường product_type
+        if not has_appscript:
+            all_text = ((product_name or "") + " " + " ".join(str(it.get("product_name") or "") for it in (items or []))).lower()
+            if any(kw in all_text for kw in ["apps_script", "appscript", "web app", "webapp", "cost", "giá vốn", "f&b", "kho"]):
+                has_appscript = True
 
         # Bóc tách danh sách file (đơn lẻ hoặc combo)
         resolved_files = []
@@ -70,7 +80,7 @@ def send_order_success_email(customer_email, customer_name, order_id, order_data
             files_html = f"""
             <div style="margin: 28px 0 20px 0;">
               <a href="{single['url']}" target="_blank" rel="noopener noreferrer" style="display: block; text-align: center; background-color: #059669; color: #ffffff; text-decoration: none; font-size: 15px; font-weight: 600; padding: 14px 24px; border-radius: 8px; letter-spacing: 0.2px;">
-                Tạo bản sao Google Sheets ({single['name']})
+                {"Khởi động & Tạo bản sao Ứng dụng" if has_appscript else "Tạo bản sao Google Sheets"} ({single['name']})
               </a>
               <div style="margin-top: 10px; font-size: 12.5px; color: #64748b; text-align: center; line-height: 1.5;">
                 Link dự phòng: <a href="{single['url']}" target="_blank" style="color: #059669; text-decoration: underline; word-break: break-all;">{single['url']}</a>
@@ -260,7 +270,7 @@ def send_order_success_email(customer_email, customer_name, order_id, order_data
         Xin chào <strong>{customer_name or 'Quý khách'}</strong>,
       </p>
       <p style="font-size: 14.5px; margin: 0 0 24px 0; color: #334155; line-height: 1.6;">
-        Hệ thống File Đi Làm đã nhận đủ thanh toán cho đơn hàng của bạn. Bản quyền file Google Sheets đã được cấp phép vĩnh viễn vào tài khoản của bạn.
+        Hệ thống File Đi Làm đã nhận đủ thanh toán cho đơn hàng của bạn. {"Bản quyền <strong>Ứng dụng Web App Quản Lý</strong> đã được cấp phép vĩnh viễn" if has_appscript else "Bản quyền <strong>file Google Sheets</strong> đã được cấp phép vĩnh viễn"} vào tài khoản của bạn.
       </p>
 
       <!-- Bảng thông tin đơn hàng dạng phẳng -->
@@ -282,7 +292,7 @@ def send_order_success_email(customer_email, customer_name, order_id, order_data
       </table>
 
       <!-- Danh sách nút nhận file -->
-      <div style="font-size: 14px; font-weight: 600; color: #0f172a; margin-top: 8px;">Liên kết nhận file Google Sheets:</div>
+      <div style="font-size: 14px; font-weight: 600; color: #0f172a; margin-top: 8px;">{"Liên kết khởi động Ứng dụng Web App:" if has_appscript else "Liên kết nhận file Google Sheets:"}</div>
       {files_html}
       {"".join(return_offers)}
 
