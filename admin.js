@@ -3234,6 +3234,7 @@ document.addEventListener('DOMContentLoaded', () => {
               const p1 = [];
               if (a.views) p1.push(`${new Intl.NumberFormat('vi-VN').format(a.views)} views`);
               if (a.focused_views) p1.push(`${new Intl.NumberFormat('vi-VN').format(a.focused_views)} tập trung`);
+              if (a.button_clicks) p1.push(`${new Intl.NumberFormat('vi-VN').format(a.button_clicks)} nhấp nút`);
               if (a.cpm) p1.push(`CPM ${new Intl.NumberFormat('vi-VN').format(a.cpm)}đ`);
 
               const p2 = [];
@@ -3416,6 +3417,7 @@ document.addEventListener('DOMContentLoaded', () => {
     setAdsDuration(durationHours);
     updateCalculatedEndTime();
     setField('adsFocusedViewsInput', item.focused_views);
+    setField('adsButtonClicksInput', item.button_clicks);
     setField('adsCommentsInput', item.comments);
     setField('adsSharesInput', item.shares);
     calculateCPM();
@@ -3490,6 +3492,7 @@ document.addEventListener('DOMContentLoaded', () => {
         
         const views = parseInt(document.getElementById('adsViewsInput')?.value, 10) || 0;
         const focused_views = parseInt(document.getElementById('adsFocusedViewsInput')?.value, 10) || 0;
+        const button_clicks = parseInt(document.getElementById('adsButtonClicksInput')?.value, 10) || 0;
         const cpm = calculateCPM();
         const likes = parseInt(document.getElementById('adsLikesInput')?.value, 10) || 0;
         const followers = parseInt(document.getElementById('adsFollowersInput')?.value, 10) || 0;
@@ -3519,6 +3522,7 @@ document.addEventListener('DOMContentLoaded', () => {
           manager_url: ad_url,
           views,
           focused_views,
+          button_clicks,
           cpm,
           likes,
           followers,
