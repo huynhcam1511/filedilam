@@ -3060,18 +3060,16 @@ document.addEventListener('DOMContentLoaded', () => {
               ${channelIcon}
               <span>${escapeHtml(a.title || 'Chiến dịch')}</span>
             </div>
-            <div style="margin-top: 4px; display: flex; flex-direction: column; gap: 3px;">
+            <div style="margin-top: 5px; display: flex; align-items: center; gap: 10px;">
               ${a.url ? `
-                <a href="${escapeHtml(a.url)}" target="_blank" rel="noopener" style="font-size: 0.76rem; color: #059669; text-decoration: none; display: inline-flex; align-items: center; gap: 4px;" title="Link video/bài viết gốc">
-                  <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
-                  <span style="font-weight: 600;">Link bài:</span>
-                  <span style="max-width: 220px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${escapeHtml(a.url)}</span>
+                <a href="${escapeHtml(a.url)}" target="_blank" rel="noopener" style="font-size: 0.74rem; font-weight: 500; color: #059669; text-decoration: none; display: inline-flex; align-items: center; gap: 3px;" title="Xem video / bài viết">
+                  <svg width="11" height="11" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
+                  <span>Link bài</span>
                 </a>` : ''}
               ${a.ad_url || a.manager_url ? `
-                <a href="${escapeHtml(a.ad_url || a.manager_url)}" target="_blank" rel="noopener" style="font-size: 0.76rem; color: #2563eb; text-decoration: none; display: inline-flex; align-items: center; gap: 4px;" title="Link trình quản lý Ads">
-                  <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
-                  <span style="font-weight: 600;">Link Ads:</span>
-                  <span style="max-width: 220px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${escapeHtml(a.ad_url || a.manager_url)}</span>
+                <a href="${escapeHtml(a.ad_url || a.manager_url)}" target="_blank" rel="noopener" style="font-size: 0.74rem; font-weight: 500; color: #2563eb; text-decoration: none; display: inline-flex; align-items: center; gap: 3px;" title="Xem báo cáo Ads">
+                  <svg width="11" height="11" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                  <span>Link Ads</span>
                 </a>` : ''}
             </div>
           </td>
