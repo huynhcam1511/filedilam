@@ -1917,7 +1917,7 @@ function escapeHtml(value) {
           '</div>' +
         '</div>' +
 
-        '<div class="detail-conversion-card">' +
+        '<div class="detail-conversion-card" id="detailConversionCard">' +
           '<div class="detail-action-row">' +
             '<div class="detail-price-block">' +
               '<span class="detail-price-current">' + priceFormatted + '</span>' +
@@ -1934,6 +1934,18 @@ function escapeHtml(value) {
           '<div class="detail-zalo-hint">' +
             '<span>Cần tư vấn thêm? Nhắn Zalo:</span>' +
             '<a href="https://zalo.me/0938134576" target="_blank" rel="noopener">0938 134 576</a>' +
+          '</div>' +
+        '</div>' +
+
+        '<!-- Trust Badges (Chuẩn Fintech / Optimate) -->' +
+        '<div class="detail-trust-badge-box">' +
+          '<div class="detail-trust-item">' +
+            '<svg class="detail-trust-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>' +
+            '<span>Nhận link tải file & tạo bản sao tự động ngay sau khi thanh toán</span>' +
+          '</div>' +
+          '<div class="detail-trust-item">' +
+            '<svg class="detail-trust-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>' +
+            '<span>Đồng thời hệ thống tự động gửi file về email của bạn để lưu trữ vĩnh viễn</span>' +
           '</div>' +
         '</div>' +
 
@@ -1961,6 +1973,22 @@ function escapeHtml(value) {
     var relatedHtml = '';
     if (relatedItems.length > 0) {
       relatedHtml =
+        '<!-- Sticky Bottom Bar on Mobile/Tablet when scrolled -->' +
+        '<div class="detail-sticky-bar" id="detailStickyBar">' +
+          '<div class="detail-sticky-bar-inner">' +
+            '<div class="detail-sticky-price">' +
+              '<span class="detail-sticky-price-current">' + priceFormatted + '</span>' +
+              originalPriceHtml +
+            '</div>' +
+            '<div class="detail-sticky-actions">' +
+              '<button class="detail-sticky-btn-cart" id="detailStickyAddToCart" type="button" title="Thêm vào giỏ">' +
+                '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"></path><line x1="3" y1="6" x2="21" y2="6"></line><path d="M16 10a4 4 0 0 1-8 0"></path></svg>' +
+                '<span>Giỏ</span>' +
+              '</button>' +
+              '<button class="detail-sticky-btn-buy" id="detailStickyBuyNow" type="button">Mua ngay</button>' +
+            '</div>' +
+          '</div>' +
+        '</div>' +
         '<div class="detail-related-section">' +
           '<h3 class="detail-related-title">Các file template liên quan khác</h3>' +
           '<div class="detail-related-grid">' +
@@ -2102,6 +2130,43 @@ function escapeHtml(value) {
         closeDetail();
         buyNow(product.id);
       });
+    }
+
+    // Attach Sticky Bar Buttons
+    var btnStickyAdd = document.getElementById("detailStickyAddToCart");
+    if (btnStickyAdd) {
+      btnStickyAdd.addEventListener("click", function() {
+        addToCart(product.id, { openDrawer: true });
+        var cB = document.getElementById("cartCountDetail");
+        if (cB) cB.textContent = getCartCount();
+      });
+    }
+
+    var btnStickyBuy = document.getElementById("detailStickyBuyNow");
+    if (btnStickyBuy) {
+      btnStickyBuy.addEventListener("click", function() {
+        closeDetail();
+        buyNow(product.id);
+      });
+    }
+
+    // Handle Sticky Bar reveal when scrolling past the main action row
+    var stickyBarEl = document.getElementById("detailStickyBar");
+    var convCardEl = document.getElementById("detailConversionCard");
+    if (stickyBarEl && convCardEl && detailModal) {
+      stickyBarEl.classList.remove("is-visible");
+      var onDetailScroll = function() {
+        var rect = convCardEl.getBoundingClientRect();
+        // If conversion card has scrolled past top
+        if (rect.bottom < 60) {
+          stickyBarEl.classList.add("is-visible");
+        } else {
+          stickyBarEl.classList.remove("is-visible");
+        }
+      };
+      detailModal.removeEventListener("scroll", detailModal.__stickyScrollHandler);
+      detailModal.__stickyScrollHandler = onDetailScroll;
+      detailModal.addEventListener("scroll", onDetailScroll, { passive: true });
     }
 
     // Attach related product clicks

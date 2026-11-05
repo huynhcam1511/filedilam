@@ -4615,7 +4615,7 @@ body:not(.is-admin) #userProfile {
 }
 
 /* Mobile Responsiveness */
-@media (max-width: 768px) {
+@media (max-width: 960px) {
   .detail-nav-links {
     display: none !important;
   }
@@ -4895,3 +4895,122 @@ body:not(.is-admin) #userProfile {
   line-height: 1.4 !important;
 }
 
+
+/* TRUST BADGE BOX (Chuẩn Fintech / Optimate) */
+.detail-trust-badge-box {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 2px;
+}
+
+.detail-trust-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  font-size: 0.85rem;
+  color: #334155;
+  line-height: 1.45;
+  font-weight: 500;
+}
+
+.detail-trust-icon {
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+/* STICKY BOTTOM ACTION BAR (Chuẩn Mobile & Tablet khi cuộn đọc nội dung) */
+.detail-sticky-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: rgba(255, 255, 255, 0.96);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-top: 1px solid #e2e8f0;
+  box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.08);
+  padding: 10px 16px;
+  z-index: 100000;
+  transform: translateY(100%);
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  display: none;
+}
+
+.detail-sticky-bar.is-visible {
+  transform: translateY(0);
+}
+
+.detail-sticky-bar-inner {
+  max-width: 1280px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.detail-sticky-price {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.detail-sticky-price-current {
+  font-size: 1.35rem;
+  font-weight: 800;
+  color: #059669;
+  font-family: var(--font-mono, monospace);
+  line-height: 1;
+}
+
+.detail-sticky-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.detail-sticky-btn-cart {
+  height: 42px;
+  padding: 0 16px;
+  font-size: 0.88rem;
+  font-weight: 600;
+  border-radius: 10px;
+  background: #0f172a;
+  color: #ffffff;
+  border: none;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.detail-sticky-btn-buy {
+  height: 42px;
+  padding: 0 22px;
+  font-size: 0.9rem;
+  font-weight: 700;
+  border-radius: 10px;
+  background: #059669;
+  color: #ffffff;
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(5, 150, 105, 0.25);
+  display: inline-flex;
+  align-items: center;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+/* Enable sticky bottom bar on tablet & mobile */
+@media (max-width: 960px) {
+  .detail-sticky-bar {
+    display: block;
+  }
+}
