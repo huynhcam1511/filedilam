@@ -2284,6 +2284,39 @@
                 </div>
               </div>
 
+              <!-- Section 4: Video & Bài đăng truyền thông (Master-Table phẳng Edge-to-Edge chuẩn AGENTS.md) -->
+              <div class="canvas-section" style="padding-bottom: 24px;">
+                <div class="canvas-section-header" style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 12px; border-bottom: 1px solid var(--slate-border); padding-bottom: 10px;">
+                  <div>
+                    <span class="canvas-section-title" style="font-size: 0.95rem; font-weight: 700; color: #0f172a; text-transform: uppercase; letter-spacing: 0.04em;">Video & Bài đăng truyền thông</span>
+                    <p class="canvas-help-text" style="margin: 2px 0 0 0; color: #64748b; font-size: 0.78rem;">Khai báo 1 lần các link video TikTok/Facebook đã đăng để đối soát và chọn chạy Ads 1 chạm.</p>
+                  </div>
+                  <button type="button" id="btnAddSocialPost" style="height: 32px; padding: 0 14px; border: 1px solid #cbd5e1; background: #ffffff; color: #059669; font-size: 0.8rem; font-weight: 600; border-radius: 4px; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;" title="Thêm dòng mới">
+                    <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"></path></svg>
+                    <span>Thêm dòng</span>
+                  </button>
+                </div>
+
+                <!-- Bảng Master Table phẳng tràn viền, không đóng khung card -->
+                <div style="border: 1px solid #e2e8f0; border-radius: 6px; overflow: hidden; background: #ffffff;">
+                  <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 0.85rem;">
+                    <thead>
+                      <tr style="background: #f8fafc; border-bottom: 1px solid #e2e8f0;">
+                        <th style="padding: 10px 14px; font-size: 0.72rem; font-weight: 700; color: #475569; text-transform: uppercase; letter-spacing: 0.05em; width: 140px;">Nền tảng</th>
+                        <th style="padding: 10px 14px; font-size: 0.72rem; font-weight: 700; color: #475569; text-transform: uppercase; letter-spacing: 0.05em; width: 220px;">Tên / Chủ đề video</th>
+                        <th style="padding: 10px 14px; font-size: 0.72rem; font-weight: 700; color: #475569; text-transform: uppercase; letter-spacing: 0.05em;">Đường dẫn (URL bài viết / video)</th>
+                        <th style="padding: 10px 10px; width: 44px; text-align: center;"></th>
+                      </tr>
+                    </thead>
+                    <tbody id="productSocialPostsTableBody">
+                      <tr>
+                        <td colspan="4" style="text-align: center; padding: 24px; color: #94a3b8; font-size: 0.82rem;">Chưa có bài viết nào. Bấm "+ Thêm dòng" để khai báo video đã đăng.</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
               <!-- Hidden submit trigger for programmatic form submission -->
               <button type="submit" id="submitBtn" style="display: none;"></button>
             </div>
@@ -2326,8 +2359,8 @@
                     <tr>
                       <th style="width: 95px;">Mã đơn</th>
                       <th style="width: 95px;">Thời gian</th>
-                      <th style="width: 170px;">Khách hàng</th>
-                      <th>Sản phẩm</th>
+                      <th style="width: 220px;">Khách hàng</th>
+                      <th style="width: 180px;">Sản phẩm</th>
                       <th style="text-align: center; width: 85px;">Mã giảm</th>
                       <th style="text-align: right; width: 85px;">Giảm giá</th>
                       <th style="text-align: right; width: 95px;">Số tiền</th>
@@ -2552,7 +2585,7 @@
             <table class="alocal-table">
               <thead>
                 <tr>
-                  <th style="width: 160px;">Mã giảm giá</th>
+                  <th style="width: 280px; min-width: 260px;">Mã giảm giá</th>
                   <th>Loại ưu đãi</th>
                   <th>Mức giảm</th>
                   <th>Điều kiện đơn tối thiểu</th>
@@ -2729,78 +2762,192 @@
           </div>
         </div>
 
-        <!-- Add/Edit Ads Modal -->
-        <div id="adsModal" class="modal-overlay" style="display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.45); backdrop-filter: blur(4px); z-index: 1000; align-items: center; justify-content: center; padding: 20px;">
-          <div style="background: #ffffff; border-radius: 14px; width: 100%; max-width: 540px; box-shadow: 0 20px 40px -15px rgba(0,0,0,0.2); border: 1px solid #e2e8f0; overflow: hidden; animation: fadeIn 0.15s ease-out;">
-            <div style="padding: 18px 24px; border-bottom: 1px solid #f1f5f9; display: flex; align-items: center; justify-content: space-between;">
-              <h3 id="adsModalTitle" style="margin: 0; font-size: 1.1rem; color: #0f172a; font-weight: 700;">Thêm chiến dịch quảng cáo</h3>
-              <button type="button" id="btnCloseAdsModal" style="background: none; border: none; font-size: 1.4rem; line-height: 1; color: #94a3b8; cursor: pointer; padding: 4px;">&times;</button>
+        <!-- Add/Edit Ads Drawer (Trượt từ phải sang chuẩn SaaS) -->
+        <div id="adsDrawerBackdrop" style="display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.45); backdrop-filter: blur(4px); z-index: 1000; transition: opacity 0.25s ease;">
+          <div id="adsDrawer" style="position: absolute; top: 0; right: 0; width: 100%; max-width: 520px; height: 100%; background: #ffffff; box-shadow: -10px 0 30px rgba(0,0,0,0.12); display: flex; flex-direction: column; transform: translateX(100%); transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);">
+            
+            <!-- Drawer Header (Phẳng, tối giản chuẩn AGENTS.md) -->
+            <div style="padding: 20px 24px 16px; border-bottom: 1px solid #e2e8f0; display: flex; align-items: center; justify-content: space-between; background: #ffffff; flex-shrink: 0;">
+              <div>
+                <h3 id="adsModalTitle" style="margin: 0; font-size: 1.15rem; color: #0f172a; font-weight: 700; letter-spacing: -0.01em;">Chỉnh sửa chiến dịch quảng cáo</h3>
+                <p style="margin: 4px 0 0; font-size: 0.78rem; color: #64748b;">Quản lý và đối soát dữ liệu hiệu quả TikTok / Meta Ads</p>
+              </div>
+              <button type="button" id="btnCloseAdsModal" style="background: none; border: none; font-size: 1.5rem; line-height: 1; color: #94a3b8; cursor: pointer; padding: 4px 8px; border-radius: 6px;" title="Đóng">&times;</button>
             </div>
             
-            <form id="adsForm" style="padding: 24px; display: flex; flex-direction: column; gap: 16px;">
+            <!-- Drawer Body (Nền phẳng đồng nhất, không card bọc card) -->
+            <form id="adsForm" style="flex: 1; overflow-y: auto; padding: 22px 24px; display: flex; flex-direction: column; gap: 24px; background: #ffffff;">
               <input type="hidden" id="adsDocId" value="" />
 
-              <div>
-                <label style="display: block; font-size: 0.85rem; font-weight: 600; color: #334155; margin-bottom: 6px;">Tên chiến dịch / Nội dung video <span style="color: #ef4444;">*</span></label>
-                <input type="text" id="adsTitleInput" placeholder="Ví dụ: Video TikTok Cost F&B - Trend tính cost ly trà sữa" required style="width: 100%; height: 42px; border: 1px solid #cbd5e1; border-radius: 8px; padding: 0 14px; font-size: 0.9rem; color: #0f172a;" />
+              <!-- NHÓM 1: Cấu hình cơ bản & Liên kết -->
+              <div style="display: flex; flex-direction: column; gap: 14px;">
+                <div style="font-size: 0.75rem; font-weight: 700; color: #059669; text-transform: uppercase; letter-spacing: 0.06em; padding-bottom: 6px; border-bottom: 1px solid #f1f5f9;">
+                  1. Cấu hình & Liên kết
+                </div>
+
+                <div>
+                  <label style="display: block; font-size: 0.85rem; font-weight: 600; color: #334155; margin-bottom: 6px;">Tên chiến dịch / Nội dung video <span style="font-size: 0.75rem; color: #94a3b8; font-weight: normal;">(Tùy chọn)</span></label>
+                  <input type="text" id="adsTitleInput" placeholder="Ví dụ: Video TikTok Cost F&B - Trend tính cost ly trà sữa" style="width: 100%; height: 42px; border: 1px solid #cbd5e1; border-radius: 6px; padding: 0 14px; font-size: 0.9rem; color: #0f172a; box-sizing: border-box; background: #ffffff;" />
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                  <div>
+                    <label style="display: block; font-size: 0.85rem; font-weight: 600; color: #334155; margin-bottom: 6px;">Kênh quảng cáo <span style="color: #ef4444;">*</span></label>
+                    <select id="adsChannelSelect" style="width: 100%; height: 42px; border: 1px solid #cbd5e1; border-radius: 6px; padding: 0 10px; font-size: 0.88rem; color: #0f172a; background: #ffffff; box-sizing: border-box;">
+                      <option value="tiktok">TikTok Ads (Promote)</option>
+                      <option value="facebook">Facebook / Meta Ads</option>
+                      <option value="other">Kênh khác</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label style="display: block; font-size: 0.85rem; font-weight: 600; color: #334155; margin-bottom: 6px;">Sản phẩm chạy ads <span style="color: #ef4444;">*</span></label>
+                    <select id="adsProductSelect" required style="width: 100%; height: 42px; border: 1px solid #cbd5e1; border-radius: 6px; padding: 0 10px; font-size: 0.88rem; color: #0f172a; background: #ffffff; box-sizing: border-box;">
+                      <option value="">Chọn sản phẩm</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div>
+                  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                    <label style="font-size: 0.85rem; font-weight: 600; color: #334155;">Link Video / Bài viết chạy Ads <span style="font-size: 0.75rem; color: #94a3b8; font-weight: normal;">(Xem video)</span></label>
+                    <button type="button" id="btnToggleManualAdsUrl" style="background: none; border: none; color: #059669; font-size: 0.76rem; font-weight: 600; cursor: pointer; text-decoration: underline; padding: 0;">Nhập link khác</button>
+                  </div>
+                  
+                  <!-- Dropdown chọn từ sản phẩm -->
+                  <div id="adsUrlSelectWrapper">
+                    <select id="adsSavedPostSelect" style="width: 100%; height: 42px; border: 1px solid #cbd5e1; border-radius: 6px; padding: 0 10px; font-size: 0.88rem; color: #0f172a; background: #ffffff; box-sizing: border-box;">
+                      <option value="">-- Chọn video/bài viết của sản phẩm --</option>
+                    </select>
+                  </div>
+
+                  <!-- Input nhập link trực tiếp -->
+                  <div id="adsUrlInputWrapper" style="display: none; margin-top: 6px;">
+                    <input type="url" id="adsUrlInput" placeholder="https://vt.tiktok.com/... hoặc https://www.tiktok.com/@..." style="width: 100%; height: 42px; border: 1px solid #cbd5e1; border-radius: 6px; padding: 0 14px; font-family: monospace; font-size: 0.85rem; color: #0f172a; box-sizing: border-box; background: #ffffff;" />
+                  </div>
+                </div>
+
+                <div>
+                  <label style="display: block; font-size: 0.85rem; font-weight: 600; color: #334155; margin-bottom: 6px;">Link Báo cáo / Chi tiết đơn Ads <span style="font-size: 0.75rem; color: #94a3b8; font-weight: normal;">(Promote URL)</span></label>
+                  <input type="url" id="adsManagerUrlInput" placeholder="https://www.tiktok.com/promote/web/detail?order_id=..." style="width: 100%; height: 42px; border: 1px solid #cbd5e1; border-radius: 6px; padding: 0 14px; font-family: monospace; font-size: 0.85rem; color: #0f172a; box-sizing: border-box; background: #ffffff;" />
+                </div>
               </div>
 
-              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px;">
-                <div>
-                  <label style="display: block; font-size: 0.85rem; font-weight: 600; color: #334155; margin-bottom: 6px;">Kênh quảng cáo <span style="color: #ef4444;">*</span></label>
-                  <select id="adsChannelSelect" style="width: 100%; height: 42px; border: 1px solid #cbd5e1; border-radius: 8px; padding: 0 12px; font-size: 0.9rem; color: #0f172a; background: #fff;">
-                    <option value="tiktok">TikTok Ads</option>
-                    <option value="facebook">Facebook / Meta Ads</option>
-                    <option value="other">Kênh khác</option>
-                  </select>
+              <!-- NHÓM 2: Ngân sách & Lịch chạy -->
+              <div style="display: flex; flex-direction: column; gap: 14px;">
+                <div style="font-size: 0.75rem; font-weight: 700; color: #059669; text-transform: uppercase; letter-spacing: 0.06em; padding-bottom: 6px; border-bottom: 1px solid #f1f5f9;">
+                  2. Ngân sách & Lịch chạy
                 </div>
+
+                <div style="display: grid; grid-template-columns: 1.2fr 1fr; gap: 12px;">
+                  <div>
+                    <label style="display: block; font-size: 0.85rem; font-weight: 600; color: #334155; margin-bottom: 6px;">Chi phí ngân sách (VNĐ) <span style="color: #ef4444;">*</span></label>
+                    <input type="text" id="adsSpentInput" placeholder="VD: 74.763" required style="width: 100%; height: 42px; border: 1px solid #cbd5e1; border-radius: 6px; padding: 0 14px; font-size: 0.95rem; font-weight: 700; color: #059669; font-family: monospace; box-sizing: border-box; background: #ffffff;" />
+                  </div>
+                  <div>
+                    <label style="display: block; font-size: 0.85rem; font-weight: 600; color: #334155; margin-bottom: 6px;">Trạng thái</label>
+                    <select id="adsStatusSelect" style="width: 100%; height: 42px; border: 1px solid #cbd5e1; border-radius: 6px; padding: 0 10px; font-size: 0.88rem; color: #0f172a; background: #ffffff; box-sizing: border-box;">
+                      <option value="ACTIVE">Đang chạy</option>
+                      <option value="COMPLETED">Đã hoàn tất</option>
+                      <option value="PAUSED">Tạm dừng</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1.1fr 1fr; gap: 12px;">
+                  <!-- Ngày chạy dd/mm/yyyy -->
+                  <div>
+                    <label style="display: block; font-size: 0.85rem; font-weight: 600; color: #334155; margin-bottom: 6px;">Ngày chạy (dd/mm/yyyy) <span style="color: #ef4444;">*</span></label>
+                    <div style="position: relative; display: flex; align-items: center;">
+                      <input type="text" id="adsDateInputText" placeholder="dd/mm/yyyy" pattern="\d{2}/\d{2}/\d{4}" required style="width: 100%; height: 42px; border: 1px solid #cbd5e1; border-radius: 6px; padding: 0 36px 0 12px; font-size: 0.88rem; font-family: monospace; color: #0f172a; box-sizing: border-box; background: #ffffff;" />
+                      <input type="date" id="adsDateInput" style="position: absolute; right: 8px; width: 22px; height: 22px; opacity: 0; cursor: pointer; z-index: 2;" />
+                      <span style="position: absolute; right: 10px; pointer-events: none; color: #64748b;">
+                        <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                      </span>
+                    </div>
+                  </div>
+
+                  <!-- Khung giờ bắt đầu & kết thúc -->
+                  <div>
+                    <label style="display: block; font-size: 0.85rem; font-weight: 600; color: #334155; margin-bottom: 6px;">Khung giờ (Từ - Đến)</label>
+                    <div style="display: flex; align-items: center; gap: 6px;">
+                      <input type="time" id="adsTimeStartInput" value="00:00" style="flex: 1; height: 42px; border: 1px solid #cbd5e1; border-radius: 6px; padding: 0 6px; font-size: 0.85rem; color: #0f172a; box-sizing: border-box; background: #ffffff;" />
+                      <span style="color: #94a3b8; font-size: 0.85rem;">-</span>
+                      <input type="time" id="adsTimeEndInput" value="23:59" style="flex: 1; height: 42px; border: 1px solid #cbd5e1; border-radius: 6px; padding: 0 6px; font-size: 0.85rem; color: #0f172a; box-sizing: border-box; background: #ffffff;" />
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Khung giờ Preset phẳng thanh lịch -->
                 <div>
-                  <label style="display: block; font-size: 0.85rem; font-weight: 600; color: #334155; margin-bottom: 6px;">Sản phẩm chạy ads <span style="color: #ef4444;">*</span></label>
-                  <select id="adsProductSelect" required style="width: 100%; height: 42px; border: 1px solid #cbd5e1; border-radius: 8px; padding: 0 12px; font-size: 0.9rem; color: #0f172a; background: #fff;">
-                    <option value="">Chọn sản phẩm</option>
-                  </select>
+                  <div style="font-size: 0.72rem; color: #64748b; margin-bottom: 6px; font-weight: 500;">Chọn nhanh khung giờ:</div>
+                  <div style="display: flex; flex-wrap: wrap; gap: 6px;" id="adsTimePresets">
+                    <button type="button" class="ads-time-tag" data-start="00:00" data-end="23:59" style="padding: 4px 10px; font-size: 0.75rem; border: 1px solid #e2e8f0; background: #ffffff; border-radius: 4px; color: #475569; cursor: pointer;">Cả ngày</button>
+                    <button type="button" class="ads-time-tag" data-start="08:00" data-end="11:30" style="padding: 4px 10px; font-size: 0.75rem; border: 1px solid #e2e8f0; background: #ffffff; border-radius: 4px; color: #475569; cursor: pointer;">Sáng (08:00 - 11:30)</button>
+                    <button type="button" class="ads-time-tag" data-start="12:00" data-end="14:00" style="padding: 4px 10px; font-size: 0.75rem; border: 1px solid #e2e8f0; background: #ffffff; border-radius: 4px; color: #475569; cursor: pointer;">Trưa (12:00 - 14:00)</button>
+                    <button type="button" class="ads-time-tag" data-start="19:00" data-end="23:00" style="padding: 4px 10px; font-size: 0.75rem; border: 1px solid #059669; background: #ffffff; border-radius: 4px; color: #059669; font-weight: 600; cursor: pointer;">Tối (19:00 - 23:00)</button>
+                    <button type="button" class="ads-time-tag" data-start="23:00" data-end="02:00" style="padding: 4px 10px; font-size: 0.75rem; border: 1px solid #e2e8f0; background: #ffffff; border-radius: 4px; color: #475569; cursor: pointer;">Khuya (23:00 - 02:00)</button>
+                  </div>
                 </div>
               </div>
 
-              <div>
-                <label style="display: block; font-size: 0.85rem; font-weight: 600; color: #334155; margin-bottom: 6px;">Link Video TikTok / Bài viết Ads <span style="color: #ef4444;">*</span></label>
-                <input type="url" id="adsUrlInput" placeholder="https://vt.tiktok.com/... hoặc https://www.tiktok.com/@..." required style="width: 100%; height: 42px; border: 1px solid #cbd5e1; border-radius: 8px; padding: 0 14px; font-family: monospace; font-size: 0.88rem; color: #0f172a;" />
+              <!-- NHÓM 3: Chỉ số đo lường hiệu quả (Phẳng hoàn toàn) -->
+              <div style="display: flex; flex-direction: column; gap: 14px;">
+                <div style="font-size: 0.75rem; font-weight: 700; color: #059669; text-transform: uppercase; letter-spacing: 0.06em; padding-bottom: 6px; border-bottom: 1px solid #f1f5f9; display: flex; align-items: center; justify-content: space-between;">
+                  <span>3. Chỉ số hiệu quả chiến dịch</span>
+                  <span style="font-size: 0.72rem; color: #94a3b8; font-weight: normal; text-transform: none;">Đối soát từ TikTok Promote</span>
+                </div>
+
+                <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px;">
+                  <div>
+                    <label style="display: block; font-size: 0.75rem; font-weight: 600; color: #475569; margin-bottom: 4px;">Lượt xem (Views)</label>
+                    <input type="number" id="adsViewsInput" min="0" placeholder="2672" style="width: 100%; height: 38px; border: 1px solid #cbd5e1; border-radius: 6px; padding: 0 10px; font-size: 0.88rem; font-family: monospace; color: #0f172a; box-sizing: border-box; background: #ffffff;" />
+                  </div>
+                  <div>
+                    <label style="display: block; font-size: 0.75rem; font-weight: 600; color: #475569; margin-bottom: 4px;">Lượt thích (Likes)</label>
+                    <input type="number" id="adsLikesInput" min="0" placeholder="401" style="width: 100%; height: 38px; border: 1px solid #cbd5e1; border-radius: 6px; padding: 0 10px; font-size: 0.88rem; font-family: monospace; color: #0f172a; box-sizing: border-box; background: #ffffff;" />
+                  </div>
+                  <div>
+                    <label style="display: block; font-size: 0.75rem; font-weight: 600; color: #475569; margin-bottom: 4px;">Follower mới</label>
+                    <input type="number" id="adsFollowersInput" min="0" placeholder="5" style="width: 100%; height: 38px; border: 1px solid #cbd5e1; border-radius: 6px; padding: 0 10px; font-size: 0.88rem; font-family: monospace; color: #0f172a; box-sizing: border-box; background: #ffffff;" />
+                  </div>
+                  <div>
+                    <label style="display: block; font-size: 0.75rem; font-weight: 600; color: #475569; margin-bottom: 4px;">Xem hồ sơ (Bio)</label>
+                    <input type="number" id="adsProfileVisitsInput" min="0" placeholder="8" style="width: 100%; height: 38px; border: 1px solid #cbd5e1; border-radius: 6px; padding: 0 10px; font-size: 0.88rem; font-family: monospace; color: #0f172a; box-sizing: border-box; background: #ffffff;" />
+                  </div>
+                </div>
+
+                <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px;">
+                  <div>
+                    <label style="display: block; font-size: 0.75rem; font-weight: 600; color: #475569; margin-bottom: 4px;">Xem 2 giây (%)</label>
+                    <input type="text" id="adsView2sInput" placeholder="28.4%" style="width: 100%; height: 38px; border: 1px solid #cbd5e1; border-radius: 6px; padding: 0 10px; font-size: 0.85rem; font-family: monospace; color: #0f172a; box-sizing: border-box; background: #ffffff;" />
+                  </div>
+                  <div>
+                    <label style="display: block; font-size: 0.75rem; font-weight: 600; color: #475569; margin-bottom: 4px;">Xem 6 giây (%)</label>
+                    <input type="text" id="adsView6sInput" placeholder="8.6%" style="width: 100%; height: 38px; border: 1px solid #cbd5e1; border-radius: 6px; padding: 0 10px; font-size: 0.85rem; font-family: monospace; color: #0f172a; box-sizing: border-box; background: #ffffff;" />
+                  </div>
+                  <div>
+                    <label style="display: block; font-size: 0.75rem; font-weight: 600; color: #475569; margin-bottom: 4px;">Xem hết video (%)</label>
+                    <input type="text" id="adsWatchFullInput" placeholder="0.5%" style="width: 100%; height: 38px; border: 1px solid #cbd5e1; border-radius: 6px; padding: 0 10px; font-size: 0.85rem; font-family: monospace; color: #0f172a; box-sizing: border-box; background: #ffffff;" />
+                  </div>
+                  <div>
+                    <label style="display: block; font-size: 0.75rem; font-weight: 600; color: #475569; margin-bottom: 4px;">Tỷ lệ thích (%)</label>
+                    <input type="text" id="adsLikeRateInput" placeholder="15.0%" style="width: 100%; height: 38px; border: 1px solid #cbd5e1; border-radius: 6px; padding: 0 10px; font-size: 0.85rem; font-family: monospace; color: #0f172a; box-sizing: border-box; background: #ffffff;" />
+                  </div>
+                </div>
               </div>
 
-              <div style="display: grid; grid-template-columns: 1.2fr 1fr; gap: 14px;">
-                <div>
-                  <label style="display: block; font-size: 0.85rem; font-weight: 600; color: #334155; margin-bottom: 6px;">Chi phí ngân sách (VNĐ) <span style="color: #ef4444;">*</span></label>
-                  <input type="text" id="adsSpentInput" placeholder="VD: 250.000" required style="width: 100%; height: 42px; border: 1px solid #cbd5e1; border-radius: 8px; padding: 0 14px; font-size: 0.95rem; font-weight: 700; color: #059669; font-family: monospace;" />
+              <!-- NHÓM 4: Ghi chú đánh giá -->
+              <div style="display: flex; flex-direction: column; gap: 8px;">
+                <div style="font-size: 0.75rem; font-weight: 700; color: #059669; text-transform: uppercase; letter-spacing: 0.06em; padding-bottom: 6px; border-bottom: 1px solid #f1f5f9;">
+                  4. Ghi chú & Đánh giá
                 </div>
-                <div>
-                  <label style="display: block; font-size: 0.85rem; font-weight: 600; color: #334155; margin-bottom: 6px;">Trạng thái</label>
-                  <select id="adsStatusSelect" style="width: 100%; height: 42px; border: 1px solid #cbd5e1; border-radius: 8px; padding: 0 12px; font-size: 0.9rem; color: #0f172a; background: #fff;">
-                    <option value="ACTIVE">Đang chạy</option>
-                    <option value="COMPLETED">Đã hoàn tất</option>
-                    <option value="PAUSED">Tạm dừng</option>
-                  </select>
-                </div>
+                <textarea id="adsNotesInput" rows="5" placeholder="Ghi chú chi tiết kết quả:&#10;- Đạt 2.672 views, 401 likes, 5 follower, 8 lượt vào trang hồ sơ.&#10;- Tệp khách: 18-24 (36%), 25-34 (38%), tập trung HN & HCM.&#10;- Chốt được 3 đơn hàng từ bio link sau chiến dịch..." style="width: 100%; min-height: 120px; border: 1px solid #cbd5e1; border-radius: 6px; padding: 12px 14px; font-size: 0.88rem; color: #0f172a; resize: vertical; line-height: 1.5; box-sizing: border-box; background: #ffffff;"></textarea>
               </div>
 
-              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px;">
-                <div>
-                  <label style="display: block; font-size: 0.85rem; font-weight: 600; color: #334155; margin-bottom: 6px;">Ngày chạy <span style="color: #ef4444;">*</span></label>
-                  <input type="date" id="adsDateInput" required style="width: 100%; height: 42px; border: 1px solid #cbd5e1; border-radius: 8px; padding: 0 12px; font-size: 0.9rem; color: #0f172a;" />
-                </div>
-                <div>
-                  <label style="display: block; font-size: 0.85rem; font-weight: 600; color: #334155; margin-bottom: 6px;">Khung giờ (VD: 19h - 23h)</label>
-                  <input type="text" id="adsTimeFrameInput" placeholder="Ví dụ: 19:00 - 23:00" style="width: 100%; height: 42px; border: 1px solid #cbd5e1; border-radius: 8px; padding: 0 14px; font-size: 0.9rem; color: #0f172a;" />
-                </div>
-              </div>
-
-              <div>
-                <label style="display: block; font-size: 0.85rem; font-weight: 600; color: #334155; margin-bottom: 6px;">Ghi chú hiệu quả (Lượt view, số đơn, CTR...)</label>
-                <textarea id="adsNotesInput" rows="2" placeholder="Ghi chú kết quả: 12.000 view, 8 comment hỏi file, thu được 4 đơn..." style="width: 100%; border: 1px solid #cbd5e1; border-radius: 8px; padding: 10px 14px; font-size: 0.88rem; color: #0f172a; resize: vertical;"></textarea>
-              </div>
-
-              <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 10px; padding-top: 14px; border-top: 1px solid #f1f5f9;">
-                <button type="button" id="btnCancelAds" style="height: 42px; padding: 0 18px; border: 1px solid #e2e8f0; background: #fff; border-radius: 8px; font-weight: 600; font-size: 0.88rem; color: #64748b; cursor: pointer;">Hủy</button>
-                <button type="submit" id="btnSaveAds" class="btn-create-pill" style="height: 42px; padding: 0 22px; border-radius: 8px; font-size: 0.9rem;">Lưu chiến dịch</button>
+              <!-- Footer Buttons (Ghim đáy, phẳng, chuẩn Fintech) -->
+              <div style="display: flex; justify-content: flex-end; gap: 10px; padding: 16px 0 4px 0; border-top: 1px solid #e2e8f0; background: #ffffff; position: sticky; bottom: 0;">
+                <button type="button" id="btnCancelAds" style="height: 42px; padding: 0 20px; border: 1px solid #cbd5e1; background: #ffffff; border-radius: 6px; font-weight: 600; font-size: 0.88rem; color: #475569; cursor: pointer;">Hủy</button>
+                <button type="submit" id="btnSaveAds" style="height: 42px; padding: 0 24px; border: none; border-radius: 6px; font-size: 0.9rem; font-weight: 600; background: #059669; color: #ffffff; cursor: pointer;">Lưu chiến dịch</button>
               </div>
             </form>
           </div>
@@ -2819,7 +2966,7 @@
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-storage-compat.js"></script>
   <script src="/__/firebase/init.js"></script>
   
-  <script src="./admin.js?v=217"></script>
+  <script src="./admin.js?v=211"></script>
   <!-- Agentation: Visual Feedback & Annotation for AI agents -->
   <script src="./agentation-vanilla.js"></script>
 

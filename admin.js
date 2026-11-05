@@ -485,6 +485,10 @@ document.addEventListener('DOMContentLoaded', () => {
           if (inpCoachingPrice) inpCoachingPrice.value = product.coachingPrice ? new Intl.NumberFormat('vi-VN').format(product.coachingPrice) : '';
           if (inpCoachingTitle) inpCoachingTitle.value = product.coachingTitle || '';
 
+          // Load social posts
+          productSocialPosts = Array.isArray(product.social_posts) ? JSON.parse(JSON.stringify(product.social_posts)) : [];
+          renderProductSocialPosts();
+
           updateFormatFields();
           document.getElementById('productImage').required = false;
           const coverWrap = document.getElementById('coverPreviewWrap');
@@ -505,6 +509,77 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // Format price inputs dynamically
+  
+  // --- SOCIAL POSTS / MEDIA LINKS MANAGEMENT (MASTER TABLE FLAT SAAS) ---
+  let productSocialPosts = [];
+  const productSocialPostsTableBody = document.getElementById('productSocialPostsTableBody');
+  const btnAddSocialPost = document.getElementById('btnAddSocialPost');
+
+  function renderProductSocialPosts() {
+    if (!productSocialPostsTableBody) return;
+    if (productSocialPosts.length === 0) {
+      productSocialPostsTableBody.innerHTML = '<tr><td colspan="4" style="text-align: center; padding: 24px; color: #94a3b8; font-size: 0.82rem;">Chưa có bài viết nào. Bấm "+ Thêm dòng" để khai báo video đã đăng.</td></tr>';
+      return;
+    }
+
+    productSocialPostsTableBody.innerHTML = productSocialPosts.map((post, idx) => `
+      <tr style="border-bottom: 1px solid #f1f5f9;">
+        <td style="padding: 6px 10px;">
+          <select class="social-post-platform" data-idx="${idx}" style="width: 100%; height: 34px; border: 1px solid #cbd5e1; border-radius: 4px; padding: 0 8px; font-size: 0.82rem; background: #ffffff; color: #0f172a;">
+            <option value="tiktok" ${post.platform === 'tiktok' ? 'selected' : ''}>TikTok</option>
+            <option value="facebook" ${post.platform === 'facebook' ? 'selected' : ''}>Facebook / Reels</option>
+            <option value="youtube" ${post.platform === 'youtube' ? 'selected' : ''}>YouTube Shorts</option>
+            <option value="threads" ${post.platform === 'threads' ? 'selected' : ''}>Threads</option>
+            <option value="other" ${post.platform === 'other' ? 'selected' : ''}>Khác</option>
+          </select>
+        </td>
+        <td style="padding: 6px 10px;">
+          <input type="text" class="social-post-title" data-idx="${idx}" placeholder="VD: Trend tính cost F&B" value="${escapeHtml(post.title || '')}" style="width: 100%; height: 34px; border: 1px solid #cbd5e1; border-radius: 4px; padding: 0 10px; font-size: 0.85rem; color: #0f172a; box-sizing: border-box;" />
+        </td>
+        <td style="padding: 6px 10px;">
+          <div style="display: flex; align-items: center; gap: 6px;">
+            <input type="url" class="social-post-url" data-idx="${idx}" placeholder="https://vt.tiktok.com/..." value="${escapeHtml(post.url || '')}" style="width: 100%; height: 34px; border: 1px solid #cbd5e1; border-radius: 4px; padding: 0 10px; font-size: 0.82rem; font-family: monospace; color: #0f172a; box-sizing: border-box;" />
+            ${post.url ? `<a href="${escapeHtml(post.url)}" target="_blank" rel="noopener" style="color: #059669; padding: 4px; display: inline-flex; align-items: center;" title="Mở link"><svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg></a>` : ''}
+          </div>
+        </td>
+        <td style="padding: 6px 6px; text-align: center;">
+          <button type="button" class="btn-remove-social-post" data-idx="${idx}" style="background: none; border: none; color: #94a3b8; cursor: pointer; padding: 4px 6px; border-radius: 4px; display: inline-flex; align-items: center; justify-content: center;" title="Xóa dòng" onmouseover="this.style.color='#ef4444'" onmouseout="this.style.color='#94a3b8'">
+            <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+          </button>
+        </td>
+      </tr>
+    `).join('');
+
+    // Bind change listeners
+    productSocialPostsTableBody.querySelectorAll('.social-post-platform').forEach(el => {
+      el.addEventListener('change', (e) => {
+        productSocialPosts[parseInt(e.target.dataset.idx, 10)].platform = e.target.value;
+      });
+    });
+    productSocialPostsTableBody.querySelectorAll('.social-post-title').forEach(el => {
+      el.addEventListener('input', (e) => {
+        productSocialPosts[parseInt(e.target.dataset.idx, 10)].title = e.target.value;
+      });
+    });
+    productSocialPostsTableBody.querySelectorAll('.social-post-url').forEach(el => {
+      el.addEventListener('input', (e) => {
+        productSocialPosts[parseInt(e.target.dataset.idx, 10)].url = e.target.value.trim();
+      });
+    });
+    productSocialPostsTableBody.querySelectorAll('.btn-remove-social-post').forEach(el => {
+      el.addEventListener('click', (e) => {
+        const idx = parseInt(e.target.dataset.idx, 10);
+        productSocialPosts.splice(idx, 1);
+        renderProductSocialPosts();
+      });
+    });
+  }
+
+  btnAddSocialPost?.addEventListener('click', () => {
+    productSocialPosts.push({ platform: 'tiktok', title: '', url: '' });
+    renderProductSocialPosts();
+  });
+
   const priceInput = document.getElementById('productPrice');
   if (priceInput) {
     priceInput.addEventListener('input', function(e) {
@@ -835,6 +910,7 @@ document.addEventListener('DOMContentLoaded', () => {
             ? "Nhận link tạo bản sao Google Sheets vào Google Drive" 
             : (format === 'combo' ? "Nhận trọn bộ link/file combo sau thanh toán" : "Tải file Excel (.xlsx) trực tiếp")),
         fileCount: format === 'combo' ? 2 : 1,
+        social_posts: productSocialPosts.filter(p => p.url && p.url.trim() !== ''),
         hasCoaching: hasCoaching,
         coachingPrice: hasCoaching && coachingPrice > 0 ? coachingPrice : null,
         coachingTitle: hasCoaching ? (coachingTitle || 'Bản Kèm 1-1 (1 buổi 1 tiếng)') : null
@@ -889,7 +965,9 @@ document.addEventListener('DOMContentLoaded', () => {
       if (typeof visualEditor !== 'undefined' && visualEditor) visualEditor.innerHTML = '';
       selectedGalleryFiles = [];
       existingGalleryUrls = [];
+      productSocialPosts = [];
       renderGalleryPreviews();
+      renderProductSocialPosts();
       if (document.getElementById('productHasCoaching')) document.getElementById('productHasCoaching').checked = false;
       if (document.getElementById('coachingFieldsGroup')) document.getElementById('coachingFieldsGroup').style.display = 'none';
       if (document.getElementById('productCoachingPrice')) document.getElementById('productCoachingPrice').value = '';
@@ -2130,7 +2208,7 @@ document.addEventListener('DOMContentLoaded', () => {
         customerHtml += `<div style="font-weight: 600; color: #0f172a; font-size: 0.79rem; font-family: ui-monospace, SFMono-Regular, Menlo, monospace;">${escapeHtml(phoneDisplay)}</div>`;
       }
       if (cleanEmail) {
-        customerHtml += `<div style="font-size: 0.70rem; color: #94a3b8; margin-top: 1px; max-width: 145px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${escapeHtml(cleanEmail)}">${escapeHtml(cleanEmail)}</div>`;
+        customerHtml += `<div style="font-size: 0.70rem; color: #94a3b8; margin-top: 1px; max-width: 195px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${escapeHtml(cleanEmail)}">${escapeHtml(cleanEmail)}</div>`;
       }
 
       const orderId = order.order_id || '';
@@ -2357,9 +2435,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
       return `
         <tr>
-          <td>
+          <td style="min-width: 260px; max-width: 340px;">
             <div style="font-family: monospace; font-size: 0.92rem; font-weight: 700; color: #0f172a; letter-spacing: 0.05em;">${escapeHtml(c.code)}</div>
-            ${c.description ? `<div style="font-size: 0.75rem; color: #64748b; margin-top: 2px;">${escapeHtml(c.description)}</div>` : ''}
+            ${c.description ? `<div style="font-size: 0.75rem; color: #64748b; margin-top: 3px; line-height: 1.45;">${escapeHtml(c.description)}</div>` : ''}
           </td>
           <td><span style="color: #475569; font-size: 0.86rem;">${escapeHtml([...couponTypeSelect.options].find(o => o.value === c.type)?.text || c.type)}</span></td>
           <td><strong style="color: #059669; font-size: 0.92rem;">${discountText}</strong></td>
@@ -3082,6 +3160,15 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('adsTimeStartInput').value = '00:00';
     document.getElementById('adsTimeEndInput').value = '23:59';
     document.getElementById('adsManagerUrlInput').value = '';
+    syncAdsSavedPostsDropdown();
+    document.getElementById('adsViewsInput').value = '';
+    document.getElementById('adsLikesInput').value = '';
+    document.getElementById('adsFollowersInput').value = '';
+    document.getElementById('adsProfileVisitsInput').value = '';
+    document.getElementById('adsView2sInput').value = '';
+    document.getElementById('adsView6sInput').value = '';
+    document.getElementById('adsWatchFullInput').value = '';
+    document.getElementById('adsLikeRateInput').value = '';
 
     adsDrawerBackdrop.style.display = 'block';
     setTimeout(() => {
@@ -3102,6 +3189,7 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('adsProductSelect').value = item.product_id || '';
     document.getElementById('adsUrlInput').value = item.url || '';
     document.getElementById('adsManagerUrlInput').value = item.ad_url || item.manager_url || '';
+    syncAdsSavedPostsDropdown(item.url || '');
     document.getElementById('adsSpentInput').value = item.spent ? new Intl.NumberFormat('vi-VN').format(item.spent) : '';
     document.getElementById('adsStatusSelect').value = item.status || 'ACTIVE';
     
@@ -3120,6 +3208,15 @@ document.addEventListener('DOMContentLoaded', () => {
       document.getElementById('adsTimeEndInput').value = '23:59';
     }
 
+    document.getElementById('adsOrderIdInput').value = item.order_id || '';
+    document.getElementById('adsViewsInput').value = item.views !== undefined ? item.views : '';
+    document.getElementById('adsLikesInput').value = item.likes !== undefined ? item.likes : '';
+    document.getElementById('adsFollowersInput').value = item.followers !== undefined ? item.followers : '';
+    document.getElementById('adsProfileVisitsInput').value = item.profile_visits !== undefined ? item.profile_visits : '';
+    document.getElementById('adsView2sInput').value = item.view_2s || '';
+    document.getElementById('adsView6sInput').value = item.view_6s || '';
+    document.getElementById('adsWatchFullInput').value = item.watch_full || '';
+    document.getElementById('adsLikeRateInput').value = item.like_rate || '';
     document.getElementById('adsNotesInput').value = item.notes || '';
 
     adsDrawerBackdrop.style.display = 'block';
@@ -3173,6 +3270,14 @@ document.addEventListener('DOMContentLoaded', () => {
           if (parts) date = `${parts[3]}-${parts[2]}-${parts[1]}`;
         }
         
+        const views = parseInt(document.getElementById('adsViewsInput')?.value, 10) || 0;
+        const likes = parseInt(document.getElementById('adsLikesInput')?.value, 10) || 0;
+        const followers = parseInt(document.getElementById('adsFollowersInput')?.value, 10) || 0;
+        const profile_visits = parseInt(document.getElementById('adsProfileVisitsInput')?.value, 10) || 0;
+        const view_2s = document.getElementById('adsView2sInput')?.value.trim() || '';
+        const view_6s = document.getElementById('adsView6sInput')?.value.trim() || '';
+        const watch_full = document.getElementById('adsWatchFullInput')?.value.trim() || '';
+        const like_rate = document.getElementById('adsLikeRateInput')?.value.trim() || '';
         const startTime = document.getElementById('adsTimeStartInput')?.value.trim() || '00:00';
         const endTime = document.getElementById('adsTimeEndInput')?.value.trim() || '23:59';
         const time_frame = `${startTime} - ${endTime}`;
@@ -3181,14 +3286,23 @@ document.addEventListener('DOMContentLoaded', () => {
         const prod = currentProducts.find(p => p.id === product_id);
         const product_name = prod ? prod.name : '';
 
+        const finalTitle = title || (product_name ? `Ads: ${product_name}` : 'Chiến dịch');
         const data = {
-          title,
+          title: finalTitle,
           channel,
           product_id,
           product_name,
           url,
           ad_url,
           manager_url: ad_url,
+          views,
+          likes,
+          followers,
+          profile_visits,
+          view_2s,
+          view_6s,
+          watch_full,
+          like_rate,
           spent,
           status,
           date,
@@ -3217,6 +3331,28 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
+  // Bind preset time tags
+  document.querySelectorAll('#adsTimePresets .ads-time-tag').forEach(tag => {
+    tag.addEventListener('click', () => {
+      const start = tag.dataset.start;
+      const end = tag.dataset.end;
+      const startInp = document.getElementById('adsTimeStartInput');
+      const endInp = document.getElementById('adsTimeEndInput');
+      if (startInp && start) startInp.value = start;
+      if (endInp && end) endInp.value = end;
+      document.querySelectorAll('#adsTimePresets .ads-time-tag').forEach(t => {
+        t.style.border = '1px solid #e2e8f0';
+        t.style.background = '#fff';
+        t.style.color = '#475569';
+        t.style.fontWeight = 'normal';
+      });
+      tag.style.border = '1px solid #059669';
+      tag.style.background = '#ecfdf5';
+      tag.style.color = '#047857';
+      tag.style.fontWeight = '600';
+    });
+  });
+
   btnOpenAddAds?.addEventListener('click', openAddAdsModal);
   btnCloseAdsModal?.addEventListener('click', closeAdsModal);
   btnCancelAds?.addEventListener('click', closeAdsModal);
@@ -3238,3 +3374,106 @@ document.addEventListener('click', () => {
 
 
   
+
+  function syncAdsSavedPostsDropdown(selectedUrl) {
+    const prodId = document.getElementById('adsProductSelect')?.value;
+    const channel = document.getElementById('adsChannelSelect')?.value || 'tiktok';
+    const selectEl = document.getElementById('adsSavedPostSelect');
+    const inputWrap = document.getElementById('adsUrlInputWrapper');
+    const selectWrap = document.getElementById('adsUrlSelectWrapper');
+    const toggleBtn = document.getElementById('btnToggleManualAdsUrl');
+    const urlInput = document.getElementById('adsUrlInput');
+    if (!selectEl) return;
+
+    const prod = currentProducts.find(p => p.id === prodId);
+    let posts = (prod && Array.isArray(prod.social_posts)) ? prod.social_posts : [];
+    
+    // Lọc theo channel nếu có
+    let matchedPosts = posts.filter(p => {
+      if (channel === 'tiktok') return p.platform === 'tiktok';
+      if (channel === 'facebook') return p.platform === 'facebook';
+      return true;
+    });
+
+    if (matchedPosts.length === 0 && posts.length > 0) {
+      matchedPosts = posts; // fallback tất cả post
+    }
+
+    if (matchedPosts.length > 0) {
+      let opts = '<option value="">-- Chọn video/bài viết của sản phẩm (' + matchedPosts.length + ' bài) --</option>';
+      matchedPosts.forEach(p => {
+        const titleText = p.title ? p.title : (p.url.length > 45 ? p.url.substring(0, 42) + '...' : p.url);
+        opts += `<option value="${escapeHtml(p.url)}">[${(p.platform||'').toUpperCase()}] ${escapeHtml(titleText)}</option>`;
+      });
+      selectEl.innerHTML = opts;
+
+      // Nếu url hiện tại trùng với 1 trong các option
+      if (selectedUrl && matchedPosts.some(p => p.url === selectedUrl)) {
+        selectEl.value = selectedUrl;
+        if (selectWrap) selectWrap.style.display = 'block';
+        if (inputWrap) inputWrap.style.display = 'none';
+        if (toggleBtn) toggleBtn.textContent = 'Nhập link khác';
+      } else if (selectedUrl) {
+        // Có url nhưng không nằm trong danh sách đã lưu ➔ hiển thị ô input
+        if (selectWrap) selectWrap.style.display = 'none';
+        if (inputWrap) inputWrap.style.display = 'block';
+        if (toggleBtn) toggleBtn.textContent = 'Chọn từ bài viết sản phẩm';
+      } else {
+        if (selectWrap) selectWrap.style.display = 'block';
+        if (inputWrap) inputWrap.style.display = 'none';
+        if (toggleBtn) toggleBtn.textContent = 'Nhập link khác';
+      }
+    } else {
+      // Không có bài viết nào ➔ hiển thị ô nhập link trực tiếp
+      selectEl.innerHTML = '<option value="">-- Chưa có bài viết nào được lưu ở sản phẩm --</option>';
+      if (selectWrap) selectWrap.style.display = 'none';
+      if (inputWrap) inputWrap.style.display = 'block';
+      if (toggleBtn) toggleBtn.textContent = 'Chọn từ bài viết sản phẩm';
+    }
+  }
+
+  // Event khi đổi Sản phẩm hoặc Kênh trong Drawer Ads
+  document.getElementById('adsProductSelect')?.addEventListener('change', () => {
+    syncAdsSavedPostsDropdown(document.getElementById('adsUrlInput')?.value);
+  });
+  document.getElementById('adsChannelSelect')?.addEventListener('change', () => {
+    syncAdsSavedPostsDropdown(document.getElementById('adsUrlInput')?.value);
+  });
+
+  // Khi chọn một bài viết từ dropdown
+  document.getElementById('adsSavedPostSelect')?.addEventListener('change', (e) => {
+    const val = e.target.value;
+    const urlInput = document.getElementById('adsUrlInput');
+    if (urlInput) urlInput.value = val;
+    // Tự động điền tên chiến dịch nếu đang để trống
+    const titleInput = document.getElementById('adsTitleInput');
+    if (titleInput && !titleInput.value.trim() && e.target.selectedOptions[0]) {
+      const selectedText = e.target.selectedOptions[0].textContent.replace(/^\[.*?\]\s*/, '');
+      if (selectedText && !selectedText.startsWith('http')) {
+        titleInput.value = selectedText;
+      }
+    }
+  });
+
+  // Nút toggle Nhập link khác / Chọn từ sản phẩm
+  document.getElementById('btnToggleManualAdsUrl')?.addEventListener('click', () => {
+    const inputWrap = document.getElementById('adsUrlInputWrapper');
+    const selectWrap = document.getElementById('adsUrlSelectWrapper');
+    const toggleBtn = document.getElementById('btnToggleManualAdsUrl');
+    const urlInput = document.getElementById('adsUrlInput');
+    const selectEl = document.getElementById('adsSavedPostSelect');
+
+    if (inputWrap.style.display === 'none') {
+      inputWrap.style.display = 'block';
+      selectWrap.style.display = 'none';
+      toggleBtn.textContent = 'Chọn từ bài viết sản phẩm';
+      urlInput?.focus();
+    } else {
+      inputWrap.style.display = 'none';
+      selectWrap.style.display = 'block';
+      toggleBtn.textContent = 'Nhập link khác';
+      if (selectEl && selectEl.value && urlInput) {
+        urlInput.value = selectEl.value;
+      }
+    }
+  });
