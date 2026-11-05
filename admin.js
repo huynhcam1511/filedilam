@@ -2943,7 +2943,89 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   setupDatePickerPair('adsStartDateInputText', 'adsStartDateInput', true);
-  setupDatePickerPair('adsEndDateInputText', 'adsEndDateInput', false);
+
+  function getDurationLabel(hours) {
+    if (hours === 12) return '12 giờ';
+    if (hours === 24) return '1 ngày (24h)';
+    const days = Math.round(hours / 24);
+    return `${days} ngày`;
+  }
+
+  function updateCalculatedEndTime() {
+    let startDate = document.getElementById('adsStartDateInput')?.value || '';
+    const startDateText = document.getElementById('adsStartDateInputText')?.value.trim() || '';
+    if (!startDate && startDateText) {
+      const parts = /^(\d{2})\/(\d{2})\/(\d{4})$/.exec(startDateText);
+      if (parts) startDate = `${parts[3]}-${parts[2]}-${parts[1]}`;
+    }
+    if (!startDate) {
+      startDate = new Date().toISOString().split('T')[0];
+    }
+    const startTime = document.getElementById('adsStartTimeInput')?.value || '00:00';
+    const durationHours = parseInt(document.getElementById('adsDurationHoursInput')?.value, 10) || 24;
+
+    const [h, m] = startTime.split(':').map(Number);
+    const [year, month, day] = startDate.split('-').map(Number);
+    const startDt = new Date(year, month - 1, day, h, m || 0, 0);
+
+    const endDt = new Date(startDt.getTime() + durationHours * 3600 * 1000);
+
+    const endY = endDt.getFullYear();
+    const endM = String(endDt.getMonth() + 1).padStart(2, '0');
+    const endD = String(endDt.getDate()).padStart(2, '0');
+    const endH = String(endDt.getHours()).padStart(2, '0');
+    const endMin = String(endDt.getMinutes()).padStart(2, '0');
+
+    const previewEl = document.getElementById('adsCalculatedEndText');
+    if (previewEl) {
+      previewEl.textContent = `Dự kiến kết thúc: ${endD}/${endM}/${endY} lúc ${endH}:${endMin}`;
+    }
+
+    return {
+      endDate: `${endY}-${endM}-${endD}`,
+      endTime: `${endH}:${endMin}`,
+      durationLabel: getDurationLabel(durationHours),
+      durationHours
+    };
+  }
+
+  function setAdsDuration(hours) {
+    const hiddenInp = document.getElementById('adsDurationHoursInput');
+    if (hiddenInp) hiddenInp.value = hours;
+
+    document.querySelectorAll('#adsDurationOptions .btn-duration-tag').forEach(btn => {
+      const bHours = parseInt(btn.dataset.hours, 10);
+      if (bHours === hours) {
+        btn.classList.add('active');
+        btn.style.borderColor = '#059669';
+        btn.style.background = '#ecfdf5';
+        btn.style.color = '#047857';
+        btn.style.fontWeight = '700';
+      } else {
+        btn.classList.remove('active');
+        btn.style.borderColor = '#cbd5e1';
+        btn.style.background = '#ffffff';
+        btn.style.color = '#334155';
+        btn.style.fontWeight = '500';
+      }
+    });
+
+    updateCalculatedEndTime();
+  }
+
+  // Bind duration tag clicks
+  document.querySelectorAll('#adsDurationOptions .btn-duration-tag').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const h = parseInt(btn.dataset.hours, 10);
+      if (h) setAdsDuration(h);
+    });
+  });
+
+  document.getElementById('adsStartDateInputText')?.addEventListener('input', updateCalculatedEndTime);
+  document.getElementById('adsStartDateInput')?.addEventListener('change', updateCalculatedEndTime);
+  document.getElementById('adsStartTimeInput')?.addEventListener('change', updateCalculatedEndTime);
+
+  // adsEndDateInput replaced by duration selector
 
   function populateAdsProductDropdowns() {
     if (!adsProductFilter || !adsProductSelect) return;
@@ -3079,15 +3161,18 @@ document.addEventListener('DOMContentLoaded', () => {
       const eTime = a.end_time || (a.time_frame && a.time_frame.includes('-') ? a.time_frame.split('-')[1].trim() : '');
 
       let dateDisplay = 'Chưa đặt';
-      let timeDisplay = a.time_frame || 'Cả ngày';
+      let timeDisplay = a.duration_label || a.time_frame || '24h';
 
       if (sDate) {
         if (sDate === eDate) {
           dateDisplay = fmtD(sDate);
-          timeDisplay = (sTime && eTime) ? `${sTime} - ${eTime}` : (a.time_frame || 'Cả ngày');
         } else {
           dateDisplay = `${fmtD(sDate)} → ${fmtD(eDate)}`;
-          timeDisplay = (sTime && eTime) ? `${sTime} - ${eTime}` : (a.time_frame || 'Cả ngày');
+        }
+        if (a.duration_label) {
+          timeDisplay = a.duration_label;
+        } else if (sTime && eTime) {
+          timeDisplay = `${sTime} - ${eTime}`;
         }
       }
 
@@ -3230,7 +3315,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const statusSel = document.getElementById('adsStatusSelect');
     if (statusSel) statusSel.value = 'ACTIVE';
     setTimeSelectVal('adsStartTimeInput', '00:00');
-    setTimeSelectVal('adsEndTimeInput', '23:59');
+    setAdsDuration(24);
+    updateCalculatedEndTime();
     
     
 
@@ -3266,27 +3352,27 @@ document.addEventListener('DOMContentLoaded', () => {
     setField('adsStatusSelect', item.status || 'ACTIVE');
 
     const startDate = item.start_date || item.date || '';
-    const endDate = item.end_date || item.start_date || item.date || '';
-
     const startInput = document.getElementById('adsStartDateInput');
     const startText = document.getElementById('adsStartDateInputText');
-    const endInput = document.getElementById('adsEndDateInput');
-    const endText = document.getElementById('adsEndDateInputText');
 
     if (startInput) startInput.value = startDate;
     if (startText) startText.value = startDate ? formatDateVN(startDate) : '';
-    if (endInput) endInput.value = endDate;
-    if (endText) endText.value = endDate ? formatDateVN(endDate) : '';
 
     let startTime = item.start_time || '';
-    let endTime = item.end_time || '';
     if (!startTime && item.time_frame && item.time_frame.includes('-')) {
-      const parts = item.time_frame.split('-').map(s => s.trim());
-      startTime = parts[0];
-      endTime = parts[1];
+      startTime = item.time_frame.split('-')[0].trim();
     }
     setTimeSelectVal('adsStartTimeInput', startTime || '00:00');
-    setTimeSelectVal('adsEndTimeInput', endTime || '23:59');
+
+    let durationHours = item.duration_hours || 24;
+    if (!item.duration_hours && item.end_date && item.start_date && item.end_date !== item.start_date) {
+      const s = new Date(item.start_date).getTime();
+      const e = new Date(item.end_date).getTime();
+      const diffHours = Math.round((e - s) / (3600 * 1000));
+      if (diffHours >= 12) durationHours = diffHours;
+    }
+    setAdsDuration(durationHours);
+    updateCalculatedEndTime();
 
     setField('adsViewsInput', item.views);
     setField('adsLikesInput', item.likes);
@@ -3350,14 +3436,11 @@ document.addEventListener('DOMContentLoaded', () => {
           const parts = /^(\d{2})\/(\d{2})\/(\d{4})$/.exec(startDateText);
           if (parts) startDate = `${parts[3]}-${parts[2]}-${parts[1]}`;
         }
+        if (!startDate) startDate = new Date().toISOString().split('T')[0];
 
-        let endDate = document.getElementById('adsEndDateInput')?.value || '';
-        const endDateText = document.getElementById('adsEndDateInputText')?.value.trim() || '';
-        if (!endDate && endDateText) {
-          const parts = /^(\d{2})\/(\d{2})\/(\d{4})$/.exec(endDateText);
-          if (parts) endDate = `${parts[3]}-${parts[2]}-${parts[1]}`;
-        }
-        if (!endDate) endDate = startDate;
+        const { endDate, endTime, durationLabel, durationHours } = updateCalculatedEndTime();
+        const startTime = document.getElementById('adsStartTimeInput')?.value || '00:00';
+        const time_frame = `${durationLabel} (${startTime} - ${endTime})`;
         
         const views = parseInt(document.getElementById('adsViewsInput')?.value, 10) || 0;
         const likes = parseInt(document.getElementById('adsLikesInput')?.value, 10) || 0;
@@ -3367,9 +3450,9 @@ document.addEventListener('DOMContentLoaded', () => {
         const view_6s = document.getElementById('adsView6sInput')?.value.trim() || '';
         const watch_full = document.getElementById('adsWatchFullInput')?.value.trim() || '';
         const like_rate = document.getElementById('adsLikeRateInput')?.value.trim() || '';
-        const startTime = document.getElementById('adsStartTimeInput')?.value.trim() || '00:00';
-        const endTime = document.getElementById('adsEndTimeInput')?.value.trim() || '23:59';
-        const time_frame = `${startTime} - ${endTime}`;
+        
+        
+        
         const notes = document.getElementById('adsNotesInput').value.trim();
 
         const prod = currentProducts.find(p => p.id === product_id);
@@ -3397,6 +3480,8 @@ document.addEventListener('DOMContentLoaded', () => {
           date: startDate,
           start_date: startDate,
           start_time: startTime,
+          duration_hours: durationHours,
+          duration_label: durationLabel,
           end_date: endDate,
           end_time: endTime,
           time_frame,
