@@ -3230,8 +3230,28 @@ document.addEventListener('DOMContentLoaded', () => {
             <strong style="color: #0f172a; font-family: monospace; font-size: 0.95rem;">${formatCurrency(a.spent || 0)}</strong>
           </td>
           <td>
-            <span style="font-size: 0.82rem; color: #475569;">${escapeHtml(a.time_frame || 'Không ghi')}</span>
-            ${a.notes ? `<div style="font-size: 0.75rem; color: #64748b; margin-top: 2px; max-width: 220px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${escapeHtml(a.notes)}">${escapeHtml(a.notes)}</div>` : ''}
+            ${(() => {
+              const p1 = [];
+              if (a.views) p1.push(`${new Intl.NumberFormat('vi-VN').format(a.views)} views`);
+              if (a.focused_views) p1.push(`${new Intl.NumberFormat('vi-VN').format(a.focused_views)} tập trung`);
+              if (a.cpm) p1.push(`CPM ${new Intl.NumberFormat('vi-VN').format(a.cpm)}đ`);
+
+              const p2 = [];
+              if (a.likes) p2.push(`${a.likes} like`);
+              if (a.followers) p2.push(`+${a.followers} follow`);
+              if (a.comments) p2.push(`${a.comments} cmt`);
+              if (a.shares) p2.push(`${a.shares} share`);
+
+              if (!p1.length && !p2.length) {
+                return `<span style="font-size: 0.82rem; color: #94a3b8;">${escapeHtml(a.time_frame || 'Chưa nhập số liệu')}</span>`;
+              }
+
+              return `
+                <div style="font-size: 0.84rem; font-weight: 600; color: #0f172a; font-family: monospace;">${escapeHtml(p1.join(' • '))}</div>
+                ${p2.length ? `<div style="font-size: 0.74rem; color: #64748b; margin-top: 2px;">${escapeHtml(p2.join(' • '))}</div>` : ''}
+              `;
+            })()}
+            ${a.notes ? `<div style="font-size: 0.74rem; color: #64748b; margin-top: 3px; max-width: 240px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${escapeHtml(a.notes)}">${escapeHtml(a.notes)}</div>` : ''}
           </td>
           <td>${statusHtml}</td>
           <td style="text-align: center;">
