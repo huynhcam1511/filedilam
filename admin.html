@@ -2775,7 +2775,7 @@
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-storage-compat.js"></script>
   <script src="/__/firebase/init.js"></script>
   
-  <script src="./admin.js?v=248"></script>
+  <script src="./admin.js?v=249"></script>
   <!-- Agentation: Visual Feedback & Annotation for AI agents -->
   <script src="./agentation-vanilla.js"></script>
 
@@ -2867,39 +2867,34 @@
                   </div>
                 </div>
 
-                <div style="display: grid; grid-template-columns: 1.1fr 1fr; gap: 12px;">
-                  <!-- Ngày chạy dd/mm/yyyy -->
+                <!-- Lịch chạy: Từ ngày & giờ bắt đầu -> Đến ngày & giờ kết thúc -->
+                <div style="display: flex; flex-direction: column; gap: 10px;">
                   <div>
-                    <label style="display: block; font-size: 0.85rem; font-weight: 600; color: #334155; margin-bottom: 6px;">Ngày chạy (dd/mm/yyyy) <span style="color: #ef4444;">*</span></label>
-                    <div style="position: relative; display: flex; align-items: center;">
-                      <input type="text" id="adsDateInputText" placeholder="dd/mm/yyyy" pattern="\d{2}/\d{2}/\d{4}" required style="width: 100%; height: 42px; border: 1px solid #cbd5e1; border-radius: 6px; padding: 0 36px 0 12px; font-size: 0.88rem; font-family: monospace; color: #0f172a; box-sizing: border-box; background: #ffffff;" />
-                      <input type="date" id="adsDateInput" style="position: absolute; right: 8px; width: 22px; height: 22px; opacity: 0; cursor: pointer; z-index: 2;" />
-                      <span style="position: absolute; right: 10px; pointer-events: none; color: #64748b;">
-                        <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
-                      </span>
+                    <label style="display: block; font-size: 0.85rem; font-weight: 600; color: #334155; margin-bottom: 6px;">Từ: Ngày &amp; Giờ bắt đầu <span style="color: #ef4444;">*</span></label>
+                    <div style="display: grid; grid-template-columns: 1.4fr 1fr; gap: 8px;">
+                      <div style="position: relative; display: flex; align-items: center;">
+                        <input type="text" id="adsStartDateInputText" placeholder="dd/mm/yyyy" pattern="\d{2}/\d{2}/\d{4}" required style="width: 100%; height: 42px; border: 1px solid #cbd5e1; border-radius: 6px; padding: 0 34px 0 12px; font-size: 0.88rem; font-family: monospace; color: #0f172a; box-sizing: border-box; background: #ffffff;" />
+                        <input type="date" id="adsStartDateInput" style="position: absolute; right: 6px; width: 24px; height: 24px; opacity: 0; cursor: pointer; z-index: 2;" />
+                        <span style="position: absolute; right: 8px; pointer-events: none; color: #64748b;">
+                          <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                        </span>
+                      </div>
+                      <input type="time" id="adsStartTimeInput" value="00:00" required style="width: 100%; height: 42px; border: 1px solid #cbd5e1; border-radius: 6px; padding: 0 8px; font-size: 0.88rem; font-family: monospace; color: #0f172a; box-sizing: border-box; background: #ffffff;" />
                     </div>
                   </div>
 
-                  <!-- Khung giờ bắt đầu & kết thúc -->
                   <div>
-                    <label style="display: block; font-size: 0.85rem; font-weight: 600; color: #334155; margin-bottom: 6px;">Khung giờ (Từ - Đến)</label>
-                    <div style="display: flex; align-items: center; gap: 6px;">
-                      <input type="time" id="adsTimeStartInput" value="00:00" style="flex: 1; height: 42px; border: 1px solid #cbd5e1; border-radius: 6px; padding: 0 6px; font-size: 0.85rem; color: #0f172a; box-sizing: border-box; background: #ffffff;" />
-                      <span style="color: #94a3b8; font-size: 0.85rem;">-</span>
-                      <input type="time" id="adsTimeEndInput" value="23:59" style="flex: 1; height: 42px; border: 1px solid #cbd5e1; border-radius: 6px; padding: 0 6px; font-size: 0.85rem; color: #0f172a; box-sizing: border-box; background: #ffffff;" />
+                    <label style="display: block; font-size: 0.85rem; font-weight: 600; color: #334155; margin-bottom: 6px;">Đến: Ngày &amp; Giờ kết thúc <span style="color: #ef4444;">*</span></label>
+                    <div style="display: grid; grid-template-columns: 1.4fr 1fr; gap: 8px;">
+                      <div style="position: relative; display: flex; align-items: center;">
+                        <input type="text" id="adsEndDateInputText" placeholder="dd/mm/yyyy" pattern="\d{2}/\d{2}/\d{4}" required style="width: 100%; height: 42px; border: 1px solid #cbd5e1; border-radius: 6px; padding: 0 34px 0 12px; font-size: 0.88rem; font-family: monospace; color: #0f172a; box-sizing: border-box; background: #ffffff;" />
+                        <input type="date" id="adsEndDateInput" style="position: absolute; right: 6px; width: 24px; height: 24px; opacity: 0; cursor: pointer; z-index: 2;" />
+                        <span style="position: absolute; right: 8px; pointer-events: none; color: #64748b;">
+                          <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                        </span>
+                      </div>
+                      <input type="time" id="adsEndTimeInput" value="23:59" required style="width: 100%; height: 42px; border: 1px solid #cbd5e1; border-radius: 6px; padding: 0 8px; font-size: 0.88rem; font-family: monospace; color: #0f172a; box-sizing: border-box; background: #ffffff;" />
                     </div>
-                  </div>
-                </div>
-
-                <!-- Khung giờ Preset phẳng thanh lịch -->
-                <div>
-                  <div style="font-size: 0.72rem; color: #64748b; margin-bottom: 6px; font-weight: 500;">Chọn nhanh khung giờ:</div>
-                  <div style="display: flex; flex-wrap: wrap; gap: 6px;" id="adsTimePresets">
-                    <button type="button" class="ads-time-tag" data-start="00:00" data-end="23:59" style="padding: 4px 10px; font-size: 0.75rem; border: 1px solid #e2e8f0; background: #ffffff; border-radius: 4px; color: #475569; cursor: pointer;">Cả ngày</button>
-                    <button type="button" class="ads-time-tag" data-start="08:00" data-end="11:30" style="padding: 4px 10px; font-size: 0.75rem; border: 1px solid #e2e8f0; background: #ffffff; border-radius: 4px; color: #475569; cursor: pointer;">Sáng (08:00 - 11:30)</button>
-                    <button type="button" class="ads-time-tag" data-start="12:00" data-end="14:00" style="padding: 4px 10px; font-size: 0.75rem; border: 1px solid #e2e8f0; background: #ffffff; border-radius: 4px; color: #475569; cursor: pointer;">Trưa (12:00 - 14:00)</button>
-                    <button type="button" class="ads-time-tag" data-start="19:00" data-end="23:00" style="padding: 4px 10px; font-size: 0.75rem; border: 1px solid #059669; background: #ffffff; border-radius: 4px; color: #059669; font-weight: 600; cursor: pointer;">Tối (19:00 - 23:00)</button>
-                    <button type="button" class="ads-time-tag" data-start="23:00" data-end="02:00" style="padding: 4px 10px; font-size: 0.75rem; border: 1px solid #e2e8f0; background: #ffffff; border-radius: 4px; color: #475569; cursor: pointer;">Khuya (23:00 - 02:00)</button>
                   </div>
                 </div>
               </div>
