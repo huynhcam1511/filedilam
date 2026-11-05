@@ -4445,11 +4445,11 @@ body:not(.is-admin) #userProfile {
 
 .detail-btn-cart {
   height: 44px;
-  padding: 0 18px;
-  font-size: 0.92rem;
-  font-weight: 600;
+  padding: 0 24px;
+  font-size: 0.95rem;
+  font-weight: 700;
   border-radius: 10px;
-  background: #0f172a;
+  background: #059669;
   color: #ffffff;
   border: none;
   cursor: pointer;
@@ -4460,10 +4460,11 @@ body:not(.is-admin) #userProfile {
   gap: 8px;
   flex-shrink: 0;
   white-space: nowrap;
+  box-shadow: 0 3px 10px rgba(5, 150, 105, 0.22);
 }
 
 .detail-btn-cart:hover {
-  background: #1e293b;
+  background: #047857;
   transform: translateY(-1px);
 }
 
