@@ -3187,6 +3187,20 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
+    function setTimeSelectVal(selectId, val) {
+    const el = document.getElementById(selectId);
+    if (!el) return;
+    if (!val) val = selectId.includes('End') ? '23:59' : '00:00';
+    let exists = Array.from(el.options).some(o => o.value === val);
+    if (!exists) {
+      const opt = document.createElement('option');
+      opt.value = val;
+      opt.textContent = val;
+      el.appendChild(opt);
+    }
+    el.value = val;
+  }
+
   function openAddAdsModal() {
     const backdrop = document.getElementById('adsDrawerBackdrop');
     const form = document.getElementById('adsForm');
@@ -3215,10 +3229,8 @@ document.addEventListener('DOMContentLoaded', () => {
     
     const statusSel = document.getElementById('adsStatusSelect');
     if (statusSel) statusSel.value = 'ACTIVE';
-    const timeStart = document.getElementById('adsStartTimeInput');
-    const timeEnd = document.getElementById('adsEndTimeInput');
-    if (timeStart) timeStart.value = '00:00';
-    if (timeEnd) timeEnd.value = '23:59';
+    setTimeSelectVal('adsStartTimeInput', '00:00');
+    setTimeSelectVal('adsEndTimeInput', '23:59');
     
     
 
@@ -3273,8 +3285,8 @@ document.addEventListener('DOMContentLoaded', () => {
       startTime = parts[0];
       endTime = parts[1];
     }
-    setField('adsStartTimeInput', startTime || '00:00');
-    setField('adsEndTimeInput', endTime || '23:59');
+    setTimeSelectVal('adsStartTimeInput', startTime || '00:00');
+    setTimeSelectVal('adsEndTimeInput', endTime || '23:59');
 
     setField('adsViewsInput', item.views);
     setField('adsLikesInput', item.likes);
