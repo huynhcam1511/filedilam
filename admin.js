@@ -849,7 +849,9 @@ document.addEventListener('DOMContentLoaded', () => {
       if (imageFile) {
         const imageRef = storage.ref(`products/${id}/cover_${imageFile.name}`);
         await imageRef.put(imageFile);
-        updateData.previewImageUrl = await imageRef.getDownloadURL();
+        const coverDownloadUrl = await imageRef.getDownloadURL();
+        updateData.previewImageUrl = coverDownloadUrl;
+        updateData.thumbnailUrl = coverDownloadUrl;
       }
 
       // Upload gallery images if any
@@ -2803,7 +2805,8 @@ document.addEventListener('DOMContentLoaded', () => {
   // ==========================================================================
   let currentAds = [];
   const adsListBody = document.getElementById('adsListBody');
-  const adsModal = document.getElementById('adsModal');
+  const adsDrawerBackdrop = document.getElementById('adsDrawerBackdrop');
+  const adsDrawer = document.getElementById('adsDrawer');
   const adsForm = document.getElementById('adsForm');
   const btnOpenAddAds = document.getElementById('btnOpenAddAds');
   const btnCloseAdsModal = document.getElementById('btnCloseAdsModal');
@@ -2811,6 +2814,8 @@ document.addEventListener('DOMContentLoaded', () => {
   const adsProductFilter = document.getElementById('adsProductFilter');
   const adsProductSelect = document.getElementById('adsProductSelect');
   const adsSpentInput = document.getElementById('adsSpentInput');
+  const adsDateInput = document.getElementById('adsDateInput');
+  const adsDateInputText = document.getElementById('adsDateInputText');
 
   // Format currency for adsSpentInput
   if (adsSpentInput) {
@@ -2821,6 +2826,20 @@ document.addEventListener('DOMContentLoaded', () => {
       } else {
         e.target.value = '';
       }
+    });
+  }
+
+  // Bind dd/mm/yyyy input and date picker for Ads
+  if (adsDateInput && adsDateInputText) {
+    adsDateInputText.addEventListener('input', () => {
+      const parts = /^(\d{2})\/(\d{2})\/(\d{4})$/.exec(adsDateInputText.value);
+      adsDateInput.value = parts ? `${parts[3]}-${parts[2]}-${parts[1]}` : '';
+      adsDateInputText.setCustomValidity(adsDateInputText.value && !adsDateInput.value ? 'Vui lòng nhập ngày theo định dạng dd/mm/yyyy.' : '');
+    });
+    adsDateInput.addEventListener('click', () => adsDateInput.showPicker?.());
+    adsDateInput.addEventListener('change', () => {
+      adsDateInputText.value = adsDateInput.value ? formatDateVN(adsDateInput.value) : '';
+      adsDateInputText.setCustomValidity('');
     });
   }
 
@@ -2961,15 +2980,22 @@ document.addEventListener('DOMContentLoaded', () => {
           <td>
             <div style="display: flex; align-items: center; gap: 6px; font-weight: 600; color: #0f172a; font-size: 0.88rem;">
               ${channelIcon}
-              <span>${escapeHtml(a.title)}</span>
+              <span>${escapeHtml(a.title || 'Chiến dịch')}</span>
             </div>
-            ${a.url ? `
-              <div style="margin-top: 3px;">
-                <a href="${escapeHtml(a.url)}" target="_blank" rel="noopener" style="font-size: 0.76rem; color: #059669; text-decoration: none; display: inline-flex; align-items: center; gap: 4px;" title="Mở link video">
+            <div style="margin-top: 4px; display: flex; flex-direction: column; gap: 3px;">
+              ${a.url ? `
+                <a href="${escapeHtml(a.url)}" target="_blank" rel="noopener" style="font-size: 0.76rem; color: #059669; text-decoration: none; display: inline-flex; align-items: center; gap: 4px;" title="Link video/bài viết gốc">
                   <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
-                  <span style="max-width: 260px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${escapeHtml(a.url)}</span>
-                </a>
-              </div>` : ''}
+                  <span style="font-weight: 600;">Link bài:</span>
+                  <span style="max-width: 220px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${escapeHtml(a.url)}</span>
+                </a>` : ''}
+              ${a.ad_url || a.manager_url ? `
+                <a href="${escapeHtml(a.ad_url || a.manager_url)}" target="_blank" rel="noopener" style="font-size: 0.76rem; color: #2563eb; text-decoration: none; display: inline-flex; align-items: center; gap: 4px;" title="Link trình quản lý Ads">
+                  <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                  <span style="font-weight: 600;">Link Ads:</span>
+                  <span style="max-width: 220px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${escapeHtml(a.ad_url || a.manager_url)}</span>
+                </a>` : ''}
+            </div>
           </td>
           <td>
             <span style="font-size: 0.86rem; color: #334155; font-weight: 500;">${escapeHtml(prodName)}</span>
@@ -3042,7 +3068,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function openAddAdsModal() {
-    if (!adsForm || !adsModal) return;
+    if (!adsForm || !adsDrawerBackdrop) return;
     adsForm.reset();
     document.getElementById('adsDocId').value = '';
     document.getElementById('adsModalTitle').textContent = 'Thêm chiến dịch quảng cáo';
@@ -3050,15 +3076,22 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Default date to today
     const today = new Date().toISOString().split('T')[0];
-    document.getElementById('adsDateInput').value = today;
+    if (adsDateInput) adsDateInput.value = today;
+    if (adsDateInputText) adsDateInputText.value = formatDateVN(today);
     document.getElementById('adsStatusSelect').value = 'ACTIVE';
+    document.getElementById('adsTimeStartInput').value = '00:00';
+    document.getElementById('adsTimeEndInput').value = '23:59';
+    document.getElementById('adsManagerUrlInput').value = '';
 
-    adsModal.style.display = 'flex';
+    adsDrawerBackdrop.style.display = 'block';
+    setTimeout(() => {
+      if (adsDrawer) adsDrawer.style.transform = 'translateX(0)';
+    }, 10);
   }
 
   function openEditAdsModal(id) {
     const item = currentAds.find(a => a.id === id);
-    if (!item || !adsForm || !adsModal) return;
+    if (!item || !adsForm || !adsDrawerBackdrop) return;
 
     populateAdsProductDropdowns();
     document.getElementById('adsDocId').value = item.id;
@@ -3068,17 +3101,39 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('adsChannelSelect').value = item.channel || 'tiktok';
     document.getElementById('adsProductSelect').value = item.product_id || '';
     document.getElementById('adsUrlInput').value = item.url || '';
+    document.getElementById('adsManagerUrlInput').value = item.ad_url || item.manager_url || '';
     document.getElementById('adsSpentInput').value = item.spent ? new Intl.NumberFormat('vi-VN').format(item.spent) : '';
     document.getElementById('adsStatusSelect').value = item.status || 'ACTIVE';
-    document.getElementById('adsDateInput').value = item.date || '';
-    document.getElementById('adsTimeFrameInput').value = item.time_frame || '';
+    
+    const itemDate = item.date || '';
+    if (adsDateInput) adsDateInput.value = itemDate;
+    if (adsDateInputText) adsDateInputText.value = itemDate ? formatDateVN(itemDate) : '';
+
+    // Parse time frame
+    const timeFrame = item.time_frame || '';
+    if (timeFrame.includes('-')) {
+      const [start, end] = timeFrame.split('-').map(s => s.trim());
+      if (start) document.getElementById('adsTimeStartInput').value = start;
+      if (end) document.getElementById('adsTimeEndInput').value = end;
+    } else {
+      document.getElementById('adsTimeStartInput').value = '00:00';
+      document.getElementById('adsTimeEndInput').value = '23:59';
+    }
+
     document.getElementById('adsNotesInput').value = item.notes || '';
 
-    adsModal.style.display = 'flex';
+    adsDrawerBackdrop.style.display = 'block';
+    setTimeout(() => {
+      if (adsDrawer) adsDrawer.style.transform = 'translateX(0)';
+    }, 10);
   }
 
   function closeAdsModal() {
-    if (adsModal) adsModal.style.display = 'none';
+    if (!adsDrawerBackdrop) return;
+    if (adsDrawer) adsDrawer.style.transform = 'translateX(100%)';
+    setTimeout(() => {
+      adsDrawerBackdrop.style.display = 'none';
+    }, 280);
   }
 
   async function deleteAds(id) {
@@ -3106,11 +3161,21 @@ document.addEventListener('DOMContentLoaded', () => {
         const channel = document.getElementById('adsChannelSelect').value;
         const product_id = document.getElementById('adsProductSelect').value;
         const url = document.getElementById('adsUrlInput').value.trim();
+        const ad_url = document.getElementById('adsManagerUrlInput')?.value.trim() || '';
         const spentVal = document.getElementById('adsSpentInput').value.replace(/\D/g, '');
         const spent = parseInt(spentVal, 10) || 0;
         const status = document.getElementById('adsStatusSelect').value;
-        const date = document.getElementById('adsDateInput').value;
-        const time_frame = document.getElementById('adsTimeFrameInput').value.trim();
+        
+        let date = document.getElementById('adsDateInput').value;
+        const dateText = document.getElementById('adsDateInputText')?.value.trim() || '';
+        if (!date && dateText) {
+          const parts = /^(\d{2})\/(\d{2})\/(\d{4})$/.exec(dateText);
+          if (parts) date = `${parts[3]}-${parts[2]}-${parts[1]}`;
+        }
+        
+        const startTime = document.getElementById('adsTimeStartInput')?.value.trim() || '00:00';
+        const endTime = document.getElementById('adsTimeEndInput')?.value.trim() || '23:59';
+        const time_frame = `${startTime} - ${endTime}`;
         const notes = document.getElementById('adsNotesInput').value.trim();
 
         const prod = currentProducts.find(p => p.id === product_id);
@@ -3122,6 +3187,8 @@ document.addEventListener('DOMContentLoaded', () => {
           product_id,
           product_name,
           url,
+          ad_url,
+          manager_url: ad_url,
           spent,
           status,
           date,
@@ -3153,6 +3220,9 @@ document.addEventListener('DOMContentLoaded', () => {
   btnOpenAddAds?.addEventListener('click', openAddAdsModal);
   btnCloseAdsModal?.addEventListener('click', closeAdsModal);
   btnCancelAds?.addEventListener('click', closeAdsModal);
+  adsDrawerBackdrop?.addEventListener('click', (e) => {
+    if (e.target === adsDrawerBackdrop) closeAdsModal();
+  });
   document.getElementById('adsSearchInput')?.addEventListener('input', renderFilteredAds);
   document.getElementById('adsChannelFilter')?.addEventListener('change', renderFilteredAds);
   document.getElementById('adsProductFilter')?.addEventListener('change', renderFilteredAds);

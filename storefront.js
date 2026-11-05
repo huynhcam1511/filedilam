@@ -1635,7 +1635,7 @@ function escapeHtml(value) {
       } else {
         cartItems.innerHTML = detailedCart
           .map(function (item) {
-            var imgUrl = item.product.thumbnailUrl || item.product.previewImageUrl;
+            var imgUrl = item.product.previewImageUrl || item.product.thumbnailUrl;
             var thumbHtml = imgUrl
               ? '<div class="drawer-item-thumb"><img src="' + escapeHtml(imgUrl) + '" alt="' + escapeHtml(item.product.name) + '" loading="lazy" /></div>'
               : '<div class="drawer-item-thumb drawer-item-thumb-placeholder">' +
@@ -1740,7 +1740,7 @@ function escapeHtml(value) {
     if (gift) detailedCart = detailedCart.concat({product:{...gift, name:'Quà tặng · ' + gift.name}, quantity:1, total:0});
     checkoutItems.innerHTML = detailedCart
       .map(function (item) {
-        var productImage = item.product.thumbnailUrl || item.product.previewImageUrl || "";
+        var productImage = item.product.previewImageUrl || item.product.thumbnailUrl || "";
         var productDescription = item.product.subtitle || item.product.shortDescription || item.product.description || "File làm việc sẵn sàng sử dụng";
         return (
           '<div class="checkout-product-row">' +
@@ -2269,7 +2269,7 @@ function escapeHtml(value) {
       ? '<span class="product-thumb-discount-tag">-' + discountPercent + '%</span>'
       : '';
 
-    var cardImg = product.thumbnailUrl || product.previewImageUrl;
+    var cardImg = product.previewImageUrl || product.thumbnailUrl;
     if (cardImg) {
       return (
         '<div class="product-thumb" style="background-image:url(&quot;' + escapeHtml(cardImg) + '&quot;);">' +
