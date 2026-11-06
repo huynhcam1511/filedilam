@@ -95,6 +95,8 @@ document.addEventListener('DOMContentLoaded', () => {
       loadAdminStats();
     } else if (tabId === 'couponsTab') {
       loadCoupons();
+    } else if (tabId === 'postsTab') {
+      loadSocialPosts();
     } else if (tabId === 'adsTab') {
       loadAdsCampaigns();
     }
@@ -234,6 +236,8 @@ document.addEventListener('DOMContentLoaded', () => {
         logoutBtn.classList.remove('hidden');
         loadAdminStats(); // Load Dashboard first by default
         loadProducts(); // Preload products
+        try { loadSocialPosts(); } catch (e) {}
+        try { loadAdsCampaigns(); } catch (e) {}
       } else {
         auth.signOut();
         showToast('Tài khoản không có quyền truy cập Admin', true);
@@ -315,6 +319,8 @@ document.addEventListener('DOMContentLoaded', () => {
       if (sidebarBadge) sidebarBadge.textContent = totalNum;
 
       renderFilteredProducts();
+      try { populatePostProductDropdowns(); } catch (e) {}
+      try { populateAdsProductDropdowns(); } catch (e) {}
     } catch (error) {
       console.error("Lỗi tải sản phẩm:", error);
       if (productListBody) {
@@ -4220,6 +4226,8 @@ document.addEventListener('DOMContentLoaded', () => {
       const pInput = document.getElementById('productSearchInput');
       if (pInput) pInput.value = val;
       renderFilteredProducts();
+      try { populatePostProductDropdowns(); } catch (e) {}
+      try { populateAdsProductDropdowns(); } catch (e) {}
     } else if (activeTab === 'ordersTab') {
       const oInput = document.getElementById('orderSearchInput');
       if (oInput) oInput.value = val;
@@ -5265,10 +5273,15 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     form.reset();
     document.getElementById('adsDocId').value = '';
+    const adsPostIdInp = document.getElementById('adsPostIdInput');
+    if (adsPostIdInp) adsPostIdInp.value = '';
+    const adsPostSel = document.getElementById('adsPostSelect');
+    if (adsPostSel) adsPostSel.value = '';
     const titleModal = document.getElementById('adsModalTitle');
     if (titleModal) titleModal.textContent = 'Thêm chiến dịch quảng cáo';
     
     try { populateAdsProductDropdowns(); } catch (e) {}
+    try { populateAdsPostDropdown(); } catch (e) {}
 
     // Default start and end datetime
     const today = new Date().toISOString().split('T')[0];
@@ -5304,6 +5317,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     try { populateAdsProductDropdowns(); } catch (e) {}
+    try { populateAdsPostDropdown(); } catch (e) {}
 
     document.getElementById('adsDocId').value = item.id;
     const titleModal = document.getElementById('adsModalTitle');
@@ -5314,6 +5328,8 @@ document.addEventListener('DOMContentLoaded', () => {
       if (el) el.value = (val !== undefined && val !== null) ? val : '';
     };
 
+    setField('adsPostSelect', item.post_id || '');
+    setField('adsPostIdInput', item.post_id || '');
     setField('adsTitleInput', item.title);
     setField('adsChannelSelect', item.channel || 'tiktok');
     setField('adsProductSelect', item.product_id);
@@ -5471,6 +5487,7 @@ document.addEventListener('DOMContentLoaded', () => {
           duration_label: durationLabel,
           end_date: endDate,
           end_time: endTime,
+          post_id: document.getElementById('adsPostIdInput')?.value || document.getElementById('adsPostSelect')?.value || '',
           time_frame,
           notes,
           updated_at: new Date().toISOString()
@@ -5508,6 +5525,464 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('adsChannelFilter')?.addEventListener('change', renderFilteredAds);
   document.getElementById('adsProductFilter')?.addEventListener('change', renderFilteredAds);
   document.getElementById('adsStatusFilter')?.addEventListener('change', renderFilteredAds);
+
+  // ========================================================
+  // MODULE: QUẢN LÝ BÀI ĐĂNG MXH (SOCIAL MEDIA POSTS & VIDEOS HUB)
+  // Đa nền tảng (TikTok, FB, Reels, YT), Định dạng (Video/Post), Gắn sản phẩm (Tùy chọn)
+  // Liên kết 1 chạm với Quản lý Quảng cáo (Paid Ads)
+  // ========================================================
+  let currentSocialPosts = [];
+  const postsListBody = document.getElementById('postsListBody');
+  const postDrawerBackdrop = document.getElementById('postDrawerBackdrop');
+  const postForm = document.getElementById('postForm');
+  const btnOpenAddPost = document.getElementById('btnOpenAddPost');
+  const btnClosePostModal = document.getElementById('btnClosePostModal');
+  const btnCancelPost = document.getElementById('btnCancelPost');
+
+  function updatePostsSidebarBadge() {
+    const badge = document.getElementById('sidebarPostsCount');
+    if (!badge) return;
+    const cnt = currentSocialPosts.length;
+    if (cnt > 0) {
+      badge.textContent = cnt;
+      badge.style.display = 'inline-flex';
+    } else {
+      badge.style.display = 'none';
+    }
+  }
+
+  function populatePostProductDropdowns() {
+    const filterSelect = document.getElementById('postsProductFilter');
+    const formSelect = document.getElementById('postProductSelect');
+
+    const curFilterVal = filterSelect ? filterSelect.value : 'ALL';
+    const curFormVal = formSelect ? formSelect.value : '';
+
+    if (filterSelect) {
+      filterSelect.innerHTML = '<option value="ALL">Tất cả sản phẩm</option><option value="UNLINKED">Bài chung (Không gắn file)</option>';
+      (currentProducts || []).forEach(p => {
+        const opt = document.createElement('option');
+        opt.value = p.id;
+        opt.textContent = p.name;
+        filterSelect.appendChild(opt);
+      });
+      if (curFilterVal) filterSelect.value = curFilterVal;
+    }
+
+    if (formSelect) {
+      formSelect.innerHTML = '<option value="">-- Không gắn sản phẩm (Bài chia sẻ chung / Branding) --</option>';
+      (currentProducts || []).forEach(p => {
+        const opt = document.createElement('option');
+        opt.value = p.id;
+        opt.textContent = p.name + ' (' + (formatCurrency(p.price) || '0 đ') + ')';
+        formSelect.appendChild(opt);
+      });
+      if (curFormVal) formSelect.value = curFormVal;
+    }
+  }
+
+  function populateAdsPostDropdown() {
+    const adsPostSelect = document.getElementById('adsPostSelect');
+    if (!adsPostSelect) return;
+    const curVal = adsPostSelect.value;
+    adsPostSelect.innerHTML = '<option value="">-- Tạo Ads tự do (Không gắn bài đăng) --</option>';
+    (currentSocialPosts || []).forEach(p => {
+      const opt = document.createElement('option');
+      opt.value = p.id;
+      const pfName = p.platform === 'tiktok' ? 'TikTok' : (p.platform === 'facebook' ? 'Facebook' : (p.platform === 'youtube' ? 'YouTube' : p.platform));
+      const typeLabel = p.type === 'video' ? 'Video' : 'Bài viết';
+      opt.textContent = `[${pfName} - ${typeLabel}] ${p.title || 'Bài không tên'}`;
+      adsPostSelect.appendChild(opt);
+    });
+    if (curVal) adsPostSelect.value = curVal;
+  }
+
+  async function loadSocialPosts() {
+    try {
+      if (postsListBody) {
+        postsListBody.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 36px; color: var(--slate-muted);">Đang tải dữ liệu bài đăng MXH...</td></tr>';
+      }
+      populatePostProductDropdowns();
+
+      // Tải từ collection social_posts
+      try {
+        const snap = await db.collection('social_posts').orderBy('created_at', 'desc').get();
+        currentSocialPosts = [];
+        snap.forEach(doc => {
+          currentSocialPosts.push({ ...doc.data(), id: doc.id });
+        });
+      } catch (eOrder) {
+        // Fallback without orderBy if index not yet generated
+        const snap = await db.collection('social_posts').get();
+        currentSocialPosts = [];
+        snap.forEach(doc => {
+          currentSocialPosts.push({ ...doc.data(), id: doc.id });
+        });
+        currentSocialPosts.sort((a, b) => new Date(b.created_at || b.posted_at || 0) - new Date(a.created_at || a.posted_at || 0));
+      }
+
+      // Tự động đồng bộ các bài đã lưu trong product.social_posts (nếu có) mà chưa có trong collection
+      if (currentProducts && currentProducts.length) {
+        currentProducts.forEach(prod => {
+          if (Array.isArray(prod.social_posts) && prod.social_posts.length) {
+            prod.social_posts.forEach(sp => {
+              if (sp.url && !currentSocialPosts.some(p => p.url === sp.url)) {
+                const autoDoc = {
+                  id: 'post_auto_' + Math.random().toString(36).slice(2, 8),
+                  platform: sp.platform || 'tiktok',
+                  type: 'video',
+                  title: sp.title || (prod.name + ' - Video MXH'),
+                  url: sp.url,
+                  product_id: prod.id,
+                  posted_at: '',
+                  status: 'PUBLISHED',
+                  notes: 'Tự động đồng bộ từ chi tiết sản phẩm',
+                  created_at: new Date().toISOString()
+                };
+                currentSocialPosts.push(autoDoc);
+              }
+            });
+          }
+        });
+      }
+
+      renderFilteredPosts();
+      updatePostsSidebarBadge();
+      populateAdsPostDropdown();
+    } catch (err) {
+      console.error('Lỗi loadSocialPosts:', err);
+      if (postsListBody) {
+        postsListBody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: #ef4444; padding: 30px;">Không thể tải danh sách bài đăng MXH.</td></tr>';
+      }
+    }
+  }
+
+  function renderFilteredPosts() {
+    if (!postsListBody) return;
+
+    const searchVal = (document.getElementById('postsSearchInput')?.value || '').trim().toLowerCase();
+    const platformVal = document.getElementById('postsPlatformFilter')?.value || 'ALL';
+    const typeVal = document.getElementById('postsTypeFilter')?.value || 'ALL';
+    const productVal = document.getElementById('postsProductFilter')?.value || 'ALL';
+
+    const filtered = currentSocialPosts.filter(p => {
+      const matchSearch = !searchVal ||
+        String(p.title || '').toLowerCase().includes(searchVal) ||
+        String(p.url || '').toLowerCase().includes(searchVal) ||
+        String(p.notes || '').toLowerCase().includes(searchVal);
+      const matchPlatform = platformVal === 'ALL' || p.platform === platformVal;
+      const matchType = typeVal === 'ALL' || (p.type || 'video') === typeVal;
+      let matchProduct = true;
+      if (productVal === 'UNLINKED') {
+        matchProduct = !p.product_id;
+      } else if (productVal !== 'ALL') {
+        matchProduct = p.product_id === productVal;
+      }
+      return matchSearch && matchPlatform && matchType && matchProduct;
+    });
+
+    const totalCountEl = document.getElementById('postsTotalCount');
+    if (totalCountEl) totalCountEl.textContent = filtered.length;
+
+    if (!filtered.length) {
+      postsListBody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: var(--slate-muted); padding: 48px 20px;">Chưa có bài đăng nào phù hợp. Bấm <b>Thêm bài đăng</b> để bắt đầu lưu trữ video & bài viết MXH!</td></tr>';
+      return;
+    }
+
+    postsListBody.innerHTML = filtered.map(p => {
+      // 1. Icon & Label Platform
+      let pfIcon = '';
+      let pfName = 'Khác';
+      if (p.platform === 'tiktok') {
+        pfName = 'TikTok';
+        pfIcon = '<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" style="color: #000;"><path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 5 20.1a6.34 6.34 0 0 0 10.86-4.43v-7a8.16 8.16 0 0 0 4.77 1.52v-3.4a4.85 4.85 0 0 1-1.04-.1z"/></svg>';
+      } else if (p.platform === 'facebook') {
+        pfName = 'Facebook';
+        pfIcon = '<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" style="color: #1877f2;"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>';
+      } else if (p.platform === 'youtube') {
+        pfName = 'YouTube';
+        pfIcon = '<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" style="color: #ef4444;"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>';
+      } else if (p.platform === 'instagram') {
+        pfName = 'Instagram';
+        pfIcon = '<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" style="color: #e1306c;"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>';
+      } else if (p.platform === 'threads') {
+        pfName = 'Threads';
+        pfIcon = '<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12.001 0C5.372 0 0 5.373 0 12.001c0 6.626 5.372 11.999 12.001 11.999 6.626 0 11.999-5.373 11.999-11.999C22 5.373 16.627 0 12.001 0zm4.846 13.903c-.225 3.328-2.68 5.097-5.59 5.097-3.085 0-5.698-2.316-5.698-5.748 0-3.493 2.656-5.794 5.926-5.794 2.873 0 5.035 1.743 5.432 4.418h-1.859c-.318-1.745-1.734-2.748-3.573-2.748-2.278 0-3.957 1.637-3.957 4.124 0 2.457 1.652 4.077 3.73 4.077 1.724 0 3.094-.962 3.491-2.426h-3.491v-1.67h5.589v.67z"/></svg>';
+      }
+
+      const isVideo = (p.type || 'video') === 'video';
+      const typeBadge = isVideo 
+        ? '<span style="font-size: 0.69rem; font-weight: 600; padding: 2px 6px; background: #e0f2fe; color: #0284c7; border-radius: 4px; display: inline-flex; align-items: center; gap: 3px;"><svg width="9" height="9" fill="currentColor" viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg> Video</span>'
+        : '<span style="font-size: 0.69rem; font-weight: 600; padding: 2px 6px; background: #f1f5f9; color: #475569; border-radius: 4px; display: inline-flex; align-items: center; gap: 3px;"><svg width="9" height="9" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16m-7 6h7"></path></svg> Bài viết</span>';
+
+      // 2. Product name
+      const prod = (currentProducts || []).find(pr => pr.id === p.product_id);
+      const prodNameHtml = prod 
+        ? `<div style="font-weight: 600; color: #0f172a; font-size: 0.84rem; display: flex; align-items: center; gap: 6px;"><span style="width: 6px; height: 6px; border-radius: 50%; background: #10b981; flex-shrink: 0;"></span><span title="${escapeHtml(prod.name)}">${escapeHtml(prod.name)}</span></div>`
+        : `<span style="color: #94a3b8; font-size: 0.78rem; font-style: italic;">Chung (Không gắn file)</span>`;
+
+      // 3. Date
+      const dateStr = p.posted_at ? (p.posted_at.split('-').reverse().join('/')) : (p.created_at ? (p.created_at.slice(0, 10).split('-').reverse().join('/')) : 'Chưa đặt');
+
+      // 4. Ads matching
+      const matchingAds = (currentAds || []).filter(a => {
+        if (a.post_id && a.post_id === p.id) return true;
+        if (p.url && a.url && (a.url.trim() === p.url.trim() || a.url.includes(p.url) || p.url.includes(a.url))) return true;
+        return false;
+      });
+      const adsCount = matchingAds.length;
+      const totalAdsSpentOnPost = matchingAds.reduce((sum, a) => sum + (Number(a.spent) || 0), 0);
+      const totalAdsViewsOnPost = matchingAds.reduce((sum, a) => sum + (Number(a.views) || 0), 0);
+
+      let adsHtml = '';
+      if (adsCount > 0) {
+        adsHtml = `
+          <div>
+            <span style="font-size: 0.8rem; font-weight: 700; color: #059669; font-family: monospace;">${adsCount} đợt • ${formatCurrency(totalAdsSpentOnPost)}</span>
+            <div style="font-size: 0.7rem; color: #64748b; margin-top: 1px;">${formatNumber(totalAdsViewsOnPost)} lượt xem Ads</div>
+          </div>
+        `;
+      } else {
+        adsHtml = '<span style="color: #94a3b8; font-size: 0.78rem;">Chưa chạy Ads</span>';
+      }
+
+      return `
+        <tr>
+          <td>
+            <div style="display: flex; align-items: center; gap: 6px; font-weight: 600; font-size: 0.84rem; color: #1e293b; margin-bottom: 4px;">
+              ${pfIcon} <span>${pfName}</span>
+            </div>
+            ${typeBadge}
+          </td>
+          <td>
+            <div style="font-weight: 600; color: #0f172a; font-size: 0.88rem; line-height: 1.35; margin-bottom: 4px;" title="${escapeHtml(p.title || '')}">
+              ${escapeHtml(p.title || 'Không có tiêu đề')}
+            </div>
+            ${p.url ? `
+              <div style="display: flex; align-items: center; gap: 6px;">
+                <a href="${escapeHtml(p.url)}" target="_blank" rel="noopener" style="font-size: 0.74rem; color: #059669; font-family: monospace; text-decoration: none; display: inline-flex; align-items: center; gap: 4px; max-width: 260px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="Mở link bài viết">
+                  ${escapeHtml(p.url)}
+                  <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
+                </a>
+              </div>
+            ` : ''}
+            ${p.notes ? `<div style="font-size: 0.72rem; color: #64748b; margin-top: 3px; font-style: italic; max-width: 320px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${escapeHtml(p.notes)}</div>` : ''}
+          </td>
+          <td>
+            ${prodNameHtml}
+          </td>
+          <td>
+            <div style="font-size: 0.82rem; font-family: monospace; color: #475569;">${dateStr}</div>
+          </td>
+          <td>
+            ${adsHtml}
+          </td>
+          <td style="text-align: center;">
+            <div style="display: inline-flex; align-items: center; gap: 6px;">
+              <button type="button" class="btn-create-ads-from-post" data-id="${p.id}" style="height: 28px; padding: 0 10px; font-size: 0.74rem; font-weight: 600; color: #047857; background: #ecfdf5; border: 1px solid #a7f3d0; border-radius: 4px; cursor: pointer; display: inline-flex; align-items: center; gap: 4px;" title="Tạo chiến dịch Ads 1 chạm cho bài này">
+                <svg width="11" height="11" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                <span>Chạy Ads</span>
+              </button>
+              <button type="button" class="btn-edit-post" data-id="${p.id}" style="background: none; border: none; color: #64748b; cursor: pointer; padding: 4px; border-radius: 4px;" title="Sửa bài">
+                <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
+              </button>
+              <button type="button" class="btn-delete-post" data-id="${p.id}" style="background: none; border: none; color: #94a3b8; cursor: pointer; padding: 4px; border-radius: 4px;" title="Xóa bài" onmouseover="this.style.color='#ef4444'" onmouseout="this.style.color='#94a3b8'">
+                <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+              </button>
+            </div>
+          </td>
+        </tr>
+      `;
+    }).join('');
+
+    // Event listeners
+    postsListBody.querySelectorAll('.btn-create-ads-from-post').forEach(b => {
+      b.addEventListener('click', () => triggerCreateAdsFromPost(b.dataset.id));
+    });
+    postsListBody.querySelectorAll('.btn-edit-post').forEach(b => {
+      b.addEventListener('click', () => {
+        const post = currentSocialPosts.find(p => p.id === b.dataset.id);
+        if (post) openAddPostModal(post);
+      });
+    });
+    postsListBody.querySelectorAll('.btn-delete-post').forEach(b => {
+      b.addEventListener('click', () => deleteSocialPost(b.dataset.id));
+    });
+  }
+
+  function openAddPostModal(post = null) {
+    if (!postDrawerBackdrop) return;
+    populatePostProductDropdowns();
+
+    const titleEl = document.getElementById('postModalTitle');
+    const docIdInp = document.getElementById('postDocId');
+    const platformSelect = document.getElementById('postPlatformSelect');
+    const typeSelect = document.getElementById('postTypeSelect');
+    const titleInp = document.getElementById('postTitleInput');
+    const urlInp = document.getElementById('postUrlInput');
+    const prodSelect = document.getElementById('postProductSelect');
+    const dateInp = document.getElementById('postDateInput');
+    const statusSelect = document.getElementById('postStatusSelect');
+    const notesInp = document.getElementById('postNotesInput');
+
+    if (post) {
+      if (titleEl) titleEl.textContent = 'Chỉnh sửa bài đăng MXH';
+      if (docIdInp) docIdInp.value = post.id;
+      if (platformSelect) platformSelect.value = post.platform || 'tiktok';
+      if (typeSelect) typeSelect.value = post.type || 'video';
+      if (titleInp) titleInp.value = post.title || '';
+      if (urlInp) urlInp.value = post.url || '';
+      if (prodSelect) prodSelect.value = post.product_id || '';
+      if (dateInp) dateInp.value = post.posted_at || (post.created_at ? post.created_at.slice(0, 10) : '');
+      if (statusSelect) statusSelect.value = post.status || 'PUBLISHED';
+      if (notesInp) notesInp.value = post.notes || '';
+    } else {
+      if (titleEl) titleEl.textContent = 'Thêm bài đăng MXH mới';
+      if (docIdInp) docIdInp.value = '';
+      if (postForm) postForm.reset();
+      if (statusSelect) statusSelect.value = 'PUBLISHED';
+      if (dateInp) dateInp.value = new Date().toISOString().slice(0, 10);
+    }
+
+    postDrawerBackdrop.style.display = 'flex';
+  }
+
+  function closePostModal() {
+    if (postDrawerBackdrop) postDrawerBackdrop.style.display = 'none';
+  }
+
+  window.openAddPostModal = openAddPostModal;
+
+  if (postForm) {
+    postForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const submitBtn = postForm.querySelector('button[type="submit"]');
+      if (submitBtn) submitBtn.disabled = true;
+
+      try {
+        const docId = document.getElementById('postDocId')?.value;
+        const payload = {
+          platform: document.getElementById('postPlatformSelect')?.value || 'tiktok',
+          type: document.getElementById('postTypeSelect')?.value || 'video',
+          title: document.getElementById('postTitleInput')?.value.trim() || '',
+          url: document.getElementById('postUrlInput')?.value.trim() || '',
+          product_id: document.getElementById('postProductSelect')?.value || '',
+          posted_at: document.getElementById('postDateInput')?.value || '',
+          status: document.getElementById('postStatusSelect')?.value || 'PUBLISHED',
+          notes: document.getElementById('postNotesInput')?.value.trim() || '',
+          updated_at: new Date().toISOString()
+        };
+
+        if (docId && !docId.startsWith('post_auto_')) {
+          await db.collection('social_posts').doc(docId).set(payload, { merge: true });
+          showToast('Đã cập nhật bài đăng MXH thành công.');
+        } else {
+          payload.created_at = new Date().toISOString();
+          await db.collection('social_posts').add(payload);
+          showToast('Đã thêm bài đăng MXH mới thành công.');
+        }
+
+        closePostModal();
+        loadSocialPosts();
+      } catch (err) {
+        console.error('Lỗi lưu social post:', err);
+        showToast('Lỗi: ' + err.message, true);
+      } finally {
+        if (submitBtn) submitBtn.disabled = false;
+      }
+    });
+  }
+
+  async function deleteSocialPost(id) {
+    if (!confirm('Bạn có chắc chắn muốn xóa bài đăng này khỏi danh sách?')) return;
+    try {
+      if (!id.startsWith('post_auto_')) {
+        await db.collection('social_posts').doc(id).delete();
+      }
+      currentSocialPosts = currentSocialPosts.filter(p => p.id !== id);
+      showToast('Đã xóa bài đăng.');
+      renderFilteredPosts();
+      updatePostsSidebarBadge();
+      populateAdsPostDropdown();
+    } catch (err) {
+      console.error(err);
+      showToast('Lỗi khi xóa: ' + err.message, true);
+    }
+  }
+
+  function triggerCreateAdsFromPost(postId) {
+    const post = currentSocialPosts.find(p => p.id === postId);
+    if (!post) return;
+
+    openAddAdsModal();
+
+    const adsPostSelect = document.getElementById('adsPostSelect');
+    if (adsPostSelect) adsPostSelect.value = post.id;
+
+    const adsPostIdInp = document.getElementById('adsPostIdInput');
+    if (adsPostIdInp) adsPostIdInp.value = post.id;
+
+    const adsChannel = document.getElementById('adsChannelSelect');
+    if (adsChannel) {
+      if (post.platform === 'tiktok' || post.platform === 'facebook') adsChannel.value = post.platform;
+      else adsChannel.value = 'other';
+    }
+
+    const adsProduct = document.getElementById('adsProductSelect');
+    if (adsProduct && post.product_id) {
+      adsProduct.value = post.product_id;
+    }
+
+    const adsTitle = document.getElementById('adsTitleInput');
+    if (adsTitle) {
+      adsTitle.value = 'Ads: ' + (post.title || 'Video MXH');
+    }
+
+    const adsManagerUrl = document.getElementById('adsManagerUrlInput');
+    if (adsManagerUrl && post.url && !adsManagerUrl.value) {
+      adsManagerUrl.value = post.url;
+    }
+
+    showToast('Đã chọn bài: ' + (post.title || 'Video MXH') + '. Hãy nhập số tiền và lịch chạy Ads.');
+  }
+
+  // Event listener khi đổi bài đăng trong Drawer Ads
+  document.getElementById('adsPostSelect')?.addEventListener('change', (e) => {
+    const postId = e.target.value;
+    const adsPostIdInp = document.getElementById('adsPostIdInput');
+    if (adsPostIdInp) adsPostIdInp.value = postId;
+
+    if (!postId) return;
+    const post = (currentSocialPosts || []).find(p => p.id === postId);
+    if (!post) return;
+
+    const adsChannel = document.getElementById('adsChannelSelect');
+    if (adsChannel) {
+      if (post.platform === 'tiktok' || post.platform === 'facebook') adsChannel.value = post.platform;
+      else adsChannel.value = 'other';
+    }
+
+    const adsProduct = document.getElementById('adsProductSelect');
+    if (adsProduct && post.product_id) {
+      adsProduct.value = post.product_id;
+    }
+
+    const adsTitle = document.getElementById('adsTitleInput');
+    if (adsTitle) {
+      adsTitle.value = 'Ads: ' + (post.title || 'Video MXH');
+    }
+  });
+
+  btnOpenAddPost?.addEventListener('click', () => openAddPostModal());
+  btnClosePostModal?.addEventListener('click', closePostModal);
+  btnCancelPost?.addEventListener('click', closePostModal);
+  postDrawerBackdrop?.addEventListener('click', (e) => {
+    if (e.target === postDrawerBackdrop) closePostModal();
+  });
+  document.getElementById('postsSearchInput')?.addEventListener('input', renderFilteredPosts);
+  document.getElementById('postsPlatformFilter')?.addEventListener('change', renderFilteredPosts);
+  document.getElementById('postsTypeFilter')?.addEventListener('change', renderFilteredPosts);
+  document.getElementById('postsProductFilter')?.addEventListener('change', renderFilteredPosts);
 
 });
 

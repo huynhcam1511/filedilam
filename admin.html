@@ -1928,9 +1928,9 @@
           </ul>
         </div>
 
-        <!-- Group 3: ĐƠN HÀNG & TÀI CHÍNH -->
+        <!-- Group 3: TÀI CHÍNH, ĐƠN HÀNG & MARKETING -->
         <div class="sidebar-group">
-          <div class="sidebar-group-title">Tài chính & Đơn hàng</div>
+          <div class="sidebar-group-title">Tài chính & Marketing</div>
           <ul class="sidebar-menu">
             <li data-tab="ordersTab">
               <div class="menu-left">
@@ -1943,6 +1943,12 @@
                 <span>Mã giảm giá</span>
               </div>
               <span class="sidebar-badge mint" id="sidebarCouponCount">1</span>
+            </li>
+            <li data-tab="postsTab">
+              <div class="menu-left">
+                <span>Bài đăng MXH</span>
+              </div>
+              <span class="sidebar-badge mint" id="sidebarPostsCount" style="display:none;">0</span>
             </li>
             <li data-tab="adsTab">
               <div class="menu-left">
@@ -2728,7 +2734,74 @@
         </div>
       </div>
 
-          <!-- TAB 6: ADS MANAGEMENT (QUẢN LÝ QUẢNG CÁO) -->
+      <!-- TAB: SOCIAL MEDIA POSTS & VIDEOS (BÀI ĐĂNG MXH) -->
+      <div id="postsTab" class="tab-pane">
+        <!-- Action Toolbar -->
+        <div class="action-toolbar">
+          <div class="toolbar-left">
+            <div class="search-box-pill">
+              <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+              <input type="search" id="postsSearchInput" placeholder="Tìm theo chủ đề, link video, ghi chú..." />
+            </div>
+
+            <select id="postsPlatformFilter" class="pill-select">
+              <option value="ALL">Tất cả nền tảng</option>
+              <option value="tiktok">TikTok</option>
+              <option value="facebook">Facebook / Reels</option>
+              <option value="youtube">YouTube Shorts</option>
+              <option value="instagram">Instagram</option>
+              <option value="threads">Threads</option>
+              <option value="other">Kênh khác</option>
+            </select>
+
+            <select id="postsTypeFilter" class="pill-select">
+              <option value="ALL">Tất cả định dạng</option>
+              <option value="video">Video ngắn</option>
+              <option value="post">Bài viết / Ảnh</option>
+            </select>
+
+            <select id="postsProductFilter" class="pill-select">
+              <option value="ALL">Tất cả sản phẩm</option>
+              <option value="UNLINKED">Bài chung (Không gắn file)</option>
+            </select>
+          </div>
+
+          <div class="toolbar-right">
+            <div class="toolbar-meta-text" style="color: #64748b; font-size: 0.85rem;">
+              Tổng cộng: <strong id="postsTotalCount" style="color: #0f172a; font-family: monospace;">0</strong> bài đăng
+            </div>
+            <button type="button" class="btn-create-pill" id="btnOpenAddPost" onclick="window.openAddPostModal && window.openAddPostModal()" title="Thêm bài đăng MXH mới">
+              <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"></path></svg>
+              Thêm bài đăng
+            </button>
+          </div>
+        </div>
+
+        <!-- Posts Table -->
+        <div class="data-table-card">
+          <div class="table-responsive">
+            <table class="alocal-table">
+              <thead>
+                <tr>
+                  <th style="width: 150px;">Nền tảng &amp; Định dạng</th>
+                  <th>Chủ đề &amp; Link bài đăng</th>
+                  <th style="width: 210px;">Sản phẩm mục tiêu</th>
+                  <th style="width: 110px;">Ngày đăng</th>
+                  <th style="width: 170px;">Chiến dịch Ads</th>
+                  <th style="width: 140px; text-align: center;">Thao tác</th>
+                </tr>
+              </thead>
+              <tbody id="postsListBody">
+                <tr>
+                  <td colspan="6" style="text-align: center; padding: 40px; color: var(--slate-muted);">Đang tải dữ liệu bài đăng...</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB 6: ADS MANAGEMENT (QUẢN LÝ QUẢNG CÁO) -->
       <div id="adsTab" class="tab-pane">
         <!-- Action Toolbar -->
         <div class="action-toolbar">
@@ -2805,7 +2878,7 @@
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-storage-compat.js"></script>
   <script src="/__/firebase/init.js"></script>
   
-  <script src="./admin.js?v=282"></script>
+  <script src="./admin.js?v=283"></script>
   <!-- Agentation: Visual Feedback & Annotation for AI agents -->
   <script src="./agentation-vanilla.js"></script>
 
@@ -2827,9 +2900,17 @@
             <!-- Drawer Body (Nền phẳng đồng nhất, không card bọc card) -->
             <form id="adsForm" style="flex: 1; overflow-y: auto; padding: 22px 24px; display: flex; flex-direction: column; gap: 24px; background: #ffffff;">
               <input type="hidden" id="adsDocId" value="" />
+              <input type="hidden" id="adsPostIdInput" value="" />
 
               <!-- NHÓM 1: Cấu hình cơ bản & Liên kết -->
               <div style="display: flex; flex-direction: column; gap: 14px;">
+                <div>
+                  <label style="display: block; font-size: 0.85rem; font-weight: 600; color: #334155; margin-bottom: 6px;">Bài đăng MXH liên kết (Tùy chọn)</label>
+                  <select id="adsPostSelect" style="width: 100%; height: 42px; border: 1px solid #cbd5e1; border-radius: 6px; padding: 0 10px; font-size: 0.88rem; color: #0f172a; background: #ffffff; box-sizing: border-box;">
+                    <option value="">-- Tạo Ads tự do (Không gắn bài đăng) --</option>
+                  </select>
+                </div>
+
                 <div style="display: grid; grid-template-columns: 1.2fr 1fr; gap: 12px;">
                   <div>
                     <label style="display: block; font-size: 0.85rem; font-weight: 600; color: #334155; margin-bottom: 6px;">Sản phẩm chạy ads <span style="color: #ef4444;">*</span></label>
@@ -3051,6 +3132,97 @@
               <div style="display: flex; justify-content: flex-end; gap: 10px; padding: 16px 0 4px 0; border-top: 1px solid #e2e8f0; background: #ffffff; position: sticky; bottom: 0;">
                 <button type="button" id="btnCancelAds" style="height: 42px; padding: 0 20px; border: 1px solid #cbd5e1; background: #ffffff; border-radius: 6px; font-weight: 600; font-size: 0.88rem; color: #475569; cursor: pointer;">Hủy</button>
                 <button type="submit" id="btnSaveAds" style="height: 42px; padding: 0 24px; border: none; border-radius: 6px; font-size: 0.9rem; font-weight: 600; background: #059669; color: #ffffff; cursor: pointer;">Lưu chiến dịch</button>
+              </div>
+            </form>
+          </div>
+        </div>
+        <!-- Add/Edit Social Post Drawer (Trượt từ phải sang chuẩn SaaS) -->
+        <div id="postDrawerBackdrop" style="display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.45); z-index: 99999; justify-content: flex-end; align-items: stretch;">
+          <div id="postDrawer" style="position: relative; width: 100%; max-width: 580px; height: 100%; background: #ffffff; box-shadow: -10px 0 30px rgba(0,0,0,0.15); display: flex; flex-direction: column;">
+            
+            <!-- Drawer Header (Phẳng, tối giản chuẩn AGENTS.md) -->
+            <div style="padding: 20px 24px 16px; border-bottom: 1px solid #e2e8f0; display: flex; align-items: center; justify-content: space-between; background: #ffffff; flex-shrink: 0;">
+              <div>
+                <h3 id="postModalTitle" style="margin: 0; font-size: 1.15rem; color: #0f172a; font-weight: 700; letter-spacing: -0.01em;">Thêm bài đăng MXH mới</h3>
+                <p style="margin: 4px 0 0; font-size: 0.78rem; color: #64748b;">Quản lý kho nội dung video TikTok, Reels và bài viết truyền thông</p>
+              </div>
+              <button type="button" id="btnClosePostModal" style="background: none; border: none; font-size: 1.5rem; line-height: 1; color: #94a3b8; cursor: pointer; padding: 4px 8px; border-radius: 6px;" title="Đóng">&times;</button>
+            </div>
+            
+            <!-- Drawer Body -->
+            <form id="postForm" style="flex: 1; overflow-y: auto; padding: 22px 24px; display: flex; flex-direction: column; gap: 20px; background: #ffffff;">
+              <input type="hidden" id="postDocId" value="" />
+
+              <!-- NHÓM 1: Nền tảng & Định dạng -->
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                <div>
+                  <label style="display: block; font-size: 0.85rem; font-weight: 600; color: #334155; margin-bottom: 6px;">Nền tảng đăng <span style="color: #ef4444;">*</span></label>
+                  <select id="postPlatformSelect" required style="width: 100%; height: 42px; border: 1px solid #cbd5e1; border-radius: 6px; padding: 0 10px; font-size: 0.88rem; color: #0f172a; background: #ffffff; box-sizing: border-box;">
+                    <option value="tiktok">TikTok</option>
+                    <option value="facebook">Facebook / Reels</option>
+                    <option value="youtube">YouTube Shorts</option>
+                    <option value="instagram">Instagram</option>
+                    <option value="threads">Threads</option>
+                    <option value="other">Kênh khác</option>
+                  </select>
+                </div>
+                <div>
+                  <label style="display: block; font-size: 0.85rem; font-weight: 600; color: #334155; margin-bottom: 6px;">Định dạng bài <span style="color: #ef4444;">*</span></label>
+                  <select id="postTypeSelect" required style="width: 100%; height: 42px; border: 1px solid #cbd5e1; border-radius: 6px; padding: 0 10px; font-size: 0.88rem; color: #0f172a; background: #ffffff; box-sizing: border-box;">
+                    <option value="video">Video ngắn (TikTok/Reels/Shorts)</option>
+                    <option value="post">Bài viết / Ảnh / Carousel</option>
+                  </select>
+                </div>
+              </div>
+
+              <!-- NHÓM 2: Chủ đề / Góc Hook -->
+              <div>
+                <label style="display: block; font-size: 0.85rem; font-weight: 600; color: #334155; margin-bottom: 6px;">Chủ đề / Câu Hook video <span style="color: #ef4444;">*</span></label>
+                <input type="text" id="postTitleInput" required placeholder="VD: Nỗi đau mất tiền COD khi bán hàng online" style="width: 100%; height: 42px; border: 1px solid #cbd5e1; border-radius: 6px; padding: 0 14px; font-size: 0.9rem; color: #0f172a; box-sizing: border-box; background: #ffffff;" />
+              </div>
+
+              <!-- NHÓM 3: Đường dẫn link -->
+              <div>
+                <label style="display: block; font-size: 0.85rem; font-weight: 600; color: #334155; margin-bottom: 6px;">Link bài viết / video (URL)</label>
+                <input type="url" id="postUrlInput" placeholder="https://www.tiktok.com/@.../video/..." style="width: 100%; height: 42px; border: 1px solid #cbd5e1; border-radius: 6px; padding: 0 14px; font-family: monospace; font-size: 0.85rem; color: #0f172a; box-sizing: border-box; background: #ffffff;" />
+                <span style="display: block; font-size: 0.74rem; color: #64748b; margin-top: 4px;">Dán link TikTok, Reels, YouTube Shorts hoặc bài post Facebook để bấm mở nhanh.</span>
+              </div>
+
+              <!-- NHÓM 4: Sản phẩm mục tiêu (Không bắt buộc) -->
+              <div>
+                <label style="display: block; font-size: 0.85rem; font-weight: 600; color: #334155; margin-bottom: 6px;">Sản phẩm gắn kèm (Tùy chọn)</label>
+                <select id="postProductSelect" style="width: 100%; height: 42px; border: 1px solid #cbd5e1; border-radius: 6px; padding: 0 10px; font-size: 0.88rem; color: #0f172a; background: #ffffff; box-sizing: border-box;">
+                  <option value="">-- Không gắn sản phẩm (Bài chia sẻ chung / Branding) --</option>
+                </select>
+                <span style="display: block; font-size: 0.74rem; color: #64748b; margin-top: 4px;">Nếu gắn sản phẩm, khi chạy Ads hệ thống sẽ tự đối soát doanh thu và tính ROAS chuẩn xác.</span>
+              </div>
+
+              <!-- NHÓM 5: Ngày đăng & Trạng thái -->
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                <div>
+                  <label style="display: block; font-size: 0.85rem; font-weight: 600; color: #334155; margin-bottom: 6px;">Ngày đăng trên MXH</label>
+                  <input type="date" id="postDateInput" style="width: 100%; height: 42px; border: 1px solid #cbd5e1; border-radius: 6px; padding: 0 10px; font-size: 0.88rem; font-family: monospace; color: #0f172a; background: #ffffff; box-sizing: border-box;" />
+                </div>
+                <div>
+                  <label style="display: block; font-size: 0.85rem; font-weight: 600; color: #334155; margin-bottom: 6px;">Trạng thái bài</label>
+                  <select id="postStatusSelect" style="width: 100%; height: 42px; border: 1px solid #cbd5e1; border-radius: 6px; padding: 0 10px; font-size: 0.88rem; color: #0f172a; background: #ffffff; box-sizing: border-box;">
+                    <option value="PUBLISHED" selected>Đã đăng công khai</option>
+                    <option value="DRAFT">Bản nháp / Đang quay</option>
+                    <option value="PLANNED">Lên kế hoạch đăng</option>
+                  </select>
+                </div>
+              </div>
+
+              <!-- NHÓM 6: Ghi chú & Kịch bản -->
+              <div>
+                <label style="display: block; font-size: 0.85rem; font-weight: 600; color: #334155; margin-bottom: 6px;">Ghi chú / Kịch bản / Ý tưởng hook</label>
+                <textarea id="postNotesInput" rows="4" placeholder="VD: Video đánh vào tâm lý sợ mất tiền COD. Nhạc nền trending '...'. Kêu gọi bio link nhận file tự động 3s..." style="width: 100%; border: 1px solid #cbd5e1; border-radius: 6px; padding: 10px 14px; font-size: 0.88rem; color: #0f172a; resize: vertical; line-height: 1.5; box-sizing: border-box; background: #ffffff;"></textarea>
+              </div>
+
+              <!-- Footer Buttons -->
+              <div style="display: flex; justify-content: flex-end; gap: 10px; padding: 16px 0 4px 0; border-top: 1px solid #e2e8f0; background: #ffffff; position: sticky; bottom: 0;">
+                <button type="button" id="btnCancelPost" style="height: 42px; padding: 0 20px; border: 1px solid #cbd5e1; background: #ffffff; border-radius: 6px; font-weight: 600; font-size: 0.88rem; color: #475569; cursor: pointer;">Hủy</button>
+                <button type="submit" id="btnSavePost" style="height: 42px; padding: 0 24px; border: none; border-radius: 6px; font-size: 0.9rem; font-weight: 600; background: #059669; color: #ffffff; cursor: pointer;">Lưu bài đăng</button>
               </div>
             </form>
           </div>
