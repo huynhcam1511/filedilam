@@ -2350,18 +2350,19 @@
                   <thead>
                     <tr>
                       <th style="width: 95px;">Mã đơn</th>
-                      <th style="width: 95px;">Thời gian</th>
-                      <th style="width: 220px;">Khách hàng</th>
-                      <th style="width: 180px;">Sản phẩm</th>
-                      <th style="text-align: center; width: 85px;">Mã giảm</th>
-                      <th style="text-align: right; width: 85px;">Giảm giá</th>
+                      <th style="width: 95px;">Lên đơn</th>
+                      <th style="width: 95px;">Thanh toán</th>
+                      <th style="width: 210px;">Khách hàng</th>
+                      <th style="width: 170px;">Sản phẩm</th>
+                      <th style="text-align: center; width: 80px;">Mã giảm</th>
+                      <th style="text-align: right; width: 80px;">Giảm giá</th>
                       <th style="text-align: right; width: 95px;">Số tiền</th>
                       <th style="text-align: center; width: 125px;">Trạng thái</th>
                       <th style="text-align: center; width: 55px;">Mã QR</th>
                     </tr>
                   </thead>
                   <tbody id="orderListBody">
-                    <tr><td colspan="9" style="text-align: center; color: var(--slate-muted); padding: 40px;">Đang tải danh sách đơn hàng...</td></tr>
+                    <tr><td colspan="10" style="text-align: center; color: var(--slate-muted); padding: 40px;">Đang tải danh sách đơn hàng...</td></tr>
                   </tbody>
                 </table>
               </div>
@@ -2475,14 +2476,15 @@
                 <!-- CHART VIEW SELECTOR (SEGMENTED PILLS) -->
                 <div class="pill-btn-group" id="statsChartViewSelector" style="margin: 0; display: flex; flex-wrap: wrap; gap: 4px;">
                   <button type="button" class="pill-btn active" data-view="combo" title="Cột kép Doanh thu & Chi phí Ads">Doanh thu & Ads</button>
-                  <button type="button" class="pill-btn" data-view="lag72h" title="Hiệu ứng trễ 72h: Đo lường đợt nổ đơn sau khi chạy ads">Hiệu ứng trễ 72h</button>
-                  <button type="button" class="pill-btn" data-view="funnel" title="Phễu Marketing: Views -> Xem sâu -> Clicks -> Đơn hàng">Phễu Chuyển Đổi</button>
-                  <button type="button" class="pill-btn" data-view="decision" title="Ma trận ra quyết định: Vít - Sửa web - Nuôi tệp - Tắt">Ma Trận Quyết Định</button>
-                  <button type="button" class="pill-btn" data-view="waterfall" title="Thác nước P&L: Doanh thu - Ads = Lợi nhuận">Waterfall P&L</button>
+                  <button type="button" class="pill-btn" data-view="cashflow" title="Dòng tiền thực thu - chi phí Ads - tích lũy quỹ tiền mặt">Dòng Tiền</button>
+                  <button type="button" class="pill-btn" data-view="waterfall" title="Thác nước P&L: Doanh thu niêm yết - Giảm giá - Chi phí Ads = Lợi nhuận">Waterfall P&L</button>
+                  <button type="button" class="pill-btn" data-view="funnel" title="Phễu Marketing 5 tầng: Views -> Xem sâu -> Clicks -> Tạo đơn -> Thanh toán">Phễu Chuyển Đổi</button>
+                  <button type="button" class="pill-btn" data-view="decision" title="Ma trận 4 góc phân tán: Doanh thu vs Chi phí Ads">Ma Trận Hiệu Quả</button>
+                  <button type="button" class="pill-btn" data-view="lag72h" title="Hiệu ứng trễ 72h: Đo lường độ dốc doanh thu nổ sau khi chạy Ads">Hiệu ứng trễ 72h</button>
                   <button type="button" class="pill-btn" data-view="pareto" title="Quy luật 80/20 đóng góp doanh số">Pareto 80/20</button>
                 </div>
               </div>
-              <div id="revenueChartContainer" style="min-height: 220px; display: flex; flex-direction: column; border-bottom: 1px solid var(--slate-border); overflow-x: auto;">
+              <div id="revenueChartContainer" style="min-height: 340px; display: flex; flex-direction: column; border-bottom: 1px solid var(--slate-border); overflow-x: auto;">
                 <div style="margin: auto; color: var(--slate-muted); font-size: 0.85rem;">Đang tải biểu đồ...</div>
               </div>
             </div>
@@ -2494,66 +2496,67 @@
                   <p class="pbi-chart-subtitle" id="bestSellersSubTitle">Doanh thu vs Chi phí Ads • Lợi nhuận & ROAS</p>
                 </div>
               </div>
-              <div id="bestSellersContainer" style="display: flex; flex-direction: column; justify-content: center; min-height: 220px;">
+              <div id="bestSellersContainer" style="display: flex; flex-direction: column; justify-content: flex-start; min-height: 340px; overflow-y: auto;">
                 <div style="text-align: center; color: var(--slate-muted); padding: 30px 0; font-size: 0.85rem;">Đang tải xếp hạng...</div>
               </div>
             </div>
           </div>
 
-          <!-- Row 2: Hourly Distribution & Category Breakdown SVG Donut (2fr : 1fr) -->
+          <!-- Row 2: Day-Hour Heatmap Matrix & Category Bar-of-Pie (2fr : 1fr) -->
           <div class="pbi-chart-row pbi-row-2-1">
             <div class="pbi-chart-cell">
-              <div class="pbi-chart-header">
+              <div class="pbi-chart-header" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 6px;">
                 <div>
-                  <h3 class="pbi-chart-title">Khung Giờ Mua Hàng Sôi Động Nhất</h3>
-                  <p class="pbi-chart-subtitle" id="hourlyChartSubTitle">Phân bố đơn hàng theo các mốc giờ trong ngày (0h - 23h)</p>
+                  <h3 class="pbi-chart-title" id="heatmapChartTitle">Ma Trận Giờ & Ngày Mua Hàng Sôi Động Nhất</h3>
+                  <p class="pbi-chart-subtitle" id="heatmapChartSubTitle">Phân bổ 24 giờ x 7 ngày trong tuần • Tìm điểm nóng chốt đơn</p>
                 </div>
+                <div id="hourlyChartContainer" style="display:none;"></div>
+                <div id="weekdayChartContainer" style="display:none;"></div>
               </div>
-              <div id="hourlyChartContainer" style="min-height: 150px; display: flex; align-items: flex-end; justify-content: space-between; gap: 4px; padding: 12px 4px 6px 4px; border-bottom: 1px solid var(--slate-border);">
-                <div style="margin: auto; color: var(--slate-muted); font-size: 0.85rem;">Đang tải dữ liệu giờ...</div>
+              <div id="dayHourHeatmapContainer" style="min-height: 200px; display: flex; flex-direction: column; justify-content: center; padding: 6px 4px 4px 4px;">
+                <div style="margin: auto; color: var(--slate-muted); font-size: 0.85rem;">Đang tải ma trận nhiệt...</div>
               </div>
             </div>
 
             <div class="pbi-chart-cell">
               <div class="pbi-chart-header" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 6px;">
                 <div>
-                  <h3 class="pbi-chart-title" id="categoryChartTitle">Cơ Cấu Danh Mục & Ngân Sách</h3>
-                  <p class="pbi-chart-subtitle" id="categoryChartSubTitle">Tỷ trọng doanh số & phân bổ chi phí</p>
+                  <h3 class="pbi-chart-title" id="categoryChartTitle">Cơ Cấu Danh Mục & File Bán Ra</h3>
+                  <p class="pbi-chart-subtitle" id="categoryChartSubTitle">Tỷ trọng nhóm sản phẩm & phân rã file</p>
                 </div>
-                <div class="pill-btn-group" id="statsCategoryViewSelector" style="margin: 0;">
+                <div class="pill-btn-group" id="statsCategoryViewSelector" style="margin: 0; display: none;">
                   <button type="button" class="pill-btn active" data-catview="donut" style="padding: 2px 9px; font-size: 0.72rem;">Donut</button>
-                  <button type="button" class="pill-btn" data-catview="treemap" style="padding: 2px 9px; font-size: 0.72rem;">Treemap</button>
                 </div>
               </div>
-              <div id="categoryChartContainer" style="min-height: 150px; display: flex; flex-direction: column; justify-content: center;">
+              <div id="categoryChartContainer" style="min-height: 200px; display: flex; flex-direction: column; justify-content: center;">
                 <div style="text-align: center; color: var(--slate-muted); padding: 20px 0; font-size: 0.85rem;">Đang tải cơ cấu danh mục...</div>
               </div>
             </div>
           </div>
 
-          <!-- Row 3: Day-of-Week Distribution & Customer Retention/Conversion (1fr : 1fr) -->
+          <!-- Row 3: Customer Conversion & Retention + Actionable Strategic Insights (1fr : 1fr) -->
           <div class="pbi-chart-row pbi-row-1-1">
             <div class="pbi-chart-cell">
               <div class="pbi-chart-header">
                 <div>
-                  <h3 class="pbi-chart-title">Chu Kỳ Mua Hàng Theo Thứ Trong Tuần</h3>
-                  <p class="pbi-chart-subtitle">Tập trung số đơn và doanh thu từ Thứ 2 đến Chủ Nhật</p>
+                  <h3 class="pbi-chart-title">Chuyển Đổi & Giữ Chân Khách Hàng</h3>
+                  <p class="pbi-chart-subtitle">Tỷ lệ thanh toán hoàn tất, khách mua lặp lại & gói Coaching</p>
                 </div>
               </div>
-              <div id="weekdayChartContainer" style="min-height: 150px; display: flex; align-items: flex-end; justify-content: space-around; gap: 8px; padding: 12px 4px 6px 4px; border-bottom: 1px solid var(--slate-border);">
-                <div style="margin: auto; color: var(--slate-muted); font-size: 0.85rem;">Đang tải chu kỳ tuần...</div>
+              <div id="conversionContainer" style="display: flex; flex-direction: column; gap: 12px; padding-top: 4px;">
+                <div style="text-align: center; color: var(--slate-muted); padding: 20px 0; font-size: 0.85rem;">Đang tính tỷ lệ...</div>
               </div>
             </div>
 
             <div class="pbi-chart-cell">
               <div class="pbi-chart-header">
                 <div>
-                  <h3 class="pbi-chart-title">Chuyển Đổi & Giữ Chân Khách Hàng</h3>
-                  <p class="pbi-chart-subtitle">Tỷ lệ hoàn tất thanh toán, khách quay lại & gói Coaching</p>
+                  <h3 class="pbi-chart-title">Khuyến Nghị & Hành Động Dữ Liệu</h3>
+                  <p class="pbi-chart-subtitle">Chiến lược tối ưu ngân sách Ads, thời điểm đăng clip & dòng tiền</p>
                 </div>
               </div>
-              <div id="conversionContainer" style="display: flex; flex-direction: column; gap: 12px; padding-top: 4px;">
-                <div style="text-align: center; color: var(--slate-muted); padding: 20px 0; font-size: 0.85rem;">Đang tính tỷ lệ...</div>
+              <div id="actionableInsightContainer" style="display: flex; flex-direction: column; justify-content: space-between; height: calc(100% - 45px); padding-top: 4px;">
+                <div style="text-align: center; color: var(--slate-muted); padding: 20px 0; font-size: 0.85rem;">Đang tổng hợp dữ liệu...</div>
               </div>
             </div>
           </div>
@@ -2785,7 +2788,7 @@
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-storage-compat.js"></script>
   <script src="/__/firebase/init.js"></script>
   
-  <script src="./admin.js?v=264"></script>
+  <script src="./admin.js?v=211"></script>
   <!-- Agentation: Visual Feedback & Annotation for AI agents -->
   <script src="./agentation-vanilla.js"></script>
 
