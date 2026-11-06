@@ -410,6 +410,7 @@ function escapeHtml(value) {
       }
       cleanCart();
       isFirestoreProductsLoaded = true;
+      renderFolders();
       renderProducts();
       renderCart();
     }, function(error) {
@@ -1446,9 +1447,7 @@ function escapeHtml(value) {
             count = (data.products || []).length;
           } else {
             count = (data.products || []).filter(function(p) {
-              var pCat = p.category || p.categoryId || 'kinh-doanh';
-              if (['ban-hang-online', 'quan-ly-kho', 'fnb-cost', 'combo'].indexOf(pCat) !== -1) pCat = 'kinh-doanh';
-              if (['cong-no', 'thu-chi-dong-tien'].indexOf(pCat) !== -1) pCat = 'ke-toan';
+              var pCat = p.categoryId || p.category || 'kinh-doanh';
               return pCat === category.id;
             }).length;
           }
@@ -4349,10 +4348,8 @@ function escapeHtml(value) {
     return data.products.filter(function (product) {
       // Category filter
       if (state.activeCategoryId !== "all") {
-        var pCat = product.category || product.categoryId || 'kinh-doanh';
-        if (['ban-hang-online', 'quan-ly-kho', 'fnb-cost', 'combo'].indexOf(pCat) !== -1) pCat = 'kinh-doanh';
-        if (['cong-no', 'thu-chi-dong-tien'].indexOf(pCat) !== -1) pCat = 'ke-toan';
-        if (pCat !== state.activeCategoryId && product.categoryId !== state.activeCategoryId) {
+        var pCat = product.categoryId || product.category || 'kinh-doanh';
+        if (pCat !== state.activeCategoryId) {
           return false;
         }
       }

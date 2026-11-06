@@ -26,46 +26,74 @@ window.StorefrontData = {
   },
   categories: [
     {
-      id: "kinh-doanh",
-      name: "Kinh doanh",
+      id: "quan-ly-kho",
+      name: "Quản lý kho vận",
       accent: "mint",
-      description: "Các file quản lý bán hàng, doanh thu, dòng tiền và vận hành kinh doanh thực chiến.",
-      heroNote: "Theo dõi đơn hàng, doanh số và vận hành cửa hàng hiệu quả."
+      description: "Các file quản lý xuất nhập tồn, thẻ kho, cảnh báo tồn tối thiểu và kiểm kê thực tế.",
+      heroNote: "Kiểm soát kho hàng chặt chẽ, chống thất thoát và tối ưu vốn lưu kho."
     },
     {
-      id: "nhan-su",
-      name: "Nhân sự",
+      id: "ban-hang-online",
+      name: "Bán hàng online & Shop",
       accent: "mint",
-      description: "Các file chấm công, tính lương, KPI và quản lý hồ sơ nhân sự tự động.",
-      heroNote: "Tự động hóa tính lương, thưởng và đánh giá hiệu suất nhân viên."
+      description: "Các file quản lý đơn hàng đa kênh Shopee, TikTok, Facebook, đối soát COD và lợi nhuận bán lẻ.",
+      heroNote: "Theo dõi đơn hàng, doanh số và vận hành cửa hàng bán lẻ hiệu quả."
     },
     {
-      id: "cong-viec",
-      name: "Công việc",
+      id: "fnb-cost",
+      name: "F&B & Tính giá vốn",
       accent: "mint",
-      description: "Các file lập kế hoạch công việc cá nhân, tiến độ dự án và quản lý thời gian.",
-      heroNote: "Theo dõi tiến độ công việc trực quan, tối ưu năng suất làm việc."
-    },
-    {
-      id: "marketing",
-      name: "Marketing",
-      accent: "mint",
-      description: "Các file lập kế hoạch nội dung, ngân sách quảng cáo và đo lường ROI chiến dịch.",
-      heroNote: "Kiểm soát chi phí quảng cáo và hiệu quả từng kênh marketing."
+      description: "Bảng tính định lượng nguyên vật liệu (BOM), tính giá vốn món ăn đồ uống (Food Cost) và thực đơn sinh lời.",
+      heroNote: "Tự động tính giá vốn món chuẩn xác, kiểm soát thất thoát nguyên vật liệu quán."
     },
     {
       id: "ke-toan",
-      name: "Kế toán",
+      name: "Kế toán & Dòng tiền",
       accent: "mint",
-      description: "Các file quản lý công nợ, sổ quỹ thu chi, báo cáo tài chính nội bộ và thuế.",
-      heroNote: "Chuẩn hóa sổ sách kế toán, đối chiếu công nợ nhanh chóng, chính xác."
+      description: "Các file quản lý công nợ, sổ quỹ thu chi, dự báo dòng tiền nội bộ và báo cáo tài chính quản trị.",
+      heroNote: "Chuẩn hóa sổ sách kế toán, kiểm soát dòng tiền và đối chiếu công nợ nhanh chóng."
+    },
+    {
+      id: "nhan-su",
+      name: "Nhân sự & Chấm công",
+      accent: "mint",
+      description: "Các file chấm công tự động, bảng tính lương, KPI, hoa hồng và theo dõi hồ sơ nhân sự.",
+      heroNote: "Tự động hóa tính lương, thưởng và đánh giá hiệu suất nhân sự minh bạch."
+    },
+    {
+      id: "kinh-doanh",
+      name: "Kinh doanh & Quản trị",
+      accent: "mint",
+      description: "Mô hình quản trị doanh nghiệp tổng thể, theo dõi kế hoạch kinh doanh và chỉ số tăng trưởng.",
+      heroNote: "Nắm bắt bức tranh kinh doanh toàn diện và ra quyết định dựa trên dữ liệu."
+    },
+    {
+      id: "marketing",
+      name: "Marketing & Truyền thông",
+      accent: "mint",
+      description: "Bảng lập kế hoạch nội dung (Content Calendar), ngân sách quảng cáo và đo lường ROI chiến dịch.",
+      heroNote: "Kiểm soát chi phí quảng cáo và tối ưu hóa hiệu quả từng kênh tiếp thị."
+    },
+    {
+      id: "cong-viec",
+      name: "Hiệu suất công việc",
+      accent: "mint",
+      description: "Các template quản lý dự án, tiến độ công việc, OKRs và ma trận ưu tiên thời gian.",
+      heroNote: "Theo dõi tiến độ trực quan, giải quyết công việc đúng hạn và nâng cao năng suất."
     },
     {
       id: "phat-trien-ban-than",
       name: "Phát triển bản thân",
       accent: "mint",
-      description: "Các bảng tính quản lý tài chính cá nhân, thói quen, mục tiêu và đọc sách.",
-      heroNote: "Xây dựng thói quen tốt và quản lý tài chính cá nhân thông minh."
+      description: "Các bảng tính quản lý tài chính cá nhân, theo dõi thói quen, mục tiêu cuộc sống và nhật ký học tập.",
+      heroNote: "Xây dựng thói quen tích cực và làm chủ tài chính cá nhân bền vững."
+    },
+    {
+      id: "combo",
+      name: "Gói Combo đa năng",
+      accent: "mint",
+      description: "Trọn bộ combo các mẫu file và ứng dụng tự động tối ưu với chi phí siêu tiết kiệm.",
+      heroNote: "Sở hữu toàn diện công cụ vận hành doanh nghiệp với mức giá ưu đãi nhất."
     }
   ],
   products: [
