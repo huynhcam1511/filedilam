@@ -295,12 +295,18 @@ document.addEventListener('DOMContentLoaded', () => {
     const filtered = currentProducts.filter(p => {
       const sName = String(p.name || '').toLowerCase();
       let pEffectiveCat = p.categoryId || 'kinh-doanh';
-      if (sName.includes('kho') || sName.includes('tồn kho')) pEffectiveCat = 'quan-ly-kho';
-      else if (sName.includes('bán hàng') || sName.includes('shop') || sName.includes('bán lẻ')) pEffectiveCat = 'ban-hang-online';
-      else if (sName.includes('cost') || sName.includes('giá vốn') || sName.includes('f&b')) pEffectiveCat = 'fnb-cost';
-      else if (sName.includes('công nợ') || sName.includes('thu chi') || sName.includes('kế toán')) pEffectiveCat = 'ke-toan';
-      else if (sName.includes('nhân sự') || sName.includes('tiền lương')) pEffectiveCat = 'nhan-su';
-      else if (sName.includes('marketing')) pEffectiveCat = 'marketing';
+      if (['ban-hang-online', 'quan-ly-kho', 'fnb-cost', 'combo'].indexOf(pEffectiveCat) !== -1) pEffectiveCat = 'kinh-doanh';
+      if (['cong-no', 'thu-chi-dong-tien'].indexOf(pEffectiveCat) !== -1) pEffectiveCat = 'ke-toan';
+
+      if (sName.includes('kho') || sName.includes('tồn kho') || sName.includes('bán hàng') || sName.includes('shop') || sName.includes('cost') || sName.includes('giá vốn')) {
+        pEffectiveCat = 'kinh-doanh';
+      } else if (sName.includes('công nợ') || sName.includes('thu chi') || sName.includes('kế toán') || sName.includes('dòng tiền')) {
+        pEffectiveCat = 'ke-toan';
+      } else if (sName.includes('nhân sự') || sName.includes('tiền lương') || sName.includes('chấm công')) {
+        pEffectiveCat = 'nhan-su';
+      } else if (sName.includes('marketing') || sName.includes('quảng cáo')) {
+        pEffectiveCat = 'marketing';
+      }
 
       const matchCat = catVal === 'ALL' || p.categoryId === catVal || pEffectiveCat === catVal;
       const pFormat = p.type || (p.sheetUrl ? 'google_sheets' : 'excel');
@@ -319,30 +325,31 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     const catMap = {
-      'quan-ly-kho': 'Quản lý kho vận',
-      'ban-hang-online': 'Bán hàng online & Shop',
-      'fnb-cost': 'F&B & Tính giá vốn',
-      'ke-toan': 'Kế toán & Dòng tiền',
-      'kinh-doanh': 'Kinh doanh & Quản trị',
-      'nhan-su': 'Nhân sự & Chấm công',
-      'marketing': 'Marketing & Truyền thông',
-      'cong-viec': 'Hiệu suất công việc',
+      'kinh-doanh': 'Kinh doanh',
+      'nhan-su': 'Nhân sự',
+      'cong-viec': 'Công việc',
+      'marketing': 'Marketing',
+      'ke-toan': 'Kế toán',
       'phat-trien-ban-than': 'Phát triển bản thân',
-      'combo': 'Gói Combo đa năng'
+      'quan-ly-kho': 'Kinh doanh',
+      'ban-hang-online': 'Kinh doanh',
+      'fnb-cost': 'Kinh doanh',
+      'combo': 'Kinh doanh'
     };
 
     productListBody.innerHTML = filtered.map(p => {
       // Tự động nhận diện danh mục chính xác từ tên sản phẩm hoặc categoryId
       const s = String(p.name || '').toLowerCase();
-      let effectiveCatKey = p.categoryId;
-      if (s.includes('kho') || s.includes('tồn kho')) effectiveCatKey = 'quan-ly-kho';
-      else if (s.includes('bán hàng') || s.includes('shop') || s.includes('bán lẻ')) effectiveCatKey = 'ban-hang-online';
-      else if (s.includes('cost') || s.includes('giá vốn') || s.includes('f&b') || s.includes('định lượng')) effectiveCatKey = 'fnb-cost';
+      let effectiveCatKey = p.categoryId || 'kinh-doanh';
+      if (['ban-hang-online', 'quan-ly-kho', 'fnb-cost', 'combo'].indexOf(effectiveCatKey) !== -1) effectiveCatKey = 'kinh-doanh';
+      if (['cong-no', 'thu-chi-dong-tien'].indexOf(effectiveCatKey) !== -1) effectiveCatKey = 'ke-toan';
+
+      if (s.includes('kho') || s.includes('tồn kho') || s.includes('bán hàng') || s.includes('shop') || s.includes('cost') || s.includes('giá vốn')) effectiveCatKey = 'kinh-doanh';
       else if (s.includes('công nợ') || s.includes('thu chi') || s.includes('dòng tiền') || s.includes('kế toán')) effectiveCatKey = 'ke-toan';
       else if (s.includes('nhân sự') || s.includes('tiền lương') || s.includes('chấm công')) effectiveCatKey = 'nhan-su';
       else if (s.includes('marketing') || s.includes('kế hoạch') || s.includes('content')) effectiveCatKey = 'marketing';
       
-      const catName = catMap[effectiveCatKey] || catMap[p.categoryId] || p.categoryId || 'Kinh doanh & Quản trị';
+      const catName = catMap[effectiveCatKey] || catMap[p.categoryId] || 'Kinh doanh';
       let formatHtml = '<span style="font-size:0.85rem; font-weight:500; color:#475569;">Excel (.xlsx)</span>';
       if (p.type === 'apps_script' || p.type === 'web_app') {
         formatHtml = '<span style="font-size:0.85rem; font-weight:500; color:#7c3aed;">Web App (Apps Script)</span>';
@@ -1317,34 +1324,37 @@ document.addEventListener('DOMContentLoaded', () => {
   
   function resolveProductCategory(item, knownProductsMap) {
     const s = String(item.name || item.originalName || '').toLowerCase();
-    if (s.includes('kho') || s.includes('tồn kho')) return 'quan-ly-kho';
-    if (s.includes('bán hàng') || s.includes('shop') || s.includes('bán lẻ')) return 'ban-hang-online';
-    if (s.includes('cost') || s.includes('giá vốn') || s.includes('f&b') || s.includes('định lượng')) return 'fnb-cost';
+    if (s.includes('kho') || s.includes('tồn kho') || s.includes('bán hàng') || s.includes('shop') || s.includes('cost') || s.includes('giá vốn')) return 'kinh-doanh';
     if (s.includes('công nợ') || s.includes('thu chi') || s.includes('dòng tiền') || s.includes('kế toán')) return 'ke-toan';
     if (s.includes('nhân sự') || s.includes('tiền lương') || s.includes('chấm công')) return 'nhan-su';
-    if (s.includes('marketing') || s.includes('kế hoạch') || s.includes('content')) return 'marketing';
+    if (s.includes('marketing') || s.includes('kế hoạch') || s.includes('content') || s.includes('quảng cáo')) return 'marketing';
+    if (s.includes('công việc') || s.includes('dự án') || s.includes('tiến độ')) return 'cong-viec';
+    if (s.includes('bản thân') || s.includes('thói quen') || s.includes('tài chính cá nhân')) return 'phat-trien-ban-than';
 
     const prod = knownProductsMap[item.productId];
-    if (prod && prod.categoryId && prod.categoryId !== 'kinh-doanh') {
-      return prod.categoryId;
+    if (prod && prod.categoryId) {
+      let pCat = prod.categoryId;
+      if (['ban-hang-online', 'quan-ly-kho', 'fnb-cost', 'combo'].indexOf(pCat) !== -1) pCat = 'kinh-doanh';
+      if (['cong-no', 'thu-chi-dong-tien'].indexOf(pCat) !== -1) pCat = 'ke-toan';
+      return pCat;
     }
     return 'kinh-doanh';
   }
 
   function getCategoryLabel(catKey) {
     const labels = {
-      'quan-ly-kho': 'Quản lý kho vận',
-      'ban-hang-online': 'Bán hàng online & Shop',
-      'fnb-cost': 'F&B & Tính giá vốn',
-      'ke-toan': 'Kế toán & Dòng tiền',
-      'kinh-doanh': 'Kinh doanh & Quản trị',
-      'nhan-su': 'Nhân sự & Chấm công',
-      'marketing': 'Marketing & Truyền thông',
-      'cong-viec': 'Hiệu suất công việc',
+      'kinh-doanh': 'Kinh doanh',
+      'nhan-su': 'Nhân sự',
+      'cong-viec': 'Công việc',
+      'marketing': 'Marketing',
+      'ke-toan': 'Kế toán',
       'phat-trien-ban-than': 'Phát triển bản thân',
-      'combo': 'Gói Combo đa năng'
+      'quan-ly-kho': 'Kinh doanh',
+      'ban-hang-online': 'Kinh doanh',
+      'fnb-cost': 'Kinh doanh',
+      'combo': 'Kinh doanh'
     };
-    return labels[catKey] || 'Sản phẩm khác';
+    return labels[catKey] || 'Kinh doanh';
   }
 
   
