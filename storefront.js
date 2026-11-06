@@ -1951,6 +1951,17 @@ function escapeHtml(value) {
         '<p class="detail-how-help-text">Nếu bạn phân vân về tính năng hoặc cần tư vấn thêm, hãy nhắn Zalo <a href="https://zalo.me/0938134576" target="_blank" rel="noopener"><strong>0938 134 576</strong></a> hoặc email <strong>kiencam.work@gmail.com</strong> để bên mình hỗ trợ nhé.</p>' +
       '</div>';
 
+    var tiktokVideoUrl = product.tiktokUrl || (Array.isArray(product.social_posts) && product.social_posts.find(function(s) { return s.platform === 'tiktok' && s.url; }) || {}).url || '';
+    var tiktokButtonHtml = tiktokVideoUrl ? (
+      '<div class="detail-tiktok-row" style="margin-top: 10px; display: flex; align-items: center; justify-content: center;">' +
+        '<a href="' + escapeHtml(tiktokVideoUrl) + '" target="_blank" rel="noopener" style="display: inline-flex; align-items: center; gap: 7px; padding: 8px 16px; border-radius: 9999px; background: #0f172a; color: #ffffff; font-size: 0.85rem; font-weight: 600; text-decoration: none; transition: transform 0.15s ease;" onmouseover="this.style.transform=\'scale(1.02)\'" onmouseout="this.style.transform=\'scale(1)\'">' +
+          '<svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 5 20.1a6.34 6.34 0 0 0 10.86-4.43v-7a8.16 8.16 0 0 0 4.77 1.52v-3.4a4.85 4.85 0 0 1-1.04-.1z"/></svg>' +
+          '<span>Xem video demo trên TikTok</span>' +
+          '<svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>' +
+        '</a>' +
+      '</div>'
+    ) : '';
+
     var infoHtml =
       '<div class="detail-col-info">' +
         '<div class="detail-header-group">' +
@@ -1977,6 +1988,7 @@ function escapeHtml(value) {
             '<span>Cần tư vấn thêm? Nhắn Zalo:</span>' +
             '<a href="https://zalo.me/0938134576" target="_blank" rel="noopener">0938 134 576</a>' +
           '</div>' +
+          tiktokButtonHtml +
         '</div>' +
 
         '<!-- Trust Badges (Chuẩn Fintech / Optimate) -->' +

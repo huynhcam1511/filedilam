@@ -1436,43 +1436,46 @@
     
     
     /* ========================================================
-       POWER BI ZERO-SPACING SEAMLESS MATRIX (6 COMPACT KPIS & PASTEL)
+       SAAS ANALYTICS 12-COLUMN DASHBOARD GRID
+       Clean white-slate cards, refined typography & balanced proportions
        ======================================================== */
-    .pbi-dashboard-matrix {
-      background: #ffffff;
-      border: 1px solid var(--slate-border);
-      border-radius: 6px;
-      overflow: hidden;
-      margin-bottom: 20px;
-      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02);
+    .saas-dashboard-grid {
+      display: grid;
+      grid-template-columns: repeat(12, 1fr);
+      gap: 18px;
+      width: 100%;
+      padding: 20px 28px 36px 28px;
+      box-sizing: border-box;
     }
 
-    /* KPI Row: 6 compact columns, zero gap, ultra low vertical profile */
-    .pbi-kpi-row {
+    /* SECTION 2: SIX KPI CARDS (Full Width 12-Col, 6 Equal Columns on Desktop) */
+    .saas-kpi-container {
+      grid-column: span 12;
       display: grid;
       grid-template-columns: repeat(6, 1fr);
-      border-bottom: 1px solid var(--slate-border);
-      background: #ffffff;
-      gap: 0;
+      gap: 14px;
     }
 
-    .pbi-kpi-cell {
-      padding: 10px 14px;
-      border-right: 1px solid var(--slate-border);
+    .saas-kpi-card {
       background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      padding: 16px 18px;
       display: flex;
       flex-direction: column;
       justify-content: center;
-      border-radius: 0;
-      box-shadow: none;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02);
+      transition: border-color 0.15s ease, box-shadow 0.15s ease;
+      min-width: 0;
     }
-    .pbi-kpi-cell:last-child {
-      border-right: none;
+    .saas-kpi-card:hover {
+      border-color: #cbd5e1;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.04);
     }
 
-    .pbi-kpi-header {
+    .saas-kpi-header {
       color: #64748b;
-      font-size: 0.67rem;
+      font-size: 0.68rem;
       font-weight: 600;
       text-transform: uppercase;
       letter-spacing: 0.04em;
@@ -1481,17 +1484,21 @@
       text-overflow: ellipsis;
     }
 
-    .pbi-kpi-value {
-      font-size: 1.15rem;
+    .saas-kpi-value {
+      font-size: 1.22rem;
       font-weight: 700;
       color: #0f172a;
-      margin: 3px 0 1px 0;
+      margin: 4px 0 2px 0;
       letter-spacing: -0.02em;
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      line-height: 1.25;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
 
-    .pbi-kpi-sub {
-      font-size: 0.68rem;
+    .saas-kpi-sub {
+      font-size: 0.69rem;
       font-weight: 500;
       color: #64748b;
       white-space: nowrap;
@@ -1499,91 +1506,86 @@
       text-overflow: ellipsis;
     }
 
-    /* Chart Rows: contiguous cells, zero gap */
-    .pbi-chart-row {
-      display: grid;
-      border-bottom: 1px solid var(--slate-border);
+    /* SAAS CARD CONTAINER & COLUMN SPANS */
+    .saas-card {
       background: #ffffff;
-      gap: 0;
-    }
-    .pbi-chart-row:last-child {
-      border-bottom: none;
-    }
-    .pbi-row-2-1 {
-      grid-template-columns: 2fr 1fr;
-    }
-    .pbi-row-1-1 {
-      grid-template-columns: 1fr 1fr;
-    }
-
-    .pbi-chart-cell {
-      padding: 16px 18px;
-      border-right: 1px solid var(--slate-border);
-      background: #ffffff;
-      min-width: 0;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      padding: 20px 22px;
       display: flex;
       flex-direction: column;
-      border-radius: 0;
-      box-shadow: none;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02);
+      min-width: 0;
+      transition: border-color 0.15s ease;
     }
-    .pbi-chart-cell:last-child {
-      border-right: none;
+    .saas-card:hover {
+      border-color: #cbd5e1;
     }
 
-    .pbi-chart-header {
+    .col-span-12 { grid-column: span 12; }
+    .col-span-8 { grid-column: span 8; }
+    .col-span-6 { grid-column: span 6; }
+    .col-span-4 { grid-column: span 4; }
+
+    .saas-card-header {
       display: flex;
       justify-content: space-between;
       align-items: flex-start;
-      margin-bottom: 10px;
+      margin-bottom: 14px;
+      gap: 12px;
     }
-    .pbi-chart-title {
+
+    .saas-card-title {
       margin: 0;
-      font-size: 0.85rem;
-      font-weight: 600;
+      font-size: 0.88rem;
+      font-weight: 700;
       color: #0f172a;
       letter-spacing: -0.01em;
     }
-    .pbi-chart-subtitle {
-      margin: 2px 0 0 0;
-      font-size: 0.7rem;
-      color: var(--slate-muted);
+
+    .saas-card-subtitle {
+      margin: 3px 0 0 0;
+      font-size: 0.72rem;
+      color: #64748b;
+      line-height: 1.4;
     }
 
-    @media (max-width: 1200px) {
-      .pbi-kpi-row {
+    /* Backwards compatibility aliases */
+    .pbi-dashboard-matrix { background: transparent; border: none; }
+    .pbi-chart-title { margin: 0; font-size: 0.88rem; font-weight: 700; color: #0f172a; }
+    .pbi-chart-subtitle { margin: 3px 0 0 0; font-size: 0.72rem; color: #64748b; }
+
+    /* RESPONSIVE BREAKPOINTS */
+    @media (max-width: 1280px) {
+      .saas-kpi-container {
         grid-template-columns: repeat(3, 1fr);
+        gap: 12px;
       }
-      .pbi-kpi-cell:nth-child(3) {
-        border-right: none;
-      }
-      .pbi-kpi-cell:nth-child(1),
-      .pbi-kpi-cell:nth-child(2),
-      .pbi-kpi-cell:nth-child(3) {
-        border-bottom: 1px solid var(--slate-border);
+      .saas-dashboard-grid {
+        gap: 16px;
+        padding: 16px 20px 28px 20px;
       }
     }
 
-    @media (max-width: 900px) {
-      .pbi-kpi-row {
+    @media (max-width: 1024px) {
+      .col-span-8,
+      .col-span-4,
+      .col-span-6 {
+        grid-column: span 12;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .saas-kpi-container {
         grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
       }
-      .pbi-kpi-cell {
-        border-right: 1px solid var(--slate-border) !important;
-        border-bottom: 1px solid var(--slate-border) !important;
+      .saas-card {
+        padding: 16px;
       }
-      .pbi-kpi-cell:nth-child(2n) {
-        border-right: none !important;
-      }
-      .pbi-row-2-1,
-      .pbi-row-1-1 {
-        grid-template-columns: 1fr;
-      }
-      .pbi-chart-cell {
-        border-right: none;
-        border-bottom: 1px solid var(--slate-border);
-      }
-      .pbi-chart-row:last-child .pbi-chart-cell:last-child {
-        border-bottom: none;
+      .saas-dashboard-grid {
+        padding: 12px 14px 24px 14px;
+        gap: 14px;
       }
     }
 
@@ -2258,9 +2260,27 @@
                 </div>
 
                 <div class="canvas-field-group" id="sheetUrlGroup">
-                  <label for="productSheetUrl" class="canvas-label">Link Google Sheets hoặc Thư mục Drive</label>
+                  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                    <label for="productSheetUrl" class="canvas-label" style="margin-bottom: 0;">Link Google Sheets hoặc Thư mục Drive</label>
+                    <a id="btnOpenSheetUrl" href="#" target="_blank" rel="noopener" style="display: none; align-items: center; gap: 4px; font-size: 0.78rem; font-weight: 600; color: #059669; text-decoration: none;" title="Mở liên kết">
+                      <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
+                      Mở link
+                    </a>
+                  </div>
                   <input type="url" id="productSheetUrl" class="canvas-input" placeholder="https://docs.google.com/spreadsheets/d/...">
                   <small class="canvas-help-text">Khách hàng sẽ nhận link tạo bản sao vào Google Drive cá nhân.</small>
+                </div>
+
+                <div class="canvas-field-group" id="tiktokUrlGroup">
+                  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                    <label for="productTiktokUrl" class="canvas-label" style="margin-bottom: 0;">Link Video TikTok giới thiệu</label>
+                    <a id="btnOpenTiktokUrl" href="#" target="_blank" rel="noopener" style="display: none; align-items: center; gap: 4px; font-size: 0.78rem; font-weight: 600; color: #059669; text-decoration: none;" title="Mở video TikTok">
+                      <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
+                      Xem video
+                    </a>
+                  </div>
+                  <input type="url" id="productTiktokUrl" class="canvas-input" placeholder="https://www.tiktok.com/@filedilam/video/... hoặc https://vt.tiktok.com/...">
+                  <small class="canvas-help-text">Gắn link video TikTok demo/giới thiệu file để đối soát hiệu quả và chạy Ads.</small>
                 </div>
 
                 <div class="canvas-field-group" id="fileUploadGroup">
@@ -2420,146 +2440,143 @@
           </div>
         </div>
 
-        <!-- Power BI Seamless Zero-Spacing Analytics Matrix -->
-        <div class="pbi-dashboard-matrix">
-          <!-- KPI Row: 6 contiguous metric blocks (No decorative icons, clean typography) -->
-          <div class="pbi-kpi-row">
-            <div class="pbi-kpi-cell">
-              <div class="pbi-kpi-header">Doanh thu thuần</div>
-              <div class="pbi-kpi-value" id="kpiTotalRevenue">0 đ</div>
-              <div class="pbi-kpi-sub" id="kpiTotalRevenueSub" style="color: #059669;">Đang cập nhật...</div>
+        <!-- SAAS ANALYTICS 12-COLUMN DASHBOARD GRID -->
+        <div class="saas-dashboard-grid">
+          
+          <!-- SECTION 2: SIX KPI CARDS (Full Width 12-Col, 6 Equal Columns on Desktop) -->
+          <div class="saas-kpi-container">
+            <div class="saas-kpi-card">
+              <div class="saas-kpi-header">Doanh thu thuần</div>
+              <div class="saas-kpi-value" id="kpiTotalRevenue">0 đ</div>
+              <div class="saas-kpi-sub" id="kpiTotalRevenueSub">Đang cập nhật...</div>
             </div>
 
-            <div class="pbi-kpi-cell">
-              <div class="pbi-kpi-header">Chi phí Ads (Marketing)</div>
-              <div class="pbi-kpi-value" id="kpiAdsSpent" style="color: #0f172a;">0 đ</div>
-              <div class="pbi-kpi-sub" id="kpiAdsSpentSub" style="color: #64748b;">Chi phí TikTok/Meta Ads</div>
+            <div class="saas-kpi-card">
+              <div class="saas-kpi-header">Chi phí Ads (Marketing)</div>
+              <div class="saas-kpi-value" id="kpiAdsSpent" style="color: #0f172a;">0 đ</div>
+              <div class="saas-kpi-sub" id="kpiAdsSpentSub">Chi phí TikTok/Meta Ads</div>
               <span id="kpiMonthRevenue" style="display:none;"></span>
               <span id="kpiMonthRevenueSub" style="display:none;"></span>
             </div>
 
-            <div class="pbi-kpi-cell">
-              <div class="pbi-kpi-header">Lợi nhuận sau Ads</div>
-              <div class="pbi-kpi-value" id="kpiNetProfit" style="color: #059669;">0 đ</div>
-              <div class="pbi-kpi-sub" id="kpiNetProfitSub" style="color: #059669;">ROAS: 0x • MER: 0%</div>
+            <div class="saas-kpi-card">
+              <div class="saas-kpi-header">Lợi nhuận sau Ads</div>
+              <div class="saas-kpi-value" id="kpiNetProfit" style="color: #059669;">0 đ</div>
+              <div class="saas-kpi-sub" id="kpiNetProfitSub">ROAS: 0x • MER: 0%</div>
             </div>
 
-            <div class="pbi-kpi-cell">
-              <div class="pbi-kpi-header">Đơn thành công</div>
-              <div class="pbi-kpi-value" id="kpiPaidOrders">0 đơn</div>
-              <div class="pbi-kpi-sub" id="kpiPaidOrdersSub" style="color: #059669;">CPA: 0 đ/đơn</div>
+            <div class="saas-kpi-card">
+              <div class="saas-kpi-header">Đơn thành công</div>
+              <div class="saas-kpi-value" id="kpiPaidOrders">0 đơn</div>
+              <div class="saas-kpi-sub" id="kpiPaidOrdersSub">CPA: 0 đ/đơn</div>
             </div>
 
-            <div class="pbi-kpi-cell">
-              <div class="pbi-kpi-header">Tỉ lệ thanh toán</div>
-              <div class="pbi-kpi-value" id="kpiConversionRate">0%</div>
-              <div class="pbi-kpi-sub" id="kpiConversionRateSub" style="color: #64748b;">Đơn thành công / tạo</div>
+            <div class="saas-kpi-card">
+              <div class="saas-kpi-header">Tỉ lệ thanh toán</div>
+              <div class="saas-kpi-value" id="kpiConversionRate">0%</div>
+              <div class="saas-kpi-sub" id="kpiConversionRateSub">Đơn thành công / tạo</div>
             </div>
 
-            <div class="pbi-kpi-cell">
-              <div class="pbi-kpi-header">Khách độc lập & LTV</div>
-              <div class="pbi-kpi-value" id="kpiCustomers">0 khách</div>
-              <div class="pbi-kpi-sub" id="kpiCustomersSub" style="color: #7c3aed;">0% khách mua lần 2+</div>
+            <div class="saas-kpi-card">
+              <div class="saas-kpi-header">Khách độc lập & LTV</div>
+              <div class="saas-kpi-value" id="kpiCustomers">0 khách</div>
+              <div class="saas-kpi-sub" id="kpiCustomersSub">0% khách mua lần 2+</div>
               <span id="kpiRetentionRate" style="display:none;"></span>
               <span id="kpiRetentionRateSub" style="display:none;"></span>
             </div>
           </div>
 
-          <!-- Row 1: Revenue Combo Chart & Best Sellers Horizontal Bar (2fr : 1fr) -->
-          <div class="pbi-chart-row pbi-row-2-1">
-            <div class="pbi-chart-cell">
-              <div class="pbi-chart-header" style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px;">
-                <div>
-                  <h3 class="pbi-chart-title" id="chartTitle">Biểu đồ Doanh thu & Chi phí Marketing</h3>
-                  <p class="pbi-chart-subtitle" id="chartSubTitle">So sánh Doanh thu (Cột Mint), Chi phí Ads (Cột Slate) & Số đơn (Đường Line)</p>
-                </div>
-                <!-- CHART VIEW SELECTOR (SEGMENTED PILLS) -->
-                <div class="pill-btn-group" id="statsChartViewSelector" style="margin: 0; display: flex; flex-wrap: wrap; gap: 4px;">
-                  <button type="button" class="pill-btn active" data-view="combo" title="Cột kép Doanh thu & Chi phí Ads">Doanh thu & Ads</button>
-                  <button type="button" class="pill-btn" data-view="cashflow" title="Dòng tiền thực thu - chi phí Ads - tích lũy quỹ tiền mặt">Dòng Tiền</button>
-                  <button type="button" class="pill-btn" data-view="waterfall" title="Thác nước P&L: Doanh thu niêm yết - Giảm giá - Chi phí Ads = Lợi nhuận">Waterfall P&L</button>
-                  <button type="button" class="pill-btn" data-view="funnel" title="Phễu Marketing 5 tầng: Views -> Xem sâu -> Clicks -> Tạo đơn -> Thanh toán">Phễu Chuyển Đổi</button>
-                  <button type="button" class="pill-btn" data-view="decision" title="Ma trận 4 góc phân tán: Doanh thu vs Chi phí Ads">Ma Trận Hiệu Quả</button>
-                  <button type="button" class="pill-btn" data-view="lag72h" title="Hiệu ứng trễ 72h: Đo lường độ dốc doanh thu nổ sau khi chạy Ads">Hiệu ứng trễ 72h</button>
-                  <button type="button" class="pill-btn" data-view="pareto" title="Quy luật 80/20 đóng góp doanh số">Pareto 80/20</button>
-                </div>
+          <!-- SECTION 3: MAIN ANALYTICS VISUALIZATION (8/12) + FILE PERFORMANCE & P&L (4/12) -->
+          <div class="saas-card col-span-8">
+            <div class="saas-card-header" style="flex-wrap: wrap;">
+              <div>
+                <h3 class="saas-card-title" id="chartTitle">Biểu đồ Doanh thu & Chi phí Marketing</h3>
+                <p class="saas-card-subtitle" id="chartSubTitle">So sánh Doanh thu (Cột Mint), Chi phí Ads (Cột Slate) & Số đơn (Đường Line)</p>
               </div>
-              <div id="revenueChartContainer" style="min-height: 340px; display: flex; flex-direction: column; border-bottom: 1px solid var(--slate-border); overflow-x: auto;">
-                <div style="margin: auto; color: var(--slate-muted); font-size: 0.85rem;">Đang tải biểu đồ...</div>
+              <!-- CHART VIEW SELECTOR (SEGMENTED PILLS) -->
+              <div class="pill-btn-group" id="statsChartViewSelector" style="margin: 0; display: flex; flex-wrap: wrap; gap: 4px;">
+                <button type="button" class="pill-btn active" data-view="combo" title="Cột kép Doanh thu & Chi phí Ads">Doanh thu & Ads</button>
+                <button type="button" class="pill-btn" data-view="cashflow" title="Dòng tiền thực thu - chi phí Ads - tích lũy quỹ tiền mặt">Dòng Tiền</button>
+                <button type="button" class="pill-btn" data-view="waterfall" title="Thác nước P&L: Doanh thu niêm yết - Giảm giá - Chi phí Ads = Lợi nhuận">Waterfall P&L</button>
+                <button type="button" class="pill-btn" data-view="funnel" title="Phễu Marketing 5 tầng: Views -> Xem sâu -> Clicks -> Tạo đơn -> Thanh toán">Phễu Chuyển Đổi</button>
+                <button type="button" class="pill-btn" data-view="velocity" title="Tốc độ chốt đơn: Phân bổ thời gian từ khi tạo đơn đến khi quét VietQR thành công">Tốc Độ Chốt Đơn</button>
+                <button type="button" class="pill-btn" data-view="decision" title="Ma trận 4 góc phân tán: Doanh thu vs Chi phí Ads">Ma Trận Hiệu Quả</button>
+                <button type="button" class="pill-btn" data-view="lag72h" title="Điểm hòa vốn & Vùng sinh lãi: Phân tích đường cong về bờ, vùng bù lỗ và lãi ròng theo từng File hoặc Chiến dịch Ads">Điểm Hòa Vốn (P&L)</button>
+                <button type="button" class="pill-btn" data-view="pareto" title="Quy luật 80/20 đóng góp doanh số">Pareto 80/20</button>
               </div>
             </div>
-
-            <div class="pbi-chart-cell">
-              <div class="pbi-chart-header">
-                <div>
-                  <h3 class="pbi-chart-title" id="bestSellersTitle">Hiệu Quả & P&L Từng File</h3>
-                  <p class="pbi-chart-subtitle" id="bestSellersSubTitle">Doanh thu vs Chi phí Ads • Lợi nhuận & ROAS</p>
-                </div>
-              </div>
-              <div id="bestSellersContainer" style="display: flex; flex-direction: column; justify-content: flex-start; min-height: 340px; overflow-y: auto;">
-                <div style="text-align: center; color: var(--slate-muted); padding: 30px 0; font-size: 0.85rem;">Đang tải xếp hạng...</div>
-              </div>
+            <div id="revenueChartContainer" style="min-height: 320px; display: flex; flex-direction: column; width: 100%; overflow-x: auto;">
+              <div style="margin: auto; color: var(--slate-muted); font-size: 0.85rem;">Đang tải biểu đồ...</div>
             </div>
           </div>
 
-          <!-- Row 2: Day-Hour Heatmap Matrix & Category Bar-of-Pie (2fr : 1fr) -->
-          <div class="pbi-chart-row pbi-row-2-1">
-            <div class="pbi-chart-cell">
-              <div class="pbi-chart-header" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 6px;">
-                <div>
-                  <h3 class="pbi-chart-title" id="heatmapChartTitle">Ma Trận Giờ & Ngày Mua Hàng Sôi Động Nhất</h3>
-                  <p class="pbi-chart-subtitle" id="heatmapChartSubTitle">Phân bổ 24 giờ x 7 ngày trong tuần • Tìm điểm nóng chốt đơn</p>
-                </div>
-                <div id="hourlyChartContainer" style="display:none;"></div>
-                <div id="weekdayChartContainer" style="display:none;"></div>
-              </div>
-              <div id="dayHourHeatmapContainer" style="min-height: 200px; display: flex; flex-direction: column; justify-content: center; padding: 6px 4px 4px 4px;">
-                <div style="margin: auto; color: var(--slate-muted); font-size: 0.85rem;">Đang tải ma trận nhiệt...</div>
+          <div class="saas-card col-span-4">
+            <div class="saas-card-header">
+              <div>
+                <h3 class="saas-card-title" id="bestSellersTitle">Hiệu Quả & P&L Từng File</h3>
+                <p class="saas-card-subtitle" id="bestSellersSubTitle">Doanh thu vs Chi phí Ads • Lợi nhuận & ROAS</p>
               </div>
             </div>
-
-            <div class="pbi-chart-cell">
-              <div class="pbi-chart-header" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 6px;">
-                <div>
-                  <h3 class="pbi-chart-title" id="categoryChartTitle">Cơ Cấu Danh Mục & File Bán Ra</h3>
-                  <p class="pbi-chart-subtitle" id="categoryChartSubTitle">Tỷ trọng nhóm sản phẩm & phân rã file</p>
-                </div>
-                <div class="pill-btn-group" id="statsCategoryViewSelector" style="margin: 0; display: none;">
-                  <button type="button" class="pill-btn active" data-catview="donut" style="padding: 2px 9px; font-size: 0.72rem;">Donut</button>
-                </div>
-              </div>
-              <div id="categoryChartContainer" style="min-height: 200px; display: flex; flex-direction: column; justify-content: center;">
-                <div style="text-align: center; color: var(--slate-muted); padding: 20px 0; font-size: 0.85rem;">Đang tải cơ cấu danh mục...</div>
-              </div>
+            <div id="bestSellersContainer" style="display: flex; flex-direction: column; justify-content: flex-start; min-height: 320px; overflow-y: auto;">
+              <div style="text-align: center; color: var(--slate-muted); padding: 30px 0; font-size: 0.85rem;">Đang tải xếp hạng...</div>
             </div>
           </div>
 
-          <!-- Row 3: Customer Conversion & Retention + Actionable Strategic Insights (1fr : 1fr) -->
-          <div class="pbi-chart-row pbi-row-1-1">
-            <div class="pbi-chart-cell">
-              <div class="pbi-chart-header">
-                <div>
-                  <h3 class="pbi-chart-title">Chuyển Đổi & Giữ Chân Khách Hàng</h3>
-                  <p class="pbi-chart-subtitle">Tỷ lệ thanh toán hoàn tất, khách mua lặp lại & gói Coaching</p>
-                </div>
+          <!-- SECTION 4: PURCHASE TIME HEATMAP (8/12) + CATEGORY COMPOSITION (4/12) -->
+          <div class="saas-card col-span-8">
+            <div class="saas-card-header">
+              <div>
+                <h3 class="saas-card-title" id="heatmapChartTitle">Ma Trận Giờ & Ngày Mua Hàng Sôi Động Nhất</h3>
+                <p class="saas-card-subtitle" id="heatmapChartSubTitle">Phân bổ 24 giờ x 7 ngày trong tuần • Tìm điểm nóng chốt đơn</p>
               </div>
-              <div id="conversionContainer" style="display: flex; flex-direction: column; gap: 12px; padding-top: 4px;">
-                <div style="text-align: center; color: var(--slate-muted); padding: 20px 0; font-size: 0.85rem;">Đang tính tỷ lệ...</div>
-              </div>
+              <div id="hourlyChartContainer" style="display:none;"></div>
+              <div id="weekdayChartContainer" style="display:none;"></div>
             </div>
-
-            <div class="pbi-chart-cell">
-              <div class="pbi-chart-header">
-                <div>
-                  <h3 class="pbi-chart-title">Khuyến Nghị & Hành Động Dữ Liệu</h3>
-                  <p class="pbi-chart-subtitle">Chiến lược tối ưu ngân sách Ads, thời điểm đăng clip & dòng tiền</p>
-                </div>
-              </div>
-              <div id="actionableInsightContainer" style="display: flex; flex-direction: column; justify-content: space-between; height: calc(100% - 45px); padding-top: 4px;">
-                <div style="text-align: center; color: var(--slate-muted); padding: 20px 0; font-size: 0.85rem;">Đang tổng hợp dữ liệu...</div>
-              </div>
+            <div id="dayHourHeatmapContainer" style="min-height: 200px; display: flex; flex-direction: column; justify-content: center; width: 100%;">
+              <div style="margin: auto; color: var(--slate-muted); font-size: 0.85rem;">Đang tải ma trận nhiệt...</div>
             </div>
           </div>
+
+          <div class="saas-card col-span-4">
+            <div class="saas-card-header">
+              <div>
+                <h3 class="saas-card-title" id="categoryChartTitle">Cơ Cấu Danh Mục & File Bán Ra</h3>
+                <p class="saas-card-subtitle" id="categoryChartSubTitle">Tỷ trọng nhóm sản phẩm & phân rã file</p>
+              </div>
+              <div class="pill-btn-group" id="statsCategoryViewSelector" style="margin: 0; display: none;">
+                <button type="button" class="pill-btn active" data-catview="donut" style="padding: 2px 9px; font-size: 0.72rem;">Donut</button>
+              </div>
+            </div>
+            <div id="categoryChartContainer" style="min-height: 200px; display: flex; flex-direction: column; justify-content: center;">
+              <div style="text-align: center; color: var(--slate-muted); padding: 20px 0; font-size: 0.85rem;">Đang tải cơ cấu danh mục...</div>
+            </div>
+          </div>
+
+          <!-- SECTION 5: CONVERSION & RETENTION (6/12) + DATA-DRIVEN RECOMMENDATIONS (6/12) -->
+          <div class="saas-card col-span-6">
+            <div class="saas-card-header">
+              <div>
+                <h3 class="saas-card-title">Chuyển Đổi & Giữ Chân Khách Hàng</h3>
+                <p class="saas-card-subtitle">Tỷ lệ thanh toán hoàn tất, khách mua lặp lại & gói Coaching</p>
+              </div>
+            </div>
+            <div id="conversionContainer" style="display: flex; flex-direction: column; gap: 14px; padding-top: 4px;">
+              <div style="text-align: center; color: var(--slate-muted); padding: 20px 0; font-size: 0.85rem;">Đang tính tỷ lệ...</div>
+            </div>
+          </div>
+
+          <div class="saas-card col-span-6">
+            <div class="saas-card-header">
+              <div>
+                <h3 class="saas-card-title">Khuyến Nghị & Hành Động Dữ Liệu</h3>
+                <p class="saas-card-subtitle">Chiến lược tối ưu ngân sách Ads, thời điểm đăng clip & dòng tiền</p>
+              </div>
+            </div>
+            <div id="actionableInsightContainer" style="display: flex; flex-direction: column; justify-content: space-between; height: 100%; padding-top: 4px;">
+              <div style="text-align: center; color: var(--slate-muted); padding: 20px 0; font-size: 0.85rem;">Đang tổng hợp dữ liệu...</div>
+            </div>
+          </div>
+
         </div>
       </div>
 
@@ -2788,7 +2805,7 @@
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-storage-compat.js"></script>
   <script src="/__/firebase/init.js"></script>
   
-  <script src="./admin.js?v=211"></script>
+  <script src="./admin.js?v=282"></script>
   <!-- Agentation: Visual Feedback & Annotation for AI agents -->
   <script src="./agentation-vanilla.js"></script>
 
