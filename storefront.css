@@ -4116,6 +4116,22 @@ body:not(.is-admin) #userProfile {
   color: #0f172a !important;
 }
 
+.nav-link-custom {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 5px !important;
+}
+
+.nav-sparkle-icon {
+  flex-shrink: 0 !important;
+  color: #059669 !important;
+  transition: transform 0.2s ease !important;
+}
+
+.nav-link-custom:hover .nav-sparkle-icon {
+  transform: scale(1.15) rotate(5deg) !important;
+}
+
 .detail-nav-actions {
   display: flex !important;
   align-items: center !important;
