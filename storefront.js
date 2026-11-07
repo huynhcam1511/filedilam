@@ -3791,8 +3791,7 @@ function escapeHtml(value) {
 
       if (titleEl) {
         if (minOrder > 0) {
-          var kText = minOrder >= 1000 ? (Math.round(minOrder / 1000) + 'k') : formatCurrency(minOrder);
-          titleEl.textContent = 'Giảm ' + valText + ' cho đơn từ ' + kText;
+          titleEl.textContent = 'Giảm ' + valText + ' cho đơn từ ' + formatCurrency(minOrder);
         } else {
           titleEl.textContent = 'Giảm ' + valText + ' cho mọi đơn hàng';
         }
@@ -3817,7 +3816,7 @@ function escapeHtml(value) {
         } else if (featured.expires_at && featured.expires_at !== 'Vĩnh viễn') {
           dateEl.textContent = 'Thời gian áp dụng: ' + featured.expires_at;
         } else {
-          dateEl.textContent = 'Áp dụng: Vĩnh viễn (Chưa có ngày kết thúc)';
+          dateEl.textContent = 'Tự động áp dụng cho đơn hôm nay';
         }
       }
 
@@ -3826,7 +3825,7 @@ function escapeHtml(value) {
       }
 
       if (hintEl) {
-        hintEl.textContent = 'Bấm "Sử dụng mã" để tự động áp dụng mã ' + featured.code + ' và mở thanh toán.';
+        hintEl.textContent = 'Mã sẽ tự động trừ thẳng vào tổng tiền khi mở thanh toán.';
       }
 
       // 2. Cập nhật Card Thanh toán bên phải (Đơn hàng của bạn)
@@ -3922,7 +3921,7 @@ function escapeHtml(value) {
       if (isRealCart && !isEligible) {
         var thiếuTiền = minOrder - subtotal;
         if (alertSub) {
-          alertSub.textContent = 'Đơn của bạn là ' + formatCurrency(subtotal) + ' (cần thêm ' + formatCurrency(thiếuTiền) + ' để áp dụng mã từ ' + formatCurrency(minOrder) + ').';
+          alertSub.textContent = 'Thêm ' + formatCurrency(thiếuTiền) + ' nữa để kích hoạt giảm ' + valText + ' toàn giỏ';
           alertSub.style.display = 'block';
         }
       } else {
@@ -3931,11 +3930,11 @@ function escapeHtml(value) {
 
       if (btnActionText) {
         if (isRealCart && !isEligible) {
-          btnActionText.textContent = 'Thanh toán không dùng mã';
+          btnActionText.textContent = 'Tiếp tục thanh toán • ' + formatCurrency(subtotal) + ' ↗';
         } else if (isCouponApplied) {
-          btnActionText.textContent = 'Tiến hành thanh toán ngay';
+          btnActionText.textContent = 'Tiến hành thanh toán ngay ↗';
         } else {
-          btnActionText.textContent = isRealCart ? 'Sử dụng mã giảm giá' : 'Chọn combo mẫu & Sử dụng mã';
+          btnActionText.textContent = isRealCart ? 'Áp dụng mã & Thanh toán ↗' : 'Chọn combo mẫu & Sử dụng mã ↗';
         }
       }
 
@@ -3972,17 +3971,18 @@ function escapeHtml(value) {
       state.appliedCoupons = [];
       state.discountAmount = 0;
       var thiếu = curMinOrder - curSubtotal;
-      var warnMsg = "Mã " + currentFeaturedCoupon.code + " chỉ áp dụng cho đơn từ " + formatCurrency(curMinOrder) + ". Bạn cần thêm " + formatCurrency(thiếu) + " nữa.";
+      var cValText = (currentFeaturedCoupon.type === 'percent' ? (currentFeaturedCoupon.value + '%') : formatCurrency(currentFeaturedCoupon.value));
+      var warnMsg = "Thêm " + formatCurrency(thiếu) + " nữa để kích hoạt mã giảm " + cValText + " toàn giỏ.";
       
       var alertSub = document.getElementById('landingCouponAlertSub');
       if (alertSub) {
-        alertSub.textContent = 'Đơn của bạn là ' + formatCurrency(curSubtotal) + ' (cần thêm ' + formatCurrency(thiếu) + ' để áp dụng mã từ ' + formatCurrency(curMinOrder) + ').';
+        alertSub.textContent = 'Thêm ' + formatCurrency(thiếu) + ' nữa để kích hoạt giảm ' + cValText + ' toàn giỏ';
         alertSub.style.display = 'block';
       }
 
       showToast(warnMsg);
       syncLandingCouponTicket();
-      // Nếu khách bấm từ nút "Thanh toán không dùng mã", vẫn mở thẳng màn thanh toán cho khách!
+      // Nếu khách bấm nút thanh toán, vẫn mở thẳng màn thanh toán số tiền hiện tại cho khách!
       openCheckout();
       return;
     }

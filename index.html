@@ -20,7 +20,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="./storefront.css?v=351" />
+    <link rel="stylesheet" href="./storefront.css?v=352" />
     <style>
     :root {
       --bg: #ffffff;
@@ -2542,16 +2542,16 @@
   <section class="container ticket-section" id="landingCouponSection">
     <div class="coupon-ticket">
       <div class="ticket-left">
-        <span class="section-tag" style="margin-bottom: 8px;">MÃ GIẢM GIÁ</span>
-        <h2 class="section-title" id="landingCouponTitle" style="font-size: 1.8rem; font-weight: 600; letter-spacing: -1.03px; margin-bottom: 8px;">Giảm 10% cho đơn từ 160k</h2>
-        <div id="landingCouponDate" style="font-size: 0.82rem; color: var(--muted);">Chỉ đến ngày 29/11/2026</div>
+        <span style="font-size: 0.76rem; font-weight: 700; color: #059669; text-transform: uppercase; letter-spacing: 0.05em; display: inline-block; margin-bottom: 8px;">ƯU ĐÃI ĐƠN HÀNG</span>
+        <h2 class="section-title" id="landingCouponTitle" style="font-size: 1.8rem; font-weight: 600; letter-spacing: -1.03px; margin-bottom: 8px;">Giảm 20% cho đơn từ 20.000 đ</h2>
+        <div id="landingCouponDate" style="font-size: 0.82rem; color: var(--muted);">Tự động áp dụng cho đơn hôm nay</div>
         <div class="ticket-code-pill" style="margin: 14px 0 8px;">
           <span id="landingCouponCode" style="font-family: monospace; font-weight: 700; letter-spacing: 0.05em;">FILEDILAM</span>
           <button class="ticket-copy-btn" id="landingCouponCopyBtn" type="button" onclick="handleTicketApplyAndCheckout(this);" style="background: #059669; color: #fff; border: none; font-weight: 600; padding: 6px 16px; border-radius: 9999px; cursor: pointer; transition: all 0.15s ease;">Sử dụng mã</button>
         </div>
-        <!-- Dòng thông báo màu đỏ nhạt thanh lịch ngay dưới nút -->
-        <div id="landingCouponAlertSub" style="display: none; font-size: 0.8rem; font-weight: 500; color: #e11d48; margin-bottom: 6px; line-height: 1.45;"></div>
-        <p id="landingCouponHint" style="font-size: 0.82rem; color: var(--muted); margin: 0;">Bấm "Sử dụng mã" để tự động áp dụng mã và mở thanh toán.</p>
+        <!-- Dòng gợi ý kích cầu thanh lịch ngay dưới nút -->
+        <div id="landingCouponAlertSub" style="display: none; font-size: 0.82rem; font-weight: 600; color: #059669; margin-bottom: 8px; line-height: 1.45;"></div>
+        <p id="landingCouponHint" style="font-size: 0.82rem; color: var(--muted); margin: 0;">Mã sẽ tự động trừ thẳng vào tổng tiền khi mở thanh toán.</p>
       </div>
       <div class="ticket-right">
         <div class="receipt-header" style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; padding-bottom: 8px; border-bottom: 1px dashed #cbd5e1;">
@@ -3737,7 +3737,7 @@
     <script src="./storefront-data.js?v=22"></script>
     <script src="./storefront-products.generated.js?v=6"></script>
     <script src="assets/qrcode-generator-1.4.4.js"></script>
-    <script src="storefront.js?v=218"></script>
+    <script src="storefront.js?v=219"></script>
     <!-- Agentation: Visual Feedback & Annotation for AI agents -->
   <script src="./agentation-vanilla.js"></script>
 </body>
