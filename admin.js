@@ -274,6 +274,10 @@ document.addEventListener('DOMContentLoaded', () => {
     return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND', maximumFractionDigits: 0 }).format(val);
   }
 
+  function formatNumber(val) {
+    return new Intl.NumberFormat('vi-VN').format(Number(val) || 0);
+  }
+
   function escapeHtml(str) {
     if (!str) return '';
     return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
@@ -1888,11 +1892,11 @@ document.addEventListener('DOMContentLoaded', () => {
       totalAddToCart += Number(m.add_to_cart_count || 0);
     });
 
-    // Dự phóng thông minh dựa trên tỷ lệ thực tế nếu tracking mới bắt đầu tích lũy
-    const effectiveWebSessions = Math.max(totalWebSessions, Math.round(totalOrdersInFilter * 12.5), (totalAdsClicks > 0 ? Math.round(totalAdsClicks * 0.92) : 640));
-    const avgDwellSeconds = totalDwellSamples > 0 ? Math.round(totalDwellSecs / totalDwellSamples) : 28;
-    const effectiveAddToCart = Math.max(totalAddToCart, Math.round(totalOrdersInFilter * 2.4), 125);
-    const cartDropOffCount = Math.max(0, effectiveAddToCart - totalOrdersInFilter);
+    // CHỈ HIỂN THỊ 100% SỐ THẬT QUÉT TỪ DB DO TRACKER GHI NHẬN (KHÔNG TỰ TÍNH / KHÔNG DỰ PHÓNG)
+    const effectiveWebSessions = totalWebSessions;
+    const avgDwellSeconds = totalDwellSamples > 0 ? Math.round(totalDwellSecs / totalDwellSamples) : 0;
+    const effectiveAddToCart = totalAddToCart;
+    const cartDropOffCount = Math.max(0, effectiveAddToCart - paidCount);
     const cartDropOffRate = effectiveAddToCart > 0 ? Math.round((cartDropOffCount / effectiveAddToCart) * 100) : 0;
     const addToCartRate = effectiveWebSessions > 0 ? ((effectiveAddToCart / effectiveWebSessions) * 100).toFixed(1) : 0;
 
@@ -1907,20 +1911,24 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (bWebSessions) bWebSessions.textContent = effectiveWebSessions.toLocaleString('vi-VN') + ' lượt';
     if (bWebSessionsSub) {
-      const clickRatio = totalAdsClicks > 0 ? (effectiveWebSessions / totalAdsClicks) : 0;
-      if (clickRatio >= 0.3 && clickRatio <= 1.5) {
-        bWebSessionsSub.textContent = Math.round(clickRatio * 100) + '% từ ' + totalAdsClicks + ' click Ads';
+      if (effectiveWebSessions === 0) {
+        bWebSessionsSub.textContent = '0 lượt (Đang quét thật, đã trừ Admin)';
       } else {
-        bWebSessionsSub.textContent = 'Khách từ TikTok, Bio & Tự nhiên';
+        bWebSessionsSub.textContent = 'Khách thật (Đã trừ thiết bị Admin)';
       }
     }
-    const displayDwell = avgDwellSeconds > 0 ? avgDwellSeconds : 28;
-    if (bAvgDwell) bAvgDwell.textContent = displayDwell + 's';
-    if (bAvgDwellSub) bAvgDwellSub.textContent = avgDwellSeconds > 0 ? 'Thời gian xem thực tế' : 'Chuẩn đo lường thực tế';
+    if (bAvgDwell) bAvgDwell.textContent = avgDwellSeconds + 's';
+    if (bAvgDwellSub) {
+      bAvgDwellSub.textContent = avgDwellSeconds > 0 ? 'Thời gian xem thực tế' : 'Đang quét real-time...';
+    }
     if (bAddToCart) bAddToCart.textContent = effectiveAddToCart.toLocaleString('vi-VN') + ' lượt';
-    if (bAddToCartSub) bAddToCartSub.textContent = 'Tỉ lệ thêm giỏ: ' + addToCartRate + '%';
+    if (bAddToCartSub) {
+      bAddToCartSub.textContent = effectiveAddToCart > 0 ? ('Tỉ lệ thêm giỏ: ' + addToCartRate + '%') : '0 lượt bấm giỏ thật';
+    }
     if (bCartDropRate) bCartDropRate.textContent = cartDropOffRate + '%';
-    if (bCartDropSub) bCartDropSub.textContent = cartDropOffCount + ' giỏ chưa xác nhận';
+    if (bCartDropSub) {
+      bCartDropSub.textContent = cartDropOffCount > 0 ? (cartDropOffCount + ' giỏ chưa xác nhận') : 'Chưa có giỏ bỏ rơi';
+    }
 
     // Tính toán số liệu Tốc độ chốt đơn (Payment Latency & Time-to-Pay)
     const sortedLatencies = [...paymentLatencies].sort((a, b) => a - b);
@@ -2231,9 +2239,9 @@ document.addEventListener('DOMContentLoaded', () => {
         const stages = [
           { name: '1. Tiếp cận TikTok', count: fViews.toLocaleString('vi-VN') + ' views', sub: 'CPM: ' + (avgCPM > 0 ? formatCurrency(avgCPM) : '4.232 đ'), width: '100%', bg: '#a7f3d0', color: '#065f46', stepRate: pEngaged + '% xem >2s' },
           { name: '2. Xem sâu (>2s)', count: fEngaged.toLocaleString('vi-VN') + ' lượt', sub: pEngaged + '% giữ chân', width: '85%', bg: '#6ee7b7', color: '#065f46', stepRate: pClicks + '% nhấp link' },
-          { name: '3. Nhấp link (Clicks)', count: fClicks.toLocaleString('vi-VN') + ' click', sub: 'CPC: ' + (avgCPC > 0 ? formatCurrency(avgCPC) : '37 đ'), width: '72%', bg: '#34d399', color: '#064e3b', stepRate: pWebOpen + '% mở web' },
-          { name: '4. Mở link Web', count: fWebOpen.toLocaleString('vi-VN') + ' lượt', sub: 'TB ở lại ' + avgDwellSeconds + 's', width: '60%', bg: '#10b981', color: '#ffffff', stepRate: pCart + '% thêm giỏ' },
-          { name: '5. Thêm vào giỏ', count: fCart.toLocaleString('vi-VN') + ' giỏ', sub: cartDropOffRate + '% bỏ giỏ', width: '46%', bg: '#059669', color: '#ffffff', stepRate: pCreated + '% tạo đơn' },
+          { name: '3. Nhấp link (Clicks)', count: fClicks.toLocaleString('vi-VN') + ' click', sub: 'CPC: ' + (avgCPC > 0 ? formatCurrency(avgCPC) : '37 đ'), width: '72%', bg: '#34d399', color: '#064e3b', stepRate: fWebOpen > 0 ? (pWebOpen + '% mở web') : null },
+          { name: '4. Mở link Web', count: fWebOpen > 0 ? (fWebOpen.toLocaleString('vi-VN') + ' lượt') : 'Đang quét thật...', sub: fWebOpen > 0 ? ('TB ở lại ' + avgDwellSeconds + 's') : 'Mới kích hoạt hôm nay', width: '60%', bg: '#10b981', color: '#ffffff', stepRate: fCart > 0 ? (pCart + '% thêm giỏ') : null },
+          { name: '5. Thêm vào giỏ', count: fCart > 0 ? (fCart.toLocaleString('vi-VN') + ' giỏ') : 'Đang quét thật...', sub: fCart > 0 ? (cartDropOffRate + '% bỏ giỏ') : 'Mới kích hoạt hôm nay', width: '46%', bg: '#059669', color: '#ffffff', stepRate: pCreated + '% tạo đơn' },
           { name: '6. Khởi tạo đơn (QR)', count: fOrdersCreated + ' đơn tạo', sub: (totalRevenue > 0 ? formatCurrency(grossRevenue) : 'Tạo mã QR'), width: '34%', bg: '#047857', color: '#ffffff', stepRate: pPaid + '% hoàn tất' },
           { name: '7. Đã thanh toán', count: fOrdersPaid + ' đơn chốt', sub: pPaid + '% hoàn tất (' + formatCurrency(totalRevenue) + ')', width: '24%', bg: '#064e3b', color: '#ffffff', stepRate: null }
         ];
