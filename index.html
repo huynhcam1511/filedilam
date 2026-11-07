@@ -20,7 +20,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="./storefront.css?v=346" />
+    <link rel="stylesheet" href="./storefront.css?v=347" />
     <style>
     :root {
       --bg: #ffffff;
@@ -1247,15 +1247,15 @@
       box-shadow: 0 6px 16px rgba(5, 150, 105, 0.25);
     }
 
-    /* RIGHT COLUMN: LIVE PAINPOINT STREAM ANIMATION */
+    /* RIGHT COLUMN: RICH MEDIA CHAT PREVIEW (HƯỚNG 2: KHÁCH HỎI ➔ REP BẰNG THẺ DEMO THẬT) */
     .painpoint-stream-container {
       background: #ffffff;
       border: 1px solid #e2e8f0;
       border-radius: 16px;
-      padding: 22px 20px 26px;
+      padding: 20px;
       box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
       position: relative;
-      height: 290px;
+      height: 310px;
       overflow: hidden;
       display: flex;
       flex-direction: column;
@@ -1275,7 +1275,7 @@
       display: flex;
       flex-direction: column;
       justify-content: center;
-      gap: 12px;
+      gap: 10px;
       opacity: 0;
       pointer-events: none;
       transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
@@ -1311,11 +1311,11 @@
     .painpoint-msg-header {
       display: flex;
       align-items: center;
-      gap: 10px;
+      gap: 9px;
     }
     .painpoint-avatar {
-      width: 32px;
-      height: 32px;
+      width: 30px;
+      height: 30px;
       border-radius: 50%;
       background: #f1f5f9;
       color: #475569;
@@ -1326,9 +1326,10 @@
       justify-content: center;
       font-family: var(--font-mono, monospace);
       border: 1px solid #e2e8f0;
+      flex-shrink: 0;
     }
     .painpoint-meta-title {
-      font-size: 0.85rem;
+      font-size: 0.84rem;
       font-weight: 700;
       color: #0f172a;
     }
@@ -1336,60 +1337,125 @@
       font-size: 0.72rem;
       color: #94a3b8;
     }
-    /* Chat Bubble Khách Hàng (Nỗi đau) */
+
+    /* Tin nhắn khách hàng (Nỗi đau) */
     .bubble-customer {
       background: #f8fafc;
       border: 1px solid #e2e8f0;
       border-radius: 12px;
       border-top-left-radius: 3px;
-      padding: 12px 14px;
-      font-size: 0.84rem;
+      padding: 10px 13px;
+      font-size: 0.83rem;
       color: #334155;
       line-height: 1.45;
     }
-    /* Chat Bubble File Đi Làm (Lời giải) */
-    .bubble-fdl {
-      background: #f0fdf4;
-      border: 1px solid #bbf7d0;
+
+    /* THẺ PREVIEW SẢN PHẨM THẬT TỪ FILE ĐI LÀM (RICH MEDIA DEMO CARD) */
+    .reply-demo-card {
+      background: #ffffff;
+      border: 1.5px solid #a7f3d0;
       border-radius: 12px;
-      border-top-right-radius: 3px;
       padding: 12px 14px;
-      font-size: 0.84rem;
-      color: #166534;
-      line-height: 1.45;
+      box-shadow: 0 3px 12px rgba(5, 150, 105, 0.08);
       align-self: flex-end;
-      width: 95%;
+      width: 96%;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
     }
-    .bubble-fdl strong {
-      color: #059669;
-      display: block;
-      margin-bottom: 2px;
+    .demo-card-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid #f1f5f9;
+      padding-bottom: 6px;
+    }
+    .demo-type-tag {
+      font-size: 0.7rem;
       font-weight: 700;
+      color: #059669;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+    .demo-status-text {
+      font-size: 0.7rem;
+      color: #64748b;
+      font-weight: 500;
+    }
+    .demo-product-name {
+      font-size: 0.88rem;
+      font-weight: 700;
+      color: #0f172a;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    /* Khung mini preview giao diện thật */
+    .demo-mini-ui {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      padding: 8px 10px;
+      font-size: 0.78rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+    .demo-ui-badge {
+      font-family: var(--font-mono, monospace);
+      font-weight: 700;
+      color: #059669;
+    }
+    .demo-card-action {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: 2px;
+    }
+    .demo-action-btn {
+      font-size: 0.74rem;
+      font-weight: 600;
+      color: #059669;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .demo-delivery-badge {
+      font-size: 0.7rem;
+      color: #64748b;
+      font-weight: 500;
     }
 
-    /* Progress indicator ở đáy card */
+    /* Dots indicator */
     .stream-dots-bar {
       display: flex;
       gap: 6px;
       position: absolute;
-      bottom: 12px;
-      right: 18px;
+      bottom: 10px;
+      right: 16px;
     }
     .stream-dot-pulse {
-      width: 6px;
-      height: 6px;
+      width: 5px;
+      height: 5px;
       border-radius: 50%;
       background: #cbd5e1;
+    }
+    .stream-dot-pulse.active {
+      background: #059669;
+      animation: pulseDot 1s infinite alternate;
     }
 
     @media (max-width: 900px) {
       .custom-clean-banner {
         grid-template-columns: 1fr;
-        padding: 32px 24px;
-        gap: 28px;
+        padding: 30px 20px;
+        gap: 24px;
       }
       .painpoint-stream-container {
-        height: 290px;
+        height: 320px;
       }
       .custom-clean-title {
         font-size: 1.45rem;
@@ -2550,78 +2616,146 @@
         </div>
       </div>
 
-      <!-- Cột Phải: Live Painpoint Stream Animation (4 Vai Trò Sát Thực Tế) -->
+      <!-- Cột Phải: Rich Media Chat Preview (HƯỚNG 2: KHÁCH HỎI ➔ REP BẰNG THẺ DEMO THẬT) -->
       <div class="painpoint-stream-container">
         <div class="painpoint-card-track">
-          <!-- Slide 1: Chủ nhà trọ -->
-          <div class="painpoint-msg-card">
-            <div class="painpoint-msg-header">
-              <div class="painpoint-avatar">NT</div>
-              <div>
-                <div class="painpoint-meta-title">Anh Nam • Chủ 18 phòng trọ</div>
-                <div class="painpoint-meta-sub">Bài toán: Tính điện nước lũy tiến &amp; hóa đơn</div>
-              </div>
-            </div>
-            <div class="bubble-customer">
-              "Quá nhiều phòng, mỗi cuối tháng ngồi tính điện nước lũy tiến rồi làm phiếu thu gửi từng phòng mất nguyên cả ngày..."
-            </div>
-            <div class="bubble-fdl">
-              <strong>Lời giải từ File Đi Làm:</strong>
-              Web App nhập số điện nước 1 chạm, tự sinh ảnh phiếu thu gửi Zalo khách trong 3 giây.
-            </div>
-          </div>
-
-          <!-- Slide 2: Chủ Salon tóc -->
-          <div class="painpoint-msg-card">
-            <div class="painpoint-msg-header">
-              <div class="painpoint-avatar" style="background: #fdf2f8; color: #db2777; border-color: #fbcfe8;">ST</div>
-              <div>
-                <div class="painpoint-meta-title">Chị Mai • Chủ Salon 6 thợ</div>
-                <div class="painpoint-meta-sub">Bài toán: Hoa hồng đa cấp bậc &amp; tiền tip</div>
-              </div>
-            </div>
-            <div class="bubble-customer">
-              "Thợ chính 30%, thợ phụ 10%, tiền tip với thưởng doanh số mỗi người một kiểu, cuối tháng tính lương hay bị cãi nhau..."
-            </div>
-            <div class="bubble-fdl">
-              <strong>Lời giải từ File Đi Làm:</strong>
-              Giao diện ghi nhận thợ trên điện thoại, bấm 1 nút tự xuất bảng lương chi tiết từng người.
-            </div>
-          </div>
-
-          <!-- Slide 3: Chủ quán Bida / Spa -->
+          <!-- Slide 1: Chủ Bida -->
           <div class="painpoint-msg-card">
             <div class="painpoint-msg-header">
               <div class="painpoint-avatar" style="background: #eff6ff; color: #2563eb; border-color: #bfdbfe;">BD</div>
               <div>
                 <div class="painpoint-meta-title">Hoàng Tuấn • Quản lý CLB Bida</div>
-                <div class="painpoint-meta-sub">Bài toán: Tính tiền theo phút &amp; nước uống</div>
+                <div class="painpoint-meta-sub">Gửi 10 phút trước qua Zalo</div>
               </div>
             </div>
             <div class="bubble-customer">
-              "12 bàn vừa tính tiền theo phút vừa bán đồ uống, nhân viên ca đêm hay tính nhầm giờ và thất thoát tiền..."
+              "Quán bida 12 bàn, vừa tính giờ theo phút vừa bán đồ uống, ca đêm nhân viên hay tính nhầm..."
             </div>
-            <div class="bubble-fdl">
-              <strong>Lời giải từ File Đi Làm:</strong>
-              Giao diện mở bàn tự chạy giờ theo phút, bấm thanh toán tự cộng đồ uống và hiện VietQR.
+            <!-- File Đi Làm gửi lại thẻ Demo thật -->
+            <div class="reply-demo-card">
+              <div class="demo-card-top">
+                <span class="demo-type-tag">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>
+                  Bản Demo Web App
+                </span>
+                <span class="demo-status-text">Đã hoàn thành</span>
+              </div>
+              <div class="demo-product-name">
+                <span>App Bida Smart (Tự động tính giờ &amp; Bill)</span>
+              </div>
+              <div class="demo-mini-ui">
+                <span>Bàn 03: <strong>01h 45p</strong> • 3 lon nước</span>
+                <span class="demo-ui-badge">87.500 đ</span>
+              </div>
+              <div class="demo-card-action">
+                <span class="demo-delivery-badge">Bàn giao kèm Google Sheets</span>
+                <span class="demo-action-btn">Mở demo trên Zalo &rsaquo;</span>
+              </div>
             </div>
           </div>
 
-          <!-- Slide 4: Chủ Xưởng may -->
+          <!-- Slide 2: Chủ Nhà Trọ -->
+          <div class="painpoint-msg-card">
+            <div class="painpoint-msg-header">
+              <div class="painpoint-avatar">NT</div>
+              <div>
+                <div class="painpoint-meta-title">Anh Nam • Chủ 18 phòng trọ</div>
+                <div class="painpoint-meta-sub">Gửi 25 phút trước qua Zalo</div>
+              </div>
+            </div>
+            <div class="bubble-customer">
+              "Dãy trọ 18 phòng, cuối tháng ngồi tính điện nước lũy tiến rồi viết phiếu thu mất nguyên cả ngày..."
+            </div>
+            <!-- File Đi Làm gửi lại thẻ Demo thật -->
+            <div class="reply-demo-card">
+              <div class="demo-card-top">
+                <span class="demo-type-tag">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                  File Tự Động Hóa Google Sheets
+                </span>
+                <span class="demo-status-text">Đã hoàn thành</span>
+              </div>
+              <div class="demo-product-name">
+                <span>Hệ Thống Điện Nước &amp; Xuất Hóa Đơn Zalo</span>
+              </div>
+              <div class="demo-mini-ui">
+                <span>Phòng 102 • Điện: 115 kWh • Nước: 6 m³</span>
+                <span class="demo-ui-badge">3.240.000 đ</span>
+              </div>
+              <div class="demo-card-action">
+                <span class="demo-delivery-badge">Tự sinh ảnh bill gửi 1 chạm</span>
+                <span class="demo-action-btn">Mở demo trên Zalo &rsaquo;</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Slide 3: Chủ Salon Tóc -->
+          <div class="painpoint-msg-card">
+            <div class="painpoint-msg-header">
+              <div class="painpoint-avatar" style="background: #fdf2f8; color: #db2777; border-color: #fbcfe8;">ST</div>
+              <div>
+                <div class="painpoint-meta-title">Chị Mai • Chủ Salon 6 thợ</div>
+                <div class="painpoint-meta-sub">Gửi 1 giờ trước qua Zalo</div>
+              </div>
+            </div>
+            <div class="bubble-customer">
+              "Thợ chính 30%, thợ phụ 10%, tiền tip với thưởng doanh số mỗi người một kiểu, cuối tháng tính lương toàn cãi nhau..."
+            </div>
+            <!-- File Đi Làm gửi lại thẻ Demo thật -->
+            <div class="reply-demo-card">
+              <div class="demo-card-top">
+                <span class="demo-type-tag">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+                  Bảng Chấm Công &amp; Hoa Hồng
+                </span>
+                <span class="demo-status-text">Đã hoàn thành</span>
+              </div>
+              <div class="demo-product-name">
+                <span>Bảng Lương Thợ &amp; Hoa Hồng Đa Cấp Bậc</span>
+              </div>
+              <div class="demo-mini-ui">
+                <span>Tuấn Anh (Thợ chính) • 14 ca uốn/nhuộm</span>
+                <span class="demo-ui-badge">+2.150.000 đ</span>
+              </div>
+              <div class="demo-card-action">
+                <span class="demo-delivery-badge">1 nút xuất phiếu lương chi tiết</span>
+                <span class="demo-action-btn">Mở demo trên Zalo &rsaquo;</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Slide 4: Chủ Xưởng May -->
           <div class="painpoint-msg-card">
             <div class="painpoint-msg-header">
               <div class="painpoint-avatar" style="background: #fefce8; color: #ca8a04; border-color: #fef08a;">XM</div>
               <div>
                 <div class="painpoint-meta-title">Chị Hằng • Xưởng may thời trang</div>
-                <div class="painpoint-meta-sub">Bài toán: Quản lý biến thể Màu x Size</div>
+                <div class="painpoint-meta-sub">Gửi hôm qua qua Zalo</div>
               </div>
             </div>
             <div class="bubble-customer">
-              "Một mẫu áo 4 màu x 5 size (=20 mã lẻ), kho loạn xạ không biết còn màu nào size nào để báo khách sỉ..."
+              "Một mẫu áo 4 màu x 5 size (=20 mã lẻ), kho loạn xạ không biết còn màu nào size nào để báo sỉ..."
             </div>
-            <div class="bubble-fdl">
-              <strong>Lời giải từ File Đi Làm:</strong>
-              Bảng ma trận tồn kho màu x size trực quan, tự động trừ tồn và cảnh báo hết hàng ngay lập tức.
+            <!-- File Đi Làm gửi lại thẻ Demo thật -->
+            <div class="reply-demo-card">
+              <div class="demo-card-top">
+                <span class="demo-type-tag">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg>
+                  Ma Trận Kho Google Sheets
+                </span>
+                <span class="demo-status-text">Đã hoàn thành</span>
+              </div>
+              <div class="demo-product-name">
+                <span>Quản Lý Tồn Kho Ma Trận Màu x Size</span>
+              </div>
+              <div class="demo-mini-ui">
+                <span>Màu Đen • Size S: 45 | M: 12 | L: 0</span>
+                <span class="demo-ui-badge" style="color: #dc2626;">Hết Size L</span>
+              </div>
+              <div class="demo-card-action">
+                <span class="demo-delivery-badge">Tự trừ tồn kho khi xuất bán</span>
+                <span class="demo-action-btn">Mở demo trên Zalo &rsaquo;</span>
+              </div>
             </div>
           </div>
         </div>
