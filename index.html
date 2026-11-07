@@ -20,7 +20,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="./storefront.css?v=338" />
+    <link rel="stylesheet" href="./storefront.css?v=339" />
     <style>
     :root {
       --bg: #ffffff;
@@ -2250,8 +2250,8 @@
         <div class="stat-label">Từ 04/2023 bên mình bán file và hỗ trợ khách qua Zalo</div>
       </div>
       <div class="stat-card">
-        <div class="stat-number mint" style="font-size: 2.3rem; font-weight: 700; line-height: 1.1;">∞</div>
-        <div class="stat-label">Dữ liệu giữ riêng cho bạn, trọn đời bền lâu</div>
+        <div class="stat-number" id="statTotalFilesContainer"><span id="statTotalFiles" class="counter" data-target="30">0</span>+</div>
+        <div class="stat-label">file Google Sheets sẵn dùng cho bạn</div>
       </div>
     </div>
   </section>
@@ -3633,7 +3633,7 @@
     <script src="./storefront-data.js?v=22"></script>
     <script src="./storefront-products.generated.js?v=6"></script>
     <script src="assets/qrcode-generator-1.4.4.js"></script>
-    <script src="storefront.js?v=213"></script>
+    <script src="storefront.js?v=214"></script>
     <!-- Agentation: Visual Feedback & Annotation for AI agents -->
   <script src="./agentation-vanilla.js"></script>
 </body>
