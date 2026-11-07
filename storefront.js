@@ -3487,6 +3487,7 @@ function escapeHtml(value) {
       var cleanDesc = desc.replace(/\s*\(từ.*?\)/gi, '').replace(/\s*\(hạn chót.*?\)/gi, '').replace(/\s*\(áp dụng.*?\)/gi, '');
       return (
         '<div class="hero-coupon-tag" data-code="' + escapeHtml(code) + '" title="Bấm để sao chép mã">' +
+          '<span class="hero-coupon-prefix" style="color: #64748b; font-weight: 500; font-size: 0.88rem;">Quà làm quen:</span>' +
           '<span class="hero-coupon-code">' + escapeHtml(code) + '</span>' +
           '<span class="hero-coupon-sep">•</span>' +
           '<span class="hero-coupon-detail">' + escapeHtml(cleanDesc) + '</span>' +
