@@ -1139,8 +1139,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- REVENUE STATISTICS & ORDER MANAGEMENT ---
   let cachedOrders = [];
-  let statsFilterPeriod = '14'; // '7', '14', '30', 'all'
-  let statsFilterMonth = 'ALL';  // 'ALL' hoặc '2026-11', '2026-10',...
+  const curInitDate = new Date();
+  const currentInitialYm = curInitDate.getFullYear() + '-' + String(curInitDate.getMonth() + 1).padStart(2, '0');
+  let statsFilterPeriod = 'month'; // '7', '14', '30', 'all', 'month'
+  let statsFilterMonth = currentInitialYm;  // Mặc định tháng hiện tại (vd '2026-11')
   let statsFilterType = 'ALL';   // 'ALL', 'STANDARD', 'COACHING'
   let statsFilterProduct = 'ALL'; // 'ALL' hoặc product_id
   let statsFilterActiveOnly = true; // Mặc định chỉ hiển thị sản phẩm đang kinh doanh trong danh mục
@@ -1384,7 +1386,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const monthSelect = document.getElementById('statsMonthSlicer');
     if (!monthSelect) return;
     
+    const curNow = new Date();
+    const curYm = curNow.getFullYear() + '-' + String(curNow.getMonth() + 1).padStart(2, '0');
+
     const monthsSet = new Set();
+    monthsSet.add(curYm); // Luôn đảm bảo có tháng hiện tại
+
     (cachedOrders || []).forEach(o => {
       const isPaid = String(o.status || '').toUpperCase() === 'PAID';
       const dObj = isPaid ? parseDateObj(o.paid_at || o.created_at) : parseDateObj(o.created_at || o.paid_at);
@@ -1406,17 +1413,20 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     const sortedMonths = Array.from(monthsSet).sort().reverse();
-    const currentVal = monthSelect.value || 'ALL';
+    // Ưu tiên giá trị statsFilterMonth (mặc định là curYm khi vừa vào), nếu không hợp lệ thì gán curYm
+    if (!statsFilterMonth || (!monthsSet.has(statsFilterMonth) && statsFilterMonth !== 'ALL')) {
+      statsFilterMonth = curYm;
+    }
+    const currentVal = statsFilterMonth;
     
     let html = '<option value="ALL">Tất cả các tháng</option>';
     sortedMonths.forEach(m => {
       const parts = m.split('-');
-      html += '<option value="' + m + '">Tháng ' + parts[1] + '/' + parts[0] + '</option>';
+      const isSelected = (m === currentVal) ? ' selected' : '';
+      html += '<option value="' + m + '"' + isSelected + '>Tháng ' + parts[1] + '/' + parts[0] + '</option>';
     });
     monthSelect.innerHTML = html;
-    if (monthsSet.has(currentVal)) {
-      monthSelect.value = currentVal;
-    }
+    monthSelect.value = currentVal;
   }
 
   
@@ -4163,6 +4173,7 @@ document.addEventListener('DOMContentLoaded', () => {
     statsMonthSel.addEventListener('change', (e) => {
       statsFilterMonth = e.target.value;
       if (statsFilterMonth !== 'ALL') {
+        statsFilterPeriod = 'month';
         if (statsPeriodGroup) {
           statsPeriodGroup.querySelectorAll('button').forEach(b => b.classList.remove('active'));
         }
