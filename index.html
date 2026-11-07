@@ -20,7 +20,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="./storefront.css?v=341" />
+    <link rel="stylesheet" href="./storefront.css?v=342" />
     <style>
     :root {
       --bg: #ffffff;
@@ -1053,130 +1053,180 @@
       100% { top: calc(100% - 2px); opacity: 0; }
     }
 
-    /* 4-PILLAR VALUE SECTION (USP) */
-    .usp-section {
-      padding: 80px 0;
+    /* COMPARISON MATRIX SECTION (THAY THẾ 4-PILLAR USP CŨ) */
+    .compare-section {
+      padding: 72px 0 80px;
       background: #ffffff;
     }
-    .usp-grid {
+    .compare-grid {
       display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 20px;
+      grid-template-columns: 1fr 1.08fr;
+      gap: 24px;
       margin-top: 40px;
+      align-items: stretch;
     }
-    .usp-card {
-      background: #f1f5f9;
-      border: 1px solid #edf2f7;
-      border-radius: 24px;
-      padding: 32px 28px 28px;
+    .compare-col {
+      border-radius: 20px;
+      padding: 36px 32px 32px;
       display: flex;
       flex-direction: column;
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
-      transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+      position: relative;
+      transition: all 0.25s ease;
     }
-    .usp-card:hover {
-      transform: translateY(-4px);
-      box-shadow: 0 12px 30px -4px rgba(15, 23, 42, 0.06);
-      background: #ffffff;
-      border-color: #cbd5e1;
-    }
-    .usp-icon-badge {
-      width: 44px;
-      height: 44px;
-      border-radius: 12px;
-      background: #ffffff;
+    /* Cột 1: Phần mềm SaaS truyền thống */
+    .compare-col-legacy {
+      background: #f8fafc;
       border: 1px solid #e2e8f0;
+      color: #334155;
+    }
+    /* Cột 2: File Đi Làm (Highlight Mint) */
+    .compare-col-fdl {
+      background: #ffffff;
+      border: 2px solid #059669;
+      box-shadow: 0 12px 36px -6px rgba(5, 150, 105, 0.12), 0 4px 16px rgba(0, 0, 0, 0.04);
+    }
+    .compare-top-badge {
+      position: absolute;
+      top: -13px;
+      right: 28px;
+      background: #059669;
+      color: #ffffff;
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      padding: 3px 12px;
+      border-radius: 999px;
+      box-shadow: 0 2px 8px rgba(5, 150, 105, 0.25);
+    }
+    .compare-header {
+      border-bottom: 1px solid #e2e8f0;
+      padding-bottom: 24px;
+      margin-bottom: 24px;
+    }
+    .compare-col-fdl .compare-header {
+      border-bottom-color: #d1fae5;
+    }
+    .compare-type {
+      font-size: 0.82rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 6px;
+    }
+    .compare-type-legacy { color: #64748b; }
+    .compare-type-fdl { color: #059669; }
+    .compare-title {
+      font-size: 1.45rem;
+      font-weight: 800;
+      color: #0f172a;
+      letter-spacing: -0.4px;
+      margin-bottom: 12px;
+    }
+    .compare-cost-block {
+      display: flex;
+      align-items: baseline;
+      gap: 8px;
+    }
+    .compare-cost-val {
+      font-size: 1.55rem;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+    }
+    .compare-cost-val.legacy { color: #94a3b8; text-decoration: line-through; }
+    .compare-cost-val.fdl { color: #059669; }
+    .compare-cost-sub {
+      font-size: 0.85rem;
+      color: #64748b;
+      font-weight: 500;
+    }
+    .compare-features-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+      flex: 1;
+    }
+    .compare-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+      font-size: 0.92rem;
+      line-height: 1.5;
+    }
+    .compare-icon-wrap {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 1.15rem;
-      margin-bottom: 24px;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+      flex-shrink: 0;
+      margin-top: 2px;
     }
-    .usp-tagline {
-      font-size: 0.85rem;
-      font-weight: 600;
+    .compare-icon-wrap.bad {
+      background: #fee2e2;
+      color: #dc2626;
+    }
+    .compare-icon-wrap.good {
+      background: #d1fae5;
       color: #059669;
-      margin-bottom: 8px;
-      letter-spacing: -0.2px;
     }
-    .usp-title {
-      font-size: 1.35rem;
+    .compare-item-body strong {
+      color: #0f172a;
       font-weight: 700;
-      margin-bottom: 20px;
-      line-height: 1.25;
-      color: #181925;
-      letter-spacing: -0.6px;
+      display: block;
+      margin-bottom: 2px;
     }
-    .usp-list {
-      list-style: none;
-      font-size: 0.88rem;
+    .compare-item-body p {
+      margin: 0;
+      font-size: 0.84rem;
       color: #64748b;
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-      margin-bottom: 32px;
-      line-height: 1.45;
     }
-    .usp-list li {
+    .compare-col-fdl .compare-item-body p {
+      color: #475569;
+    }
+    /* Thanh tóm tắt ROI dưới bảng */
+    .compare-roi-bar {
+      margin-top: 28px;
+      background: #f0fdf4;
+      border: 1px solid #bbf7d0;
+      border-radius: 14px;
+      padding: 16px 24px;
       display: flex;
-      align-items: flex-start;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+    .compare-roi-text {
+      font-size: 0.9rem;
+      color: #166534;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
       gap: 10px;
     }
-    .usp-list li::before {
-      content: "✓";
-      color: #059669;
+    .compare-roi-pill {
+      font-family: var(--font-mono, monospace);
+      font-size: 0.85rem;
       font-weight: 700;
-      font-size: 0.95rem;
-      line-height: 1.2;
+      color: #ffffff;
+      background: #059669;
+      padding: 4px 12px;
+      border-radius: 6px;
+      white-space: nowrap;
     }
-    .usp-footer-visual {
-      margin-top: auto;
-      padding-top: 20px;
-      border-top: 1px solid #e2e8f0;
-    }
-    /* Cost 12-Month Pills Bar */
-    .cost-progress-wrap {
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-    }
-    .cost-progress-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      font-size: 0.82rem;
-    }
-    .cost-pills-bar {
-      display: flex;
-      gap: 4px;
-      width: 100%;
-    }
-    .cost-pill-item {
-      flex: 1;
-      height: 14px;
-      border-radius: 4px;
-      background: #e2e8f0;
-      transition: background-color 0.3s ease;
-    }
-    .cost-pill-item.is-paid {
-      background: #10b981;
-    }
-    .cost-note-dot {
-      font-size: 0.76rem;
-      color: #64748b;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      margin-top: 4px;
-    }
-    .cost-note-dot::before {
-      content: "";
-      width: 6px;
-      height: 6px;
-      border-radius: 50%;
-      background: #10b981;
-      display: inline-block;
+    @media (max-width: 900px) {
+      .compare-grid {
+        grid-template-columns: 1fr;
+        gap: 20px;
+      }
+      .compare-roi-bar {
+        flex-direction: column;
+        align-items: flex-start;
+      }
     }
 
     /* CUSTOM SERVICE BANNER */
@@ -1836,21 +1886,18 @@
         line-height: 1.45 !important;
         padding: 0 8px !important;
       }
-      .usp-main-heading {
-        font-size: 1.55rem !important;
-        font-weight: 700 !important;
-        line-height: 1.25 !important;
-        letter-spacing: -0.5px !important;
-        margin-bottom: 10px !important;
+      .compare-section {
+        padding: 48px 0 !important;
       }
-      .usp-section p {
-        font-size: 0.86rem !important;
-        line-height: 1.48 !important;
-        margin-bottom: 24px !important;
+      .compare-col {
+        padding: 24px 20px 22px !important;
+        border-radius: 16px !important;
       }
-      .usp-card {
-        padding: 22px 18px !important;
-        border-radius: 18px !important;
+      .compare-title {
+        font-size: 1.25rem !important;
+      }
+      .compare-cost-val {
+        font-size: 1.35rem !important;
       }
       .faq-section {
         padding: 44px 0 60px !important;
@@ -2283,111 +2330,154 @@
     </div>
   </section>
 
-  <!-- 4-PILLAR VALUE SECTION (USP) -->
-  <section class="usp-section">
+  <!-- DUAL COLUMN COMPARISON SECTION (THAY THẾ USP CŨ) -->
+  <section class="compare-section">
     <div class="container">
-      <span class="section-tag">Bạn được gì</span>
-      <h2 class="section-title usp-main-heading">Không phải phần mềm cồng kềnh, chỉ là một file làm đúng việc</h2>
-      <p style="color: var(--muted); max-width: 650px; font-size: 0.95rem;">Bên mình dựng sẵn phần khó nhất: công thức, liên kết giữa các sheet và báo cáo. Bạn mở ra, nhập số của mình vào là chạy.</p>
+      <div class="center-header">
+        <span class="section-tag">Bài toán kinh tế</span>
+        <h2 class="section-title">Đầu tư một lần, xóa sổ chi phí phần mềm hàng tháng</h2>
+        <p style="color: var(--muted); font-size: 0.95rem; max-width: 680px; margin: 0 auto;">Tại sao hàng trăm chủ shop, quản lý và kế toán chuyển từ phần mềm thuê bao đắt đỏ sang hệ sinh thái Google Sheets + Web App của File Đi Làm.</p>
+      </div>
 
-      <div class="usp-grid">
-        <!-- Card 1: Chi phí -->
-        <div class="usp-card">
-          <div class="usp-icon-badge" style="color: var(--mint-primary);">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M16 8h-6a2 2 0 1 0 0 4h4a2 2 0 1 1 0 4H8"/><path d="M12 18V6"/></svg>
+      <div class="compare-grid">
+        <!-- Cột 1: Phần mềm thuê bao truyền thống -->
+        <div class="compare-col compare-col-legacy">
+          <div class="compare-header">
+            <span class="compare-type compare-type-legacy">Phần mềm thuê bao (SaaS / POS)</span>
+            <h3 class="compare-title">Gia hạn đắt đỏ mỗi tháng</h3>
+            <div class="compare-cost-block">
+              <span class="compare-cost-val legacy">2.400.000 – 4.800.000 đ</span>
+              <span class="compare-cost-sub">/ năm</span>
+            </div>
+            <p style="margin: 6px 0 0; font-size: 0.8rem; color: #94a3b8;">Thu phí định kỳ liên tục, ngừng đóng là khóa dữ liệu</p>
           </div>
-          <div class="usp-tagline">Chi phí</div>
-          <h3 class="usp-title">Mua một lần, dùng mãi mãi</h3>
-          <ul class="usp-list">
-            <li>Không phí hằng tháng</li>
-            <li>Không giới hạn thời gian dùng</li>
-            <li>File nằm trong Google Drive của bạn</li>
-          </ul>
-          <div class="usp-footer-visual">
-            <div class="cost-progress-wrap">
-              <div class="cost-progress-header">
-                <span style="color: #64748b;">12 tháng tới</span>
-                <strong style="color: #181925; font-family: var(--font-main); font-size: 0.95rem;">0 đ/tháng</strong>
+
+          <ul class="compare-features-list">
+            <li class="compare-item">
+              <div class="compare-icon-wrap bad">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
               </div>
-              <div class="cost-pills-bar">
-                <div class="cost-pill-item is-paid"></div>
-                <div class="cost-pill-item"></div>
-                <div class="cost-pill-item"></div>
-                <div class="cost-pill-item"></div>
-                <div class="cost-pill-item"></div>
-                <div class="cost-pill-item"></div>
-                <div class="cost-pill-item"></div>
-                <div class="cost-pill-item"></div>
-                <div class="cost-pill-item"></div>
-                <div class="cost-pill-item"></div>
-                <div class="cost-pill-item"></div>
-                <div class="cost-pill-item"></div>
+              <div class="compare-item-body">
+                <strong>Gánh nặng chi phí hàng tháng</strong>
+                <p>Chi phí âm thầm đội lên 200.000 – 400.000 đ mỗi tháng, dùng 3 năm tốn hàng chục triệu đồng.</p>
               </div>
-              <div class="cost-note-dot">Trả một lần ở tháng đầu</div>
-            </div>
-          </div>
+            </li>
+
+            <li class="compare-item">
+              <div class="compare-icon-wrap bad">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+              </div>
+              <div class="compare-item-body">
+                <strong>Bị phụ thuộc máy chủ nhà cung cấp</strong>
+                <p>Dữ liệu khách hàng và doanh thu nằm trên server bên thứ 3. Khi server bảo trì hoặc tranh chấp là ngưng trệ kinh doanh.</p>
+              </div>
+            </li>
+
+            <li class="compare-item">
+              <div class="compare-icon-wrap bad">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+              </div>
+              <div class="compare-item-body">
+                <strong>Thu thêm tiền trên từng chi nhánh / nhân sự</strong>
+                <p>Mở thêm 1 cửa hàng hay cấp tài khoản cho nhân viên mới đều bị tính thêm gói phí định kỳ.</p>
+              </div>
+            </li>
+
+            <li class="compare-item">
+              <div class="compare-icon-wrap bad">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+              </div>
+              <div class="compare-item-body">
+                <strong>Cồng kềnh, khó dùng cho người mới</strong>
+                <p>Quá nhiều tính năng thừa thãi không dùng tới; máy tính cấu hình yếu hoặc mạng chập chờn là giật lag.</p>
+              </div>
+            </li>
+
+            <li class="compare-item">
+              <div class="compare-icon-wrap bad">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+              </div>
+              <div class="compare-item-body">
+                <strong>Không thể tùy biến theo đặc thù riêng</strong>
+                <p>Phải ép cách làm của quán vào phần mềm; không thể tự chèn thêm cột hay sửa logic tính toán.</p>
+              </div>
+            </li>
+          </ul>
         </div>
 
-        <!-- Card 2: Bắt đầu -->
-        <div class="usp-card">
-          <div class="usp-icon-badge" style="color: #3b82f6;">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>
-          </div>
-          <div class="usp-tagline" style="color: #2563eb;">Bắt đầu</div>
-          <h3 class="usp-title">Mở ra là dùng được ngay</h3>
-          <ul class="usp-list">
-            <li>Công thức và báo cáo dựng sẵn</li>
-            <li>Có dữ liệu mẫu để xem trước</li>
-            <li>Gửi kèm hướng dẫn tạo bản sao</li>
-          </ul>
-          <div class="usp-footer-visual">
-            <div class="fx-typewriter-box">
-              <span class="fx-tag">fx</span>
-              <span class="typewriter-text">=SUMIFS(DoanhThu, A2:A)</span>
-              <span class="typewriter-cursor">|</span>
+        <!-- Cột 2: Hệ thống File Đi Làm -->
+        <div class="compare-col compare-col-fdl">
+          <span class="compare-top-badge">Lựa chọn thông minh</span>
+          <div class="compare-header">
+            <span class="compare-type compare-type-fdl">Hệ sinh thái File Đi Làm</span>
+            <h3 class="compare-title">Sở hữu vĩnh viễn trọn đời</h3>
+            <div class="compare-cost-block">
+              <span class="compare-cost-val fdl">Chỉ từ 49.000 – 199.000 đ</span>
             </div>
+            <p style="margin: 6px 0 0; font-size: 0.8rem; color: #059669; font-weight: 600;">Trả một lần duy nhất • Không có phí ẩn • 0 đ/tháng</p>
           </div>
-        </div>
 
-        <!-- Card 3: Nền tảng -->
-        <div class="usp-card">
-          <div class="usp-icon-badge" style="color: #ec4899;">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="8" y1="13" x2="16" y2="13"/><line x1="8" y1="17" x2="16" y2="17"/></svg>
-          </div>
-          <div class="usp-tagline" style="color: #db2777;">Nền tảng</div>
-          <h3 class="usp-title">Chạy thẳng trên Google Sheets</h3>
-          <ul class="usp-list">
-            <li>Không phải cài phần mềm</li>
-            <li>Máy cấu hình yếu vẫn chạy</li>
-            <li>Mở được trên cả điện thoại</li>
-          </ul>
-          <div class="usp-footer-visual">
-            <div class="sync-devices-box">
-              <span class="live-sync-indicator"></span>
-              <span>Đồng bộ Laptop & Điện thoại</span>
-            </div>
-          </div>
-        </div>
+          <ul class="compare-features-list">
+            <li class="compare-item">
+              <div class="compare-icon-wrap good">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+              </div>
+              <div class="compare-item-body">
+                <strong>0 đ phí duy trì hàng tháng</strong>
+                <p>Mua một lần, xài vĩnh viễn. Không bao giờ lo bị đòi tiền gia hạn hay khóa quyền truy cập.</p>
+              </div>
+            </li>
 
-        <!-- Card 4: Tùy biến -->
-        <div class="usp-card">
-          <div class="usp-icon-badge" style="color: #f59e0b;">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
-          </div>
-          <div class="usp-tagline" style="color: #d97706;">Tùy biến</div>
-          <h3 class="usp-title">Sửa được theo cách bạn làm</h3>
-          <ul class="usp-list">
-            <li>Toàn quyền sửa công thức</li>
-            <li>Thêm bớt cột theo nhu cầu</li>
-            <li>Cần riêng thì bên mình dựng giúp</li>
+            <li class="compare-item">
+              <div class="compare-icon-wrap good">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+              </div>
+              <div class="compare-item-body">
+                <strong>100% dữ liệu thuộc về Google Drive cá nhân</strong>
+                <p>Quyền riêng tư tuyệt đối, bảo mật nhiều lớp của Google. Không một ai (kể cả tác giả) xem được sổ sách của bạn.</p>
+              </div>
+            </li>
+
+            <li class="compare-item">
+              <div class="compare-icon-wrap good">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+              </div>
+              <div class="compare-item-body">
+                <strong>1-chạm tạo bản sao không giới hạn</strong>
+                <p>Mở chi nhánh 2, chi nhánh 3? Chỉ cần bấm Tạo bản sao trên Drive là dùng ngay, hoàn toàn miễn phí.</p>
+              </div>
+            </li>
+
+            <li class="compare-item">
+              <div class="compare-icon-wrap good">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+              </div>
+              <div class="compare-item-body">
+                <strong>Trải nghiệm kép: Google Sheets + Web App di động</strong>
+                <p>Máy tính quản lý bảng tính phân tích sâu; ngoài hiện trường mở Web App trên điện thoại nhập liệu cực nhanh.</p>
+              </div>
+            </li>
+
+            <li class="compare-item">
+              <div class="compare-icon-wrap good">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+              </div>
+              <div class="compare-item-body">
+                <strong>Toàn quyền làm chủ &amp; Hỗ trợ chỉnh sửa theo yêu cầu</strong>
+                <p>Tự do sửa công thức, thêm bớt cột theo thói quen kinh doanh. Cần tùy biến sâu thì bên mình đồng hành hỗ trợ.</p>
+              </div>
+            </li>
           </ul>
-          <div class="usp-footer-visual">
-            <div class="usp-add-column-btn">
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
-              <span>Thêm cột của bạn</span>
-            </div>
-          </div>
         </div>
+      </div>
+
+      <!-- Thanh tóm tắt ROI tích lũy -->
+      <div class="compare-roi-bar">
+        <div class="compare-roi-text">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+          <span>Sau 3 năm vận hành, bạn tiết kiệm được <strong>hơn 10.000.000 đ</strong> chi phí thuê bao phần mềm để tái đầu tư vào việc bán hàng.</span>
+        </div>
+        <span class="compare-roi-pill">Tiết kiệm ~95% chi phí</span>
       </div>
     </div>
   </section>
