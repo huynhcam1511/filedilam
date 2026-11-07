@@ -852,6 +852,9 @@ function escapeHtml(value) {
           if (loginButton) loginButton.style.display = "none";
           // Chỉ hiển thị menu tài khoản trên Topbar nếu là tài khoản ADMIN
           var isAdminUser = (user.email === 'huynhkiencam151102@gmail.com');
+          if (isAdminUser) {
+            try { localStorage.setItem('filedilam_is_admin_device', 'true'); } catch (e) {}
+          }
           if (userProfile) {
             if (userProfile) userProfile.style.display = "none";
           }
@@ -1110,8 +1113,20 @@ function escapeHtml(value) {
   var telemetryLastActiveTime = Date.now();
   var telemetryDwellTimer = null;
 
+  function isAdminVisitor() {
+    try {
+      if (localStorage.getItem("filedilam_is_admin_device") === "true") return true;
+      if (state.user && state.user.email === "huynhkiencam151102@gmail.com") return true;
+      var host = window.location.hostname;
+      if (host === "localhost" || host === "127.0.0.1") return true;
+    } catch (e) {}
+    return false;
+  }
+
   function initTelemetry() {
     try {
+      if (isAdminVisitor()) return; // Loai tru hoan toan thiet bi va tai khoan Admin
+
       telemetrySessionId = sessionStorage.getItem("filedilam_sess_id");
       var isNewSession = false;
       if (!telemetrySessionId) {
@@ -1193,6 +1208,7 @@ function escapeHtml(value) {
 
   function sendTelemetry(payload) {
     try {
+      if (isAdminVisitor()) return; // Khong gui tracking tu may Admin
       var endpoint = apiUrl("/track");
       var bodyStr = JSON.stringify(payload);
       if (navigator.sendBeacon && (payload.type === "dwell_time" || document.visibilityState === "hidden")) {
@@ -1211,6 +1227,7 @@ function escapeHtml(value) {
 
   function trackCartEvent(eventType, prodId) {
     try {
+      if (isAdminVisitor()) return; // Khong ghi nhan gio hang thu nghiem cua Admin
       var prod = prodId ? getProductById(prodId) : null;
       var cartItems = (state.cart || []).map(function(item) {
         var p = getProductById(item.productId);
