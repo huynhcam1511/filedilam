@@ -2636,10 +2636,36 @@ h2 { letter-spacing: -1.03px !important; }
   border-bottom: 1px solid #f1f5f9 !important;
 }
 
-.nav-container {
+.nav-container,
+.detail-nav-container,
+.checkout-nav-container {
   max-width: 1180px !important;
   margin: 0 auto !important;
   padding: 0 24px !important;
+  position: relative !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+}
+
+.nav-links,
+.detail-nav-links,
+.checkout-nav-links {
+  position: absolute !important;
+  left: 50% !important;
+  transform: translateX(-50%) !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 28px !important;
+  list-style: none !important;
+}
+
+@media (max-width: 900px) {
+  .nav-links,
+  .detail-nav-links,
+  .checkout-nav-links {
+    display: none !important;
+  }
 }
 
 /* Horizontal Category Navigation Bar */
