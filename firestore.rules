@@ -30,5 +30,8 @@ service cloud.firestore {
       allow read: if request.auth != null && request.auth.token.email == 'huynhkiencam151102@gmail.com';
       allow write: if request.auth != null && request.auth.token.email == 'huynhkiencam151102@gmail.com';
     }
+    match /social_posts/{postId} {
+      allow read, write: if request.auth != null && request.auth.token.email == 'huynhkiencam151102@gmail.com';
+    }
   }
 }

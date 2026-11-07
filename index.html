@@ -20,7 +20,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="./storefront.css?v=340" />
+    <link rel="stylesheet" href="./storefront.css?v=341" />
     <style>
     :root {
       --bg: #ffffff;
@@ -833,211 +833,197 @@
       font-weight: 400;
     }
 
-    /* STEP 01: FILE SELECTOR ANIMATION */
-    .file-select-anim {
+    /* STEP MOCK REAL UI FLOW (KIỂU A) */
+    .mock-product-box {
       width: 100%;
+      max-width: 280px;
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 14px;
+      padding: 14px 16px;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.03);
       display: flex;
       flex-direction: column;
-      gap: 8px;
+      gap: 6px;
     }
-    .anim-file-row {
+    .mock-product-header {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 9px 14px;
-      border-radius: 10px;
-      background: #ffffff;
-      border: 1px solid var(--line);
-      font-size: 0.82rem;
-      font-weight: 500;
-      color: var(--text);
-      transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
-      will-change: background-color, border-color, box-shadow;
     }
-    .anim-file-left {
+    .mock-badge-tag {
+      font-size: 0.7rem;
+      font-weight: 600;
+      color: #059669;
+      background: #ecfdf5;
+      padding: 2px 7px;
+      border-radius: 6px;
+    }
+    .mock-pill-badge {
+      font-size: 0.68rem;
+      font-weight: 700;
+      color: #dc2626;
+      background: #fee2e2;
+      padding: 1px 6px;
+      border-radius: 4px;
+    }
+    .mock-product-title {
+      font-size: 0.88rem;
+      font-weight: 700;
+      color: #0f172a;
+      margin-top: 2px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .mock-product-price-row {
       display: flex;
-      align-items: center;
-      gap: 10px;
+      align-items: baseline;
+      gap: 6px;
+      margin-top: 2px;
     }
-    .anim-file-box {
-      width: 18px;
-      height: 18px;
-      border-radius: 5px;
-      background: #dcfce7;
-      border: 1px solid #bbf7d0;
+    .mock-price-val {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: #059669;
+    }
+    .mock-old-price {
+      font-size: 0.75rem;
+      text-decoration: line-through;
+      color: #94a3b8;
+    }
+    .mock-action-btn {
+      background: #059669;
+      color: #ffffff;
+      height: 36px;
+      border-radius: 8px;
+      font-size: 0.82rem;
+      font-weight: 600;
       display: flex;
       align-items: center;
       justify-content: center;
-      transition: all 0.35s ease;
-      flex-shrink: 0;
-    }
-    .anim-file-box svg {
-      width: 10px;
-      height: 10px;
-      stroke: #ffffff;
-      transition: opacity 0.3s ease, transform 0.3s ease;
-    }
-    .anim-file-price {
-      font-family: var(--font-main);
-      font-size: 0.8rem;
-      color: var(--muted);
+      gap: 6px;
+      margin-top: 6px;
+      box-shadow: 0 2px 8px rgba(5, 150, 105, 0.2);
     }
 
-    /* Animation keyframes looping smoothly through 3 items */
-    @keyframes selectItem1 {
-      0%, 28% {
-        background: #f0fdf4;
-        border-color: #86efac;
-        box-shadow: 0 2px 8px rgba(34, 197, 94, 0.12);
-      }
-      33%, 95% {
-        background: #ffffff;
-        border-color: var(--line);
-        box-shadow: none;
-      }
-      100% {
-        background: #f0fdf4;
-        border-color: #86efac;
-        box-shadow: 0 2px 8px rgba(34, 197, 94, 0.12);
-      }
-    }
-    @keyframes boxItem1 {
-      0%, 28% {
-        background: #22c55e;
-        border-color: #22c55e;
-      }
-      33%, 95% {
-        background: #dcfce7;
-        border-color: #bbf7d0;
-      }
-      100% {
-        background: #22c55e;
-        border-color: #22c55e;
-      }
-    }
-    @keyframes checkItem1 {
-      0%, 28% { opacity: 1; transform: scale(1); }
-      33%, 95% { opacity: 0; transform: scale(0.6); }
-      100% { opacity: 1; transform: scale(1); }
-    }
-
-    @keyframes selectItem2 {
-      0%, 28% {
-        background: #ffffff;
-        border-color: var(--line);
-        box-shadow: none;
-      }
-      33%, 61% {
-        background: #f0fdf4;
-        border-color: #86efac;
-        box-shadow: 0 2px 8px rgba(34, 197, 94, 0.12);
-      }
-      66%, 100% {
-        background: #ffffff;
-        border-color: var(--line);
-        box-shadow: none;
-      }
-    }
-    @keyframes boxItem2 {
-      0%, 28% {
-        background: #dcfce7;
-        border-color: #bbf7d0;
-      }
-      33%, 61% {
-        background: #22c55e;
-        border-color: #22c55e;
-      }
-      66%, 100% {
-        background: #dcfce7;
-        border-color: #bbf7d0;
-      }
-    }
-    @keyframes checkItem2 {
-      0%, 28% { opacity: 0; transform: scale(0.6); }
-      33%, 61% { opacity: 1; transform: scale(1); }
-      66%, 100% { opacity: 0; transform: scale(0.6); }
-    }
-
-    @keyframes selectItem3 {
-      0%, 61% {
-        background: #ffffff;
-        border-color: var(--line);
-        box-shadow: none;
-      }
-      66%, 95% {
-        background: #f0fdf4;
-        border-color: #86efac;
-        box-shadow: 0 2px 8px rgba(34, 197, 94, 0.12);
-      }
-      100% {
-        background: #ffffff;
-        border-color: var(--line);
-        box-shadow: none;
-      }
-    }
-    @keyframes boxItem3 {
-      0%, 61% {
-        background: #dcfce7;
-        border-color: #bbf7d0;
-      }
-      66%, 95% {
-        background: #22c55e;
-        border-color: #22c55e;
-      }
-      100% {
-        background: #dcfce7;
-        border-color: #bbf7d0;
-      }
-    }
-    @keyframes checkItem3 {
-      0%, 61% { opacity: 0; transform: scale(0.6); }
-      66%, 95% { opacity: 1; transform: scale(1); }
-      100% { opacity: 0; transform: scale(0.6); }
-    }
-
-    .row-anim-1 { animation: selectItem1 6s infinite ease-in-out; }
-    .row-anim-1 .anim-file-box { animation: boxItem1 6s infinite ease-in-out; }
-    .row-anim-1 .anim-file-box svg { animation: checkItem1 6s infinite ease-in-out; }
-
-    .row-anim-2 { animation: selectItem2 6s infinite ease-in-out; }
-    .row-anim-2 .anim-file-box { animation: boxItem2 6s infinite ease-in-out; }
-    .row-anim-2 .anim-file-box svg { animation: checkItem2 6s infinite ease-in-out; }
-
-    .row-anim-3 { animation: selectItem3 6s infinite ease-in-out; }
-    .row-anim-3 .anim-file-box { animation: boxItem3 6s infinite ease-in-out; }
-    .row-anim-3 .anim-file-box svg { animation: checkItem3 6s infinite ease-in-out; }
-
-    /* STEP 02: SVG QR CODE WITH LASER BEAM & GLOW */
-    .qr-scan-container {
+    .mock-qr-box {
+      width: 100%;
+      max-width: 280px;
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 14px;
+      padding: 10px 14px 12px;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.03);
       display: flex;
       flex-direction: column;
       align-items: center;
-      justify-content: center;
-      width: 100%;
     }
-    .qr-frame {
+    .mock-bank-header {
+      display: flex;
+      justify-content: space-between;
+      width: 100%;
+      font-size: 0.72rem;
+      font-weight: 600;
+      color: #475569;
+      border-bottom: 1px solid #f1f5f9;
+      padding-bottom: 4px;
+      margin-bottom: 6px;
+    }
+    .mock-qr-inner {
       position: relative;
-      width: 90px;
-      height: 90px;
-      background: #ffffff;
-      border-radius: 12px;
-      padding: 7px;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.04);
-      border: 1px solid #e2e8f0;
-      overflow: hidden;
+      width: 66px;
+      height: 66px;
       display: flex;
       align-items: center;
       justify-content: center;
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      padding: 4px;
+      overflow: hidden;
     }
-    .qr-matrix-svg {
+    .mock-qr-meta {
+      display: flex;
+      justify-content: space-between;
       width: 100%;
-      height: 100%;
+      align-items: center;
+      margin-top: 6px;
+      font-size: 0.8rem;
     }
+    .mock-qr-amount {
+      font-weight: 700;
+      color: #0f172a;
+    }
+    .mock-qr-code {
+      font-size: 0.78rem;
+      font-family: monospace;
+      color: #64748b;
+    }
+    .mock-status-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 0.68rem;
+      font-weight: 600;
+      color: #059669;
+      background: #ecfdf5;
+      padding: 2px 8px;
+      border-radius: 9999px;
+      margin-top: 4px;
+    }
+
+    .mock-success-box {
+      width: 100%;
+      max-width: 280px;
+      background: #ffffff;
+      border: 1px solid #a7f3d0;
+      border-radius: 14px;
+      padding: 14px 16px;
+      box-shadow: 0 4px 16px rgba(5, 150, 105, 0.08);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+    }
+    .mock-success-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: #059669;
+      margin-bottom: 10px;
+    }
+    .mock-drive-button {
+      width: 100%;
+      background: linear-gradient(135deg, #059669, #10b981);
+      color: #ffffff;
+      height: 40px;
+      border-radius: 8px;
+      font-size: 0.84rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      box-shadow: 0 4px 12px rgba(5, 150, 105, 0.25);
+    }
+    .mock-success-footer {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      font-size: 0.68rem;
+      color: #64748b;
+      margin-top: 8px;
+    }
+
     .qr-scanner-line {
       position: absolute;
       left: 0;
       right: 0;
-      height: 26px;
+      height: 20px;
       pointer-events: none;
       will-change: top, opacity;
       transform: translateZ(0);
@@ -1048,7 +1034,7 @@
       top: 0;
       left: 0;
       right: 0;
-      height: 24px;
+      height: 18px;
       background: linear-gradient(180deg, rgba(37, 99, 235, 0.25) 0%, rgba(37, 99, 235, 0) 100%);
     }
     .qr-laser-beam {
@@ -1061,97 +1047,10 @@
       box-shadow: 0 0 10px 2px rgba(37, 99, 235, 0.65);
     }
     @keyframes scanLaserCycle {
-      0% { top: -24px; opacity: 0; }
+      0% { top: -20px; opacity: 0; }
       12% { opacity: 1; }
       85% { opacity: 1; }
       100% { top: calc(100% - 2px); opacity: 0; }
-    }
-    .qr-amount-text {
-      font-size: 1.05rem;
-      font-weight: 600;
-      color: var(--text);
-      letter-spacing: -0.01em;
-      margin-top: 10px;
-      font-family: var(--font-main);
-    }
-    .qr-sub-text {
-      font-size: 0.72rem;
-      color: var(--muted);
-      margin-top: 2px;
-    }
-
-    /* STEP 03: NOTIFICATION CARD & SLIDE-UP COPY LINK PILL */
-    .receive-anim-container {
-      width: 100%;
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-    }
-    .email-notify-card {
-      background: #ffffff;
-      border: 1px solid var(--line);
-      border-radius: 12px;
-      padding: 10px 14px;
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.03);
-    }
-    .email-avatar {
-      width: 32px;
-      height: 32px;
-      border-radius: 50%;
-      background: #fdf2f8;
-      border: 1px solid #fbcfe8;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-shrink: 0;
-    }
-    .email-body {
-      display: flex;
-      flex-direction: column;
-    }
-    .email-sender {
-      font-size: 0.82rem;
-      font-weight: 600;
-      color: var(--text);
-      line-height: 1.2;
-    }
-    .email-snippet {
-      font-size: 0.75rem;
-      color: var(--muted);
-      margin-top: 2px;
-    }
-    .file-pill-incoming {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      background: #f0fdf4;
-      border: 1px solid #bbf7d0;
-      border-radius: var(--radius-full);
-      padding: 8px 14px;
-      font-size: 0.78rem;
-      font-weight: 500;
-      color: #15803d;
-      box-shadow: 0 4px 14px rgba(21, 128, 61, 0.12);
-      will-change: transform, opacity;
-      transform: translateZ(0);
-      animation: slideUpCopyLink 3.6s cubic-bezier(0.16, 1, 0.3, 1) infinite;
-    }
-    @keyframes slideUpCopyLink {
-      0%, 15% {
-        opacity: 0;
-        transform: translateY(18px) scale(0.96);
-      }
-      25%, 82% {
-        opacity: 1;
-        transform: translateY(0) scale(1);
-      }
-      92%, 100% {
-        opacity: 0;
-        transform: translateY(-8px) scale(0.98);
-      }
     }
 
     /* 4-PILLAR VALUE SECTION (USP) */
@@ -2277,129 +2176,108 @@
       </div>
     </section>
 
-    <!-- 3 STEPS SECTION -->
+    <!-- 3 STEPS SECTION (REAL UI MOCKUP FLOW) -->
   <section class="steps-section">
     <div class="container">
       <div class="center-header">
-        <span class="section-tag">Cách mua</span>
-        <h2 class="section-title">Ba bước, xong trong vài phút</h2>
-        <p style="color: var(--muted); font-size: 0.95rem;">Không cần nhắn tin chờ tư vấn, không cần gửi ảnh chuyển khoản.</p>
+        <span class="section-tag">Quy trình mua tự động</span>
+        <h2 class="section-title">Tự động từ thanh toán đến nhận file</h2>
+        <p style="color: var(--muted); font-size: 0.95rem;">Không cần chờ duyệt đơn, không cần gửi ảnh chuyển khoản. File vào Drive của bạn sau 10 giây.</p>
       </div>
 
       <div class="steps-grid">
-        <!-- Step 1 -->
+        <!-- Step 1: Chọn file & Bấm Mua ngay -->
         <div class="step-card">
           <div class="step-mock">
-            <div class="file-select-anim">
-              <div class="anim-file-row row-anim-1">
-                <div class="anim-file-left">
-                  <span class="anim-file-box check-anim-1">
-                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-                  </span>
-                  <span>Quản lý bán hàng</span>
-                </div>
-                <span class="anim-file-price">599k</span>
+            <div class="mock-product-box">
+              <div class="mock-product-header">
+                <span class="mock-badge-tag">Google Sheets + Web App</span>
+                <span class="mock-pill-badge">-81%</span>
               </div>
-              <div class="anim-file-row row-anim-2">
-                <div class="anim-file-left">
-                  <span class="anim-file-box check-anim-2">
-                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-                  </span>
-                  <span>Chấm công & lương</span>
-                </div>
-                <span class="anim-file-price">150k</span>
+              <div class="mock-product-title">📦 Quản Lý Kho Mini Smart</div>
+              <div class="mock-product-price-row">
+                <span class="mock-price-val">99.000 <small style="font-size: 0.72rem;">đ</small></span>
+                <span class="mock-old-price">499.000 đ</span>
               </div>
-              <div class="anim-file-row row-anim-3">
-                <div class="anim-file-left">
-                  <span class="anim-file-box check-anim-3">
-                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-                  </span>
-                  <span>Quản lý kho</span>
-                </div>
-                <span class="anim-file-price">95k</span>
+              <div class="mock-action-btn">
+                <span>Mua ngay</span>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"></polyline></svg>
               </div>
             </div>
           </div>
           <div class="step-number">01</div>
-          <h3 class="step-title">Chọn file</h3>
-          <p class="step-text">Mỗi mẫu có ảnh chụp bên trong và nút xem thử để bạn mở ra xem trước khi mua.</p>
+          <h3 class="step-title">Chọn file &amp; Bấm Mua ngay</h3>
+          <p class="step-text">Chọn mẫu file bạn cần và bấm "Mua ngay". Điền tên và Gmail nhận file trong 5 giây mà không cần đăng ký tài khoản.</p>
         </div>
 
-        <!-- Step 2 -->
+        <!-- Step 2: Quét VietQR từ ngân hàng bất kỳ -->
         <div class="step-card">
           <div class="step-mock">
-            <div class="qr-scan-container">
-              <div class="qr-frame">
-                <!-- SVG Vector QR Code -->
+            <div class="mock-qr-box">
+              <div class="mock-bank-header">
+                <span class="mock-bank-name">TPBank</span>
+                <span class="mock-bank-owner">HUYNH KIEN CAM</span>
+              </div>
+              <div class="mock-qr-inner">
                 <svg class="qr-matrix-svg" viewBox="0 0 100 100" fill="none">
-                  <!-- Corner TL -->
                   <rect x="6" y="6" width="28" height="28" rx="4" stroke="#181925" stroke-width="4.5"/>
                   <rect x="14" y="14" width="12" height="12" rx="2" fill="#181925"/>
-                  <!-- Corner TR -->
                   <rect x="66" y="6" width="28" height="28" rx="4" stroke="#181925" stroke-width="4.5"/>
                   <rect x="74" y="14" width="12" height="12" rx="2" fill="#181925"/>
-                  <!-- Corner BL -->
                   <rect x="6" y="66" width="28" height="28" rx="4" stroke="#181925" stroke-width="4.5"/>
                   <rect x="14" y="74" width="12" height="12" rx="2" fill="#181925"/>
-                  
-                  <!-- Internal Grid Lines / Modules -->
                   <rect x="42" y="8" width="5" height="14" fill="#181925"/>
                   <rect x="53" y="15" width="5" height="18" fill="#181925"/>
-                  
                   <rect x="8" y="42" width="84" height="4" fill="#181925" opacity="0.85"/>
                   <rect x="8" y="52" width="84" height="4" fill="#181925" opacity="0.85"/>
                   <rect x="8" y="62" width="84" height="4" fill="#181925" opacity="0.85"/>
-                  
                   <rect x="42" y="38" width="4" height="48" fill="#181925" opacity="0.85"/>
                   <rect x="52" y="38" width="4" height="48" fill="#181925" opacity="0.85"/>
                   <rect x="62" y="38" width="4" height="48" fill="#181925" opacity="0.85"/>
-                  <rect x="72" y="44" width="4" height="42" fill="#181925" opacity="0.85"/>
-                  <rect x="82" y="44" width="4" height="42" fill="#181925" opacity="0.85"/>
-
-                  <!-- Bottom Right Detail -->
                   <rect x="70" y="70" width="10" height="10" rx="1" fill="#181925"/>
                   <rect x="84" y="84" width="8" height="8" rx="1" fill="#181925"/>
                 </svg>
-                <!-- Glowing laser scanner beam -->
                 <div class="qr-scanner-line">
                   <div class="qr-laser-glow"></div>
                   <div class="qr-laser-beam"></div>
                 </div>
               </div>
-              <div class="qr-amount-text">599.000 đ</div>
-              <div class="qr-sub-text">Nội dung điền sẵn</div>
+              <div class="mock-qr-meta">
+                <span class="mock-qr-amount">99.000 đ</span>
+                <span class="mock-qr-code">ND: <strong style="color: #dc2626;">DH1092</strong></span>
+              </div>
+              <div class="mock-status-pill">
+                <span class="live-pulse"></span>
+                <span>Khớp lệnh trong 3s</span>
+              </div>
             </div>
           </div>
           <div class="step-number" style="color: #2563eb;">02</div>
-          <h3 class="step-title">Quét mã QR</h3>
-          <p class="step-text">Màn hình hiện sẵn số tiền và nội dung, hệ thống tự đối soát nên không phải gửi ảnh.</p>
+          <h3 class="step-title">Quét VietQR từ ngân hàng bất kỳ</h3>
+          <p class="step-text">Mã QR điền sẵn số tiền và cú pháp DHxxxxxx. Bạn chuyển khoản là hệ thống tự động xác nhận sau 3 giây, không cần chụp màn hình.</p>
         </div>
 
-        <!-- Step 3 -->
+        <!-- Step 3: 1-chạm tạo bản sao vào Google Drive -->
         <div class="step-card">
           <div class="step-mock">
-            <div class="receive-anim-container">
-              <!-- Thông báo Email -->
-              <div class="email-notify-card">
-                <div class="email-avatar">
-                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#ec4899" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-10 7L2 7"/></svg>
-                </div>
-                <div class="email-body">
-                  <span class="email-sender">File Đi Làm</span>
-                  <span class="email-snippet">File của bạn đã sẵn sàng</span>
-                </div>
+            <div class="mock-success-box">
+              <div class="mock-success-badge">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                <span>Thanh toán thành công!</span>
               </div>
-              <!-- Slide-up Copy Link Pill (#15803d) -->
-              <div class="file-pill-incoming">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#15803d" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="8" y1="13" x2="16" y2="13"/><line x1="8" y1="17" x2="16" y2="17"/></svg>
-                <span>Sao chép link bản sao</span>
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-left:auto;"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+              <div class="mock-drive-button">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+                <span>Tạo bản sao Google Sheets</span>
+              </div>
+              <div class="mock-success-footer">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                <span>Lưu vào Google Drive của bạn • Sở hữu vĩnh viễn</span>
               </div>
             </div>
           </div>
-          <div class="step-number" style="color: #ec4899;">03</div>
-          <h3 class="step-title">Nhận file qua email</h3>
-          <p class="step-text">Thanh toán xong là file tự gửi về, kèm hướng dẫn tạo bản sao để dùng ngay.</p>
+          <div class="step-number" style="color: #059669;">03</div>
+          <h3 class="step-title">1-chạm tạo bản sao vào Google Drive</h3>
+          <p class="step-text">Thanh toán thành công là màn hình mở ngay nút "Tạo bản sao Google Sheets" để lưu vào Drive cá nhân dùng vĩnh viễn (kèm email dự phòng).</p>
         </div>
       </div>
     </div>
