@@ -3938,69 +3938,6 @@ function escapeHtml(value) {
         }
       }
 
-      // CẬP NHẬT GIAO DIỆN KIỂU 3: BẢNG NẤC THANG TIẾT KIỆM (TIERED INCENTIVE UNLOCK)
-      var tier2ProgressFill = document.getElementById('tierProgressFill');
-      var tier2ProgressAmount = document.getElementById('tierProgressAmount');
-      var tier2ProgressHint = document.getElementById('tierProgressHint');
-      var tierCard2 = document.getElementById('tierCard2');
-      var btnTier2ActionText = document.getElementById('btnTier2ActionText');
-
-      var tierDockCartCount = document.getElementById('tierDockCartCount');
-      var tierDockCartSub = document.getElementById('tierDockCartSub');
-      var tierDockTotalVal = document.getElementById('tierDockTotalVal');
-
-      var progressPercent = minOrder > 0 ? Math.min(100, Math.round((subtotal / minOrder) * 100)) : 100;
-      if (tier2ProgressFill) tier2ProgressFill.style.width = progressPercent + '%';
-      if (tier2ProgressAmount) {
-        tier2ProgressAmount.textContent = (isRealCart ? formatCurrency(subtotal) : '0 đ') + ' / ' + formatCurrency(minOrder);
-      }
-
-      if (tierCard2) {
-        if (isEligible && isRealCart) {
-          tierCard2.classList.add('tier-unlocked');
-        } else {
-          tierCard2.classList.remove('tier-unlocked');
-        }
-      }
-
-      if (tier2ProgressHint) {
-        if (!isRealCart) {
-          tier2ProgressHint.textContent = 'Chọn từ 2 file bất kỳ để tự động giảm ' + valText;
-        } else if (isEligible) {
-          tier2ProgressHint.textContent = 'Đã mở khóa! Đơn của bạn được giảm ngay ' + valText + ' (-' + formatCurrency(discount) + ')';
-        } else {
-          var thiếuNấc = minOrder - subtotal;
-          tier2ProgressHint.textContent = 'Thêm ' + formatCurrency(thiếuNấc) + ' nữa để mở khóa giảm ' + valText + ' toàn giỏ';
-        }
-      }
-
-      if (btnTier2ActionText) {
-        if (!isRealCart) {
-          btnTier2ActionText.textContent = 'Chọn 2 file mẫu & Mua ngay ↗';
-        } else if (isEligible) {
-          btnTier2ActionText.textContent = 'Thanh toán ngay • ' + formatCurrency(finalAmount) + ' ↗';
-        } else {
-          btnTier2ActionText.textContent = 'Tiếp tục thanh toán • ' + formatCurrency(subtotal) + ' ↗';
-        }
-      }
-
-      if (tierDockCartCount) {
-        var cartFileCount = (state.cart ? state.cart.length : 0);
-        tierDockCartCount.textContent = 'Giỏ hàng của bạn (' + cartFileCount + ' file)';
-      }
-      if (tierDockCartSub) {
-        if (!isRealCart) {
-          tierDockCartSub.textContent = 'Chưa chọn file nào • Tạm tính: 0 đ';
-        } else if (isEligible && discount > 0) {
-          tierDockCartSub.textContent = 'Tạm tính: ' + formatCurrency(subtotal) + ' • Đã giảm: -' + formatCurrency(discount) + ' (' + valText + ')';
-        } else {
-          tierDockCartSub.textContent = 'Tạm tính: ' + formatCurrency(subtotal);
-        }
-      }
-      if (tierDockTotalVal) {
-        tierDockTotalVal.textContent = isRealCart ? formatCurrency(finalAmount) : '0 đ';
-      }
-
     } catch (e) {
       console.warn('Lỗi đồng bộ coupon ticket card:', e);
     }
