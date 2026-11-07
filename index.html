@@ -20,7 +20,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="./storefront.css?v=354" />
+    <link rel="stylesheet" href="./storefront.css?v=355" />
     <style>
     :root {
       --bg: #ffffff;
@@ -1409,9 +1409,7 @@
 
     /* THẺ VOUCHER ƯU ĐÃI 2 CỘT (PERFORATED VOUCHER TICKET) */
     .ticket-section {
-      padding: 40px 0 80px;
-      display: flex;
-      justify-content: center;
+      padding: 32px 0 70px;
       width: 100%;
     }
     .coupon-ticket {
@@ -1419,15 +1417,16 @@
       border: 1px solid #e2e8f0;
       border-radius: 20px;
       display: grid;
-      grid-template-columns: 1.18fr 0.82fr;
+      grid-template-columns: 1fr 1fr;
       position: relative;
       overflow: hidden;
       width: 100%;
-      max-width: 980px;
+      max-width: 940px;
+      margin: 0 auto;
       box-shadow: 0 4px 20px rgba(0, 0, 0, 0.02);
     }
     .ticket-left {
-      padding: 44px 40px;
+      padding: 38px 36px;
       border-right: 2px dashed #cbd5e1;
       display: flex;
       flex-direction: column;
@@ -1473,7 +1472,7 @@
       margin-bottom: 8px;
     }
     .ticket-voucher-title {
-      font-size: 1.8rem;
+      font-size: 1.75rem;
       font-weight: 700;
       letter-spacing: -0.03em;
       color: #0f172a;
@@ -1482,7 +1481,7 @@
     }
     .ticket-voucher-date {
       font-size: 0.84rem;
-      color: #64748b;
+      color: #475569;
       margin-bottom: 16px;
     }
     .ticket-code-box {
@@ -1492,7 +1491,7 @@
       background: #f8fafc;
       border: 1.5px dashed #10b981;
       padding: 6px 8px 6px 14px;
-      border-radius: 10px;
+      border-radius: 8px;
       margin-bottom: 12px;
       width: fit-content;
     }
@@ -1534,7 +1533,7 @@
     /* RIGHT COLUMN: HÓA ĐƠN ĐỐI SOÁT */
     .ticket-right {
       background: #f8fafc;
-      padding: 40px 36px;
+      padding: 38px 36px;
       display: flex;
       flex-direction: column;
       justify-content: center;
@@ -2671,8 +2670,9 @@
   </section>
 
   <!-- VOUCHER TICKET 2 CỘT CHUẨN THẺ ƯU ĐÃI (HORIZONTAL VOUCHER COUPON) -->
-  <section class="container ticket-section" id="landingCouponSection">
-    <div class="coupon-ticket">
+  <section class="ticket-section" id="landingCouponSection">
+    <div class="container" style="display: flex; justify-content: center;">
+      <div class="coupon-ticket">
       <!-- Cột Trái: Thông tin Thẻ Voucher & Mã ưu đãi -->
       <div class="ticket-left">
         <span class="ticket-voucher-tag">ƯU ĐÃI ĐƠN HÀNG</span>
@@ -2720,6 +2720,7 @@
         </button>
       </div>
     </div>
+  </div>
   </section>
 
   <!-- FAQ SECTION -->
