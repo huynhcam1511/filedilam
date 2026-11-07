@@ -1,0 +1,1331 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>CRM Bất Động Sản Pro · File Đi Làm</title>
+
+  <!-- Google Fonts Inter & JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: { 50: '#ECFDF5', 100: '#D1FAE5', 500: '#10B981', 600: '#059669', 700: '#047857' }
+          },
+          fontFamily: { sans: ['Inter', 'sans-serif'], mono: ['JetBrains Mono', 'monospace'] }
+        }
+      }
+    }
+  </script>
+
+  <!-- Lucide Icons & Chart.js -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <style>
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    .custom-scrollbar::-webkit-scrollbar { width: 5px; height: 5px; }
+    .custom-scrollbar::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 4px; }
+    .table-row-hover:hover { background-color: #F8FAFC !important; box-shadow: inset 3px 0 0 0 #10B981; }
+    .sticky-header th { position: sticky; top: 0; z-index: 20; background-color: #FFFFFF; border-bottom: 1px solid #E2E8F0; }
+    .sidebar-collapsed { width: 64px !important; }
+    .sidebar-collapsed .nav-label, .sidebar-collapsed .brand-name, .sidebar-collapsed .nav-section-title { display: none !important; }
+    .sidebar-collapsed .nav-item-btn { justify-content: center !important; padding-left: 0 !important; padding-right: 0 !important; }
+    .module-tab-content { display: none; }
+    .module-tab-content.active { display: block; animation: fadeIn 0.2s ease-in-out; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-900 font-sans h-screen flex overflow-hidden antialiased select-none">
+
+  <!-- ==================== DESKTOP SIDEBAR ==================== -->
+  <aside id="appSidebar" class="w-60 bg-white border-r border-slate-200 flex flex-col transition-all duration-200 z-40 flex-shrink-0 select-none hidden md:flex">
+    <!-- Brand Header -->
+    <div class="h-14 px-4 border-b border-slate-100 flex items-center justify-between flex-shrink-0">
+      <div class="flex items-center gap-2.5 min-w-0">
+        <div class="w-8 h-8 rounded-lg bg-emerald-600 flex items-center justify-center text-white font-bold text-sm shadow-xs flex-shrink-0">F</div>
+        <div class="brand-name flex flex-col min-w-0">
+          <span class="text-xs font-bold text-slate-900 tracking-wider uppercase truncate">File Đi Làm</span>
+          <span class="text-[10px] text-slate-400 font-medium truncate">CRM Bất Động Sản</span>
+        </div>
+      </div>
+      <button onclick="toggleSidebar()" class="p-1 rounded text-slate-400 hover:text-slate-600 hover:bg-slate-100"><i data-lucide="panel-left-close" class="w-4 h-4"></i></button>
+    </div>
+
+    <!-- Navigation Menu (6 Modules) -->
+    <nav class="flex-1 p-3 space-y-1 overflow-y-auto no-scrollbar">
+      <div class="nav-section-title px-3 pt-2 pb-1 text-[10px] font-semibold text-slate-400 uppercase tracking-wider">Điều hành & Tác nghiệp</div>
+      <button onclick="switchTab('dashboard')" id="nav-dashboard" class="nav-item-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-xs font-medium text-emerald-800 bg-emerald-50/70 transition-colors">
+        <i data-lucide="layout-grid" class="w-4 h-4 text-emerald-600 flex-shrink-0"></i><span class="nav-label">Tổng quan</span>
+      </button>
+      <button onclick="switchTab('customers')" id="nav-customers" class="nav-item-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-xs font-medium text-slate-600 hover:bg-slate-50 hover:text-slate-900 transition-colors">
+        <i data-lucide="users" class="w-4 h-4 text-slate-400 flex-shrink-0"></i><span class="nav-label">Khách hàng (Leads)</span>
+      </button>
+      <button onclick="switchTab('properties')" id="nav-properties" class="nav-item-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-xs font-medium text-slate-600 hover:bg-slate-50 hover:text-slate-900 transition-colors">
+        <i data-lucide="home" class="w-4 h-4 text-slate-400 flex-shrink-0"></i><span class="nav-label">Giỏ hàng BĐS</span>
+      </button>
+      <button onclick="switchTab('interactions')" id="nav-interactions" class="nav-item-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-xs font-medium text-slate-600 hover:bg-slate-50 hover:text-slate-900 transition-colors">
+        <i data-lucide="calendar" class="w-4 h-4 text-slate-400 flex-shrink-0"></i><span class="nav-label">Lịch hẹn & Nhật ký</span>
+      </button>
+      <button onclick="switchTab('deals')" id="nav-deals" class="nav-item-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-xs font-medium text-slate-600 hover:bg-slate-50 hover:text-slate-900 transition-colors">
+        <i data-lucide="badge-dollar-sign" class="w-4 h-4 text-slate-400 flex-shrink-0"></i><span class="nav-label">Chốt cọc & Hoa hồng</span>
+      </button>
+
+      <div class="nav-section-title px-3 pt-4 pb-1 text-[10px] font-semibold text-slate-400 uppercase tracking-wider">Hệ thống</div>
+      <button onclick="switchTab('settings')" id="nav-settings" class="nav-item-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-xs font-medium text-slate-600 hover:bg-slate-50 hover:text-slate-900 transition-colors">
+        <i data-lucide="sliders" class="w-4 h-4 text-slate-400 flex-shrink-0"></i><span class="nav-label">Cài đặt & Danh mục</span>
+      </button>
+    </nav>
+
+    <!-- Bottom System Status -->
+    <div class="p-3 border-t border-slate-100 flex items-center justify-between flex-shrink-0">
+      <div class="flex items-center gap-2">
+        <div class="w-2 h-2 rounded-full bg-emerald-500"></div>
+        <span class="text-[11px] text-slate-500 font-medium brand-name">Hệ thống sẵn sàng</span>
+      </div>
+      <span class="text-[10px] text-slate-400 font-mono">v2.0</span>
+    </div>
+  </aside>
+
+  <!-- ==================== MOBILE BOTTOM NAVIGATION DOCK ==================== -->
+  <div class="md:hidden fixed bottom-0 left-0 right-0 h-14 bg-white border-t border-slate-200 flex items-center justify-around z-40 px-2 shadow-lg">
+    <button onclick="switchTab('dashboard')" id="dock-dashboard" class="flex flex-col items-center gap-0.5 text-emerald-600 font-semibold text-[10px]"><i data-lucide="layout-grid" class="w-4 h-4"></i><span>Tổng quan</span></button>
+    <button onclick="switchTab('customers')" id="dock-customers" class="flex flex-col items-center gap-0.5 text-slate-400 font-medium text-[10px]"><i data-lucide="users" class="w-4 h-4"></i><span>Khách</span></button>
+    <button onclick="switchTab('properties')" id="dock-properties" class="flex flex-col items-center gap-0.5 text-slate-400 font-medium text-[10px]"><i data-lucide="home" class="w-4 h-4"></i><span>Giỏ hàng</span></button>
+    <button onclick="switchTab('deals')" id="dock-deals" class="flex flex-col items-center gap-0.5 text-slate-400 font-medium text-[10px]"><i data-lucide="badge-dollar-sign" class="w-4 h-4"></i><span>Chốt cọc</span></button>
+    <button onclick="switchTab('settings')" id="dock-settings" class="flex flex-col items-center gap-0.5 text-slate-400 font-medium text-[10px]"><i data-lucide="sliders" class="w-4 h-4"></i><span>Cài đặt</span></button>
+  </div>
+
+  <!-- ==================== MAIN WORKSPACE ==================== -->
+  <main class="flex-1 flex flex-col min-w-0 h-full overflow-hidden bg-white">
+    <!-- TOOLBAR 1 HÀNG DUY NHẤT -->
+    <header class="sticky top-0 z-30 h-14 bg-white border-b border-slate-200 px-4 flex items-center justify-between gap-3 flex-shrink-0 select-none">
+      <div class="flex items-center gap-3 min-w-0">
+        <button onclick="toggleSidebar()" class="md:hidden p-1.5 rounded-lg text-slate-500 hover:bg-slate-100 flex-shrink-0"><i data-lucide="menu" class="w-5 h-5"></i></button>
+        <h1 id="topbarTitle" class="text-sm font-bold text-slate-900 truncate">Tổng quan vận hành</h1>
+      </div>
+
+      <div class="flex items-center gap-2.5 flex-shrink-0">
+        <!-- Live Search -->
+        <div class="relative w-40 sm:w-64">
+          <i data-lucide="search" class="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-1/2 -translate-y-1/2"></i>
+          <input type="text" id="globalSearchInput" oninput="handleSearchInput(this.value)" placeholder="Tìm kiếm nhanh..." 
+                 class="w-full h-8 pl-8 pr-7 bg-slate-100 hover:bg-slate-200/70 focus:bg-white text-xs text-slate-800 rounded-lg border border-transparent focus:border-emerald-500 focus:outline-none transition-all placeholder:text-slate-400">
+          <button id="btnClearSearch" onclick="clearSearchInput()" class="hidden absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"><i data-lucide="x" class="w-3 h-3"></i></button>
+        </div>
+
+        <!-- Primary Action Button -->
+        <button id="btnMainAction" onclick="handleMainAction()" class="hidden h-8 px-3 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold flex items-center gap-1.5 shadow-xs transition-colors whitespace-nowrap">
+          <i data-lucide="plus" class="w-3.5 h-3.5"></i><span id="btnMainActionText">+ Thêm Khách Hàng</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- FLOATING ACTION BUTTON (MOBILE) -->
+    <button onclick="handleMainAction()" class="md:hidden fixed bottom-20 right-4 w-12 h-12 rounded-full bg-emerald-600 hover:bg-emerald-700 text-white flex items-center justify-center shadow-lg shadow-emerald-600/30 z-30 transition-transform active:scale-95">
+      <i data-lucide="plus" class="w-5 h-5"></i>
+    </button>
+
+    <!-- CONTENT SCROLL AREA -->
+    <div class="flex-1 min-h-0 overflow-y-auto bg-slate-50/50 p-4 sm:p-6 custom-scrollbar">
+      
+      <!-- ==================== MODULE 1: DASHBOARD ==================== -->
+      <div id="module-dashboard" class="module-tab-content active space-y-5">
+        <!-- 4 KPI Cards -->
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-3.5">
+          <div class="bg-white border border-slate-200/90 rounded-xl p-4 shadow-xs">
+            <div class="flex items-center justify-between"><span class="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">Khách đang chăm</span><div class="w-2 h-2 rounded-full bg-emerald-500"></div></div>
+            <div class="mt-2 flex items-baseline gap-2"><span class="text-2xl font-bold text-slate-900 tracking-tight" id="dashKpiCust">0</span><span class="text-[11px] text-slate-400 font-medium">người</span></div>
+          </div>
+          <div class="bg-white border border-slate-200/90 rounded-xl p-4 shadow-xs">
+            <div class="flex items-center justify-between"><span class="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">Lịch hẹn hôm nay</span><div class="w-2 h-2 rounded-full bg-blue-500"></div></div>
+            <div class="mt-2 flex items-baseline gap-2"><span class="text-2xl font-bold text-slate-900 tracking-tight" id="dashKpiAppt">0</span><span class="text-[11px] text-slate-400 font-medium">lượt</span></div>
+          </div>
+          <div class="bg-white border border-slate-200/90 rounded-xl p-4 shadow-xs">
+            <div class="flex items-center justify-between"><span class="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">Nguồn hàng mở bán</span><div class="w-2 h-2 rounded-full bg-indigo-500"></div></div>
+            <div class="mt-2 flex items-baseline gap-2"><span class="text-2xl font-bold text-slate-900 tracking-tight" id="dashKpiProp">0</span><span class="text-[11px] text-slate-400 font-medium">căn</span></div>
+          </div>
+          <div class="bg-white border border-slate-200/90 rounded-xl p-4 shadow-xs">
+            <div class="flex items-center justify-between"><span class="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">Hoa hồng tháng này</span><div class="w-2 h-2 rounded-full bg-amber-500"></div></div>
+            <div class="mt-2 flex items-baseline gap-1"><span class="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight font-mono" id="dashKpiComm">0</span><span class="text-xs font-semibold text-slate-400">đ</span></div>
+          </div>
+        </div>
+
+        <!-- 2 Chart Containers -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+          <div class="bg-white border border-slate-200/90 rounded-xl p-4 sm:p-5 shadow-xs flex flex-col">
+            <div class="flex items-center justify-between mb-3 border-b border-slate-100 pb-2.5"><span class="text-xs font-semibold text-slate-800 uppercase tracking-wider">Cơ cấu nhu cầu khách</span><span class="text-[10px] text-slate-400 font-mono">Tỷ lệ %</span></div>
+            <div class="relative flex-1 flex items-center justify-center min-h-[220px]"><canvas id="chartDemandCanvas"></canvas></div>
+          </div>
+          <div class="bg-white border border-slate-200/90 rounded-xl p-4 sm:p-5 shadow-xs flex flex-col">
+            <div class="flex items-center justify-between mb-3 border-b border-slate-100 pb-2.5"><span class="text-xs font-semibold text-slate-800 uppercase tracking-wider">Phân bổ nguồn hàng BĐS</span><span class="text-[10px] text-slate-400 font-mono">Số lượng căn</span></div>
+            <div class="relative flex-1 flex items-center justify-center min-h-[220px]"><canvas id="chartPropertyCanvas"></canvas></div>
+          </div>
+        </div>
+
+        <!-- Daily Action Queue: Lịch hẹn hôm nay -->
+        <div class="bg-white border border-slate-200/90 rounded-xl shadow-xs overflow-hidden">
+          <div class="px-4 py-3 border-b border-slate-100 flex items-center justify-between">
+            <div class="flex items-center gap-2">
+              <span class="w-2 h-2 rounded-full bg-blue-500 animate-pulse"></span>
+              <span class="text-xs font-semibold text-slate-800 uppercase tracking-wider">Việc khẩn cần làm hôm nay (Lịch hẹn / Follow-up)</span>
+            </div>
+            <button onclick="switchTab('interactions')" class="text-xs font-semibold text-emerald-600 hover:text-emerald-700">Xem tất cả lịch hẹn →</button>
+          </div>
+          <div id="dashTodayActionList" class="p-4 divide-y divide-slate-100">
+            <!-- Render danh sách việc hôm nay -->
+          </div>
+        </div>
+      </div>
+
+      <!-- ==================== MODULE 2: KHÁCH HÀNG (LEADS CRM) ==================== -->
+      <div id="module-customers" class="module-tab-content space-y-4">
+        <!-- Desktop Master-Table Full-Bleed -->
+        <div class="hidden sm:block bg-white border border-slate-200/90 rounded-xl shadow-xs overflow-hidden">
+          <div class="overflow-x-auto max-h-[calc(100vh-180px)] custom-scrollbar">
+            <table class="w-full text-left border-collapse sticky-header text-xs">
+              <thead>
+                <tr class="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">
+                  <th class="py-3 px-4">Mã KH</th>
+                  <th class="py-3 px-4">Khách Hàng</th>
+                  <th class="py-3 px-4">Nhu Cầu</th>
+                  <th class="py-3 px-4">Tầm Giá</th>
+                  <th class="py-3 px-4">Khu Vực</th>
+                  <th class="py-3 px-4">Nguồn</th>
+                  <th class="py-3 px-4">Trạng Thái</th>
+                  <th class="py-3 px-4 w-10 text-center"></th>
+                </tr>
+              </thead>
+              <tbody id="tblCustomerBody" class="divide-y divide-slate-100"></tbody>
+            </table>
+          </div>
+        </div>
+        <!-- Mobile Table-to-Card Container -->
+        <div id="cardCustomerContainer" class="sm:hidden space-y-2.5 pb-16"></div>
+      </div>
+
+      <!-- ==================== MODULE 3: GIỎ HÀNG BĐS (INVENTORY) ==================== -->
+      <div id="module-properties" class="module-tab-content space-y-4">
+        <!-- Desktop Master-Table -->
+        <div class="hidden sm:block bg-white border border-slate-200/90 rounded-xl shadow-xs overflow-hidden">
+          <div class="overflow-x-auto max-h-[calc(100vh-180px)] custom-scrollbar">
+            <table class="w-full text-left border-collapse sticky-header text-xs">
+              <thead>
+                <tr class="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">
+                  <th class="py-3 px-4">Mã Căn</th>
+                  <th class="py-3 px-4">Loại Hình</th>
+                  <th class="py-3 px-4">Dự Án / Địa Chỉ</th>
+                  <th class="py-3 px-4">Diện Tích</th>
+                  <th class="py-3 px-4">Giá Chào</th>
+                  <th class="py-3 px-4">Đầu Chủ / Liên Hệ</th>
+                  <th class="py-3 px-4">Hoa Hồng</th>
+                  <th class="py-3 px-4">Trạng Thái</th>
+                </tr>
+              </thead>
+              <tbody id="tblPropertyBody" class="divide-y divide-slate-100"></tbody>
+            </table>
+          </div>
+        </div>
+        <!-- Mobile Cards -->
+        <div id="cardPropertyContainer" class="sm:hidden space-y-2.5 pb-16"></div>
+      </div>
+
+      <!-- ==================== MODULE 4: LỊCH HẸN & NHẬT KÝ ==================== -->
+      <div id="module-interactions" class="module-tab-content space-y-4">
+        <div class="bg-white border border-slate-200/90 rounded-xl shadow-xs overflow-hidden">
+          <div class="p-3 bg-slate-50/60 border-b border-slate-100 flex items-center justify-between">
+            <span class="text-xs font-semibold text-slate-700">Dòng thời gian tương tác (Activity Timeline)</span>
+            <button onclick="openAddInteractionModal()" class="text-xs font-semibold text-emerald-600 hover:text-emerald-700">+ Ghi nhật ký mới</button>
+          </div>
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs">
+              <thead class="bg-slate-50 text-slate-500 font-medium border-b border-slate-100">
+                <tr>
+                  <th class="p-3">Mã Nhật Ký</th>
+                  <th class="p-3">Khách Hàng</th>
+                  <th class="p-3">Hình Thức</th>
+                  <th class="p-3">Nội Dung Trao Đổi</th>
+                  <th class="p-3">Lịch Hẹn Tiếp</th>
+                  <th class="p-3">Ngày Ghi</th>
+                </tr>
+              </thead>
+              <tbody id="tblInteractionBody" class="divide-y divide-slate-100"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ==================== MODULE 5: CHỐT CỌC & HOA HỒNG ==================== -->
+      <div id="module-deals" class="module-tab-content space-y-4">
+        <div class="bg-white border border-slate-200/90 rounded-xl shadow-xs overflow-hidden">
+          <div class="p-3 bg-slate-50/60 border-b border-slate-100 flex items-center justify-between">
+            <span class="text-xs font-semibold text-slate-700">Sổ hợp đồng chốt cọc & hoa hồng thực nhận</span>
+            <button onclick="openAddDealModal()" class="text-xs font-semibold text-emerald-600 hover:text-emerald-700">+ Lập hợp đồng chốt deal</button>
+          </div>
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs">
+              <thead class="bg-slate-50 text-slate-500 font-medium border-b border-slate-100">
+                <tr>
+                  <th class="p-3">Mã HĐ</th>
+                  <th class="p-3">Khách Mua</th>
+                  <th class="p-3">Căn BĐS</th>
+                  <th class="p-3">Giá Chốt</th>
+                  <th class="p-3">% Hoa Hồng</th>
+                  <th class="p-3">Hoa Hồng Thực Nhận</th>
+                  <th class="p-3">Ngày Chốt</th>
+                  <th class="p-3">Trạng Thái</th>
+                </tr>
+              </thead>
+              <tbody id="tblDealBody" class="divide-y divide-slate-100"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ==================== MODULE 6: CÀI ĐẶT & DANH MỤC (SETTINGS) ==================== -->
+      <div id="module-settings" class="module-tab-content space-y-5">
+        <div class="bg-white border border-slate-200/90 rounded-xl p-5 shadow-xs max-w-2xl">
+          <h2 class="text-sm font-bold text-slate-800 mb-4 pb-2 border-b border-slate-100">Cấu hình cá nhân & Danh mục nền tảng</h2>
+          
+          <form id="formSettings" onsubmit="submitSettings(event)" class="space-y-4 text-xs">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <label class="block font-medium text-slate-700 mb-1">Họ tên môi giới</label>
+                <input type="text" id="setBrokerName" class="w-full h-8 px-2.5 bg-slate-50 border border-slate-200 rounded-lg focus:bg-white focus:border-emerald-500 focus:outline-none">
+              </div>
+              <div>
+                <label class="block font-medium text-slate-700 mb-1">Số điện thoại liên hệ</label>
+                <input type="tel" id="setBrokerPhone" class="w-full h-8 px-2.5 bg-slate-50 border border-slate-200 rounded-lg focus:bg-white focus:border-emerald-500 focus:outline-none">
+              </div>
+            </div>
+
+            <div class="p-3 bg-slate-50/70 border border-slate-100 rounded-lg space-y-2">
+              <div class="font-semibold text-slate-700">Tài khoản nhận hoa hồng (VietQR)</div>
+              <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                <div>
+                  <label class="block text-[11px] text-slate-500 mb-0.5">Ngân hàng</label>
+                  <input type="text" id="setBankName" class="w-full h-8 px-2 bg-white border border-slate-200 rounded text-xs focus:outline-none">
+                </div>
+                <div>
+                  <label class="block text-[11px] text-slate-500 mb-0.5">Số tài khoản</label>
+                  <input type="text" id="setBankAcc" class="w-full h-8 px-2 bg-white border border-slate-200 rounded text-xs font-mono focus:outline-none">
+                </div>
+                <div>
+                  <label class="block text-[11px] text-slate-500 mb-0.5">Chủ tài khoản</label>
+                  <input type="text" id="setBankHolder" class="w-full h-8 px-2 bg-white border border-slate-200 rounded text-xs uppercase focus:outline-none">
+                </div>
+              </div>
+            </div>
+
+            <div>
+              <label class="block font-medium text-slate-700 mb-1">Danh mục Loại hình BĐS (Phân cách bằng dấu chấm phẩy ;)</label>
+              <textarea id="setPropertyTypes" rows="2" class="w-full p-2 bg-slate-50 border border-slate-200 rounded-lg focus:bg-white focus:outline-none"></textarea>
+            </div>
+
+            <div>
+              <label class="block font-medium text-slate-700 mb-1">Danh mục Nguồn khách hàng (Phân cách bằng dấu chấm phẩy ;)</label>
+              <textarea id="setCustomerSources" rows="2" class="w-full p-2 bg-slate-50 border border-slate-200 rounded-lg focus:bg-white focus:outline-none"></textarea>
+            </div>
+
+            <button type="submit" id="btnSaveSettings" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-lg shadow-xs transition">Lưu cấu hình hệ thống</button>
+          </form>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ==================== SLIDE-OVER DRAWER (HỒ SƠ 360°) ==================== -->
+    <div id="drawerBackdrop" onclick="closeDrawer()" class="fixed inset-0 bg-slate-900/20 backdrop-blur-xs z-40 hidden transition-opacity"></div>
+    <div id="detailDrawer" class="fixed top-0 right-0 bottom-0 w-full sm:w-[480px] bg-white border-l border-slate-200 z-50 flex flex-col shadow-2xl transform translate-x-full transition-transform duration-200 ease-in-out">
+      <div class="h-14 px-4 border-b border-slate-100 flex items-center justify-between flex-shrink-0">
+        <div class="flex items-center gap-2">
+          <span class="text-xs font-mono font-semibold text-slate-700" id="drawerCustomerCode">KH-000000</span>
+          <span class="text-xs text-slate-300">|</span>
+          <span class="text-xs font-semibold text-slate-800" id="drawerCustomerName">Hồ sơ khách hàng</span>
+        </div>
+        <button onclick="closeDrawer()" class="p-1 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100"><i data-lucide="x" class="w-4 h-4"></i></button>
+      </div>
+
+      <div class="flex-1 overflow-y-auto p-4 sm:p-5 space-y-4 custom-scrollbar text-xs">
+        <div class="space-y-2">
+          <div class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Thông tin nhu cầu</div>
+          <div class="grid grid-cols-2 gap-2 bg-slate-50 p-3 rounded-lg border border-slate-100">
+            <div><span class="text-slate-400">Số điện thoại:</span> <a href="#" id="drawerPhoneLink" class="font-semibold text-emerald-600">--</a></div>
+            <div><span class="text-slate-400">Tầm giá:</span> <span id="drawerPriceRange" class="font-semibold text-slate-700">--</span></div>
+            <div><span class="text-slate-400">Nhu cầu:</span> <span id="drawerDemand" class="font-semibold text-slate-700">--</span></div>
+            <div><span class="text-slate-400">Khu vực:</span> <span id="drawerArea" class="font-semibold text-slate-700">--</span></div>
+          </div>
+        </div>
+
+        <div>
+          <div class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider mb-1.5">Ghi chú khẩu vị</div>
+          <p id="drawerNotes" class="bg-slate-50 p-3 rounded-lg border border-slate-100 text-slate-600 leading-relaxed italic">--</p>
+        </div>
+
+        <div class="pt-2 border-t border-slate-100">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Lịch sử tương tác</span>
+            <button onclick="quickAddLogFromDrawer()" class="text-xs font-semibold text-emerald-600 hover:text-emerald-700">+ Thêm nhật ký</button>
+          </div>
+          <div id="drawerLogsList" class="space-y-2">
+            <!-- Timeline tương tác -->
+          </div>
+        </div>
+      </div>
+
+      <div class="p-3 border-t border-slate-100 bg-slate-50/50 flex items-center justify-end gap-2 flex-shrink-0">
+        <button onclick="closeDrawer()" class="px-3 py-1.5 rounded-lg border border-slate-200 text-xs font-medium text-slate-600 hover:bg-slate-100">Đóng</button>
+        <button onclick="quickDealFromDrawer()" class="px-3 py-1.5 rounded-lg bg-emerald-600 text-white text-xs font-semibold hover:bg-emerald-700 flex items-center gap-1.5">
+          <i data-lucide="badge-dollar-sign" class="w-3.5 h-3.5"></i> Chốt cọc căn
+        </button>
+      </div>
+    </div>
+
+    <!-- ==================== MODAL 1: THÊM KHÁCH HÀNG ==================== -->
+    <div id="modalAddCustomer" class="fixed inset-0 bg-slate-900/30 backdrop-blur-xs z-50 flex items-center justify-center p-4 hidden">
+      <div class="bg-white rounded-xl shadow-xl border border-slate-200 w-full max-w-lg overflow-hidden animate-in fade-in zoom-in-95">
+        <div class="px-4 py-3 border-b border-slate-100 flex items-center justify-between">
+          <h3 class="text-xs font-bold text-slate-800 uppercase tracking-wider">+ Thêm Khách Hàng Mới</h3>
+          <button onclick="closeAddCustomerModal()" class="text-slate-400 hover:text-slate-600"><i data-lucide="x" class="w-4 h-4"></i></button>
+        </div>
+        <form onsubmit="submitNewCustomer(event)" class="p-4 space-y-3 text-xs">
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <label class="block font-medium text-slate-700 mb-1">Họ và tên <span class="text-rose-500">*</span></label>
+              <input type="text" id="formCustName" required class="w-full h-8 px-2.5 border border-slate-200 rounded-lg focus:border-emerald-500 focus:outline-none" placeholder="VD: Nguyễn Văn An">
+            </div>
+            <div>
+              <label class="block font-medium text-slate-700 mb-1">Số điện thoại <span class="text-rose-500">*</span></label>
+              <input type="tel" id="formCustPhone" required class="w-full h-8 px-2.5 border border-slate-200 rounded-lg font-mono focus:border-emerald-500 focus:outline-none" placeholder="0901234567">
+            </div>
+          </div>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <label class="block font-medium text-slate-700 mb-1">Nhu cầu</label>
+              <select id="formCustDemand" class="w-full h-8 px-2 border border-slate-200 rounded-lg focus:border-emerald-500 focus:outline-none"></select>
+            </div>
+            <div>
+              <label class="block font-medium text-slate-700 mb-1">Khoảng tài chính</label>
+              <input type="text" id="formCustPrice" class="w-full h-8 px-2.5 border border-slate-200 rounded-lg focus:border-emerald-500 focus:outline-none" placeholder="VD: 3 - 5 Tỷ">
+            </div>
+          </div>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <label class="block font-medium text-slate-700 mb-1">Khu vực quan tâm</label>
+              <input type="text" id="formCustArea" class="w-full h-8 px-2.5 border border-slate-200 rounded-lg focus:border-emerald-500 focus:outline-none" placeholder="VD: Quận 2, Bình Thạnh">
+            </div>
+            <div>
+              <label class="block font-medium text-slate-700 mb-1">Nguồn khách</label>
+              <select id="formCustSource" class="w-full h-8 px-2 border border-slate-200 rounded-lg focus:border-emerald-500 focus:outline-none"></select>
+            </div>
+          </div>
+          <div>
+            <label class="block font-medium text-slate-700 mb-1">Ghi chú khẩu vị chi tiết</label>
+            <textarea id="formCustNote" rows="2" class="w-full p-2 border border-slate-200 rounded-lg focus:border-emerald-500 focus:outline-none" placeholder="Cần căn ban công thoáng, tầng cao..."></textarea>
+          </div>
+          <div class="pt-2 flex justify-end gap-2 border-t border-slate-100">
+            <button type="button" onclick="closeAddCustomerModal()" class="px-3 py-1.5 rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50">Hủy</button>
+            <button type="submit" id="btnSubmitCust" class="px-4 py-1.5 rounded-lg bg-emerald-600 text-white font-semibold hover:bg-emerald-700">Lưu khách hàng</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- ==================== MODAL 2: THÊM CĂN BĐS ==================== -->
+    <div id="modalAddProperty" class="fixed inset-0 bg-slate-900/30 backdrop-blur-xs z-50 flex items-center justify-center p-4 hidden">
+      <div class="bg-white rounded-xl shadow-xl border border-slate-200 w-full max-w-lg overflow-hidden animate-in fade-in zoom-in-95">
+        <div class="px-4 py-3 border-b border-slate-100 flex items-center justify-between">
+          <h3 class="text-xs font-bold text-slate-800 uppercase tracking-wider">+ Nhập Căn Mới Vào Giỏ Hàng</h3>
+          <button onclick="closeAddPropertyModal()" class="text-slate-400 hover:text-slate-600"><i data-lucide="x" class="w-4 h-4"></i></button>
+        </div>
+        <form onsubmit="submitNewProperty(event)" class="p-4 space-y-3 text-xs">
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <label class="block font-medium text-slate-700 mb-1">Loại hình</label>
+              <select id="formPropType" class="w-full h-8 px-2 border border-slate-200 rounded-lg focus:border-emerald-500 focus:outline-none"></select>
+            </div>
+            <div>
+              <label class="block font-medium text-slate-700 mb-1">Tên dự án</label>
+              <input type="text" id="formPropProject" class="w-full h-8 px-2.5 border border-slate-200 rounded-lg focus:border-emerald-500 focus:outline-none" placeholder="VD: Vinhomes Grand Park">
+            </div>
+          </div>
+          <div>
+            <label class="block font-medium text-slate-700 mb-1">Địa chỉ chi tiết / Mã căn <span class="text-rose-500">*</span></label>
+            <input type="text" id="formPropAddress" required class="w-full h-8 px-2.5 border border-slate-200 rounded-lg focus:border-emerald-500 focus:outline-none" placeholder="VD: Tòa S2.01 Tầng 15 Căn 08">
+          </div>
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <div>
+              <label class="block font-medium text-slate-700 mb-1">Diện tích (m2)</label>
+              <input type="number" id="formPropArea" step="0.1" class="w-full h-8 px-2.5 border border-slate-200 rounded-lg focus:border-emerald-500 focus:outline-none" placeholder="68.5">
+            </div>
+            <div>
+              <label class="block font-medium text-slate-700 mb-1">Giá chào (Triệu) <span class="text-rose-500">*</span></label>
+              <input type="number" id="formPropPrice" required class="w-full h-8 px-2.5 border border-slate-200 rounded-lg focus:border-emerald-500 focus:outline-none" placeholder="3200">
+            </div>
+            <div>
+              <label class="block font-medium text-slate-700 mb-1">Hoa hồng (%)</label>
+              <input type="number" id="formPropComm" step="0.1" value="1.5" class="w-full h-8 px-2.5 border border-slate-200 rounded-lg focus:border-emerald-500 focus:outline-none">
+            </div>
+          </div>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <label class="block font-medium text-slate-700 mb-1">Tên chủ nhà / Đầu chủ</label>
+              <input type="text" id="formPropOwnerName" class="w-full h-8 px-2.5 border border-slate-200 rounded-lg focus:border-emerald-500 focus:outline-none" placeholder="Anh Hùng (Đầu chủ)">
+            </div>
+            <div>
+              <label class="block font-medium text-slate-700 mb-1">SĐT liên hệ <span class="text-rose-500">*</span></label>
+              <input type="tel" id="formPropPhone" required class="w-full h-8 px-2.5 border border-slate-200 rounded-lg font-mono focus:border-emerald-500 focus:outline-none" placeholder="0988xxxxxx">
+            </div>
+          </div>
+          <div>
+            <label class="block font-medium text-slate-700 mb-1">Ghi chú căn (Pháp lý, hướng...)</label>
+            <input type="text" id="formPropNote" class="w-full h-8 px-2.5 border border-slate-200 rounded-lg focus:border-emerald-500 focus:outline-none" placeholder="Sổ hồng sẵn, bao sang tên...">
+          </div>
+          <div class="pt-2 flex justify-end gap-2 border-t border-slate-100">
+            <button type="button" onclick="closeAddPropertyModal()" class="px-3 py-1.5 rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50">Hủy</button>
+            <button type="submit" id="btnSubmitProp" class="px-4 py-1.5 rounded-lg bg-emerald-600 text-white font-semibold hover:bg-emerald-700">Lưu vào giỏ hàng</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- ==================== MODAL 3: GHI NHẬT KÝ / LỊCH HẸN ==================== -->
+    <div id="modalAddInteraction" class="fixed inset-0 bg-slate-900/30 backdrop-blur-xs z-50 flex items-center justify-center p-4 hidden">
+      <div class="bg-white rounded-xl shadow-xl border border-slate-200 w-full max-w-md overflow-hidden animate-in fade-in zoom-in-95">
+        <div class="px-4 py-3 border-b border-slate-100 flex items-center justify-between">
+          <h3 class="text-xs font-bold text-slate-800 uppercase tracking-wider">+ Ghi Nhật Ký & Lịch Hẹn</h3>
+          <button onclick="closeAddInteractionModal()" class="text-slate-400 hover:text-slate-600"><i data-lucide="x" class="w-4 h-4"></i></button>
+        </div>
+        <form onsubmit="submitNewInteraction(event)" class="p-4 space-y-3 text-xs">
+          <div>
+            <label class="block font-medium text-slate-700 mb-1">Chọn Khách Hàng <span class="text-rose-500">*</span></label>
+            <select id="formLogCustomer" required class="w-full h-8 px-2 border border-slate-200 rounded-lg focus:border-emerald-500 focus:outline-none"></select>
+          </div>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <label class="block font-medium text-slate-700 mb-1">Hình thức</label>
+              <select id="formLogType" class="w-full h-8 px-2 border border-slate-200 rounded-lg focus:border-emerald-500 focus:outline-none">
+                <option value="Cuộc gọi tư vấn">Cuộc gọi tư vấn</option>
+                <option value="Nhắn tin Zalo">Nhắn tin Zalo</option>
+                <option value="Hẹn cafe trao đổi">Hẹn cafe trao đổi</option>
+                <option value="Dẫn xem thực tế">Dẫn xem thực tế</option>
+              </select>
+            </div>
+            <div>
+              <label class="block font-medium text-slate-700 mb-1">Lịch hẹn tiếp theo</label>
+              <input type="date" id="formLogFollowUp" class="w-full h-8 px-2 border border-slate-200 rounded-lg focus:border-emerald-500 focus:outline-none">
+            </div>
+          </div>
+          <div>
+            <label class="block font-medium text-slate-700 mb-1">Nội dung trao đổi <span class="text-rose-500">*</span></label>
+            <textarea id="formLogContent" required rows="3" class="w-full p-2 border border-slate-200 rounded-lg focus:border-emerald-500 focus:outline-none" placeholder="Khách thích view nhưng muốn đàm phán giảm 50 triệu..."></textarea>
+          </div>
+          <div class="pt-2 flex justify-end gap-2 border-t border-slate-100">
+            <button type="button" onclick="closeAddInteractionModal()" class="px-3 py-1.5 rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50">Hủy</button>
+            <button type="submit" id="btnSubmitLog" class="px-4 py-1.5 rounded-lg bg-emerald-600 text-white font-semibold hover:bg-emerald-700">Lưu nhật ký</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- ==================== MODAL 4: CHỐT CỌC & HOA HỒNG ==================== -->
+    <div id="modalAddDeal" class="fixed inset-0 bg-slate-900/30 backdrop-blur-xs z-50 flex items-center justify-center p-4 hidden">
+      <div class="bg-white rounded-xl shadow-xl border border-slate-200 w-full max-w-lg overflow-hidden animate-in fade-in zoom-in-95">
+        <div class="px-4 py-3 border-b border-slate-100 flex items-center justify-between">
+          <div class="flex items-center gap-2">
+            <i data-lucide="badge-dollar-sign" class="w-4 h-4 text-emerald-600"></i>
+            <h3 class="text-xs font-bold text-slate-800 uppercase tracking-wider">Lập Hợp Đồng Chốt Cọc & Hoa Hồng</h3>
+          </div>
+          <button onclick="closeAddDealModal()" class="text-slate-400 hover:text-slate-600"><i data-lucide="x" class="w-4 h-4"></i></button>
+        </div>
+        <form onsubmit="submitNewDeal(event)" class="p-4 space-y-3 text-xs">
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <label class="block font-medium text-slate-700 mb-1">Chọn Khách Mua <span class="text-rose-500">*</span></label>
+              <select id="formDealCustomer" required class="w-full h-8 px-2 border border-slate-200 rounded-lg focus:border-emerald-500 focus:outline-none"></select>
+            </div>
+            <div>
+              <label class="block font-medium text-slate-700 mb-1">Chọn Căn Chốt Bán <span class="text-rose-500">*</span></label>
+              <select id="formDealProperty" required onchange="handleSelectPropertyForDeal(this.value)" class="w-full h-8 px-2 border border-slate-200 rounded-lg focus:border-emerald-500 focus:outline-none"></select>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <label class="block font-medium text-slate-700 mb-1">Giá chốt giao dịch (Triệu VNĐ) <span class="text-rose-500">*</span></label>
+              <input type="number" id="formDealPrice" required oninput="calculateCommissionLive()" class="w-full h-8 px-2.5 border border-slate-200 rounded-lg focus:border-emerald-500 focus:outline-none font-semibold text-slate-800" placeholder="VD: 4500">
+            </div>
+            <div>
+              <label class="block font-medium text-slate-700 mb-1">Tỷ lệ hoa hồng (%) <span class="text-rose-500">*</span></label>
+              <input type="number" id="formDealCommRate" required step="0.1" value="1.5" oninput="calculateCommissionLive()" class="w-full h-8 px-2.5 border border-slate-200 rounded-lg focus:border-emerald-500 focus:outline-none font-semibold text-slate-800">
+            </div>
+          </div>
+
+          <!-- Micro Auto-Calculation Result Panel -->
+          <div class="p-3 bg-emerald-50/70 border border-emerald-100 rounded-xl flex items-center justify-between">
+            <div>
+              <div class="text-[11px] text-emerald-800 font-medium">Hoa hồng thực nhận ước tính:</div>
+              <div class="text-lg font-bold text-emerald-700 font-mono" id="formDealEstimatedComm">0 VNĐ</div>
+            </div>
+            <div class="text-[10px] text-slate-400 font-mono text-right">Tự động khớp lệnh<br>& cập nhật giỏ hàng</div>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <label class="block font-medium text-slate-700 mb-1">Ngày chốt giao dịch</label>
+              <input type="date" id="formDealDate" class="w-full h-8 px-2 border border-slate-200 rounded-lg focus:border-emerald-500 focus:outline-none">
+            </div>
+            <div>
+              <label class="block font-medium text-slate-700 mb-1">Trạng thái thu tiền</label>
+              <select id="formDealStatus" class="w-full h-8 px-2 border border-slate-200 rounded-lg focus:border-emerald-500 focus:outline-none">
+                <option value="Đã thu hoa hồng">Đã thu hoa hồng</option>
+                <option value="Chờ chủ nhà thanh toán">Chờ chủ nhà thanh toán</option>
+              </select>
+            </div>
+          </div>
+
+          <div>
+            <label class="block font-medium text-slate-700 mb-1">Ghi chú hợp đồng</label>
+            <input type="text" id="formDealNote" class="w-full h-8 px-2.5 border border-slate-200 rounded-lg focus:border-emerald-500 focus:outline-none" placeholder="Đã nhận cọc 200 triệu tại văn phòng công chứng...">
+          </div>
+
+          <div class="pt-2 flex justify-end gap-2 border-t border-slate-100">
+            <button type="button" onclick="closeAddDealModal()" class="px-3 py-1.5 rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50">Hủy</button>
+            <button type="submit" id="btnSubmitDeal" class="px-4 py-1.5 rounded-lg bg-emerald-600 text-white font-semibold hover:bg-emerald-700">Xác nhận chốt deal</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- ==================== CLIENT JAVASCRIPT STATE ENGINE ==================== -->
+  <script>
+    const state = {
+      activeTab: 'dashboard',
+      data: {
+        customers: [],
+        properties: [],
+        logs: [],
+        deals: [],
+        settings: {
+          brokerName: 'Môi Giới Chuyên Nghiệp',
+          brokerPhone: '0900000000',
+          bankName: 'MB Bank',
+          bankAcc: '0900000000',
+          bankHolder: 'NGUYEN VAN A',
+          propertyTypes: ['Chung cư', 'Nhà phố', 'Đất nền', 'Biệt thự / Shophouse', 'Cho thuê'],
+          customerSources: ['Facebook Ads', 'Tiktok Bio', 'Người quen giới thiệu', 'Đăng tin BĐS', 'Khách vãng lai'],
+          customerStatuses: ['Mới tiếp cận', 'Đang chăm', 'Đang dẫn xem', 'Đang thương lượng', 'Đã chốt cọc', 'Dừng chăm sóc']
+        }
+      },
+      selectedCustomerId: null,
+      charts: {}
+    };
+
+    window.addEventListener('DOMContentLoaded', () => {
+      lucide.createIcons();
+      loadAllSystemData();
+      
+      // Set today's date for deal modal
+      const todayStr = new Date().toISOString().slice(0, 10);
+      const dealDateInput = document.getElementById('formDealDate');
+      if (dealDateInput) dealDateInput.value = todayStr;
+    });
+
+    // ==================== TABS & NAVIGATION ====================
+    function switchTab(tabId) {
+      state.activeTab = tabId;
+
+      // Update Desktop Nav
+      ['dashboard', 'customers', 'properties', 'interactions', 'deals', 'settings'].forEach(t => {
+        const navEl = document.getElementById('nav-' + t);
+        if (navEl) {
+          if (t === tabId) {
+            navEl.className = "nav-item-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-xs font-semibold text-emerald-800 bg-emerald-50/80 transition-colors";
+            navEl.querySelector('i').className = "w-4 h-4 text-emerald-600 flex-shrink-0";
+          } else {
+            navEl.className = "nav-item-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-xs font-medium text-slate-600 hover:bg-slate-50 hover:text-slate-900 transition-colors";
+            navEl.querySelector('i').className = "w-4 h-4 text-slate-400 flex-shrink-0";
+          }
+        }
+
+        // Update Mobile Dock
+        const dockEl = document.getElementById('dock-' + t);
+        if (dockEl) {
+          if (t === tabId) {
+            dockEl.className = "flex flex-col items-center gap-0.5 text-emerald-600 font-semibold text-[10px]";
+          } else {
+            dockEl.className = "flex flex-col items-center gap-0.5 text-slate-400 font-medium text-[10px]";
+          }
+        }
+
+        // Toggle Content Sections
+        const secEl = document.getElementById('module-' + t);
+        if (secEl) {
+          if (t === tabId) secEl.classList.add('active');
+          else secEl.classList.remove('active');
+        }
+      });
+
+      // Update Toolbar Title & Actions
+      const titleEl = document.getElementById('topbarTitle');
+      const btnAction = document.getElementById('btnMainAction');
+      const btnActionText = document.getElementById('btnMainActionText');
+
+      if (tabId === 'dashboard') {
+        titleEl.innerText = 'Tổng quan vận hành';
+        btnAction.classList.add('hidden');
+      } else if (tabId === 'customers') {
+        titleEl.innerText = 'Quản lý khách hàng (Leads)';
+        btnAction.classList.remove('hidden');
+        btnActionText.innerText = '+ Thêm Khách Hàng';
+      } else if (tabId === 'properties') {
+        titleEl.innerText = 'Kho hàng Bất Động Sản';
+        btnAction.classList.remove('hidden');
+        btnActionText.innerText = '+ Thêm Căn Mới';
+      } else if (tabId === 'interactions') {
+        titleEl.innerText = 'Lịch hẹn & Nhật ký chăm sóc';
+        btnAction.classList.remove('hidden');
+        btnActionText.innerText = '+ Ghi Nhật Ký';
+      } else if (tabId === 'deals') {
+        titleEl.innerText = 'Chốt cọc & Doanh số hoa hồng';
+        btnAction.classList.remove('hidden');
+        btnActionText.innerText = '+ Chốt Cọc';
+      } else if (tabId === 'settings') {
+        titleEl.innerText = 'Cài đặt hệ thống & Danh mục';
+        btnAction.classList.add('hidden');
+      }
+
+      lucide.createIcons();
+    }
+
+    function toggleSidebar() {
+      const sb = document.getElementById('appSidebar');
+      sb.classList.toggle('sidebar-collapsed');
+    }
+
+    function handleMainAction() {
+      if (state.activeTab === 'customers') openAddCustomerModal();
+      else if (state.activeTab === 'properties') openAddPropertyModal();
+      else if (state.activeTab === 'interactions') openAddInteractionModal();
+      else if (state.activeTab === 'deals') openAddDealModal();
+    }
+
+    // ==================== DATA LOADER ====================
+    function loadAllSystemData() {
+      if (typeof google !== 'undefined' && google.script) {
+        google.script.run
+          .withSuccessHandler(res => {
+            if (res.success) {
+              state.data = res.data;
+              renderAllModules();
+            } else {
+              console.error(res.error);
+            }
+          })
+          .getInitialData();
+      } else {
+        // Dữ liệu mẫu kiểm thử trực tiếp trên Client
+        state.data = {
+          customers: [
+            { 'Mã Khách': 'KH-102938', 'Họ Và Tên': 'Nguyễn Văn An', 'Số Điện Thoại': '0912345678', 'Nhu Cầu': 'Chung cư', 'Khoảng Giá': '3 - 5 Tỷ', 'Khu Vực': 'Quận 2', 'Nguồn Khách': 'Facebook Ads', 'Trạng Thái': 'Đang dẫn xem', 'Ghi Chú': 'Tìm căn 2PN view thoáng' },
+            { 'Mã Khách': 'KH-394821', 'Họ Và Tên': 'Trần Thị Mai', 'Số Điện Thoại': '0988776655', 'Nhu Cầu': 'Nhà phố', 'Khoảng Giá': '7 - 10 Tỷ', 'Khu Vực': 'Bình Thạnh', 'Nguồn Khách': 'Người quen giới thiệu', 'Trạng Thái': 'Mới tiếp cận', 'Ghi Chú': 'Hẻm xe hơi quay đầu' }
+          ],
+          properties: [
+            { 'Mã Căn': 'BDS-847291', 'Loại Hình': 'Chung cư', 'Tên Dự Án': 'Vinhomes Central Park', 'Địa Chỉ': 'L3-12.08', 'Diện Tích (m2)': 78.5, 'Giá Chào (Triệu)': 4500, 'Tên Chủ': 'Anh Tuấn', 'SĐT Chủ / Đầu Chủ': '0987654321', 'Hoa Hồng (%)': 1.5, 'Trạng Thái': 'Đang bán' },
+            { 'Mã Căn': 'BDS-392819', 'Loại Hình': 'Nhà phố', 'Tên Dự Án': 'Nhà Phố D2', 'Địa Chỉ': '14/8 Nguyễn Gia Trí, P.25, Bình Thạnh', 'Diện Tích (m2)': 64, 'Giá Chào (Triệu)': 8200, 'Tên Chủ': 'Chị Thảo', 'SĐT Chủ / Đầu Chủ': '0918273645', 'Hoa Hồng (%)': 1.0, 'Trạng Thái': 'Đang bán' }
+          ],
+          logs: [
+            { 'Mã Nhật Ký': 'LOG-1029', 'Mã Khách': 'KH-102938', 'Tên Khách': 'Nguyễn Văn An', 'Hình Thức': 'Dẫn xem thực tế', 'Nội Dung Trao Đổi': 'Dẫn xem căn Landmark 3 lúc 14h. Khách thích ban công.', 'Lịch Hẹn Tiếp': new Date().toISOString().slice(0, 10), 'Ngày Tạo': '2026-11-05' }
+          ],
+          deals: [
+            { 'Mã Hợp Đồng': 'HD-8392', 'Tên Khách': 'Nguyễn Văn An', 'Địa Chỉ Căn': 'L3-12.08 Vinhomes', 'Giá Chốt (Triệu)': 4450, 'Tỷ Lệ Hoa Hồng (%)': 1.5, 'Hoa Hồng Thực Nhận (đ)': 66750000, 'Ngày Chốt': '2026-11-06', 'Trạng Thái': 'Đã thu hoa hồng' }
+          ],
+          settings: {
+            brokerName: 'Trần Thanh Phong',
+            brokerPhone: '0909888999',
+            bankName: 'MB Bank',
+            bankAcc: '0909888999',
+            bankHolder: 'TRAN THANH PHONG',
+            propertyTypes: ['Chung cư', 'Nhà phố', 'Đất nền', 'Biệt thự / Shophouse', 'Cho thuê'],
+            customerSources: ['Facebook Ads', 'Tiktok Bio', 'Người quen giới thiệu', 'Đăng tin BĐS', 'Khách vãng lai'],
+            customerStatuses: ['Mới tiếp cận', 'Đang chăm', 'Đang dẫn xem', 'Đang thương lượng', 'Đã chốt cọc', 'Dừng chăm sóc']
+          }
+        };
+        renderAllModules();
+      }
+    }
+
+    function renderAllModules() {
+      renderDashboard();
+      renderCustomers(state.data.customers);
+      renderProperties(state.data.properties);
+      renderInteractions(state.data.logs);
+      renderDeals(state.data.deals);
+      renderSettings();
+      populateDropdowns();
+    }
+
+    // ==================== MODULE 1: DASHBOARD ====================
+    function renderDashboard() {
+      const custs = state.data.customers || [];
+      const props = state.data.properties || [];
+      const logs = state.data.logs || [];
+      const deals = state.data.deals || [];
+
+      // 4 KPIs
+      const activeCusts = custs.filter(c => c['Trạng Thái'] !== 'Dừng chăm sóc').length;
+      document.getElementById('dashKpiCust').innerText = activeCusts;
+
+      const todayStr = new Date().toISOString().slice(0, 10);
+      const todayLogs = logs.filter(l => l['Lịch Hẹn Tiếp'] === todayStr);
+      document.getElementById('dashKpiAppt').innerText = todayLogs.length;
+
+      const activeProps = props.filter(p => p['Trạng Thái'] === 'Đang bán').length;
+      document.getElementById('dashKpiProp').innerText = activeProps;
+
+      const totalComm = deals.reduce((sum, d) => sum + (Number(d['Hoa Hồng Thực Nhận (đ)']) || 0), 0);
+      document.getElementById('dashKpiComm').innerText = totalComm.toLocaleString('vi-VN');
+
+      // Daily Action Queue
+      const actionContainer = document.getElementById('dashTodayActionList');
+      if (todayLogs.length === 0) {
+        actionContainer.innerHTML = '<div class="text-xs text-slate-400 py-2">Hôm nay không có lịch hẹn nào cần xử lý gấp.</div>';
+      } else {
+        actionContainer.innerHTML = todayLogs.map(l => `
+          <div class="py-2.5 flex items-center justify-between">
+            <div>
+              <div class="font-semibold text-xs text-slate-800">${l['Tên Khách']} · <span class="text-slate-400 font-normal">${l['Hình Thức']}</span></div>
+              <div class="text-[11px] text-slate-500 mt-0.5">${l['Nội Dung Trao Đổi']}</div>
+            </div>
+            <button onclick="switchTab('customers'); openCustomerDrawerByCode('${l['Mã Khách']}')" class="px-2.5 py-1 rounded bg-slate-100 hover:bg-slate-200 text-slate-700 text-[11px] font-medium">Mở hồ sơ</button>
+          </div>
+        `).join('');
+      }
+
+      // Render 2 Charts
+      renderDemandChart(custs);
+      renderPropertyChart(props);
+    }
+
+    function renderDemandChart(custs) {
+      const ctx = document.getElementById('chartDemandCanvas');
+      if (!ctx) return;
+      if (state.charts.demand) state.charts.demand.destroy();
+
+      const counts = {};
+      custs.forEach(c => {
+        const type = c['Nhu Cầu'] || 'Chung cư';
+        counts[type] = (counts[type] || 0) + 1;
+      });
+
+      state.charts.demand = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+          labels: Object.keys(counts),
+          datasets: [{ data: Object.values(counts), backgroundColor: ['#10B981', '#3B82F6', '#8B5CF6', '#F59E0B', '#94A3B8'] }]
+        },
+        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, font: { size: 10 } } } } }
+      });
+    }
+
+    function renderPropertyChart(props) {
+      const ctx = document.getElementById('chartPropertyCanvas');
+      if (!ctx) return;
+      if (state.charts.property) state.charts.property.destroy();
+
+      const counts = {};
+      props.forEach(p => {
+        const type = p['Loại Hình'] || 'Chung cư';
+        counts[type] = (counts[type] || 0) + 1;
+      });
+
+      state.charts.property = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: Object.keys(counts),
+          datasets: [{ label: 'Số căn mở bán', data: Object.values(counts), backgroundColor: '#059669', borderRadius: 4 }]
+        },
+        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } } }
+      });
+    }
+
+    // ==================== MODULE 2: CUSTOMERS ====================
+    function renderCustomers(list) {
+      const tbody = document.getElementById('tblCustomerBody');
+      const cards = document.getElementById('cardCustomerContainer');
+      if (!list || list.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="8" class="text-center py-6 text-slate-400">Chưa có khách hàng nào trong hệ thống.</td></tr>';
+        cards.innerHTML = '<div class="text-center py-6 text-slate-400">Chưa có dữ liệu.</div>';
+        return;
+      }
+
+      // Desktop Table Rows
+      tbody.innerHTML = list.map(c => `
+        <tr class="table-row-hover transition-colors">
+          <td class="py-2.5 px-4 font-mono font-semibold text-slate-700">${c['Mã Khách']}</td>
+          <td class="py-2.5 px-4 font-semibold text-slate-900">${c['Họ Và Tên']}</td>
+          <td class="py-2.5 px-4 text-slate-600">${c['Nhu Cầu']}</td>
+          <td class="py-2.5 px-4 text-slate-600">${c['Khoảng Giá']}</td>
+          <td class="py-2.5 px-4 text-slate-600">${c['Khu Vực']}</td>
+          <td class="py-2.5 px-4 text-slate-500">${c['Nguồn Khách'] || '--'}</td>
+          <td class="py-2.5 px-4"><span class="inline-flex items-center gap-1.5 text-xs text-emerald-700 font-medium"><span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>${c['Trạng Thái']}</span></td>
+          <td class="py-2.5 px-4 text-center">
+            <button onclick="openCustomerDrawerByCode('${c['Mã Khách']}')" class="p-1 rounded text-slate-400 hover:text-slate-600 hover:bg-slate-100"><i data-lucide="more-vertical" class="w-4 h-4"></i></button>
+          </td>
+        </tr>
+      `).join('');
+
+      // Mobile Cards
+      cards.innerHTML = list.map(c => `
+        <div class="bg-white p-3.5 rounded-xl border border-slate-200/90 shadow-xs space-y-2">
+          <div class="flex items-center justify-between">
+            <span class="font-mono text-xs font-semibold text-slate-600">${c['Mã Khách']}</span>
+            <span class="text-[11px] font-medium text-emerald-600 flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>${c['Trạng Thái']}</span>
+          </div>
+          <div class="font-bold text-sm text-slate-900">${c['Họ Và Tên']}</div>
+          <div class="flex items-center justify-between text-xs text-slate-500">
+            <a href="tel:${c['Số Điện Thoại']}" class="text-emerald-600 font-semibold font-mono flex items-center gap-1"><i data-lucide="phone" class="w-3 h-3"></i>${c['Số Điện Thoại']}</a>
+            <span class="font-medium text-slate-700">${c['Khoảng Giá']}</span>
+          </div>
+          <div class="pt-1.5 border-t border-slate-100 flex items-center justify-between text-[11px] text-slate-400">
+            <span>${c['Nhu Cầu']} · ${c['Khu Vực']}</span>
+            <button onclick="openCustomerDrawerByCode('${c['Mã Khách']}')" class="font-semibold text-emerald-600">Xem hồ sơ →</button>
+          </div>
+        </div>
+      `).join('');
+
+      lucide.createIcons();
+    }
+
+    // ==================== MODULE 3: PROPERTIES ====================
+    function renderProperties(list) {
+      const tbody = document.getElementById('tblPropertyBody');
+      const cards = document.getElementById('cardPropertyContainer');
+      if (!list || list.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="8" class="text-center py-6 text-slate-400">Giỏ hàng trống.</td></tr>';
+        cards.innerHTML = '<div class="text-center py-6 text-slate-400">Chưa có căn BĐS nào.</div>';
+        return;
+      }
+
+      // Desktop Table Rows
+      tbody.innerHTML = list.map(p => `
+        <tr class="table-row-hover transition-colors">
+          <td class="py-2.5 px-4 font-mono font-semibold text-slate-700">${p['Mã Căn']}</td>
+          <td class="py-2.5 px-4 text-slate-600">${p['Loại Hình']}</td>
+          <td class="py-2.5 px-4 font-semibold text-slate-900">${p['Địa Chỉ']}</td>
+          <td class="py-2.5 px-4 text-slate-600">${p['Diện Tích (m2)']} m²</td>
+          <td class="py-2.5 px-4 font-bold text-slate-900">${p['Giá Chào (Triệu)']} Tr</td>
+          <td class="py-2.5 px-4 text-slate-600"><a href="tel:${p['SĐT Chủ / Đầu Chủ']}" class="text-emerald-600 font-mono font-medium hover:underline">${p['SĐT Chủ / Đầu Chủ']}</a> (${p['Tên Chủ']||'Đầu chủ'})</td>
+          <td class="py-2.5 px-4 font-medium text-slate-700">${p['Hoa Hồng (%)']}%</td>
+          <td class="py-2.5 px-4"><span class="inline-flex items-center gap-1.5 text-xs text-slate-700 font-medium"><span class="w-1.5 h-1.5 rounded-full ${p['Trạng Thái']==='Đang bán'?'bg-emerald-500':'bg-rose-500'}"></span>${p['Trạng Thái']}</span></td>
+        </tr>
+      `).join('');
+
+      // Mobile Cards
+      cards.innerHTML = list.map(p => `
+        <div class="bg-white p-3.5 rounded-xl border border-slate-200/90 shadow-xs space-y-2">
+          <div class="flex items-center justify-between">
+            <span class="font-mono text-xs font-semibold text-slate-600">${p['Mã Căn']}</span>
+            <span class="text-[11px] font-medium text-slate-600 flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full ${p['Trạng Thái']==='Đang bán'?'bg-emerald-500':'bg-rose-500'}"></span>${p['Trạng Thái']}</span>
+          </div>
+          <div class="font-bold text-sm text-slate-900">${p['Địa Chỉ']}</div>
+          <div class="flex items-center justify-between text-xs">
+            <span class="text-emerald-700 font-bold">${p['Giá Chào (Triệu)']} Triệu</span>
+            <span class="text-slate-500">${p['Diện Tích (m2)']} m² · HH ${p['Hoa Hồng (%)']}%</span>
+          </div>
+          <div class="pt-1.5 border-t border-slate-100 flex items-center justify-between text-[11px]">
+            <a href="tel:${p['SĐT Chủ / Đầu Chủ']}" class="text-emerald-600 font-semibold flex items-center gap-1"><i data-lucide="phone" class="w-3 h-3"></i>Gọi đầu chủ: ${p['SĐT Chủ / Đầu Chủ']}</a>
+          </div>
+        </div>
+      `).join('');
+
+      lucide.createIcons();
+    }
+
+    // ==================== MODULE 4: INTERACTIONS ====================
+    function renderInteractions(list) {
+      const tbody = document.getElementById('tblInteractionBody');
+      if (!tbody) return;
+      if (!list || list.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="6" class="text-center py-6 text-slate-400">Chưa có nhật ký tương tác nào.</td></tr>';
+        return;
+      }
+      tbody.innerHTML = list.map(l => `
+        <tr class="table-row-hover transition-colors">
+          <td class="p-3 font-mono font-semibold text-slate-700">${l['Mã Nhật Ký']}</td>
+          <td class="p-3 font-semibold text-slate-900">${l['Tên Khách']}</td>
+          <td class="p-3 text-slate-600">${l['Hình Thức']}</td>
+          <td class="p-3 text-slate-700">${l['Nội Dung Trao Đổi']}</td>
+          <td class="p-3 font-mono text-blue-600 font-medium">${l['Lịch Hẹn Tiếp'] || '--'}</td>
+          <td class="p-3 text-slate-400 text-[11px]">${String(l['Ngày Tạo']).slice(0, 10)}</td>
+        </tr>
+      `).join('');
+    }
+
+    // ==================== MODULE 5: DEALS ====================
+    function renderDeals(list) {
+      const tbody = document.getElementById('tblDealBody');
+      if (!tbody) return;
+      if (!list || list.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="8" class="text-center py-6 text-slate-400">Chưa có giao dịch chốt cọc nào.</td></tr>';
+        return;
+      }
+      tbody.innerHTML = list.map(d => `
+        <tr class="table-row-hover transition-colors">
+          <td class="p-3 font-mono font-semibold text-slate-700">${d['Mã Hợp Đồng']}</td>
+          <td class="p-3 font-semibold text-slate-900">${d['Tên Khách']}</td>
+          <td class="p-3 text-slate-700">${d['Địa Chỉ Căn']}</td>
+          <td class="p-3 font-bold text-slate-900">${Number(d['Giá Chốt (Triệu)']).toLocaleString('vi-VN')} Tr</td>
+          <td class="p-3 font-medium text-slate-600">${d['Tỷ Lệ Hoa Hồng (%)']}%</td>
+          <td class="p-3 font-mono font-bold text-emerald-600">${Number(d['Hoa Hồng Thực Nhận (đ)']).toLocaleString('vi-VN')} đ</td>
+          <td class="p-3 font-mono text-slate-500">${d['Ngày Chốt']}</td>
+          <td class="p-3"><span class="text-xs font-semibold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded">${d['Trạng Thái']}</span></td>
+        </tr>
+      `).join('');
+    }
+
+    // ==================== MODULE 6: SETTINGS ====================
+    function renderSettings() {
+      const s = state.data.settings || {};
+      document.getElementById('setBrokerName').value = s.brokerName || '';
+      document.getElementById('setBrokerPhone').value = s.brokerPhone || '';
+      document.getElementById('setBankName').value = s.bankName || '';
+      document.getElementById('setBankAcc').value = s.bankAcc || '';
+      document.getElementById('setBankHolder').value = s.bankHolder || '';
+      document.getElementById('setPropertyTypes').value = (s.propertyTypes || []).join('; ');
+      document.getElementById('setCustomerSources').value = (s.customerSources || []).join('; ');
+    }
+
+    function submitSettings(e) {
+      e.preventDefault();
+      const btn = document.getElementById('btnSaveSettings');
+      btn.innerText = 'Đang lưu cấu hình...'; btn.disabled = true;
+
+      const payload = {
+        brokerName: document.getElementById('setBrokerName').value,
+        brokerPhone: document.getElementById('setBrokerPhone').value,
+        bankName: document.getElementById('setBankName').value,
+        bankAcc: document.getElementById('setBankAcc').value,
+        bankHolder: document.getElementById('setBankHolder').value,
+        propertyTypes: document.getElementById('setPropertyTypes').value.split(';').map(s => s.trim()).filter(Boolean),
+        customerSources: document.getElementById('setCustomerSources').value.split(';').map(s => s.trim()).filter(Boolean)
+      };
+
+      if (typeof google !== 'undefined' && google.script) {
+        google.script.run.withSuccessHandler(() => {
+          btn.innerText = 'Lưu cấu hình hệ thống'; btn.disabled = false;
+          alert('Đã cập nhật cài đặt hệ thống thành công!');
+          loadAllSystemData();
+        }).saveSettings(payload);
+      } else {
+        setTimeout(() => {
+          state.data.settings = payload;
+          btn.innerText = 'Lưu cấu hình hệ thống'; btn.disabled = false;
+          alert('[Demo] Đã lưu cài đặt!');
+          populateDropdowns();
+        }, 500);
+      }
+    }
+
+    // ==================== FORM DROPDOWNS POPULATE ====================
+    function populateDropdowns() {
+      const s = state.data.settings || {};
+      const types = s.propertyTypes || ['Chung cư', 'Nhà phố', 'Đất nền'];
+      const sources = s.customerSources || ['Facebook Ads', 'Tiktok Bio'];
+
+      // Populate Cust Demand & Prop Type
+      const custDemandSel = document.getElementById('formCustDemand');
+      const propTypeSel = document.getElementById('formPropType');
+      if (custDemandSel) custDemandSel.innerHTML = types.map(t => `<option value="${t}">${t}</option>`).join('');
+      if (propTypeSel) propTypeSel.innerHTML = types.map(t => `<option value="${t}">${t}</option>`).join('');
+
+      // Populate Sources
+      const custSourceSel = document.getElementById('formCustSource');
+      if (custSourceSel) custSourceSel.innerHTML = sources.map(src => `<option value="${src}">${src}</option>`).join('');
+
+      // Populate Dropdowns in Deal & Log Modal
+      const dealCustSel = document.getElementById('formDealCustomer');
+      const logCustSel = document.getElementById('formLogCustomer');
+      const custOpts = (state.data.customers || []).map(c => `<option value="${c['Mã Khách']}">${c['Họ Và Tên']} (${c['Mã Khách']})</option>`).join('');
+      if (dealCustSel) dealCustSel.innerHTML = custOpts;
+      if (logCustSel) logCustSel.innerHTML = custOpts;
+
+      const dealPropSel = document.getElementById('formDealProperty');
+      if (dealPropSel) {
+        dealPropSel.innerHTML = '<option value="">-- Chọn căn chốt --</option>' + (state.data.properties || []).map(p => `
+          <option value="${p['Mã Căn']}" data-price="${p['Giá Chào (Triệu)']}" data-comm="${p['Hoa Hồng (%)']}" data-address="${p['Địa Chỉ']}">${p['Địa Chỉ']} (${p['Mã Căn']}) - ${p['Giá Chào (Triệu)']} Tr</option>
+        `).join('');
+      }
+    }
+
+    // ==================== MICRO AUTO-CALCULATION FOR DEALS ====================
+    function handleSelectPropertyForDeal(propId) {
+      const sel = document.getElementById('formDealProperty');
+      const opt = sel.options[sel.selectedIndex];
+      if (opt && opt.dataset.price) {
+        document.getElementById('formDealPrice').value = opt.dataset.price;
+        document.getElementById('formDealCommRate').value = opt.dataset.comm || 1.5;
+        calculateCommissionLive();
+      }
+    }
+
+    function calculateCommissionLive() {
+      const priceMillion = Number(document.getElementById('formDealPrice').value) || 0;
+      const rate = Number(document.getElementById('formDealCommRate').value) || 0;
+      const totalVND = priceMillion * 1000000 * (rate / 100);
+      document.getElementById('formDealEstimatedComm').innerText = totalVND.toLocaleString('vi-VN') + ' VNĐ';
+    }
+
+    // ==================== DRAWER CONTROLLERS ====================
+    function openCustomerDrawerByCode(code) {
+      const cust = (state.data.customers || []).find(c => c['Mã Khách'] === code);
+      if (!cust) return;
+      state.selectedCustomerId = code;
+
+      document.getElementById('drawerCustomerCode').innerText = cust['Mã Khách'];
+      document.getElementById('drawerCustomerName').innerText = cust['Họ Và Tên'];
+      document.getElementById('drawerPhoneLink').innerText = cust['Số Điện Thoại'];
+      document.getElementById('drawerPhoneLink').href = 'tel:' + cust['Số Điện Thoại'];
+      document.getElementById('drawerPriceRange').innerText = cust['Khoảng Giá'] || '--';
+      document.getElementById('drawerDemand').innerText = cust['Nhu Cầu'] || '--';
+      document.getElementById('drawerArea').innerText = cust['Khu Vực'] || '--';
+      document.getElementById('drawerNotes').innerText = cust['Ghi Chú'] || 'Không có ghi chú thêm.';
+
+      // Timeline tương tác
+      const logs = (state.data.logs || []).filter(l => l['Mã Khách'] === code);
+      const logsList = document.getElementById('drawerLogsList');
+      if (logs.length === 0) {
+        logsList.innerHTML = '<div class="text-xs text-slate-400 py-2">Chưa có lịch sử chăm sóc.</div>';
+      } else {
+        logsList.innerHTML = logs.map(l => `
+          <div class="p-2.5 bg-slate-50 border border-slate-100 rounded-lg">
+            <div class="flex items-center justify-between text-[11px]">
+              <span class="font-semibold text-slate-700">${l['Hình Thức']}</span>
+              <span class="text-slate-400 font-mono">${String(l['Ngày Tạo']).slice(0, 10)}</span>
+            </div>
+            <div class="text-slate-600 mt-1">${l['Nội Dung Trao Đổi']}</div>
+            ${l['Lịch Hẹn Tiếp'] ? `<div class="text-[10px] text-blue-600 font-medium mt-1">Lịch hẹn tiếp: ${l['Lịch Hẹn Tiếp']}</div>` : ''}
+          </div>
+        `).join('');
+      }
+
+      document.getElementById('drawerBackdrop').classList.remove('hidden');
+      document.getElementById('detailDrawer').classList.remove('translate-x-full');
+      lucide.createIcons();
+    }
+
+    function closeDrawer() {
+      document.getElementById('drawerBackdrop').classList.add('hidden');
+      document.getElementById('detailDrawer').classList.add('translate-x-full');
+    }
+
+    function quickAddLogFromDrawer() {
+      openAddInteractionModal();
+      document.getElementById('formLogCustomer').value = state.selectedCustomerId;
+    }
+
+    function quickDealFromDrawer() {
+      closeDrawer();
+      openAddDealModal();
+      document.getElementById('formDealCustomer').value = state.selectedCustomerId;
+    }
+
+    // ==================== MODAL HELPERS & FORM SUBMIT ====================
+    function openAddCustomerModal() { document.getElementById('modalAddCustomer').classList.remove('hidden'); }
+    function closeAddCustomerModal() { document.getElementById('modalAddCustomer').classList.add('hidden'); }
+    function openAddPropertyModal() { document.getElementById('modalAddProperty').classList.remove('hidden'); }
+    function closeAddPropertyModal() { document.getElementById('modalAddProperty').classList.add('hidden'); }
+    function openAddInteractionModal() { document.getElementById('modalAddInteraction').classList.remove('hidden'); }
+    function closeAddInteractionModal() { document.getElementById('modalAddInteraction').classList.add('hidden'); }
+    function openAddDealModal() { document.getElementById('modalAddDeal').classList.remove('hidden'); }
+    function closeAddDealModal() { document.getElementById('modalAddDeal').classList.add('hidden'); }
+
+    function submitNewCustomer(e) {
+      e.preventDefault();
+      const btn = document.getElementById('btnSubmitCust');
+      btn.innerText = 'Đang lưu...'; btn.disabled = true;
+
+      const payload = {
+        name: document.getElementById('formCustName').value,
+        phone: document.getElementById('formCustPhone').value,
+        demand: document.getElementById('formCustDemand').value,
+        priceRange: document.getElementById('formCustPrice').value,
+        area: document.getElementById('formCustArea').value,
+        source: document.getElementById('formCustSource').value,
+        note: document.getElementById('formCustNote').value
+      };
+
+      if (typeof google !== 'undefined' && google.script) {
+        google.script.run.withSuccessHandler(() => {
+          closeAddCustomerModal();
+          btn.innerText = 'Lưu khách hàng'; btn.disabled = false;
+          loadAllSystemData();
+        }).saveCustomer(payload);
+      } else {
+        setTimeout(() => {
+          state.data.customers.push({ 'Mã Khách': 'KH-' + Math.floor(100000+Math.random()*900000), 'Họ Và Tên': payload.name, 'Số Điện Thoại': payload.phone, 'Nhu Cầu': payload.demand, 'Khoảng Giá': payload.priceRange, 'Khu Vực': payload.area, 'Nguồn Khách': payload.source, 'Trạng Thái': 'Mới tiếp cận', 'Ghi Chú': payload.note });
+          closeAddCustomerModal();
+          btn.innerText = 'Lưu khách hàng'; btn.disabled = false;
+          renderCustomers(state.data.customers);
+          populateDropdowns();
+        }, 400);
+      }
+    }
+
+    function submitNewProperty(e) {
+      e.preventDefault();
+      const btn = document.getElementById('btnSubmitProp');
+      btn.innerText = 'Đang lưu...'; btn.disabled = true;
+
+      const payload = {
+        type: document.getElementById('formPropType').value,
+        projectName: document.getElementById('formPropProject').value,
+        address: document.getElementById('formPropAddress').value,
+        area: document.getElementById('formPropArea').value,
+        price: document.getElementById('formPropPrice').value,
+        commission: document.getElementById('formPropComm').value,
+        ownerName: document.getElementById('formPropOwnerName').value,
+        phone: document.getElementById('formPropPhone').value,
+        note: document.getElementById('formPropNote').value
+      };
+
+      if (typeof google !== 'undefined' && google.script) {
+        google.script.run.withSuccessHandler(() => {
+          closeAddPropertyModal();
+          btn.innerText = 'Lưu vào giỏ hàng'; btn.disabled = false;
+          loadAllSystemData();
+        }).saveProperty(payload);
+      } else {
+        setTimeout(() => {
+          state.data.properties.push({ 'Mã Căn': 'BDS-' + Math.floor(100000+Math.random()*900000), 'Loại Hình': payload.type, 'Địa Chỉ': payload.address, 'Diện Tích (m2)': payload.area, 'Giá Chào (Triệu)': payload.price, 'Hoa Hồng (%)': payload.commission, 'Tên Chủ': payload.ownerName, 'SĐT Chủ / Đầu Chủ': payload.phone, 'Trạng Thái': 'Đang bán' });
+          closeAddPropertyModal();
+          btn.innerText = 'Lưu vào giỏ hàng'; btn.disabled = false;
+          renderProperties(state.data.properties);
+          populateDropdowns();
+        }, 400);
+      }
+    }
+
+    function submitNewInteraction(e) {
+      e.preventDefault();
+      const btn = document.getElementById('btnSubmitLog');
+      btn.innerText = 'Đang lưu...'; btn.disabled = true;
+
+      const custCode = document.getElementById('formLogCustomer').value;
+      const cust = (state.data.customers || []).find(c => c['Mã Khách'] === custCode);
+
+      const payload = {
+        customerId: custCode,
+        customerName: cust ? cust['Họ Và Tên'] : '',
+        interactionType: document.getElementById('formLogType').value,
+        followUpDate: document.getElementById('formLogFollowUp').value,
+        content: document.getElementById('formLogContent').value
+      };
+
+      if (typeof google !== 'undefined' && google.script) {
+        google.script.run.withSuccessHandler(() => {
+          closeAddInteractionModal();
+          btn.innerText = 'Lưu nhật ký'; btn.disabled = false;
+          loadAllSystemData();
+        }).saveInteraction(payload);
+      } else {
+        setTimeout(() => {
+          state.data.logs.push({ 'Mã Nhật Ký': 'LOG-' + Math.floor(1000+Math.random()*9000), 'Mã Khách': payload.customerId, 'Tên Khách': payload.customerName, 'Hình Thức': payload.interactionType, 'Nội Dung Trao Đổi': payload.content, 'Lịch Hẹn Tiếp': payload.followUpDate, 'Ngày Tạo': new Date().toISOString() });
+          closeAddInteractionModal();
+          btn.innerText = 'Lưu nhật ký'; btn.disabled = false;
+          renderInteractions(state.data.logs);
+          renderDashboard();
+        }, 400);
+      }
+    }
+
+    function submitNewDeal(e) {
+      e.preventDefault();
+      const btn = document.getElementById('btnSubmitDeal');
+      btn.innerText = 'Đang khớp lệnh...'; btn.disabled = true;
+
+      const custCode = document.getElementById('formDealCustomer').value;
+      const cust = (state.data.customers || []).find(c => c['Mã Khách'] === custCode);
+
+      const propCode = document.getElementById('formDealProperty').value;
+      const prop = (state.data.properties || []).find(p => p['Mã Căn'] === propCode);
+
+      const priceMillion = Number(document.getElementById('formDealPrice').value) || 0;
+      const commRate = Number(document.getElementById('formDealCommRate').value) || 0;
+      const commVND = priceMillion * 1000000 * (commRate / 100);
+
+      const payload = {
+        customerId: custCode,
+        customerName: cust ? cust['Họ Và Tên'] : '',
+        propertyId: propCode,
+        propertyAddress: prop ? prop['Địa Chỉ'] : '',
+        closedPriceMillion: priceMillion,
+        commissionPercent: commRate,
+        dealDate: document.getElementById('formDealDate').value,
+        status: document.getElementById('formDealStatus').value,
+        note: document.getElementById('formDealNote').value
+      };
+
+      if (typeof google !== 'undefined' && google.script) {
+        google.script.run.withSuccessHandler(() => {
+          closeAddDealModal();
+          btn.innerText = 'Xác nhận chốt deal'; btn.disabled = false;
+          loadAllSystemData();
+        }).saveDeal(payload);
+      } else {
+        setTimeout(() => {
+          // Client-side demo update with relational integrity
+          state.data.deals.push({ 'Mã Hợp Đồng': 'HD-' + Math.floor(1000+Math.random()*9000), 'Tên Khách': payload.customerName, 'Địa Chỉ Căn': payload.propertyAddress, 'Giá Chốt (Triệu)': payload.closedPriceMillion, 'Tỷ Lệ Hoa Hồng (%)': payload.commissionPercent, 'Hoa Hồng Thực Nhận (đ)': commVND, 'Ngày Chốt': payload.dealDate, 'Trạng Thái': payload.status });
+          
+          if (prop) prop['Trạng Thái'] = 'Đã cọc/Đã bán';
+          if (cust) cust['Trạng Thái'] = 'Đã chốt cọc';
+
+          closeAddDealModal();
+          btn.innerText = 'Xác nhận chốt deal'; btn.disabled = false;
+          renderDeals(state.data.deals);
+          renderProperties(state.data.properties);
+          renderCustomers(state.data.customers);
+          renderDashboard();
+          alert('Khớp lệnh chốt cọc thành công! Trạng thái căn đã chuyển sang "Đã cọc/Đã bán".');
+        }, 500);
+      }
+    }
+
+    // ==================== SEARCH ENGINE ====================
+    function handleSearchInput(val) {
+      const q = val.toLowerCase().trim();
+      const btnClear = document.getElementById('btnClearSearch');
+      if (q) btnClear.classList.remove('hidden'); else btnClear.classList.add('hidden');
+
+      if (state.activeTab === 'customers') {
+        const filtered = state.data.customers.filter(c => (c['Họ Và Tên']||'').toLowerCase().includes(q) || (c['Số Điện Thoại']||'').includes(q) || (c['Khu Vực']||'').toLowerCase().includes(q) || (c['Mã Khách']||'').toLowerCase().includes(q));
+        renderCustomers(filtered);
+      } else if (state.activeTab === 'properties') {
+        const filtered = state.data.properties.filter(p => (p['Địa Chỉ']||'').toLowerCase().includes(q) || (p['Loại Hình']||'').toLowerCase().includes(q) || (p['Mã Căn']||'').toLowerCase().includes(q));
+        renderProperties(filtered);
+      } else if (state.activeTab === 'interactions') {
+        const filtered = state.data.logs.filter(l => (l['Tên Khách']||'').toLowerCase().includes(q) || (l['Nội Dung Trao Đổi']||'').toLowerCase().includes(q));
+        renderInteractions(filtered);
+      } else if (state.activeTab === 'deals') {
+        const filtered = state.data.deals.filter(d => (d['Tên Khách']||'').toLowerCase().includes(q) || (d['Địa Chỉ Căn']||'').toLowerCase().includes(q) || (d['Mã Hợp Đồng']||'').toLowerCase().includes(q));
+        renderDeals(filtered);
+      }
+    }
+
+    function clearSearchInput() {
+      document.getElementById('globalSearchInput').value = '';
+      handleSearchInput('');
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,48 @@
+{
+  "metadata": {
+    "framework": "FILE_DI_LAM_APPS_SCRIPT_FRAMEWORK",
+    "version": "1.0.0",
+    "date": "2026-11-08",
+    "description": "Template schema định nghĩa trạng thái hệ thống, cấu hình và luật bất biến cho mọi dự án Google Sheet + Apps Script Web App",
+    "deployment_registry": {
+      "spreadsheet_id": "",
+      "apps_script_project_id": "",
+      "deployment_id": "",
+      "web_app_url": ""
+    }
+  },
+  "product": {
+    "name": "Tên sản phẩm (VD: Quản lý nhà trọ / BĐS CRM Pro)",
+    "target_users": [],
+    "core_value": "Mô tả giá trị cốt lõi tinh gọn",
+    "platform": [
+      "Google Apps Script Web App",
+      "Google Sheets as system of record"
+    ]
+  },
+  "hard_locks": [
+    "Dữ liệu nguồn duy nhất lưu tại Google Sheets",
+    "Không hardcode dữ liệu nghiệp vụ trên frontend",
+    "Mã ID dùng JetBrains Mono phẳng, không bọc pill",
+    "Trạng thái hiển thị bằng chấm tròn nhỏ tinh tế",
+    "Không sử dụng emoji trẻ con trên nút bấm hoặc tiêu đề",
+    "Không fake success, mọi thao tác ghi dữ liệu phải có LockService và xử lý lỗi minh bạch",
+    "Giao diện phân định rõ Desktop View (Sidebar + Full-bleed Table + Right Drawer) và Mobile View (Bottom Dock + Table-to-Card + FAB)"
+  ],
+  "modules": [
+    {
+      "id": "dashboard",
+      "name": "Tổng quan",
+      "scope": "KPIs tổng hợp, biểu đồ Chart.js và các cảnh báo công việc cần làm ngay"
+    }
+  ],
+  "database_schema": {
+    "tabs": []
+  },
+  "api_contracts": {
+    "read": [
+      "getInitialData"
+    ],
+    "write": []
+  }
+}

@@ -1,0 +1,485 @@
+{
+  "metadata": {
+    "project": "File Đi Làm — Quản lý nhà trọ",
+    "file": "brain.json",
+    "version": "2026-11-08-consolidated-v5",
+    "language": "vi-VN",
+    "timezone": "Asia/Ho_Chi_Minh",
+    "status": "Consolidated requirements; not code-verified",
+    "source_note": "Tổng hợp từ hội thoại/ảnh có trong ngữ cảnh và một phần lịch sử có thể truy xuất; không phải bản ghi nguyên văn tất cả prompt cũ.",
+    "companion": "agent.md"
+  },
+  "product": {
+    "target_users": [
+      "Chủ nhà trọ nhỏ và vừa",
+      "Người quản lý nhiều căn/phòng"
+    ],
+    "value_proposition": "Giảm công việc lặp lại hàng tháng: điện nước hàng loạt → phiếu phòng → gửi QR → theo dõi thu/nợ → chi phí/dashboard",
+    "current_platform": [
+      "Google Apps Script Web App",
+      "Google Sheets as system of record"
+    ],
+    "sales_model_note": "Web App Apps Script bán theo file/copy không mặc nhiên là SaaS; automatic bank reconciliation là roadmap chỉ khi tích hợp được xác thực."
+  },
+  "hard_locks": [
+    "Giữ đúng 11 module hiện hữu, không thêm/xóa module",
+    "Không rebuild từ đầu, không chuyển nền tảng/DB trong bugfix",
+    "Không xóa dữ liệu thật hoặc audit/history",
+    "Giữ UI DNA trắng/xanh clean và dashboard reference",
+    "Giữ quan hệ ID khi căn/phòng trùng tên",
+    "Không tự đánh dấu đã thu khi scan QR",
+    "Không fake success",
+    "Không đưa thời gian server vào thông báo nghiệp vụ"
+  ],
+  "modules": [
+    {
+      "id": "dashboard",
+      "label": "Dashboard / Tổng quan vận hành",
+      "scope": "Tổng quan công việc + Phân tích KPIs và biểu đồ"
+    },
+    {
+      "id": "utilities",
+      "label": "Điện nước",
+      "scope": "Nhập chỉ số hàng loạt theo kỳ/căn, kiểm tra, tạo phiếu nháp hàng loạt"
+    },
+    {
+      "id": "receivables",
+      "label": "Thu tiền & công nợ",
+      "scope": "Lập phiếu, xuất PNG/PDF, ghi nhận thu thực, công nợ, QR"
+    },
+    {
+      "id": "expenses",
+      "label": "Quản lý chi",
+      "scope": "Chi phí chủ trọ và giao dịch đã chi theo căn"
+    },
+    {
+      "id": "tenants",
+      "label": "Khách thuê",
+      "scope": "CRUD khách độc lập, người ở cùng, giấy tờ, lịch sử"
+    },
+    {
+      "id": "tenancies",
+      "label": "Hợp đồng",
+      "scope": "Hồ sơ kỳ thuê, đơn giá, thời hạn, người ở cùng, file hợp đồng đã ký"
+    },
+    {
+      "id": "deposits",
+      "label": "Tiền cọc",
+      "scope": "Nhận, nhận thêm, khấu trừ, hoàn, lịch sử"
+    },
+    {
+      "id": "properties",
+      "label": "Quản lý căn cho thuê",
+      "scope": "Đơn vị+căn, cấu hình mặc định, ngân hàng chung/riêng, danh sách phòng"
+    },
+    {
+      "id": "rooms",
+      "label": "Quản lý phòng",
+      "scope": "Phòng theo căn, tạo hàng loạt, nội thất, chỉ số và trạng thái"
+    },
+    {
+      "id": "catalog",
+      "label": "Danh mục",
+      "scope": "Master-detail nội thất, đặc điểm, đơn vị, dịch vụ, nhóm chi, phương thức, tài khoản"
+    },
+    {
+      "id": "guide",
+      "label": "Hướng dẫn sử dụng",
+      "scope": "Onboarding và workflow hàng tháng"
+    }
+  ],
+  "entity_model": {
+    "hierarchy": [
+      "management_unit",
+      "property",
+      "room",
+      "tenancy",
+      "invoice",
+      "payment_transaction"
+    ],
+    "related": [
+      "tenant_person",
+      "tenancy_occupant",
+      "deposit_transaction",
+      "meter_reading",
+      "service_rate_history",
+      "expense",
+      "account",
+      "attachment",
+      "audit_log"
+    ],
+    "key_rules": [
+      "property_id + room_id for room tenancy mapping",
+      "tenant person persists across tenancies",
+      "single active tenancy per room at any overlapping interval unless explicitly supported",
+      "invoice key tenancy_id + billing_period with uniqueness policy",
+      "immutable transaction ledger for deposits and payments",
+      "invoice snapshots of bank/payment instructions and prices after issuance"
+    ]
+  },
+  "module_decisions": {
+    "properties": [
+      "Tên module Quản lý căn cho thuê",
+      "Thông tin đơn vị, nhiều căn, cấu hình mặc định và thanh toán chung/riêng",
+      "Bỏ Người phụ trách/Ghi chú trùng"
+    ],
+    "rooms": [
+      "Lọc theo căn, xem phòng căn",
+      "Tạo phòng hàng loạt có preview và chống trùng",
+      "Tính năng in PDF phụ, không phải CTA chính"
+    ],
+    "catalog": [
+      "Master-detail chia 3 nhóm",
+      "Không xóa vật lý danh mục đã dùng",
+      "Tài khoản danh mục là nguồn lựa chọn ngân hàng"
+    ],
+    "tenants": [
+      "CRUD độc lập khỏi hợp đồng",
+      "Validation CCCD 12 số; passport theo loại",
+      "Có thể thêm người ở cùng sau khi kích hoạt kỳ thuê"
+    ],
+    "tenancies": [
+      "Wizard 3 bước",
+      "App quản lý hợp đồng/kỳ thuê thay vì phải in hợp đồng",
+      "Upload PDF/JPEG/PNG ký sẵn",
+      "Bỏ bắt đầu thu tiền ngày trong tháng; giữ hạn đóng",
+      "Chỉnh hợp đồng có history, không đổi phiếu cũ âm thầm"
+    ],
+    "deposits": [
+      "Nhận/nhận thêm/hoàn/khấu trừ tại module",
+      "Sổ giao dịch là nguồn số dư",
+      "Fix action unsupported"
+    ],
+    "utilities": [
+      "Nhập chỉ số theo kỳ+căn hàng loạt",
+      "Đầu lấy kỳ trước/bàn giao",
+      "Chỉ lập phiếu khi đủ, blank != zero"
+    ],
+    "receivables": [
+      "Lập phiếu hàng loạt, xuất PNG/PDF",
+      "Ngân hàng property override > unit default",
+      "Phiếu mới đọc tài khoản hiện hành, phiếu cũ snapshot",
+      "Nội dung chuyển khoản theo room+period",
+      "QR tĩnh không tự đổi tiền/nội dung; manual recording until verified API"
+    ],
+    "expenses": [
+      "Ghi nhận chi phí chủ trọ không nhầm khoản thu",
+      "Tách phải chi và đã chi"
+    ],
+    "dashboard": [
+      "Tổng quan phục vụ hành động, Phân tích có biểu đồ",
+      "Segmented Tháng/Quý/Năm/Tùy chọn; hỗ trợ dải kỳ qua năm",
+      "6 KPI icon, combo chart, donut, ngang công nợ, chi theo nhóm, quarterly trend",
+      "Empty states thực tế; không bịa số liệu"
+    ],
+    "guide": [
+      "Hướng dẫn quy trình ít bước cho chủ trọ không rành kỹ thuật"
+    ]
+  },
+  "formatting": {
+    "locale": "vi-VN",
+    "display_date": "DD/MM/YYYY",
+    "storage_date": "YYYY-MM-DD or epoch with explicit timezone",
+    "thousands_separator": ".",
+    "decimal_separator": ",",
+    "currency_example": "7.000.000 đ",
+    "exclude_numeric_codes": [
+      "phone",
+      "CCCD",
+      "bank account",
+      "contract ID",
+      "room code",
+      "invoice code"
+    ],
+    "ui": [
+      "padding cho dropdown arrow",
+      "pill không chạm chữ",
+      "checkbox aligned",
+      "modal scroll body / fixed action footer",
+      "no debug latency toast"
+    ]
+  },
+  "dashboard_reference": {
+    "reference": "Ảnh 3 user phê duyệt 07/11/2026, tab Phân tích, Quý IV/2026",
+    "filters": [
+      "month",
+      "quarter",
+      "year",
+      "custom range",
+      "property"
+    ],
+    "tabs": [
+      "overview",
+      "analytics"
+    ],
+    "kpis": [
+      "phai_thu",
+      "da_thu",
+      "con_no",
+      "ty_le_thu",
+      "so_phieu",
+      "chi_phi"
+    ],
+    "charts": [
+      "combo_monthly_receivables_collected_collection_rate",
+      "donut_revenue_mix",
+      "horizontal_debt_by_room",
+      "donut_expense_categories",
+      "combo_quarterly_revenue_debt_rate"
+    ],
+    "rules": [
+      "No fake values in production",
+      "Do not compare overview month to analytics quarter as identical screens",
+      "No chart plotting if no actual records: use empty state"
+    ]
+  },
+  "payments": {
+    "payment_account_precedence": [
+      "property_override",
+      "management_unit_default"
+    ],
+    "new_invoice": "resolve current valid account and transfer reference; capture snapshot",
+    "issued_invoice": "preserve snapshot; reissue only with explicit action/audit",
+    "dynamic_qr": "amount + bank + account + transfer memo only if supported/validated",
+    "static_qr": "uploaded QR picture may not auto-fill amount/content",
+    "auto_reconcile": false,
+    "auto_reconcile_condition": "Only after approved bank/payment provider integration, verified signatures, secure callbacks, dedupe and tests"
+  },
+  "workflows": {
+    "setup": [
+      "management unit",
+      "property",
+      "accounts",
+      "catalog/service setup",
+      "room batch create",
+      "tenant",
+      "tenancy wizard",
+      "documents",
+      "deposit"
+    ],
+    "monthly": [
+      "select month/property",
+      "enter readings batch",
+      "validate batch",
+      "create invoices batch",
+      "review",
+      "export/share",
+      "manually reconcile payments",
+      "track debts",
+      "dashboard"
+    ],
+    "checkout": [
+      "record date",
+      "final meter readings",
+      "final invoice",
+      "settle outstanding",
+      "deduct/refund deposit",
+      "close tenancy",
+      "vacate room"
+    ]
+  },
+  "known_bugs": [
+    {
+      "id": "BUG-01",
+      "priority": "P0",
+      "title": "Nhận cọc: Chức năng không được hỗ trợ",
+      "state": "Observed screenshot; not code verified"
+    },
+    {
+      "id": "BUG-02",
+      "priority": "P0",
+      "title": "Phiếu sử dụng ngân hàng/STK cũ sau cập nhật danh mục",
+      "state": "Observed, root cause unknown"
+    },
+    {
+      "id": "BUG-03",
+      "priority": "P0",
+      "title": "Nội dung CK không theo mã phòng + kỳ",
+      "state": "Observed"
+    },
+    {
+      "id": "BUG-04",
+      "priority": "P0",
+      "title": "Giá trị phiếu/đối soát 0 khi thiếu dữ liệu hoặc liên kết",
+      "state": "Reported; verify exact conditions"
+    },
+    {
+      "id": "BUG-05",
+      "priority": "P0",
+      "title": "Không chỉnh kỳ thuê/đổi người ở cùng sau kích hoạt",
+      "state": "Reported"
+    },
+    {
+      "id": "BUG-06",
+      "priority": "P1",
+      "title": "Không thêm khách thuê được",
+      "state": "Reported"
+    },
+    {
+      "id": "BUG-07",
+      "priority": "P1",
+      "title": "Validation số giấy tờ khách thứ hai báo không hợp lệ",
+      "state": "Observed screenshot"
+    },
+    {
+      "id": "BUG-08",
+      "priority": "P1",
+      "title": "Upload hợp đồng PDF/ảnh chưa xác minh end-to-end",
+      "state": "Needs verification"
+    },
+    {
+      "id": "BUG-09",
+      "priority": "P1",
+      "title": "MM/DD/YYYY thay vì DD/MM/YYYY",
+      "state": "Observed"
+    },
+    {
+      "id": "BUG-10",
+      "priority": "P1",
+      "title": "Ô bắt đầu thu tiền thừa",
+      "state": "User requests removal"
+    },
+    {
+      "id": "BUG-11",
+      "priority": "P1",
+      "title": "Sửa nội dung cọc/trả cọc chưa đầy đủ",
+      "state": "Reported"
+    },
+    {
+      "id": "BUG-12",
+      "priority": "P1",
+      "title": "Hiệu năng 5–10–40s, kích hoạt kỳ thuê 25.9s",
+      "state": "Observed/reported, root cause unverified"
+    },
+    {
+      "id": "BUG-13",
+      "priority": "P2",
+      "title": "Form căn trùng người phụ trách & ghi chú",
+      "state": "Observed"
+    },
+    {
+      "id": "BUG-14",
+      "priority": "P2",
+      "title": "Tiền không đồng nhất format dấu chấm",
+      "state": "Reported"
+    },
+    {
+      "id": "BUG-15",
+      "priority": "P2",
+      "title": "Badge/pill/dropdown arrow/checkbox lệch",
+      "state": "Reported"
+    },
+    {
+      "id": "BUG-16",
+      "priority": "P2",
+      "title": "Toast hiển thị thời gian xử lý server",
+      "state": "Observed"
+    },
+    {
+      "id": "BUG-17",
+      "priority": "P2",
+      "title": "Nút In/PDF không cần ở nhiều module",
+      "state": "Product decision"
+    },
+    {
+      "id": "BUG-18",
+      "priority": "P2",
+      "title": "Charts empty/misaligned; filters cannot compare months/years",
+      "state": "Prior UI issue; newer reference accepted, regression needed"
+    }
+  ],
+  "performance": {
+    "observed_seconds": [
+      5.3,
+      5.8,
+      6.6,
+      25.9,
+      40
+    ],
+    "measure": [
+      "google.script.run calls",
+      "Sheets reads/writes",
+      "file uploads",
+      "validation",
+      "dashboard rebuild",
+      "client render",
+      "locks"
+    ],
+    "strategies": [
+      "batch reads/writes",
+      "no getValue/setValue in loops",
+      "cache reference data with invalidation",
+      "idempotent transactions",
+      "narrow LockService",
+      "lazy load",
+      "no full dashboard reload on simple writes"
+    ],
+    "note": "Performance targets are aspirational pending benchmark; do not fake results."
+  },
+  "demo_factory": {
+    "request": "Replace stale demo with 2 quarters, roughly 5–8 varied records/transactions per month as appropriate to each module, for impressive populated analytics",
+    "safety": "Do not execute reset against real/prod data; explicit preview/backup/double confirm, sandbox-only, fake bank accounts/IDs, demo tag, deterministic idempotent seed",
+    "coverage": [
+      "multiple properties and overlapping room numbers",
+      "tenant/co-tenant",
+      "active and ended tenancies",
+      "deposits and refunds",
+      "meter readings",
+      "invoices and partial/full/unpaid payments",
+      "expense groups",
+      "quarter and year comparison"
+    ]
+  },
+  "acceptance_test_ids": [
+    "PROPERTY_ROOM_ID_UNIQUE",
+    "TENANT_INDEPENDENT_CRUD",
+    "TENANCY_ADD_OCCUPANT_AFTER_ACTIVATION",
+    "PRIVATE_ATTACHMENT_PERSISTENCE",
+    "DEPOSIT_RECEIVE_RETURN_DEDUCT",
+    "BANK_CONFIGURATION_PRECEDENCE",
+    "INVOICE_MEMO_CORRECT",
+    "BULK_METER_TO_BULK_INVOICE",
+    "INVOICE_ZERO_VS_MISSING",
+    "NO_AUTOPAYMENT_FROM_QR",
+    "EXPENSE_NO_DOUBLE_COUNT",
+    "DASHBOARD_ALL_DATE_MODES",
+    "VI_NUMBER_AND_DATE_FORMAT",
+    "MODAL_LAYOUT_REGRESSION",
+    "PERF_BEFORE_AFTER"
+  ],
+  "chronology": [
+    {
+      "date": "2026-11-06",
+      "summary": "11-module and platform locks; property/room responsibilities; clean catalog; remove repeated technical buttons; basic operations"
+    },
+    {
+      "date": "2026-11-07",
+      "summary": "Tenant/contract/deposit flows and bulk utilities→invoice; dashboard reference iteration and monthly/quarterly/yearly filters"
+    },
+    {
+      "date": "2026-11-07/08",
+      "summary": "Bug audit incl. performance, document upload, co-tenant editing, bank/QR memo, date/number formatting and unsupported deposit action"
+    },
+    {
+      "date": "2026-11-08",
+      "summary": "Create consolidated knowledge and agent instructions"
+    }
+  ],
+  "open_questions_for_repo_audit": [
+    "Actual sheet names and column mappings",
+    "Exact storage permissions for private documents",
+    "Current deployment version and action dispatcher",
+    "Whether property override vs tenancy bank field exists",
+    "Which flows already fixed in current code",
+    "Actual p50/p95 latency and Google quota limits",
+    "Availability of bulk room creation and bulk invoice functions"
+  ],
+  "agent_process": [
+    "Read agent.md and brain.json",
+    "Inventory repository/schema without changing data",
+    "Confirm root causes with logs/tests",
+    "Fix P0 then P1 then P2",
+    "Test and benchmark; update logs/changelog",
+    "Report verified vs unverified and deploy instructions"
+  ]
+}
