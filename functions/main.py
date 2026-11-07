@@ -1249,6 +1249,110 @@ def api(req: https_fn.Request) -> https_fn.Response:
             })
         orders.sort(key=lambda x: str(x.get("created_at") or ""), reverse=True)
         return json_response(orders)
+
+    elif path == "/track" and method == "POST":
+        payload = req.get_json(silent=True) or {}
+        event_type = str(payload.get("type") or "page_view")
+        session_id = str(payload.get("session_id") or "")
+        source = str(payload.get("source") or "direct").lower()
+        now = datetime.now(timezone.utc)
+        today_str = now.strftime("%Y-%m-%d")
+        
+        from google.cloud import firestore as gc_firestore
+        daily_ref = db.collection("daily_analytics").document(today_str)
+        
+        if event_type == "page_view":
+            is_new = bool(payload.get("is_new_session"))
+            update_data = {
+                "date": today_str,
+                "page_views": gc_firestore.Increment(1),
+                f"sources.{source}": gc_firestore.Increment(1),
+                "updated_at": now
+            }
+            if is_new:
+                update_data["unique_sessions"] = gc_firestore.Increment(1)
+            daily_ref.set(update_data, merge=True)
+            
+        elif event_type == "dwell_time":
+            seconds = int(payload.get("seconds") or 0)
+            if 0 < seconds <= 1800:
+                daily_ref.set({
+                    "date": today_str,
+                    "total_dwell_seconds": gc_firestore.Increment(seconds),
+                    "dwell_samples": gc_firestore.Increment(1),
+                    "updated_at": now
+                }, merge=True)
+                
+        elif event_type == "add_to_cart":
+            prod_id = str(payload.get("product_id") or "")
+            prod_name = str(payload.get("product_name") or "")
+            cart_total = int(payload.get("cart_total") or 0)
+            items = payload.get("items") or []
+            
+            update_data = {
+                "date": today_str,
+                "add_to_cart_count": gc_firestore.Increment(1),
+                "updated_at": now
+            }
+            if prod_id:
+                safe_pid = re.sub(r'[^A-Za-z0-9_-]', '_', prod_id)
+                update_data[f"cart_products.{safe_pid}"] = gc_firestore.Increment(1)
+            daily_ref.set(update_data, merge=True)
+            
+            if session_id:
+                db.collection("cart_sessions").document(session_id).set({
+                    "session_id": session_id,
+                    "status": "IN_CART",
+                    "source": source,
+                    "items": items,
+                    "cart_total": cart_total,
+                    "last_product_id": prod_id,
+                    "last_product_name": prod_name,
+                    "created_at": now,
+                    "updated_at": now
+                }, merge=True)
+
+        elif event_type == "checkout_opened":
+            daily_ref.set({
+                "date": today_str,
+                "checkout_opened_count": gc_firestore.Increment(1),
+                "updated_at": now
+            }, merge=True)
+            if session_id:
+                db.collection("cart_sessions").document(session_id).set({
+                    "status": "CHECKOUT_OPENED",
+                    "updated_at": now
+                }, merge=True)
+
+        return json_response({"status": "ok"})
+
+    elif path == "/admin/analytics" and method == "GET":
+        user = require_user(req)
+        if not user or user.get("email") != "huynhkiencam151102@gmail.com":
+            return json_response({"error": "ADMIN_AUTH_REQUIRED"}, 403)
+            
+        from google.cloud import firestore as gc_firestore
+        docs = db.collection("daily_analytics").order_by("date", direction=gc_firestore.Query.DESCENDING).limit(60).stream()
+        daily_metrics = [d.to_dict() for d in docs]
+        
+        cart_docs = db.collection("cart_sessions").order_by("updated_at", direction=gc_firestore.Query.DESCENDING).limit(50).stream()
+        cart_sessions = []
+        for cd in cart_docs:
+            cdata = cd.to_dict()
+            cart_sessions.append({
+                "session_id": cdata.get("session_id"),
+                "status": cdata.get("status"),
+                "source": cdata.get("source"),
+                "cart_total": cdata.get("cart_total", 0),
+                "items": cdata.get("items", []),
+                "last_product_name": cdata.get("last_product_name"),
+                "updated_at": serialize_datetime(cdata.get("updated_at"))
+            })
+            
+        return json_response({
+            "daily_metrics": daily_metrics,
+            "cart_sessions": cart_sessions
+        })
         
     elif path == "/webhooks/sepay" and method == "POST":
         payload = req.get_json(silent=True) or {}

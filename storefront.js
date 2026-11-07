@@ -368,6 +368,7 @@ function escapeHtml(value) {
   mountCheckoutFooter();
   bindEvents();
   initAuth();
+  initTelemetry();
 
   if (window.location.hash === "#thanh-toan") {
     window.setTimeout(function () { openCheckout(true); }, 0);
@@ -1101,6 +1102,135 @@ function escapeHtml(value) {
       }
       return response.json();
     });
+  }
+
+  // --- REAL-TIME WEB BEHAVIOR & CART TELEMETRY TRACKER ---
+  var telemetrySessionId = null;
+  var telemetrySource = "direct";
+  var telemetryLastActiveTime = Date.now();
+  var telemetryDwellTimer = null;
+
+  function initTelemetry() {
+    try {
+      telemetrySessionId = sessionStorage.getItem("filedilam_sess_id");
+      var isNewSession = false;
+      if (!telemetrySessionId) {
+        telemetrySessionId = "sess_" + Math.random().toString(36).substring(2, 9) + Date.now().toString(36);
+        sessionStorage.setItem("filedilam_sess_id", telemetrySessionId);
+        isNewSession = true;
+      }
+
+      var urlParams = new URLSearchParams(window.location.search);
+      var utmSource = urlParams.get("utm_source") || urlParams.get("ref") || urlParams.get("channel") || "";
+      if (utmSource) {
+        telemetrySource = utmSource.toLowerCase();
+        sessionStorage.setItem("filedilam_source", telemetrySource);
+      } else {
+        var savedSource = sessionStorage.getItem("filedilam_source");
+        if (savedSource) {
+          telemetrySource = savedSource;
+        } else {
+          var ref = (document.referrer || "").toLowerCase();
+          if (ref.indexOf("tiktok.com") !== -1 || ref.indexOf("tiktok") !== -1) {
+            telemetrySource = "tiktok";
+          } else if (ref.indexOf("facebook.com") !== -1 || ref.indexOf("fb.com") !== -1) {
+            telemetrySource = "facebook";
+          } else if (ref.indexOf("zalo") !== -1) {
+            telemetrySource = "zalo";
+          } else if (ref.indexOf("youtube.com") !== -1 || ref.indexOf("youtu.be") !== -1) {
+            telemetrySource = "youtube";
+          } else if (ref && ref.indexOf(window.location.hostname) === -1) {
+            telemetrySource = "referral";
+          } else {
+            telemetrySource = "direct";
+          }
+          sessionStorage.setItem("filedilam_source", telemetrySource);
+        }
+      }
+
+      sendTelemetry({
+        type: "page_view",
+        session_id: telemetrySessionId,
+        is_new_session: isNewSession,
+        source: telemetrySource,
+        path: window.location.pathname
+      });
+
+      telemetryLastActiveTime = Date.now();
+      function flushDwell() {
+        if (document.visibilityState === "visible") {
+          var now = Date.now();
+          var elapsedSec = Math.round((now - telemetryLastActiveTime) / 1000);
+          if (elapsedSec > 0 && elapsedSec <= 300) {
+            sendTelemetry({
+              type: "dwell_time",
+              session_id: telemetrySessionId,
+              seconds: elapsedSec,
+              source: telemetrySource
+            });
+          }
+          telemetryLastActiveTime = now;
+        }
+      }
+
+      telemetryDwellTimer = window.setInterval(flushDwell, 25000);
+
+      document.addEventListener("visibilitychange", function() {
+        if (document.visibilityState === "hidden") {
+          flushDwell();
+        } else {
+          telemetryLastActiveTime = Date.now();
+        }
+      });
+
+      window.addEventListener("pagehide", function() {
+        flushDwell();
+      });
+    } catch (e) {
+      console.warn("Telemetry init skipped:", e);
+    }
+  }
+
+  function sendTelemetry(payload) {
+    try {
+      var endpoint = apiUrl("/track");
+      var bodyStr = JSON.stringify(payload);
+      if (navigator.sendBeacon && (payload.type === "dwell_time" || document.visibilityState === "hidden")) {
+        var blob = new Blob([bodyStr], { type: "application/json" });
+        navigator.sendBeacon(endpoint, blob);
+      } else {
+        fetch(endpoint, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: bodyStr,
+          keepalive: true
+        }).catch(function() {});
+      }
+    } catch (e) {}
+  }
+
+  function trackCartEvent(eventType, prodId) {
+    try {
+      var prod = prodId ? getProductById(prodId) : null;
+      var cartItems = (state.cart || []).map(function(item) {
+        var p = getProductById(item.productId);
+        return {
+          product_id: item.productId,
+          product_name: p ? p.name : "",
+          quantity: item.quantity,
+          price: p ? p.price : 0
+        };
+      });
+      sendTelemetry({
+        type: eventType,
+        session_id: telemetrySessionId,
+        product_id: prodId || (cartItems[0] ? cartItems[0].product_id : ""),
+        product_name: prod ? prod.name : (cartItems[0] ? cartItems[0].product_name : ""),
+        cart_total: getCartTotal(),
+        items: cartItems,
+        source: telemetrySource
+      });
+    } catch (e) {}
   }
 
   function normalizePhone(value) {
@@ -3111,6 +3241,7 @@ function escapeHtml(value) {
       showToast("Giỏ hàng đang trống.");
       return;
     }
+    trackCartEvent("checkout_opened");
 
     closeCart();
     closeDetail();
@@ -3364,6 +3495,7 @@ function escapeHtml(value) {
 
     persistCart();
     renderCart();
+    trackCartEvent("add_to_cart", productId);
 
     if (options.openDrawer === true) {
       openCart();
@@ -3378,6 +3510,7 @@ function escapeHtml(value) {
     state.cart = [{ productId: productId, quantity: 1 }];
     persistCart();
     renderCart();
+    trackCartEvent("add_to_cart", productId);
     openCheckout();
   }
 
