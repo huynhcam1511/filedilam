@@ -20,7 +20,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="./storefront.css?v=343" />
+    <link rel="stylesheet" href="./storefront.css?v=344" />
     <style>
     :root {
       --bg: #ffffff;
@@ -1053,155 +1053,116 @@
       100% { top: calc(100% - 2px); opacity: 0; }
     }
 
-    /* BẢNG SO SÁNH PHẲNG CHUẨN AGENTS.MD (ZERO CONTAINER, ZERO PILL) */
-    .compare-flat-section {
-      padding: 56px 0 64px;
+    /* COMPACT DUAL CARDS (CARD LÙN, ÍT CHỮ, TICK/CROSS, KHÔNG PILL) */
+    .compare-compact-section {
+      padding: 52px 0 60px;
       background: #ffffff;
     }
-    .compare-flat-table-wrap {
-      margin-top: 32px;
-      width: 100%;
-      overflow-x: auto;
+    .compare-compact-grid {
+      max-width: 940px;
+      margin: 32px auto 0;
+      display: grid;
+      grid-template-columns: 1fr 1.06fr;
+      gap: 20px;
+      align-items: stretch;
     }
-    .compare-flat-table {
-      width: 100%;
-      border-collapse: collapse;
-      text-align: left;
-      font-size: 0.9rem;
+    .compact-card {
+      border-radius: 16px;
+      padding: 22px 24px 20px;
+      display: flex;
+      flex-direction: column;
     }
-    .compare-flat-table th {
-      padding: 16px 20px;
-      font-size: 0.76rem;
+    .compact-card-legacy {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+    }
+    .compact-card-fdl {
+      background: #ffffff;
+      border: 1.5px solid #059669;
+      box-shadow: 0 4px 16px rgba(5, 150, 105, 0.08);
+    }
+    .compact-card-header {
+      border-bottom: 1px solid #e2e8f0;
+      padding-bottom: 14px;
+      margin-bottom: 16px;
+    }
+    .compact-card-fdl .compact-card-header {
+      border-bottom-color: #d1fae5;
+    }
+    .compact-card-tag {
+      font-size: 0.75rem;
       font-weight: 700;
       text-transform: uppercase;
-      letter-spacing: 0.05em;
-      border-bottom: 2px solid #e2e8f0;
+      letter-spacing: 0.04em;
+      margin-bottom: 4px;
     }
-    .compare-th-crit {
-      width: 24%;
-      color: #64748b;
-    }
-    .compare-th-legacy {
-      width: 38%;
-      color: #64748b;
-      background: #fafafa;
-    }
-    .compare-th-fdl {
-      width: 38%;
-      color: #059669;
-      background: #f0fdf4;
-      border-bottom-color: #059669 !important;
-    }
-    .compare-flat-table td {
-      padding: 18px 20px;
-      border-bottom: 1px solid #f1f5f9;
-      vertical-align: top;
-      line-height: 1.5;
-    }
-    .compare-td-crit {
+    .compact-tag-legacy { color: #64748b; }
+    .compact-tag-fdl { color: #059669; }
+    .compact-card-title {
+      font-size: 1.15rem;
       font-weight: 700;
       color: #0f172a;
-      font-size: 0.88rem;
+      letter-spacing: -0.3px;
+      margin-bottom: 6px;
     }
-    .compare-td-legacy {
-      color: #64748b;
-      background: #fafafa;
-      font-size: 0.86rem;
-    }
-    .compare-td-legacy strong {
-      color: #334155;
-      display: block;
-      margin-bottom: 2px;
-      font-weight: 600;
-    }
-    .compare-td-fdl {
-      color: #1e293b;
-      background: #ffffff;
-      font-size: 0.86rem;
-      border-left: 1px solid #e2e8f0;
-      border-right: 1px solid #e2e8f0;
-    }
-    .compare-td-fdl strong {
-      color: #059669;
-      display: block;
-      margin-bottom: 2px;
-      font-weight: 700;
-    }
-    .compare-flat-table tr:last-child .compare-td-fdl {
-      border-bottom: 2px solid #059669;
-    }
-    /* Dòng tóm tắt phẳng ở đáy */
-    .compare-flat-summary {
-      margin-top: 24px;
-      font-size: 0.85rem;
-      color: #64748b;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      border-top: 1px solid #f1f5f9;
-      padding-top: 16px;
-    }
-    .compare-flat-summary strong {
-      color: #059669;
-      font-weight: 700;
-    }
-    .compare-flat-saving-text {
+    .compact-card-price {
       font-family: var(--font-mono, monospace);
-      font-weight: 600;
+      font-size: 1.1rem;
+      font-weight: 700;
+      display: flex;
+      align-items: baseline;
+      gap: 6px;
+    }
+    .compact-card-price.legacy {
+      color: #94a3b8;
+      text-decoration: line-through;
+    }
+    .compact-card-price.fdl {
       color: #059669;
     }
-
-    /* Mobile: Table to Cardless List Transformation */
-    .compare-mobile-list {
-      display: none;
-      flex-direction: column;
-      gap: 16px;
-      margin-top: 24px;
-    }
-    .compare-mobile-item {
-      border-bottom: 1px solid #f1f5f9;
-      padding-bottom: 16px;
-    }
-    .compare-mobile-crit {
-      font-size: 0.88rem;
-      font-weight: 700;
-      color: #0f172a;
-      margin-bottom: 8px;
-    }
-    .compare-mobile-row {
+    .compact-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
       display: flex;
       flex-direction: column;
-      gap: 6px;
-      font-size: 0.84rem;
+      gap: 10px;
+      font-size: 0.86rem;
+      line-height: 1.45;
     }
-    .compare-mobile-legacy {
+    .compact-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 9px;
+      color: #334155;
+    }
+    .compact-card-legacy .compact-item {
       color: #64748b;
-      padding-left: 14px;
-      border-left: 2px solid #cbd5e1;
     }
-    .compare-mobile-fdl {
-      color: #0f172a;
-      padding-left: 14px;
-      border-left: 2px solid #059669;
+    .compact-icon {
+      flex-shrink: 0;
+      margin-top: 2px;
     }
-    .compare-mobile-fdl strong {
+    .compact-summary-text {
+      text-align: center;
+      margin-top: 22px;
+      font-size: 0.84rem;
+      color: #64748b;
+    }
+    .compact-summary-text strong {
       color: #059669;
     }
 
     @media (max-width: 768px) {
-      .compare-flat-section {
+      .compare-compact-section {
         padding: 40px 0 48px;
       }
-      .compare-flat-table-wrap {
-        display: none;
+      .compare-compact-grid {
+        grid-template-columns: 1fr;
+        gap: 16px;
       }
-      .compare-mobile-list {
-        display: flex;
-      }
-      .compare-flat-summary {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 6px;
+      .compact-card {
+        padding: 18px 20px;
       }
     }
 
@@ -2306,133 +2267,90 @@
     </div>
   </section>
 
-  <!-- DUAL COLUMN COMPARISON SECTION (THAY THẾ USP CŨ) -->
-  <!-- BẢNG SO SÁNH PHẲNG CHUẨN AGENTS.MD (ZERO CONTAINER, ZERO PILL) -->
-  <section class="compare-flat-section">
+  <!-- COMPACT DUAL CARDS SO SÁNH (CARD LÙN, ÍT CHỮ, TICK/CROSS, KHÔNG PILL) -->
+  <section class="compare-compact-section">
     <div class="container">
       <div class="center-header">
         <span class="section-tag">Bài toán kinh tế</span>
         <h2 class="section-title">Sở hữu vĩnh viễn, không phí duy trì</h2>
-        <p style="color: var(--muted); font-size: 0.95rem; max-width: 680px; margin: 0 auto;">So sánh thực tế giữa phần mềm thuê bao hàng tháng và giải pháp Google Sheets + Web App của File Đi Làm.</p>
+        <p style="color: var(--muted); font-size: 0.95rem; max-width: 680px; margin: 0 auto;">So sánh thực tế giữa phần mềm thuê bao hàng tháng và hệ sinh thái Google Sheets + Web App của File Đi Làm.</p>
       </div>
 
-      <!-- Desktop View: Master-Table phẳng tràn viền -->
-      <div class="compare-flat-table-wrap">
-        <table class="compare-flat-table">
-          <thead>
-            <tr>
-              <th class="compare-th-crit">Tiêu chí</th>
-              <th class="compare-th-legacy">Phần mềm thuê bao (SaaS / POS)</th>
-              <th class="compare-th-fdl">Hệ sinh thái File Đi Làm</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td class="compare-td-crit">Chi phí sử dụng</td>
-              <td class="compare-td-legacy">
-                <strong>2.400.000 – 4.800.000 đ/năm</strong>
-                Thu phí lặp lại mỗi tháng, ngừng đóng là khóa dữ liệu
-              </td>
-              <td class="compare-td-fdl">
-                <strong>0 đ/tháng • Trả một lần duy nhất</strong>
-                Chỉ từ 49.000 – 199.000 đ sở hữu trọn đời, không chi phí ẩn
-              </td>
-            </tr>
-            <tr>
-              <td class="compare-td-crit">Quyền sở hữu dữ liệu</td>
-              <td class="compare-td-legacy">
-                <strong>Server bên thứ 3</strong>
-                Dữ liệu thuộc về hệ thống của hãng, nguy cơ rò rỉ hoặc phụ thuộc
-              </td>
-              <td class="compare-td-fdl">
-                <strong>100% Google Drive cá nhân</strong>
-                Bảo mật riêng tư tuyệt đối theo tiêu chuẩn Google, chỉ bạn có quyền xem
-              </td>
-            </tr>
-            <tr>
-              <td class="compare-td-crit">Mở thêm chi nhánh</td>
-              <td class="compare-td-legacy">
-                <strong>Tính thêm phí thuê bao</strong>
-                Mỗi cửa hàng hay nhân viên mới đều bị tính thêm tiền gói
-              </td>
-              <td class="compare-td-fdl">
-                <strong>1-chạm tạo bản sao vô hạn</strong>
-                Nhân bản cho 5–10 cơ sở kinh doanh hoàn toàn miễn phí
-              </td>
-            </tr>
-            <tr>
-              <td class="compare-td-crit">Giao diện làm việc</td>
-              <td class="compare-td-legacy">
-                <strong>Cố định một màn hình</strong>
-                Nhiều tính năng thừa, dễ giật lag trên máy tính cấu hình yếu
-              </td>
-              <td class="compare-td-fdl">
-                <strong>Trải nghiệm kép: Sheets + Web App</strong>
-                Xem sâu trên máy tính, mở Web App thao tác 1 chạm trên điện thoại
-              </td>
-            </tr>
-            <tr>
-              <td class="compare-td-crit">Tùy biến theo quán</td>
-              <td class="compare-td-legacy">
-                <strong>Bị khóa cứng tính năng</strong>
-                Phải ép quy trình quán theo phần mềm, không thể tự sửa cột
-              </td>
-              <td class="compare-td-fdl">
-                <strong>Toàn quyền làm chủ &amp; Hỗ trợ riêng</strong>
-                Tự do sửa công thức, thêm bớt cột; có hỗ trợ kỹ thuật theo yêu cầu
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-
-      <!-- Mobile View: Table-to-List Transformation chuẩn AGENTS.md (không vuốt ngang) -->
-      <div class="compare-mobile-list">
-        <div class="compare-mobile-item">
-          <div class="compare-mobile-crit">Chi phí sử dụng</div>
-          <div class="compare-mobile-row">
-            <div class="compare-mobile-legacy">Phần mềm: <strong>2.4tr – 4.8tr/năm</strong> (thu đều mỗi tháng)</div>
-            <div class="compare-mobile-fdl">File Đi Làm: <strong>0 đ/tháng</strong> (mua 1 lần từ 49k dùng vĩnh viễn)</div>
+      <div class="compare-compact-grid">
+        <!-- Card 1: Phần mềm thuê bao -->
+        <div class="compact-card compact-card-legacy">
+          <div class="compact-card-header">
+            <div class="compact-card-tag compact-tag-legacy">Phần mềm thuê bao (SaaS / POS)</div>
+            <h3 class="compact-card-title">Gia hạn đắt đỏ mỗi tháng</h3>
+            <div class="compact-card-price legacy">
+              <span>2.400.000 – 4.800.000 đ</span>
+              <span style="font-size: 0.78rem; font-weight: normal; color: #94a3b8;">/ năm</span>
+            </div>
           </div>
+
+          <ul class="compact-list">
+            <li class="compact-item">
+              <svg class="compact-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+              <span>Đóng phí duy trì 200k – 400k/tháng liên tục</span>
+            </li>
+            <li class="compact-item">
+              <svg class="compact-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+              <span>Ngừng đóng tiền là bị khóa quyền truy cập dữ liệu</span>
+            </li>
+            <li class="compact-item">
+              <svg class="compact-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+              <span>Tính thêm tiền khi mở thêm chi nhánh hoặc nhân viên</span>
+            </li>
+            <li class="compact-item">
+              <svg class="compact-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+              <span>Cố định một màn hình trên máy tính, dễ giật lag</span>
+            </li>
+            <li class="compact-item">
+              <svg class="compact-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+              <span>Bị khóa cứng tính năng, không thể tự sửa theo ý quán</span>
+            </li>
+          </ul>
         </div>
 
-        <div class="compare-mobile-item">
-          <div class="compare-mobile-crit">Quyền sở hữu dữ liệu</div>
-          <div class="compare-mobile-row">
-            <div class="compare-mobile-legacy">Phần mềm: Server bên thứ 3, ngừng đóng là khóa</div>
-            <div class="compare-mobile-fdl">File Đi Làm: <strong>100% Google Drive cá nhân</strong>, an toàn tuyệt đối</div>
+        <!-- Card 2: Hệ sinh thái File Đi Làm -->
+        <div class="compact-card compact-card-fdl">
+          <div class="compact-card-header">
+            <div class="compact-card-tag compact-tag-fdl">Hệ sinh thái File Đi Làm</div>
+            <h3 class="compact-card-title">Sở hữu vĩnh viễn trọn đời</h3>
+            <div class="compact-card-price fdl">
+              <span>Chỉ từ 49.000 – 199.000 đ</span>
+              <span style="font-size: 0.78rem; font-weight: 600; color: #059669;">• 0 đ/tháng</span>
+            </div>
           </div>
-        </div>
 
-        <div class="compare-mobile-item">
-          <div class="compare-mobile-crit">Mở thêm chi nhánh</div>
-          <div class="compare-mobile-row">
-            <div class="compare-mobile-legacy">Phần mềm: Tính thêm tiền trên từng cửa hàng/user</div>
-            <div class="compare-mobile-fdl">File Đi Làm: <strong>Tạo bản sao không giới hạn</strong>, 0đ phụ phí</div>
-          </div>
-        </div>
-
-        <div class="compare-mobile-item">
-          <div class="compare-mobile-crit">Giao diện làm việc</div>
-          <div class="compare-mobile-row">
-            <div class="compare-mobile-legacy">Phần mềm: Chỉ mở trên máy tính, cồng kềnh</div>
-            <div class="compare-mobile-fdl">File Đi Làm: <strong>Google Sheets + Web App di động</strong> mượt mà</div>
-          </div>
-        </div>
-
-        <div class="compare-mobile-item">
-          <div class="compare-mobile-crit">Tùy biến theo quán</div>
-          <div class="compare-mobile-row">
-            <div class="compare-mobile-legacy">Phần mềm: Bị khóa cứng theo khuôn mẫu của hãng</div>
-            <div class="compare-mobile-fdl">File Đi Làm: <strong>Toàn quyền sửa cột</strong>, có hỗ trợ theo ý</div>
-          </div>
+          <ul class="compact-list">
+            <li class="compact-item">
+              <svg class="compact-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+              <span><strong>0 đ phí duy trì</strong>, mua 1 lần sở hữu vĩnh viễn trọn đời</span>
+            </li>
+            <li class="compact-item">
+              <svg class="compact-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+              <span><strong>100% dữ liệu riêng tư</strong> trong Google Drive cá nhân</span>
+            </li>
+            <li class="compact-item">
+              <svg class="compact-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+              <span><strong>Tạo bản sao vô hạn</strong>, mở thêm chi nhánh hoàn toàn 0đ</span>
+            </li>
+            <li class="compact-item">
+              <svg class="compact-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+              <span><strong>Trải nghiệm kép</strong>: Google Sheets + Web App di động</span>
+            </li>
+            <li class="compact-item">
+              <svg class="compact-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+              <span><strong>Toàn quyền làm chủ</strong>, có đội ngũ hỗ trợ chỉnh sửa theo ý</span>
+            </li>
+          </ul>
         </div>
       </div>
 
-      <!-- Dòng tóm tắt phẳng ở đáy (không container, không pill) -->
-      <div class="compare-flat-summary">
-        <span>Sau 3 năm vận hành, bạn tiết kiệm được <strong>hơn 10.000.000 đ</strong> chi phí thuê bao phần mềm.</span>
-        <span class="compare-flat-saving-text">• Tiết kiệm ~95% chi phí vận hành</span>
+      <!-- Dòng ghi chú tóm tắt phẳng ở đáy (không container, không pill) -->
+      <div class="compact-summary-text">
+        Sau 3 năm vận hành, bạn tiết kiệm được <strong>hơn 10.000.000 đ</strong> chi phí thuê bao phần mềm • Tiết kiệm ~95%
       </div>
     </div>
   </section>
