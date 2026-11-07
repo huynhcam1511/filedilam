@@ -20,7 +20,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="./storefront.css?v=336" />
+    <link rel="stylesheet" href="./storefront.css?v=337" />
     <style>
     :root {
       --bg: #ffffff;
@@ -181,8 +181,8 @@
     }
     .hero-grid {
       display: grid;
-      grid-template-columns: 1.15fr 0.85fr;
-      gap: 48px;
+      grid-template-columns: minmax(0, 1.28fr) minmax(360px, 420px);
+      gap: 40px;
       align-items: center;
     }
     .hero-pill {
@@ -207,12 +207,21 @@
       font-weight: 500;
     }
     .hero-title {
-      font-size: 3rem;
-      font-weight: 600;
-      line-height: 1.15;
-      letter-spacing: -1.385px;
+      font-size: clamp(1.85rem, 2.35vw, 2.25rem);
+      font-weight: 700;
+      line-height: 1.25;
+      letter-spacing: -1px;
       color: var(--text);
-      margin-bottom: 18px;
+      margin-bottom: 20px;
+      text-wrap: balance;
+    }
+    .hero-title .hero-line {
+      display: block;
+    }
+    @media (min-width: 901px) {
+      .hero-title .hero-line {
+        white-space: nowrap;
+      }
     }
     .hero-desc {
       font-size: 1.05rem;
@@ -2160,7 +2169,10 @@
   <section class="hero">
     <div class="container hero-grid">
       <div class="hero-content">
-        <h1 class="hero-title">File Đi Làm &amp; App riêng của bạn,<br>Sổ sách nhẹ tênh, mua một lần dùng trọn đời.</h1>
+        <h1 class="hero-title">
+          <span class="hero-line">File Đi Làm &amp; App riêng của bạn,</span>
+          <span class="hero-line">Sổ sách nhẹ tênh, mua một lần dùng trọn đời.</span>
+        </h1>
         <p class="hero-desc">Từ bán hàng, kho bãi tới tiền nong, nhân sự — mở file ra là dùng, chẳng cần biết công thức chi cho mệt. Cần chỉnh sửa hay thiết kế thêm ý nào, cứ nhắn tụi mình làm cùng bạn.</p>
         <div class="hero-cta">
           <a href="#catalog" class="btn-primary">Xem Mẫu File Đi Làm</a>
@@ -3621,7 +3633,7 @@
     <script src="./storefront-data.js?v=22"></script>
     <script src="./storefront-products.generated.js?v=6"></script>
     <script src="assets/qrcode-generator-1.4.4.js"></script>
-    <script src="storefront.js?v=211"></script>
+    <script src="storefront.js?v=212"></script>
     <!-- Agentation: Visual Feedback & Annotation for AI agents -->
   <script src="./agentation-vanilla.js"></script>
 </body>
