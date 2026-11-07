@@ -20,7 +20,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="./storefront.css?v=345" />
+    <link rel="stylesheet" href="./storefront.css?v=346" />
     <style>
     :root {
       --bg: #ffffff;
@@ -1166,63 +1166,234 @@
       }
     }
 
-    /* CUSTOM SERVICE BANNER */
-    .custom-section {
-      margin: 40px auto 80px;
-      display: flex;
-      justify-content: center;
-      width: 100%;
-    }
-    .custom-banner {
-      background: linear-gradient(118deg, rgb(228, 231, 245) 0%, rgb(240, 253, 244) 100%);
-      border: none;
-      border-radius: 24px;
-      padding: 52px 48px;
-      display: grid;
-      grid-template-columns: 1.2fr 0.8fr;
-      gap: 36px;
-      align-items: center;
-      width: 100%;
-      margin: 0;
-    }
-    .custom-pill {
+    /* CUSTOM SERVICE SECTION MỚI: THOÁNG, CLEAN & LIVE PAINPOINT STREAM ANIMATION */
+    .custom-clean-section {
+      padding: 60px 0 80px;
       background: #ffffff;
-      color: var(--mint-primary);
-      border: 1px solid var(--mint-border);
-      font-size: 0.75rem;
-      font-weight: 500;
-      padding: 3px 12px;
-      border-radius: var(--radius-full);
-      display: inline-block;
-      margin-bottom: 12px;
     }
-    .custom-title {
-      font-size: 1.9rem;
-      font-weight: 600;
-      line-height: 1.2;
-      letter-spacing: -1.03px;
+    .custom-clean-banner {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 20px;
+      padding: 44px 40px;
+      display: grid;
+      grid-template-columns: 1fr 1.15fr;
+      gap: 40px;
+      align-items: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .custom-clean-tag {
+      font-size: 0.76rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: #059669;
+      margin-bottom: 8px;
+      display: block;
+    }
+    .custom-clean-title {
+      font-size: 1.7rem;
+      font-weight: 800;
+      color: #0f172a;
+      letter-spacing: -0.5px;
+      line-height: 1.25;
       margin-bottom: 14px;
-      color: var(--text);
     }
-    .custom-desc {
-      font-size: 0.92rem;
-      color: var(--muted);
+    .custom-clean-desc {
+      font-size: 0.9rem;
+      color: #64748b;
+      line-height: 1.55;
       margin-bottom: 20px;
-      line-height: 1.5;
     }
-    .custom-ticks {
+    .custom-clean-ticks {
       list-style: none;
-      font-size: 0.85rem;
-      color: var(--text);
+      padding: 0;
+      margin: 0 0 24px 0;
       display: flex;
-      gap: 20px;
-      margin-bottom: 24px;
-      flex-wrap: wrap;
+      flex-direction: column;
+      gap: 8px;
+      font-size: 0.85rem;
+      color: #475569;
     }
-    .custom-ticks li::before {
-      content: "✓ ";
-      color: var(--mint-primary);
+    .custom-clean-ticks li {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .custom-clean-ticks li::before {
+      content: "•";
+      color: #059669;
+      font-size: 1.2rem;
+      line-height: 1;
+    }
+    .btn-zalo-custom {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: #059669;
+      color: #ffffff;
+      font-size: 0.88rem;
       font-weight: 600;
+      padding: 11px 22px;
+      border-radius: 10px;
+      text-decoration: none;
+      transition: all 0.2s ease;
+      box-shadow: 0 4px 12px rgba(5, 150, 105, 0.2);
+    }
+    .btn-zalo-custom:hover {
+      background: #047857;
+      transform: translateY(-1px);
+      box-shadow: 0 6px 16px rgba(5, 150, 105, 0.25);
+    }
+
+    /* RIGHT COLUMN: LIVE PAINPOINT STREAM ANIMATION */
+    .painpoint-stream-container {
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 16px;
+      padding: 22px 20px 26px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
+      position: relative;
+      height: 290px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+    .painpoint-card-track {
+      position: relative;
+      width: 100%;
+      height: 100%;
+    }
+    .painpoint-msg-card {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 12px;
+      opacity: 0;
+      pointer-events: none;
+      transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    /* 4 Slides xoay vòng lặp bằng CSS keyframe mượt mà (mỗi slide 5s) */
+    .painpoint-msg-card:nth-child(1) { animation: cycleCard1 20s infinite; }
+    .painpoint-msg-card:nth-child(2) { animation: cycleCard2 20s infinite; }
+    .painpoint-msg-card:nth-child(3) { animation: cycleCard3 20s infinite; }
+    .painpoint-msg-card:nth-child(4) { animation: cycleCard4 20s infinite; }
+
+    @keyframes cycleCard1 {
+      0%, 2% { opacity: 0; transform: translateY(12px); }
+      5%, 23% { opacity: 1; transform: translateY(0); pointer-events: auto; }
+      25%, 100% { opacity: 0; transform: translateY(-12px); pointer-events: none; }
+    }
+    @keyframes cycleCard2 {
+      0%, 25% { opacity: 0; transform: translateY(12px); pointer-events: none; }
+      28%, 48% { opacity: 1; transform: translateY(0); pointer-events: auto; }
+      50%, 100% { opacity: 0; transform: translateY(-12px); pointer-events: none; }
+    }
+    @keyframes cycleCard3 {
+      0%, 50% { opacity: 0; transform: translateY(12px); pointer-events: none; }
+      53%, 73% { opacity: 1; transform: translateY(0); pointer-events: auto; }
+      75%, 100% { opacity: 0; transform: translateY(-12px); pointer-events: none; }
+    }
+    @keyframes cycleCard4 {
+      0%, 75% { opacity: 0; transform: translateY(12px); pointer-events: none; }
+      78%, 98% { opacity: 1; transform: translateY(0); pointer-events: auto; }
+      100% { opacity: 0; transform: translateY(-12px); pointer-events: none; }
+    }
+
+    /* Message Header */
+    .painpoint-msg-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .painpoint-avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: #f1f5f9;
+      color: #475569;
+      font-size: 0.72rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--font-mono, monospace);
+      border: 1px solid #e2e8f0;
+    }
+    .painpoint-meta-title {
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: #0f172a;
+    }
+    .painpoint-meta-sub {
+      font-size: 0.72rem;
+      color: #94a3b8;
+    }
+    /* Chat Bubble Khách Hàng (Nỗi đau) */
+    .bubble-customer {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      border-top-left-radius: 3px;
+      padding: 12px 14px;
+      font-size: 0.84rem;
+      color: #334155;
+      line-height: 1.45;
+    }
+    /* Chat Bubble File Đi Làm (Lời giải) */
+    .bubble-fdl {
+      background: #f0fdf4;
+      border: 1px solid #bbf7d0;
+      border-radius: 12px;
+      border-top-right-radius: 3px;
+      padding: 12px 14px;
+      font-size: 0.84rem;
+      color: #166534;
+      line-height: 1.45;
+      align-self: flex-end;
+      width: 95%;
+    }
+    .bubble-fdl strong {
+      color: #059669;
+      display: block;
+      margin-bottom: 2px;
+      font-weight: 700;
+    }
+
+    /* Progress indicator ở đáy card */
+    .stream-dots-bar {
+      display: flex;
+      gap: 6px;
+      position: absolute;
+      bottom: 12px;
+      right: 18px;
+    }
+    .stream-dot-pulse {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #cbd5e1;
+    }
+
+    @media (max-width: 900px) {
+      .custom-clean-banner {
+        grid-template-columns: 1fr;
+        padding: 32px 24px;
+        gap: 28px;
+      }
+      .painpoint-stream-container {
+        height: 290px;
+      }
+      .custom-clean-title {
+        font-size: 1.45rem;
+      }
     }
 
     /* DISCOUNT TICKET COUPON */
@@ -2356,43 +2527,110 @@
     </div>
   </section>
 
-  <!-- CUSTOM SERVICE BANNER -->
-  <section class="container custom-section" id="custom">
-    <div class="custom-banner">
+  <!-- CUSTOM SERVICE SECTION (THIẾT KẾ RIÊNG: THOÁNG, CLEAN & LIVE PAINPOINT STREAM) -->
+  <section class="container custom-clean-section" id="custom">
+    <div class="custom-clean-banner">
+      <!-- Cột Trái: Thông điệp thoáng & Nút hành động -->
       <div>
-        <span class="custom-pill">Thiết kế file riêng</span>
-        <h2 class="custom-title">Chưa có mẫu nào hợp với cách bạn đang làm?</h2>
-        <p class="custom-desc">Bên mình nhận dựng riêng file Google Sheets hoặc Web App theo đúng quy trình bạn đang chạy. Bàn giao kèm hướng dẫn, dùng trọn đời.</p>
-        <ul class="custom-ticks">
-          <li>Tư vấn và báo giá miễn phí</li>
-          <li>Chốt thời gian trước khi bắt đầu</li>
-          <li>Chỉnh sửa tới khi bạn thấy đúng ý</li>
+        <span class="custom-clean-tag">Thiết kế theo yêu cầu</span>
+        <h2 class="custom-clean-title">Quy trình của bạn đặc thù và chưa có mẫu sẵn?</h2>
+        <p class="custom-clean-desc">Đừng để mớ sổ sách hay cách tính thủ công làm bạn đau đầu mỗi tối. Chỉ cần gửi bài toán của bạn qua Zalo, File Đi Làm code riêng Web App &amp; Google Sheets giải quyết dứt điểm, dùng vĩnh viễn.</p>
+        
+        <ul class="custom-clean-ticks">
+          <li>Tư vấn cấu trúc &amp; báo giá nhanh miễn phí</li>
+          <li>Chốt tiến độ trước khi làm (bàn giao 24 – 48h)</li>
+          <li>Chỉnh sửa tới khi bạn thấy đúng ý, bảo hành trọn đời</li>
         </ul>
-        <div style="display:flex; gap: 14px; align-items:center;">
-          <a href="https://zalo.me/0938134576" target="_blank" rel="noopener noreferrer" class="btn-primary" style="background:#0068ff; box-shadow:none; display:inline-flex; align-items:center; gap:6px;">
-            Nhắn Zalo tư vấn
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M7 17L17 7H7M17 7V17"/></svg>
+
+        <div>
+          <a href="https://zalo.me/0938134576" target="_blank" rel="noopener noreferrer" class="btn-zalo-custom">
+            <span>Nhắn Zalo bài toán của bạn</span>
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="7" y1="17" x2="17" y2="7"></line><polyline points="7 7 17 7 17 17"></polyline></svg>
           </a>
-          <a href="#" style="font-size: 0.9rem; font-weight: 500; color: var(--text);">Xem chi tiết dịch vụ</a>
         </div>
       </div>
-      <div>
-        <div style="background: #ffffff; border: 1px solid rgba(226, 232, 240, 0.8); border-radius: 16px; padding: 24px; box-shadow: var(--shadow-sm);">
-          <div style="font-size: 0.82rem; font-weight: 600; color: #16a34a; margin-bottom: 8px; display: flex; align-items: center; gap: 6px;">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-            Dựng đúng quy trình của bạn
-          </div>
-          <div style="font-size: 0.75rem; color: var(--muted); border-bottom: 1px solid var(--line-subtle); padding-bottom: 10px; margin-bottom: 12px;">File riêng của bạn (Google Sheets)</div>
-          <div style="background: var(--bg-alt); padding: 14px; border-radius: 10px; font-size: 0.78rem;">
-            <div style="color: var(--text); font-weight: 500; display:flex; align-items:center; gap:6px;">
-              <span>Nhập đơn</span>
-              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
-              <span>Kho</span>
-              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
-              <span>Công nợ</span>
+
+      <!-- Cột Phải: Live Painpoint Stream Animation (4 Vai Trò Sát Thực Tế) -->
+      <div class="painpoint-stream-container">
+        <div class="painpoint-card-track">
+          <!-- Slide 1: Chủ nhà trọ -->
+          <div class="painpoint-msg-card">
+            <div class="painpoint-msg-header">
+              <div class="painpoint-avatar">NT</div>
+              <div>
+                <div class="painpoint-meta-title">Anh Nam • Chủ 18 phòng trọ</div>
+                <div class="painpoint-meta-sub">Bài toán: Tính điện nước lũy tiến &amp; hóa đơn</div>
+              </div>
             </div>
-            <button style="margin-top: 10px; background: var(--mint-primary); color: white; padding: 6px 12px; border-radius: 6px; font-size: 0.75rem; font-weight: 500;">Lưu vào Sheets</button>
+            <div class="bubble-customer">
+              "Quá nhiều phòng, mỗi cuối tháng ngồi tính điện nước lũy tiến rồi làm phiếu thu gửi từng phòng mất nguyên cả ngày..."
+            </div>
+            <div class="bubble-fdl">
+              <strong>Lời giải từ File Đi Làm:</strong>
+              Web App nhập số điện nước 1 chạm, tự sinh ảnh phiếu thu gửi Zalo khách trong 3 giây.
+            </div>
           </div>
+
+          <!-- Slide 2: Chủ Salon tóc -->
+          <div class="painpoint-msg-card">
+            <div class="painpoint-msg-header">
+              <div class="painpoint-avatar" style="background: #fdf2f8; color: #db2777; border-color: #fbcfe8;">ST</div>
+              <div>
+                <div class="painpoint-meta-title">Chị Mai • Chủ Salon 6 thợ</div>
+                <div class="painpoint-meta-sub">Bài toán: Hoa hồng đa cấp bậc &amp; tiền tip</div>
+              </div>
+            </div>
+            <div class="bubble-customer">
+              "Thợ chính 30%, thợ phụ 10%, tiền tip với thưởng doanh số mỗi người một kiểu, cuối tháng tính lương hay bị cãi nhau..."
+            </div>
+            <div class="bubble-fdl">
+              <strong>Lời giải từ File Đi Làm:</strong>
+              Giao diện ghi nhận thợ trên điện thoại, bấm 1 nút tự xuất bảng lương chi tiết từng người.
+            </div>
+          </div>
+
+          <!-- Slide 3: Chủ quán Bida / Spa -->
+          <div class="painpoint-msg-card">
+            <div class="painpoint-msg-header">
+              <div class="painpoint-avatar" style="background: #eff6ff; color: #2563eb; border-color: #bfdbfe;">BD</div>
+              <div>
+                <div class="painpoint-meta-title">Hoàng Tuấn • Quản lý CLB Bida</div>
+                <div class="painpoint-meta-sub">Bài toán: Tính tiền theo phút &amp; nước uống</div>
+              </div>
+            </div>
+            <div class="bubble-customer">
+              "12 bàn vừa tính tiền theo phút vừa bán đồ uống, nhân viên ca đêm hay tính nhầm giờ và thất thoát tiền..."
+            </div>
+            <div class="bubble-fdl">
+              <strong>Lời giải từ File Đi Làm:</strong>
+              Giao diện mở bàn tự chạy giờ theo phút, bấm thanh toán tự cộng đồ uống và hiện VietQR.
+            </div>
+          </div>
+
+          <!-- Slide 4: Chủ Xưởng may -->
+          <div class="painpoint-msg-card">
+            <div class="painpoint-msg-header">
+              <div class="painpoint-avatar" style="background: #fefce8; color: #ca8a04; border-color: #fef08a;">XM</div>
+              <div>
+                <div class="painpoint-meta-title">Chị Hằng • Xưởng may thời trang</div>
+                <div class="painpoint-meta-sub">Bài toán: Quản lý biến thể Màu x Size</div>
+              </div>
+            </div>
+            <div class="bubble-customer">
+              "Một mẫu áo 4 màu x 5 size (=20 mã lẻ), kho loạn xạ không biết còn màu nào size nào để báo khách sỉ..."
+            </div>
+            <div class="bubble-fdl">
+              <strong>Lời giải từ File Đi Làm:</strong>
+              Bảng ma trận tồn kho màu x size trực quan, tự động trừ tồn và cảnh báo hết hàng ngay lập tức.
+            </div>
+          </div>
+        </div>
+
+        <div class="stream-dots-bar">
+          <span class="stream-dot-pulse active"></span>
+          <span class="stream-dot-pulse"></span>
+          <span class="stream-dot-pulse"></span>
+          <span class="stream-dot-pulse"></span>
         </div>
       </div>
     </div>
