@@ -5632,23 +5632,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const DEFAULT_SOCIAL_POSTS = [
     {
-      id: 'POST-662235',
-      product_id: 'PRD-662235',
-      platform: 'tiktok',
-      type: 'video',
-      title: 'Quản Lý Nhập Xuất Tồn & Cảnh Báo Tồn Kho Tự Động',
-      url: 'https://www.tiktok.com/@filedilam/video/7675429515367353620',
-      status: 'PUBLISHED',
-      posted_at: '2026-10-15',
-      notes: 'Video TikTok giới thiệu tính năng quản lý xuất nhập tồn tự động',
-      created_at: '2026-10-15T08:00:00.000Z'
-    },
-    {
       id: 'POST-791771',
       product_id: 'PRD-791771',
       platform: 'tiktok',
       type: 'video',
-      title: 'Quản Lý Công Thức & Tính Giá Vốn F&B Tự Động',
+      title: 'Demo tính cost giá vốn ly trà sữa & món F&B tự động',
       url: 'https://www.tiktok.com/@filedilam/video/7697951490866040084',
       status: 'PUBLISHED',
       posted_at: '2026-10-20',
@@ -5656,11 +5644,23 @@ document.addEventListener('DOMContentLoaded', () => {
       created_at: '2026-10-20T08:00:00.000Z'
     },
     {
+      id: 'POST-662235',
+      product_id: 'PRD-662235',
+      platform: 'tiktok',
+      type: 'video',
+      title: 'Kiểm soát xuất nhập tồn & cảnh báo tồn kho tự động',
+      url: 'https://www.tiktok.com/@filedilam/video/7675429515367353620',
+      status: 'PUBLISHED',
+      posted_at: '2026-10-15',
+      notes: 'Video TikTok giới thiệu tính năng quản lý xuất nhập tồn tự động',
+      created_at: '2026-10-15T08:00:00.000Z'
+    },
+    {
       id: 'POST-818270',
       product_id: 'PRD-818270',
       platform: 'tiktok',
       type: 'video',
-      title: 'Quản lý bán hàng online, thu chi & COD tự động',
+      title: 'Quy trình quản lý đơn hàng online & đối soát COD tự động',
       url: 'https://www.tiktok.com/@filedilam/video/7658352508498316564',
       status: 'PUBLISHED',
       posted_at: '2026-10-10',
@@ -5710,6 +5710,14 @@ document.addEventListener('DOMContentLoaded', () => {
           }
         } else {
           if (!existing.product_id) existing.product_id = bp.product_id;
+          // Tự động chuẩn hóa tiêu đề video nếu tiêu đề cũ đang trùng y hệt tên sản phẩm
+          const prod = (currentProducts || []).find(pr => pr.id === (existing.product_id || bp.product_id));
+          if (!existing.title || (prod && existing.title.trim().toLowerCase() === prod.name.trim().toLowerCase()) || existing.title === bp.product_id) {
+            existing.title = bp.title;
+            try {
+              db.collection('social_posts').doc(existing.id).update({ title: bp.title });
+            } catch (eUp) {}
+          }
         }
       }
 
@@ -5780,16 +5788,12 @@ document.addEventListener('DOMContentLoaded', () => {
         pfIcon = '<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12.001 0C5.372 0 0 5.373 0 12.001c0 6.626 5.372 11.999 12.001 11.999 6.626 0 11.999-5.373 11.999-11.999C22 5.373 16.627 0 12.001 0zm4.846 13.903c-.225 3.328-2.68 5.097-5.59 5.097-3.085 0-5.698-2.316-5.698-5.748 0-3.493 2.656-5.794 5.926-5.794 2.873 0 5.035 1.743 5.432 4.418h-1.859c-.318-1.745-1.734-2.748-3.573-2.748-2.278 0-3.957 1.637-3.957 4.124 0 2.457 1.652 4.077 3.73 4.077 1.724 0 3.094-.962 3.491-2.426h-3.491v-1.67h5.589v.67z"/></svg>';
       }
 
-      const isVideo = (p.type || 'video') === 'video';
-      const typeBadge = isVideo 
-        ? '<span style="font-size: 0.69rem; font-weight: 600; padding: 2px 6px; background: #e0f2fe; color: #0284c7; border-radius: 4px; display: inline-flex; align-items: center; gap: 3px;"><svg width="9" height="9" fill="currentColor" viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg> Video</span>'
-        : '<span style="font-size: 0.69rem; font-weight: 600; padding: 2px 6px; background: #f1f5f9; color: #475569; border-radius: 4px; display: inline-flex; align-items: center; gap: 3px;"><svg width="9" height="9" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16m-7 6h7"></path></svg> Bài viết</span>';
+      const formatLabel = (p.type || 'video') === 'video' ? 'Video ngắn' : 'Bài viết / Ảnh';
 
-      // 2. Product name
+      // 2. Product name & SKU mono
       const prod = (currentProducts || []).find(pr => pr.id === p.product_id);
-      const prodNameHtml = prod 
-        ? `<div style="font-weight: 600; color: #0f172a; font-size: 0.84rem; display: flex; align-items: center; gap: 6px;"><span style="width: 6px; height: 6px; border-radius: 50%; background: #10b981; flex-shrink: 0;"></span><span title="${escapeHtml(prod.name)}">${escapeHtml(prod.name)}</span></div>`
-        : `<span style="color: #94a3b8; font-size: 0.78rem; font-style: italic;">Chung (Không gắn file)</span>`;
+      const prodId = prod ? prod.id : '';
+      const prodName = prod ? prod.name : 'Chung (Không gắn file)';
 
       // 3. Date
       const dateStr = p.posted_at ? (p.posted_at.split('-').reverse().join('/')) : (p.created_at ? (p.created_at.slice(0, 10).split('-').reverse().join('/')) : 'Chưa đặt');
@@ -5809,29 +5813,38 @@ document.addEventListener('DOMContentLoaded', () => {
       if (adsCount > 0) {
         adsHtml = `
           <div>
-            <span style="font-size: 0.8rem; font-weight: 700; color: #059669; font-family: monospace;">${adsCount} đợt • ${formatCurrency(totalAdsSpentOnPost)}</span>
-            <div style="font-size: 0.7rem; color: #64748b; margin-top: 1px;">${formatNumber(totalAdsViewsOnPost)} lượt xem Ads</div>
+            <div style="display: flex; align-items: center; gap: 6px;">
+              <span style="width: 6px; height: 6px; border-radius: 50%; background: #10b981; flex-shrink: 0;"></span>
+              <span style="font-size: 0.85rem; font-weight: 700; color: #0f172a; font-family: monospace;">${adsCount} đợt • ${formatCurrency(totalAdsSpentOnPost)}</span>
+            </div>
+            <div style="font-size: 0.72rem; color: #64748b; margin-top: 2px; padding-left: 12px;">${formatNumber(totalAdsViewsOnPost)} lượt xem Ads</div>
           </div>
         `;
       } else {
-        adsHtml = '<span style="color: #94a3b8; font-size: 0.78rem;">Chưa chạy Ads</span>';
+        adsHtml = `
+          <div style="display: flex; align-items: center; gap: 6px; color: #94a3b8; font-size: 0.80rem;">
+            <span style="width: 6px; height: 6px; border-radius: 50%; background: #cbd5e1; flex-shrink: 0;"></span>
+            <span>Chưa chạy Ads</span>
+          </div>
+        `;
       }
 
       return `
         <tr>
           <td>
-            <div style="display: flex; align-items: center; gap: 6px; font-weight: 600; font-size: 0.84rem; color: #1e293b; margin-bottom: 4px;">
+            <div style="display: flex; align-items: center; gap: 6px; font-weight: 600; font-size: 0.86rem; color: #0f172a;">
               ${pfIcon} <span>${pfName}</span>
             </div>
-            ${typeBadge}
+            <div style="font-size: 0.74rem; color: #64748b; margin-top: 2px;">${formatLabel}</div>
           </td>
           <td>
-            <div style="font-weight: 600; color: #0f172a; font-size: 0.88rem; line-height: 1.35; margin-bottom: 4px;" title="${escapeHtml(p.title || '')}">
+            <div style="font-family: monospace; font-size: 0.74rem; font-weight: 600; color: #64748b; margin-bottom: 2px;">${escapeHtml(p.id)}</div>
+            <div style="font-weight: 600; color: #0f172a; font-size: 0.88rem; line-height: 1.35; margin-bottom: 3px;" title="${escapeHtml(p.title || '')}">
               ${escapeHtml(p.title || 'Không có tiêu đề')}
             </div>
             ${p.url ? `
               <div style="display: flex; align-items: center; gap: 6px;">
-                <a href="${escapeHtml(p.url)}" target="_blank" rel="noopener" style="font-size: 0.74rem; color: #059669; font-family: monospace; text-decoration: none; display: inline-flex; align-items: center; gap: 4px; max-width: 260px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="Mở link bài viết">
+                <a href="${escapeHtml(p.url)}" target="_blank" rel="noopener" style="font-size: 0.74rem; color: #059669; font-family: monospace; text-decoration: none; display: inline-flex; align-items: center; gap: 4px; max-width: 380px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="Mở link bài viết">
                   ${escapeHtml(p.url)}
                   <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
                 </a>
@@ -5840,7 +5853,10 @@ document.addEventListener('DOMContentLoaded', () => {
             ${p.notes ? `<div style="font-size: 0.72rem; color: #64748b; margin-top: 3px; font-style: italic; max-width: 320px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${escapeHtml(p.notes)}</div>` : ''}
           </td>
           <td>
-            ${prodNameHtml}
+            ${prodId ? `<div style="font-family: monospace; font-size: 0.74rem; font-weight: 600; color: #64748b; margin-bottom: 2px;">${escapeHtml(prodId)}</div>` : ''}
+            <div style="font-size: 0.85rem; font-weight: 500; color: #0f172a; line-height: 1.35;" title="${escapeHtml(prodName)}">
+              ${escapeHtml(prodName)}
+            </div>
           </td>
           <td>
             <div style="font-size: 0.82rem; font-family: monospace; color: #475569;">${dateStr}</div>
@@ -5848,36 +5864,80 @@ document.addEventListener('DOMContentLoaded', () => {
           <td>
             ${adsHtml}
           </td>
-          <td style="text-align: center;">
-            <div style="display: inline-flex; align-items: center; gap: 6px;">
-              <button type="button" class="btn-create-ads-from-post" data-id="${p.id}" style="height: 28px; padding: 0 10px; font-size: 0.74rem; font-weight: 600; color: #047857; background: #ecfdf5; border: 1px solid #a7f3d0; border-radius: 4px; cursor: pointer; display: inline-flex; align-items: center; gap: 4px;" title="Tạo chiến dịch Ads 1 chạm cho bài này">
-                <svg width="11" height="11" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
-                <span>Chạy Ads</span>
+          <td style="text-align: right;">
+            <div class="action-menu-wrap">
+              <button type="button" class="action-dots-btn btn-post-dots" data-id="${p.id}" title="Thao tác">
+                <svg width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="1.5"></circle><circle cx="12" cy="5" r="1.5"></circle><circle cx="12" cy="19" r="1.5"></circle></svg>
               </button>
-              <button type="button" class="btn-edit-post" data-id="${p.id}" style="background: none; border: none; color: #64748b; cursor: pointer; padding: 4px; border-radius: 4px;" title="Sửa bài">
-                <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
-              </button>
-              <button type="button" class="btn-delete-post" data-id="${p.id}" style="background: none; border: none; color: #94a3b8; cursor: pointer; padding: 4px; border-radius: 4px;" title="Xóa bài" onmouseover="this.style.color='#ef4444'" onmouseout="this.style.color='#94a3b8'">
-                <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
-              </button>
+              <div class="action-dropdown-popover" id="popover-post-${p.id}">
+                <button type="button" class="action-dropdown-item btn-action-create-ads" data-id="${p.id}">
+                  <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                  <span>Chạy Ads cho bài này</span>
+                </button>
+                <button type="button" class="action-dropdown-item btn-action-edit-post" data-id="${p.id}">
+                  <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
+                  <span>Chỉnh sửa bài đăng</span>
+                </button>
+                ${p.url ? `
+                <a href="${escapeHtml(p.url)}" target="_blank" rel="noopener" class="action-dropdown-item" style="text-decoration: none;">
+                  <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
+                  <span>Mở video gốc</span>
+                </a>` : ''}
+                <button type="button" class="action-dropdown-item danger btn-action-delete-post" data-id="${p.id}">
+                  <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                  <span>Xóa bài đăng</span>
+                </button>
+              </div>
             </div>
           </td>
         </tr>
       `;
     }).join('');
 
-    // Event listeners
-    postsListBody.querySelectorAll('.btn-create-ads-from-post').forEach(b => {
-      b.addEventListener('click', () => triggerCreateAdsFromPost(b.dataset.id));
+    bindPostsTableEvents();
+  }
+
+  function bindPostsTableEvents() {
+    if (!postsListBody) return;
+
+    postsListBody.querySelectorAll('.btn-post-dots').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const wrap = btn.closest('.action-menu-wrap');
+        const popover = wrap?.querySelector('.action-dropdown-popover');
+        const isShown = popover?.classList.contains('show');
+        document.querySelectorAll('.action-dropdown-popover.show').forEach(p => p.classList.remove('show'));
+        document.querySelectorAll('.action-dots-btn.active').forEach(b => b.classList.remove('active'));
+        if (!isShown && popover) {
+          popover.classList.add('show');
+          btn.classList.add('active');
+        }
+      });
     });
-    postsListBody.querySelectorAll('.btn-edit-post').forEach(b => {
-      b.addEventListener('click', () => {
+
+    postsListBody.querySelectorAll('.btn-action-create-ads').forEach(b => {
+      b.addEventListener('click', (e) => {
+        e.stopPropagation();
+        document.querySelectorAll('.action-dropdown-popover.show').forEach(p => p.classList.remove('show'));
+        triggerCreateAdsFromPost(b.dataset.id);
+      });
+    });
+
+    postsListBody.querySelectorAll('.btn-action-edit-post').forEach(b => {
+      b.addEventListener('click', (e) => {
+        e.stopPropagation();
+        document.querySelectorAll('.action-dropdown-popover.show').forEach(p => p.classList.remove('show'));
         const post = currentSocialPosts.find(p => p.id === b.dataset.id);
         if (post) openAddPostModal(post);
       });
     });
-    postsListBody.querySelectorAll('.btn-delete-post').forEach(b => {
-      b.addEventListener('click', () => deleteSocialPost(b.dataset.id));
+
+    postsListBody.querySelectorAll('.btn-action-delete-post').forEach(b => {
+      b.addEventListener('click', (e) => {
+        e.stopPropagation();
+        document.querySelectorAll('.action-dropdown-popover.show').forEach(p => p.classList.remove('show'));
+        deleteSocialPost(b.dataset.id);
+      });
     });
   }
 
