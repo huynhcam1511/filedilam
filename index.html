@@ -20,7 +20,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="./storefront.css?v=349" />
+    <link rel="stylesheet" href="./storefront.css?v=350" />
     <style>
     :root {
       --bg: #ffffff;
@@ -1168,7 +1168,7 @@
 
     /* CUSTOM SERVICE SECTION MỚI: THOÁNG, CLEAN & LIVE PAINPOINT STREAM ANIMATION */
     .custom-clean-section {
-      padding: 60px 0 80px;
+      padding: 10px 0 80px;
       background: #ffffff;
     }
     .custom-clean-banner {
@@ -2538,6 +2538,79 @@
     </div>
   </section>
 
+  <!-- COUPON VOUCHER TICKET -->
+  <section class="container ticket-section" id="landingCouponSection">
+    <div class="coupon-ticket">
+      <div class="ticket-left">
+        <span class="section-tag" style="margin-bottom: 8px;">MÃ GIẢM GIÁ</span>
+        <h2 class="section-title" id="landingCouponTitle" style="font-size: 1.8rem; font-weight: 600; letter-spacing: -1.03px; margin-bottom: 8px;">Giảm 10% cho đơn từ 160k</h2>
+        <div id="landingCouponDate" style="font-size: 0.82rem; color: var(--muted);">Chỉ đến ngày 29/11/2026</div>
+        <div class="ticket-code-pill" style="margin: 14px 0 8px;">
+          <span id="landingCouponCode" style="font-family: monospace; font-weight: 700; letter-spacing: 0.05em;">FILEDILAM</span>
+          <button class="ticket-copy-btn" id="landingCouponCopyBtn" type="button" onclick="handleTicketApplyAndCheckout(this);" style="background: #059669; color: #fff; border: none; font-weight: 600; padding: 6px 16px; border-radius: 9999px; cursor: pointer; transition: all 0.15s ease;">Sử dụng mã</button>
+        </div>
+        <!-- Dòng thông báo màu đỏ nhạt thanh lịch ngay dưới nút -->
+        <div id="landingCouponAlertSub" style="display: none; font-size: 0.8rem; font-weight: 500; color: #e11d48; margin-bottom: 6px; line-height: 1.45;"></div>
+        <p id="landingCouponHint" style="font-size: 0.82rem; color: var(--muted); margin: 0;">Bấm "Sử dụng mã" để tự động áp dụng mã và mở thanh toán.</p>
+      </div>
+      <div class="ticket-right">
+        <div class="receipt-header" style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; padding-bottom: 8px; border-bottom: 1px dashed #cbd5e1;">
+          <span class="receipt-badge" id="ticketCardHeaderBadge" style="font-size: 0.76rem; font-weight: 700; color: #0f172a; text-transform: uppercase; letter-spacing: 0.04em;">Đơn hàng của bạn</span>
+          <span class="receipt-watermark" id="ticketCardWatermark" style="font-size: 0.72rem; color: var(--mint-primary); font-weight: 600;">Tiết kiệm ngay</span>
+        </div>
+        <div id="ticketItemsContainer" style="display: flex; flex-direction: column; gap: 8px; margin-bottom: 10px;">
+          <!-- Danh sách file thực tế trong giỏ hoặc file tiêu biểu -->
+        </div>
+        <div class="summary-row" style="border-top: 1px dashed #e2e8f0; padding-top: 8px; margin-top: 4px;">
+          <span>Tạm tính</span>
+          <span id="demoSubtotal" style="font-weight: 600; color: #1e293b;">0 đ</span>
+        </div>
+        <div class="summary-row" id="demoDiscountRow" style="display: none; color: var(--mint-primary);">
+          <span id="demoDiscountLabel">Mã FILEDILAM</span>
+          <span id="demoDiscountVal" style="font-weight: 600;">-0 đ</span>
+        </div>
+        <div class="summary-total" style="display: flex; align-items: baseline; justify-content: space-between; margin-top: 8px; padding-top: 10px; border-top: 1px solid #e2e8f0;">
+          <span style="font-weight: 600; color: #0f172a;">Thanh toán</span>
+          <span id="demoTotalVal" style="font-size: 1.15rem; font-weight: 800; color: var(--mint-primary); font-family: var(--font-mono);">0 đ</span>
+        </div>
+
+        <button type="button" id="btnTicketAction" onclick="handleTicketApplyAndCheckout();" style="margin-top: 12px; width: 100%; height: 42px; border: none; border-radius: 8px; background: var(--mint-primary); color: #ffffff; font-weight: 700; font-size: 0.9rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; box-shadow: 0 2px 6px rgba(5,150,105,0.25); transition: all 0.15s ease;">
+          <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg>
+          <span id="btnTicketActionText">Áp dụng mã & Thanh toán</span>
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ SECTION -->
+  <section class="faq-section" id="faq">
+    <div class="container faq-grid">
+      <div>
+        <span class="section-tag" style="background: #ffffff; border: 1px solid #e2e8f0; padding: 4px 14px; border-radius: 9999px; font-size: 0.78rem; font-weight: 600; color: #475569; display: inline-block; margin-bottom: 12px; width: fit-content;">TRƯỚC KHI MUA</span>
+        <h2 class="section-title faq-title">Những câu khách hay hỏi</h2>
+        <p style="font-size: 0.95rem; color: #64748b; line-height: 1.55; max-width: 380px;">Tất cả những điều bạn cần biết trước khi sở hữu và sử dụng file Google Sheets tại File Đi Làm.</p>
+      </div>
+      <div class="faq-list">
+        <div class="faq-item">
+          <p class="faq-question">Khi sử dụng file template, vấn đề bảo mật sẽ như thế nào?</p>
+          <p class="faq-answer">Bên mình dựng file trên Google Sheets. Khi bạn tạo một bản sao, file nằm trong tài khoản Google của bạn. Không có ai có quyền truy cập được, trừ khi bạn tự share quyền.</p>
+        </div>
+        <div class="faq-item">
+          <p class="faq-question">Mua file có trả theo từng tháng không, hay mua một lần và xài mãi mãi?</p>
+          <p class="faq-answer">Ở bên mình, bạn chỉ cần mua một lần và xài mãi mãi trọn đời.</p>
+        </div>
+        <div class="faq-item">
+          <p class="faq-question">Sau khi mua hàng, mình sử dụng và gặp vấn đề thì giải quyết như thế nào?</p>
+          <p class="faq-answer">Bạn nhắn Zalo cho bên mình hoặc gửi email. Đội ngũ kỹ thuật hỗ trợ cả thứ 7 và chủ nhật.</p>
+        </div>
+        <div class="faq-item">
+          <p class="faq-question">Trong file có hướng dẫn sử dụng không?</p>
+          <p class="faq-answer">File nào cũng có trang hướng dẫn đi kèm. File phức tạp sẽ có kèm video thao tác thực tế.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
   <!-- CUSTOM SERVICE SECTION (THIẾT KẾ RIÊNG: THOÁNG, CLEAN & LIVE PAINPOINT STREAM) -->
   <section class="container custom-clean-section" id="custom">
     <div class="custom-clean-banner">
@@ -2661,79 +2734,6 @@
           <span class="stream-dot-pulse"></span>
           <span class="stream-dot-pulse"></span>
           <span class="stream-dot-pulse"></span>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- COUPON VOUCHER TICKET -->
-  <section class="container ticket-section" id="landingCouponSection">
-    <div class="coupon-ticket">
-      <div class="ticket-left">
-        <span class="section-tag" style="margin-bottom: 8px;">MÃ GIẢM GIÁ</span>
-        <h2 class="section-title" id="landingCouponTitle" style="font-size: 1.8rem; font-weight: 600; letter-spacing: -1.03px; margin-bottom: 8px;">Giảm 10% cho đơn từ 160k</h2>
-        <div id="landingCouponDate" style="font-size: 0.82rem; color: var(--muted);">Chỉ đến ngày 29/11/2026</div>
-        <div class="ticket-code-pill" style="margin: 14px 0 8px;">
-          <span id="landingCouponCode" style="font-family: monospace; font-weight: 700; letter-spacing: 0.05em;">FILEDILAM</span>
-          <button class="ticket-copy-btn" id="landingCouponCopyBtn" type="button" onclick="handleTicketApplyAndCheckout(this);" style="background: #059669; color: #fff; border: none; font-weight: 600; padding: 6px 16px; border-radius: 9999px; cursor: pointer; transition: all 0.15s ease;">Sử dụng mã</button>
-        </div>
-        <!-- Dòng thông báo màu đỏ nhạt thanh lịch ngay dưới nút -->
-        <div id="landingCouponAlertSub" style="display: none; font-size: 0.8rem; font-weight: 500; color: #e11d48; margin-bottom: 6px; line-height: 1.45;"></div>
-        <p id="landingCouponHint" style="font-size: 0.82rem; color: var(--muted); margin: 0;">Bấm "Sử dụng mã" để tự động áp dụng mã và mở thanh toán.</p>
-      </div>
-      <div class="ticket-right">
-        <div class="receipt-header" style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; padding-bottom: 8px; border-bottom: 1px dashed #cbd5e1;">
-          <span class="receipt-badge" id="ticketCardHeaderBadge" style="font-size: 0.76rem; font-weight: 700; color: #0f172a; text-transform: uppercase; letter-spacing: 0.04em;">Đơn hàng của bạn</span>
-          <span class="receipt-watermark" id="ticketCardWatermark" style="font-size: 0.72rem; color: var(--mint-primary); font-weight: 600;">Tiết kiệm ngay</span>
-        </div>
-        <div id="ticketItemsContainer" style="display: flex; flex-direction: column; gap: 8px; margin-bottom: 10px;">
-          <!-- Danh sách file thực tế trong giỏ hoặc file tiêu biểu -->
-        </div>
-        <div class="summary-row" style="border-top: 1px dashed #e2e8f0; padding-top: 8px; margin-top: 4px;">
-          <span>Tạm tính</span>
-          <span id="demoSubtotal" style="font-weight: 600; color: #1e293b;">0 đ</span>
-        </div>
-        <div class="summary-row" id="demoDiscountRow" style="display: none; color: var(--mint-primary);">
-          <span id="demoDiscountLabel">Mã FILEDILAM</span>
-          <span id="demoDiscountVal" style="font-weight: 600;">-0 đ</span>
-        </div>
-        <div class="summary-total" style="display: flex; align-items: baseline; justify-content: space-between; margin-top: 8px; padding-top: 10px; border-top: 1px solid #e2e8f0;">
-          <span style="font-weight: 600; color: #0f172a;">Thanh toán</span>
-          <span id="demoTotalVal" style="font-size: 1.15rem; font-weight: 800; color: var(--mint-primary); font-family: var(--font-mono);">0 đ</span>
-        </div>
-
-        <button type="button" id="btnTicketAction" onclick="handleTicketApplyAndCheckout();" style="margin-top: 12px; width: 100%; height: 42px; border: none; border-radius: 8px; background: var(--mint-primary); color: #ffffff; font-weight: 700; font-size: 0.9rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; box-shadow: 0 2px 6px rgba(5,150,105,0.25); transition: all 0.15s ease;">
-          <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg>
-          <span id="btnTicketActionText">Áp dụng mã & Thanh toán</span>
-        </button>
-      </div>
-    </div>
-  </section>
-
-  <!-- FAQ SECTION -->
-  <section class="faq-section" id="faq">
-    <div class="container faq-grid">
-      <div>
-        <span class="section-tag" style="background: #ffffff; border: 1px solid #e2e8f0; padding: 4px 14px; border-radius: 9999px; font-size: 0.78rem; font-weight: 600; color: #475569; display: inline-block; margin-bottom: 12px; width: fit-content;">TRƯỚC KHI MUA</span>
-        <h2 class="section-title faq-title">Những câu khách hay hỏi</h2>
-        <p style="font-size: 0.95rem; color: #64748b; line-height: 1.55; max-width: 380px;">Tất cả những điều bạn cần biết trước khi sở hữu và sử dụng file Google Sheets tại File Đi Làm.</p>
-      </div>
-      <div class="faq-list">
-        <div class="faq-item">
-          <p class="faq-question">Khi sử dụng file template, vấn đề bảo mật sẽ như thế nào?</p>
-          <p class="faq-answer">Bên mình dựng file trên Google Sheets. Khi bạn tạo một bản sao, file nằm trong tài khoản Google của bạn. Không có ai có quyền truy cập được, trừ khi bạn tự share quyền.</p>
-        </div>
-        <div class="faq-item">
-          <p class="faq-question">Mua file có trả theo từng tháng không, hay mua một lần và xài mãi mãi?</p>
-          <p class="faq-answer">Ở bên mình, bạn chỉ cần mua một lần và xài mãi mãi trọn đời.</p>
-        </div>
-        <div class="faq-item">
-          <p class="faq-question">Sau khi mua hàng, mình sử dụng và gặp vấn đề thì giải quyết như thế nào?</p>
-          <p class="faq-answer">Bạn nhắn Zalo cho bên mình hoặc gửi email. Đội ngũ kỹ thuật hỗ trợ cả thứ 7 và chủ nhật.</p>
-        </div>
-        <div class="faq-item">
-          <p class="faq-question">Trong file có hướng dẫn sử dụng không?</p>
-          <p class="faq-answer">File nào cũng có trang hướng dẫn đi kèm. File phức tạp sẽ có kèm video thao tác thực tế.</p>
         </div>
       </div>
     </div>
