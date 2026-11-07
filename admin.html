@@ -2476,7 +2476,10 @@
           <!-- SECTION 2.5: WEB TRAFFIC & CART BEHAVIOR BAR -->
           <div class="saas-web-behavior-bar">
             <div style="grid-column: 1 / -1; display: flex; justify-content: space-between; align-items: center; padding-bottom: 6px; border-bottom: 1px dashed #f1f5f9; margin-bottom: 4px;">
-              <span style="font-size: 0.72rem; font-weight: 700; color: #334155; text-transform: uppercase; letter-spacing: 0.03em;">Hành vi khách hàng trên Web & Giỏ hàng</span>
+              <div style="display: flex; align-items: center; gap: 8px;">
+                <span style="font-size: 0.72rem; font-weight: 700; color: #334155; text-transform: uppercase; letter-spacing: 0.03em;">Hành vi khách hàng trên Web & Giỏ hàng</span>
+                <button type="button" id="btnResetTracking" style="background: #ffffff; border: 1px solid #cbd5e1; border-radius: 4px; padding: 2px 7px; font-size: 0.65rem; font-weight: 600; color: #64748b; cursor: pointer;" title="Đặt lại bộ đếm hôm nay về 0 để kiểm tra lại">Reset về 0</button>
+              </div>
               <span style="font-size: 0.68rem; color: #059669; font-weight: 600; display: inline-flex; align-items: center; gap: 4px; background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 12px; padding: 2px 8px;">
                 <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
                 Đã tự động loại trừ lượt truy cập của Admin
@@ -2913,7 +2916,7 @@
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-storage-compat.js"></script>
   <script src="/__/firebase/init.js"></script>
   
-  <script src="./admin.js?v=291"></script>
+  <script src="./admin.js?v=292"></script>
   <!-- Agentation: Visual Feedback & Annotation for AI agents -->
   <script src="./agentation-vanilla.js"></script>
 

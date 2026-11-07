@@ -1115,8 +1115,32 @@ function escapeHtml(value) {
 
   function isAdminVisitor() {
     try {
+      // 1. Explicit admin device flag
       if (localStorage.getItem("filedilam_is_admin_device") === "true") return true;
+
+      // 2. URL parameter bypass (e.g. ?admin=1 or ?admin_bypass=1)
+      var urlP = new URLSearchParams(window.location.search);
+      if (urlP.get("admin") === "1" || urlP.get("admin_bypass") === "1" || urlP.get("test") === "admin") {
+        try { localStorage.setItem("filedilam_is_admin_device", "true"); } catch (e) {}
+        return true;
+      }
+
+      // 3. User email in in-memory state
       if (state.user && state.user.email === "huynhkiencam151102@gmail.com") return true;
+
+      // 4. Synchronously inspect localStorage for cached Firebase Auth credentials
+      for (var i = 0; i < localStorage.length; i++) {
+        var k = localStorage.key(i);
+        if (k && (k.indexOf("firebase:authUser") !== -1 || k.indexOf("authUser") !== -1)) {
+          var val = localStorage.getItem(k);
+          if (val && val.indexOf("huynhkiencam151102@gmail.com") !== -1) {
+            try { localStorage.setItem("filedilam_is_admin_device", "true"); } catch (e) {}
+            return true;
+          }
+        }
+      }
+
+      // 5. Hostname check
       var host = window.location.hostname;
       if (host === "localhost" || host === "127.0.0.1") return true;
     } catch (e) {}
@@ -1127,80 +1151,105 @@ function escapeHtml(value) {
     try {
       if (isAdminVisitor()) return; // Loai tru hoan toan thiet bi va tai khoan Admin
 
-      telemetrySessionId = sessionStorage.getItem("filedilam_sess_id");
-      var isNewSession = false;
-      if (!telemetrySessionId) {
-        telemetrySessionId = "sess_" + Math.random().toString(36).substring(2, 9) + Date.now().toString(36);
-        sessionStorage.setItem("filedilam_sess_id", telemetrySessionId);
-        isNewSession = true;
-      }
+      var hasExecuted = false;
+      function runTelemetry() {
+        if (hasExecuted) return;
+        hasExecuted = true;
+        if (isAdminVisitor()) return;
 
-      var urlParams = new URLSearchParams(window.location.search);
-      var utmSource = urlParams.get("utm_source") || urlParams.get("ref") || urlParams.get("channel") || "";
-      if (utmSource) {
-        telemetrySource = utmSource.toLowerCase();
-        sessionStorage.setItem("filedilam_source", telemetrySource);
-      } else {
-        var savedSource = sessionStorage.getItem("filedilam_source");
-        if (savedSource) {
-          telemetrySource = savedSource;
-        } else {
-          var ref = (document.referrer || "").toLowerCase();
-          if (ref.indexOf("tiktok.com") !== -1 || ref.indexOf("tiktok") !== -1) {
-            telemetrySource = "tiktok";
-          } else if (ref.indexOf("facebook.com") !== -1 || ref.indexOf("fb.com") !== -1) {
-            telemetrySource = "facebook";
-          } else if (ref.indexOf("zalo") !== -1) {
-            telemetrySource = "zalo";
-          } else if (ref.indexOf("youtube.com") !== -1 || ref.indexOf("youtu.be") !== -1) {
-            telemetrySource = "youtube";
-          } else if (ref && ref.indexOf(window.location.hostname) === -1) {
-            telemetrySource = "referral";
-          } else {
-            telemetrySource = "direct";
-          }
+        telemetrySessionId = sessionStorage.getItem("filedilam_sess_id");
+        var isNewSession = false;
+        if (!telemetrySessionId) {
+          telemetrySessionId = "sess_" + Math.random().toString(36).substring(2, 9) + Date.now().toString(36);
+          sessionStorage.setItem("filedilam_sess_id", telemetrySessionId);
+          isNewSession = true;
+        }
+
+        var urlParams = new URLSearchParams(window.location.search);
+        var utmSource = urlParams.get("utm_source") || urlParams.get("ref") || urlParams.get("channel") || "";
+        if (utmSource) {
+          telemetrySource = utmSource.toLowerCase();
           sessionStorage.setItem("filedilam_source", telemetrySource);
-        }
-      }
-
-      sendTelemetry({
-        type: "page_view",
-        session_id: telemetrySessionId,
-        is_new_session: isNewSession,
-        source: telemetrySource,
-        path: window.location.pathname
-      });
-
-      telemetryLastActiveTime = Date.now();
-      function flushDwell() {
-        if (document.visibilityState === "visible") {
-          var now = Date.now();
-          var elapsedSec = Math.round((now - telemetryLastActiveTime) / 1000);
-          if (elapsedSec > 0 && elapsedSec <= 300) {
-            sendTelemetry({
-              type: "dwell_time",
-              session_id: telemetrySessionId,
-              seconds: elapsedSec,
-              source: telemetrySource
-            });
-          }
-          telemetryLastActiveTime = now;
-        }
-      }
-
-      telemetryDwellTimer = window.setInterval(flushDwell, 25000);
-
-      document.addEventListener("visibilitychange", function() {
-        if (document.visibilityState === "hidden") {
-          flushDwell();
         } else {
-          telemetryLastActiveTime = Date.now();
+          var savedSource = sessionStorage.getItem("filedilam_source");
+          if (savedSource) {
+            telemetrySource = savedSource;
+          } else {
+            var ref = (document.referrer || "").toLowerCase();
+            if (ref.indexOf("tiktok.com") !== -1 || ref.indexOf("tiktok") !== -1) {
+              telemetrySource = "tiktok";
+            } else if (ref.indexOf("facebook.com") !== -1 || ref.indexOf("fb.com") !== -1) {
+              telemetrySource = "facebook";
+            } else if (ref.indexOf("zalo") !== -1) {
+              telemetrySource = "zalo";
+            } else if (ref.indexOf("youtube.com") !== -1 || ref.indexOf("youtu.be") !== -1) {
+              telemetrySource = "youtube";
+            } else if (ref && ref.indexOf(window.location.hostname) === -1) {
+              telemetrySource = "referral";
+            } else {
+              telemetrySource = "direct";
+            }
+            sessionStorage.setItem("filedilam_source", telemetrySource);
+          }
         }
-      });
 
-      window.addEventListener("pagehide", function() {
-        flushDwell();
-      });
+        sendTelemetry({
+          type: "page_view",
+          session_id: telemetrySessionId,
+          is_new_session: isNewSession,
+          source: telemetrySource,
+          path: window.location.pathname
+        });
+
+        telemetryLastActiveTime = Date.now();
+        function flushDwell() {
+          if (document.visibilityState === "visible") {
+            var now = Date.now();
+            var elapsedSec = Math.round((now - telemetryLastActiveTime) / 1000);
+            if (elapsedSec > 0 && elapsedSec <= 300) {
+              sendTelemetry({
+                type: "dwell_time",
+                session_id: telemetrySessionId,
+                seconds: elapsedSec,
+                source: telemetrySource
+              });
+            }
+            telemetryLastActiveTime = now;
+          }
+        }
+
+        telemetryDwellTimer = window.setInterval(flushDwell, 25000);
+
+        document.addEventListener("visibilitychange", function() {
+          if (document.visibilityState === "hidden") {
+            flushDwell();
+          } else {
+            telemetryLastActiveTime = Date.now();
+          }
+        });
+
+        window.addEventListener("pagehide", function() {
+          flushDwell();
+        });
+      }
+
+      // Doi Firebase Auth kiem tra xem co phai Admin email khong truoc khi khoi tao
+      if (typeof firebase !== 'undefined' && firebase.auth) {
+        var unsub = firebase.auth().onAuthStateChanged(function(u) {
+          if (unsub) { unsub(); unsub = null; }
+          if (u && u.email === "huynhkiencam151102@gmail.com") {
+            try { localStorage.setItem("filedilam_is_admin_device", "true"); } catch(e){}
+            return; // TUYET DOI KHONG TRACK ADMIN!
+          }
+          runTelemetry();
+        });
+        setTimeout(function() {
+          if (unsub) { unsub(); unsub = null; }
+          runTelemetry();
+        }, 1200);
+      } else {
+        runTelemetry();
+      }
     } catch (e) {
       console.warn("Telemetry init skipped:", e);
     }

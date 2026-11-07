@@ -4123,6 +4123,28 @@ document.addEventListener('DOMContentLoaded', () => {
   // Event Listeners for Orders & Stats
   document.getElementById('refreshStatsBtn')?.addEventListener('click', loadAdminStats);
 
+  const btnResetTracking = document.getElementById('btnResetTracking');
+  if (btnResetTracking) {
+    btnResetTracking.addEventListener('click', async () => {
+      if (!confirm('Đặt lại toàn bộ số lượt quét hôm nay về 0?')) return;
+      try {
+        const todayStr = (new Date()).toISOString().slice(0, 10);
+        await db.collection('daily_analytics').document(todayStr).set({
+          date: todayStr,
+          page_views: 0,
+          unique_sessions: 0,
+          add_to_cart_count: 0,
+          total_dwell_seconds: 0,
+          dwell_samples: 0
+        }, { merge: true });
+        alert('Đã đặt lại dữ liệu tracking hôm nay về 0!');
+        loadAdminStats();
+      } catch (err) {
+        alert('Lỗi đặt lại: ' + err.message);
+      }
+    });
+  }
+
   // Bộ lọc khoảng thời gian doanh thu (7, 14, 30, Tất cả)
   const statsPeriodGroup = document.getElementById('statsPeriodSlicer');
   if (statsPeriodGroup) {
