@@ -1911,7 +1911,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (bWebSessions) bWebSessions.textContent = effectiveWebSessions.toLocaleString('vi-VN') + ' lượt';
     if (bWebSessionsSub) {
-      if (effectiveWebSessions === 0) {
+      if (statsFilterMonth === 'ALL' || statsFilterPeriod === 'all') {
+        bWebSessionsSub.textContent = 'Thu thập từ 07/11/2026 (Trước đó chưa gắn tracker)';
+      } else if (effectiveWebSessions === 0) {
         bWebSessionsSub.textContent = '0 lượt (Đang quét thật, đã trừ Admin)';
       } else {
         bWebSessionsSub.textContent = 'Khách thật (Đã trừ thiết bị Admin)';
