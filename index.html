@@ -20,7 +20,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="./storefront.css?v=352" />
+    <link rel="stylesheet" href="./storefront.css?v=353" />
     <style>
     :root {
       --bg: #ffffff;
@@ -1407,109 +1407,302 @@
       }
     }
 
-    /* DISCOUNT TICKET COUPON */
-    .ticket-section {
-      margin: 20px auto 80px;
-      display: flex;
-      justify-content: center;
-      width: 100%;
-    }
-    .coupon-ticket {
-      background: #f5f5f5;
-      border: none;
-      border-radius: 24px;
-      display: grid;
-      grid-template-columns: 1.15fr 0.85fr;
-      position: relative;
-      overflow: hidden;
-      box-shadow: none;
-      width: 100%;
-      margin: 0;
-    }
-    .ticket-left {
-      padding: 48px 44px;
-      border-right: 2px dashed #e2e8f0;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-    }
-    .ticket-code-pill {
-      display: inline-flex;
-      align-items: center;
-      gap: 12px;
+    /* KIỂU 3: BẢNG NẤC THANG TIẾT KIỆM (TIERED INCENTIVE CARDS) */
+    .tiered-coupon-section {
+      padding: 60px 0 80px;
       background: #ffffff;
-      padding: 6px 8px 6px 18px;
-      border-radius: var(--radius-full);
-      font-family: var(--font-main);
-      font-size: 0.95rem;
-      font-weight: 500;
-      color: var(--text);
-      margin: 14px 0 20px;
-      width: fit-content;
-      border: none;
     }
-    .ticket-copy-btn {
-      background: transparent;
-      color: #6a5ae0;
-      border: 2px dashed #6a5ae0;
-      font-size: 0.78rem;
-      font-weight: 500;
-      padding: 6px 14px;
-      border-radius: var(--radius-full);
-      transition: all 0.15s ease;
-      cursor: pointer;
+    .tiered-header {
+      text-align: center;
+      max-width: 640px;
+      margin: 0 auto 36px;
     }
-    .ticket-copy-btn:hover {
-      background: rgba(106, 90, 224, 0.08);
-    }
-    .ticket-right {
-      background: transparent;
-      padding: 48px 44px;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-    }
-    .receipt-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      border-bottom: 1px solid #f1f5f9;
-      padding-bottom: 12px;
-      margin-bottom: 14px;
-    }
-    .receipt-badge {
-      font-size: 0.72rem;
-      font-weight: 600;
+    .tiered-tag {
+      font-size: 0.76rem;
+      font-weight: 700;
+      color: #059669;
       text-transform: uppercase;
       letter-spacing: 0.05em;
-      color: var(--muted);
-      font-family: var(--font-main);
-    }
-    .receipt-watermark {
-      font-size: 0.72rem;
-      color: var(--mint-primary);
-      background: #ecfdf5;
-      padding: 2px 8px;
-      border-radius: 4px;
-      font-weight: 600;
-    }
-    .summary-row {
-      display: flex;
-      justify-content: space-between;
-      font-size: 0.85rem;
+      display: inline-block;
       margin-bottom: 8px;
-      color: var(--muted);
     }
-    .summary-total {
-      border-top: 1px solid var(--line);
-      padding-top: 12px;
-      margin-top: 8px;
+    .tiered-title {
+      font-size: 1.85rem;
+      font-weight: 700;
+      letter-spacing: -0.03em;
+      color: #0f172a;
+      margin-bottom: 8px;
+    }
+    .tiered-desc {
+      font-size: 0.92rem;
+      color: #64748b;
+      line-height: 1.55;
+      margin: 0;
+    }
+    .tiered-cards-grid {
+      display: grid;
+      grid-template-columns: 1fr 1.08fr 1fr;
+      gap: 20px;
+      align-items: stretch;
+      max-width: 1040px;
+      margin: 0 auto;
+    }
+    .tiered-card {
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 16px;
+      padding: 28px 24px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      position: relative;
+      transition: all 0.2s ease;
+    }
+    .tiered-card:hover {
+      border-color: #cbd5e1;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.03);
+    }
+
+    /* Featured / Hero Tier 2 */
+    .tiered-card.featured-tier {
+      background: #f8fafc;
+      border: 1.5px solid #10b981;
+      box-shadow: 0 6px 20px rgba(5, 150, 105, 0.06);
+      transform: translateY(-4px);
+    }
+    .tiered-card.featured-tier.tier-unlocked {
+      background: #f0fdf4;
+      border-color: #059669;
+    }
+    .tier-ribbon-badge {
+      position: absolute;
+      top: -11px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #059669;
+      color: #ffffff;
+      font-size: 0.68rem;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      padding: 2px 12px;
+      border-radius: 9999px;
+      white-space: nowrap;
+    }
+
+    .tier-badge {
+      font-size: 0.72rem;
+      font-weight: 700;
+      color: #64748b;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 6px;
+    }
+    .tier-badge-mint {
+      color: #059669;
+    }
+    .tier-name {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: #0f172a;
+      margin-bottom: 12px;
+    }
+    .tier-price-box {
+      margin-bottom: 18px;
+      padding-bottom: 14px;
+      border-bottom: 1px dashed #e2e8f0;
+    }
+    .tier-price-main {
+      font-size: 1.4rem;
+      font-weight: 800;
+      color: #0f172a;
+      letter-spacing: -0.02em;
+    }
+    .tier-price-note {
+      font-size: 0.8rem;
+      color: #64748b;
+      margin-top: 2px;
+    }
+
+    /* Progress bar inside Tier 2 */
+    .tier-progress-box {
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 10px;
+      padding: 12px 14px;
+      margin-bottom: 18px;
+    }
+    .tier-progress-meta {
       display: flex;
       justify-content: space-between;
-      font-size: 1.15rem;
+      align-items: center;
+      font-size: 0.78rem;
       font-weight: 600;
-      color: var(--text);
-      font-family: var(--font-main);
+      color: #475569;
+      margin-bottom: 6px;
+    }
+    .tier-progress-track {
+      width: 100%;
+      height: 6px;
+      background: #e2e8f0;
+      border-radius: 9999px;
+      overflow: hidden;
+      margin-bottom: 6px;
+    }
+    .tier-progress-fill {
+      height: 100%;
+      background: #059669;
+      border-radius: 9999px;
+      transition: width 0.35s ease;
+    }
+    .tier-progress-hint {
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: #059669;
+      line-height: 1.4;
+    }
+
+    /* Perks list */
+    .tier-perks {
+      list-style: none;
+      padding: 0;
+      margin: 0 0 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .tier-perks li {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      font-size: 0.85rem;
+      color: #334155;
+      line-height: 1.45;
+    }
+    .tier-perks svg {
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+
+    /* Actions & Buttons */
+    .tier-foot {
+      margin-top: auto;
+    }
+    .tier-btn-outline {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      height: 42px;
+      border: 1px solid #cbd5e1;
+      background: #ffffff;
+      color: #334155;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 0.88rem;
+      text-decoration: none;
+      transition: all 0.15s ease;
+    }
+    .tier-btn-outline:hover {
+      background: #f8fafc;
+      border-color: #94a3b8;
+      color: #0f172a;
+    }
+    .tier-btn-primary {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      width: 100%;
+      height: 44px;
+      border: none;
+      background: #059669;
+      color: #ffffff;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 0.92rem;
+      cursor: pointer;
+      box-shadow: 0 2px 6px rgba(5, 150, 105, 0.2);
+      transition: all 0.15s ease;
+    }
+    .tier-btn-primary:hover {
+      background: #047857;
+    }
+
+    /* Bottom Cart Summary Dock */
+    .tier-cart-summary-dock {
+      max-width: 1040px;
+      margin: 24px auto 0;
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      padding: 14px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .dock-cart-title {
+      font-size: 0.88rem;
+      font-weight: 700;
+      color: #0f172a;
+    }
+    .dock-cart-sub {
+      font-size: 0.8rem;
+      color: #64748b;
+      margin-top: 2px;
+    }
+    .dock-right {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+    .dock-total-box {
+      display: flex;
+      align-items: baseline;
+      gap: 6px;
+    }
+    .dock-total-label {
+      font-size: 0.82rem;
+      color: #64748b;
+    }
+    .dock-total-val {
+      font-size: 1.15rem;
+      font-weight: 800;
+      font-family: var(--font-mono);
+      color: #059669;
+    }
+    .dock-checkout-btn {
+      height: 38px;
+      padding: 0 16px;
+      border: none;
+      border-radius: 6px;
+      background: #059669;
+      color: #ffffff;
+      font-weight: 600;
+      font-size: 0.85rem;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+    .dock-checkout-btn:hover {
+      background: #047857;
+    }
+
+    @media (max-width: 840px) {
+      .tiered-cards-grid {
+        grid-template-columns: 1fr;
+        gap: 16px;
+      }
+      .tiered-card.featured-tier {
+        transform: none;
+      }
+      .tier-cart-summary-dock {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+      }
+      .dock-right {
+        width: 100%;
+        justify-content: space-between;
+      }
     }
 
     /* FAQ ACCORDION & TYPOGRAPHY */
@@ -2538,45 +2731,133 @@
     </div>
   </section>
 
-  <!-- COUPON VOUCHER TICKET -->
-  <section class="container ticket-section" id="landingCouponSection">
-    <div class="coupon-ticket">
-      <div class="ticket-left">
-        <span style="font-size: 0.76rem; font-weight: 700; color: #059669; text-transform: uppercase; letter-spacing: 0.05em; display: inline-block; margin-bottom: 8px;">ƯU ĐÃI ĐƠN HÀNG</span>
-        <h2 class="section-title" id="landingCouponTitle" style="font-size: 1.8rem; font-weight: 600; letter-spacing: -1.03px; margin-bottom: 8px;">Giảm 20% cho đơn từ 20.000 đ</h2>
-        <div id="landingCouponDate" style="font-size: 0.82rem; color: var(--muted);">Tự động áp dụng cho đơn hôm nay</div>
-        <div class="ticket-code-pill" style="margin: 14px 0 8px;">
-          <span id="landingCouponCode" style="font-family: monospace; font-weight: 700; letter-spacing: 0.05em;">FILEDILAM</span>
-          <button class="ticket-copy-btn" id="landingCouponCopyBtn" type="button" onclick="handleTicketApplyAndCheckout(this);" style="background: #059669; color: #fff; border: none; font-weight: 600; padding: 6px 16px; border-radius: 9999px; cursor: pointer; transition: all 0.15s ease;">Sử dụng mã</button>
+  <!-- TIERED INCENTIVE SECTION (KIỂU 3: BẢNG NẤC THANG TIẾT KIỆM) -->
+  <section class="container tiered-coupon-section" id="landingCouponSection">
+    <div class="tiered-header">
+      <span class="tiered-tag">CHÍNH SÁCH ƯU ĐÃI</span>
+      <h2 class="tiered-title">Càng nhiều file, tiết kiệm càng sâu</h2>
+      <p class="tiered-desc">Hệ thống tự động trừ tiền ngay trên đơn hàng khi bạn chọn từ 2 file hoặc combo trọn gói.</p>
+    </div>
+
+    <div class="tiered-cards-grid">
+      <!-- NẤC 1: ĐƠN LẺ 1 FILE -->
+      <div class="tiered-card" id="tierCard1">
+        <div>
+          <div class="tier-badge">NẤC 1 • MUA LẺ</div>
+          <div class="tier-name">1 File Bất Kỳ</div>
+          <div class="tier-price-box">
+            <div class="tier-price-main">Giá niêm yết</div>
+            <div class="tier-price-note">từ 9.000 – 49.000 đ/file</div>
+          </div>
+          <ul class="tier-perks">
+            <li>
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+              <span>Mua 1 lần duy nhất, dùng trọn đời</span>
+            </li>
+            <li>
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+              <span>Tạo bản sao Google Drive trong 3 giây</span>
+            </li>
+            <li>
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+              <span>Hỗ trợ kỹ thuật trọn đời qua Zalo</span>
+            </li>
+          </ul>
         </div>
-        <!-- Dòng gợi ý kích cầu thanh lịch ngay dưới nút -->
-        <div id="landingCouponAlertSub" style="display: none; font-size: 0.82rem; font-weight: 600; color: #059669; margin-bottom: 8px; line-height: 1.45;"></div>
-        <p id="landingCouponHint" style="font-size: 0.82rem; color: var(--muted); margin: 0;">Mã sẽ tự động trừ thẳng vào tổng tiền khi mở thanh toán.</p>
+        <div class="tier-foot">
+          <a href="#catalog" class="tier-btn-outline">Khám phá danh mục</a>
+        </div>
       </div>
-      <div class="ticket-right">
-        <div class="receipt-header" style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; padding-bottom: 8px; border-bottom: 1px dashed #cbd5e1;">
-          <span class="receipt-badge" id="ticketCardHeaderBadge" style="font-size: 0.76rem; font-weight: 700; color: #0f172a; text-transform: uppercase; letter-spacing: 0.04em;">Đơn hàng của bạn</span>
-          <span class="receipt-watermark" id="ticketCardWatermark" style="font-size: 0.72rem; color: var(--mint-primary); font-weight: 600;">Tiết kiệm ngay</span>
-        </div>
-        <div id="ticketItemsContainer" style="display: flex; flex-direction: column; gap: 8px; margin-bottom: 10px;">
-          <!-- Danh sách file thực tế trong giỏ hoặc file tiêu biểu -->
-        </div>
-        <div class="summary-row" style="border-top: 1px dashed #e2e8f0; padding-top: 8px; margin-top: 4px;">
-          <span>Tạm tính</span>
-          <span id="demoSubtotal" style="font-weight: 600; color: #1e293b;">0 đ</span>
-        </div>
-        <div class="summary-row" id="demoDiscountRow" style="display: none; color: var(--mint-primary);">
-          <span id="demoDiscountLabel">Mã FILEDILAM</span>
-          <span id="demoDiscountVal" style="font-weight: 600;">-0 đ</span>
-        </div>
-        <div class="summary-total" style="display: flex; align-items: baseline; justify-content: space-between; margin-top: 8px; padding-top: 10px; border-top: 1px solid #e2e8f0;">
-          <span style="font-weight: 600; color: #0f172a;">Thanh toán</span>
-          <span id="demoTotalVal" style="font-size: 1.15rem; font-weight: 800; color: var(--mint-primary); font-family: var(--font-mono);">0 đ</span>
+
+      <!-- NẤC 2: CHỌN TỪ 2 FILE (GIẢM 20% TOÀN ĐƠN) - HERO TIER -->
+      <div class="tiered-card featured-tier" id="tierCard2">
+        <span class="tier-ribbon-badge">PHỔ BIẾN NHẤT</span>
+        <div>
+          <div class="tier-badge tier-badge-mint">NẤC 2 • ĐƠN TỪ 20.000 Đ</div>
+          <div class="tier-name">Giảm 20% Toàn Giỏ</div>
+          <div class="tier-price-box">
+            <div class="tier-price-main" style="color: #059669;">-20% Toàn Đơn</div>
+            <div class="tier-price-note">Tự động áp dụng mã: <code style="font-family: var(--font-mono); font-weight: 700; color: #059669; background: #e6f4ea; padding: 2px 6px; border-radius: 4px;">FILEDILAM</code></div>
+          </div>
+
+          <!-- Thanh tiến trình mở khóa thời gian thực -->
+          <div class="tier-progress-box">
+            <div class="tier-progress-meta">
+              <span>Tiến độ mở khóa</span>
+              <span id="tierProgressAmount" style="font-family: var(--font-mono); font-weight: 700; color: #0f172a;">0 / 20.000 đ</span>
+            </div>
+            <div class="tier-progress-track">
+              <div class="tier-progress-fill" id="tierProgressFill" style="width: 0%;"></div>
+            </div>
+            <div class="tier-progress-hint" id="tierProgressHint">Chọn từ 2 file để tự động giảm 20%</div>
+          </div>
+
+          <ul class="tier-perks">
+            <li>
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+              <span>Tự động giảm 20% trên tổng giá trị</span>
+            </li>
+            <li>
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+              <span>Áp dụng chung cho tất cả các file mẫu</span>
+            </li>
+            <li>
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+              <span>Quét 1 mã VietQR kích hoạt toàn bộ</span>
+            </li>
+          </ul>
         </div>
 
-        <button type="button" id="btnTicketAction" onclick="handleTicketApplyAndCheckout();" style="margin-top: 12px; width: 100%; height: 42px; border: none; border-radius: 8px; background: var(--mint-primary); color: #ffffff; font-weight: 700; font-size: 0.9rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; box-shadow: 0 2px 6px rgba(5,150,105,0.25); transition: all 0.15s ease;">
-          <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg>
-          <span id="btnTicketActionText">Áp dụng mã & Thanh toán</span>
+        <div class="tier-foot">
+          <button type="button" class="tier-btn-primary" id="btnTier2Action" onclick="handleTicketApplyAndCheckout();">
+            <span id="btnTier2ActionText">Áp dụng mã &amp; Mua ngay ↗</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- NẤC 3: TRỌN BỘ COMBO CHUYÊN NGÀNH -->
+      <div class="tiered-card" id="tierCard3">
+        <div>
+          <div class="tier-badge">NẤC 3 • TRỌN BỘ NGHIỆP VỤ</div>
+          <div class="tier-name">Combo All-in-One</div>
+          <div class="tier-price-box">
+            <div class="tier-price-main">Tiết kiệm ~40%</div>
+            <div class="tier-price-note">Giá combo đóng gói sẵn</div>
+          </div>
+          <ul class="tier-perks">
+            <li>
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+              <span>Đầy đủ: Bán hàng + Kho + Thu chi + Báo cáo</span>
+            </li>
+            <li>
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+              <span>Tích hợp Google Apps Script tự động</span>
+            </li>
+            <li>
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+              <span>Kèm video hướng dẫn thao tác từ A-Z</span>
+            </li>
+          </ul>
+        </div>
+        <div class="tier-foot">
+          <a href="#catalog" class="tier-btn-outline">Khám phá Combo</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Thanh tóm tắt giỏ hàng nhẹ nhàng ở đáy (Live Cart Dock) -->
+    <div class="tier-cart-summary-dock" id="tierCartSummaryDock">
+      <div>
+        <div class="dock-cart-title" id="tierDockCartCount">Giỏ hàng của bạn (0 file)</div>
+        <div class="dock-cart-sub" id="tierDockCartSub">Chưa chọn file nào • Tạm tính: 0 đ</div>
+      </div>
+      <div class="dock-right">
+        <div class="dock-total-box">
+          <span class="dock-total-label">Thanh toán:</span>
+          <span class="dock-total-val" id="tierDockTotalVal">0 đ</span>
+        </div>
+        <button type="button" class="dock-checkout-btn" id="btnTierDockCheckout" onclick="handleTicketApplyAndCheckout();">
+          <span>Mở đơn thanh toán ↗</span>
         </button>
       </div>
     </div>
@@ -3737,7 +4018,7 @@
     <script src="./storefront-data.js?v=22"></script>
     <script src="./storefront-products.generated.js?v=6"></script>
     <script src="assets/qrcode-generator-1.4.4.js"></script>
-    <script src="storefront.js?v=219"></script>
+    <script src="storefront.js?v=220"></script>
     <!-- Agentation: Visual Feedback & Annotation for AI agents -->
   <script src="./agentation-vanilla.js"></script>
 </body>
