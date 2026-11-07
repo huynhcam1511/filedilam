@@ -20,7 +20,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="./storefront.css?v=347" />
+    <link rel="stylesheet" href="./storefront.css?v=348" />
     <style>
     :root {
       --bg: #ffffff;
@@ -1247,15 +1247,15 @@
       box-shadow: 0 6px 16px rgba(5, 150, 105, 0.25);
     }
 
-    /* RIGHT COLUMN: RICH MEDIA CHAT PREVIEW (HƯỚNG 2: KHÁCH HỎI ➔ REP BẰNG THẺ DEMO THẬT) */
+    /* RIGHT COLUMN: CHỈ TẬP TRUNG PAINPOINT NGẮN GỌN (CÁCH 1 - SIÊU THOÁNG & CLEAN) */
     .painpoint-stream-container {
       background: #ffffff;
       border: 1px solid #e2e8f0;
       border-radius: 16px;
-      padding: 20px;
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
+      padding: 24px 22px;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.02);
       position: relative;
-      height: 310px;
+      height: 200px;
       overflow: hidden;
       display: flex;
       flex-direction: column;
@@ -1275,51 +1275,62 @@
       display: flex;
       flex-direction: column;
       justify-content: center;
-      gap: 10px;
+      gap: 12px;
       opacity: 0;
       pointer-events: none;
-      transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+      transition: all 0.45s cubic-bezier(0.16, 1, 0.3, 1);
     }
-    /* 4 Slides xoay vòng lặp bằng CSS keyframe mượt mà (mỗi slide 5s) */
+    /* 5 Slides xoay vòng lặp bằng CSS keyframe mượt mà (mỗi slide 4s) */
     .painpoint-msg-card:nth-child(1) { animation: cycleCard1 20s infinite; }
     .painpoint-msg-card:nth-child(2) { animation: cycleCard2 20s infinite; }
     .painpoint-msg-card:nth-child(3) { animation: cycleCard3 20s infinite; }
     .painpoint-msg-card:nth-child(4) { animation: cycleCard4 20s infinite; }
+    .painpoint-msg-card:nth-child(5) { animation: cycleCard5 20s infinite; }
 
     @keyframes cycleCard1 {
-      0%, 2% { opacity: 0; transform: translateY(12px); }
-      5%, 23% { opacity: 1; transform: translateY(0); pointer-events: auto; }
-      25%, 100% { opacity: 0; transform: translateY(-12px); pointer-events: none; }
+      0%, 2% { opacity: 0; transform: translateY(10px); }
+      4%, 18% { opacity: 1; transform: translateY(0); pointer-events: auto; }
+      20%, 100% { opacity: 0; transform: translateY(-10px); pointer-events: none; }
     }
     @keyframes cycleCard2 {
-      0%, 25% { opacity: 0; transform: translateY(12px); pointer-events: none; }
-      28%, 48% { opacity: 1; transform: translateY(0); pointer-events: auto; }
-      50%, 100% { opacity: 0; transform: translateY(-12px); pointer-events: none; }
+      0%, 20% { opacity: 0; transform: translateY(10px); pointer-events: none; }
+      24%, 38% { opacity: 1; transform: translateY(0); pointer-events: auto; }
+      40%, 100% { opacity: 0; transform: translateY(-10px); pointer-events: none; }
     }
     @keyframes cycleCard3 {
-      0%, 50% { opacity: 0; transform: translateY(12px); pointer-events: none; }
-      53%, 73% { opacity: 1; transform: translateY(0); pointer-events: auto; }
-      75%, 100% { opacity: 0; transform: translateY(-12px); pointer-events: none; }
+      0%, 40% { opacity: 0; transform: translateY(10px); pointer-events: none; }
+      44%, 58% { opacity: 1; transform: translateY(0); pointer-events: auto; }
+      60%, 100% { opacity: 0; transform: translateY(-10px); pointer-events: none; }
     }
     @keyframes cycleCard4 {
-      0%, 75% { opacity: 0; transform: translateY(12px); pointer-events: none; }
-      78%, 98% { opacity: 1; transform: translateY(0); pointer-events: auto; }
-      100% { opacity: 0; transform: translateY(-12px); pointer-events: none; }
+      0%, 60% { opacity: 0; transform: translateY(10px); pointer-events: none; }
+      64%, 78% { opacity: 1; transform: translateY(0); pointer-events: auto; }
+      80%, 100% { opacity: 0; transform: translateY(-10px); pointer-events: none; }
+    }
+    @keyframes cycleCard5 {
+      0%, 80% { opacity: 0; transform: translateY(10px); pointer-events: none; }
+      84%, 98% { opacity: 1; transform: translateY(0); pointer-events: auto; }
+      100% { opacity: 0; transform: translateY(-10px); pointer-events: none; }
     }
 
     /* Message Header */
     .painpoint-msg-header {
       display: flex;
       align-items: center;
+      justify-content: space-between;
+    }
+    .painpoint-user-info {
+      display: flex;
+      align-items: center;
       gap: 9px;
     }
     .painpoint-avatar {
-      width: 30px;
-      height: 30px;
+      width: 28px;
+      height: 28px;
       border-radius: 50%;
       background: #f1f5f9;
       color: #475569;
-      font-size: 0.72rem;
+      font-size: 0.7rem;
       font-weight: 700;
       display: flex;
       align-items: center;
@@ -1333,109 +1344,43 @@
       font-weight: 700;
       color: #0f172a;
     }
-    .painpoint-meta-sub {
+    .painpoint-time-tag {
       font-size: 0.72rem;
       color: #94a3b8;
-    }
-
-    /* Tin nhắn khách hàng (Nỗi đau) */
-    .bubble-customer {
-      background: #f8fafc;
-      border: 1px solid #e2e8f0;
-      border-radius: 12px;
-      border-top-left-radius: 3px;
-      padding: 10px 13px;
-      font-size: 0.83rem;
-      color: #334155;
-      line-height: 1.45;
-    }
-
-    /* THẺ PREVIEW SẢN PHẨM THẬT TỪ FILE ĐI LÀM (RICH MEDIA DEMO CARD) */
-    .reply-demo-card {
-      background: #ffffff;
-      border: 1.5px solid #a7f3d0;
-      border-radius: 12px;
-      padding: 12px 14px;
-      box-shadow: 0 3px 12px rgba(5, 150, 105, 0.08);
-      align-self: flex-end;
-      width: 96%;
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-    }
-    .demo-card-top {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      border-bottom: 1px solid #f1f5f9;
-      padding-bottom: 6px;
-    }
-    .demo-type-tag {
-      font-size: 0.7rem;
-      font-weight: 700;
-      color: #059669;
-      display: flex;
-      align-items: center;
-      gap: 5px;
-    }
-    .demo-status-text {
-      font-size: 0.7rem;
-      color: #64748b;
-      font-weight: 500;
-    }
-    .demo-product-name {
-      font-size: 0.88rem;
-      font-weight: 700;
-      color: #0f172a;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-    /* Khung mini preview giao diện thật */
-    .demo-mini-ui {
-      background: #f8fafc;
-      border: 1px solid #e2e8f0;
-      border-radius: 8px;
-      padding: 8px 10px;
-      font-size: 0.78rem;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 8px;
-    }
-    .demo-ui-badge {
       font-family: var(--font-mono, monospace);
-      font-weight: 700;
-      color: #059669;
     }
-    .demo-card-action {
+
+    /* Tin nhắn ngắn gọn của khách */
+    .bubble-customer-short {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      border-top-left-radius: 4px;
+      padding: 14px 16px;
+      font-size: 0.88rem;
+      color: #1e293b;
+      line-height: 1.5;
+      font-style: italic;
+    }
+
+    /* Footer nhỏ dưới tin nhắn */
+    .painpoint-card-foot {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      margin-top: 2px;
-    }
-    .demo-action-btn {
       font-size: 0.74rem;
-      font-weight: 600;
       color: #059669;
-      text-decoration: none;
-      display: inline-flex;
-      align-items: center;
-      gap: 4px;
-    }
-    .demo-delivery-badge {
-      font-size: 0.7rem;
-      color: #64748b;
-      font-weight: 500;
+      font-weight: 600;
+      padding-top: 2px;
     }
 
     /* Dots indicator */
     .stream-dots-bar {
       display: flex;
-      gap: 6px;
+      gap: 5px;
       position: absolute;
-      bottom: 10px;
-      right: 16px;
+      bottom: 12px;
+      right: 18px;
     }
     .stream-dot-pulse {
       width: 5px;
@@ -1451,14 +1396,14 @@
     @media (max-width: 900px) {
       .custom-clean-banner {
         grid-template-columns: 1fr;
-        padding: 30px 20px;
-        gap: 24px;
+        padding: 28px 20px;
+        gap: 20px;
       }
       .painpoint-stream-container {
-        height: 320px;
+        height: 190px;
       }
       .custom-clean-title {
-        font-size: 1.45rem;
+        font-size: 1.4rem;
       }
     }
 
@@ -2616,152 +2561,103 @@
         </div>
       </div>
 
-      <!-- Cột Phải: Rich Media Chat Preview (HƯỚNG 2: KHÁCH HỎI ➔ REP BẰNG THẺ DEMO THẬT) -->
+      <!-- Cột Phải: Live Painpoint Stream (CÁCH 1: CHỈ TẬP TRUNG NỖI ĐAU NGẮN GỌN CỦA KHÁCH) -->
       <div class="painpoint-stream-container">
         <div class="painpoint-card-track">
-          <!-- Slide 1: Chủ Bida -->
+          <!-- Slide 1: Chủ Nhà Trọ -->
           <div class="painpoint-msg-card">
             <div class="painpoint-msg-header">
-              <div class="painpoint-avatar" style="background: #eff6ff; color: #2563eb; border-color: #bfdbfe;">BD</div>
-              <div>
-                <div class="painpoint-meta-title">Hoàng Tuấn • Quản lý CLB Bida</div>
-                <div class="painpoint-meta-sub">Gửi 10 phút trước qua Zalo</div>
-              </div>
-            </div>
-            <div class="bubble-customer">
-              "Quán bida 12 bàn, vừa tính giờ theo phút vừa bán đồ uống, ca đêm nhân viên hay tính nhầm..."
-            </div>
-            <!-- File Đi Làm gửi lại thẻ Demo thật -->
-            <div class="reply-demo-card">
-              <div class="demo-card-top">
-                <span class="demo-type-tag">
-                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>
-                  Bản Demo Web App
-                </span>
-                <span class="demo-status-text">Đã hoàn thành</span>
-              </div>
-              <div class="demo-product-name">
-                <span>App Bida Smart (Tự động tính giờ &amp; Bill)</span>
-              </div>
-              <div class="demo-mini-ui">
-                <span>Bàn 03: <strong>01h 45p</strong> • 3 lon nước</span>
-                <span class="demo-ui-badge">87.500 đ</span>
-              </div>
-              <div class="demo-card-action">
-                <span class="demo-delivery-badge">Bàn giao kèm Google Sheets</span>
-                <span class="demo-action-btn">Mở demo trên Zalo &rsaquo;</span>
-              </div>
-            </div>
-          </div>
-
-          <!-- Slide 2: Chủ Nhà Trọ -->
-          <div class="painpoint-msg-card">
-            <div class="painpoint-msg-header">
-              <div class="painpoint-avatar">NT</div>
-              <div>
+              <div class="painpoint-user-info">
+                <div class="painpoint-avatar">NT</div>
                 <div class="painpoint-meta-title">Anh Nam • Chủ 18 phòng trọ</div>
-                <div class="painpoint-meta-sub">Gửi 25 phút trước qua Zalo</div>
               </div>
+              <span class="painpoint-time-tag">15p trước</span>
             </div>
-            <div class="bubble-customer">
-              "Dãy trọ 18 phòng, cuối tháng ngồi tính điện nước lũy tiến rồi viết phiếu thu mất nguyên cả ngày..."
+            <div class="bubble-customer-short">
+              "Cuối tháng ngồi cộng điện nước từng phòng rồi viết phiếu thu gửi Zalo mất nguyên cả ngày..."
             </div>
-            <!-- File Đi Làm gửi lại thẻ Demo thật -->
-            <div class="reply-demo-card">
-              <div class="demo-card-top">
-                <span class="demo-type-tag">
-                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-                  File Tự Động Hóa Google Sheets
-                </span>
-                <span class="demo-status-text">Đã hoàn thành</span>
-              </div>
-              <div class="demo-product-name">
-                <span>Hệ Thống Điện Nước &amp; Xuất Hóa Đơn Zalo</span>
-              </div>
-              <div class="demo-mini-ui">
-                <span>Phòng 102 • Điện: 115 kWh • Nước: 6 m³</span>
-                <span class="demo-ui-badge">3.240.000 đ</span>
-              </div>
-              <div class="demo-card-action">
-                <span class="demo-delivery-badge">Tự sinh ảnh bill gửi 1 chạm</span>
-                <span class="demo-action-btn">Mở demo trên Zalo &rsaquo;</span>
-              </div>
+            <div class="painpoint-card-foot">
+              <span>#QuảnLýPhòngTrọ • #ĐiệnNước</span>
+              <span>Đang kết nối Zalo &rsaquo;</span>
             </div>
           </div>
 
-          <!-- Slide 3: Chủ Salon Tóc -->
+          <!-- Slide 2: Chủ Salon Tóc -->
           <div class="painpoint-msg-card">
             <div class="painpoint-msg-header">
-              <div class="painpoint-avatar" style="background: #fdf2f8; color: #db2777; border-color: #fbcfe8;">ST</div>
-              <div>
+              <div class="painpoint-user-info">
+                <div class="painpoint-avatar" style="background: #fdf2f8; color: #db2777; border-color: #fbcfe8;">ST</div>
                 <div class="painpoint-meta-title">Chị Mai • Chủ Salon 6 thợ</div>
-                <div class="painpoint-meta-sub">Gửi 1 giờ trước qua Zalo</div>
               </div>
+              <span class="painpoint-time-tag">45p trước</span>
             </div>
-            <div class="bubble-customer">
-              "Thợ chính 30%, thợ phụ 10%, tiền tip với thưởng doanh số mỗi người một kiểu, cuối tháng tính lương toàn cãi nhau..."
+            <div class="bubble-customer-short">
+              "Hoa hồng thợ chính, thợ phụ với tiền tip lộn xộn, cuối tháng tính lương toàn cãi nhau..."
             </div>
-            <!-- File Đi Làm gửi lại thẻ Demo thật -->
-            <div class="reply-demo-card">
-              <div class="demo-card-top">
-                <span class="demo-type-tag">
-                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
-                  Bảng Chấm Công &amp; Hoa Hồng
-                </span>
-                <span class="demo-status-text">Đã hoàn thành</span>
-              </div>
-              <div class="demo-product-name">
-                <span>Bảng Lương Thợ &amp; Hoa Hồng Đa Cấp Bậc</span>
-              </div>
-              <div class="demo-mini-ui">
-                <span>Tuấn Anh (Thợ chính) • 14 ca uốn/nhuộm</span>
-                <span class="demo-ui-badge">+2.150.000 đ</span>
-              </div>
-              <div class="demo-card-action">
-                <span class="demo-delivery-badge">1 nút xuất phiếu lương chi tiết</span>
-                <span class="demo-action-btn">Mở demo trên Zalo &rsaquo;</span>
-              </div>
+            <div class="painpoint-card-foot">
+              <span>#LươngHoaHồng • #ChấmCông</span>
+              <span>Đang kết nối Zalo &rsaquo;</span>
             </div>
           </div>
 
-          <!-- Slide 4: Chủ Xưởng May -->
+          <!-- Slide 3: Quản Lý Bida -->
           <div class="painpoint-msg-card">
             <div class="painpoint-msg-header">
-              <div class="painpoint-avatar" style="background: #fefce8; color: #ca8a04; border-color: #fef08a;">XM</div>
-              <div>
+              <div class="painpoint-user-info">
+                <div class="painpoint-avatar" style="background: #eff6ff; color: #2563eb; border-color: #bfdbfe;">BD</div>
+                <div class="painpoint-meta-title">Hoàng Tuấn • Quản lý CLB Bida</div>
+              </div>
+              <span class="painpoint-time-tag">2h trước</span>
+            </div>
+            <div class="bubble-customer-short">
+              "12 bàn vừa tính tiền theo phút vừa bán nước, ca đêm nhân viên hay tính nhầm giờ..."
+            </div>
+            <div class="painpoint-card-foot">
+              <span>#BidaTínhGiờ • #ThấtThoát</span>
+              <span>Đang kết nối Zalo &rsaquo;</span>
+            </div>
+          </div>
+
+          <!-- Slide 4: Xưởng May -->
+          <div class="painpoint-msg-card">
+            <div class="painpoint-msg-header">
+              <div class="painpoint-user-info">
+                <div class="painpoint-avatar" style="background: #fefce8; color: #ca8a04; border-color: #fef08a;">XM</div>
                 <div class="painpoint-meta-title">Chị Hằng • Xưởng may thời trang</div>
-                <div class="painpoint-meta-sub">Gửi hôm qua qua Zalo</div>
               </div>
+              <span class="painpoint-time-tag">Hôm qua</span>
             </div>
-            <div class="bubble-customer">
-              "Một mẫu áo 4 màu x 5 size (=20 mã lẻ), kho loạn xạ không biết còn màu nào size nào để báo sỉ..."
+            <div class="bubble-customer-short">
+              "Một mẫu 4 màu x 5 size, kho loạn xạ không biết còn màu nào size nào để báo sỉ..."
             </div>
-            <!-- File Đi Làm gửi lại thẻ Demo thật -->
-            <div class="reply-demo-card">
-              <div class="demo-card-top">
-                <span class="demo-type-tag">
-                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg>
-                  Ma Trận Kho Google Sheets
-                </span>
-                <span class="demo-status-text">Đã hoàn thành</span>
+            <div class="painpoint-card-foot">
+              <span>#KhoMàuSize • #QuảnLýXưởng</span>
+              <span>Đang kết nối Zalo &rsaquo;</span>
+            </div>
+          </div>
+
+          <!-- Slide 5: Đại Lý Bán Sỉ -->
+          <div class="painpoint-msg-card">
+            <div class="painpoint-msg-header">
+              <div class="painpoint-user-info">
+                <div class="painpoint-avatar" style="background: #f0fdf4; color: #166534; border-color: #bbf7d0;">BH</div>
+                <div class="painpoint-meta-title">Bác Hùng • Đại lý bán sỉ</div>
               </div>
-              <div class="demo-product-name">
-                <span>Quản Lý Tồn Kho Ma Trận Màu x Size</span>
-              </div>
-              <div class="demo-mini-ui">
-                <span>Màu Đen • Size S: 45 | M: 12 | L: 0</span>
-                <span class="demo-ui-badge" style="color: #dc2626;">Hết Size L</span>
-              </div>
-              <div class="demo-card-action">
-                <span class="demo-delivery-badge">Tự trừ tồn kho khi xuất bán</span>
-                <span class="demo-action-btn">Mở demo trên Zalo &rsaquo;</span>
-              </div>
+              <span class="painpoint-time-tag">Hôm qua</span>
+            </div>
+            <div class="bubble-customer-short">
+              "File Excel tải trên mạng bị lỗi #VALUE!, muốn thêm cột theo dõi công nợ mà bị khóa mật khẩu..."
+            </div>
+            <div class="painpoint-card-foot">
+              <span>#LỗiCôngThức • #KhóaMậtKhẩu</span>
+              <span>Đang kết nối Zalo &rsaquo;</span>
             </div>
           </div>
         </div>
 
         <div class="stream-dots-bar">
           <span class="stream-dot-pulse active"></span>
+          <span class="stream-dot-pulse"></span>
           <span class="stream-dot-pulse"></span>
           <span class="stream-dot-pulse"></span>
           <span class="stream-dot-pulse"></span>
