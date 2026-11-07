@@ -20,7 +20,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="./storefront.css?v=342" />
+    <link rel="stylesheet" href="./storefront.css?v=343" />
     <style>
     :root {
       --bg: #ffffff;
@@ -1053,179 +1053,155 @@
       100% { top: calc(100% - 2px); opacity: 0; }
     }
 
-    /* COMPARISON MATRIX SECTION (THAY THẾ 4-PILLAR USP CŨ) */
-    .compare-section {
-      padding: 72px 0 80px;
+    /* BẢNG SO SÁNH PHẲNG CHUẨN AGENTS.MD (ZERO CONTAINER, ZERO PILL) */
+    .compare-flat-section {
+      padding: 56px 0 64px;
       background: #ffffff;
     }
-    .compare-grid {
-      display: grid;
-      grid-template-columns: 1fr 1.08fr;
-      gap: 24px;
-      margin-top: 40px;
-      align-items: stretch;
+    .compare-flat-table-wrap {
+      margin-top: 32px;
+      width: 100%;
+      overflow-x: auto;
     }
-    .compare-col {
-      border-radius: 20px;
-      padding: 36px 32px 32px;
-      display: flex;
-      flex-direction: column;
-      position: relative;
-      transition: all 0.25s ease;
+    .compare-flat-table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+      font-size: 0.9rem;
     }
-    /* Cột 1: Phần mềm SaaS truyền thống */
-    .compare-col-legacy {
-      background: #f8fafc;
-      border: 1px solid #e2e8f0;
-      color: #334155;
-    }
-    /* Cột 2: File Đi Làm (Highlight Mint) */
-    .compare-col-fdl {
-      background: #ffffff;
-      border: 2px solid #059669;
-      box-shadow: 0 12px 36px -6px rgba(5, 150, 105, 0.12), 0 4px 16px rgba(0, 0, 0, 0.04);
-    }
-    .compare-top-badge {
-      position: absolute;
-      top: -13px;
-      right: 28px;
-      background: #059669;
-      color: #ffffff;
-      font-size: 0.72rem;
-      font-weight: 700;
-      letter-spacing: 0.04em;
-      text-transform: uppercase;
-      padding: 3px 12px;
-      border-radius: 999px;
-      box-shadow: 0 2px 8px rgba(5, 150, 105, 0.25);
-    }
-    .compare-header {
-      border-bottom: 1px solid #e2e8f0;
-      padding-bottom: 24px;
-      margin-bottom: 24px;
-    }
-    .compare-col-fdl .compare-header {
-      border-bottom-color: #d1fae5;
-    }
-    .compare-type {
-      font-size: 0.82rem;
+    .compare-flat-table th {
+      padding: 16px 20px;
+      font-size: 0.76rem;
       font-weight: 700;
       text-transform: uppercase;
       letter-spacing: 0.05em;
-      margin-bottom: 6px;
+      border-bottom: 2px solid #e2e8f0;
     }
-    .compare-type-legacy { color: #64748b; }
-    .compare-type-fdl { color: #059669; }
-    .compare-title {
-      font-size: 1.45rem;
-      font-weight: 800;
-      color: #0f172a;
-      letter-spacing: -0.4px;
-      margin-bottom: 12px;
-    }
-    .compare-cost-block {
-      display: flex;
-      align-items: baseline;
-      gap: 8px;
-    }
-    .compare-cost-val {
-      font-size: 1.55rem;
-      font-weight: 800;
-      letter-spacing: -0.5px;
-    }
-    .compare-cost-val.legacy { color: #94a3b8; text-decoration: line-through; }
-    .compare-cost-val.fdl { color: #059669; }
-    .compare-cost-sub {
-      font-size: 0.85rem;
+    .compare-th-crit {
+      width: 24%;
       color: #64748b;
-      font-weight: 500;
     }
-    .compare-features-list {
-      list-style: none;
-      padding: 0;
-      margin: 0;
-      display: flex;
-      flex-direction: column;
-      gap: 18px;
-      flex: 1;
+    .compare-th-legacy {
+      width: 38%;
+      color: #64748b;
+      background: #fafafa;
     }
-    .compare-item {
-      display: flex;
-      align-items: flex-start;
-      gap: 14px;
-      font-size: 0.92rem;
+    .compare-th-fdl {
+      width: 38%;
+      color: #059669;
+      background: #f0fdf4;
+      border-bottom-color: #059669 !important;
+    }
+    .compare-flat-table td {
+      padding: 18px 20px;
+      border-bottom: 1px solid #f1f5f9;
+      vertical-align: top;
       line-height: 1.5;
     }
-    .compare-icon-wrap {
-      width: 24px;
-      height: 24px;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-shrink: 0;
-      margin-top: 2px;
-    }
-    .compare-icon-wrap.bad {
-      background: #fee2e2;
-      color: #dc2626;
-    }
-    .compare-icon-wrap.good {
-      background: #d1fae5;
-      color: #059669;
-    }
-    .compare-item-body strong {
-      color: #0f172a;
+    .compare-td-crit {
       font-weight: 700;
+      color: #0f172a;
+      font-size: 0.88rem;
+    }
+    .compare-td-legacy {
+      color: #64748b;
+      background: #fafafa;
+      font-size: 0.86rem;
+    }
+    .compare-td-legacy strong {
+      color: #334155;
       display: block;
       margin-bottom: 2px;
+      font-weight: 600;
     }
-    .compare-item-body p {
-      margin: 0;
-      font-size: 0.84rem;
+    .compare-td-fdl {
+      color: #1e293b;
+      background: #ffffff;
+      font-size: 0.86rem;
+      border-left: 1px solid #e2e8f0;
+      border-right: 1px solid #e2e8f0;
+    }
+    .compare-td-fdl strong {
+      color: #059669;
+      display: block;
+      margin-bottom: 2px;
+      font-weight: 700;
+    }
+    .compare-flat-table tr:last-child .compare-td-fdl {
+      border-bottom: 2px solid #059669;
+    }
+    /* Dòng tóm tắt phẳng ở đáy */
+    .compare-flat-summary {
+      margin-top: 24px;
+      font-size: 0.85rem;
       color: #64748b;
-    }
-    .compare-col-fdl .compare-item-body p {
-      color: #475569;
-    }
-    /* Thanh tóm tắt ROI dưới bảng */
-    .compare-roi-bar {
-      margin-top: 28px;
-      background: #f0fdf4;
-      border: 1px solid #bbf7d0;
-      border-radius: 14px;
-      padding: 16px 24px;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 16px;
+      border-top: 1px solid #f1f5f9;
+      padding-top: 16px;
     }
-    .compare-roi-text {
-      font-size: 0.9rem;
-      color: #166534;
-      font-weight: 600;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-    .compare-roi-pill {
-      font-family: var(--font-mono, monospace);
-      font-size: 0.85rem;
+    .compare-flat-summary strong {
+      color: #059669;
       font-weight: 700;
-      color: #ffffff;
-      background: #059669;
-      padding: 4px 12px;
-      border-radius: 6px;
-      white-space: nowrap;
     }
-    @media (max-width: 900px) {
-      .compare-grid {
-        grid-template-columns: 1fr;
-        gap: 20px;
+    .compare-flat-saving-text {
+      font-family: var(--font-mono, monospace);
+      font-weight: 600;
+      color: #059669;
+    }
+
+    /* Mobile: Table to Cardless List Transformation */
+    .compare-mobile-list {
+      display: none;
+      flex-direction: column;
+      gap: 16px;
+      margin-top: 24px;
+    }
+    .compare-mobile-item {
+      border-bottom: 1px solid #f1f5f9;
+      padding-bottom: 16px;
+    }
+    .compare-mobile-crit {
+      font-size: 0.88rem;
+      font-weight: 700;
+      color: #0f172a;
+      margin-bottom: 8px;
+    }
+    .compare-mobile-row {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      font-size: 0.84rem;
+    }
+    .compare-mobile-legacy {
+      color: #64748b;
+      padding-left: 14px;
+      border-left: 2px solid #cbd5e1;
+    }
+    .compare-mobile-fdl {
+      color: #0f172a;
+      padding-left: 14px;
+      border-left: 2px solid #059669;
+    }
+    .compare-mobile-fdl strong {
+      color: #059669;
+    }
+
+    @media (max-width: 768px) {
+      .compare-flat-section {
+        padding: 40px 0 48px;
       }
-      .compare-roi-bar {
+      .compare-flat-table-wrap {
+        display: none;
+      }
+      .compare-mobile-list {
+        display: flex;
+      }
+      .compare-flat-summary {
         flex-direction: column;
         align-items: flex-start;
+        gap: 6px;
       }
     }
 
@@ -2331,153 +2307,132 @@
   </section>
 
   <!-- DUAL COLUMN COMPARISON SECTION (THAY THẾ USP CŨ) -->
-  <section class="compare-section">
+  <!-- BẢNG SO SÁNH PHẲNG CHUẨN AGENTS.MD (ZERO CONTAINER, ZERO PILL) -->
+  <section class="compare-flat-section">
     <div class="container">
       <div class="center-header">
         <span class="section-tag">Bài toán kinh tế</span>
-        <h2 class="section-title">Đầu tư một lần, xóa sổ chi phí phần mềm hàng tháng</h2>
-        <p style="color: var(--muted); font-size: 0.95rem; max-width: 680px; margin: 0 auto;">Tại sao hàng trăm chủ shop, quản lý và kế toán chuyển từ phần mềm thuê bao đắt đỏ sang hệ sinh thái Google Sheets + Web App của File Đi Làm.</p>
+        <h2 class="section-title">Sở hữu vĩnh viễn, không phí duy trì</h2>
+        <p style="color: var(--muted); font-size: 0.95rem; max-width: 680px; margin: 0 auto;">So sánh thực tế giữa phần mềm thuê bao hàng tháng và giải pháp Google Sheets + Web App của File Đi Làm.</p>
       </div>
 
-      <div class="compare-grid">
-        <!-- Cột 1: Phần mềm thuê bao truyền thống -->
-        <div class="compare-col compare-col-legacy">
-          <div class="compare-header">
-            <span class="compare-type compare-type-legacy">Phần mềm thuê bao (SaaS / POS)</span>
-            <h3 class="compare-title">Gia hạn đắt đỏ mỗi tháng</h3>
-            <div class="compare-cost-block">
-              <span class="compare-cost-val legacy">2.400.000 – 4.800.000 đ</span>
-              <span class="compare-cost-sub">/ năm</span>
-            </div>
-            <p style="margin: 6px 0 0; font-size: 0.8rem; color: #94a3b8;">Thu phí định kỳ liên tục, ngừng đóng là khóa dữ liệu</p>
+      <!-- Desktop View: Master-Table phẳng tràn viền -->
+      <div class="compare-flat-table-wrap">
+        <table class="compare-flat-table">
+          <thead>
+            <tr>
+              <th class="compare-th-crit">Tiêu chí</th>
+              <th class="compare-th-legacy">Phần mềm thuê bao (SaaS / POS)</th>
+              <th class="compare-th-fdl">Hệ sinh thái File Đi Làm</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="compare-td-crit">Chi phí sử dụng</td>
+              <td class="compare-td-legacy">
+                <strong>2.400.000 – 4.800.000 đ/năm</strong>
+                Thu phí lặp lại mỗi tháng, ngừng đóng là khóa dữ liệu
+              </td>
+              <td class="compare-td-fdl">
+                <strong>0 đ/tháng • Trả một lần duy nhất</strong>
+                Chỉ từ 49.000 – 199.000 đ sở hữu trọn đời, không chi phí ẩn
+              </td>
+            </tr>
+            <tr>
+              <td class="compare-td-crit">Quyền sở hữu dữ liệu</td>
+              <td class="compare-td-legacy">
+                <strong>Server bên thứ 3</strong>
+                Dữ liệu thuộc về hệ thống của hãng, nguy cơ rò rỉ hoặc phụ thuộc
+              </td>
+              <td class="compare-td-fdl">
+                <strong>100% Google Drive cá nhân</strong>
+                Bảo mật riêng tư tuyệt đối theo tiêu chuẩn Google, chỉ bạn có quyền xem
+              </td>
+            </tr>
+            <tr>
+              <td class="compare-td-crit">Mở thêm chi nhánh</td>
+              <td class="compare-td-legacy">
+                <strong>Tính thêm phí thuê bao</strong>
+                Mỗi cửa hàng hay nhân viên mới đều bị tính thêm tiền gói
+              </td>
+              <td class="compare-td-fdl">
+                <strong>1-chạm tạo bản sao vô hạn</strong>
+                Nhân bản cho 5–10 cơ sở kinh doanh hoàn toàn miễn phí
+              </td>
+            </tr>
+            <tr>
+              <td class="compare-td-crit">Giao diện làm việc</td>
+              <td class="compare-td-legacy">
+                <strong>Cố định một màn hình</strong>
+                Nhiều tính năng thừa, dễ giật lag trên máy tính cấu hình yếu
+              </td>
+              <td class="compare-td-fdl">
+                <strong>Trải nghiệm kép: Sheets + Web App</strong>
+                Xem sâu trên máy tính, mở Web App thao tác 1 chạm trên điện thoại
+              </td>
+            </tr>
+            <tr>
+              <td class="compare-td-crit">Tùy biến theo quán</td>
+              <td class="compare-td-legacy">
+                <strong>Bị khóa cứng tính năng</strong>
+                Phải ép quy trình quán theo phần mềm, không thể tự sửa cột
+              </td>
+              <td class="compare-td-fdl">
+                <strong>Toàn quyền làm chủ &amp; Hỗ trợ riêng</strong>
+                Tự do sửa công thức, thêm bớt cột; có hỗ trợ kỹ thuật theo yêu cầu
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Mobile View: Table-to-List Transformation chuẩn AGENTS.md (không vuốt ngang) -->
+      <div class="compare-mobile-list">
+        <div class="compare-mobile-item">
+          <div class="compare-mobile-crit">Chi phí sử dụng</div>
+          <div class="compare-mobile-row">
+            <div class="compare-mobile-legacy">Phần mềm: <strong>2.4tr – 4.8tr/năm</strong> (thu đều mỗi tháng)</div>
+            <div class="compare-mobile-fdl">File Đi Làm: <strong>0 đ/tháng</strong> (mua 1 lần từ 49k dùng vĩnh viễn)</div>
           </div>
-
-          <ul class="compare-features-list">
-            <li class="compare-item">
-              <div class="compare-icon-wrap bad">
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
-              </div>
-              <div class="compare-item-body">
-                <strong>Gánh nặng chi phí hàng tháng</strong>
-                <p>Chi phí âm thầm đội lên 200.000 – 400.000 đ mỗi tháng, dùng 3 năm tốn hàng chục triệu đồng.</p>
-              </div>
-            </li>
-
-            <li class="compare-item">
-              <div class="compare-icon-wrap bad">
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
-              </div>
-              <div class="compare-item-body">
-                <strong>Bị phụ thuộc máy chủ nhà cung cấp</strong>
-                <p>Dữ liệu khách hàng và doanh thu nằm trên server bên thứ 3. Khi server bảo trì hoặc tranh chấp là ngưng trệ kinh doanh.</p>
-              </div>
-            </li>
-
-            <li class="compare-item">
-              <div class="compare-icon-wrap bad">
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
-              </div>
-              <div class="compare-item-body">
-                <strong>Thu thêm tiền trên từng chi nhánh / nhân sự</strong>
-                <p>Mở thêm 1 cửa hàng hay cấp tài khoản cho nhân viên mới đều bị tính thêm gói phí định kỳ.</p>
-              </div>
-            </li>
-
-            <li class="compare-item">
-              <div class="compare-icon-wrap bad">
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
-              </div>
-              <div class="compare-item-body">
-                <strong>Cồng kềnh, khó dùng cho người mới</strong>
-                <p>Quá nhiều tính năng thừa thãi không dùng tới; máy tính cấu hình yếu hoặc mạng chập chờn là giật lag.</p>
-              </div>
-            </li>
-
-            <li class="compare-item">
-              <div class="compare-icon-wrap bad">
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
-              </div>
-              <div class="compare-item-body">
-                <strong>Không thể tùy biến theo đặc thù riêng</strong>
-                <p>Phải ép cách làm của quán vào phần mềm; không thể tự chèn thêm cột hay sửa logic tính toán.</p>
-              </div>
-            </li>
-          </ul>
         </div>
 
-        <!-- Cột 2: Hệ thống File Đi Làm -->
-        <div class="compare-col compare-col-fdl">
-          <span class="compare-top-badge">Lựa chọn thông minh</span>
-          <div class="compare-header">
-            <span class="compare-type compare-type-fdl">Hệ sinh thái File Đi Làm</span>
-            <h3 class="compare-title">Sở hữu vĩnh viễn trọn đời</h3>
-            <div class="compare-cost-block">
-              <span class="compare-cost-val fdl">Chỉ từ 49.000 – 199.000 đ</span>
-            </div>
-            <p style="margin: 6px 0 0; font-size: 0.8rem; color: #059669; font-weight: 600;">Trả một lần duy nhất • Không có phí ẩn • 0 đ/tháng</p>
+        <div class="compare-mobile-item">
+          <div class="compare-mobile-crit">Quyền sở hữu dữ liệu</div>
+          <div class="compare-mobile-row">
+            <div class="compare-mobile-legacy">Phần mềm: Server bên thứ 3, ngừng đóng là khóa</div>
+            <div class="compare-mobile-fdl">File Đi Làm: <strong>100% Google Drive cá nhân</strong>, an toàn tuyệt đối</div>
           </div>
+        </div>
 
-          <ul class="compare-features-list">
-            <li class="compare-item">
-              <div class="compare-icon-wrap good">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
-              </div>
-              <div class="compare-item-body">
-                <strong>0 đ phí duy trì hàng tháng</strong>
-                <p>Mua một lần, xài vĩnh viễn. Không bao giờ lo bị đòi tiền gia hạn hay khóa quyền truy cập.</p>
-              </div>
-            </li>
+        <div class="compare-mobile-item">
+          <div class="compare-mobile-crit">Mở thêm chi nhánh</div>
+          <div class="compare-mobile-row">
+            <div class="compare-mobile-legacy">Phần mềm: Tính thêm tiền trên từng cửa hàng/user</div>
+            <div class="compare-mobile-fdl">File Đi Làm: <strong>Tạo bản sao không giới hạn</strong>, 0đ phụ phí</div>
+          </div>
+        </div>
 
-            <li class="compare-item">
-              <div class="compare-icon-wrap good">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
-              </div>
-              <div class="compare-item-body">
-                <strong>100% dữ liệu thuộc về Google Drive cá nhân</strong>
-                <p>Quyền riêng tư tuyệt đối, bảo mật nhiều lớp của Google. Không một ai (kể cả tác giả) xem được sổ sách của bạn.</p>
-              </div>
-            </li>
+        <div class="compare-mobile-item">
+          <div class="compare-mobile-crit">Giao diện làm việc</div>
+          <div class="compare-mobile-row">
+            <div class="compare-mobile-legacy">Phần mềm: Chỉ mở trên máy tính, cồng kềnh</div>
+            <div class="compare-mobile-fdl">File Đi Làm: <strong>Google Sheets + Web App di động</strong> mượt mà</div>
+          </div>
+        </div>
 
-            <li class="compare-item">
-              <div class="compare-icon-wrap good">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
-              </div>
-              <div class="compare-item-body">
-                <strong>1-chạm tạo bản sao không giới hạn</strong>
-                <p>Mở chi nhánh 2, chi nhánh 3? Chỉ cần bấm Tạo bản sao trên Drive là dùng ngay, hoàn toàn miễn phí.</p>
-              </div>
-            </li>
-
-            <li class="compare-item">
-              <div class="compare-icon-wrap good">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
-              </div>
-              <div class="compare-item-body">
-                <strong>Trải nghiệm kép: Google Sheets + Web App di động</strong>
-                <p>Máy tính quản lý bảng tính phân tích sâu; ngoài hiện trường mở Web App trên điện thoại nhập liệu cực nhanh.</p>
-              </div>
-            </li>
-
-            <li class="compare-item">
-              <div class="compare-icon-wrap good">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
-              </div>
-              <div class="compare-item-body">
-                <strong>Toàn quyền làm chủ &amp; Hỗ trợ chỉnh sửa theo yêu cầu</strong>
-                <p>Tự do sửa công thức, thêm bớt cột theo thói quen kinh doanh. Cần tùy biến sâu thì bên mình đồng hành hỗ trợ.</p>
-              </div>
-            </li>
-          </ul>
+        <div class="compare-mobile-item">
+          <div class="compare-mobile-crit">Tùy biến theo quán</div>
+          <div class="compare-mobile-row">
+            <div class="compare-mobile-legacy">Phần mềm: Bị khóa cứng theo khuôn mẫu của hãng</div>
+            <div class="compare-mobile-fdl">File Đi Làm: <strong>Toàn quyền sửa cột</strong>, có hỗ trợ theo ý</div>
+          </div>
         </div>
       </div>
 
-      <!-- Thanh tóm tắt ROI tích lũy -->
-      <div class="compare-roi-bar">
-        <div class="compare-roi-text">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
-          <span>Sau 3 năm vận hành, bạn tiết kiệm được <strong>hơn 10.000.000 đ</strong> chi phí thuê bao phần mềm để tái đầu tư vào việc bán hàng.</span>
-        </div>
-        <span class="compare-roi-pill">Tiết kiệm ~95% chi phí</span>
+      <!-- Dòng tóm tắt phẳng ở đáy (không container, không pill) -->
+      <div class="compare-flat-summary">
+        <span>Sau 3 năm vận hành, bạn tiết kiệm được <strong>hơn 10.000.000 đ</strong> chi phí thuê bao phần mềm.</span>
+        <span class="compare-flat-saving-text">• Tiết kiệm ~95% chi phí vận hành</span>
       </div>
     </div>
   </section>
