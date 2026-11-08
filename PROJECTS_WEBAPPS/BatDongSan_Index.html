@@ -1930,29 +1930,145 @@
         `).join('');
       }
 
-      // Thuật toán so khớp căn hộ phù hợp (Matching Properties)
-      const matchingProps = (state.data.properties || []).filter(p => {
-        if (p['Trạng Thái'] !== 'Đang bán') return false;
-        if (cust['Nhu Cầu'] && p['Loại Hình'] && p['Loại Hình'] !== cust['Nhu Cầu']) return false;
-        return true;
-      });
-      document.getElementById('drawerMatchCount').innerText = matchingProps.length;
+      <!-- SPRINT 8 MATCHING ENGINE: Thuật toán so khớp đa tiêu chí & Điểm tương thích -->
+      const matchingPropsWithScore = (state.data.properties || [])
+        .filter(p => p['Trạng Thái'] === 'Đang bán')
+        .map(p => {
+          let score = 0;
+          const matchReasons = [];
+
+          // 1. So khớp Loại hình / Nhu cầu (Trọng số 40 điểm)
+          if (cust['Nhu Cầu'] && p['Loại Hình']) {
+            if (p['Loại Hình'].toLowerCase() === cust['Nhu Cầu'].toLowerCase()) {
+              score += 40;
+              matchReasons.push('Đúng loại hình');
+            }
+          } else {
+            score += 20;
+          }
+
+          // 2. So khớp Khoảng giá (Trọng số 35 điểm)
+          const pPrice = Number(p['Giá Chào (Triệu)']) || 0;
+          const custPriceRaw = String(cust['Khoảng Giá'] || '').toLowerCase();
+          if (custPriceRaw && pPrice > 0) {
+            // Trích xuất các số trong chuỗi khoảng giá (VD: "3 - 5 tỷ", "2000 - 3500 triệu", "dưới 4 tỷ")
+            const nums = custPriceRaw.match(/\d+([.,]\d+)?/g);
+            if (nums && nums.length > 0) {
+              let parsedNums = nums.map(n => parseFloat(n.replace(',', '.')));
+              // Nếu số < 100 thường là tính theo đơn vị Tỷ -> quy đổi sang Triệu
+              if (custPriceRaw.includes('tỷ') || custPriceRaw.includes('ty')) {
+                parsedNums = parsedNums.map(n => (n < 100 ? n * 1000 : n));
+              }
+              const minP = Math.min(...parsedNums);
+              const maxP = Math.max(...parsedNums);
+
+              if (parsedNums.length === 1) {
+                if (custPriceRaw.includes('dưới') || custPriceRaw.includes('<')) {
+                  if (pPrice <= maxP * 1.05) { score += 35; matchReasons.push('Vừa túi tiền'); }
+                } else if (custPriceRaw.includes('trên') || custPriceRaw.includes('>')) {
+                  if (pPrice >= minP * 0.95) { score += 35; matchReasons.push('Đạt tầm giá'); }
+                } else {
+                  // Xung quanh mức giá +- 15%
+                  if (Math.abs(pPrice - minP) / minP <= 0.15) { score += 35; matchReasons.push('Sát tầm tài chính'); }
+                  else if (Math.abs(pPrice - minP) / minP <= 0.3) { score += 20; matchReasons.push('Chênh lệch giá ít'); }
+                }
+              } else {
+                // Có khoảng min - max
+                if (pPrice >= minP * 0.9 && pPrice <= maxP * 1.1) {
+                  score += 35;
+                  matchReasons.push('Khớp khoảng ngân sách');
+                } else if (pPrice >= minP * 0.8 && pPrice <= maxP * 1.25) {
+                  score += 20;
+                  matchReasons.push('Gần ngân sách (+-20%)');
+                }
+              }
+            }
+          } else {
+            score += 15;
+          }
+
+          // 3. So khớp Khu vực tìm kiếm (Trọng số 25 điểm)
+          const custArea = String(cust['Khu Vực'] || '').toLowerCase().trim();
+          const propAddr = String(p['Địa Chỉ'] || '').toLowerCase();
+          const propProj = String(p['Tên Dự Án'] || '').toLowerCase();
+
+          if (custArea && (propAddr || propProj)) {
+            // Tách các từ khóa khu vực (VD: "Quận 2, Bình Thạnh" -> ["quận 2", "bình thạnh"])
+            const areaTokens = custArea.split(/[,;\/-]/).map(t => t.trim()).filter(Boolean);
+            const isMatchArea = areaTokens.some(token => propAddr.includes(token) || propProj.includes(token));
+            if (isMatchArea) {
+              score += 25;
+              matchReasons.push('Khớp khu vực');
+            }
+          } else {
+            score += 10;
+          }
+
+          return { ...p, matchScore: score, matchReasons };
+        })
+        .filter(p => p.matchScore >= 40)
+        .sort((a, b) => b.matchScore - a.matchScore);
+
+      document.getElementById('drawerMatchCount').innerText = matchingPropsWithScore.length;
 
       const matchingList = document.getElementById('drawerMatchingPropertiesList');
-      if (matchingProps.length === 0) {
-        matchingList.innerHTML = '<div class="text-xs text-slate-400 py-3 text-center">Hiện chưa có căn nào trong giỏ hàng khớp với nhu cầu này.</div>';
-      } else {
-        matchingList.innerHTML = matchingProps.slice(0, 5).map(p => `
-          <div class="p-2.5 bg-slate-50 border border-slate-100 rounded-xl flex items-center justify-between gap-2">
-            <div class="min-w-0">
-              <div class="font-bold text-slate-800 truncate text-xs">${p['Địa Chỉ']}</div>
-              <div class="text-[11px] text-slate-500">${p['Loại Hình']} · ${p['Diện Tích (m2)']} m² · <span class="font-bold text-emerald-700">${p['Giá Chào (Triệu)']} Tr</span></div>
-            </div>
-            <button onclick="handleMatchPropertyForCustomer('${p['Mã Căn']}')" class="px-2 py-1 rounded bg-emerald-600 hover:bg-emerald-700 text-white font-medium text-[11px] shrink-0">
-              Dẫn xem
-            </button>
+      if (matchingPropsWithScore.length === 0) {
+        matchingList.innerHTML = `
+          <div class="text-xs text-slate-400 py-6 text-center space-y-1">
+            <i data-lucide="compass" class="w-6 h-6 mx-auto text-slate-300 stroke-[1.5]"></i>
+            <p>Chưa tìm thấy căn nào trong giỏ hàng đạt điểm tương thích tối thiểu (≥ 40%).</p>
+            <p class="text-[11px] text-slate-400">Hãy bổ sung thêm nguồn hàng BĐS mới vào hệ thống.</p>
           </div>
-        `).join('');
+        `;
+      } else {
+        matchingList.innerHTML = matchingPropsWithScore.map(p => {
+          const scorePercent = Math.min(100, p.matchScore);
+          const scoreBadgeColor = scorePercent >= 80 ? 'text-emerald-700 bg-emerald-50 border-emerald-200' : (scorePercent >= 60 ? 'text-blue-700 bg-blue-50 border-blue-200' : 'text-amber-700 bg-amber-50 border-amber-200');
+
+          return `
+            <div class="p-3 bg-white border border-slate-200/90 rounded-xl shadow-xs space-y-2 hover:border-emerald-300 transition-all">
+              <div class="flex items-start justify-between gap-2">
+                <div class="min-w-0">
+                  <div class="flex items-center gap-1.5 flex-wrap">
+                    <span class="font-mono text-[10px] text-slate-400 font-semibold">${p['Mã Căn']}</span>
+                    <span class="text-[10px] px-1.5 py-0.5 rounded border font-semibold ${scoreBadgeColor}">Khớp ${scorePercent}%</span>
+                    <span class="text-[10px] text-slate-500 font-medium">${p['Loại Hình']}</span>
+                  </div>
+                  <h4 class="font-bold text-slate-900 text-xs truncate mt-0.5" title="${p['Địa Chỉ']}">${p['Địa Chỉ']}</h4>
+                  ${p['Tên Dự Án'] ? `<div class="text-[10px] text-slate-400 truncate">${p['Tên Dự Án']}</div>` : ''}
+                </div>
+                <div class="text-right shrink-0">
+                  <div class="font-bold text-emerald-700 text-xs font-mono">${Number(p['Giá Chào (Triệu)']).toLocaleString('vi-VN')} Tr</div>
+                  <div class="text-[10px] text-slate-400">${p['Diện Tích (m2)']} m² · HH ${p['Hoa Hồng (%)']}%</div>
+                </div>
+              </div>
+
+              <!-- Lý do khớp lệnh -->
+              <div class="flex flex-wrap items-center gap-1">
+                ${p.matchReasons.map(r => `
+                  <span class="inline-flex items-center gap-0.5 text-[9px] text-slate-500 bg-slate-100 px-1.5 py-0.5 rounded">
+                    <i data-lucide="check" class="w-2.5 h-2.5 text-emerald-600"></i> ${r}
+                  </span>
+                `).join('')}
+              </div>
+
+              <!-- Nút hành động nhanh -->
+              <div class="pt-2 border-t border-slate-100 flex items-center justify-between text-xs gap-1">
+                <button onclick="openPropertyDrawer('${p['Mã Căn']}')" class="text-slate-600 hover:text-slate-900 font-semibold text-[11px] flex items-center gap-1">
+                  <i data-lucide="eye" class="w-3 h-3"></i> Xem căn
+                </button>
+                <div class="flex items-center gap-1.5">
+                  <button onclick="copyPropertyShareInfo('${p['Mã Căn']}')" class="px-2 py-1 rounded bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium text-[11px] flex items-center gap-1" title="Sao chép văn bản gửi Zalo/Messenger cho khách">
+                    <i data-lucide="copy" class="w-3 h-3"></i> Copy gửi khách
+                  </button>
+                  <button onclick="handleMatchPropertyForCustomer('${p['Mã Căn']}')" class="px-2.5 py-1 rounded bg-emerald-600 hover:bg-emerald-700 text-white font-medium text-[11px] flex items-center gap-1 shadow-xs">
+                    <i data-lucide="calendar" class="w-3 h-3"></i> Hẹn dẫn xem
+                  </button>
+                </div>
+              </div>
+            </div>
+          `;
+        }).join('');
       }
 
       // Mặc định mở tab Overview
@@ -2000,6 +2116,33 @@
       document.getElementById('formLogCustomer').value = state.selectedCustomerId;
       document.getElementById('formLogType').value = 'Dẫn xem thực tế';
       document.getElementById('formLogContent').value = 'Hẹn dẫn khách xem căn ' + propCode;
+    }
+
+    function copyPropertyShareInfo(propCode) {
+      const p = (state.data.properties || []).find(item => item['Mã Căn'] === propCode);
+      if (!p) return;
+      const s = state.data.settings || {};
+      const brokerName = s.brokerName || 'Chuyên viên tư vấn';
+      const brokerPhone = s.brokerPhone || '';
+
+      const text = `🏡 [GỢI Ý BẤT ĐỘNG SẢN PHÙ HỢP]
+📍 Địa chỉ: ${p['Địa Chỉ']}
+📐 Diện tích: ${p['Diện Tích (m2)']} m²
+💰 Giá chào bán: ${Number(p['Giá Chào (Triệu)']).toLocaleString('vi-VN')} Triệu
+🏷 Loại hình: ${p['Loại Hình']} ${p['Tên Dự Án'] ? `(${p['Tên Dự Án']})` : ''}
+📝 Pháp lý/Ghi chú: ${p['Pháp Lý'] || 'Sổ hồng riêng, công chứng ngay'}
+
+📞 Liên hệ xem nhà thực tế: ${brokerName} ${brokerPhone ? '- ' + brokerPhone : ''}`;
+
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(() => {
+          alert('Đã sao chép thông tin căn [' + propCode + '] vào bộ nhớ tạm!\nBạn có thể dán (Paste) gửi qua Zalo / Messenger ngay.');
+        }).catch(() => {
+          prompt('Vui lòng sao chép văn bản bên dưới:', text);
+        });
+      } else {
+        prompt('Vui lòng sao chép văn bản bên dưới:', text);
+      }
     }
 
     function closeDrawer() {
