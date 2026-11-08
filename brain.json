@@ -1,4 +1,19 @@
 {
+  "google_sheets_formula_locale_lesson_20261109": {
+    "issue": "Lỗi nổ hàng loạt #ERROR! và Biểu đồ báo 'Thêm một chuỗi dữ liệu...' khi Apps Script sinh Google Sheet Weekly Planner M37.",
+    "root_causes": [
+      "Tại Việt Nam (vi_VN) và các nước Châu Âu, Google Sheets quy định dấu phân cách tham số hàm là chấm phẩy (;) do dấu phẩy (,) dùng cho số thập phân. Khi Apps Script gọi setFormula() với dấu phẩy, parser nổ lỗi #ERROR!.",
+      "Ô merge G7:I8 chỉ lưu giá trị tại ô góc trên bên trái G7; script cũ trỏ nhầm ô con I7 khiến biểu đồ mất dữ liệu nguồn.",
+      "Hàm TEXT($D$3 + 0, 'dddd, dd/mm/yyyy') chứa dấu phẩy bị lỗi cú pháp trên locale tiếng Việt."
+    ],
+    "hard_rules": [
+      "Luôn dùng helper getFormulaSeparator_(ss) để tự động chọn ';' hoặc ',' theo ss.getSpreadsheetLocale().",
+      "Ngày tháng động ưu tiên dùng số học thuần túy: '=$D$3 + offset' kết hợp .setNumberFormat(), miễn nhiễm 100% lỗi cú pháp mọi ngôn ngữ.",
+      "Khi ô bị merge, chỉ tham chiếu ô góc trên bên trái (G7, J7, M7, P7, S7).",
+      "Trước khi bàn giao phải kiểm chứng bằng thực nghiệm trên Google Sheets thật, không suy đoán cú pháp."
+    ],
+    "evidence": "outputs/weekly_planner_m37/Code.gs; STANDARDS_TEMPLATE/AGENTS_MASTER.md"
+  },
   "adam_voiceover_style_20261018": {
     "speaker": "chồng",
     "audience": "con vợ",
