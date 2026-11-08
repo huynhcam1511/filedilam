@@ -50,6 +50,10 @@
     .sidebar-collapsed { width: 64px !important; }
     .sidebar-collapsed .nav-label, .sidebar-collapsed .brand-name, .sidebar-collapsed .nav-section-title { display: none !important; }
     .sidebar-collapsed .nav-item-btn { justify-content: center !important; padding-left: 0 !important; padding-right: 0 !important; }
+    .sidebar-collapsed .brand-header { justify-content: center !important; padding-left: 0 !important; padding-right: 0 !important; }
+    .sidebar-collapsed .btn-sidebar-collapse { display: none !important; }
+    .sidebar-collapsed .brand-logo-btn { display: flex !important; }
+    .brand-logo-btn { display: none; }
     .module-tab-content { display: none; }
     .module-tab-content.active { display: block; animation: fadeIn 0.2s ease-in-out; }
     @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
@@ -60,7 +64,8 @@
   <!-- ==================== DESKTOP SIDEBAR ==================== -->
   <aside id="appSidebar" class="w-60 bg-white border-r border-slate-200 flex flex-col transition-all duration-200 z-40 flex-shrink-0 select-none hidden md:flex">
     <!-- Brand Header -->
-    <div class="h-14 px-4 border-b border-slate-100 flex items-center justify-between flex-shrink-0">
+    <div class="brand-header h-14 px-4 border-b border-slate-100 flex items-center justify-between flex-shrink-0">
+      <!-- Mặc định khi sidebar mở: Logo F + Text thương hiệu -->
       <div class="flex items-center gap-2.5 min-w-0">
         <div class="w-8 h-8 rounded-lg bg-emerald-600 flex items-center justify-center text-white font-bold text-sm shadow-xs flex-shrink-0">F</div>
         <div class="brand-name flex flex-col min-w-0">
@@ -68,7 +73,15 @@
           <span class="text-[10px] text-slate-400 font-medium truncate">CRM Bất Động Sản</span>
         </div>
       </div>
-      <button onclick="toggleSidebar()" class="p-1 rounded text-slate-400 hover:text-slate-600 hover:bg-slate-100"><i data-lucide="panel-left-close" class="w-4 h-4"></i></button>
+      <!-- Nút thu gọn sidebar khi mở -->
+      <button onclick="toggleSidebar()" title="Thu gọn sidebar" class="btn-sidebar-collapse p-1.5 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors">
+        <i data-lucide="panel-left-close" class="w-4 h-4"></i>
+      </button>
+
+      <!-- Nút mở rộng sidebar khi đang thu gọn (chỉ hiện khi .sidebar-collapsed) -->
+      <button onclick="toggleSidebar()" title="Mở rộng menu" class="brand-logo-btn w-9 h-9 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white items-center justify-center font-bold text-sm shadow-xs transition-colors">
+        F
+      </button>
     </div>
 
     <!-- Navigation Menu (6 Modules) -->
@@ -262,22 +275,22 @@
       <!-- ==================== MODULE 2: KHÁCH HÀNG (LEADS CRM) ==================== -->
       <div id="module-customers" class="module-tab-content space-y-3">
         <!-- Sub-Toolbar Bộ Lọc Khách Hàng (Sprint 2) -->
-        <div class="bg-white border border-slate-200/90 rounded-xl p-3 shadow-xs flex flex-wrap items-center justify-between gap-2.5 text-xs">
-          <div class="flex flex-wrap items-center gap-2">
-            <span class="font-semibold text-slate-700 text-[11px] uppercase tracking-wider flex items-center gap-1">
+        <div class="bg-white border border-slate-200/90 rounded-xl p-3 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 text-xs">
+          <div class="flex items-center gap-2 overflow-x-auto no-scrollbar w-full sm:w-auto pb-1 sm:pb-0">
+            <span class="font-semibold text-slate-700 text-[11px] uppercase tracking-wider flex items-center gap-1 flex-shrink-0">
               <i data-lucide="filter" class="w-3.5 h-3.5 text-emerald-600"></i> Lọc nhanh:
             </span>
-            <select id="filterCustStatus" onchange="filterCustomersLocal()" class="h-8 px-2.5 bg-slate-50 border border-slate-200 rounded-lg text-slate-700 font-medium focus:bg-white focus:outline-none">
+            <select id="filterCustStatus" onchange="filterCustomersLocal()" class="h-8 px-2.5 bg-slate-50 border border-slate-200 rounded-lg text-slate-700 font-medium focus:bg-white focus:outline-none flex-shrink-0">
               <option value="">-- Tất cả trạng thái --</option>
             </select>
-            <select id="filterCustDemand" onchange="filterCustomersLocal()" class="h-8 px-2.5 bg-slate-50 border border-slate-200 rounded-lg text-slate-700 font-medium focus:bg-white focus:outline-none">
+            <select id="filterCustDemand" onchange="filterCustomersLocal()" class="h-8 px-2.5 bg-slate-50 border border-slate-200 rounded-lg text-slate-700 font-medium focus:bg-white focus:outline-none flex-shrink-0">
               <option value="">-- Tất cả nhu cầu --</option>
             </select>
-            <select id="filterCustSource" onchange="filterCustomersLocal()" class="h-8 px-2.5 bg-slate-50 border border-slate-200 rounded-lg text-slate-700 font-medium focus:bg-white focus:outline-none">
+            <select id="filterCustSource" onchange="filterCustomersLocal()" class="h-8 px-2.5 bg-slate-50 border border-slate-200 rounded-lg text-slate-700 font-medium focus:bg-white focus:outline-none flex-shrink-0">
               <option value="">-- Tất cả nguồn khách --</option>
             </select>
           </div>
-          <div class="text-[11px] text-slate-400 font-medium">
+          <div class="text-[11px] text-slate-400 font-medium flex-shrink-0 text-right">
             Hiển thị <span id="countFilteredCust" class="font-bold text-slate-700 font-mono">0</span> khách hàng
           </div>
         </div>
@@ -310,18 +323,18 @@
       <!-- ==================== MODULE 3: GIỎ HÀNG BĐS (INVENTORY SPRINT 5 ENHANCED) ==================== -->
       <div id="module-properties" class="module-tab-content space-y-3">
         <!-- Sub-Toolbar Bộ Lọc Đa Tầng Kho Hàng (Sprint 5) -->
-        <div class="bg-white border border-slate-200/90 rounded-xl p-3 shadow-xs flex flex-wrap items-center justify-between gap-2.5 text-xs">
-          <div class="flex flex-wrap items-center gap-2">
-            <span class="font-semibold text-slate-700 text-[11px] uppercase tracking-wider flex items-center gap-1">
+        <div class="bg-white border border-slate-200/90 rounded-xl p-3 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 text-xs">
+          <div class="flex items-center gap-2 overflow-x-auto no-scrollbar w-full sm:w-auto pb-1 sm:pb-0">
+            <span class="font-semibold text-slate-700 text-[11px] uppercase tracking-wider flex items-center gap-1 flex-shrink-0">
               <i data-lucide="filter" class="w-3.5 h-3.5 text-emerald-600"></i> Lọc kho:
             </span>
-            <select id="filterPropType" onchange="filterPropertiesLocal()" class="h-8 px-2.5 bg-slate-50 border border-slate-200 rounded-lg text-slate-700 font-medium focus:bg-white focus:outline-none">
+            <select id="filterPropType" onchange="filterPropertiesLocal()" class="h-8 px-2.5 bg-slate-50 border border-slate-200 rounded-lg text-slate-700 font-medium focus:bg-white focus:outline-none flex-shrink-0">
               <option value="">-- Tất cả loại hình --</option>
             </select>
-            <select id="filterPropStatus" onchange="filterPropertiesLocal()" class="h-8 px-2.5 bg-slate-50 border border-slate-200 rounded-lg text-slate-700 font-medium focus:bg-white focus:outline-none">
+            <select id="filterPropStatus" onchange="filterPropertiesLocal()" class="h-8 px-2.5 bg-slate-50 border border-slate-200 rounded-lg text-slate-700 font-medium focus:bg-white focus:outline-none flex-shrink-0">
               <option value="">-- Tất cả trạng thái --</option>
             </select>
-            <select id="filterPropPriceRange" onchange="filterPropertiesLocal()" class="h-8 px-2.5 bg-slate-50 border border-slate-200 rounded-lg text-slate-700 font-medium focus:bg-white focus:outline-none">
+            <select id="filterPropPriceRange" onchange="filterPropertiesLocal()" class="h-8 px-2.5 bg-slate-50 border border-slate-200 rounded-lg text-slate-700 font-medium focus:bg-white focus:outline-none flex-shrink-0">
               <option value="">-- Tất cả khoảng giá --</option>
               <option value="under_2000">Dưới 2 Tỷ</option>
               <option value="2000_5000">Từ 2 - 5 Tỷ</option>
@@ -329,7 +342,7 @@
               <option value="above_10000">Trên 10 Tỷ</option>
             </select>
           </div>
-          <div class="text-[11px] text-slate-400 font-medium">
+          <div class="text-[11px] text-slate-400 font-medium flex-shrink-0 text-right">
             Có <span id="countFilteredProp" class="font-bold text-slate-700 font-mono">0</span> căn trong giỏ hàng
           </div>
         </div>
@@ -362,19 +375,19 @@
       <!-- ==================== MODULE 4: LỊCH HẸN & NHẬT KÝ (SPRINT 6 ENHANCED) ==================== -->
       <div id="module-interactions" class="module-tab-content space-y-3">
         <!-- Sub-Toolbar Bộ Lọc Lịch Hẹn & Nhật Ký -->
-        <div class="bg-white border border-slate-200/90 rounded-xl p-3 shadow-xs flex flex-wrap items-center justify-between gap-2.5 text-xs">
-          <div class="flex flex-wrap items-center gap-2">
-            <span class="font-semibold text-slate-700 text-[11px] uppercase tracking-wider flex items-center gap-1">
+        <div class="bg-white border border-slate-200/90 rounded-xl p-3 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 text-xs">
+          <div class="flex items-center gap-2 overflow-x-auto no-scrollbar w-full sm:w-auto pb-1 sm:pb-0">
+            <span class="font-semibold text-slate-700 text-[11px] uppercase tracking-wider flex items-center gap-1 flex-shrink-0">
               <i data-lucide="filter" class="w-3.5 h-3.5 text-emerald-600"></i> Lọc lịch:
             </span>
-            <select id="filterLogType" onchange="filterInteractionsLocal()" class="h-8 px-2.5 bg-slate-50 border border-slate-200 rounded-lg text-slate-700 font-medium focus:bg-white focus:outline-none">
+            <select id="filterLogType" onchange="filterInteractionsLocal()" class="h-8 px-2.5 bg-slate-50 border border-slate-200 rounded-lg text-slate-700 font-medium focus:bg-white focus:outline-none flex-shrink-0">
               <option value="">-- Tất cả hình thức --</option>
               <option value="Cuộc gọi tư vấn">Cuộc gọi tư vấn</option>
               <option value="Nhắn tin Zalo">Nhắn tin Zalo</option>
               <option value="Hẹn cafe trao đổi">Hẹn cafe trao đổi</option>
               <option value="Dẫn xem thực tế">Dẫn xem thực tế</option>
             </select>
-            <select id="filterLogSchedule" onchange="filterInteractionsLocal()" class="h-8 px-2.5 bg-slate-50 border border-slate-200 rounded-lg text-slate-700 font-medium focus:bg-white focus:outline-none">
+            <select id="filterLogSchedule" onchange="filterInteractionsLocal()" class="h-8 px-2.5 bg-slate-50 border border-slate-200 rounded-lg text-slate-700 font-medium focus:bg-white focus:outline-none flex-shrink-0">
               <option value="">-- Tất cả thời gian hẹn --</option>
               <option value="today">Lịch hẹn hôm nay</option>
               <option value="upcoming">Lịch hẹn sắp tới</option>
@@ -382,7 +395,7 @@
               <option value="none">Không có lịch hẹn tiếp</option>
             </select>
           </div>
-          <div class="flex items-center gap-2">
+          <div class="flex items-center justify-between sm:justify-end gap-2 flex-shrink-0">
             <span class="text-[11px] text-slate-400 font-medium">Có <span id="countFilteredLogs" class="font-bold text-slate-700 font-mono">0</span> nhật ký</span>
             <button onclick="openAddInteractionModal()" class="px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs flex items-center gap-1.5 shadow-xs transition">
               <i data-lucide="plus" class="w-3.5 h-3.5"></i> Ghi nhật ký mới
@@ -416,23 +429,23 @@
       <!-- ==================== MODULE 5: CHỐT CỌC & HOA HỒNG (SPRINT 7) ==================== -->
       <div id="module-deals" class="module-tab-content space-y-3">
         <!-- Sub-Toolbar Lọc Hợp Đồng & Deals -->
-        <div class="flex flex-wrap items-center justify-between gap-2.5 bg-white p-3 rounded-xl border border-slate-200/90 shadow-xs">
-          <div class="flex flex-wrap items-center gap-2">
-            <select id="filterDealStatus" onchange="filterDealsLocal()" class="h-8 px-2.5 text-xs bg-slate-50 border border-slate-200 rounded-lg focus:border-emerald-500 focus:outline-none font-medium text-slate-700">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 bg-white p-3 rounded-xl border border-slate-200/90 shadow-xs">
+          <div class="flex items-center gap-2 overflow-x-auto no-scrollbar w-full sm:w-auto pb-1 sm:pb-0">
+            <select id="filterDealStatus" onchange="filterDealsLocal()" class="h-8 px-2.5 text-xs bg-slate-50 border border-slate-200 rounded-lg focus:border-emerald-500 focus:outline-none font-medium text-slate-700 flex-shrink-0">
               <option value="">-- Tất cả trạng thái --</option>
               <option value="Đã thu hoa hồng">Đã thu hoa hồng</option>
               <option value="Chờ chủ nhà thanh toán">Chờ chủ nhà thanh toán</option>
             </select>
-            <select id="filterDealTime" onchange="filterDealsLocal()" class="h-8 px-2.5 text-xs bg-slate-50 border border-slate-200 rounded-lg focus:border-emerald-500 focus:outline-none font-medium text-slate-700">
+            <select id="filterDealTime" onchange="filterDealsLocal()" class="h-8 px-2.5 text-xs bg-slate-50 border border-slate-200 rounded-lg focus:border-emerald-500 focus:outline-none font-medium text-slate-700 flex-shrink-0">
               <option value="">-- Mọi thời điểm --</option>
               <option value="this_month">Tháng này</option>
               <option value="last_month">Tháng trước</option>
               <option value="this_year">Năm nay</option>
             </select>
-            <span class="text-xs text-slate-400 font-mono" id="dealCountBadge">0 hợp đồng</span>
+            <span class="text-xs text-slate-400 font-mono flex-shrink-0" id="dealCountBadge">0 hợp đồng</span>
           </div>
 
-          <button onclick="openAddDealModal(false)" class="h-8 px-3 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs flex items-center gap-1.5 transition-colors shadow-xs">
+          <button onclick="openAddDealModal(false)" class="h-8 px-3 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs flex items-center justify-center gap-1.5 transition-colors shadow-xs flex-shrink-0 w-full sm:w-auto">
             <i data-lucide="badge-dollar-sign" class="w-3.5 h-3.5"></i> Lập HĐ Chốt Deal
           </button>
         </div>
@@ -466,20 +479,20 @@
       <!-- ==================== MODULE 6: CÀI ĐẶT & DANH MỤC (MASTER TAXONOMY 2-PANEL) ==================== -->
       <div id="module-settings" class="module-tab-content space-y-4">
         <!-- Sub-Nav Switcher: Cấu Hình vs Quản Lý Danh Mục -->
-        <div class="flex items-center justify-between border-b border-slate-200 pb-2">
-          <div class="flex items-center gap-2">
-            <button type="button" onclick="switchSettingsSubTab('taxonomy')" id="subtab-btn-taxonomy" class="px-3.5 py-1.5 text-xs font-semibold rounded-lg bg-emerald-50 text-emerald-700 transition">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between border-b border-slate-200 pb-2 gap-2">
+          <div class="flex items-center gap-2 overflow-x-auto no-scrollbar w-full sm:w-auto pb-1 sm:pb-0">
+            <button type="button" onclick="switchSettingsSubTab('taxonomy')" id="subtab-btn-taxonomy" class="px-3.5 py-1.5 text-xs font-semibold rounded-lg bg-emerald-50 text-emerald-700 transition flex-shrink-0">
               Quản lý danh mục
             </button>
-            <button type="button" onclick="switchSettingsSubTab('config')" id="subtab-btn-config" class="px-3.5 py-1.5 text-xs font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-lg transition">
+            <button type="button" onclick="switchSettingsSubTab('config')" id="subtab-btn-config" class="px-3.5 py-1.5 text-xs font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-lg transition flex-shrink-0">
               Hồ sơ & Tài khoản VietQR
             </button>
           </div>
-          <div class="flex items-center gap-2">
-            <button type="button" onclick="generateSampleFunnelData()" class="px-3 py-1 text-[11px] font-semibold text-emerald-700 bg-emerald-50 hover:bg-emerald-100 rounded-lg border border-emerald-200 transition flex items-center gap-1">
+          <div class="flex items-center gap-2 overflow-x-auto no-scrollbar w-full sm:w-auto pb-1 sm:pb-0 justify-between sm:justify-end">
+            <button type="button" onclick="generateSampleFunnelData()" class="px-3 py-1 text-[11px] font-semibold text-emerald-700 bg-emerald-50 hover:bg-emerald-100 rounded-lg border border-emerald-200 transition flex items-center gap-1 flex-shrink-0">
               <i data-lucide="database" class="w-3.5 h-3.5"></i> Nạp data mẫu (10 BĐS, 100 Khách, 80 Hẹn, 20 Cọc)
             </button>
-            <button type="button" onclick="resetSettingsToDefault()" class="px-2.5 py-1 text-[11px] font-medium text-slate-500 hover:text-rose-600 hover:bg-rose-50 rounded border border-slate-200 transition">
+            <button type="button" onclick="resetSettingsToDefault()" class="px-2.5 py-1 text-[11px] font-medium text-slate-500 hover:text-rose-600 hover:bg-rose-50 rounded border border-slate-200 transition flex-shrink-0">
               Khôi phục mặc định
             </button>
           </div>
@@ -537,20 +550,20 @@
           <div class="flex-1 flex flex-col p-4 md:p-5 overflow-hidden">
             <!-- Header Cột Phải: Tiêu đề danh mục + Search + Nút Thêm mới -->
             <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-100">
-              <div class="flex items-center gap-2.5">
-                <div class="w-48 sm:w-64 relative">
+              <div class="flex items-center gap-2.5 w-full sm:w-auto">
+                <div class="flex-1 sm:w-64 relative">
                   <i data-lucide="search" class="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-1/2 -translate-y-1/2"></i>
                   <input type="text" id="inputTaxonomySearch" oninput="renderTaxonomyTable()" placeholder="Tìm trong danh mục..." class="w-full h-8 pl-8 pr-3 text-xs bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:border-emerald-500 focus:bg-white transition">
                 </div>
-                <button type="button" onclick="openTaxonomyModal()" id="btnTaxonomyAdd" class="h-8 px-3 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold flex items-center gap-1.5 shadow-xs transition">
+                <button type="button" onclick="openTaxonomyModal()" id="btnTaxonomyAdd" class="h-8 px-3 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold flex items-center gap-1.5 shadow-xs transition flex-shrink-0">
                   <i data-lucide="plus" class="w-3.5 h-3.5"></i> <span id="btnTaxonomyAddText">Thêm loại hình</span>
                 </button>
               </div>
 
               <!-- Thống kê & Sắp xếp -->
-              <div class="flex items-center justify-between sm:justify-end gap-3 text-xs text-slate-500">
-                <span id="taxonomyCountSummary">0 mục đã khai báo · Chọn một dòng để xem và sửa</span>
-                <select id="selectTaxonomySort" onchange="renderTaxonomyTable()" class="h-7 px-2 text-[11px] bg-slate-50 border border-slate-200 rounded-md focus:outline-none">
+              <div class="flex items-center justify-between sm:justify-end gap-3 text-xs text-slate-500 w-full sm:w-auto">
+                <span id="taxonomyCountSummary" class="truncate text-[11px]">0 mục đã khai báo</span>
+                <select id="selectTaxonomySort" onchange="renderTaxonomyTable()" class="h-7 px-2 text-[11px] bg-slate-50 border border-slate-200 rounded-md focus:outline-none flex-shrink-0">
                   <option value="sortOrder">Thứ tự tùy chỉnh</option>
                   <option value="name">Tên A-Z</option>
                   <option value="status">Trạng thái</option>
