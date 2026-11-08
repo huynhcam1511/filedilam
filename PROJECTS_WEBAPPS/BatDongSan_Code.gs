@@ -1,6 +1,6 @@
 /**
  * ==============================================================================
- * BẤT ĐỘNG SẢN CRM PRO - GOOGLE APPS SCRIPT BACKEND (V2.0 MICRO-SPEC)
+ * BẤT ĐỘNG SẢN CRM PRO - GOOGLE APPS SCRIPT BACKEND (V2.1 - SPRINT 1 COMPLETE)
  * Thương hiệu: File Đi Làm
  * Nền tảng: Google Apps Script + Google Sheets (Single Source of Truth)
  * ==============================================================================
@@ -34,7 +34,7 @@ function getInitialData() {
   try {
     const ss = SpreadsheetApp.getActiveSpreadsheet();
     
-    // Đảm bảo các sheet tồn tại
+    // Đảm bảo các sheet tồn tại và có header chuẩn
     ensureRequiredSheets_(ss);
 
     const customers = readSheetData_(ss, CONFIG_BDS.SHEET_NAMES.CUSTOMERS);
@@ -43,7 +43,7 @@ function getInitialData() {
     const deals = readSheetData_(ss, CONFIG_BDS.SHEET_NAMES.DEALS);
     const settingsRaw = readSheetData_(ss, CONFIG_BDS.SHEET_NAMES.SETTINGS);
 
-    // Chuẩn hóa cấu hình Settings
+    // Chuẩn hóa cấu hình Settings & Master Taxonomy
     const settings = parseSettingsData_(settingsRaw);
 
     return {
@@ -156,8 +156,6 @@ function saveInteraction(payload) {
 
 /**
  * Chốt Cọc & Hoa Hồng - CẬP NHẬT TỰ ĐỘNG QUAN HỆ CHÉO (Module 5)
- * Căn BĐS -> Đổi sang "Đã chốt/Đã cọc"
- * Khách Hàng -> Đổi sang "Đã chốt cọc"
  */
 function saveDeal(payload) {
   const lock = LockService.getScriptLock();
@@ -206,7 +204,8 @@ function saveDeal(payload) {
 }
 
 /**
- * Lưu Cài Đặt Hệ Thống & Danh Mục (Module 6)
+ * SPRINT 1 CHUYÊN SÂU: Lưu Cài Đặt Hệ Thống & Toàn Bộ Master Taxonomy (Module 6)
+ * Hỗ trợ lưu danh mục động, cấu hình hoa hồng chuẩn, tài khoản VietQR và hạn nhắc việc.
  */
 function saveSettings(payload) {
   const lock = LockService.getScriptLock();
@@ -219,13 +218,23 @@ function saveSettings(payload) {
     sh.clear();
     sh.appendRow(['Khóa Tham Số', 'Giá Trị Tham Số', 'Mô Tả / Phân Loại']);
 
-    sh.appendRow(['BROKER_NAME', payload.brokerName || '', 'Thông tin cá nhân']);
-    sh.appendRow(['BROKER_PHONE', payload.brokerPhone || '', 'Thông tin cá nhân']);
-    sh.appendRow(['BANK_NAME', payload.bankName || '', 'Ngân hàng']);
-    sh.appendRow(['BANK_ACC', payload.bankAcc || '', 'Số tài khoản']);
-    sh.appendRow(['BANK_HOLDER', payload.bankHolder || '', 'Chủ tài khoản']);
-    sh.appendRow(['PROPERTY_TYPES', (payload.propertyTypes || []).join(';'), 'Danh mục loại hình']);
-    sh.appendRow(['CUSTOMER_SOURCES', (payload.customerSources || []).join(';'), 'Danh mục nguồn khách']);
+    const rowsToAppend = [
+      ['BROKER_NAME', payload.brokerName || '', 'Hồ sơ cá nhân: Họ tên môi giới'],
+      ['BROKER_PHONE', payload.brokerPhone || '', 'Hồ sơ cá nhân: Số điện thoại'],
+      ['BROKER_EMAIL', payload.brokerEmail || '', 'Hồ sơ cá nhân: Email liên hệ'],
+      ['AGENCY_NAME', payload.agencyName || '', 'Hồ sơ cá nhân: Sàn / Đội nhóm'],
+      ['BANK_NAME', payload.bankName || 'MB Bank', 'Thanh toán: Tên ngân hàng nhận hoa hồng'],
+      ['BANK_ACC', payload.bankAcc || '', 'Thanh toán: Số tài khoản ngân hàng'],
+      ['BANK_HOLDER', payload.bankHolder || '', 'Thanh toán: Tên chủ tài khoản (In hoa)'],
+      ['DEFAULT_COMM_RATE', String(payload.defaultCommRate || '1.5'), 'Cấu hình: % Hoa hồng mặc định'],
+      ['FOLLOWUP_ALERT_DAYS', String(payload.followupAlertDays || '0'), 'Cấu hình: Số ngày nhắc việc trước hạn'],
+      ['PROPERTY_TYPES', (payload.propertyTypes || []).join(';'), 'Master Taxonomy: Danh mục loại hình BĐS'],
+      ['CUSTOMER_SOURCES', (payload.customerSources || []).join(';'), 'Master Taxonomy: Danh mục nguồn khách'],
+      ['CUSTOMER_STATUSES', (payload.customerStatuses || []).join(';'), 'Master Taxonomy: Danh mục trạng thái khách'],
+      ['PROPERTY_STATUSES', (payload.propertyStatuses || []).join(';'), 'Master Taxonomy: Danh mục trạng thái căn']
+    ];
+
+    rowsToAppend.forEach(r => sh.appendRow(r));
 
     return { success: true };
   } catch (err) {
@@ -233,6 +242,28 @@ function saveSettings(payload) {
   } finally {
     lock.releaseLock();
   }
+}
+
+/**
+ * SPRINT 1 CHUYÊN SÂU: Khôi phục danh mục và cài đặt gốc (Reset Default Settings)
+ */
+function resetDefaultSettings() {
+  const defaultPayload = {
+    brokerName: 'Môi Giới Chuyên Nghiệp',
+    brokerPhone: '0900000000',
+    brokerEmail: 'broker@filedilam.vn',
+    agencyName: 'Văn Phòng Bất Động Sản',
+    bankName: 'MB Bank',
+    bankAcc: '0900000000',
+    bankHolder: 'NGUYEN VAN A',
+    defaultCommRate: 1.5,
+    followupAlertDays: 0,
+    propertyTypes: ['Chung cư', 'Nhà phố', 'Đất nền', 'Biệt thự / Shophouse', 'Cho thuê'],
+    customerSources: ['Facebook Ads', 'Tiktok Bio', 'Người quen giới thiệu', 'Đăng tin BĐS', 'Khách vãng lai'],
+    customerStatuses: ['Mới tiếp cận', 'Đang chăm', 'Đang dẫn xem', 'Đang thương lượng', 'Đã chốt cọc', 'Dừng chăm sóc'],
+    propertyStatuses: ['Đang bán', 'Đã cọc/Đã bán', 'Tạm ngưng']
+  };
+  return saveSettings(defaultPayload);
 }
 
 /**
@@ -251,30 +282,43 @@ function updateEntityStatus_(ss, sheetName, idColIndex, idValue, targetColIndex,
 }
 
 /**
- * Helper phân tích dữ liệu Settings phẳng thành cấu trúc JSON chuẩn
+ * Helper phân tích dữ liệu Settings phẳng thành cấu trúc JSON chuẩn đầy đủ (Sprint 1)
  */
 function parseSettingsData_(rows) {
   const settings = {
     brokerName: 'Môi Giới Chuyên Nghiệp',
     brokerPhone: '0900000000',
+    brokerEmail: 'broker@filedilam.vn',
+    agencyName: 'Văn Phòng Bất Động Sản',
     bankName: 'MB Bank',
     bankAcc: '0900000000',
     bankHolder: 'NGUYEN VAN A',
+    defaultCommRate: 1.5,
+    followupAlertDays: 0,
     propertyTypes: ['Chung cư', 'Nhà phố', 'Đất nền', 'Biệt thự / Shophouse', 'Cho thuê'],
     customerSources: ['Facebook Ads', 'Tiktok Bio', 'Người quen giới thiệu', 'Đăng tin BĐS', 'Khách vãng lai'],
-    customerStatuses: ['Mới tiếp cận', 'Đang chăm', 'Đang dẫn xem', 'Đang thương lượng', 'Đã chốt cọc', 'Dừng chăm sóc']
+    customerStatuses: ['Mới tiếp cận', 'Đang chăm', 'Đang dẫn xem', 'Đang thương lượng', 'Đã chốt cọc', 'Dừng chăm sóc'],
+    propertyStatuses: ['Đang bán', 'Đã cọc/Đã bán', 'Tạm ngưng']
   };
 
   rows.forEach(r => {
     const key = String(r['Khóa Tham Số'] || '').trim();
     const val = String(r['Giá Trị Tham Số'] || '').trim();
+    if (!key) return;
+
     if (key === 'BROKER_NAME' && val) settings.brokerName = val;
     if (key === 'BROKER_PHONE' && val) settings.brokerPhone = val;
+    if (key === 'BROKER_EMAIL' && val) settings.brokerEmail = val;
+    if (key === 'AGENCY_NAME' && val) settings.agencyName = val;
     if (key === 'BANK_NAME' && val) settings.bankName = val;
     if (key === 'BANK_ACC' && val) settings.bankAcc = val;
     if (key === 'BANK_HOLDER' && val) settings.bankHolder = val;
+    if (key === 'DEFAULT_COMM_RATE' && val) settings.defaultCommRate = Number(val) || 1.5;
+    if (key === 'FOLLOWUP_ALERT_DAYS' && val) settings.followupAlertDays = Number(val) || 0;
     if (key === 'PROPERTY_TYPES' && val) settings.propertyTypes = val.split(';').map(s => s.trim()).filter(Boolean);
     if (key === 'CUSTOMER_SOURCES' && val) settings.customerSources = val.split(';').map(s => s.trim()).filter(Boolean);
+    if (key === 'CUSTOMER_STATUSES' && val) settings.customerStatuses = val.split(';').map(s => s.trim()).filter(Boolean);
+    if (key === 'PROPERTY_STATUSES' && val) settings.propertyStatuses = val.split(';').map(s => s.trim()).filter(Boolean);
   });
 
   return settings;
