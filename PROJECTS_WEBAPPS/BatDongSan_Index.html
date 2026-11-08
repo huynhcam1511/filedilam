@@ -137,42 +137,106 @@
     <!-- CONTENT SCROLL AREA -->
     <div class="flex-1 min-h-0 overflow-y-auto bg-slate-50/50 p-4 sm:p-6 custom-scrollbar">
       
-      <!-- ==================== MODULE 1: DASHBOARD ==================== -->
-      <div id="module-dashboard" class="module-tab-content active space-y-5">
+      <!-- ==================== MODULE 1: DASHBOARD (SPRINT 10 EXECUTIVE ANALYTICS) ==================== -->
+      <div id="module-dashboard" class="module-tab-content active space-y-4">
         <!-- 4 KPI Cards -->
         <div class="grid grid-cols-2 lg:grid-cols-4 gap-3.5">
           <div class="bg-white border border-slate-200/90 rounded-xl p-4 shadow-xs">
-            <div class="flex items-center justify-between"><span class="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">Khách đang chăm</span><div class="w-2 h-2 rounded-full bg-emerald-500"></div></div>
-            <div class="mt-2 flex items-baseline gap-2"><span class="text-2xl font-bold text-slate-900 tracking-tight" id="dashKpiCust">0</span><span class="text-[11px] text-slate-400 font-medium">người</span></div>
+            <div class="flex items-center justify-between">
+              <span class="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">Khách đang chăm</span>
+              <div class="w-2 h-2 rounded-full bg-emerald-500"></div>
+            </div>
+            <div class="mt-2 flex items-baseline gap-2">
+              <span class="text-2xl font-bold text-slate-900 tracking-tight" id="dashKpiCust">0</span>
+              <span class="text-[11px] text-slate-400 font-medium">người</span>
+            </div>
+            <div class="mt-1 text-[10px] text-slate-400 font-medium">Hồ sơ khách đang kích hoạt</div>
           </div>
+
           <div class="bg-white border border-slate-200/90 rounded-xl p-4 shadow-xs">
-            <div class="flex items-center justify-between"><span class="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">Lịch hẹn hôm nay</span><div class="w-2 h-2 rounded-full bg-blue-500"></div></div>
-            <div class="mt-2 flex items-baseline gap-2"><span class="text-2xl font-bold text-slate-900 tracking-tight" id="dashKpiAppt">0</span><span class="text-[11px] text-slate-400 font-medium">lượt</span></div>
+            <div class="flex items-center justify-between">
+              <span class="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">Lịch hẹn hôm nay</span>
+              <div class="w-2 h-2 rounded-full bg-blue-500"></div>
+            </div>
+            <div class="mt-2 flex items-baseline gap-2">
+              <span class="text-2xl font-bold text-slate-900 tracking-tight" id="dashKpiAppt">0</span>
+              <span class="text-[11px] text-slate-400 font-medium">lượt</span>
+            </div>
+            <div class="mt-1 text-[10px] text-blue-600 font-medium" id="dashKpiApptSub">0 cần gọi/dẫn xem</div>
           </div>
+
           <div class="bg-white border border-slate-200/90 rounded-xl p-4 shadow-xs">
-            <div class="flex items-center justify-between"><span class="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">Nguồn hàng mở bán</span><div class="w-2 h-2 rounded-full bg-indigo-500"></div></div>
-            <div class="mt-2 flex items-baseline gap-2"><span class="text-2xl font-bold text-slate-900 tracking-tight" id="dashKpiProp">0</span><span class="text-[11px] text-slate-400 font-medium">căn</span></div>
+            <div class="flex items-center justify-between">
+              <span class="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">Giỏ hàng mở bán</span>
+              <div class="w-2 h-2 rounded-full bg-indigo-500"></div>
+            </div>
+            <div class="mt-2 flex items-baseline gap-2">
+              <span class="text-2xl font-bold text-slate-900 tracking-tight" id="dashKpiProp">0</span>
+              <span class="text-[11px] text-slate-400 font-medium">căn</span>
+            </div>
+            <div class="mt-1 text-[10px] text-slate-400 font-medium" id="dashKpiPropSub">Tỷ lệ thanh khoản: 0%</div>
           </div>
+
           <div class="bg-white border border-slate-200/90 rounded-xl p-4 shadow-xs">
-            <div class="flex items-center justify-between"><span class="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">Hoa hồng tháng này</span><div class="w-2 h-2 rounded-full bg-amber-500"></div></div>
-            <div class="mt-2 flex items-baseline gap-1"><span class="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight font-mono" id="dashKpiComm">0</span><span class="text-xs font-semibold text-slate-400">đ</span></div>
+            <div class="flex items-center justify-between">
+              <span class="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">Hoa hồng thực nhận</span>
+              <div class="w-2 h-2 rounded-full bg-amber-500"></div>
+            </div>
+            <div class="mt-2 flex items-baseline gap-1">
+              <span class="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight font-mono" id="dashKpiComm">0</span>
+              <span class="text-xs font-semibold text-slate-400">đ</span>
+            </div>
+            <div class="mt-1 text-[10px] text-emerald-600 font-medium" id="dashKpiDealCount">0 giao dịch thành công</div>
+          </div>
+        </div>
+
+        <!-- SPRINT 10: Phễu chuyển đổi bán hàng (Sales Conversion Funnel) -->
+        <div class="bg-white border border-slate-200/90 rounded-xl p-4 shadow-xs space-y-3">
+          <div class="flex items-center justify-between border-b border-slate-100 pb-2.5">
+            <div class="flex items-center gap-2">
+              <i data-lucide="filter" class="w-4 h-4 text-emerald-600"></i>
+              <span class="text-xs font-bold text-slate-800 uppercase tracking-wider">Phễu chuyển đổi khách hàng (Sales Pipeline Funnel)</span>
+            </div>
+            <span class="text-[10px] text-slate-400 font-mono">Tự động tính theo thời gian thực</span>
+          </div>
+
+          <div class="grid grid-cols-2 sm:grid-cols-5 gap-2 pt-1" id="funnelStagesContainer">
+            <!-- Dynamic Funnel Steps -->
           </div>
         </div>
 
         <!-- 2 Chart Containers -->
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
           <div class="bg-white border border-slate-200/90 rounded-xl p-4 sm:p-5 shadow-xs flex flex-col">
-            <div class="flex items-center justify-between mb-3 border-b border-slate-100 pb-2.5"><span class="text-xs font-semibold text-slate-800 uppercase tracking-wider">Cơ cấu nhu cầu khách</span><span class="text-[10px] text-slate-400 font-mono">Tỷ lệ %</span></div>
+            <div class="flex items-center justify-between mb-3 border-b border-slate-100 pb-2.5">
+              <span class="text-xs font-semibold text-slate-800 uppercase tracking-wider">Cơ cấu nguồn khách tiếp cận</span>
+              <span class="text-[10px] text-slate-400 font-mono">Nguồn chuyển đổi</span>
+            </div>
             <div class="relative flex-1 flex items-center justify-center min-h-[220px]"><canvas id="chartDemandCanvas"></canvas></div>
           </div>
           <div class="bg-white border border-slate-200/90 rounded-xl p-4 sm:p-5 shadow-xs flex flex-col">
-            <div class="flex items-center justify-between mb-3 border-b border-slate-100 pb-2.5"><span class="text-xs font-semibold text-slate-800 uppercase tracking-wider">Phân bổ nguồn hàng BĐS</span><span class="text-[10px] text-slate-400 font-mono">Số lượng căn</span></div>
+            <div class="flex items-center justify-between mb-3 border-b border-slate-100 pb-2.5">
+              <span class="text-xs font-semibold text-slate-800 uppercase tracking-wider">Doanh thu hoa hồng theo loại hình BĐS</span>
+              <span class="text-[10px] text-slate-400 font-mono">Doanh thu VNĐ</span>
+            </div>
             <div class="relative flex-1 flex items-center justify-center min-h-[220px]"><canvas id="chartPropertyCanvas"></canvas></div>
           </div>
         </div>
 
         <!-- Daily Action Queue: Lịch hẹn hôm nay -->
         <div class="bg-white border border-slate-200/90 rounded-xl shadow-xs overflow-hidden">
+          <div class="px-4 py-3 border-b border-slate-100 flex items-center justify-between">
+            <div class="flex items-center gap-2">
+              <span class="w-2 h-2 rounded-full bg-blue-500 animate-pulse"></span>
+              <span class="text-xs font-semibold text-slate-800 uppercase tracking-wider">Việc khẩn cần làm hôm nay (Lịch hẹn / Follow-up)</span>
+            </div>
+            <button onclick="switchTab('interactions')" class="text-xs font-semibold text-emerald-600 hover:text-emerald-700">Xem tất cả lịch hẹn →</button>
+          </div>
+          <div id="dashTodayActionList" class="p-4 divide-y divide-slate-100">
+            <!-- Render danh sách việc hôm nay -->
+          </div>
+        </div>
+      </div>
           <div class="px-4 py-3 border-b border-slate-100 flex items-center justify-between">
             <div class="flex items-center gap-2">
               <span class="w-2 h-2 rounded-full bg-blue-500 animate-pulse"></span>
@@ -1114,46 +1178,99 @@
       populateDropdowns();
     }
 
-    // ==================== MODULE 1: DASHBOARD ====================
+    // ==================== MODULE 1: DASHBOARD (SPRINT 10 EXECUTIVE ANALYTICS) ====================
     function renderDashboard() {
       const custs = state.data.customers || [];
       const props = state.data.properties || [];
       const logs = state.data.logs || [];
       const deals = state.data.deals || [];
 
-      // 4 KPIs
-      const activeCusts = custs.filter(c => c['Trạng Thái'] !== 'Dừng chăm sóc').length;
+      // 1. KPIs CHUYÊN SÂU
+      const activeCusts = custs.filter(c => c['Trạng Thái'] !== 'Dừng chăm sóc' && c['Trạng Thái'] !== 'Đã xóa').length;
       document.getElementById('dashKpiCust').innerText = activeCusts;
 
       const todayStr = new Date().toISOString().slice(0, 10);
       const todayLogs = logs.filter(l => l['Lịch Hẹn Tiếp'] === todayStr);
       document.getElementById('dashKpiAppt').innerText = todayLogs.length;
+      const apptSub = document.getElementById('dashKpiApptSub');
+      if (apptSub) apptSub.innerText = todayLogs.length > 0 ? `${todayLogs.length} khách cần tương tác gấp` : 'Đã hoàn thành lịch hẹn hôm nay';
 
-      const activeProps = props.filter(p => p['Trạng Thái'] === 'Đang bán').length;
+      const totalProps = props.filter(p => p['Trạng Thái'] !== 'Đã xóa');
+      const activeProps = totalProps.filter(p => p['Trạng Thái'] === 'Đang bán').length;
       document.getElementById('dashKpiProp').innerText = activeProps;
+      const propSub = document.getElementById('dashKpiPropSub');
+      if (propSub) {
+        const soldProps = totalProps.filter(p => p['Trạng Thái'] === 'Đã cọc/Đã bán').length;
+        const rate = totalProps.length > 0 ? Math.round((soldProps / totalProps.length) * 100) : 0;
+        propSub.innerText = `Thanh khoản: ${rate}% (${soldProps}/${totalProps.length} căn)`;
+      }
 
-      const totalComm = deals.reduce((sum, d) => sum + (Number(d['Hoa Hồng Thực Nhận (đ)']) || 0), 0);
+      const activeDeals = deals.filter(d => d['Trạng Thái'] !== 'Đã hủy/Đã xóa' && d['Trạng Thái'] !== 'Đã xóa');
+      const totalComm = activeDeals.reduce((sum, d) => sum + (Number(d['Hoa Hồng Thực Nhận (đ)']) || 0), 0);
       document.getElementById('dashKpiComm').innerText = totalComm.toLocaleString('vi-VN');
+      const dealCountEl = document.getElementById('dashKpiDealCount');
+      if (dealCountEl) dealCountEl.innerText = `${activeDeals.length} giao dịch thành công`;
 
-      // Daily Action Queue
+      // 2. PHỄU CHUYỂN ĐỔI BÁN HÀNG (SALES CONVERSION FUNNEL)
+      renderSalesFunnel(custs);
+
+      // 3. DAILY ACTION QUEUE (HÔM NAY)
       const actionContainer = document.getElementById('dashTodayActionList');
       if (todayLogs.length === 0) {
-        actionContainer.innerHTML = '<div class="text-xs text-slate-400 py-2">Hôm nay không có lịch hẹn nào cần xử lý gấp.</div>';
+        actionContainer.innerHTML = '<div class="text-xs text-slate-400 py-3 text-center">Hôm nay không có lịch hẹn nào cần xử lý gấp. Bạn có thể chủ động liên hệ danh sách "Mới tiếp cận"!</div>';
       } else {
         actionContainer.innerHTML = todayLogs.map(l => `
-          <div class="py-2.5 flex items-center justify-between">
-            <div>
-              <div class="font-semibold text-xs text-slate-800">${l['Tên Khách']} · <span class="text-slate-400 font-normal">${l['Hình Thức']}</span></div>
-              <div class="text-[11px] text-slate-500 mt-0.5">${l['Nội Dung Trao Đổi']}</div>
+          <div class="py-2.5 flex items-center justify-between gap-3">
+            <div class="min-w-0">
+              <div class="font-semibold text-xs text-slate-800 flex items-center gap-1.5 truncate">
+                <span>${l['Tên Khách']}</span>
+                <span class="text-[10px] px-1.5 py-0.5 rounded bg-slate-100 text-slate-600 font-normal">${l['Hình Thức']}</span>
+              </div>
+              <div class="text-[11px] text-slate-500 mt-0.5 truncate">${l['Nội Dung Trao Đổi']}</div>
             </div>
-            <button onclick="switchTab('customers'); openCustomerDrawerByCode('${l['Mã Khách']}')" class="px-2.5 py-1 rounded bg-slate-100 hover:bg-slate-200 text-slate-700 text-[11px] font-medium">Mở hồ sơ</button>
+            <button onclick="switchTab('customers'); openCustomerDrawerByCode('${l['Mã Khách']}')" class="px-2.5 py-1 rounded bg-emerald-50 hover:bg-emerald-100 text-emerald-700 text-[11px] font-semibold shrink-0">
+              Mở hồ sơ
+            </button>
           </div>
         `).join('');
       }
 
-      // Render 2 Charts
+      // 4. BIỂU ĐỒ EXECUTIVE (CHART.JS)
       renderDemandChart(custs);
-      renderPropertyChart(props);
+      renderPropertyChart(props, activeDeals);
+    }
+
+    function renderSalesFunnel(custs) {
+      const container = document.getElementById('funnelStagesContainer');
+      if (!container) return;
+
+      const validCusts = custs.filter(c => c['Trạng Thái'] !== 'Đã xóa');
+      const total = validCusts.length || 1;
+
+      const stages = [
+        { name: 'Mới tiếp cận', color: 'border-slate-300 text-slate-700 bg-slate-50/60' },
+        { name: 'Đang chăm', color: 'border-blue-300 text-blue-700 bg-blue-50/60' },
+        { name: 'Đang dẫn xem', color: 'border-amber-300 text-amber-700 bg-amber-50/60' },
+        { name: 'Đang thương lượng', color: 'border-purple-300 text-purple-700 bg-purple-50/60' },
+        { name: 'Đã chốt cọc', color: 'border-emerald-300 text-emerald-700 bg-emerald-50/60' }
+      ];
+
+      container.innerHTML = stages.map((st, idx) => {
+        const count = validCusts.filter(c => c['Trạng Thái'] === st.name).length;
+        const pct = Math.round((count / total) * 100);
+        return `
+          <div class="p-2.5 rounded-xl border ${st.color} space-y-1">
+            <div class="text-[10px] font-medium text-slate-500 uppercase tracking-tight truncate">${idx + 1}. ${st.name}</div>
+            <div class="flex items-baseline justify-between">
+              <span class="text-lg font-bold font-mono text-slate-900">${count}</span>
+              <span class="text-[10px] font-mono text-slate-500 font-semibold">${pct}%</span>
+            </div>
+            <div class="w-full bg-slate-200/80 rounded-full h-1 overflow-hidden">
+              <div class="bg-emerald-500 h-1 rounded-full transition-all duration-500" style="width: ${pct}%"></div>
+            </div>
+          </div>
+        `;
+      }).join('');
     }
 
     function renderDemandChart(custs) {
@@ -1162,39 +1279,81 @@
       if (state.charts.demand) state.charts.demand.destroy();
 
       const counts = {};
-      custs.forEach(c => {
-        const type = c['Nhu Cầu'] || 'Chung cư';
-        counts[type] = (counts[type] || 0) + 1;
+      const valid = custs.filter(c => c['Trạng Thái'] !== 'Đã xóa');
+      valid.forEach(c => {
+        const src = c['Nguồn Khách'] || 'Chưa phân loại';
+        counts[src] = (counts[src] || 0) + 1;
       });
+
+      const labels = Object.keys(counts);
+      const data = Object.values(counts);
 
       state.charts.demand = new Chart(ctx, {
         type: 'doughnut',
         data: {
-          labels: Object.keys(counts),
-          datasets: [{ data: Object.values(counts), backgroundColor: ['#10B981', '#3B82F6', '#8B5CF6', '#F59E0B', '#94A3B8'] }]
+          labels: labels.length > 0 ? labels : ['Chưa có dữ liệu'],
+          datasets: [{ 
+            data: data.length > 0 ? data : [1], 
+            backgroundColor: ['#10B981', '#3B82F6', '#8B5CF6', '#F59E0B', '#EC4899', '#64748B'] 
+          }]
         },
-        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, font: { size: 10 } } } } }
+        options: { 
+          responsive: true, 
+          maintainAspectRatio: false, 
+          plugins: { 
+            legend: { 
+              position: 'bottom', 
+              labels: { boxWidth: 10, font: { size: 10 } } 
+            } 
+          } 
+        }
       });
     }
 
-    function renderPropertyChart(props) {
+    function renderPropertyChart(props, deals) {
       const ctx = document.getElementById('chartPropertyCanvas');
       if (!ctx) return;
       if (state.charts.property) state.charts.property.destroy();
 
-      const counts = {};
-      props.forEach(p => {
-        const type = p['Loại Hình'] || 'Chung cư';
-        counts[type] = (counts[type] || 0) + 1;
+      // Tính tổng doanh thu hoa hồng thực nhận theo từng loại hình BĐS
+      const revenueByType = {};
+      (deals || []).forEach(d => {
+        const propCode = d['Mã Căn'];
+        const matchedProp = (props || []).find(p => p['Mã Căn'] === propCode);
+        const type = (matchedProp && matchedProp['Loại Hình']) || 'Khác';
+        const comm = Number(d['Hoa Hồng Thực Nhận (đ)']) || 0;
+        revenueByType[type] = (revenueByType[type] || 0) + (comm / 1000000); // Đổi sang Triệu VNĐ cho đồ thị dễ đọc
       });
+
+      const labels = Object.keys(revenueByType);
+      const data = Object.values(revenueByType);
 
       state.charts.property = new Chart(ctx, {
         type: 'bar',
         data: {
-          labels: Object.keys(counts),
-          datasets: [{ label: 'Số căn mở bán', data: Object.values(counts), backgroundColor: '#059669', borderRadius: 4 }]
+          labels: labels.length > 0 ? labels : ['Chưa có giao dịch'],
+          datasets: [{ 
+            label: 'Hoa hồng (Triệu VNĐ)', 
+            data: data.length > 0 ? data : [0], 
+            backgroundColor: '#059669', 
+            borderRadius: 6 
+          }]
         },
-        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } } }
+        options: { 
+          responsive: true, 
+          maintainAspectRatio: false, 
+          plugins: { 
+            legend: { display: false } 
+          }, 
+          scales: { 
+            y: { 
+              beginAtZero: true, 
+              ticks: { 
+                callback: function(v) { return v + ' Tr'; }
+              } 
+            } 
+          } 
+        }
       });
     }
 
