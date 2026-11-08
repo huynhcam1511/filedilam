@@ -423,50 +423,108 @@
 
     </div>
 
-    <!-- ==================== SLIDE-OVER DRAWER (HỒ SƠ 360°) ==================== -->
+    <!-- ==================== SLIDE-OVER DRAWER (HỒ SƠ 360° SPRINT 3 ENHANCED) ==================== -->
     <div id="drawerBackdrop" onclick="closeDrawer()" class="fixed inset-0 bg-slate-900/20 backdrop-blur-xs z-40 hidden transition-opacity"></div>
-    <div id="detailDrawer" class="fixed top-0 right-0 bottom-0 w-full sm:w-[480px] bg-white border-l border-slate-200 z-50 flex flex-col shadow-2xl transform translate-x-full transition-transform duration-200 ease-in-out">
-      <div class="h-14 px-4 border-b border-slate-100 flex items-center justify-between flex-shrink-0">
+    <div id="detailDrawer" class="fixed top-0 right-0 bottom-0 w-full sm:w-[500px] bg-white border-l border-slate-200 z-50 flex flex-col shadow-2xl transform translate-x-full transition-transform duration-200 ease-in-out">
+      <!-- Drawer Header -->
+      <div class="h-14 px-4 border-b border-slate-100 flex items-center justify-between flex-shrink-0 bg-white">
         <div class="flex items-center gap-2">
-          <span class="text-xs font-mono font-semibold text-slate-700" id="drawerCustomerCode">KH-000000</span>
+          <span class="text-xs font-mono font-bold text-slate-800 bg-slate-100 px-2 py-0.5 rounded" id="drawerCustomerCode">KH-000000</span>
           <span class="text-xs text-slate-300">|</span>
-          <span class="text-xs font-semibold text-slate-800" id="drawerCustomerName">Hồ sơ khách hàng</span>
+          <span class="text-xs font-bold text-slate-900 truncate max-w-[200px]" id="drawerCustomerName">Hồ sơ khách hàng</span>
         </div>
-        <button onclick="closeDrawer()" class="p-1 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100"><i data-lucide="x" class="w-4 h-4"></i></button>
+        <div class="flex items-center gap-1.5">
+          <button onclick="editCustomerFromDrawer()" class="p-1.5 text-slate-400 hover:text-emerald-600 hover:bg-slate-50 rounded" title="Sửa thông tin"><i data-lucide="edit-3" class="w-4 h-4"></i></button>
+          <button onclick="closeDrawer()" class="p-1.5 text-slate-400 hover:text-slate-600 hover:bg-slate-50 rounded" title="Đóng panel"><i data-lucide="x" class="w-4 h-4"></i></button>
+        </div>
       </div>
 
+      <!-- Quick Action Pill Strip (Sprint 3) -->
+      <div class="px-4 py-2.5 bg-slate-50/80 border-b border-slate-100 flex items-center justify-between gap-2 flex-shrink-0 text-xs">
+        <a href="#" id="drawerCallBtn" class="flex-1 h-8 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-semibold flex items-center justify-center gap-1.5 transition">
+          <i data-lucide="phone-call" class="w-3.5 h-3.5"></i> Gọi điện ngay
+        </a>
+        <a href="#" id="drawerZaloBtn" target="_blank" class="flex-1 h-8 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-semibold flex items-center justify-center gap-1.5 transition">
+          <i data-lucide="message-square" class="w-3.5 h-3.5"></i> Nhắn tin Zalo
+        </a>
+        <button onclick="quickAddLogFromDrawer()" class="h-8 px-3 rounded-lg bg-white border border-slate-200 hover:bg-slate-100 text-slate-700 font-medium flex items-center gap-1 transition">
+          <i data-lucide="calendar-plus" class="w-3.5 h-3.5 text-emerald-600"></i> Hẹn / Log
+        </button>
+      </div>
+
+      <!-- Drawer Internal Segmented Tabs (Sprint 3) -->
+      <div class="px-4 pt-2 border-b border-slate-100 flex items-center gap-4 text-xs font-semibold flex-shrink-0 bg-white">
+        <button onclick="switchDrawerTab('overview')" id="tabDrawerOverview" class="pb-2 border-b-2 border-emerald-600 text-emerald-700">Khẩu vị & Nhu cầu</button>
+        <button onclick="switchDrawerTab('timeline')" id="tabDrawerTimeline" class="pb-2 border-b-2 border-transparent text-slate-400 hover:text-slate-600">Nhật ký chăm (<span id="drawerLogCount">0</span>)</button>
+        <button onclick="switchDrawerTab('matching')" id="tabDrawerMatching" class="pb-2 border-b-2 border-transparent text-slate-400 hover:text-slate-600">Gợi ý căn (<span id="drawerMatchCount">0</span>)</button>
+      </div>
+
+      <!-- Drawer Tab Content Area -->
       <div class="flex-1 overflow-y-auto p-4 sm:p-5 space-y-4 custom-scrollbar text-xs">
-        <div class="space-y-2">
-          <div class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Thông tin nhu cầu</div>
-          <div class="grid grid-cols-2 gap-2 bg-slate-50 p-3 rounded-lg border border-slate-100">
-            <div><span class="text-slate-400">Số điện thoại:</span> <a href="#" id="drawerPhoneLink" class="font-semibold text-emerald-600">--</a></div>
-            <div><span class="text-slate-400">Tầm giá:</span> <span id="drawerPriceRange" class="font-semibold text-slate-700">--</span></div>
-            <div><span class="text-slate-400">Nhu cầu:</span> <span id="drawerDemand" class="font-semibold text-slate-700">--</span></div>
-            <div><span class="text-slate-400">Khu vực:</span> <span id="drawerArea" class="font-semibold text-slate-700">--</span></div>
+        
+        <!-- SUB-TAB 1: KHẨU VỊ & THÔNG TIN 360 -->
+        <div id="drawerTabContentOverview" class="space-y-4">
+          <div class="p-3 bg-slate-50 border border-slate-100 rounded-xl space-y-2">
+            <div class="text-[11px] font-bold text-slate-500 uppercase tracking-wider flex items-center justify-between">
+              <span>Hồ sơ liên hệ</span>
+              <span id="drawerStatusBadge" class="text-xs font-semibold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded">--</span>
+            </div>
+            <div class="grid grid-cols-2 gap-2 text-xs">
+              <div><span class="text-slate-400">Số điện thoại:</span> <span id="drawerPhoneText" class="font-mono font-bold text-slate-800">--</span></div>
+              <div><span class="text-slate-400">Nguồn khách:</span> <span id="drawerSource" class="font-medium text-slate-700">--</span></div>
+              <div><span class="text-slate-400">Ngày tạo hồ sơ:</span> <span id="drawerCreatedAt" class="font-mono text-slate-500">--</span></div>
+              <div><span class="text-slate-400">Hợp đồng chốt:</span> <span id="drawerDealsDone" class="font-bold text-emerald-600 font-mono">0 lượt</span></div>
+            </div>
+          </div>
+
+          <div class="p-3.5 bg-slate-50 border border-slate-100 rounded-xl space-y-2">
+            <div class="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Khẩu vị đầu tư / Nhu cầu mua</div>
+            <div class="grid grid-cols-2 gap-2 text-xs">
+              <div><span class="text-slate-400">Nhu cầu loại hình:</span> <span id="drawerDemand" class="font-semibold text-slate-800">--</span></div>
+              <div><span class="text-slate-400">Tầm tài chính:</span> <span id="drawerPriceRange" class="font-bold text-emerald-700">--</span></div>
+              <div class="col-span-2"><span class="text-slate-400">Khu vực tìm kiếm:</span> <span id="drawerArea" class="font-semibold text-slate-800">--</span></div>
+            </div>
+          </div>
+
+          <div>
+            <div class="text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Ghi chú khẩu vị chuyên sâu</div>
+            <p id="drawerNotes" class="bg-slate-50 p-3 rounded-xl border border-slate-100 text-slate-600 leading-relaxed italic">Không có ghi chú thêm.</p>
           </div>
         </div>
 
-        <div>
-          <div class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider mb-1.5">Ghi chú khẩu vị</div>
-          <p id="drawerNotes" class="bg-slate-50 p-3 rounded-lg border border-slate-100 text-slate-600 leading-relaxed italic">--</p>
-        </div>
-
-        <div class="pt-2 border-t border-slate-100">
-          <div class="flex items-center justify-between mb-2">
-            <span class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Lịch sử tương tác</span>
+        <!-- SUB-TAB 2: DÒNG THỜI GIAN NHẬT KÝ TƯƠNG TÁC -->
+        <div id="drawerTabContentTimeline" class="hidden space-y-3">
+          <div class="flex items-center justify-between mb-1">
+            <span class="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Lịch sử chăm sóc (Mới nhất trước)</span>
             <button onclick="quickAddLogFromDrawer()" class="text-xs font-semibold text-emerald-600 hover:text-emerald-700">+ Thêm nhật ký</button>
           </div>
-          <div id="drawerLogsList" class="space-y-2">
+          <div id="drawerLogsList" class="space-y-2.5">
             <!-- Timeline tương tác -->
           </div>
         </div>
+
+        <!-- SUB-TAB 3: GỢI Ý CĂN PHÙ HỢP TỪ KHO HÀNG -->
+        <div id="drawerTabContentMatching" class="hidden space-y-3">
+          <div class="text-[11px] font-bold text-slate-500 uppercase tracking-wider flex items-center justify-between">
+            <span>Căn hộ / Đất nền phù hợp tiêu chí</span>
+            <span class="text-[10px] text-slate-400">Tự động so khớp</span>
+          </div>
+          <div id="drawerMatchingPropertiesList" class="space-y-2">
+            <!-- Render danh sách căn phù hợp -->
+          </div>
+        </div>
+
       </div>
 
-      <div class="p-3 border-t border-slate-100 bg-slate-50/50 flex items-center justify-end gap-2 flex-shrink-0">
-        <button onclick="closeDrawer()" class="px-3 py-1.5 rounded-lg border border-slate-200 text-xs font-medium text-slate-600 hover:bg-slate-100">Đóng</button>
-        <button onclick="quickDealFromDrawer()" class="px-3 py-1.5 rounded-lg bg-emerald-600 text-white text-xs font-semibold hover:bg-emerald-700 flex items-center gap-1.5">
-          <i data-lucide="badge-dollar-sign" class="w-3.5 h-3.5"></i> Chốt cọc căn
-        </button>
+      <!-- Drawer Footer -->
+      <div class="p-3 border-t border-slate-100 bg-slate-50/50 flex items-center justify-between gap-2 flex-shrink-0">
+        <button onclick="deleteCustomerFromDrawer()" class="px-2.5 py-1.5 text-xs text-rose-600 hover:bg-rose-50 rounded-lg border border-rose-200">Xóa khách này</button>
+        <div class="flex items-center gap-2">
+          <button onclick="closeDrawer()" class="px-3 py-1.5 rounded-lg border border-slate-200 text-xs font-medium text-slate-600 hover:bg-slate-100">Đóng</button>
+          <button onclick="quickDealFromDrawer()" class="px-3.5 py-1.5 rounded-lg bg-emerald-600 text-white text-xs font-semibold hover:bg-emerald-700 flex items-center gap-1.5 shadow-xs">
+            <i data-lucide="badge-dollar-sign" class="w-3.5 h-3.5"></i> Chốt cọc căn
+          </button>
+        </div>
       </div>
     </div>
 
@@ -1302,7 +1360,7 @@
       document.getElementById('formDealEstimatedComm').innerText = totalVND.toLocaleString('vi-VN') + ' VNĐ';
     }
 
-    // ==================== DRAWER CONTROLLERS ====================
+    // ==================== DRAWER CONTROLLERS (SPRINT 3 ADVANCED 360) ====================
     function openCustomerDrawerByCode(code) {
       const cust = (state.data.customers || []).find(c => c['Mã Khách'] === code);
       if (!cust) return;
@@ -1310,34 +1368,120 @@
 
       document.getElementById('drawerCustomerCode').innerText = cust['Mã Khách'];
       document.getElementById('drawerCustomerName').innerText = cust['Họ Và Tên'];
-      document.getElementById('drawerPhoneLink').innerText = cust['Số Điện Thoại'];
-      document.getElementById('drawerPhoneLink').href = 'tel:' + cust['Số Điện Thoại'];
+      document.getElementById('drawerPhoneText').innerText = cust['Số Điện Thoại'];
+      
+      const phoneDigits = String(cust['Số Điện Thoại'] || '').replace(/\D/g, '');
+      document.getElementById('drawerCallBtn').href = 'tel:' + phoneDigits;
+      document.getElementById('drawerZaloBtn').href = 'https://zalo.me/' + phoneDigits;
+
+      document.getElementById('drawerSource').innerText = cust['Nguồn Khách'] || 'Chưa rõ';
+      document.getElementById('drawerStatusBadge').innerText = cust['Trạng Thái'] || 'Mới tiếp cận';
+      document.getElementById('drawerCreatedAt').innerText = cust['Ngày Tạo'] ? String(cust['Ngày Tạo']).slice(0, 10) : 'Hôm nay';
+      
       document.getElementById('drawerPriceRange').innerText = cust['Khoảng Giá'] || '--';
       document.getElementById('drawerDemand').innerText = cust['Nhu Cầu'] || '--';
       document.getElementById('drawerArea').innerText = cust['Khu Vực'] || '--';
       document.getElementById('drawerNotes').innerText = cust['Ghi Chú'] || 'Không có ghi chú thêm.';
 
+      // Đếm số lượng hợp đồng đã chốt
+      const dealsDone = (state.data.deals || []).filter(d => d['Mã Khách'] === code).length;
+      document.getElementById('drawerDealsDone').innerText = dealsDone + ' hợp đồng';
+
       // Timeline tương tác
       const logs = (state.data.logs || []).filter(l => l['Mã Khách'] === code);
+      document.getElementById('drawerLogCount').innerText = logs.length;
       const logsList = document.getElementById('drawerLogsList');
       if (logs.length === 0) {
-        logsList.innerHTML = '<div class="text-xs text-slate-400 py-2">Chưa có lịch sử chăm sóc.</div>';
+        logsList.innerHTML = '<div class="text-xs text-slate-400 py-3 text-center">Chưa có lịch sử chăm sóc nào. Hãy bấm "+ Thêm nhật ký" để ghi nhận.</div>';
       } else {
         logsList.innerHTML = logs.map(l => `
-          <div class="p-2.5 bg-slate-50 border border-slate-100 rounded-lg">
+          <div class="p-3 bg-slate-50 border border-slate-100 rounded-xl space-y-1">
             <div class="flex items-center justify-between text-[11px]">
-              <span class="font-semibold text-slate-700">${l['Hình Thức']}</span>
-              <span class="text-slate-400 font-mono">${String(l['Ngày Tạo']).slice(0, 10)}</span>
+              <span class="font-bold text-slate-800 flex items-center gap-1">
+                <i data-lucide="message-circle" class="w-3 h-3 text-emerald-600"></i> ${l['Hình Thức']}
+              </span>
+              <span class="text-slate-400 font-mono text-[10px]">${String(l['Ngày Tạo']).slice(0, 10)}</span>
             </div>
-            <div class="text-slate-600 mt-1">${l['Nội Dung Trao Đổi']}</div>
-            ${l['Lịch Hẹn Tiếp'] ? `<div class="text-[10px] text-blue-600 font-medium mt-1">Lịch hẹn tiếp: ${l['Lịch Hẹn Tiếp']}</div>` : ''}
+            <div class="text-slate-600 leading-relaxed">${l['Nội Dung Trao Đổi']}</div>
+            ${l['Lịch Hẹn Tiếp'] ? `
+              <div class="pt-1 border-t border-slate-200/60 flex items-center gap-1 text-[11px] text-blue-600 font-semibold">
+                <i data-lucide="clock" class="w-3 h-3"></i> Lịch hẹn tiếp: ${l['Lịch Hẹn Tiếp']}
+              </div>
+            ` : ''}
           </div>
         `).join('');
       }
 
+      // Thuật toán so khớp căn hộ phù hợp (Matching Properties)
+      const matchingProps = (state.data.properties || []).filter(p => {
+        if (p['Trạng Thái'] !== 'Đang bán') return false;
+        if (cust['Nhu Cầu'] && p['Loại Hình'] && p['Loại Hình'] !== cust['Nhu Cầu']) return false;
+        return true;
+      });
+      document.getElementById('drawerMatchCount').innerText = matchingProps.length;
+
+      const matchingList = document.getElementById('drawerMatchingPropertiesList');
+      if (matchingProps.length === 0) {
+        matchingList.innerHTML = '<div class="text-xs text-slate-400 py-3 text-center">Hiện chưa có căn nào trong giỏ hàng khớp với nhu cầu này.</div>';
+      } else {
+        matchingList.innerHTML = matchingProps.slice(0, 5).map(p => `
+          <div class="p-2.5 bg-slate-50 border border-slate-100 rounded-xl flex items-center justify-between gap-2">
+            <div class="min-w-0">
+              <div class="font-bold text-slate-800 truncate text-xs">${p['Địa Chỉ']}</div>
+              <div class="text-[11px] text-slate-500">${p['Loại Hình']} · ${p['Diện Tích (m2)']} m² · <span class="font-bold text-emerald-700">${p['Giá Chào (Triệu)']} Tr</span></div>
+            </div>
+            <button onclick="handleMatchPropertyForCustomer('${p['Mã Căn']}')" class="px-2 py-1 rounded bg-emerald-600 hover:bg-emerald-700 text-white font-medium text-[11px] shrink-0">
+              Dẫn xem
+            </button>
+          </div>
+        `).join('');
+      }
+
+      // Mặc định mở tab Overview
+      switchDrawerTab('overview');
+
       document.getElementById('drawerBackdrop').classList.remove('hidden');
       document.getElementById('detailDrawer').classList.remove('translate-x-full');
       lucide.createIcons();
+    }
+
+    function switchDrawerTab(tabName) {
+      ['overview', 'timeline', 'matching'].forEach(t => {
+        const btn = document.getElementById('tabDrawer' + t.charAt(0).toUpperCase() + t.slice(1));
+        const content = document.getElementById('drawerTabContent' + t.charAt(0).toUpperCase() + t.slice(1));
+        if (t === tabName) {
+          btn.className = "pb-2 border-b-2 border-emerald-600 text-emerald-700 font-bold";
+          content.classList.remove('hidden');
+        } else {
+          btn.className = "pb-2 border-b-2 border-transparent text-slate-400 hover:text-slate-600 font-medium";
+          content.classList.add('hidden');
+        }
+      });
+      lucide.createIcons();
+    }
+
+    function editCustomerFromDrawer() {
+      const code = state.selectedCustomerId;
+      if (code) {
+        closeDrawer();
+        editCustomer(code);
+      }
+    }
+
+    function deleteCustomerFromDrawer() {
+      const code = state.selectedCustomerId;
+      if (code) {
+        closeDrawer();
+        confirmDeleteCustomer(code);
+      }
+    }
+
+    function handleMatchPropertyForCustomer(propCode) {
+      closeDrawer();
+      openAddInteractionModal();
+      document.getElementById('formLogCustomer').value = state.selectedCustomerId;
+      document.getElementById('formLogType').value = 'Dẫn xem thực tế';
+      document.getElementById('formLogContent').value = 'Hẹn dẫn khách xem căn ' + propCode;
     }
 
     function closeDrawer() {
