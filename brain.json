@@ -1,4 +1,10 @@
 {
+  "chart_hidden_dimension_strategy_lesson_20261109": {
+    "issue": "Biểu đồ Google Sheets (Chart) bị trắng tinh khi dữ liệu nguồn nằm ở tab ẩn DB_PLANNER.",
+    "root_cause": "Mặc định Google Sheets Chart coi dữ liệu ở các hàng/cột hoặc sheet bị ẩn (hideSheet()) là trống (Treat hidden data as empty). Khi không cấu hình SHOW_BOTH, biểu đồ thấy 0 dòng dữ liệu và render khung trắng.",
+    "rule": "Mọi biểu đồ vẽ từ tab ẩn bắt buộc phải có: .setHiddenDimensionStrategy(Charts.ChartHiddenDimensionStrategy.SHOW_BOTH).",
+    "evidence": "outputs/fnb_cost_v10/Workbook.gs; outputs/weekly_planner_m37/Code.gs; STANDARDS_TEMPLATE/AGENTS_MASTER.md"
+  },
   "google_sheets_formula_locale_lesson_20261109": {
     "issue": "Lỗi nổ hàng loạt #ERROR! và Biểu đồ báo 'Thêm một chuỗi dữ liệu...' khi Apps Script sinh Google Sheet Weekly Planner M37.",
     "root_causes": [

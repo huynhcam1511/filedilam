@@ -1068,8 +1068,15 @@ function seedRichFunnelData() {
     if (shDeals.getLastRow() > 1) shDeals.deleteRows(2, shDeals.getLastRow() - 1);
     shDeals.getRange(2, 1, dealRows.length, dealRows[0].length).setValues(dealRows);
 
+    // BẮT BUỘC: Cam kết ghi toàn bộ bộ nhớ đệm xuống Google Sheets tức thì
+    SpreadsheetApp.flush();
+
+    // Lấy ngay dữ liệu hệ thống mới nhất trả về trực tiếp trong 1 roundtrip duy nhất
+    const initialData = getInitialData();
+
     return {
       success: true,
+      data: initialData.data,
       message: 'Đã nạp thành công 10 BĐS, 100 Khách Hàng, 80 Lịch Hẹn và 20 Hợp Đồng Chốt Cọc!'
     };
   } catch (err) {

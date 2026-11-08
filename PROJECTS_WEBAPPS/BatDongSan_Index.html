@@ -2637,18 +2637,23 @@
     function generateSampleFunnelData() {
       if (!confirm('Bạn có chắc muốn nạp bộ dữ liệu mẫu chuẩn phễu (10 BĐS, 100 Khách, 80 Lịch hẹn, 20 Hợp đồng chốt cọc tính hoa hồng)? Dữ liệu hiện có sẽ được đồng bộ bổ sung vào Google Sheets!')) return;
       
-      const btn = event.currentTarget;
+      const btn = event ? event.currentTarget : null;
       if (btn) btn.disabled = true;
 
       if (typeof google !== 'undefined' && google.script) {
         google.script.run
           .withSuccessHandler(res => {
             if (btn) btn.disabled = false;
-            if (res.success) {
-              loadAllSystemData();
+            if (res && res.success) {
+              if (res.data) {
+                state.data = res.data;
+                renderAllModules();
+              } else {
+                loadAllSystemData();
+              }
               alert('Đã nạp thành công 10 BĐS, 100 Khách Hàng, 80 Lịch Hẹn và 20 Hợp Đồng vào Google Sheets!');
             } else {
-              alert('Lỗi nạp dữ liệu: ' + res.error);
+              alert('Lỗi nạp dữ liệu: ' + (res ? res.error : 'Không có phản hồi'));
             }
           })
           .withFailureHandler(err => {
