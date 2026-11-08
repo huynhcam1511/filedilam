@@ -1,3 +1,65 @@
+
+/**
+ * ==============================================================================
+ * MENU KHỞI TẠO & QUY TẮC SINGLE VISIBLE TAB (HIẾN PHÁP MASTER AGENTS V2.3)
+ * ==============================================================================
+ */
+const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbtznoJQLtSgcDd5N-oQfD3bWoujGamgNinxkggjn3LM8ArVMbzqMOvGdy3u_CiTrEgg/exec';
+
+function onOpen() {
+  SpreadsheetApp.getUi()
+    .createMenu('File Đi Làm')
+    .addItem('Mở Ứng Dụng Quản Lý', 'openWebApp')
+    .addSeparator()
+    .addItem('Nạp Data Mẫu (10 BĐS, 100 Khách, 80 Hẹn, 20 Cọc)', 'seedRichFunnelData')
+    .addItem('Khóa & Ẩn Database (Bảo vệ dữ liệu)', 'lockAndHideDatabaseSheets')
+    .addToUi();
+}
+
+function openWebApp() {
+  const html = HtmlService.createHtmlOutput(
+    '<script>window.open("' + WEB_APP_URL + '", "_blank");google.script.host.close();</script>'
+  ).setWidth(300).setHeight(80);
+  SpreadsheetApp.getUi().showModalDialog(html, 'Đang mở ứng dụng...');
+}
+
+/**
+ * QUY TẮC SINGLE VISIBLE TAB: Khóa và Ẩn toàn bộ tab DB_, chỉ để lại tab HDSD hiển thị
+ */
+function lockAndHideDatabaseSheets() {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  let shHdsd = ss.getSheetByName('HDSD');
+  if (!shHdsd) {
+    shHdsd = ss.insertSheet('HDSD', 0);
+    // Khởi tạo giao diện nút bấm và hướng dẫn trên tab HDSD
+    shHdsd.getRange('B2:E3').merge()
+      .setValue('MỞ ỨNG DỤNG CRM BẤT ĐỘNG SẢN (BẤM VÀO ĐÂY)')
+      .setBackground('#059669')
+      .setFontColor('#FFFFFF')
+      .setFontWeight('bold')
+      .setFontSize(13)
+      .setHorizontalAlignment('center')
+      .setVerticalAlignment('middle');
+    shHdsd.getRange('B5').setValue('HƯỚNG DẪN BẢO MẬT & VẬN HÀNH:').setFontWeight('bold');
+    shHdsd.getRange('B6').setValue('1. Toàn bộ cơ sở dữ liệu đã được tự động lưu trữ và bảo vệ tại các bảng tính nền.');
+    shHdsd.getRange('B7').setValue('2. Vui lòng bấm vào nút Xanh phía trên hoặc vào menu "File Đi Làm > Mở Ứng Dụng Quản Lý" để thao tác.');
+    shHdsd.getRange('B8').setValue('3. Mọi thắc mắc kỹ thuật vui lòng liên hệ kênh hỗ trợ Zalo chính thức của File Đi Làm.');
+  }
+
+  shHdsd.showSheet();
+  ss.setActiveSheet(shHdsd);
+
+  const sheets = ss.getSheets();
+  sheets.forEach(sh => {
+    const name = sh.getName();
+    if (name.indexOf('DB_') === 0 || name === 'CAI_DAT') {
+      sh.hideSheet();
+      const protection = sh.protect().setDescription('Khóa bảo vệ Database FILE ĐI LÀM');
+      protection.setWarningOnly(true);
+    }
+  });
+}
+
 /**
  * ==============================================================================
  * BẤT ĐỘNG SẢN CRM PRO - GOOGLE APPS SCRIPT BACKEND (V2.1 - SPRINT 1 COMPLETE)
@@ -122,7 +184,7 @@ function saveCustomer(payload) {
       return { success: true, id: payload.id, isUpdate: true };
     } else {
       // Thêm mới hoàn toàn khách hàng
-      const newId = 'KH-' + Math.floor(100000 + Math.random() * 900000);
+      const newId = 'KHNG-' + Math.floor(100000 + Math.random() * 900000);
       sh.appendRow([
         newId,
         payload.name || '',
@@ -227,7 +289,7 @@ function saveProperty(payload) {
       return { success: true, id: payload.id, isUpdate: true };
     } else {
       // Thêm mới căn BĐS
-      const newId = 'BDS-' + Math.floor(100000 + Math.random() * 900000);
+      const newId = 'BDSS-' + Math.floor(100000 + Math.random() * 900000);
       sh.appendRow([
         newId,
         payload.type || 'Chung cư',
@@ -310,7 +372,7 @@ function saveInteraction(payload) {
 
       return { success: true, id: payload.id, isUpdate: true };
     } else {
-      const newId = 'LOG-' + Math.floor(100000 + Math.random() * 900000);
+      const newId = 'LOGS-' + Math.floor(100000 + Math.random() * 900000);
       sh.appendRow([
         newId,
         payload.customerId || '',
@@ -431,7 +493,7 @@ function saveDeal(payload) {
     }
 
     // Trường hợp TẠO MỚI Hợp Đồng
-    const newId = 'HD-' + Math.floor(100000 + Math.random() * 900000);
+    const newId = 'HOAD-' + Math.floor(100000 + Math.random() * 900000);
 
     shDeals.appendRow([
       newId,
@@ -632,7 +694,7 @@ function saveTaxonomyItem(payload) {
       }
 
       // Sinh mã DM-XXXXXX
-      const newId = 'DM-' + Math.floor(100000 + Math.random() * 900000);
+      const newId = 'DANH-' + Math.floor(100000 + Math.random() * 900000);
       sh.appendRow([newId, categoryKey, name, note, sortOrder, status, today]);
       return { success: true, id: newId, isUpdate: false };
     }
@@ -811,6 +873,13 @@ function ensureRequiredSheets_(ss) {
   if (shTaxonomy && shTaxonomy.getLastRow() <= 1) {
     seedDefaultTaxonomy_(shTaxonomy);
   }
+
+  // TỰ ĐỘNG NẠP BỘ DATA MẪU CHUẨN PHỄU NẾU KHÁCH HÀNG HOẶC GIỎ HÀNG ĐANG TRỐNG
+  const shCust = ss.getSheetByName(CONFIG_BDS.SHEET_NAMES.CUSTOMERS);
+  const shProp = ss.getSheetByName(CONFIG_BDS.SHEET_NAMES.PROPERTIES);
+  if (shCust && shCust.getLastRow() <= 1 && shProp && shProp.getLastRow() <= 1) {
+    seedRichFunnelData();
+  }
 }
 
 /**
@@ -819,47 +888,47 @@ function ensureRequiredSheets_(ss) {
 function seedDefaultTaxonomy_(sh) {
   const initial = [
     // 1. prop_types (Loại hình BĐS & Nhu cầu)
-    ['DM-100001', 'prop_types', 'Chung cư', 'Căn hộ chung cư, duplex, officetel', 1, 'Đang dùng', '2026-11-08'],
-    ['DM-100002', 'prop_types', 'Nhà phố', 'Nhà thổ cư hẻm và mặt tiền kinh doanh', 2, 'Đang dùng', '2026-11-08'],
-    ['DM-100003', 'prop_types', 'Đất nền', 'Đất thổ cư có sổ đỏ, đất nền dự án', 3, 'Đang dùng', '2026-11-08'],
-    ['DM-100004', 'prop_types', 'Biệt thự / Shophouse', 'Biệt thự nghỉ dưỡng, shophouse khối đế', 4, 'Đang dùng', '2026-11-08'],
-    ['DM-100005', 'prop_types', 'Cho thuê', 'Thuê căn hộ, mặt bằng hoặc nguyên căn', 5, 'Đang dùng', '2026-11-08'],
+    ['DANH-100001', 'prop_types', 'Chung cư', 'Căn hộ chung cư, duplex, officetel', 1, 'Đang dùng', '2026-11-08'],
+    ['DANH-100002', 'prop_types', 'Nhà phố', 'Nhà thổ cư hẻm và mặt tiền kinh doanh', 2, 'Đang dùng', '2026-11-08'],
+    ['DANH-100003', 'prop_types', 'Đất nền', 'Đất thổ cư có sổ đỏ, đất nền dự án', 3, 'Đang dùng', '2026-11-08'],
+    ['DANH-100004', 'prop_types', 'Biệt thự / Shophouse', 'Biệt thự nghỉ dưỡng, shophouse khối đế', 4, 'Đang dùng', '2026-11-08'],
+    ['DANH-100005', 'prop_types', 'Cho thuê', 'Thuê căn hộ, mặt bằng hoặc nguyên căn', 5, 'Đang dùng', '2026-11-08'],
 
     // 2. locations (Khu vực địa bàn)
-    ['DM-200001', 'locations', 'Quận 1', 'Khu trung tâm hành chính tài chính', 1, 'Đang dùng', '2026-11-08'],
-    ['DM-200002', 'locations', 'Quận 2 (TP. Thủ Đức)', 'Thảo Điền, An Phú, Thủ Thiêm', 2, 'Đang dùng', '2026-11-08'],
-    ['DM-200003', 'locations', 'Quận 7', 'Phú Mỹ Hưng, Nam Long, Tân Hưng', 3, 'Đang dùng', '2026-11-08'],
-    ['DM-200004', 'locations', 'Bình Thạnh', 'Khu vực gần trung tâm, Điện Biên Phủ', 4, 'Đang dùng', '2026-11-08'],
-    ['DM-200005', 'locations', 'Thảo Điền', 'Biệt thự, căn hộ cao cấp ven sông', 5, 'Đang dùng', '2026-11-08'],
-    ['DM-200006', 'locations', 'Phú Mỹ Hưng', 'Đô thị kiểu mẫu, căn hộ cao cấp', 6, 'Đang dùng', '2026-11-08'],
-    ['DM-200007', 'locations', 'Thủ Đức', 'Võ Văn Ngân, Đặng Văn Bi, Hiệp Bình Chánh', 7, 'Đang dùng', '2026-11-08'],
+    ['DANH-200001', 'locations', 'Quận 1', 'Khu trung tâm hành chính tài chính', 1, 'Đang dùng', '2026-11-08'],
+    ['DANH-200002', 'locations', 'Quận 2 (TP. Thủ Đức)', 'Thảo Điền, An Phú, Thủ Thiêm', 2, 'Đang dùng', '2026-11-08'],
+    ['DANH-200003', 'locations', 'Quận 7', 'Phú Mỹ Hưng, Nam Long, Tân Hưng', 3, 'Đang dùng', '2026-11-08'],
+    ['DANH-200004', 'locations', 'Bình Thạnh', 'Khu vực gần trung tâm, Điện Biên Phủ', 4, 'Đang dùng', '2026-11-08'],
+    ['DANH-200005', 'locations', 'Thảo Điền', 'Biệt thự, căn hộ cao cấp ven sông', 5, 'Đang dùng', '2026-11-08'],
+    ['DANH-200006', 'locations', 'Phú Mỹ Hưng', 'Đô thị kiểu mẫu, căn hộ cao cấp', 6, 'Đang dùng', '2026-11-08'],
+    ['DANH-200007', 'locations', 'Thủ Đức', 'Võ Văn Ngân, Đặng Văn Bi, Hiệp Bình Chánh', 7, 'Đang dùng', '2026-11-08'],
 
     // 3. prop_statuses (Trạng thái giỏ hàng BĐS)
-    ['DM-300001', 'prop_statuses', 'Đang bán', 'Căn sẵn sàng giao dịch, tiếp khách xem nhà', 1, 'Đang dùng', '2026-11-08'],
-    ['DM-300002', 'prop_statuses', 'Đã cọc/Đã bán', 'Đã nhận cọc hoặc hoàn tất thủ tục công chứng', 2, 'Đang dùng', '2026-11-08'],
-    ['DM-300003', 'prop_statuses', 'Tạm ngưng', 'Chủ nhà hoãn bán hoặc đang chờ cập nhật sổ', 3, 'Đang dùng', '2026-11-08'],
+    ['DANH-300001', 'prop_statuses', 'Đang bán', 'Căn sẵn sàng giao dịch, tiếp khách xem nhà', 1, 'Đang dùng', '2026-11-08'],
+    ['DANH-300002', 'prop_statuses', 'Đã cọc/Đã bán', 'Đã nhận cọc hoặc hoàn tất thủ tục công chứng', 2, 'Đang dùng', '2026-11-08'],
+    ['DANH-300003', 'prop_statuses', 'Tạm ngưng', 'Chủ nhà hoãn bán hoặc đang chờ cập nhật sổ', 3, 'Đang dùng', '2026-11-08'],
 
     // 4. lead_sources (Nguồn khách hàng)
-    ['DM-400001', 'lead_sources', 'Facebook Ads', 'Chạy quảng cáo Lead Form Facebook', 1, 'Đang dùng', '2026-11-08'],
-    ['DM-400002', 'lead_sources', 'TikTok Bio', 'Khách bấm link bio từ kênh TikTok', 2, 'Đang dùng', '2026-11-08'],
-    ['DM-400003', 'lead_sources', 'Người quen giới thiệu', 'Mối quan hệ thân thiết, khách cũ giới thiệu', 3, 'Đang dùng', '2026-11-08'],
-    ['DM-400004', 'lead_sources', 'Đăng tin BĐS', 'Batdongsan, Chotot, CafeLand', 4, 'Đang dùng', '2026-11-08'],
-    ['DM-400005', 'lead_sources', 'Khách vãng lai', 'Treo biển, phát tờ rơi, khách trực tiếp', 5, 'Đang dùng', '2026-11-08'],
+    ['DANH-400001', 'lead_sources', 'Facebook Ads', 'Chạy quảng cáo Lead Form Facebook', 1, 'Đang dùng', '2026-11-08'],
+    ['DANH-400002', 'lead_sources', 'TikTok Bio', 'Khách bấm link bio từ kênh TikTok', 2, 'Đang dùng', '2026-11-08'],
+    ['DANH-400003', 'lead_sources', 'Người quen giới thiệu', 'Mối quan hệ thân thiết, khách cũ giới thiệu', 3, 'Đang dùng', '2026-11-08'],
+    ['DANH-400004', 'lead_sources', 'Đăng tin BĐS', 'Batdongsan, Chotot, CafeLand', 4, 'Đang dùng', '2026-11-08'],
+    ['DANH-400005', 'lead_sources', 'Khách vãng lai', 'Treo biển, phát tờ rơi, khách trực tiếp', 5, 'Đang dùng', '2026-11-08'],
 
     // 5. cust_statuses (Trạng thái khách hàng / Phễu bán hàng)
-    ['DM-500001', 'cust_statuses', 'Mới tiếp cận', 'Vừa tiếp nhận SĐT, chưa phân loại sâu', 1, 'Đang dùng', '2026-11-08'],
-    ['DM-500002', 'cust_statuses', 'Đang chăm', 'Đã liên hệ, đang gửi danh sách căn phù hợp', 2, 'Đang dùng', '2026-11-08'],
-    ['DM-500003', 'cust_statuses', 'Đang dẫn xem', 'Khách đã hẹn và đi xem thực tế dự án/nhà', 3, 'Đang dùng', '2026-11-08'],
-    ['DM-500004', 'cust_statuses', 'Đang thương lượng', 'Đang đàm phán giá cả, pháp lý với chủ nhà', 4, 'Đang dùng', '2026-11-08'],
-    ['DM-500005', 'cust_statuses', 'Đã chốt cọc', 'Giao dịch thành công, đã ký đặt cọc', 5, 'Đang dùng', '2026-11-08'],
-    ['DM-500006', 'cust_statuses', 'Dừng chăm sóc', 'Tài chính không đủ hoặc đã mua chỗ khác', 6, 'Đang dùng', '2026-11-08'],
+    ['DANH-500001', 'cust_statuses', 'Mới tiếp cận', 'Vừa tiếp nhận SĐT, chưa phân loại sâu', 1, 'Đang dùng', '2026-11-08'],
+    ['DANH-500002', 'cust_statuses', 'Đang chăm', 'Đã liên hệ, đang gửi danh sách căn phù hợp', 2, 'Đang dùng', '2026-11-08'],
+    ['DANH-500003', 'cust_statuses', 'Đang dẫn xem', 'Khách đã hẹn và đi xem thực tế dự án/nhà', 3, 'Đang dùng', '2026-11-08'],
+    ['DANH-500004', 'cust_statuses', 'Đang thương lượng', 'Đang đàm phán giá cả, pháp lý với chủ nhà', 4, 'Đang dùng', '2026-11-08'],
+    ['DANH-500005', 'cust_statuses', 'Đã chốt cọc', 'Giao dịch thành công, đã ký đặt cọc', 5, 'Đang dùng', '2026-11-08'],
+    ['DANH-500006', 'cust_statuses', 'Dừng chăm sóc', 'Tài chính không đủ hoặc đã mua chỗ khác', 6, 'Đang dùng', '2026-11-08'],
 
     // 6. interaction_types (Hình thức tương tác / Nhật ký)
-    ['DM-600001', 'interaction_types', 'Cuộc gọi', 'Gọi điện thoại thoại tư vấn, hỏi nhu cầu', 1, 'Đang dùng', '2026-11-08'],
-    ['DM-600002', 'interaction_types', 'Nhắn tin Zalo', 'Gửi hình ảnh, sổ đỏ, định vị qua Zalo', 2, 'Đang dùng', '2026-11-08'],
-    ['DM-600003', 'interaction_types', 'Gặp cafe tư vấn', 'Gặp trực tiếp tư vấn quy hoạch và bảng giá', 3, 'Đang dùng', '2026-11-08'],
-    ['DM-600004', 'interaction_types', 'Dẫn đi xem nhà', 'Đưa đón khách đến xem thực tế căn BĐS', 4, 'Đang dùng', '2026-11-08'],
-    ['DM-600005', 'interaction_types', 'Đặt cọc / Ký HĐ', 'Gặp mặt tại phòng công chứng hoặc văn phòng', 5, 'Đang dùng', '2026-11-08']
+    ['DANH-600001', 'interaction_types', 'Cuộc gọi', 'Gọi điện thoại thoại tư vấn, hỏi nhu cầu', 1, 'Đang dùng', '2026-11-08'],
+    ['DANH-600002', 'interaction_types', 'Nhắn tin Zalo', 'Gửi hình ảnh, sổ đỏ, định vị qua Zalo', 2, 'Đang dùng', '2026-11-08'],
+    ['DANH-600003', 'interaction_types', 'Gặp cafe tư vấn', 'Gặp trực tiếp tư vấn quy hoạch và bảng giá', 3, 'Đang dùng', '2026-11-08'],
+    ['DANH-600004', 'interaction_types', 'Dẫn đi xem nhà', 'Đưa đón khách đến xem thực tế căn BĐS', 4, 'Đang dùng', '2026-11-08'],
+    ['DANH-600005', 'interaction_types', 'Đặt cọc / Ký HĐ', 'Gặp mặt tại phòng công chứng hoặc văn phòng', 5, 'Đang dùng', '2026-11-08']
   ];
 
   initial.forEach(row => sh.appendRow(row));
@@ -885,16 +954,16 @@ function seedRichFunnelData() {
 
     // 1. Khởi tạo 10 Căn BĐS đa dạng loại hình và phân khúc
     const propRows = [
-      ['BDS-100201', 'Chung cư', 'Vinhomes Central Park', 'Tòa Landmark 3 - Căn L3-12.08', 78.5, 4650, 'Anh Tuấn', '0987654321', 'Đã cọc/Đã bán', 1.5, 'View công viên Landmark 81, nội thất cao cấp', '2026-10-10'],
-      ['BDS-100202', 'Nhà phố', 'Nhà Phố D2', '14/8 Nguyễn Gia Trí, P.25, Bình Thạnh', 64.0, 8200, 'Chị Thảo', '0918273645', 'Đang bán', 1.0, 'Hẻm xe hơi 6m tránh nhau, gần các trường đại học', '2026-10-12'],
-      ['BDS-100203', 'Chung cư', 'Masteri Thảo Điền', 'Tháp T2 - Căn T2-18.04, Quận 2', 69.2, 4200, 'Anh Hoàng', '0903829102', 'Đã cọc/Đã bán', 1.5, 'Nội thất nhập khẩu cao cấp, view hồ bơi', '2026-10-15'],
-      ['BDS-100204', 'Đất nền', 'Khu dân cư Hiệp Bình Chánh', 'Lô B12 Đường 23, Hiệp Bình Chánh, Thủ Đức', 110.0, 6800, 'Chú Sáu', '0938192837', 'Đang bán', 2.0, 'Sổ đỏ thổ cư 100%, gần sông thoáng mát xây tự do', '2026-10-18'],
-      ['BDS-100205', 'Biệt thự / Shophouse', 'Vinhomes Grand Park', 'Shophouse Manhattan M9-22, TP. Thủ Đức', 140.0, 16500, 'Chị Hà', '0977281920', 'Đã cọc/Đã bán', 1.5, 'Mặt tiền trục chính kinh doanh, HĐMB nhận nhà ngay', '2026-10-20'],
-      ['BDS-100206', 'Chung cư', 'Scenic Valley 1', 'Tòa C - Căn C-09.02, Phú Mỹ Hưng, Q7', 75.0, 3950, 'Cô Dung', '0944182930', 'Đang bán', 1.5, 'Cửa hướng Nam mát mẻ, sổ hồng lâu dài', '2026-10-22'],
-      ['BDS-100207', 'Nhà phố', 'Khu cư xá Đô Thành', '48 Đường số 3, Cư xá Đô Thành, Quận 3', 52.0, 9500, 'Bác Hùng', '0913928172', 'Đã cọc/Đã bán', 1.0, 'Trung tâm Quận 3 tiện mở văn phòng hoặc cho thuê spa', '2026-10-25'],
-      ['BDS-100208', 'Chung cư', 'The Sun Avenue', 'Tháp 4 - Căn 4-15.06, Mai Chí Thọ, Quận 2', 86.0, 5100, 'Anh Cường', '0988273619', 'Đang bán', 1.5, '3 phòng ngủ view hồ bơi, sổ hồng sẵn sàng', '2026-10-28'],
-      ['BDS-100209', 'Biệt thự / Shophouse', 'Château Villa Phú Mỹ Hưng', 'Biệt thự đơn lập số 12 Khu Château, Q7', 320.0, 48000, 'Tổng GĐ Hưng', '0908889999', 'Đang bán', 1.0, 'View sông nội bộ cao cấp bậc nhất Sài Gòn', '2026-10-30'],
-      ['BDS-100210', 'Cho thuê', 'Riverpark Premier', 'Căn R-05.01 Đặng Đức Thuật, Phú Mỹ Hưng, Q7', 125.0, 45, 'Chị Lan', '0933281928', 'Đã cọc/Đã bán', 100.0, 'Cho thuê khách chuyên gia nước ngoài ở lâu dài', '2026-11-01']
+      ['BDSS-100201', 'Chung cư', 'Vinhomes Central Park', 'Tòa Landmark 3 - Căn L3-12.08', 78.5, 4650, 'Anh Tuấn', '0987654321', 'Đã cọc/Đã bán', 1.5, 'View công viên Landmark 81, nội thất cao cấp', '2026-10-10'],
+      ['BDSS-100202', 'Nhà phố', 'Nhà Phố D2', '14/8 Nguyễn Gia Trí, P.25, Bình Thạnh', 64.0, 8200, 'Chị Thảo', '0918273645', 'Đang bán', 1.0, 'Hẻm xe hơi 6m tránh nhau, gần các trường đại học', '2026-10-12'],
+      ['BDSS-100203', 'Chung cư', 'Masteri Thảo Điền', 'Tháp T2 - Căn T2-18.04, Quận 2', 69.2, 4200, 'Anh Hoàng', '0903829102', 'Đã cọc/Đã bán', 1.5, 'Nội thất nhập khẩu cao cấp, view hồ bơi', '2026-10-15'],
+      ['BDSS-100204', 'Đất nền', 'Khu dân cư Hiệp Bình Chánh', 'Lô B12 Đường 23, Hiệp Bình Chánh, Thủ Đức', 110.0, 6800, 'Chú Sáu', '0938192837', 'Đang bán', 2.0, 'Sổ đỏ thổ cư 100%, gần sông thoáng mát xây tự do', '2026-10-18'],
+      ['BDSS-100205', 'Biệt thự / Shophouse', 'Vinhomes Grand Park', 'Shophouse Manhattan M9-22, TP. Thủ Đức', 140.0, 16500, 'Chị Hà', '0977281920', 'Đã cọc/Đã bán', 1.5, 'Mặt tiền trục chính kinh doanh, HĐMB nhận nhà ngay', '2026-10-20'],
+      ['BDSS-100206', 'Chung cư', 'Scenic Valley 1', 'Tòa C - Căn C-09.02, Phú Mỹ Hưng, Q7', 75.0, 3950, 'Cô Dung', '0944182930', 'Đang bán', 1.5, 'Cửa hướng Nam mát mẻ, sổ hồng lâu dài', '2026-10-22'],
+      ['BDSS-100207', 'Nhà phố', 'Khu cư xá Đô Thành', '48 Đường số 3, Cư xá Đô Thành, Quận 3', 52.0, 9500, 'Bác Hùng', '0913928172', 'Đã cọc/Đã bán', 1.0, 'Trung tâm Quận 3 tiện mở văn phòng hoặc cho thuê spa', '2026-10-25'],
+      ['BDSS-100208', 'Chung cư', 'The Sun Avenue', 'Tháp 4 - Căn 4-15.06, Mai Chí Thọ, Quận 2', 86.0, 5100, 'Anh Cường', '0988273619', 'Đang bán', 1.5, '3 phòng ngủ view hồ bơi, sổ hồng sẵn sàng', '2026-10-28'],
+      ['BDSS-100209', 'Biệt thự / Shophouse', 'Château Villa Phú Mỹ Hưng', 'Biệt thự đơn lập số 12 Khu Château, Q7', 320.0, 48000, 'Tổng GĐ Hưng', '0908889999', 'Đang bán', 1.0, 'View sông nội bộ cao cấp bậc nhất Sài Gòn', '2026-10-30'],
+      ['BDSS-100210', 'Cho thuê', 'Riverpark Premier', 'Căn R-05.01 Đặng Đức Thuật, Phú Mỹ Hưng, Q7', 125.0, 45, 'Chị Lan', '0933281928', 'Đã cọc/Đã bán', 100.0, 'Cho thuê khách chuyên gia nước ngoài ở lâu dài', '2026-11-01']
     ];
 
     // Xóa dữ liệu cũ (chừa header dòng 1) và nạp mới
@@ -921,7 +990,7 @@ function seedRichFunnelData() {
     const custObjs = [];
 
     for (let i = 0; i < 100; i++) {
-      const code = 'KH-' + String(100100 + i);
+      const code = 'KHNG-' + String(100100 + i);
       const ho = hoList[i % hoList.length];
       const dem = demList[(i * 3 + 2) % demList.length];
       const ten = tenList[(i * 7 + 5) % tenList.length];
@@ -948,7 +1017,7 @@ function seedRichFunnelData() {
     const logRows = [];
 
     for (let i = 0; i < 80; i++) {
-      const code = 'LOG-' + String(1000 + i);
+      const code = 'LOGS-' + String(100000 + i);
       const cust = custObjs[i % 80];
       const itType = interactTypes[i % interactTypes.length];
       const p = propRows[i % propRows.length];
@@ -975,7 +1044,7 @@ function seedRichFunnelData() {
     const dealRows = [];
 
     for (let i = 0; i < 20; i++) {
-      const code = 'HD-' + String(8001 + i);
+      const code = 'HOAD-' + String(800000 + i);
       const cust = closedCusts[i] || custObjs[80 + i];
       const p = propRows[i % propRows.length];
       const priceMillion = Number(p[5]) || 0;

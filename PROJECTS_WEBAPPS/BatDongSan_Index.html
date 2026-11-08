@@ -126,7 +126,12 @@
     <header class="sticky top-0 z-30 h-14 bg-white border-b border-slate-200 px-4 flex items-center justify-between gap-3 flex-shrink-0 select-none">
       <div class="flex items-center gap-3 min-w-0">
         <button onclick="toggleSidebar()" class="md:hidden p-1.5 rounded-lg text-slate-500 hover:bg-slate-100 flex-shrink-0"><i data-lucide="menu" class="w-5 h-5"></i></button>
-        <h1 id="topbarTitle" class="text-sm font-bold text-slate-900 truncate">Tổng quan vận hành</h1>
+        <div class="flex items-center gap-2">
+          <h1 id="topbarTitle" class="text-sm font-bold text-slate-900 truncate">Tổng quan vận hành</h1>
+          <button type="button" onclick="generateSampleFunnelData()" title="Nạp 10 BĐS, 100 Khách, 80 Hẹn, 20 Cọc vào Google Sheets" class="hidden sm:inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-[11px] font-semibold text-emerald-700 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 transition">
+            <i data-lucide="database" class="w-3.5 h-3.5 text-emerald-600"></i> Nạp data mẫu chuẩn phễu
+          </button>
+        </div>
       </div>
 
       <div class="flex items-center gap-2.5 flex-shrink-0">
@@ -920,7 +925,7 @@
       <!-- Drawer Header -->
       <div class="h-14 px-4 border-b border-slate-100 flex items-center justify-between flex-shrink-0 bg-white">
         <div class="flex items-center gap-2">
-          <span class="text-xs font-mono font-bold text-slate-800 bg-slate-100 px-2 py-0.5 rounded" id="drawerCustomerCode">KH-000000</span>
+          <span class="text-xs font-mono font-bold text-slate-800 bg-slate-100 px-2 py-0.5 rounded" id="drawerCustomerCode">KHNG-000000</span>
           <span class="text-xs text-slate-300">|</span>
           <span class="text-xs font-bold text-slate-900 truncate max-w-[200px]" id="drawerCustomerName">Hồ sơ khách hàng</span>
         </div>
@@ -1024,7 +1029,7 @@
     <div id="propDetailDrawer" class="fixed top-0 right-0 bottom-0 w-full sm:w-[480px] bg-white border-l border-slate-200 z-50 flex flex-col shadow-2xl transform translate-x-full transition-transform duration-200 ease-in-out">
       <div class="h-14 px-4 border-b border-slate-100 flex items-center justify-between flex-shrink-0 bg-white">
         <div class="flex items-center gap-2">
-          <span class="text-xs font-mono font-bold text-slate-800 bg-slate-100 px-2 py-0.5 rounded" id="drawerPropCode">BDS-000000</span>
+          <span class="text-xs font-mono font-bold text-slate-800 bg-slate-100 px-2 py-0.5 rounded" id="drawerPropCode">BDSS-000000</span>
           <span class="text-xs text-slate-300">|</span>
           <span class="text-xs font-bold text-slate-900 truncate max-w-[200px]" id="drawerPropTitle">Chi tiết căn BĐS</span>
         </div>
@@ -1591,18 +1596,18 @@
         // Dữ liệu mẫu kiểm thử trực tiếp trên Client
         state.data = {
           customers: [
-            { 'Mã Khách': 'KH-102938', 'Họ Và Tên': 'Nguyễn Văn An', 'Số Điện Thoại': '0912345678', 'Nhu Cầu': 'Chung cư', 'Khoảng Giá': '3 - 5 Tỷ', 'Khu Vực': 'Quận 2', 'Nguồn Khách': 'Facebook Ads', 'Trạng Thái': 'Đang dẫn xem', 'Ghi Chú': 'Tìm căn 2PN view thoáng' },
-            { 'Mã Khách': 'KH-394821', 'Họ Và Tên': 'Trần Thị Mai', 'Số Điện Thoại': '0988776655', 'Nhu Cầu': 'Nhà phố', 'Khoảng Giá': '7 - 10 Tỷ', 'Khu Vực': 'Bình Thạnh', 'Nguồn Khách': 'Người quen giới thiệu', 'Trạng Thái': 'Mới tiếp cận', 'Ghi Chú': 'Hẻm xe hơi quay đầu' }
+            { 'Mã Khách': 'KHNG-102938', 'Họ Và Tên': 'Nguyễn Văn An', 'Số Điện Thoại': '0912345678', 'Nhu Cầu': 'Chung cư', 'Khoảng Giá': '3 - 5 Tỷ', 'Khu Vực': 'Quận 2', 'Nguồn Khách': 'Facebook Ads', 'Trạng Thái': 'Đang dẫn xem', 'Ghi Chú': 'Tìm căn 2PN view thoáng' },
+            { 'Mã Khách': 'KHNG-394821', 'Họ Và Tên': 'Trần Thị Mai', 'Số Điện Thoại': '0988776655', 'Nhu Cầu': 'Nhà phố', 'Khoảng Giá': '7 - 10 Tỷ', 'Khu Vực': 'Bình Thạnh', 'Nguồn Khách': 'Người quen giới thiệu', 'Trạng Thái': 'Mới tiếp cận', 'Ghi Chú': 'Hẻm xe hơi quay đầu' }
           ],
           properties: [
-            { 'Mã Căn': 'BDS-847291', 'Loại Hình': 'Chung cư', 'Tên Dự Án': 'Vinhomes Central Park', 'Địa Chỉ': 'L3-12.08', 'Diện Tích (m2)': 78.5, 'Giá Chào (Triệu)': 4500, 'Tên Chủ': 'Anh Tuấn', 'SĐT Chủ / Đầu Chủ': '0987654321', 'Hoa Hồng (%)': 1.5, 'Trạng Thái': 'Đang bán' },
-            { 'Mã Căn': 'BDS-392819', 'Loại Hình': 'Nhà phố', 'Tên Dự Án': 'Nhà Phố D2', 'Địa Chỉ': '14/8 Nguyễn Gia Trí, P.25, Bình Thạnh', 'Diện Tích (m2)': 64, 'Giá Chào (Triệu)': 8200, 'Tên Chủ': 'Chị Thảo', 'SĐT Chủ / Đầu Chủ': '0918273645', 'Hoa Hồng (%)': 1.0, 'Trạng Thái': 'Đang bán' }
+            { 'Mã Căn': 'BDSS-847291', 'Loại Hình': 'Chung cư', 'Tên Dự Án': 'Vinhomes Central Park', 'Địa Chỉ': 'L3-12.08', 'Diện Tích (m2)': 78.5, 'Giá Chào (Triệu)': 4500, 'Tên Chủ': 'Anh Tuấn', 'SĐT Chủ / Đầu Chủ': '0987654321', 'Hoa Hồng (%)': 1.5, 'Trạng Thái': 'Đang bán' },
+            { 'Mã Căn': 'BDSS-392819', 'Loại Hình': 'Nhà phố', 'Tên Dự Án': 'Nhà Phố D2', 'Địa Chỉ': '14/8 Nguyễn Gia Trí, P.25, Bình Thạnh', 'Diện Tích (m2)': 64, 'Giá Chào (Triệu)': 8200, 'Tên Chủ': 'Chị Thảo', 'SĐT Chủ / Đầu Chủ': '0918273645', 'Hoa Hồng (%)': 1.0, 'Trạng Thái': 'Đang bán' }
           ],
           logs: [
-            { 'Mã Nhật Ký': 'LOG-1029', 'Mã Khách': 'KH-102938', 'Tên Khách': 'Nguyễn Văn An', 'Hình Thức': 'Dẫn xem thực tế', 'Nội Dung Trao Đổi': 'Dẫn xem căn Landmark 3 lúc 14h. Khách thích ban công.', 'Lịch Hẹn Tiếp': new Date().toISOString().slice(0, 10), 'Ngày Tạo': '2026-11-05' }
+            { 'Mã Nhật Ký': 'LOGS-100029', 'Mã Khách': 'KHNG-102938', 'Tên Khách': 'Nguyễn Văn An', 'Hình Thức': 'Dẫn xem thực tế', 'Nội Dung Trao Đổi': 'Dẫn xem căn Landmark 3 lúc 14h. Khách thích ban công.', 'Lịch Hẹn Tiếp': new Date().toISOString().slice(0, 10), 'Ngày Tạo': '2026-11-05' }
           ],
           deals: [
-            { 'Mã Hợp Đồng': 'HD-8392', 'Tên Khách': 'Nguyễn Văn An', 'Địa Chỉ Căn': 'L3-12.08 Vinhomes', 'Giá Chốt (Triệu)': 4450, 'Tỷ Lệ Hoa Hồng (%)': 1.5, 'Hoa Hồng Thực Nhận (đ)': 66750000, 'Ngày Chốt': '2026-11-06', 'Trạng Thái': 'Đã thu hoa hồng' }
+            { 'Mã Hợp Đồng': 'HOAD-800392', 'Tên Khách': 'Nguyễn Văn An', 'Địa Chỉ Căn': 'L3-12.08 Vinhomes', 'Giá Chốt (Triệu)': 4450, 'Tỷ Lệ Hoa Hồng (%)': 1.5, 'Hoa Hồng Thực Nhận (đ)': 66750000, 'Ngày Chốt': '2026-11-06', 'Trạng Thái': 'Đã thu hoa hồng' }
           ],
           settings: {
             brokerName: 'Trần Thanh Phong',
@@ -2316,7 +2321,7 @@
       else if (key === 'interaction_types') fallbackNames = s.interactionTypes || taxonomyMeta.interaction_types.defaultList;
 
       return fallbackNames.map((name, idx) => ({
-        id: 'DM-' + (idx + 100000),
+        id: 'DANH-' + (idx + 100001),
         categoryKey: key,
         name: name,
         note: 'Chuẩn hóa hệ thống File Đi Làm',
@@ -2501,7 +2506,7 @@
             if (idx !== -1) state.data.taxonomy[idx] = payload;
             else state.data.taxonomy.push(payload);
           } else {
-            payload.id = 'DM-' + Math.floor(100000 + Math.random() * 900000);
+            payload.id = 'DANH-' + Math.floor(100000 + Math.random() * 900000);
             state.data.taxonomy.push(payload);
           }
           syncTaxonomyToSettingsState();
@@ -3258,7 +3263,7 @@
               state.data.properties[idx] = { ...state.data.properties[idx], 'Loại Hình': payload.type, 'Tên Dự Án': payload.projectName, 'Địa Chỉ': payload.address, 'Diện Tích (m2)': payload.area, 'Giá Chào (Triệu)': payload.price, 'Hoa Hồng (%)': payload.commission, 'Tên Chủ': payload.ownerName, 'SĐT Chủ / Đầu Chủ': payload.phone, 'Trạng Thái': payload.status, 'Ghi Chú': payload.note };
             }
           } else {
-            state.data.properties.push({ 'Mã Căn': 'BDS-' + Math.floor(100000+Math.random()*900000), 'Loại Hình': payload.type, 'Tên Dự Án': payload.projectName, 'Địa Chỉ': payload.address, 'Diện Tích (m2)': payload.area, 'Giá Chào (Triệu)': payload.price, 'Hoa Hồng (%)': payload.commission, 'Tên Chủ': payload.ownerName, 'SĐT Chủ / Đầu Chủ': payload.phone, 'Trạng Thái': payload.status, 'Ghi Chú': payload.note });
+            state.data.properties.push({ 'Mã Căn': 'BDSS-' + Math.floor(100000+Math.random()*900000), 'Loại Hình': payload.type, 'Tên Dự Án': payload.projectName, 'Địa Chỉ': payload.address, 'Diện Tích (m2)': payload.area, 'Giá Chào (Triệu)': payload.price, 'Hoa Hồng (%)': payload.commission, 'Tên Chủ': payload.ownerName, 'SĐT Chủ / Đầu Chủ': payload.phone, 'Trạng Thái': payload.status, 'Ghi Chú': payload.note });
           }
           closeAddPropertyModal();
           btn.innerText = 'Lưu vào giỏ hàng'; btn.disabled = false;
@@ -3477,7 +3482,7 @@
               state.data.customers[idx] = { ...state.data.customers[idx], 'Họ Và Tên': payload.name, 'Số Điện Thoại': payload.phone, 'Nhu Cầu': payload.demand, 'Khoảng Giá': payload.priceRange, 'Khu Vực': payload.area, 'Nguồn Khách': payload.source, 'Trạng Thái': payload.status, 'Ghi Chú': payload.note };
             }
           } else {
-            state.data.customers.push({ 'Mã Khách': 'KH-' + Math.floor(100000+Math.random()*900000), 'Họ Và Tên': payload.name, 'Số Điện Thoại': payload.phone, 'Nhu Cầu': payload.demand, 'Khoảng Giá': payload.priceRange, 'Khu Vực': payload.area, 'Nguồn Khách': payload.source, 'Trạng Thái': payload.status, 'Ghi Chú': payload.note });
+            state.data.customers.push({ 'Mã Khách': 'KHNG-' + Math.floor(100000+Math.random()*900000), 'Họ Và Tên': payload.name, 'Số Điện Thoại': payload.phone, 'Nhu Cầu': payload.demand, 'Khoảng Giá': payload.priceRange, 'Khu Vực': payload.area, 'Nguồn Khách': payload.source, 'Trạng Thái': payload.status, 'Ghi Chú': payload.note });
           }
           closeAddCustomerModal();
           btn.innerText = 'Lưu khách hàng'; btn.disabled = false;
@@ -3546,7 +3551,7 @@
         }).saveProperty(payload);
       } else {
         setTimeout(() => {
-          state.data.properties.push({ 'Mã Căn': 'BDS-' + Math.floor(100000+Math.random()*900000), 'Loại Hình': payload.type, 'Địa Chỉ': payload.address, 'Diện Tích (m2)': payload.area, 'Giá Chào (Triệu)': payload.price, 'Hoa Hồng (%)': payload.commission, 'Tên Chủ': payload.ownerName, 'SĐT Chủ / Đầu Chủ': payload.phone, 'Trạng Thái': 'Đang bán' });
+          state.data.properties.push({ 'Mã Căn': 'BDSS-' + Math.floor(100000+Math.random()*900000), 'Loại Hình': payload.type, 'Địa Chỉ': payload.address, 'Diện Tích (m2)': payload.area, 'Giá Chào (Triệu)': payload.price, 'Hoa Hồng (%)': payload.commission, 'Tên Chủ': payload.ownerName, 'SĐT Chủ / Đầu Chủ': payload.phone, 'Trạng Thái': 'Đang bán' });
           closeAddPropertyModal();
           btn.innerText = 'Lưu vào giỏ hàng'; btn.disabled = false;
           renderProperties(state.data.properties);
@@ -3595,7 +3600,7 @@
               state.data.logs[idx]['Lịch Hẹn Tiếp'] = payload.followUpDate;
             }
           } else {
-            state.data.logs.push({ 'Mã Nhật Ký': 'LOG-' + Math.floor(1000+Math.random()*9000), 'Mã Khách': payload.customerId, 'Tên Khách': payload.customerName, 'Hình Thức': payload.interactionType, 'Nội Dung Trao Đổi': payload.content, 'Lịch Hẹn Tiếp': payload.followUpDate, 'Trạng Thái': 'Hoạt động', 'Ngày Tạo': new Date().toISOString() });
+            state.data.logs.push({ 'Mã Nhật Ký': 'LOGS-' + Math.floor(100000+Math.random()*900000), 'Mã Khách': payload.customerId, 'Tên Khách': payload.customerName, 'Hình Thức': payload.interactionType, 'Nội Dung Trao Đổi': payload.content, 'Lịch Hẹn Tiếp': payload.followUpDate, 'Trạng Thái': 'Hoạt động', 'Ngày Tạo': new Date().toISOString() });
           }
           closeAddInteractionModal();
           btn.innerText = 'Lưu nhật ký chăm sóc'; btn.disabled = false;
@@ -3672,7 +3677,7 @@
               }
             }
           } else {
-            state.data.deals.push({ 'Mã Hợp Đồng': 'HD-' + Math.floor(1000+Math.random()*9000), 'Mã Khách': payload.customerId, 'Tên Khách': payload.customerName, 'Mã Căn': payload.propertyId, 'Địa Chỉ Căn': payload.propertyAddress, 'Giá Chốt (Triệu)': payload.closedPriceMillion, 'Tỷ Lệ Hoa Hồng (%)': payload.commissionPercent, 'Hoa Hồng Thực Nhận (đ)': commVND, 'Ngày Chốt': payload.dealDate, 'Trạng Thái': payload.status, 'Ghi Chú': payload.note });
+            state.data.deals.push({ 'Mã Hợp Đồng': 'HOAD-' + Math.floor(100000+Math.random()*900000), 'Mã Khách': payload.customerId, 'Tên Khách': payload.customerName, 'Mã Căn': payload.propertyId, 'Địa Chỉ Căn': payload.propertyAddress, 'Giá Chốt (Triệu)': payload.closedPriceMillion, 'Tỷ Lệ Hoa Hồng (%)': payload.commissionPercent, 'Hoa Hồng Thực Nhận (đ)': commVND, 'Ngày Chốt': payload.dealDate, 'Trạng Thái': payload.status, 'Ghi Chú': payload.note });
             if (prop) prop['Trạng Thái'] = 'Đã cọc/Đã bán';
             if (cust) cust['Trạng Thái'] = 'Đã chốt cọc';
           }
