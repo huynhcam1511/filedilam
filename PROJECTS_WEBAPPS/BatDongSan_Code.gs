@@ -62,7 +62,8 @@ function getInitialData() {
 }
 
 /**
- * Thêm hoặc Cập nhật Khách Hàng (Module 2)
+ * SPRINT 2 CHUYÊN SÂU: Thêm hoặc Cập nhật Khách Hàng (Module 2)
+ * Hỗ trợ: Validate SĐT Việt Nam 10 số, Chống trùng SĐT, Cập nhật theo ID, Quản lý trạng thái
  */
 function saveCustomer(payload) {
   const lock = LockService.getScriptLock();
@@ -70,22 +71,105 @@ function saveCustomer(payload) {
     lock.waitLock(10000);
     const ss = SpreadsheetApp.getActiveSpreadsheet();
     const sh = ss.getSheetByName(CONFIG_BDS.SHEET_NAMES.CUSTOMERS);
-    const newId = payload.id || ('KH-' + Math.floor(100000 + Math.random() * 900000));
-    
-    sh.appendRow([
-      newId,
-      payload.name || '',
-      payload.phone || '',
-      payload.demand || 'Căn hộ chung cư',
-      payload.priceRange || '',
-      payload.area || '',
-      payload.interestedIn || '',
-      payload.source || 'Facebook Ads',
-      payload.status || 'Mới tiếp cận',
-      payload.note || '',
-      new Date()
-    ]);
-    return { success: true, id: newId };
+    if (!sh) throw new Error('Không tìm thấy tab ' + CONFIG_BDS.SHEET_NAMES.CUSTOMERS);
+
+    // Chuẩn hóa và validate SĐT Việt Nam (Bắt buộc 10 số, đầu 03, 05, 07, 08, 09)
+    let cleanPhone = String(payload.phone || '').replace(/\D/g, '');
+    if (!/^0(3|5|7|8|9)\d{8}$/.test(cleanPhone)) {
+      return { success: false, error: 'Số điện thoại không hợp lệ! Vui lòng nhập đúng định dạng 10 số của Việt Nam (VD: 0901234567).' };
+    }
+
+    const data = sh.getDataRange().getValues();
+    const isUpdate = Boolean(payload.id);
+
+    // Chống trùng số điện thoại khi thêm mới
+    if (!isUpdate) {
+      for (let i = 1; i < data.length; i++) {
+        const existPhone = String(data[i][2] || '').replace(/\D/g, '');
+        const existStatus = String(data[i][8] || '');
+        if (existPhone === cleanPhone && existStatus !== 'Đã xóa') {
+          return { success: false, error: 'Số điện thoại này đã tồn tại trong hệ thống (Thuộc khách: ' + data[i][1] + ' - ' + data[i][0] + ')!' };
+        }
+      }
+    }
+
+    if (isUpdate) {
+      // Cập nhật khách hàng đã có theo ID
+      let foundIndex = -1;
+      for (let i = 1; i < data.length; i++) {
+        if (String(data[i][0]).trim() === String(payload.id).trim()) {
+          foundIndex = i + 1;
+          break;
+        }
+      }
+      if (foundIndex === -1) {
+        return { success: false, error: 'Không tìm thấy khách hàng có mã ' + payload.id + ' để cập nhật!' };
+      }
+
+      sh.getRange(foundIndex, 2).setValue(payload.name || '');
+      sh.getRange(foundIndex, 3).setValue(cleanPhone);
+      sh.getRange(foundIndex, 4).setValue(payload.demand || 'Căn hộ chung cư');
+      sh.getRange(foundIndex, 5).setValue(payload.priceRange || '');
+      sh.getRange(foundIndex, 6).setValue(payload.area || '');
+      sh.getRange(foundIndex, 7).setValue(payload.interestedIn || '');
+      sh.getRange(foundIndex, 8).setValue(payload.source || 'Facebook Ads');
+      sh.getRange(foundIndex, 9).setValue(payload.status || 'Mới tiếp cận');
+      sh.getRange(foundIndex, 10).setValue(payload.note || '');
+
+      return { success: true, id: payload.id, isUpdate: true };
+    } else {
+      // Thêm mới hoàn toàn khách hàng
+      const newId = 'KH-' + Math.floor(100000 + Math.random() * 900000);
+      sh.appendRow([
+        newId,
+        payload.name || '',
+        cleanPhone,
+        payload.demand || 'Căn hộ chung cư',
+        payload.priceRange || '',
+        payload.area || '',
+        payload.interestedIn || '',
+        payload.source || 'Facebook Ads',
+        payload.status || 'Mới tiếp cận',
+        payload.note || '',
+        new Date()
+      ]);
+      return { success: true, id: newId, isUpdate: false };
+    }
+  } catch (err) {
+    return { success: false, error: err.toString() };
+  } finally {
+    lock.releaseLock();
+  }
+}
+
+/**
+ * SPRINT 2 CHUYÊN SÂU: Xóa mềm Khách Hàng (Soft Delete)
+ * Chuyển trạng thái sang 'Đã xóa', bảo toàn audit log và lịch sử giao dịch liên quan
+ */
+function deleteCustomer(customerId) {
+  const lock = LockService.getScriptLock();
+  try {
+    lock.waitLock(10000);
+    const ss = SpreadsheetApp.getActiveSpreadsheet();
+    const sh = ss.getSheetByName(CONFIG_BDS.SHEET_NAMES.CUSTOMERS);
+    if (!sh) throw new Error('Không tìm thấy tab ' + CONFIG_BDS.SHEET_NAMES.CUSTOMERS);
+
+    const data = sh.getDataRange().getValues();
+    let foundRow = -1;
+    for (let i = 1; i < data.length; i++) {
+      if (String(data[i][0]).trim() === String(customerId).trim()) {
+        foundRow = i + 1;
+        break;
+      }
+    }
+
+    if (foundRow === -1) {
+      return { success: false, error: 'Không tìm thấy khách hàng cần xóa!' };
+    }
+
+    // Ghi nhận Soft Delete vào cột Trạng Thái (cột 9)
+    sh.getRange(foundRow, 9).setValue('Đã xóa');
+    return { success: true, id: customerId };
   } catch (err) {
     return { success: false, error: err.toString() };
   } finally {
