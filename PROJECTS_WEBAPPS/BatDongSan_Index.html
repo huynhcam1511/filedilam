@@ -234,11 +234,36 @@
         <div id="cardCustomerContainer" class="sm:hidden space-y-2.5 pb-16"></div>
       </div>
 
-      <!-- ==================== MODULE 3: GIỎ HÀNG BĐS (INVENTORY) ==================== -->
-      <div id="module-properties" class="module-tab-content space-y-4">
+      <!-- ==================== MODULE 3: GIỎ HÀNG BĐS (INVENTORY SPRINT 5 ENHANCED) ==================== -->
+      <div id="module-properties" class="module-tab-content space-y-3">
+        <!-- Sub-Toolbar Bộ Lọc Đa Tầng Kho Hàng (Sprint 5) -->
+        <div class="bg-white border border-slate-200/90 rounded-xl p-3 shadow-xs flex flex-wrap items-center justify-between gap-2.5 text-xs">
+          <div class="flex flex-wrap items-center gap-2">
+            <span class="font-semibold text-slate-700 text-[11px] uppercase tracking-wider flex items-center gap-1">
+              <i data-lucide="filter" class="w-3.5 h-3.5 text-emerald-600"></i> Lọc kho:
+            </span>
+            <select id="filterPropType" onchange="filterPropertiesLocal()" class="h-8 px-2.5 bg-slate-50 border border-slate-200 rounded-lg text-slate-700 font-medium focus:bg-white focus:outline-none">
+              <option value="">-- Tất cả loại hình --</option>
+            </select>
+            <select id="filterPropStatus" onchange="filterPropertiesLocal()" class="h-8 px-2.5 bg-slate-50 border border-slate-200 rounded-lg text-slate-700 font-medium focus:bg-white focus:outline-none">
+              <option value="">-- Tất cả trạng thái --</option>
+            </select>
+            <select id="filterPropPriceRange" onchange="filterPropertiesLocal()" class="h-8 px-2.5 bg-slate-50 border border-slate-200 rounded-lg text-slate-700 font-medium focus:bg-white focus:outline-none">
+              <option value="">-- Tất cả khoảng giá --</option>
+              <option value="under_2000">Dưới 2 Tỷ</option>
+              <option value="2000_5000">Từ 2 - 5 Tỷ</option>
+              <option value="5000_10000">Từ 5 - 10 Tỷ</option>
+              <option value="above_10000">Trên 10 Tỷ</option>
+            </select>
+          </div>
+          <div class="text-[11px] text-slate-400 font-medium">
+            Có <span id="countFilteredProp" class="font-bold text-slate-700 font-mono">0</span> căn trong giỏ hàng
+          </div>
+        </div>
+
         <!-- Desktop Master-Table -->
         <div class="hidden sm:block bg-white border border-slate-200/90 rounded-xl shadow-xs overflow-hidden">
-          <div class="overflow-x-auto max-h-[calc(100vh-180px)] custom-scrollbar">
+          <div class="overflow-x-auto max-h-[calc(100vh-230px)] custom-scrollbar">
             <table class="w-full text-left border-collapse sticky-header text-xs">
               <thead>
                 <tr class="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">
@@ -247,9 +272,10 @@
                   <th class="py-3 px-4">Dự Án / Địa Chỉ</th>
                   <th class="py-3 px-4">Diện Tích</th>
                   <th class="py-3 px-4">Giá Chào</th>
-                  <th class="py-3 px-4">Đầu Chủ / Liên Hệ</th>
+                  <th class="py-3 px-4">Đầu Chủ / Hotline</th>
                   <th class="py-3 px-4">Hoa Hồng</th>
                   <th class="py-3 px-4">Trạng Thái</th>
+                  <th class="py-3 px-4 w-14 text-center">Thao tác</th>
                 </tr>
               </thead>
               <tbody id="tblPropertyBody" class="divide-y divide-slate-100"></tbody>
@@ -528,7 +554,74 @@
       </div>
     </div>
 
-    <!-- ==================== MODAL 1: THÊM / SỬA KHÁCH HÀNG (SPRINT 2) ==================== -->
+    <!-- ==================== PROPERTY DETAILS DRAWER (SPRINT 5) ==================== -->
+    <div id="propDrawerBackdrop" onclick="closePropertyDrawer()" class="fixed inset-0 bg-slate-900/20 backdrop-blur-xs z-40 hidden transition-opacity"></div>
+    <div id="propDetailDrawer" class="fixed top-0 right-0 bottom-0 w-full sm:w-[480px] bg-white border-l border-slate-200 z-50 flex flex-col shadow-2xl transform translate-x-full transition-transform duration-200 ease-in-out">
+      <div class="h-14 px-4 border-b border-slate-100 flex items-center justify-between flex-shrink-0 bg-white">
+        <div class="flex items-center gap-2">
+          <span class="text-xs font-mono font-bold text-slate-800 bg-slate-100 px-2 py-0.5 rounded" id="drawerPropCode">BDS-000000</span>
+          <span class="text-xs text-slate-300">|</span>
+          <span class="text-xs font-bold text-slate-900 truncate max-w-[200px]" id="drawerPropTitle">Chi tiết căn BĐS</span>
+        </div>
+        <div class="flex items-center gap-1.5">
+          <button onclick="editPropertyFromDrawer()" class="p-1.5 text-slate-400 hover:text-emerald-600 hover:bg-slate-50 rounded" title="Sửa căn"><i data-lucide="edit-3" class="w-4 h-4"></i></button>
+          <button onclick="closePropertyDrawer()" class="p-1.5 text-slate-400 hover:text-slate-600 hover:bg-slate-50 rounded" title="Đóng panel"><i data-lucide="x" class="w-4 h-4"></i></button>
+        </div>
+      </div>
+
+      <div class="flex-1 overflow-y-auto p-4 sm:p-5 space-y-4 custom-scrollbar text-xs">
+        <div class="p-3 bg-slate-50 border border-slate-100 rounded-xl space-y-2">
+          <div class="text-[11px] font-bold text-slate-500 uppercase tracking-wider flex items-center justify-between">
+            <span>Thông số quy hoạch & Giá bán</span>
+            <span id="drawerPropStatusBadge" class="text-xs font-semibold px-2 py-0.5 rounded">--</span>
+          </div>
+          <div class="grid grid-cols-2 gap-2 text-xs">
+            <div><span class="text-slate-400">Loại hình:</span> <span id="drawerPropType" class="font-semibold text-slate-800">--</span></div>
+            <div><span class="text-slate-400">Dự án:</span> <span id="drawerPropProject" class="font-semibold text-slate-800">--</span></div>
+            <div><span class="text-slate-400">Diện tích:</span> <span id="drawerPropArea" class="font-mono font-bold text-slate-900">-- m²</span></div>
+            <div><span class="text-slate-400">Giá chào bán:</span> <span id="drawerPropPrice" class="font-mono font-bold text-emerald-700 text-sm">-- Triệu</span></div>
+            <div><span class="text-slate-400">Hoa hồng cam kết:</span> <span id="drawerPropComm" class="font-mono font-bold text-emerald-600">--%</span></div>
+            <div><span class="text-slate-400">Tình trạng pháp lý:</span> <span id="drawerPropLegal" class="font-semibold text-slate-700">--</span></div>
+          </div>
+        </div>
+
+        <div class="p-3.5 bg-slate-50 border border-slate-100 rounded-xl space-y-2">
+          <div class="text-[11px] font-bold text-slate-500 uppercase tracking-wider flex items-center justify-between">
+            <span>Đầu chủ ký gửi / Thông tin liên hệ</span>
+            <span class="text-[10px] text-emerald-600 font-medium">Bảo mật nội bộ</span>
+          </div>
+          <div class="space-y-1.5">
+            <div class="flex items-center justify-between">
+              <span class="text-slate-600">Đầu chủ / Người gửi:</span>
+              <span id="drawerPropOwnerName" class="font-bold text-slate-900">--</span>
+            </div>
+            <div class="flex items-center justify-between">
+              <span class="text-slate-600">Số điện thoại:</span>
+              <a href="#" id="drawerPropPhoneLink" class="font-mono font-bold text-emerald-600 flex items-center gap-1 hover:underline">
+                <i data-lucide="phone-call" class="w-3.5 h-3.5"></i> <span id="drawerPropPhone">--</span>
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <div class="text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Ghi chú đặc điểm & Hướng view</div>
+          <p id="drawerPropNote" class="bg-slate-50 p-3 rounded-xl border border-slate-100 text-slate-600 leading-relaxed italic">Không có ghi chú thêm.</p>
+        </div>
+      </div>
+
+      <div class="p-3 border-t border-slate-100 bg-slate-50/50 flex items-center justify-between gap-2 flex-shrink-0">
+        <a href="#" id="drawerPropCallBottomBtn" class="px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs flex items-center gap-1.5">
+          <i data-lucide="phone" class="w-3.5 h-3.5"></i> Gọi đầu chủ
+        </a>
+        <div class="flex items-center gap-2">
+          <button onclick="closePropertyDrawer()" class="px-3 py-1.5 rounded-lg border border-slate-200 text-xs font-medium text-slate-600 hover:bg-slate-100">Đóng</button>
+          <button onclick="quickDealForPropertyFromDrawer()" class="px-3.5 py-1.5 rounded-lg bg-emerald-600 text-white text-xs font-semibold hover:bg-emerald-700 flex items-center gap-1.5 shadow-xs">
+            <i data-lucide="badge-dollar-sign" class="w-3.5 h-3.5"></i> Chốt cọc căn này
+          </button>
+        </div>
+      </div>
+    </div>
     <div id="modalAddCustomer" class="fixed inset-0 bg-slate-900/30 backdrop-blur-xs z-50 flex items-center justify-center p-4 hidden">
       <div class="bg-white rounded-xl shadow-xl border border-slate-200 w-full max-w-lg overflow-hidden animate-in fade-in zoom-in-95">
         <div class="px-4 py-3 border-b border-slate-100 flex items-center justify-between">
@@ -1125,14 +1218,17 @@
       renderCustomers(list);
     }
 
-    // ==================== MODULE 3: PROPERTIES (SPRINT 4 ENHANCED) ====================
+    // ==================== MODULE 3: PROPERTIES (SPRINT 4 & 5 ENHANCED) ====================
     function renderProperties(list) {
       const activeList = (list || []).filter(p => p['Trạng Thái'] !== 'Đã xóa');
+      const countEl = document.getElementById('countFilteredProp');
+      if (countEl) countEl.innerText = activeList.length;
+
       const tbody = document.getElementById('tblPropertyBody');
       const cards = document.getElementById('cardPropertyContainer');
       if (!activeList || activeList.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="9" class="text-center py-8 text-slate-400">Giỏ hàng BĐS hiện đang trống.</td></tr>';
-        cards.innerHTML = '<div class="text-center py-8 text-slate-400 text-xs">Chưa có căn BĐS nào.</div>';
+        tbody.innerHTML = '<tr><td colspan="9" class="text-center py-8 text-slate-400">Không tìm thấy căn BĐS nào phù hợp với bộ lọc.</td></tr>';
+        cards.innerHTML = '<div class="text-center py-8 text-slate-400 text-xs">Không có căn BĐS nào.</div>';
         return;
       }
 
@@ -1163,6 +1259,7 @@
           <td class="py-2.5 px-4 text-center">
             <div class="flex items-center justify-center gap-1">
               <button onclick="editProperty('${p['Mã Căn']}')" title="Sửa thông tin căn" class="p-1 rounded text-slate-400 hover:text-emerald-600 hover:bg-slate-100"><i data-lucide="edit-3" class="w-3.5 h-3.5"></i></button>
+              <button onclick="openPropertyDrawer('${p['Mã Căn']}')" title="Xem chi tiết căn" class="p-1 rounded text-slate-400 hover:text-slate-700 hover:bg-slate-100"><i data-lucide="eye" class="w-3.5 h-3.5"></i></button>
               <button onclick="confirmDeleteProperty('${p['Mã Căn']}')" title="Xóa căn khỏi giỏ" class="p-1 rounded text-slate-400 hover:text-rose-600 hover:bg-rose-50"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i></button>
             </div>
           </td>
@@ -1189,12 +1286,44 @@
             <a href="tel:${p['SĐT Chủ / Đầu Chủ']}" class="text-emerald-600 font-semibold flex items-center gap-1">
               <i data-lucide="phone-call" class="w-3.5 h-3.5"></i> Gọi: ${p['SĐT Chủ / Đầu Chủ']}
             </a>
-            <button onclick="editProperty('${p['Mã Căn']}')" class="font-semibold text-slate-600 hover:text-emerald-600">Sửa</button>
+            <div class="flex items-center gap-2">
+              <button onclick="editProperty('${p['Mã Căn']}')" class="font-semibold text-slate-600 hover:text-emerald-600">Sửa</button>
+              <button onclick="openPropertyDrawer('${p['Mã Căn']}')" class="font-semibold text-emerald-600">Chi tiết →</button>
+            </div>
           </div>
         </div>
       `).join('');
 
       lucide.createIcons();
+    }
+
+    function filterPropertiesLocal() {
+      const type = document.getElementById('filterPropType').value;
+      const status = document.getElementById('filterPropStatus').value;
+      const priceRange = document.getElementById('filterPropPriceRange').value;
+      const q = (document.getElementById('globalSearchInput').value || '').toLowerCase().trim();
+
+      let list = (state.data.properties || []).filter(p => p['Trạng Thái'] !== 'Đã xóa');
+
+      if (type) list = list.filter(p => p['Loại Hình'] === type);
+      if (status) list = list.filter(p => p['Trạng Thái'] === status);
+      
+      if (priceRange === 'under_2000') list = list.filter(p => Number(p['Giá Chào (Triệu)']) < 2000);
+      else if (priceRange === '2000_5000') list = list.filter(p => Number(p['Giá Chào (Triệu)']) >= 2000 && Number(p['Giá Chào (Triệu)']) <= 5000);
+      else if (priceRange === '5000_10000') list = list.filter(p => Number(p['Giá Chào (Triệu)']) > 5000 && Number(p['Giá Chào (Triệu)']) <= 10000);
+      else if (priceRange === 'above_10000') list = list.filter(p => Number(p['Giá Chào (Triệu)']) > 10000);
+
+      if (q) {
+        list = list.filter(p => 
+          (p['Địa Chỉ']||'').toLowerCase().includes(q) ||
+          (p['Tên Dự Án']||'').toLowerCase().includes(q) ||
+          (p['Loại Hình']||'').toLowerCase().includes(q) ||
+          (p['Mã Căn']||'').toLowerCase().includes(q) ||
+          (p['Tên Chủ']||'').toLowerCase().includes(q)
+        );
+      }
+
+      renderProperties(list);
     }
 
     // ==================== MODULE 4: INTERACTIONS ====================
@@ -1357,6 +1486,16 @@
       const custSourceSel = document.getElementById('formCustSource');
       if (custSourceSel) custSourceSel.innerHTML = sources.map(src => `<option value="${src}">${src}</option>`).join('');
 
+      // Populate Prop Filter Dropdowns (Sprint 5)
+      const filterPropType = document.getElementById('filterPropType');
+      if (filterPropType) {
+        filterPropType.innerHTML = '<option value="">-- Tất cả loại hình --</option>' + types.map(t => `<option value="${t}">${t}</option>`).join('');
+      }
+      const filterPropStatus = document.getElementById('filterPropStatus');
+      if (filterPropStatus) {
+        filterPropStatus.innerHTML = '<option value="">-- Tất cả trạng thái --</option>' + propStatuses.map(st => `<option value="${st}">${st}</option>`).join('');
+      }
+
       // Populate Prop Statuses (Sprint 4)
       const propStatuses = s.propertyStatuses || ['Đang bán', 'Đã cọc/Đã bán', 'Tạm ngưng'];
       const propStatusSel = document.getElementById('formPropStatus');
@@ -1407,6 +1546,68 @@
       const rate = Number(document.getElementById('formDealCommRate').value) || 0;
       const totalVND = priceMillion * 1000000 * (rate / 100);
       document.getElementById('formDealEstimatedComm').innerText = totalVND.toLocaleString('vi-VN') + ' VNĐ';
+    }
+
+    // ==================== PROPERTY DRAWER CONTROLLERS (SPRINT 5) ====================
+    let selectedPropertyCode = null;
+
+    function openPropertyDrawer(code) {
+      const p = (state.data.properties || []).find(item => item['Mã Căn'] === code);
+      if (!p) return;
+      selectedPropertyCode = code;
+
+      document.getElementById('drawerPropCode').innerText = p['Mã Căn'];
+      document.getElementById('drawerPropTitle').innerText = p['Địa Chỉ'];
+      document.getElementById('drawerPropType').innerText = p['Loại Hình'] || '--';
+      document.getElementById('drawerPropProject').innerText = p['Tên Dự Án'] || 'Nhà phố / Thổ cư';
+      document.getElementById('drawerPropArea').innerText = (p['Diện Tích (m2)'] || 0) + ' m²';
+      document.getElementById('drawerPropPrice').innerText = Number(p['Giá Chào (Triệu)']).toLocaleString('vi-VN') + ' Triệu';
+      document.getElementById('drawerPropComm').innerText = (p['Hoa Hồng (%)'] || 1.5) + '%';
+      document.getElementById('drawerPropLegal').innerText = p['Pháp Lý'] || 'Đang cập nhật';
+      document.getElementById('drawerPropNote').innerText = p['Ghi Chú'] || 'Không có ghi chú thêm.';
+
+      const badge = document.getElementById('drawerPropStatusBadge');
+      badge.innerText = p['Trạng Thái'] || 'Đang bán';
+      if (p['Trạng Thái'] === 'Đang bán') {
+        badge.className = 'text-xs font-semibold px-2 py-0.5 rounded bg-emerald-50 text-emerald-700';
+      } else if (p['Trạng Thái'] === 'Đã cọc/Đã bán') {
+        badge.className = 'text-xs font-semibold px-2 py-0.5 rounded bg-rose-50 text-rose-700';
+      } else {
+        badge.className = 'text-xs font-semibold px-2 py-0.5 rounded bg-amber-50 text-amber-700';
+      }
+
+      document.getElementById('drawerPropOwnerName').innerText = p['Tên Chủ'] || 'Đầu chủ ký gửi';
+      document.getElementById('drawerPropPhone').innerText = p['SĐT Chủ / Đầu Chủ'] || '--';
+      
+      const phoneDigits = String(p['SĐT Chủ / Đầu Chủ'] || '').replace(/\D/g, '');
+      document.getElementById('drawerPropPhoneLink').href = 'tel:' + phoneDigits;
+      document.getElementById('drawerPropCallBottomBtn').href = 'tel:' + phoneDigits;
+
+      document.getElementById('propDrawerBackdrop').classList.remove('hidden');
+      document.getElementById('propDetailDrawer').classList.remove('translate-x-full');
+      lucide.createIcons();
+    }
+
+    function closePropertyDrawer() {
+      document.getElementById('propDrawerBackdrop').classList.add('hidden');
+      document.getElementById('propDetailDrawer').classList.add('translate-x-full');
+    }
+
+    function editPropertyFromDrawer() {
+      if (selectedPropertyCode) {
+        closePropertyDrawer();
+        editProperty(selectedPropertyCode);
+      }
+    }
+
+    function quickDealForPropertyFromDrawer() {
+      const code = selectedPropertyCode;
+      if (code) {
+        closePropertyDrawer();
+        openAddDealModal();
+        document.getElementById('formDealProperty').value = code;
+        handleSelectPropertyForDeal(code);
+      }
     }
 
     // ==================== DRAWER CONTROLLERS (SPRINT 3 ADVANCED 360) ====================
