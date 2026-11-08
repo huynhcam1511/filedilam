@@ -13,7 +13,8 @@ const CONFIG_BDS = {
     PROPERTIES: 'DB_GIO_HANG',
     LOGS: 'DB_NHAT_KY',
     DEALS: 'DB_GIAO_DICH',
-    SETTINGS: 'CAI_DAT'
+    SETTINGS: 'CAI_DAT',
+    TAXONOMY: 'DB_DANH_MUC'
   }
 };
 
@@ -42,9 +43,10 @@ function getInitialData() {
     const logs = readSheetData_(ss, CONFIG_BDS.SHEET_NAMES.LOGS);
     const deals = readSheetData_(ss, CONFIG_BDS.SHEET_NAMES.DEALS);
     const settingsRaw = readSheetData_(ss, CONFIG_BDS.SHEET_NAMES.SETTINGS);
+    const taxonomyRaw = readSheetData_(ss, CONFIG_BDS.SHEET_NAMES.TAXONOMY);
 
     // Chuẩn hóa cấu hình Settings & Master Taxonomy
-    const settings = parseSettingsData_(settingsRaw);
+    const settings = parseSettingsData_(settingsRaw, taxonomyRaw);
 
     return {
       success: true,
@@ -53,7 +55,8 @@ function getInitialData() {
         properties: properties,
         logs: logs,
         deals: deals,
-        settings: settings
+        settings: settings,
+        taxonomy: settings.taxonomyItems || []
       }
     };
   } catch (err) {
@@ -561,7 +564,100 @@ function resetDefaultSettings() {
     customerStatuses: ['Mới tiếp cận', 'Đang chăm', 'Đang dẫn xem', 'Đang thương lượng', 'Đã chốt cọc', 'Dừng chăm sóc'],
     propertyStatuses: ['Đang bán', 'Đã cọc/Đã bán', 'Tạm ngưng']
   };
+  
+  // Khởi tạo lại cả tab DB_DANH_MUC
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  let shTaxonomy = ss.getSheetByName(CONFIG_BDS.SHEET_NAMES.TAXONOMY);
+  if (shTaxonomy) {
+    shTaxonomy.clear();
+    shTaxonomy.appendRow(['Mã Mục', 'Mã Danh Mục', 'Tên Mục', 'Ghi Chú', 'Thứ Tự', 'Trạng Thái', 'Ngày Tạo']);
+    seedDefaultTaxonomy_(shTaxonomy);
+  }
+  
   return saveSettings(defaultPayload);
+}
+
+/**
+ * THƯỢNG NGUỒN MASTER TAXONOMY: Thêm hoặc Sửa một mục danh mục
+ */
+function saveTaxonomyItem(payload) {
+  const lock = LockService.getScriptLock();
+  try {
+    lock.waitLock(10000);
+    const ss = SpreadsheetApp.getActiveSpreadsheet();
+    let sh = ss.getSheetByName(CONFIG_BDS.SHEET_NAMES.TAXONOMY);
+    if (!sh) {
+      ensureRequiredSheets_(ss);
+      sh = ss.getSheetByName(CONFIG_BDS.SHEET_NAMES.TAXONOMY);
+    }
+
+    const data = sh.getDataRange().getValues();
+    const isUpdate = Boolean(payload.id);
+    const name = String(payload.name || '').trim();
+    const categoryKey = String(payload.categoryKey || '').trim();
+    if (!name || !categoryKey) {
+      return { success: false, error: 'Tên mục và danh mục trực thuộc không được để trống!' };
+    }
+
+    const note = String(payload.note || '').trim();
+    const sortOrder = Number(payload.sortOrder) || 1;
+    const status = String(payload.status || 'Đang dùng').trim();
+    const today = Utilities.formatDate(new Date(), 'Asia/Ho_Chi_Minh', 'yyyy-MM-dd');
+
+    if (isUpdate) {
+      let foundIndex = -1;
+      for (let i = 1; i < data.length; i++) {
+        if (String(data[i][0]).trim() === String(payload.id).trim()) {
+          foundIndex = i + 1;
+          break;
+        }
+      }
+      if (foundIndex === -1) {
+        return { success: false, error: 'Không tìm thấy mục danh mục cần cập nhật!' };
+      }
+      sh.getRange(foundIndex, 2).setValue(categoryKey);
+      sh.getRange(foundIndex, 3).setValue(name);
+      sh.getRange(foundIndex, 4).setValue(note);
+      sh.getRange(foundIndex, 5).setValue(sortOrder);
+      sh.getRange(foundIndex, 6).setValue(status);
+      return { success: true, id: payload.id, isUpdate: true };
+    } else {
+      // Chống trùng tên trong cùng một nhóm danh mục
+      for (let i = 1; i < data.length; i++) {
+        const existKey = String(data[i][1] || '').trim();
+        const existName = String(data[i][2] || '').trim();
+        if (existKey === categoryKey && existName.toLowerCase() === name.toLowerCase()) {
+          return { success: false, error: 'Mục "' + name + '" đã tồn tại trong danh mục này!' };
+        }
+      }
+
+      // Sinh mã DM-XXXXXX
+      const newId = 'DM-' + Math.floor(100000 + Math.random() * 900000);
+      sh.appendRow([newId, categoryKey, name, note, sortOrder, status, today]);
+      return { success: true, id: newId, isUpdate: false };
+    }
+  } catch (err) {
+    return { success: false, error: err.toString() };
+  } finally {
+    lock.releaseLock();
+  }
+}
+
+/**
+ * THƯỢNG NGUỒN MASTER TAXONOMY: Đổi trạng thái (Đang dùng / Tạm ngưng) hoặc Xóa
+ */
+function toggleTaxonomyItemStatus(id, newStatus) {
+  const lock = LockService.getScriptLock();
+  try {
+    lock.waitLock(10000);
+    const ss = SpreadsheetApp.getActiveSpreadsheet();
+    updateEntityStatus_(ss, CONFIG_BDS.SHEET_NAMES.TAXONOMY, 0, id, 5, newStatus);
+    return { success: true };
+  } catch (err) {
+    return { success: false, error: err.toString() };
+  } finally {
+    lock.releaseLock();
+  }
 }
 
 /**
@@ -582,7 +678,7 @@ function updateEntityStatus_(ss, sheetName, idColIndex, idValue, targetColIndex,
 /**
  * Helper phân tích dữ liệu Settings phẳng thành cấu trúc JSON chuẩn đầy đủ (Sprint 1)
  */
-function parseSettingsData_(rows) {
+function parseSettingsData_(rows, taxonomyRows) {
   const settings = {
     brokerName: 'Môi Giới Chuyên Nghiệp',
     brokerPhone: '0900000000',
@@ -597,29 +693,66 @@ function parseSettingsData_(rows) {
     locations: ['Quận 1', 'Quận 2 (TP. Thủ Đức)', 'Quận 7', 'Bình Thạnh', 'Thảo Điền', 'Phú Mỹ Hưng', 'Thủ Đức'],
     customerSources: ['Facebook Ads', 'Tiktok Bio', 'Người quen giới thiệu', 'Đăng tin BĐS', 'Khách vãng lai'],
     customerStatuses: ['Mới tiếp cận', 'Đang chăm', 'Đang dẫn xem', 'Đang thương lượng', 'Đã chốt cọc', 'Dừng chăm sóc'],
-    propertyStatuses: ['Đang bán', 'Đã cọc/Đã bán', 'Tạm ngưng']
+    propertyStatuses: ['Đang bán', 'Đã cọc/Đã bán', 'Tạm ngưng'],
+    interactionTypes: ['Cuộc gọi', 'Nhắn tin Zalo', 'Gặp cafe tư vấn', 'Dẫn đi xem nhà', 'Đặt cọc / Ký HĐ'],
+    taxonomyItems: []
   };
 
-  rows.forEach(r => {
-    const key = String(r['Khóa Tham Số'] || '').trim();
-    const val = String(r['Giá Trị Tham Số'] || '').trim();
-    if (!key) return;
+  if (rows && rows.length) {
+    rows.forEach(r => {
+      const key = String(r['Khóa Tham Số'] || '').trim();
+      const val = String(r['Giá Trị Tham Số'] || '').trim();
+      if (!key) return;
 
-    if (key === 'BROKER_NAME' && val) settings.brokerName = val;
-    if (key === 'BROKER_PHONE' && val) settings.brokerPhone = val;
-    if (key === 'BROKER_EMAIL' && val) settings.brokerEmail = val;
-    if (key === 'AGENCY_NAME' && val) settings.agencyName = val;
-    if (key === 'BANK_NAME' && val) settings.bankName = val;
-    if (key === 'BANK_ACC' && val) settings.bankAcc = val;
-    if (key === 'BANK_HOLDER' && val) settings.bankHolder = val;
-    if (key === 'DEFAULT_COMM_RATE' && val) settings.defaultCommRate = Number(val) || 1.5;
-    if (key === 'FOLLOWUP_ALERT_DAYS' && val) settings.followupAlertDays = Number(val) || 0;
-    if (key === 'PROPERTY_TYPES' && val) settings.propertyTypes = val.split(';').map(s => s.trim()).filter(Boolean);
-    if (key === 'LOCATIONS' && val) settings.locations = val.split(';').map(s => s.trim()).filter(Boolean);
-    if (key === 'CUSTOMER_SOURCES' && val) settings.customerSources = val.split(';').map(s => s.trim()).filter(Boolean);
-    if (key === 'CUSTOMER_STATUSES' && val) settings.customerStatuses = val.split(';').map(s => s.trim()).filter(Boolean);
-    if (key === 'PROPERTY_STATUSES' && val) settings.propertyStatuses = val.split(';').map(s => s.trim()).filter(Boolean);
-  });
+      if (key === 'BROKER_NAME' && val) settings.brokerName = val;
+      if (key === 'BROKER_PHONE' && val) settings.brokerPhone = val;
+      if (key === 'BROKER_EMAIL' && val) settings.brokerEmail = val;
+      if (key === 'AGENCY_NAME' && val) settings.agencyName = val;
+      if (key === 'BANK_NAME' && val) settings.bankName = val;
+      if (key === 'BANK_ACC' && val) settings.bankAcc = val;
+      if (key === 'BANK_HOLDER' && val) settings.bankHolder = val;
+      if (key === 'DEFAULT_COMM_RATE' && val) settings.defaultCommRate = Number(val) || 1.5;
+      if (key === 'FOLLOWUP_ALERT_DAYS' && val) settings.followupAlertDays = Number(val) || 0;
+      if (key === 'PROPERTY_TYPES' && val) settings.propertyTypes = val.split(';').map(s => s.trim()).filter(Boolean);
+      if (key === 'LOCATIONS' && val) settings.locations = val.split(';').map(s => s.trim()).filter(Boolean);
+      if (key === 'CUSTOMER_SOURCES' && val) settings.customerSources = val.split(';').map(s => s.trim()).filter(Boolean);
+      if (key === 'CUSTOMER_STATUSES' && val) settings.customerStatuses = val.split(';').map(s => s.trim()).filter(Boolean);
+      if (key === 'PROPERTY_STATUSES' && val) settings.propertyStatuses = val.split(';').map(s => s.trim()).filter(Boolean);
+    });
+  }
+
+  // Nạp từ DB_DANH_MUC nếu có dữ liệu dòng
+  if (taxonomyRows && taxonomyRows.length) {
+    settings.taxonomyItems = taxonomyRows.map(r => ({
+      id: String(r['Mã Mục'] || '').trim(),
+      categoryKey: String(r['Mã Danh Mục'] || '').trim(),
+      name: String(r['Tên Mục'] || '').trim(),
+      note: String(r['Ghi Chú'] || '').trim(),
+      sortOrder: Number(r['Thứ Tự']) || 1,
+      status: String(r['Trạng Thái'] || 'Đang dùng').trim()
+    })).filter(item => item.id && item.name);
+
+    // Đồng bộ các mảng đang hoạt động vào settings để dropdown kế thừa tức thì
+    const activeItems = settings.taxonomyItems.filter(item => item.status === 'Đang dùng');
+    
+    const propTypes = activeItems.filter(i => i.categoryKey === 'prop_types').map(i => i.name);
+    if (propTypes.length) settings.propertyTypes = propTypes;
+
+    const locs = activeItems.filter(i => i.categoryKey === 'locations').map(i => i.name);
+    if (locs.length) settings.locations = locs;
+
+    const sources = activeItems.filter(i => i.categoryKey === 'lead_sources').map(i => i.name);
+    if (sources.length) settings.customerSources = sources;
+
+    const custSt = activeItems.filter(i => i.categoryKey === 'cust_statuses').map(i => i.name);
+    if (custSt.length) settings.customerStatuses = custSt;
+
+    const propSt = activeItems.filter(i => i.categoryKey === 'prop_statuses').map(i => i.name);
+    if (propSt.length) settings.propertyStatuses = propSt;
+
+    const interactSt = activeItems.filter(i => i.categoryKey === 'interaction_types').map(i => i.name);
+    if (interactSt.length) settings.interactionTypes = interactSt;
+  }
 
   return settings;
 }
@@ -656,7 +789,8 @@ function ensureRequiredSheets_(ss) {
     { name: CONFIG_BDS.SHEET_NAMES.PROPERTIES, headers: ['Mã Căn', 'Loại Hình', 'Tên Dự Án', 'Địa Chỉ', 'Diện Tích (m2)', 'Giá Chào (Triệu)', 'Tên Chủ', 'SĐT Chủ / Đầu Chủ', 'Trạng Thái', 'Hoa Hồng (%)', 'Ghi Chú', 'Ngày Tạo'] },
     { name: CONFIG_BDS.SHEET_NAMES.LOGS, headers: ['Mã Nhật Ký', 'Mã Khách', 'Tên Khách', 'Hình Thức', 'Nội Dung Trao Đổi', 'Lịch Hẹn Tiếp', 'Ngày Tạo'] },
     { name: CONFIG_BDS.SHEET_NAMES.DEALS, headers: ['Mã Hợp Đồng', 'Mã Khách', 'Tên Khách', 'Mã Căn', 'Địa Chỉ Căn', 'Giá Chốt (Triệu)', 'Tỷ Lệ Hoa Hồng (%)', 'Hoa Hồng Thực Nhận (đ)', 'Ngày Chốt', 'Trạng Thái', 'Ghi Chú', 'Ngày Tạo'] },
-    { name: CONFIG_BDS.SHEET_NAMES.SETTINGS, headers: ['Khóa Tham Số', 'Giá Trị Tham Số', 'Mô Tả / Phân Loại'] }
+    { name: CONFIG_BDS.SHEET_NAMES.SETTINGS, headers: ['Khóa Tham Số', 'Giá Trị Tham Số', 'Mô Tả / Phân Loại'] },
+    { name: CONFIG_BDS.SHEET_NAMES.TAXONOMY, headers: ['Mã Mục', 'Mã Danh Mục', 'Tên Mục', 'Ghi Chú', 'Thứ Tự', 'Trạng Thái', 'Ngày Tạo'] }
   ];
 
   required.forEach(item => {
@@ -672,4 +806,62 @@ function ensureRequiredSheets_(ss) {
   if (shSettings && shSettings.getLastRow() <= 1) {
     resetDefaultSettings();
   }
+
+  const shTaxonomy = ss.getSheetByName(CONFIG_BDS.SHEET_NAMES.TAXONOMY);
+  if (shTaxonomy && shTaxonomy.getLastRow() <= 1) {
+    seedDefaultTaxonomy_(shTaxonomy);
+  }
+}
+
+/**
+ * Khởi tạo dữ liệu mẫu chuẩn cho DB_DANH_MUC
+ */
+function seedDefaultTaxonomy_(sh) {
+  const initial = [
+    // 1. prop_types (Loại hình BĐS & Nhu cầu)
+    ['DM-100001', 'prop_types', 'Chung cư', 'Căn hộ chung cư, duplex, officetel', 1, 'Đang dùng', '2026-11-08'],
+    ['DM-100002', 'prop_types', 'Nhà phố', 'Nhà thổ cư hẻm và mặt tiền kinh doanh', 2, 'Đang dùng', '2026-11-08'],
+    ['DM-100003', 'prop_types', 'Đất nền', 'Đất thổ cư có sổ đỏ, đất nền dự án', 3, 'Đang dùng', '2026-11-08'],
+    ['DM-100004', 'prop_types', 'Biệt thự / Shophouse', 'Biệt thự nghỉ dưỡng, shophouse khối đế', 4, 'Đang dùng', '2026-11-08'],
+    ['DM-100005', 'prop_types', 'Cho thuê', 'Thuê căn hộ, mặt bằng hoặc nguyên căn', 5, 'Đang dùng', '2026-11-08'],
+
+    // 2. locations (Khu vực địa bàn)
+    ['DM-200001', 'locations', 'Quận 1', 'Khu trung tâm hành chính tài chính', 1, 'Đang dùng', '2026-11-08'],
+    ['DM-200002', 'locations', 'Quận 2 (TP. Thủ Đức)', 'Thảo Điền, An Phú, Thủ Thiêm', 2, 'Đang dùng', '2026-11-08'],
+    ['DM-200003', 'locations', 'Quận 7', 'Phú Mỹ Hưng, Nam Long, Tân Hưng', 3, 'Đang dùng', '2026-11-08'],
+    ['DM-200004', 'locations', 'Bình Thạnh', 'Khu vực gần trung tâm, Điện Biên Phủ', 4, 'Đang dùng', '2026-11-08'],
+    ['DM-200005', 'locations', 'Thảo Điền', 'Biệt thự, căn hộ cao cấp ven sông', 5, 'Đang dùng', '2026-11-08'],
+    ['DM-200006', 'locations', 'Phú Mỹ Hưng', 'Đô thị kiểu mẫu, căn hộ cao cấp', 6, 'Đang dùng', '2026-11-08'],
+    ['DM-200007', 'locations', 'Thủ Đức', 'Võ Văn Ngân, Đặng Văn Bi, Hiệp Bình Chánh', 7, 'Đang dùng', '2026-11-08'],
+
+    // 3. prop_statuses (Trạng thái giỏ hàng BĐS)
+    ['DM-300001', 'prop_statuses', 'Đang bán', 'Căn sẵn sàng giao dịch, tiếp khách xem nhà', 1, 'Đang dùng', '2026-11-08'],
+    ['DM-300002', 'prop_statuses', 'Đã cọc/Đã bán', 'Đã nhận cọc hoặc hoàn tất thủ tục công chứng', 2, 'Đang dùng', '2026-11-08'],
+    ['DM-300003', 'prop_statuses', 'Tạm ngưng', 'Chủ nhà hoãn bán hoặc đang chờ cập nhật sổ', 3, 'Đang dùng', '2026-11-08'],
+
+    // 4. lead_sources (Nguồn khách hàng)
+    ['DM-400001', 'lead_sources', 'Facebook Ads', 'Chạy quảng cáo Lead Form Facebook', 1, 'Đang dùng', '2026-11-08'],
+    ['DM-400002', 'lead_sources', 'TikTok Bio', 'Khách bấm link bio từ kênh TikTok', 2, 'Đang dùng', '2026-11-08'],
+    ['DM-400003', 'lead_sources', 'Người quen giới thiệu', 'Mối quan hệ thân thiết, khách cũ giới thiệu', 3, 'Đang dùng', '2026-11-08'],
+    ['DM-400004', 'lead_sources', 'Đăng tin BĐS', 'Batdongsan, Chotot, CafeLand', 4, 'Đang dùng', '2026-11-08'],
+    ['DM-400005', 'lead_sources', 'Khách vãng lai', 'Treo biển, phát tờ rơi, khách trực tiếp', 5, 'Đang dùng', '2026-11-08'],
+
+    // 5. cust_statuses (Trạng thái khách hàng / Phễu bán hàng)
+    ['DM-500001', 'cust_statuses', 'Mới tiếp cận', 'Vừa tiếp nhận SĐT, chưa phân loại sâu', 1, 'Đang dùng', '2026-11-08'],
+    ['DM-500002', 'cust_statuses', 'Đang chăm', 'Đã liên hệ, đang gửi danh sách căn phù hợp', 2, 'Đang dùng', '2026-11-08'],
+    ['DM-500003', 'cust_statuses', 'Đang dẫn xem', 'Khách đã hẹn và đi xem thực tế dự án/nhà', 3, 'Đang dùng', '2026-11-08'],
+    ['DM-500004', 'cust_statuses', 'Đang thương lượng', 'Đang đàm phán giá cả, pháp lý với chủ nhà', 4, 'Đang dùng', '2026-11-08'],
+    ['DM-500005', 'cust_statuses', 'Đã chốt cọc', 'Giao dịch thành công, đã ký đặt cọc', 5, 'Đang dùng', '2026-11-08'],
+    ['DM-500006', 'cust_statuses', 'Dừng chăm sóc', 'Tài chính không đủ hoặc đã mua chỗ khác', 6, 'Đang dùng', '2026-11-08'],
+
+    // 6. interaction_types (Hình thức tương tác / Nhật ký)
+    ['DM-600001', 'interaction_types', 'Cuộc gọi', 'Gọi điện thoại thoại tư vấn, hỏi nhu cầu', 1, 'Đang dùng', '2026-11-08'],
+    ['DM-600002', 'interaction_types', 'Nhắn tin Zalo', 'Gửi hình ảnh, sổ đỏ, định vị qua Zalo', 2, 'Đang dùng', '2026-11-08'],
+    ['DM-600003', 'interaction_types', 'Gặp cafe tư vấn', 'Gặp trực tiếp tư vấn quy hoạch và bảng giá', 3, 'Đang dùng', '2026-11-08'],
+    ['DM-600004', 'interaction_types', 'Dẫn đi xem nhà', 'Đưa đón khách đến xem thực tế căn BĐS', 4, 'Đang dùng', '2026-11-08'],
+    ['DM-600005', 'interaction_types', 'Đặt cọc / Ký HĐ', 'Gặp mặt tại phòng công chứng hoặc văn phòng', 5, 'Đang dùng', '2026-11-08']
+  ];
+
+  initial.forEach(row => sh.appendRow(row));
+}
 }

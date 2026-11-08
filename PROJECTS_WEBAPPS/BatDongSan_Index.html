@@ -443,17 +443,118 @@
         <div id="cardDealContainer" class="sm:hidden space-y-2.5 pb-16"></div>
       </div>
 
-      <!-- ==================== MODULE 6: CÀI ĐẶT & DANH MỤC (SETTINGS & TAXONOMY) ==================== -->
-      <div id="module-settings" class="module-tab-content space-y-5">
-        <div class="bg-white border border-slate-200/90 rounded-xl p-5 shadow-xs max-w-3xl">
-          <div class="flex items-center justify-between pb-3 mb-4 border-b border-slate-100">
-            <div>
-              <h2 class="text-sm font-bold text-slate-900">Cài đặt hệ thống & Quản lý danh mục (Master Taxonomy)</h2>
-              <p class="text-[11px] text-slate-500 mt-0.5">Thiết lập hồ sơ môi giới, tài khoản VietQR và chuẩn hóa danh mục động toàn ứng dụng.</p>
-            </div>
-            <button type="button" onclick="resetSettingsToDefault()" class="px-2.5 py-1 text-[11px] font-medium text-slate-500 hover:text-rose-600 hover:bg-rose-50 rounded border border-slate-200 transition">Khôi phục mặc định</button>
+      <!-- ==================== MODULE 6: CÀI ĐẶT & DANH MỤC (MASTER TAXONOMY 2-PANEL) ==================== -->
+      <div id="module-settings" class="module-tab-content space-y-4">
+        <!-- Sub-Nav Switcher: Cấu Hình vs Quản Lý Danh Mục -->
+        <div class="flex items-center justify-between border-b border-slate-200 pb-2">
+          <div class="flex items-center gap-2">
+            <button type="button" onclick="switchSettingsSubTab('taxonomy')" id="subtab-btn-taxonomy" class="px-3.5 py-1.5 text-xs font-semibold rounded-lg bg-emerald-50 text-emerald-700 transition">
+              Quản lý danh mục
+            </button>
+            <button type="button" onclick="switchSettingsSubTab('config')" id="subtab-btn-config" class="px-3.5 py-1.5 text-xs font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-lg transition">
+              Hồ sơ & Tài khoản VietQR
+            </button>
           </div>
-          
+          <button type="button" onclick="resetSettingsToDefault()" class="px-2.5 py-1 text-[11px] font-medium text-slate-500 hover:text-rose-600 hover:bg-rose-50 rounded border border-slate-200 transition">
+            Khôi phục mặc định
+          </button>
+        </div>
+
+        <!-- PHÂN KHU 1: QUẢN LÝ DANH MỤC THƯỢNG NGUỒN (2-PANEL MASTER-DETAIL) -->
+        <div id="settingsSubView-taxonomy" class="bg-white border border-slate-200/90 rounded-xl overflow-hidden shadow-xs flex flex-col md:flex-row min-h-[580px]">
+          <!-- Cột Trái (Sub-sidebar 230px): Phân nhóm danh mục -->
+          <div class="w-full md:w-60 border-r border-slate-200/80 bg-slate-50/50 p-3 space-y-4 flex-shrink-0">
+            <!-- Nhóm 1: Bất động sản & Kho hàng -->
+            <div>
+              <div class="px-2 pb-1.5 text-[10px] font-bold text-slate-400 uppercase tracking-wider">Bất động sản</div>
+              <div class="space-y-0.5 text-xs">
+                <button type="button" onclick="selectTaxonomyCategory('prop_types')" id="taxnav-prop_types" class="taxnav-btn w-full flex items-center justify-between px-2.5 py-2 rounded-lg font-semibold text-emerald-800 bg-emerald-50/90 border-l-2 border-emerald-600 transition">
+                  <span class="truncate">Loại hình BĐS</span>
+                  <span id="badgeCount-prop_types" class="text-[10px] text-emerald-700 font-mono">0</span>
+                </button>
+                <button type="button" onclick="selectTaxonomyCategory('locations')" id="taxnav-locations" class="taxnav-btn w-full flex items-center justify-between px-2.5 py-2 rounded-lg font-medium text-slate-600 hover:bg-slate-100/80 transition">
+                  <span class="truncate">Khu vực địa bàn</span>
+                  <span id="badgeCount-locations" class="text-[10px] text-slate-400 font-mono">0</span>
+                </button>
+                <button type="button" onclick="selectTaxonomyCategory('prop_statuses')" id="taxnav-prop_statuses" class="taxnav-btn w-full flex items-center justify-between px-2.5 py-2 rounded-lg font-medium text-slate-600 hover:bg-slate-100/80 transition">
+                  <span class="truncate">Trạng thái giỏ hàng</span>
+                  <span id="badgeCount-prop_statuses" class="text-[10px] text-slate-400 font-mono">0</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Nhóm 2: Khách hàng & Giao dịch -->
+            <div>
+              <div class="px-2 pb-1.5 text-[10px] font-bold text-slate-400 uppercase tracking-wider">Khách hàng & Chăm sóc</div>
+              <div class="space-y-0.5 text-xs">
+                <button type="button" onclick="selectTaxonomyCategory('lead_sources')" id="taxnav-lead_sources" class="taxnav-btn w-full flex items-center justify-between px-2.5 py-2 rounded-lg font-medium text-slate-600 hover:bg-slate-100/80 transition">
+                  <span class="truncate">Nguồn khách hàng</span>
+                  <span id="badgeCount-lead_sources" class="text-[10px] text-slate-400 font-mono">0</span>
+                </button>
+                <button type="button" onclick="selectTaxonomyCategory('cust_statuses')" id="taxnav-cust_statuses" class="taxnav-btn w-full flex items-center justify-between px-2.5 py-2 rounded-lg font-medium text-slate-600 hover:bg-slate-100/80 transition">
+                  <span class="truncate">Trạng thái chăm sóc</span>
+                  <span id="badgeCount-cust_statuses" class="text-[10px] text-slate-400 font-mono">0</span>
+                </button>
+                <button type="button" onclick="selectTaxonomyCategory('interaction_types')" id="taxnav-interaction_types" class="taxnav-btn w-full flex items-center justify-between px-2.5 py-2 rounded-lg font-medium text-slate-600 hover:bg-slate-100/80 transition">
+                  <span class="truncate">Hình thức tương tác</span>
+                  <span id="badgeCount-interaction_types" class="text-[10px] text-slate-400 font-mono">0</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Gợi ý hướng dẫn -->
+            <div class="p-2.5 bg-emerald-50/60 border border-emerald-100/80 rounded-lg text-[11px] text-slate-600 leading-relaxed">
+              Khai báo chuẩn hóa danh mục tại đây để hệ thống tự động đồng bộ sang tất cả dropdown chọn của Khách hàng, Giỏ hàng và Nhật ký.
+            </div>
+          </div>
+
+          <!-- Cột Phải: Master Detail Table View -->
+          <div class="flex-1 flex flex-col p-4 md:p-5 overflow-hidden">
+            <!-- Header Cột Phải: Tiêu đề danh mục + Search + Nút Thêm mới -->
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-100">
+              <div class="flex items-center gap-2.5">
+                <div class="w-48 sm:w-64 relative">
+                  <i data-lucide="search" class="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-1/2 -translate-y-1/2"></i>
+                  <input type="text" id="inputTaxonomySearch" oninput="renderTaxonomyTable()" placeholder="Tìm trong danh mục..." class="w-full h-8 pl-8 pr-3 text-xs bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:border-emerald-500 focus:bg-white transition">
+                </div>
+                <button type="button" onclick="openTaxonomyModal()" id="btnTaxonomyAdd" class="h-8 px-3 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold flex items-center gap-1.5 shadow-xs transition">
+                  <i data-lucide="plus" class="w-3.5 h-3.5"></i> <span id="btnTaxonomyAddText">Thêm loại hình</span>
+                </button>
+              </div>
+
+              <!-- Thống kê & Sắp xếp -->
+              <div class="flex items-center justify-between sm:justify-end gap-3 text-xs text-slate-500">
+                <span id="taxonomyCountSummary">0 mục đã khai báo · Chọn một dòng để xem và sửa</span>
+                <select id="selectTaxonomySort" onchange="renderTaxonomyTable()" class="h-7 px-2 text-[11px] bg-slate-50 border border-slate-200 rounded-md focus:outline-none">
+                  <option value="sortOrder">Thứ tự tùy chỉnh</option>
+                  <option value="name">Tên A-Z</option>
+                  <option value="status">Trạng thái</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- Bảng Master Table phẳng tràn viền (Full-bleed edge-to-edge) -->
+            <div class="flex-1 overflow-x-auto mt-2">
+              <table class="w-full text-left text-xs border-collapse">
+                <thead>
+                  <tr class="bg-emerald-50/50 text-slate-600 border-b border-slate-200/80 font-semibold text-[11px]">
+                    <th class="py-2.5 px-3 w-40" id="thTaxonomyCol1">Tên mục / Giá trị</th>
+                    <th class="py-2.5 px-3">Mô tả / Ghi chú</th>
+                    <th class="py-2.5 px-3 w-28 text-center">Thứ tự</th>
+                    <th class="py-2.5 px-3 w-32">Trạng thái</th>
+                    <th class="py-2.5 px-3 w-24 text-right">Thao tác</th>
+                  </tr>
+                </thead>
+                <tbody id="tblTaxonomyBody" class="divide-y divide-slate-100">
+                  <!-- Dynamic rows rendered here -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- PHÂN KHU 2: HỒ SƠ MÔI GIỚI & TÀI KHOẢN VIETQR (TAB CONFIG) -->
+        <div id="settingsSubView-config" class="hidden bg-white border border-slate-200/90 rounded-xl p-5 shadow-xs max-w-3xl space-y-4">
           <form id="formSettings" onsubmit="submitSettings(event)" class="space-y-4 text-xs">
             <!-- Khối 1: Hồ sơ môi giới & Sàn BĐS -->
             <div class="p-3.5 bg-slate-50/70 border border-slate-200/80 rounded-xl space-y-3">
@@ -513,45 +614,10 @@
               </div>
             </div>
 
-            <!-- Khối 3: Master Taxonomy (Danh mục động toàn hệ thống) -->
-            <div class="p-3.5 bg-slate-50/70 border border-slate-200/80 rounded-xl space-y-3">
-              <div class="text-[11px] font-bold text-slate-700 uppercase tracking-wider flex items-center gap-1.5">
-                <i data-lucide="layers" class="w-3.5 h-3.5 text-emerald-600"></i> Danh mục động nghiệp vụ (Master Taxonomy)
-              </div>
-              <p class="text-[11px] text-slate-500">Các mục được phân cách bằng dấu chấm phẩy <code class="bg-slate-200 px-1 rounded text-slate-700">;</code>. Dữ liệu này tự động nạp thành các tùy chọn Dropdown cho toàn bộ hệ thống Khách hàng, Giỏ hàng và Hợp đồng.</p>
-              
-              <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <div>
-                  <label class="block font-medium text-slate-700 mb-1">1. Loại hình BĐS & Nhu cầu</label>
-                  <textarea id="setPropertyTypes" rows="2" class="w-full p-2 bg-white border border-slate-200 rounded-lg focus:border-emerald-500 focus:outline-none leading-relaxed"></textarea>
-                </div>
-                <div>
-                  <label class="block font-medium text-slate-700 mb-1">2. Khu vực mong muốn / Địa bàn</label>
-                  <textarea id="setLocations" rows="2" class="w-full p-2 bg-white border border-slate-200 rounded-lg focus:border-emerald-500 focus:outline-none leading-relaxed"></textarea>
-                </div>
-              </div>
-
-              <div>
-                <label class="block font-medium text-slate-700 mb-1">3. Nguồn khách hàng (Lead Sources)</label>
-                <textarea id="setCustomerSources" rows="2" class="w-full p-2 bg-white border border-slate-200 rounded-lg focus:border-emerald-500 focus:outline-none leading-relaxed"></textarea>
-              </div>
-
-              <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <div>
-                  <label class="block font-medium text-slate-700 mb-1">4. Trạng thái Khách hàng (Leads Status)</label>
-                  <textarea id="setCustomerStatuses" rows="2" class="w-full p-2 bg-white border border-slate-200 rounded-lg focus:border-emerald-500 focus:outline-none leading-relaxed"></textarea>
-                </div>
-                <div>
-                  <label class="block font-medium text-slate-700 mb-1">5. Trạng thái Căn BĐS trong kho</label>
-                  <textarea id="setPropertyStatuses" rows="2" class="w-full p-2 bg-white border border-slate-200 rounded-lg focus:border-emerald-500 focus:outline-none leading-relaxed"></textarea>
-                </div>
-              </div>
-            </div>
-
             <div class="flex items-center justify-between pt-2">
               <span id="settingsSaveStatus" class="text-xs text-slate-400">Đã đồng bộ với Google Sheets</span>
               <button type="submit" id="btnSaveSettings" class="px-5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-lg shadow-sm transition flex items-center gap-1.5">
-                <i data-lucide="check" class="w-4 h-4"></i> Lưu cấu hình & Cập nhật danh mục
+                <i data-lucide="check" class="w-4 h-4"></i> Lưu hồ sơ & cấu hình VietQR
               </button>
             </div>
           </form>
@@ -733,6 +799,66 @@
         </div>
       </div>
     </div>
+    <!-- MODAL THÊM / SỬA MỤC DANH MỤC (MASTER TAXONOMY) -->
+    <div id="modalTaxonomyItem" class="fixed inset-0 bg-slate-900/30 backdrop-blur-xs z-50 flex items-center justify-center p-4 hidden">
+      <div class="bg-white rounded-xl shadow-xl border border-slate-200 w-full max-w-md overflow-hidden animate-in fade-in zoom-in-95">
+        <div class="px-4 py-3 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
+          <div class="flex items-center gap-2">
+            <div class="w-6 h-6 rounded-md bg-emerald-100 text-emerald-700 flex items-center justify-center font-bold text-xs">
+              <i data-lucide="layers" class="w-3.5 h-3.5"></i>
+            </div>
+            <h3 class="text-xs font-bold text-slate-800 uppercase tracking-wider" id="modalTaxonomyTitle">Thêm Mục Mới</h3>
+          </div>
+          <button type="button" onclick="closeTaxonomyModal()" class="text-slate-400 hover:text-slate-600"><i data-lucide="x" class="w-4 h-4"></i></button>
+        </div>
+        <form onsubmit="submitTaxonomyItemForm(event)" class="p-4 space-y-3 text-xs">
+          <input type="hidden" id="formTaxItemId" value="">
+          <input type="hidden" id="formTaxCategoryKey" value="prop_types">
+
+          <div>
+            <label class="block font-medium text-slate-700 mb-1">Danh mục trực thuộc</label>
+            <input type="text" id="formTaxCategoryName" readonly class="w-full h-8 px-2.5 bg-slate-100 border border-slate-200 rounded-lg text-slate-600 cursor-not-allowed">
+          </div>
+
+          <div>
+            <label class="block font-medium text-slate-700 mb-1">Tên mục / Giá trị <span class="text-rose-500">*</span></label>
+            <input type="text" id="formTaxItemName" required class="w-full h-8 px-2.5 border border-slate-200 rounded-lg focus:border-emerald-500 focus:outline-none" placeholder="VD: Căn hộ Studio, Quận 9...">
+          </div>
+
+          <div>
+            <label class="block font-medium text-slate-700 mb-1">Mô tả / Ghi chú</label>
+            <textarea id="formTaxItemNote" rows="2" class="w-full p-2 border border-slate-200 rounded-lg focus:border-emerald-500 focus:outline-none" placeholder="Ghi chú chi tiết cho mục này..."></textarea>
+          </div>
+
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="block font-medium text-slate-700 mb-1">Thứ tự hiển thị</label>
+              <input type="number" id="formTaxItemOrder" min="1" max="99" value="1" class="w-full h-8 px-2.5 border border-slate-200 rounded-lg focus:border-emerald-500 focus:outline-none">
+            </div>
+            <div>
+              <label class="block font-medium text-slate-700 mb-1">Trạng thái</label>
+              <select id="formTaxItemStatus" class="w-full h-8 px-2 border border-slate-200 rounded-lg focus:border-emerald-500 focus:outline-none bg-white">
+                <option value="Đang dùng">● Đang dùng</option>
+                <option value="Tạm ngưng">● Tạm ngưng</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="pt-3 border-t border-slate-100 flex items-center justify-between">
+            <button type="button" id="btnDeleteTaxItem" onclick="deleteTaxonomyItemCurrent()" class="hidden px-3 py-1.5 text-xs text-rose-600 hover:bg-rose-50 rounded-lg font-medium transition">
+              Ngưng sử dụng
+            </button>
+            <div class="flex items-center gap-2 ml-auto">
+              <button type="button" onclick="closeTaxonomyModal()" class="px-3 py-1.5 border border-slate-200 rounded-lg text-slate-600 hover:bg-slate-50 transition">Hủy</button>
+              <button type="submit" id="btnSubmitTaxItem" class="px-4 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-lg shadow-xs transition flex items-center gap-1.5">
+                <i data-lucide="check" class="w-3.5 h-3.5"></i> <span id="btnSubmitTaxItemText">Lưu danh mục</span>
+              </button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+
     <div id="modalAddCustomer" class="fixed inset-0 bg-slate-900/30 backdrop-blur-xs z-50 flex items-center justify-center p-4 hidden">
       <div class="bg-white rounded-xl shadow-xl border border-slate-200 w-full max-w-lg overflow-hidden animate-in fade-in zoom-in-95">
         <div class="px-4 py-3 border-b border-slate-100 flex items-center justify-between">
@@ -1015,6 +1141,7 @@
         properties: [],
         logs: [],
         deals: [],
+        taxonomy: [],
         settings: {
           brokerName: 'Môi Giới Chuyên Nghiệp',
           brokerPhone: '0900000000',
@@ -1022,8 +1149,11 @@
           bankAcc: '0900000000',
           bankHolder: 'NGUYEN VAN A',
           propertyTypes: ['Chung cư', 'Nhà phố', 'Đất nền', 'Biệt thự / Shophouse', 'Cho thuê'],
+          locations: ['Quận 1', 'Quận 2 (TP. Thủ Đức)', 'Quận 7', 'Bình Thạnh', 'Thảo Điền', 'Phú Mỹ Hưng', 'Thủ Đức'],
           customerSources: ['Facebook Ads', 'Tiktok Bio', 'Người quen giới thiệu', 'Đăng tin BĐS', 'Khách vãng lai'],
-          customerStatuses: ['Mới tiếp cận', 'Đang chăm', 'Đang dẫn xem', 'Đang thương lượng', 'Đã chốt cọc', 'Dừng chăm sóc']
+          customerStatuses: ['Mới tiếp cận', 'Đang chăm', 'Đang dẫn xem', 'Đang thương lượng', 'Đã chốt cọc', 'Dừng chăm sóc'],
+          propertyStatuses: ['Đang bán', 'Đã cọc/Đã bán', 'Tạm ngưng'],
+          interactionTypes: ['Cuộc gọi', 'Nhắn tin Zalo', 'Gặp cafe tư vấn', 'Dẫn đi xem nhà', 'Đặt cọc / Ký HĐ']
         }
       },
       selectedCustomerId: null,
@@ -1825,8 +1955,327 @@
       renderDeals(list);
     }
 
-    // ==================== MODULE 6: SETTINGS & MASTER TAXONOMY (SPRINT 1) ====================
+    // ==================== MODULE 6: MASTER TAXONOMY & SETTINGS ENGINE ====================
+    const taxonomyMeta = {
+      prop_types: { title: 'Loại hình BĐS', col1: 'Tên loại hình', addBtn: 'Thêm loại hình', defaultList: ['Chung cư', 'Nhà phố', 'Đất nền', 'Biệt thự / Shophouse', 'Cho thuê'] },
+      locations: { title: 'Khu vực địa bàn', col1: 'Tên khu vực', addBtn: 'Thêm khu vực', defaultList: ['Quận 1', 'Quận 2 (TP. Thủ Đức)', 'Quận 7', 'Bình Thạnh', 'Thảo Điền', 'Phú Mỹ Hưng', 'Thủ Đức'] },
+      prop_statuses: { title: 'Trạng thái giỏ hàng', col1: 'Tên trạng thái', addBtn: 'Thêm trạng thái', defaultList: ['Đang bán', 'Đã cọc/Đã bán', 'Tạm ngưng'] },
+      lead_sources: { title: 'Nguồn khách hàng', col1: 'Tên nguồn khách', addBtn: 'Thêm nguồn khách', defaultList: ['Facebook Ads', 'TikTok Bio', 'Người quen giới thiệu', 'Đăng tin BĐS', 'Khách vãng lai'] },
+      cust_statuses: { title: 'Trạng thái chăm sóc', col1: 'Tên trạng thái', addBtn: 'Thêm trạng thái', defaultList: ['Mới tiếp cận', 'Đang chăm', 'Đang dẫn xem', 'Đang thương lượng', 'Đã chốt cọc', 'Dừng chăm sóc'] },
+      interaction_types: { title: 'Hình thức tương tác', col1: 'Tên hình thức', addBtn: 'Thêm hình thức', defaultList: ['Cuộc gọi', 'Nhắn tin Zalo', 'Gặp cafe tư vấn', 'Dẫn đi xem nhà', 'Đặt cọc / Ký HĐ'] }
+    };
+
+    let activeTaxonomyKey = 'prop_types';
+    let currentEditingTaxItem = null;
+
+    function switchSettingsSubTab(sub) {
+      const viewTax = document.getElementById('settingsSubView-taxonomy');
+      const viewConfig = document.getElementById('settingsSubView-config');
+      const btnTax = document.getElementById('subtab-btn-taxonomy');
+      const btnConfig = document.getElementById('subtab-btn-config');
+
+      if (sub === 'taxonomy') {
+        viewTax.classList.remove('hidden');
+        viewConfig.classList.add('hidden');
+        btnTax.className = "px-3.5 py-1.5 text-xs font-semibold rounded-lg bg-emerald-50 text-emerald-700 transition";
+        btnConfig.className = "px-3.5 py-1.5 text-xs font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-lg transition";
+        renderTaxonomyTable();
+      } else {
+        viewTax.classList.add('hidden');
+        viewConfig.classList.remove('hidden');
+        btnConfig.className = "px-3.5 py-1.5 text-xs font-semibold rounded-lg bg-emerald-50 text-emerald-700 transition";
+        btnTax.className = "px-3.5 py-1.5 text-xs font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-lg transition";
+        renderSettingsConfig();
+      }
+      lucide.createIcons();
+    }
+
+    function selectTaxonomyCategory(catKey) {
+      activeTaxonomyKey = catKey;
+      document.querySelectorAll('.taxnav-btn').forEach(btn => {
+        btn.className = "taxnav-btn w-full flex items-center justify-between px-2.5 py-2 rounded-lg font-medium text-slate-600 hover:bg-slate-100/80 transition";
+      });
+      const activeBtn = document.getElementById('taxnav-' + catKey);
+      if (activeBtn) {
+        activeBtn.className = "taxnav-btn w-full flex items-center justify-between px-2.5 py-2 rounded-lg font-semibold text-emerald-800 bg-emerald-50/90 border-l-2 border-emerald-600 transition";
+      }
+
+      const meta = taxonomyMeta[catKey] || { title: 'Danh mục', col1: 'Tên mục', addBtn: 'Thêm mục' };
+      document.getElementById('thTaxonomyCol1').innerText = meta.col1;
+      document.getElementById('btnTaxonomyAddText').innerText = meta.addBtn;
+      document.getElementById('inputTaxonomySearch').value = '';
+
+      renderTaxonomyTable();
+      lucide.createIcons();
+    }
+
+    function getTaxonomyListForKey(key) {
+      const allTax = state.data.taxonomy || [];
+      const list = allTax.filter(item => item.categoryKey === key);
+      if (list.length > 0) return list;
+
+      // Fallback từ settings hiện hữu nếu chưa có bảng DB_DANH_MUC
+      const s = state.data.settings || {};
+      let fallbackNames = [];
+      if (key === 'prop_types') fallbackNames = s.propertyTypes || taxonomyMeta.prop_types.defaultList;
+      else if (key === 'locations') fallbackNames = s.locations || taxonomyMeta.locations.defaultList;
+      else if (key === 'prop_statuses') fallbackNames = s.propertyStatuses || taxonomyMeta.prop_statuses.defaultList;
+      else if (key === 'lead_sources') fallbackNames = s.customerSources || taxonomyMeta.lead_sources.defaultList;
+      else if (key === 'cust_statuses') fallbackNames = s.customerStatuses || taxonomyMeta.cust_statuses.defaultList;
+      else if (key === 'interaction_types') fallbackNames = s.interactionTypes || taxonomyMeta.interaction_types.defaultList;
+
+      return fallbackNames.map((name, idx) => ({
+        id: 'DM-' + (idx + 100000),
+        categoryKey: key,
+        name: name,
+        note: 'Chuẩn hóa hệ thống File Đi Làm',
+        sortOrder: idx + 1,
+        status: 'Đang dùng'
+      }));
+    }
+
+    function updateTaxonomyBadges() {
+      Object.keys(taxonomyMeta).forEach(k => {
+        const badge = document.getElementById('badgeCount-' + k);
+        if (badge) {
+          const list = getTaxonomyListForKey(k);
+          badge.innerText = list.length;
+        }
+      });
+    }
+
+    function renderTaxonomyTable() {
+      updateTaxonomyBadges();
+      const meta = taxonomyMeta[activeTaxonomyKey] || {};
+      const search = (document.getElementById('inputTaxonomySearch').value || '').trim().toLowerCase();
+      const sort = document.getElementById('selectTaxonomySort').value;
+      const tbody = document.getElementById('tblTaxonomyBody');
+      const countEl = document.getElementById('taxonomyCountSummary');
+
+      let list = getTaxonomyListForKey(activeTaxonomyKey);
+
+      if (search) {
+        list = list.filter(item => (item.name || '').toLowerCase().includes(search) || (item.note || '').toLowerCase().includes(search));
+      }
+
+      if (sort === 'name') {
+        list.sort((a, b) => (a.name || '').localeCompare(b.name || '', 'vi'));
+      } else if (sort === 'status') {
+        list.sort((a, b) => (a.status || '').localeCompare(b.status || '', 'vi'));
+      } else {
+        list.sort((a, b) => (a.sortOrder || 1) - (b.sortOrder || 1));
+      }
+
+      if (countEl) {
+        countEl.innerText = `${list.length} mục đã khai báo · Chọn một dòng để xem và sửa`;
+      }
+
+      if (!list.length) {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="5" class="py-8 text-center text-slate-400">
+              <i data-lucide="layers" class="w-7 h-7 mx-auto mb-1.5 opacity-40"></i>
+              Chưa có mục nào được khai báo trong danh mục này. Bấm nút Thêm để bắt đầu!
+            </td>
+          </tr>
+        `;
+        lucide.createIcons();
+        return;
+      }
+
+      tbody.innerHTML = list.map(item => {
+        const isActive = item.status === 'Đang dùng';
+        return `
+          <tr class="hover:bg-slate-50 transition cursor-pointer group" onclick="editTaxonomyItem('${item.id}')">
+            <td class="py-2.5 px-3">
+              <div class="font-semibold text-slate-900 group-hover:text-emerald-700 transition">${item.name}</div>
+              <div class="text-[10px] font-mono text-slate-400 mt-0.5">${item.id || ''}</div>
+            </td>
+            <td class="py-2.5 px-3 text-slate-600">
+              <span class="truncate block max-w-xs">${item.note || '—'}</span>
+            </td>
+            <td class="py-2.5 px-3 text-center font-mono text-slate-500 font-medium">
+              ${item.sortOrder || 1}
+            </td>
+            <td class="py-2.5 px-3">
+              <span class="inline-flex items-center gap-1 font-medium ${isActive ? 'text-emerald-700' : 'text-slate-400'}">
+                <span class="w-1.5 h-1.5 rounded-full ${isActive ? 'bg-emerald-500' : 'bg-slate-400'}"></span>
+                ${item.status || 'Đang dùng'}
+              </span>
+            </td>
+            <td class="py-2.5 px-3 text-right" onclick="event.stopPropagation()">
+              <button type="button" onclick="editTaxonomyItem('${item.id}')" class="p-1 text-slate-400 hover:text-emerald-600 rounded">
+                <i data-lucide="edit-2" class="w-3.5 h-3.5"></i>
+              </button>
+            </td>
+          </tr>
+        `;
+      }).join('');
+
+      lucide.createIcons();
+    }
+
+    function openTaxonomyModal(item) {
+      currentEditingTaxItem = item || null;
+      const meta = taxonomyMeta[activeTaxonomyKey] || {};
+      const modal = document.getElementById('modalTaxonomyItem');
+      const titleEl = document.getElementById('modalTaxonomyTitle');
+      const btnDel = document.getElementById('btnDeleteTaxItem');
+
+      document.getElementById('formTaxCategoryKey').value = activeTaxonomyKey;
+      document.getElementById('formTaxCategoryName').value = meta.title || activeTaxonomyKey;
+
+      if (item) {
+        titleEl.innerText = 'Chỉnh Sửa Mục Danh Mục';
+        document.getElementById('formTaxItemId').value = item.id;
+        document.getElementById('formTaxItemName').value = item.name;
+        document.getElementById('formTaxItemNote').value = item.note || '';
+        document.getElementById('formTaxItemOrder').value = item.sortOrder || 1;
+        document.getElementById('formTaxItemStatus').value = item.status || 'Đang dùng';
+        document.getElementById('btnSubmitTaxItemText').innerText = 'Cập nhật mục';
+        btnDel.classList.remove('hidden');
+        btnDel.innerText = item.status === 'Đang dùng' ? 'Tạm ngưng sử dụng' : 'Kích hoạt lại';
+      } else {
+        titleEl.innerText = 'Thêm ' + meta.title + ' Mới';
+        document.getElementById('formTaxItemId').value = '';
+        document.getElementById('formTaxItemName').value = '';
+        document.getElementById('formTaxItemNote').value = '';
+        document.getElementById('formTaxItemOrder').value = (getTaxonomyListForKey(activeTaxonomyKey).length + 1);
+        document.getElementById('formTaxItemStatus').value = 'Đang dùng';
+        document.getElementById('btnSubmitTaxItemText').innerText = 'Lưu vào danh mục';
+        btnDel.classList.add('hidden');
+      }
+
+      modal.classList.remove('hidden');
+      document.getElementById('formTaxItemName').focus();
+      lucide.createIcons();
+    }
+
+    function closeTaxonomyModal() {
+      document.getElementById('modalTaxonomyItem').classList.add('hidden');
+      currentEditingTaxItem = null;
+    }
+
+    function editTaxonomyItem(itemId) {
+      const list = getTaxonomyListForKey(activeTaxonomyKey);
+      const item = list.find(i => i.id === itemId);
+      if (item) openTaxonomyModal(item);
+    }
+
+    function submitTaxonomyItemForm(e) {
+      e.preventDefault();
+      const id = document.getElementById('formTaxItemId').value.trim();
+      const categoryKey = document.getElementById('formTaxCategoryKey').value.trim();
+      const name = document.getElementById('formTaxItemName').value.trim();
+      const note = document.getElementById('formTaxItemNote').value.trim();
+      const sortOrder = Number(document.getElementById('formTaxItemOrder').value) || 1;
+      const status = document.getElementById('formTaxItemStatus').value;
+
+      const payload = { id, categoryKey, name, note, sortOrder, status };
+      const btn = document.getElementById('btnSubmitTaxItem');
+      btn.disabled = true;
+
+      if (typeof google !== 'undefined' && google.script) {
+        google.script.run.withSuccessHandler(res => {
+          btn.disabled = false;
+          if (res.success) {
+            if (!state.data.taxonomy) state.data.taxonomy = [];
+            if (id) {
+              const idx = state.data.taxonomy.findIndex(i => i.id === id);
+              if (idx !== -1) state.data.taxonomy[idx] = payload;
+              else state.data.taxonomy.push(payload);
+            } else {
+              payload.id = res.id;
+              state.data.taxonomy.push(payload);
+            }
+            syncTaxonomyToSettingsState();
+            closeTaxonomyModal();
+            renderTaxonomyTable();
+            populateDropdowns();
+            alert('Đã cập nhật danh mục thượng nguồn và nạp lại tất cả Dropdown thành công!');
+          } else {
+            alert('Lỗi: ' + res.error);
+          }
+        }).withFailureHandler(err => {
+          btn.disabled = false;
+          alert('Lỗi lưu trữ: ' + err);
+        }).saveTaxonomyItem(payload);
+      } else {
+        // Demo offline mode
+        setTimeout(() => {
+          btn.disabled = false;
+          if (!state.data.taxonomy) state.data.taxonomy = [];
+          if (id) {
+            const idx = state.data.taxonomy.findIndex(i => i.id === id);
+            if (idx !== -1) state.data.taxonomy[idx] = payload;
+            else state.data.taxonomy.push(payload);
+          } else {
+            payload.id = 'DM-' + Math.floor(100000 + Math.random() * 900000);
+            state.data.taxonomy.push(payload);
+          }
+          syncTaxonomyToSettingsState();
+          closeTaxonomyModal();
+          renderTaxonomyTable();
+          populateDropdowns();
+          alert('[Demo] Đã lưu mục danh mục và đồng bộ toàn bộ dropdown!');
+        }, 300);
+      }
+    }
+
+    function deleteTaxonomyItemCurrent() {
+      if (!currentEditingTaxItem) return;
+      const newStatus = currentEditingTaxItem.status === 'Đang dùng' ? 'Tạm ngưng' : 'Đang dùng';
+      if (!confirm(`Bạn có chắc muốn đổi trạng thái mục "${currentEditingTaxItem.name}" sang "${newStatus}"?`)) return;
+
+      if (typeof google !== 'undefined' && google.script) {
+        google.script.run.withSuccessHandler(() => {
+          currentEditingTaxItem.status = newStatus;
+          syncTaxonomyToSettingsState();
+          closeTaxonomyModal();
+          renderTaxonomyTable();
+          populateDropdowns();
+          alert('Đã cập nhật trạng thái mục danh mục thành công!');
+        }).toggleTaxonomyItemStatus(currentEditingTaxItem.id, newStatus);
+      } else {
+        currentEditingTaxItem.status = newStatus;
+        syncTaxonomyToSettingsState();
+        closeTaxonomyModal();
+        renderTaxonomyTable();
+        populateDropdowns();
+        alert('[Demo] Đã cập nhật trạng thái mục danh mục!');
+      }
+    }
+
+    function syncTaxonomyToSettingsState() {
+      if (!state.data.settings) state.data.settings = {};
+      const allTax = state.data.taxonomy || [];
+      const activeItems = allTax.filter(i => i.status === 'Đang dùng');
+
+      const propTypes = activeItems.filter(i => i.categoryKey === 'prop_types').map(i => i.name);
+      if (propTypes.length) state.data.settings.propertyTypes = propTypes;
+
+      const locs = activeItems.filter(i => i.categoryKey === 'locations').map(i => i.name);
+      if (locs.length) state.data.settings.locations = locs;
+
+      const sources = activeItems.filter(i => i.categoryKey === 'lead_sources').map(i => i.name);
+      if (sources.length) state.data.settings.customerSources = sources;
+
+      const custSt = activeItems.filter(i => i.categoryKey === 'cust_statuses').map(i => i.name);
+      if (custSt.length) state.data.settings.customerStatuses = custSt;
+
+      const propSt = activeItems.filter(i => i.categoryKey === 'prop_statuses').map(i => i.name);
+      if (propSt.length) state.data.settings.propertyStatuses = propSt;
+
+      const intSt = activeItems.filter(i => i.categoryKey === 'interaction_types').map(i => i.name);
+      if (intSt.length) state.data.settings.interactionTypes = intSt;
+    }
+
     function renderSettings() {
+      renderTaxonomyTable();
+      renderSettingsConfig();
+    }
+
+    function renderSettingsConfig() {
       const s = state.data.settings || {};
       document.getElementById('setBrokerName').value = s.brokerName || '';
       document.getElementById('setBrokerPhone').value = s.brokerPhone || '';
@@ -1837,11 +2286,6 @@
       document.getElementById('setBankHolder').value = s.bankHolder || '';
       document.getElementById('setDefaultCommRate').value = s.defaultCommRate || 1.5;
       document.getElementById('setFollowupAlertDays').value = s.followupAlertDays || 0;
-      document.getElementById('setPropertyTypes').value = (s.propertyTypes || []).join('; ');
-      document.getElementById('setLocations').value = (s.locations || []).join('; ');
-      document.getElementById('setCustomerSources').value = (s.customerSources || []).join('; ');
-      document.getElementById('setCustomerStatuses').value = (s.customerStatuses || []).join('; ');
-      document.getElementById('setPropertyStatuses').value = (s.propertyStatuses || []).join('; ');
     }
 
     function submitSettings(e) {
@@ -1851,6 +2295,7 @@
       btn.innerText = 'Đang lưu cấu hình...'; btn.disabled = true;
       if (statusEl) statusEl.innerText = 'Đang đẩy dữ liệu lên Google Sheets...';
 
+      const s = state.data.settings || {};
       const payload = {
         brokerName: document.getElementById('setBrokerName').value.trim(),
         brokerPhone: document.getElementById('setBrokerPhone').value.trim(),
@@ -1861,71 +2306,48 @@
         bankHolder: document.getElementById('setBankHolder').value.trim().toUpperCase(),
         defaultCommRate: Number(document.getElementById('setDefaultCommRate').value) || 1.5,
         followupAlertDays: Number(document.getElementById('setFollowupAlertDays').value) || 0,
-        propertyTypes: document.getElementById('setPropertyTypes').value.split(';').map(s => s.trim()).filter(Boolean),
-        locations: document.getElementById('setLocations').value.split(';').map(s => s.trim()).filter(Boolean),
-        customerSources: document.getElementById('setCustomerSources').value.split(';').map(s => s.trim()).filter(Boolean),
-        customerStatuses: document.getElementById('setCustomerStatuses').value.split(';').map(s => s.trim()).filter(Boolean),
-        propertyStatuses: document.getElementById('setPropertyStatuses').value.split(';').map(s => s.trim()).filter(Boolean)
+        propertyTypes: s.propertyTypes || [],
+        locations: s.locations || [],
+        customerSources: s.customerSources || [],
+        customerStatuses: s.customerStatuses || [],
+        propertyStatuses: s.propertyStatuses || []
       };
 
       if (typeof google !== 'undefined' && google.script) {
         google.script.run.withSuccessHandler(() => {
-          btn.innerHTML = '<i data-lucide="check" class="w-4 h-4"></i> Lưu cấu hình & Cập nhật danh mục';
+          btn.innerHTML = '<i data-lucide="check" class="w-4 h-4"></i> Lưu hồ sơ & cấu hình VietQR';
           btn.disabled = false;
           if (statusEl) statusEl.innerText = 'Đã lưu lúc: ' + new Date().toLocaleTimeString('vi-VN');
           state.data.settings = payload;
-          populateDropdowns();
           lucide.createIcons();
-          alert('Đã cập nhật cấu hình hệ thống & toàn bộ Master Taxonomy thành công!');
+          alert('Đã cập nhật hồ sơ môi giới & tài khoản VietQR thành công!');
         }).withFailureHandler(err => {
-          btn.innerHTML = 'Lưu cấu hình & Cập nhật danh mục'; btn.disabled = false;
+          btn.innerHTML = 'Lưu hồ sơ & cấu hình VietQR'; btn.disabled = false;
           if (statusEl) statusEl.innerText = 'Lỗi lưu trữ!';
           alert('Lỗi: ' + err);
         }).saveSettings(payload);
       } else {
         setTimeout(() => {
           state.data.settings = payload;
-          btn.innerHTML = '<i data-lucide="check" class="w-4 h-4"></i> Lưu cấu hình & Cập nhật danh mục';
+          btn.innerHTML = '<i data-lucide="check" class="w-4 h-4"></i> Lưu hồ sơ & cấu hình VietQR';
           btn.disabled = false;
           if (statusEl) statusEl.innerText = 'Đã lưu lúc: ' + new Date().toLocaleTimeString('vi-VN') + ' (Demo Mode)';
-          populateDropdowns();
           lucide.createIcons();
-          alert('[Demo] Đã lưu cài đặt & cập nhật dropdown toàn hệ thống!');
+          alert('[Demo] Đã lưu cài đặt hồ sơ môi giới thành công!');
         }, 500);
       }
     }
 
     function resetSettingsToDefault() {
-      if (!confirm('Bạn có chắc chắn muốn khôi phục danh mục và cài đặt gốc mặc định?')) return;
-      const defaultPayload = {
-        brokerName: 'Môi Giới Chuyên Nghiệp',
-        brokerPhone: '0900000000',
-        brokerEmail: 'broker@filedilam.vn',
-        agencyName: 'Văn Phòng Bất Động Sản Sài Gòn',
-        bankName: 'MB Bank',
-        bankAcc: '0900000000',
-        bankHolder: 'NGUYEN VAN A',
-        defaultCommRate: 1.5,
-        followupAlertDays: 0,
-        propertyTypes: ['Chung cư', 'Nhà phố', 'Đất nền', 'Biệt thự / Shophouse', 'Cho thuê'],
-        locations: ['Quận 1', 'Quận 2 (TP. Thủ Đức)', 'Quận 7', 'Bình Thạnh', 'Thảo Điền', 'Phú Mỹ Hưng', 'Thủ Đức'],
-        customerSources: ['Facebook Ads', 'Tiktok Bio', 'Người quen giới thiệu', 'Đăng tin BĐS', 'Khách vãng lai'],
-        customerStatuses: ['Mới tiếp cận', 'Đang chăm', 'Đang dẫn xem', 'Đang thương lượng', 'Đã chốt cọc', 'Dừng chăm sóc'],
-        propertyStatuses: ['Đang bán', 'Đã cọc/Đã bán', 'Tạm ngưng']
-      };
-
+      if (!confirm('Bạn có chắc chắn muốn khôi phục toàn bộ danh mục và cài đặt gốc mặc định theo chuẩn File Đi Làm?')) return;
       if (typeof google !== 'undefined' && google.script) {
         google.script.run.withSuccessHandler(() => {
-          state.data.settings = defaultPayload;
-          renderSettings();
-          populateDropdowns();
-          alert('Đã khôi phục cài đặt gốc thành công!');
+          loadAllSystemData();
+          alert('Đã khôi phục toàn bộ Master Taxonomy và cài đặt gốc thành công!');
         }).resetDefaultSettings();
       } else {
-        state.data.settings = defaultPayload;
-        renderSettings();
-        populateDropdowns();
-        alert('[Demo] Đã khôi phục cài đặt gốc!');
+        loadAllSystemData();
+        alert('[Demo] Đã khôi phục toàn bộ danh mục mặc định!');
       }
     }
 
@@ -1937,6 +2359,7 @@
       const sources = (s.customerSources && s.customerSources.length) ? s.customerSources : ['Facebook Ads', 'Tiktok Bio', 'Người quen giới thiệu', 'Đăng tin BĐS', 'Khách vãng lai'];
       const custStatuses = (s.customerStatuses && s.customerStatuses.length) ? s.customerStatuses : ['Mới tiếp cận', 'Đang chăm', 'Đang dẫn xem', 'Đang thương lượng', 'Đã chốt cọc', 'Dừng chăm sóc'];
       const propStatuses = (s.propertyStatuses && s.propertyStatuses.length) ? s.propertyStatuses : ['Đang bán', 'Đã cọc/Đã bán', 'Tạm ngưng'];
+      const interactTypes = (s.interactionTypes && s.interactionTypes.length) ? s.interactionTypes : ['Cuộc gọi', 'Nhắn tin Zalo', 'Gặp cafe tư vấn', 'Dẫn đi xem nhà', 'Đặt cọc / Ký HĐ'];
 
       // 1. Populate Cust Demand & Prop Type
       const custDemandSel = document.getElementById('formCustDemand');
@@ -1982,6 +2405,12 @@
       const filterPropStatus = document.getElementById('filterPropStatus');
       if (filterPropStatus) {
         filterPropStatus.innerHTML = '<option value="">-- Tất cả trạng thái --</option>' + propStatuses.map(st => `<option value="${st}">${st}</option>`).join('');
+      }
+
+      // 8. Populate Interaction Types (Lịch hẹn / Nhật ký)
+      const formLogTypeSel = document.getElementById('formLogType');
+      if (formLogTypeSel) {
+        formLogTypeSel.innerHTML = interactTypes.map(it => `<option value="${it}">${it}</option>`).join('');
       }
 
       // 7. Populate Dropdowns in Deal & Log Modal
