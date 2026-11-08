@@ -36,6 +36,17 @@
     .custom-scrollbar::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 4px; }
     .table-row-hover:hover { background-color: #F8FAFC !important; box-shadow: inset 3px 0 0 0 #10B981; }
     .sticky-header th { position: sticky; top: 0; z-index: 20; background-color: #FFFFFF; border-bottom: 1px solid #E2E8F0; }
+    /* Modern select dropdown with custom clean arrow */
+    select {
+      appearance: none;
+      -webkit-appearance: none;
+      -moz-appearance: none;
+      background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2364748B' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+      background-repeat: no-repeat;
+      background-position: right 0.6rem center;
+      background-size: 14px 14px;
+      padding-right: 2rem !important;
+    }
     .sidebar-collapsed { width: 64px !important; }
     .sidebar-collapsed .nav-label, .sidebar-collapsed .brand-name, .sidebar-collapsed .nav-section-title { display: none !important; }
     .sidebar-collapsed .nav-item-btn { justify-content: center !important; padding-left: 0 !important; padding-right: 0 !important; }
@@ -459,9 +470,14 @@
               Hồ sơ & Tài khoản VietQR
             </button>
           </div>
-          <button type="button" onclick="resetSettingsToDefault()" class="px-2.5 py-1 text-[11px] font-medium text-slate-500 hover:text-rose-600 hover:bg-rose-50 rounded border border-slate-200 transition">
-            Khôi phục mặc định
-          </button>
+          <div class="flex items-center gap-2">
+            <button type="button" onclick="generateSampleFunnelData()" class="px-3 py-1 text-[11px] font-semibold text-emerald-700 bg-emerald-50 hover:bg-emerald-100 rounded-lg border border-emerald-200 transition flex items-center gap-1">
+              <i data-lucide="database" class="w-3.5 h-3.5"></i> Nạp data mẫu (10 BĐS, 100 Khách, 80 Hẹn, 20 Cọc)
+            </button>
+            <button type="button" onclick="resetSettingsToDefault()" class="px-2.5 py-1 text-[11px] font-medium text-slate-500 hover:text-rose-600 hover:bg-rose-50 rounded border border-slate-200 transition">
+              Khôi phục mặc định
+            </button>
+          </div>
         </div>
 
         <!-- PHÂN KHU 1: QUẢN LÝ DANH MỤC THƯỢNG NGUỒN (2-PANEL MASTER-DETAIL) -->
@@ -2613,6 +2629,37 @@
       }
     }
 
+    function generateSampleFunnelData() {
+      if (!confirm('Bạn có chắc muốn nạp bộ dữ liệu mẫu chuẩn phễu (10 BĐS, 100 Khách, 80 Lịch hẹn, 20 Hợp đồng chốt cọc tính hoa hồng)? Dữ liệu hiện có sẽ được đồng bộ bổ sung vào Google Sheets!')) return;
+      
+      const btn = event.currentTarget;
+      if (btn) btn.disabled = true;
+
+      if (typeof google !== 'undefined' && google.script) {
+        google.script.run
+          .withSuccessHandler(res => {
+            if (btn) btn.disabled = false;
+            if (res.success) {
+              loadAllSystemData();
+              alert('Đã nạp thành công 10 BĐS, 100 Khách Hàng, 80 Lịch Hẹn và 20 Hợp Đồng vào Google Sheets!');
+            } else {
+              alert('Lỗi nạp dữ liệu: ' + res.error);
+            }
+          })
+          .withFailureHandler(err => {
+            if (btn) btn.disabled = false;
+            alert('Lỗi kết nối máy chủ: ' + err);
+          })
+          .seedRichFunnelData();
+      } else {
+        // Client demo mode
+        setTimeout(() => {
+          if (btn) btn.disabled = false;
+          alert('[Demo] Chức năng đang gọi trên Google Sheets.');
+        }, 500);
+      }
+    }
+
     function resetSettingsToDefault() {
       if (!confirm('Bạn có chắc chắn muốn khôi phục toàn bộ danh mục và cài đặt gốc mặc định theo chuẩn File Đi Làm?')) return;
       if (typeof google !== 'undefined' && google.script) {
@@ -2628,13 +2675,27 @@
 
     // ==================== FORM DROPDOWNS POPULATE ====================
     function populateDropdowns() {
+      // Đảm bảo đồng bộ danh mục thượng nguồn trước khi nạp vào Dropdown
+      syncTaxonomyToSettingsState();
+
       const s = state.data.settings || {};
-      const types = (s.propertyTypes && s.propertyTypes.length) ? s.propertyTypes : ['Chung cư', 'Nhà phố', 'Đất nền', 'Biệt thự / Shophouse', 'Cho thuê'];
-      const locs = (s.locations && s.locations.length) ? s.locations : ['Quận 1', 'Quận 2 (TP. Thủ Đức)', 'Quận 7', 'Bình Thạnh', 'Thảo Điền', 'Phú Mỹ Hưng', 'Thủ Đức'];
-      const sources = (s.customerSources && s.customerSources.length) ? s.customerSources : ['Facebook Ads', 'Tiktok Bio', 'Người quen giới thiệu', 'Đăng tin BĐS', 'Khách vãng lai'];
-      const custStatuses = (s.customerStatuses && s.customerStatuses.length) ? s.customerStatuses : ['Mới tiếp cận', 'Đang chăm', 'Đang dẫn xem', 'Đang thương lượng', 'Đã chốt cọc', 'Dừng chăm sóc'];
-      const propStatuses = (s.propertyStatuses && s.propertyStatuses.length) ? s.propertyStatuses : ['Đang bán', 'Đã cọc/Đã bán', 'Tạm ngưng'];
-      const interactTypes = (s.interactionTypes && s.interactionTypes.length) ? s.interactionTypes : ['Cuộc gọi', 'Nhắn tin Zalo', 'Gặp cafe tư vấn', 'Dẫn đi xem nhà', 'Đặt cọc / Ký HĐ'];
+      const allTax = state.data.taxonomy || [];
+      const activeTax = allTax.filter(i => i.status === 'Đang dùng');
+
+      // Helper lấy danh sách mục đang hoạt động từ taxonomy thượng nguồn
+      const getActiveCategoryNames = (catKey, fallbackList) => {
+        const fromTax = activeTax.filter(i => i.categoryKey === catKey).map(i => i.name);
+        if (fromTax.length) return fromTax;
+        if (s[catKey] && s[catKey].length) return s[catKey];
+        return fallbackList;
+      };
+
+      const types = getActiveCategoryNames('prop_types', s.propertyTypes && s.propertyTypes.length ? s.propertyTypes : ['Chung cư', 'Nhà phố', 'Đất nền', 'Biệt thự / Shophouse', 'Cho thuê']);
+      const locs = getActiveCategoryNames('locations', s.locations && s.locations.length ? s.locations : ['Quận 1', 'Quận 2 (TP. Thủ Đức)', 'Quận 7', 'Bình Thạnh', 'Thảo Điền', 'Phú Mỹ Hưng', 'Thủ Đức']);
+      const sources = getActiveCategoryNames('lead_sources', s.customerSources && s.customerSources.length ? s.customerSources : ['Facebook Ads', 'TikTok Bio', 'Người quen giới thiệu', 'Đăng tin BĐS', 'Khách vãng lai']);
+      const custStatuses = getActiveCategoryNames('cust_statuses', s.customerStatuses && s.customerStatuses.length ? s.customerStatuses : ['Mới tiếp cận', 'Đang chăm', 'Đang dẫn xem', 'Đang thương lượng', 'Đã chốt cọc', 'Dừng chăm sóc']);
+      const propStatuses = getActiveCategoryNames('prop_statuses', s.propertyStatuses && s.propertyStatuses.length ? s.propertyStatuses : ['Đang bán', 'Đã cọc/Đã bán', 'Tạm ngưng']);
+      const interactTypes = getActiveCategoryNames('interaction_types', s.interactionTypes && s.interactionTypes.length ? s.interactionTypes : ['Cuộc gọi', 'Nhắn tin Zalo', 'Gặp cafe tư vấn', 'Dẫn đi xem nhà', 'Đặt cọc / Ký HĐ']);
 
       // 1. Populate Cust Demand & Prop Type
       const custDemandSel = document.getElementById('formCustDemand');
@@ -3068,6 +3129,7 @@
 
     // ==================== MODAL HELPERS & FORM SUBMIT (SPRINT 2 CRUD) ====================
     function openAddCustomerModal() {
+      populateDropdowns();
       document.getElementById('formCustId').value = '';
       document.getElementById('modalCustomerTitle').innerText = 'Thêm Khách Hàng Mới';
       document.getElementById('btnSubmitCustText').innerText = 'Lưu khách hàng';
@@ -3103,6 +3165,7 @@
 
     function closeAddCustomerModal() { document.getElementById('modalAddCustomer').classList.add('hidden'); }
     function openAddPropertyModal() {
+      populateDropdowns();
       document.getElementById('formPropId').value = '';
       document.getElementById('modalPropertyTitle').innerText = 'Nhập Căn Mới Vào Giỏ Hàng';
       document.getElementById('btnSubmitPropText').innerText = 'Lưu vào giỏ hàng';

@@ -864,3 +864,148 @@ function seedDefaultTaxonomy_(sh) {
 
   initial.forEach(row => sh.appendRow(row));
 }
+
+
+/**
+ * NẠP BỘ DỮ LIỆU MẪU CHUẨN PHỄU (END-TO-END SALES FUNNEL)
+ * Gồm: 10 Sản phẩm BĐS, 100 Khách hàng (theo đúng 5 tầng phễu), 80 Lịch hẹn tương tác, 20 Hợp đồng chốt cọc
+ * Tự động tính toán Hoa hồng chuẩn VNĐ và đồng bộ tức thời lên Google Sheets
+ */
+function seedRichFunnelData() {
+  const lock = LockService.getScriptLock();
+  try {
+    lock.waitLock(30000);
+    const ss = SpreadsheetApp.getActiveSpreadsheet();
+    ensureRequiredSheets_(ss);
+
+    const shCust = ss.getSheetByName(CONFIG_BDS.SHEET_NAMES.CUSTOMERS);
+    const shProp = ss.getSheetByName(CONFIG_BDS.SHEET_NAMES.PROPERTIES);
+    const shLogs = ss.getSheetByName(CONFIG_BDS.SHEET_NAMES.LOGS);
+    const shDeals = ss.getSheetByName(CONFIG_BDS.SHEET_NAMES.DEALS);
+
+    // 1. Khởi tạo 10 Căn BĐS đa dạng loại hình và phân khúc
+    const propRows = [
+      ['BDS-100201', 'Chung cư', 'Vinhomes Central Park', 'Tòa Landmark 3 - Căn L3-12.08', 78.5, 4650, 'Anh Tuấn', '0987654321', 'Đã cọc/Đã bán', 1.5, 'View công viên Landmark 81, nội thất cao cấp', '2026-10-10'],
+      ['BDS-100202', 'Nhà phố', 'Nhà Phố D2', '14/8 Nguyễn Gia Trí, P.25, Bình Thạnh', 64.0, 8200, 'Chị Thảo', '0918273645', 'Đang bán', 1.0, 'Hẻm xe hơi 6m tránh nhau, gần các trường đại học', '2026-10-12'],
+      ['BDS-100203', 'Chung cư', 'Masteri Thảo Điền', 'Tháp T2 - Căn T2-18.04, Quận 2', 69.2, 4200, 'Anh Hoàng', '0903829102', 'Đã cọc/Đã bán', 1.5, 'Nội thất nhập khẩu cao cấp, view hồ bơi', '2026-10-15'],
+      ['BDS-100204', 'Đất nền', 'Khu dân cư Hiệp Bình Chánh', 'Lô B12 Đường 23, Hiệp Bình Chánh, Thủ Đức', 110.0, 6800, 'Chú Sáu', '0938192837', 'Đang bán', 2.0, 'Sổ đỏ thổ cư 100%, gần sông thoáng mát xây tự do', '2026-10-18'],
+      ['BDS-100205', 'Biệt thự / Shophouse', 'Vinhomes Grand Park', 'Shophouse Manhattan M9-22, TP. Thủ Đức', 140.0, 16500, 'Chị Hà', '0977281920', 'Đã cọc/Đã bán', 1.5, 'Mặt tiền trục chính kinh doanh, HĐMB nhận nhà ngay', '2026-10-20'],
+      ['BDS-100206', 'Chung cư', 'Scenic Valley 1', 'Tòa C - Căn C-09.02, Phú Mỹ Hưng, Q7', 75.0, 3950, 'Cô Dung', '0944182930', 'Đang bán', 1.5, 'Cửa hướng Nam mát mẻ, sổ hồng lâu dài', '2026-10-22'],
+      ['BDS-100207', 'Nhà phố', 'Khu cư xá Đô Thành', '48 Đường số 3, Cư xá Đô Thành, Quận 3', 52.0, 9500, 'Bác Hùng', '0913928172', 'Đã cọc/Đã bán', 1.0, 'Trung tâm Quận 3 tiện mở văn phòng hoặc cho thuê spa', '2026-10-25'],
+      ['BDS-100208', 'Chung cư', 'The Sun Avenue', 'Tháp 4 - Căn 4-15.06, Mai Chí Thọ, Quận 2', 86.0, 5100, 'Anh Cường', '0988273619', 'Đang bán', 1.5, '3 phòng ngủ view hồ bơi, sổ hồng sẵn sàng', '2026-10-28'],
+      ['BDS-100209', 'Biệt thự / Shophouse', 'Château Villa Phú Mỹ Hưng', 'Biệt thự đơn lập số 12 Khu Château, Q7', 320.0, 48000, 'Tổng GĐ Hưng', '0908889999', 'Đang bán', 1.0, 'View sông nội bộ cao cấp bậc nhất Sài Gòn', '2026-10-30'],
+      ['BDS-100210', 'Cho thuê', 'Riverpark Premier', 'Căn R-05.01 Đặng Đức Thuật, Phú Mỹ Hưng, Q7', 125.0, 45, 'Chị Lan', '0933281928', 'Đã cọc/Đã bán', 100.0, 'Cho thuê khách chuyên gia nước ngoài ở lâu dài', '2026-11-01']
+    ];
+
+    // Xóa dữ liệu cũ (chừa header dòng 1) và nạp mới
+    if (shProp.getLastRow() > 1) shProp.deleteRows(2, shProp.getLastRow() - 1);
+    shProp.getRange(2, 1, propRows.length, propRows[0].length).setValues(propRows);
+
+    // 2. Khởi tạo 100 Khách Hàng (Đúng 5 tầng phễu: 25 Mới, 30 Đang chăm, 15 Dẫn xem, 10 Thương lượng, 20 Đã chốt)
+    const propertyTypes = ['Chung cư', 'Nhà phố', 'Đất nền', 'Biệt thự / Shophouse', 'Cho thuê'];
+    const locations = ['Quận 1', 'Quận 2 (TP. Thủ Đức)', 'Quận 7', 'Bình Thạnh', 'Thảo Điền', 'Phú Mỹ Hưng', 'Thủ Đức'];
+    const sources = ['Facebook Ads', 'TikTok Bio', 'Người quen giới thiệu', 'Đăng tin BĐS', 'Khách vãng lai'];
+    const hoList = ['Nguyễn', 'Trần', 'Lê', 'Phạm', 'Hoàng', 'Phan', 'Vũ', 'Võ', 'Đặng', 'Bùi', 'Đỗ', 'Hồ', 'Ngô', 'Dương', 'Lý'];
+    const demList = ['Văn', 'Thị', 'Đức', 'Quốc', 'Thanh', 'Hải', 'Thái', 'Phương', 'Minh', 'Ngọc', 'Anh', 'Kim', 'Bảo', 'Gia'];
+    const tenList = ['An', 'Bình', 'Cường', 'Dũng', 'Hương', 'Khánh', 'Lan', 'Mai', 'Nam', 'Oanh', 'Phúc', 'Quân', 'Sơn', 'Tâm', 'Tuấn', 'Uyên', 'Vinh', 'Yến', 'Trang', 'Tú'];
+
+    const funnelStatuses = [];
+    for (let i = 0; i < 25; i++) funnelStatuses.push('Mới tiếp cận');
+    for (let i = 0; i < 30; i++) funnelStatuses.push('Đang chăm');
+    for (let i = 0; i < 15; i++) funnelStatuses.push('Đang dẫn xem');
+    for (let i = 0; i < 10; i++) funnelStatuses.push('Đang thương lượng');
+    for (let i = 0; i < 20; i++) funnelStatuses.push('Đã chốt cọc');
+
+    const priceRanges = ['2 - 4 Tỷ', '4 - 7 Tỷ', '7 - 12 Tỷ', 'Trên 15 Tỷ', '30 - 50 Tr/tháng'];
+    const custRows = [];
+    const custObjs = [];
+
+    for (let i = 0; i < 100; i++) {
+      const code = 'KH-' + String(100100 + i);
+      const ho = hoList[i % hoList.length];
+      const dem = demList[(i * 3 + 2) % demList.length];
+      const ten = tenList[(i * 7 + 5) % tenList.length];
+      const fullName = ho + ' ' + dem + ' ' + ten;
+      const phone = '09' + String(10000000 + (i * 876543) % 90000000).padStart(8, '0');
+      const demand = propertyTypes[i % propertyTypes.length];
+      const price = priceRanges[i % priceRanges.length];
+      const loc = locations[i % locations.length];
+      const src = sources[i % sources.length];
+      const st = funnelStatuses[i];
+      const interestedProp = (i >= 80) ? propRows[i % propRows.length][0] : '';
+      const note = 'Khách quan tâm phân khúc ' + demand + ' tại ' + loc + '.';
+      const date = '2026-10-' + String((i % 28) + 1).padStart(2, '0');
+
+      custRows.push([code, fullName, phone, demand, price, loc, interestedProp, src, st, note, date]);
+      custObjs.push({ code, name: fullName, phone, demand, price, loc, status: st });
+    }
+
+    if (shCust.getLastRow() > 1) shCust.deleteRows(2, shCust.getLastRow() - 1);
+    shCust.getRange(2, 1, custRows.length, custRows[0].length).setValues(custRows);
+
+    // 3. Khởi tạo 80 Lịch hẹn & Nhật ký chăm sóc (Interactions)
+    const interactTypes = ['Cuộc gọi', 'Nhắn tin Zalo', 'Gặp cafe tư vấn', 'Dẫn đi xem nhà', 'Đặt cọc / Ký HĐ'];
+    const logRows = [];
+
+    for (let i = 0; i < 80; i++) {
+      const code = 'LOG-' + String(1000 + i);
+      const cust = custObjs[i % 80];
+      const itType = interactTypes[i % interactTypes.length];
+      const p = propRows[i % propRows.length];
+      let content = '';
+      if (itType === 'Cuộc gọi') content = 'Gọi trao đổi tài chính và gửi danh sách 3 căn phù hợp qua Zalo.';
+      else if (itType === 'Nhắn tin Zalo') content = 'Đã gửi hình ảnh thực tế, sổ đỏ và định vị căn ' + p[0] + '.';
+      else if (itType === 'Gặp cafe tư vấn') content = 'Gặp cafe tư vấn kỹ tiến độ thanh toán và giải pháp vay ngân hàng 70%.';
+      else if (itType === 'Dẫn đi xem nhà') content = 'Dẫn khách cùng gia đình đi xem thực tế căn ' + p[3] + '. Khách đánh giá cao ban công.';
+      else content = 'Khách hài lòng điều khoản thỏa thuận, chuẩn bị chốt cọc tại sàn.';
+
+      const day = (i % 25) + 1;
+      const createDate = '2026-11-' + String(day).padStart(2, '0');
+      const nextDay = ((day + 3) > 30) ? 30 : (day + 3);
+      const nextDate = (i % 4 === 0) ? ('2026-11-' + String(nextDay).padStart(2, '0')) : '';
+
+      logRows.push([code, cust.code, cust.name, itType, content, nextDate, createDate]);
+    }
+
+    if (shLogs.getLastRow() > 1) shLogs.deleteRows(2, shLogs.getLastRow() - 1);
+    shLogs.getRange(2, 1, logRows.length, logRows[0].length).setValues(logRows);
+
+    // 4. Khởi tạo 20 Hợp đồng chốt cọc (Deals) & Tự động tính toán Hoa hồng chuẩn
+    const closedCusts = custObjs.filter(c => c.status === 'Đã chốt cọc');
+    const dealRows = [];
+
+    for (let i = 0; i < 20; i++) {
+      const code = 'HD-' + String(8001 + i);
+      const cust = closedCusts[i] || custObjs[80 + i];
+      const p = propRows[i % propRows.length];
+      const priceMillion = Number(p[5]) || 0;
+      const commRate = Number(p[9]) || 1.5;
+
+      let commVND = 0;
+      if (p[1] === 'Cho thuê') {
+        commVND = priceMillion * 1000000;
+      } else {
+        commVND = Math.round(priceMillion * 1000000 * (commRate / 100));
+      }
+
+      const st = (i < 15) ? 'Đã thu hoa hồng' : 'Chờ chủ nhà thanh toán';
+      const day = (i % 20) + 1;
+      const closedDate = '2026-11-' + String(day).padStart(2, '0');
+      const note = 'Giao dịch chốt cọc thành công căn ' + p[0] + '. Chủ nhà: ' + p[6] + ' (' + p[7] + ')';
+
+      dealRows.push([code, cust.code, cust.name, p[0], p[3], priceMillion, commRate, commVND, closedDate, st, note, closedDate]);
+    }
+
+    if (shDeals.getLastRow() > 1) shDeals.deleteRows(2, shDeals.getLastRow() - 1);
+    shDeals.getRange(2, 1, dealRows.length, dealRows[0].length).setValues(dealRows);
+
+    return {
+      success: true,
+      message: 'Đã nạp thành công 10 BĐS, 100 Khách Hàng, 80 Lịch Hẹn và 20 Hợp Đồng Chốt Cọc!'
+    };
+  } catch (err) {
+    return { success: false, error: err.toString() };
+  } finally {
+    lock.releaseLock();
+  }
+}
