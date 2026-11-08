@@ -518,25 +518,31 @@
               <div class="text-[11px] font-bold text-slate-700 uppercase tracking-wider flex items-center gap-1.5">
                 <i data-lucide="layers" class="w-3.5 h-3.5 text-emerald-600"></i> Danh mục động nghiệp vụ (Master Taxonomy)
               </div>
-              <p class="text-[11px] text-slate-500">Các mục được phân cách bằng dấu chấm phẩy <code class="bg-slate-200 px-1 rounded text-slate-700">;</code>. Dữ liệu này sẽ tự động nạp vào toàn bộ dropdown của Khách hàng, Giỏ hàng và Chốt cọc.</p>
+              <p class="text-[11px] text-slate-500">Các mục được phân cách bằng dấu chấm phẩy <code class="bg-slate-200 px-1 rounded text-slate-700">;</code>. Dữ liệu này tự động nạp thành các tùy chọn Dropdown cho toàn bộ hệ thống Khách hàng, Giỏ hàng và Hợp đồng.</p>
               
-              <div>
-                <label class="block font-medium text-slate-700 mb-1">1. Phân loại hình Bất Động Sản</label>
-                <textarea id="setPropertyTypes" rows="2" class="w-full p-2 bg-white border border-slate-200 rounded-lg focus:border-emerald-500 focus:outline-none leading-relaxed"></textarea>
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label class="block font-medium text-slate-700 mb-1">1. Loại hình BĐS & Nhu cầu</label>
+                  <textarea id="setPropertyTypes" rows="2" class="w-full p-2 bg-white border border-slate-200 rounded-lg focus:border-emerald-500 focus:outline-none leading-relaxed"></textarea>
+                </div>
+                <div>
+                  <label class="block font-medium text-slate-700 mb-1">2. Khu vực mong muốn / Địa bàn</label>
+                  <textarea id="setLocations" rows="2" class="w-full p-2 bg-white border border-slate-200 rounded-lg focus:border-emerald-500 focus:outline-none leading-relaxed"></textarea>
+                </div>
               </div>
 
               <div>
-                <label class="block font-medium text-slate-700 mb-1">2. Nguồn khách hàng (Lead Sources)</label>
+                <label class="block font-medium text-slate-700 mb-1">3. Nguồn khách hàng (Lead Sources)</label>
                 <textarea id="setCustomerSources" rows="2" class="w-full p-2 bg-white border border-slate-200 rounded-lg focus:border-emerald-500 focus:outline-none leading-relaxed"></textarea>
               </div>
 
               <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
-                  <label class="block font-medium text-slate-700 mb-1">3. Trạng thái Khách hàng</label>
+                  <label class="block font-medium text-slate-700 mb-1">4. Trạng thái Khách hàng (Leads Status)</label>
                   <textarea id="setCustomerStatuses" rows="2" class="w-full p-2 bg-white border border-slate-200 rounded-lg focus:border-emerald-500 focus:outline-none leading-relaxed"></textarea>
                 </div>
                 <div>
-                  <label class="block font-medium text-slate-700 mb-1">4. Trạng thái Căn BĐS trong kho</label>
+                  <label class="block font-medium text-slate-700 mb-1">5. Trạng thái Căn BĐS trong kho</label>
                   <textarea id="setPropertyStatuses" rows="2" class="w-full p-2 bg-white border border-slate-200 rounded-lg focus:border-emerald-500 focus:outline-none leading-relaxed"></textarea>
                 </div>
               </div>
@@ -761,7 +767,8 @@
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
               <label class="block font-medium text-slate-700 mb-1">Khu vực mong muốn</label>
-              <input type="text" id="formCustArea" class="w-full h-8 px-2.5 border border-slate-200 rounded-lg focus:border-emerald-500 focus:outline-none" placeholder="VD: Quận 2, Bình Thạnh">
+              <input type="text" id="formCustArea" list="listLocations" class="w-full h-8 px-2.5 border border-slate-200 rounded-lg focus:border-emerald-500 focus:outline-none" placeholder="VD: Quận 2, Bình Thạnh">
+              <datalist id="listLocations"></datalist>
             </div>
             <div>
               <label class="block font-medium text-slate-700 mb-1">Nguồn khách hàng</label>
@@ -1053,6 +1060,17 @@
       } catch (e) {
         return dateVal;
       }
+    }
+
+    // ==================== HELPER FORMAT NUMBER VN (. thousand, , decimal) ====================
+    function formatNumberVN(val, decimals = 0) {
+      if (val === null || val === undefined || isNaN(val)) return '0';
+      const num = Number(val);
+      // Sử dụng locale vi-VN: phân cách hàng nghìn là dấu chấm (.), thập phân là dấu phẩy (,)
+      return num.toLocaleString('vi-VN', {
+        minimumFractionDigits: decimals,
+        maximumFractionDigits: decimals
+      });
     }
 
     // ==================== TABS & NAVIGATION ====================
@@ -1820,6 +1838,7 @@
       document.getElementById('setDefaultCommRate').value = s.defaultCommRate || 1.5;
       document.getElementById('setFollowupAlertDays').value = s.followupAlertDays || 0;
       document.getElementById('setPropertyTypes').value = (s.propertyTypes || []).join('; ');
+      document.getElementById('setLocations').value = (s.locations || []).join('; ');
       document.getElementById('setCustomerSources').value = (s.customerSources || []).join('; ');
       document.getElementById('setCustomerStatuses').value = (s.customerStatuses || []).join('; ');
       document.getElementById('setPropertyStatuses').value = (s.propertyStatuses || []).join('; ');
@@ -1843,6 +1862,7 @@
         defaultCommRate: Number(document.getElementById('setDefaultCommRate').value) || 1.5,
         followupAlertDays: Number(document.getElementById('setFollowupAlertDays').value) || 0,
         propertyTypes: document.getElementById('setPropertyTypes').value.split(';').map(s => s.trim()).filter(Boolean),
+        locations: document.getElementById('setLocations').value.split(';').map(s => s.trim()).filter(Boolean),
         customerSources: document.getElementById('setCustomerSources').value.split(';').map(s => s.trim()).filter(Boolean),
         customerStatuses: document.getElementById('setCustomerStatuses').value.split(';').map(s => s.trim()).filter(Boolean),
         propertyStatuses: document.getElementById('setPropertyStatuses').value.split(';').map(s => s.trim()).filter(Boolean)
@@ -1888,6 +1908,7 @@
         defaultCommRate: 1.5,
         followupAlertDays: 0,
         propertyTypes: ['Chung cư', 'Nhà phố', 'Đất nền', 'Biệt thự / Shophouse', 'Cho thuê'],
+        locations: ['Quận 1', 'Quận 2 (TP. Thủ Đức)', 'Quận 7', 'Bình Thạnh', 'Thảo Điền', 'Phú Mỹ Hưng', 'Thủ Đức'],
         customerSources: ['Facebook Ads', 'Tiktok Bio', 'Người quen giới thiệu', 'Đăng tin BĐS', 'Khách vãng lai'],
         customerStatuses: ['Mới tiếp cận', 'Đang chăm', 'Đang dẫn xem', 'Đang thương lượng', 'Đã chốt cọc', 'Dừng chăm sóc'],
         propertyStatuses: ['Đang bán', 'Đã cọc/Đã bán', 'Tạm ngưng']
@@ -1911,10 +1932,11 @@
     // ==================== FORM DROPDOWNS POPULATE ====================
     function populateDropdowns() {
       const s = state.data.settings || {};
-      const types = s.propertyTypes || ['Chung cư', 'Nhà phố', 'Đất nền', 'Biệt thự / Shophouse', 'Cho thuê'];
-      const sources = s.customerSources || ['Facebook Ads', 'Tiktok Bio', 'Người quen giới thiệu', 'Đăng tin BĐS', 'Khách vãng lai'];
-      const custStatuses = s.customerStatuses || ['Mới tiếp cận', 'Đang chăm', 'Đang dẫn xem', 'Đang thương lượng', 'Đã chốt cọc', 'Dừng chăm sóc'];
-      const propStatuses = s.propertyStatuses || ['Đang bán', 'Đã cọc/Đã bán', 'Tạm ngưng'];
+      const types = (s.propertyTypes && s.propertyTypes.length) ? s.propertyTypes : ['Chung cư', 'Nhà phố', 'Đất nền', 'Biệt thự / Shophouse', 'Cho thuê'];
+      const locs = (s.locations && s.locations.length) ? s.locations : ['Quận 1', 'Quận 2 (TP. Thủ Đức)', 'Quận 7', 'Bình Thạnh', 'Thảo Điền', 'Phú Mỹ Hưng', 'Thủ Đức'];
+      const sources = (s.customerSources && s.customerSources.length) ? s.customerSources : ['Facebook Ads', 'Tiktok Bio', 'Người quen giới thiệu', 'Đăng tin BĐS', 'Khách vãng lai'];
+      const custStatuses = (s.customerStatuses && s.customerStatuses.length) ? s.customerStatuses : ['Mới tiếp cận', 'Đang chăm', 'Đang dẫn xem', 'Đang thương lượng', 'Đã chốt cọc', 'Dừng chăm sóc'];
+      const propStatuses = (s.propertyStatuses && s.propertyStatuses.length) ? s.propertyStatuses : ['Đang bán', 'Đã cọc/Đã bán', 'Tạm ngưng'];
 
       // 1. Populate Cust Demand & Prop Type
       const custDemandSel = document.getElementById('formCustDemand');
@@ -1922,19 +1944,23 @@
       if (custDemandSel) custDemandSel.innerHTML = types.map(t => `<option value="${t}">${t}</option>`).join('');
       if (propTypeSel) propTypeSel.innerHTML = types.map(t => `<option value="${t}">${t}</option>`).join('');
 
-      // 2. Populate Sources
+      // 2. Populate Datalist Khu Vực
+      const listLocs = document.getElementById('listLocations');
+      if (listLocs) listLocs.innerHTML = locs.map(l => `<option value="${l}"></option>`).join('');
+
+      // 3. Populate Sources
       const custSourceSel = document.getElementById('formCustSource');
       if (custSourceSel) custSourceSel.innerHTML = sources.map(src => `<option value="${src}">${src}</option>`).join('');
 
-      // 3. Populate Cust Statuses
+      // 4. Populate Cust Statuses
       const custStatusSel = document.getElementById('formCustStatus');
       if (custStatusSel) custStatusSel.innerHTML = custStatuses.map(st => `<option value="${st}">${st}</option>`).join('');
 
-      // 4. Populate Prop Statuses
+      // 5. Populate Prop Statuses
       const propStatusSel = document.getElementById('formPropStatus');
       if (propStatusSel) propStatusSel.innerHTML = propStatuses.map(st => `<option value="${st}">${st}</option>`).join('');
 
-      // 5. Populate Filter Dropdowns (Khách hàng)
+      // 6. Populate Filter Dropdowns (Khách hàng)
       const filterCustStatus = document.getElementById('filterCustStatus');
       if (filterCustStatus) {
         filterCustStatus.innerHTML = '<option value="">-- Tất cả trạng thái --</option>' + custStatuses.map(st => `<option value="${st}">${st}</option>`).join('');
@@ -1948,7 +1974,7 @@
         filterSource.innerHTML = '<option value="">-- Tất cả nguồn khách --</option>' + sources.map(src => `<option value="${src}">${src}</option>`).join('');
       }
 
-      // 6. Populate Filter Dropdowns (Giỏ hàng BĐS)
+      // 7. Populate Filter Dropdowns (Giỏ hàng BĐS)
       const filterPropType = document.getElementById('filterPropType');
       if (filterPropType) {
         filterPropType.innerHTML = '<option value="">-- Tất cả loại hình --</option>' + types.map(t => `<option value="${t}">${t}</option>`).join('');

@@ -524,10 +524,11 @@ function saveSettings(payload) {
       ['BANK_HOLDER', payload.bankHolder || '', 'Thanh toán: Tên chủ tài khoản (In hoa)'],
       ['DEFAULT_COMM_RATE', String(payload.defaultCommRate || '1.5'), 'Cấu hình: % Hoa hồng mặc định'],
       ['FOLLOWUP_ALERT_DAYS', String(payload.followupAlertDays || '0'), 'Cấu hình: Số ngày nhắc việc trước hạn'],
-      ['PROPERTY_TYPES', (payload.propertyTypes || []).join(';'), 'Master Taxonomy: Danh mục loại hình BĐS'],
+      ['PROPERTY_TYPES', (payload.propertyTypes || []).join(';'), 'Master Taxonomy: Danh mục loại hình BĐS / Nhu cầu'],
+      ['LOCATIONS', (payload.locations || []).join(';'), 'Master Taxonomy: Danh mục khu vực địa lý'],
       ['CUSTOMER_SOURCES', (payload.customerSources || []).join(';'), 'Master Taxonomy: Danh mục nguồn khách'],
-      ['CUSTOMER_STATUSES', (payload.customerStatuses || []).join(';'), 'Master Taxonomy: Danh mục trạng thái khách'],
-      ['PROPERTY_STATUSES', (payload.propertyStatuses || []).join(';'), 'Master Taxonomy: Danh mục trạng thái căn']
+      ['CUSTOMER_STATUSES', (payload.customerStatuses || []).join(';'), 'Master Taxonomy: Danh mục trạng thái chăm sóc khách'],
+      ['PROPERTY_STATUSES', (payload.propertyStatuses || []).join(';'), 'Master Taxonomy: Danh mục trạng thái căn trong giỏ hàng']
     ];
 
     rowsToAppend.forEach(r => sh.appendRow(r));
@@ -555,6 +556,7 @@ function resetDefaultSettings() {
     defaultCommRate: 1.5,
     followupAlertDays: 0,
     propertyTypes: ['Chung cư', 'Nhà phố', 'Đất nền', 'Biệt thự / Shophouse', 'Cho thuê'],
+    locations: ['Quận 1', 'Quận 2 (TP. Thủ Đức)', 'Quận 7', 'Bình Thạnh', 'Thảo Điền', 'Phú Mỹ Hưng', 'Thủ Đức'],
     customerSources: ['Facebook Ads', 'Tiktok Bio', 'Người quen giới thiệu', 'Đăng tin BĐS', 'Khách vãng lai'],
     customerStatuses: ['Mới tiếp cận', 'Đang chăm', 'Đang dẫn xem', 'Đang thương lượng', 'Đã chốt cọc', 'Dừng chăm sóc'],
     propertyStatuses: ['Đang bán', 'Đã cọc/Đã bán', 'Tạm ngưng']
@@ -592,6 +594,7 @@ function parseSettingsData_(rows) {
     defaultCommRate: 1.5,
     followupAlertDays: 0,
     propertyTypes: ['Chung cư', 'Nhà phố', 'Đất nền', 'Biệt thự / Shophouse', 'Cho thuê'],
+    locations: ['Quận 1', 'Quận 2 (TP. Thủ Đức)', 'Quận 7', 'Bình Thạnh', 'Thảo Điền', 'Phú Mỹ Hưng', 'Thủ Đức'],
     customerSources: ['Facebook Ads', 'Tiktok Bio', 'Người quen giới thiệu', 'Đăng tin BĐS', 'Khách vãng lai'],
     customerStatuses: ['Mới tiếp cận', 'Đang chăm', 'Đang dẫn xem', 'Đang thương lượng', 'Đã chốt cọc', 'Dừng chăm sóc'],
     propertyStatuses: ['Đang bán', 'Đã cọc/Đã bán', 'Tạm ngưng']
@@ -612,6 +615,7 @@ function parseSettingsData_(rows) {
     if (key === 'DEFAULT_COMM_RATE' && val) settings.defaultCommRate = Number(val) || 1.5;
     if (key === 'FOLLOWUP_ALERT_DAYS' && val) settings.followupAlertDays = Number(val) || 0;
     if (key === 'PROPERTY_TYPES' && val) settings.propertyTypes = val.split(';').map(s => s.trim()).filter(Boolean);
+    if (key === 'LOCATIONS' && val) settings.locations = val.split(';').map(s => s.trim()).filter(Boolean);
     if (key === 'CUSTOMER_SOURCES' && val) settings.customerSources = val.split(';').map(s => s.trim()).filter(Boolean);
     if (key === 'CUSTOMER_STATUSES' && val) settings.customerStatuses = val.split(';').map(s => s.trim()).filter(Boolean);
     if (key === 'PROPERTY_STATUSES' && val) settings.propertyStatuses = val.split(';').map(s => s.trim()).filter(Boolean);
