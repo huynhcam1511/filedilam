@@ -864,4 +864,3 @@ function seedDefaultTaxonomy_(sh) {
 
   initial.forEach(row => sh.appendRow(row));
 }
-}
