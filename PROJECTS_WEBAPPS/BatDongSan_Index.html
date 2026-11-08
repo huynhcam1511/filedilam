@@ -83,6 +83,9 @@
       <button onclick="switchTab('settings')" id="nav-settings" class="nav-item-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-xs font-medium text-slate-600 hover:bg-slate-50 hover:text-slate-900 transition-colors">
         <i data-lucide="sliders" class="w-4 h-4 text-slate-400 flex-shrink-0"></i><span class="nav-label">Cài đặt & Danh mục</span>
       </button>
+      <button onclick="switchTab('guide')" id="nav-guide" class="nav-item-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-xs font-medium text-slate-600 hover:bg-slate-50 hover:text-slate-900 transition-colors">
+        <i data-lucide="book-open" class="w-4 h-4 text-slate-400 flex-shrink-0"></i><span class="nav-label">Hướng dẫn sử dụng</span>
+      </button>
     </nav>
 
     <!-- Bottom System Status -->
@@ -103,6 +106,7 @@
     <button onclick="switchTab('interactions')" id="dock-interactions" class="flex flex-col items-center gap-0.5 text-slate-400 font-medium text-[10px]"><i data-lucide="calendar" class="w-4 h-4"></i><span>Lịch hẹn</span></button>
     <button onclick="switchTab('deals')" id="dock-deals" class="flex flex-col items-center gap-0.5 text-slate-400 font-medium text-[10px]"><i data-lucide="badge-dollar-sign" class="w-4 h-4"></i><span>Chốt cọc</span></button>
     <button onclick="switchTab('settings')" id="dock-settings" class="flex flex-col items-center gap-0.5 text-slate-400 font-medium text-[10px]"><i data-lucide="sliders" class="w-4 h-4"></i><span>Cài đặt</span></button>
+    <button onclick="switchTab('guide')" id="dock-guide" class="flex flex-col items-center gap-0.5 text-slate-400 font-medium text-[10px]"><i data-lucide="book-open" class="w-4 h-4"></i><span>HDSD</span></button>
   </div>
 
   <!-- ==================== MAIN WORKSPACE ==================== -->
@@ -621,6 +625,280 @@
               </button>
             </div>
           </form>
+        </div>
+      </div>
+
+      <!-- ==================== MODULE 7: HƯỚNG DẪN SỬ DỤNG (INTERACTIVE WORKFLOW GUIDE) ==================== -->
+      <div id="module-guide" class="module-tab-content space-y-6 max-w-4xl pb-10">
+        <!-- Banner Chào Mừng & Giới Thiệu -->
+        <div class="bg-gradient-to-r from-emerald-700 to-teal-800 text-white rounded-2xl p-6 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div class="space-y-1.5">
+            <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/30 text-emerald-100 border border-emerald-400/30">
+              <i data-lucide="shield-check" class="w-3 h-3"></i> Chuẩn Vận Hành File Đi Làm
+            </span>
+            <h2 class="text-lg font-bold">Cẩm Nang Vận Hành Bất Động Sản CRM Pro</h2>
+            <p class="text-xs text-emerald-100/90 leading-relaxed max-w-2xl">
+              Hệ thống được thiết kế theo phễu bán hàng khép kín (End-to-End) dành riêng cho môi giới cá nhân và sàn giao dịch BĐS. Không cần cài đặt phức tạp, dữ liệu đồng bộ bảo mật 100% trên chính tài khoản Google Drive của bạn.
+            </p>
+          </div>
+          <div class="flex-shrink-0 flex items-center gap-2">
+            <a href="https://zalo.me/0900000000" target="_blank" class="px-4 py-2 bg-white text-emerald-800 hover:bg-emerald-50 rounded-xl font-semibold text-xs flex items-center gap-1.5 shadow-sm transition">
+              <i data-lucide="message-circle" class="w-4 h-4 text-emerald-600"></i> Hỗ trợ Zalo
+            </a>
+          </div>
+        </div>
+
+        <!-- PHÂN KHU 1: ONBOARDING 3 BƯỚC KHỞI TẠO HỆ THỐNG TRONG 2 PHÚT -->
+        <div class="bg-white border border-slate-200/90 rounded-xl p-5 shadow-xs space-y-4">
+          <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+            <div>
+              <h3 class="text-xs font-bold text-slate-800 uppercase tracking-wider flex items-center gap-2">
+                <i data-lucide="compass" class="w-4 h-4 text-emerald-600"></i> Khởi tạo hệ thống trong 2 phút (Onboarding)
+              </h3>
+              <p class="text-[11px] text-slate-500 mt-0.5">3 bước chuẩn bị trước khi bắt đầu nhập liệu giao dịch thực tế.</p>
+            </div>
+            <span class="text-[10px] font-mono font-semibold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded">3 Bước Setup</span>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-3.5">
+            <!-- Bước 1 -->
+            <div class="p-4 rounded-xl border border-slate-200/80 bg-slate-50/50 space-y-2 relative">
+              <div class="w-6 h-6 rounded-lg bg-emerald-600 text-white font-bold text-xs flex items-center justify-center font-mono">1</div>
+              <div class="font-bold text-xs text-slate-900">Khai báo Danh mục</div>
+              <p class="text-[11px] text-slate-600 leading-relaxed">
+                Vào tab <strong class="text-emerald-700">Cài đặt & Danh mục</strong> để kiểm tra Loại hình BĐS, Khu vực địa bàn và Nguồn khách phù hợp với khu vực bạn đang hoạt động.
+              </p>
+              <button onclick="switchTab('settings')" class="text-[11px] font-semibold text-emerald-600 hover:underline flex items-center gap-1 mt-1">
+                Đi đến Danh mục <i data-lucide="arrow-right" class="w-3 h-3"></i>
+              </button>
+            </div>
+
+            <!-- Bước 2 -->
+            <div class="p-4 rounded-xl border border-slate-200/80 bg-slate-50/50 space-y-2 relative">
+              <div class="w-6 h-6 rounded-lg bg-emerald-600 text-white font-bold text-xs flex items-center justify-center font-mono">2</div>
+              <div class="font-bold text-xs text-slate-900">Cấu hình VietQR</div>
+              <p class="text-[11px] text-slate-600 leading-relaxed">
+                Cập nhật thông tin ngân hàng và số tài khoản tại tab <strong class="text-emerald-700">Hồ sơ & VietQR</strong> để hệ thống tự động xuất mã QR khi nhận tiền hoa hồng chốt cọc.
+              </p>
+              <button onclick="switchTab('settings'); switchSettingsSubTab('config');" class="text-[11px] font-semibold text-emerald-600 hover:underline flex items-center gap-1 mt-1">
+                Cài đặt VietQR <i data-lucide="arrow-right" class="w-3 h-3"></i>
+              </button>
+            </div>
+
+            <!-- Bước 3 -->
+            <div class="p-4 rounded-xl border border-slate-200/80 bg-slate-50/50 space-y-2 relative">
+              <div class="w-6 h-6 rounded-lg bg-emerald-600 text-white font-bold text-xs flex items-center justify-center font-mono">3</div>
+              <div class="font-bold text-xs text-slate-900">Nhập Data Khởi Đầu</div>
+              <p class="text-[11px] text-slate-600 leading-relaxed">
+                Bấm <strong class="text-emerald-700">+ Thêm Khách Hàng</strong> và <strong class="text-emerald-700">+ Thêm Căn Mới</strong> để đưa khách đang có và quỹ căn vào hệ thống để bắt đầu khớp nối.
+              </p>
+              <button onclick="switchTab('customers'); openAddCustomerModal();" class="text-[11px] font-semibold text-emerald-600 hover:underline flex items-center gap-1 mt-1">
+                Nhập khách ngay <i data-lucide="arrow-right" class="w-3 h-3"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- PHÂN KHU 2: BẢN ĐỒ VÒNG ĐỜI NGHIỆP VỤ (END-TO-END FLOW) -->
+        <div class="bg-white border border-slate-200/90 rounded-xl p-5 shadow-xs space-y-4">
+          <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+            <div>
+              <h3 class="text-xs font-bold text-slate-800 uppercase tracking-wider flex items-center gap-2">
+                <i data-lucide="git-branch" class="w-4 h-4 text-emerald-600"></i> Bản đồ quy trình nghiệp vụ môi giới (End-to-End)
+              </h3>
+              <p class="text-[11px] text-slate-500 mt-0.5">Vòng đời 5 bước khép kín từ lúc phát sinh Lead đến khi tiền hoa hồng về tài khoản.</p>
+            </div>
+          </div>
+
+          <div class="relative pl-6 space-y-5 before:absolute before:left-2.5 before:top-2 before:bottom-2 before:w-0.5 before:bg-emerald-200">
+            <!-- Bước 1 -->
+            <div class="relative">
+              <div class="absolute -left-6 top-0.5 w-5 h-5 rounded-full bg-emerald-600 border-2 border-white flex items-center justify-center text-white text-[10px] font-mono font-bold">1</div>
+              <div class="font-bold text-xs text-slate-900">Tiếp nhận Khách Hàng (Leads) & Ghi nhận nhu cầu</div>
+              <p class="text-[11px] text-slate-600 mt-0.5 leading-relaxed">
+                Khi có SĐT từ Facebook Ads, TikTok Bio hay người quen giới thiệu $\rightarrow$ Mở module <strong class="text-slate-800">Khách Hàng (Leads)</strong> $\rightarrow$ Nhập họ tên, SĐT (đúng 10 số), chọn Nhu cầu và Khoảng tài chính. Hệ thống tự động kiểm tra trùng lặp SĐT để bảo vệ quyền lợi môi giới.
+              </p>
+            </div>
+
+            <!-- Bước 2 -->
+            <div class="relative">
+              <div class="absolute -left-6 top-0.5 w-5 h-5 rounded-full bg-emerald-600 border-2 border-white flex items-center justify-center text-white text-[10px] font-mono font-bold">2</div>
+              <div class="font-bold text-xs text-slate-900">Khớp nối với Kho Giỏ Hàng BĐS (Properties Matching)</div>
+              <p class="text-[11px] text-slate-600 mt-0.5 leading-relaxed">
+                Vào module <strong class="text-slate-800">Giỏ hàng BĐS</strong> $\rightarrow$ Dùng bộ lọc Loại hình và Khoảng giá để tìm ngay những căn phù hợp với khách. Bấm nút <strong class="text-slate-800">Sao chép tin đăng Zalo</strong> để gửi cho khách xem trước hình ảnh và thông số.
+              </p>
+            </div>
+
+            <!-- Bước 3 -->
+            <div class="relative">
+              <div class="absolute -left-6 top-0.5 w-5 h-5 rounded-full bg-emerald-600 border-2 border-white flex items-center justify-center text-white text-[10px] font-mono font-bold">3</div>
+              <div class="font-bold text-xs text-slate-900">Dẫn xem thực tế & Ghi nhật ký tương tác (Interactions)</div>
+              <p class="text-[11px] text-slate-600 mt-0.5 leading-relaxed">
+                Đặt lịch hẹn dẫn khách xem nhà $\rightarrow$ Chọn hình thức <strong class="text-slate-800">Dẫn đi xem nhà</strong> $\rightarrow$ Nhập nhận xét của khách và đặt ngày hẹn tiếp theo. Lịch hẹn này sẽ tự động hiển thị trên <strong class="text-emerald-700">Hàng Đợi Việc Hôm Nay</strong> ở Dashboard khi đến hạn.
+              </p>
+            </div>
+
+            <!-- Bước 4 -->
+            <div class="relative">
+              <div class="absolute -left-6 top-0.5 w-5 h-5 rounded-full bg-emerald-600 border-2 border-white flex items-center justify-center text-white text-[10px] font-mono font-bold">4</div>
+              <div class="font-bold text-xs text-slate-900">Thương lượng & Chốt cọc giao dịch (Deals Closing)</div>
+              <p class="text-[11px] text-slate-600 mt-0.5 leading-relaxed">
+                Khách đồng ý mua $\rightarrow$ Mở Drawer căn nhà bấm <strong class="text-emerald-700">Chốt cọc căn này</strong> $\rightarrow$ Nhập Giá chốt và Tỷ lệ hoa hồng thỏa thuận $\rightarrow$ Hệ thống tự động tính chính xác số tiền hoa hồng thực nhận.
+              </p>
+            </div>
+
+            <!-- Bước 5 -->
+            <div class="relative">
+              <div class="absolute -left-6 top-0.5 w-5 h-5 rounded-full bg-emerald-600 border-2 border-white flex items-center justify-center text-white text-[10px] font-mono font-bold">5</div>
+              <div class="font-bold text-xs text-slate-900">Xuất VietQR nhận hoa hồng & Khép phễu thành công</div>
+              <p class="text-[11px] text-slate-600 mt-0.5 leading-relaxed">
+                Hệ thống tự động sinh ảnh mã <strong class="text-slate-800">VietQR động chuẩn Napas247</strong> kèm số tiền hoa hồng để chủ nhà quét thanh toán 1 chạm. Khi nhận tiền xong, chỉ cần chuyển trạng thái sang <span class="text-emerald-700 font-semibold">● Đã thu hoa hồng</span>.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- PHÂN KHU 3: CẨM NANG CHI TIẾT TỪNG MODULE (ACCORDION THAO TÁC) -->
+        <div class="bg-white border border-slate-200/90 rounded-xl p-5 shadow-xs space-y-4">
+          <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+            <div>
+              <h3 class="text-xs font-bold text-slate-800 uppercase tracking-wider flex items-center gap-2">
+                <i data-lucide="layers" class="w-4 h-4 text-emerald-600"></i> Hướng dẫn chi tiết thao tác từng module
+              </h3>
+              <p class="text-[11px] text-slate-500 mt-0.5">Nhấp vào từng module để xem hướng dẫn nhập liệu, quy chuẩn và mẹo thao tác nhanh.</p>
+            </div>
+          </div>
+
+          <!-- Accordion List -->
+          <div class="space-y-2 text-xs">
+            <!-- Module 1 -->
+            <details class="group border border-slate-200 rounded-lg overflow-hidden bg-slate-50/30 open:bg-white transition" open>
+              <summary class="flex items-center justify-between p-3 font-bold text-slate-800 cursor-pointer select-none hover:bg-slate-50 transition">
+                <div class="flex items-center gap-2.5">
+                  <div class="w-6 h-6 rounded bg-emerald-100 text-emerald-700 flex items-center justify-center text-xs font-mono font-bold">M1</div>
+                  <span>Module 1: Tổng quan vận hành (Executive Dashboard)</span>
+                </div>
+                <i data-lucide="chevron-down" class="w-4 h-4 text-slate-400 group-open:rotate-180 transition-transform"></i>
+              </summary>
+              <div class="p-4 pt-1 border-t border-slate-100 text-[11px] text-slate-600 space-y-2.5 leading-relaxed">
+                <div><strong>• 4 Thẻ KPI:</strong> Giám sát tức thời số lượng khách đang chăm, số lịch hẹn cần thực hiện hôm nay, giỏ hàng mở bán và tổng hoa hồng thực nhận.</div>
+                <div><strong>• Hàng đợi việc khẩn hôm nay (Daily Action Queue):</strong> Tự động gom các lịch hẹn tiếp theo có ngày bằng ngày hôm nay hoặc quá hạn. Môi giới chỉ cần bấm <em>Mở hồ sơ</em> để xem ghi chú và gọi điện thoại cho khách mà không phải lục tìm danh sách.</div>
+                <div><strong>• Phễu chuyển đổi (Sales Pipeline):</strong> Trực quan hóa tỷ lệ khách hàng dịch chuyển qua 5 giai đoạn: <em>Mới tiếp cận $\rightarrow$ Đang chăm $\rightarrow$ Đang dẫn xem $\rightarrow$ Đang thương lượng $\rightarrow$ Đã chốt cọc</em>.</div>
+              </div>
+            </details>
+
+            <!-- Module 2 -->
+            <details class="group border border-slate-200 rounded-lg overflow-hidden bg-slate-50/30 open:bg-white transition">
+              <summary class="flex items-center justify-between p-3 font-bold text-slate-800 cursor-pointer select-none hover:bg-slate-50 transition">
+                <div class="flex items-center gap-2.5">
+                  <div class="w-6 h-6 rounded bg-emerald-100 text-emerald-700 flex items-center justify-center text-xs font-mono font-bold">M2</div>
+                  <span>Module 2: Quản lý khách hàng (Leads) & Hồ sơ 360°</span>
+                </div>
+                <i data-lucide="chevron-down" class="w-4 h-4 text-slate-400 group-open:rotate-180 transition-transform"></i>
+              </summary>
+              <div class="p-4 pt-1 border-t border-slate-100 text-[11px] text-slate-600 space-y-2.5 leading-relaxed">
+                <div><strong>• Thao tác thêm khách:</strong> Bấm <em>+ Thêm Khách Hàng</em> hoặc icon dấu cộng trên mobile. Bắt buộc nhập Họ tên và Số điện thoại đúng 10 số chuẩn Việt Nam (đầu 03, 05, 07, 08, 09).</div>
+                <div><strong>• Chống trùng số điện thoại:</strong> Nếu nhập SĐT đã có trong cơ sở dữ liệu, hệ thống sẽ cảnh báo tên khách cũ để chống nhầm lẫn hoặc trùng khách giữa các thành viên.</div>
+                <div><strong>• Hồ sơ 360° trượt từ bên phải (Drawer):</strong> Bấm vào bất kỳ dòng nào để xem toàn bộ lịch sử chăm sóc, đổi trạng thái phễu 1 chạm, và bấm gọi điện thoại trực tiếp bằng link <code>tel:</code> trên điện thoại.</div>
+              </div>
+            </details>
+
+            <!-- Module 3 -->
+            <details class="group border border-slate-200 rounded-lg overflow-hidden bg-slate-50/30 open:bg-white transition">
+              <summary class="flex items-center justify-between p-3 font-bold text-slate-800 cursor-pointer select-none hover:bg-slate-50 transition">
+                <div class="flex items-center gap-2.5">
+                  <div class="w-6 h-6 rounded bg-emerald-100 text-emerald-700 flex items-center justify-center text-xs font-mono font-bold">M3</div>
+                  <span>Module 3: Kho Giỏ Hàng Bất Động Sản (Properties)</span>
+                </div>
+                <i data-lucide="chevron-down" class="w-4 h-4 text-slate-400 group-open:rotate-180 transition-transform"></i>
+              </summary>
+              <div class="p-4 pt-1 border-t border-slate-100 text-[11px] text-slate-600 space-y-2.5 leading-relaxed">
+                <div><strong>• Nhập giá chào:</strong> Nhập theo đơn vị <em>Triệu VNĐ</em> (VD: 4500 = 4.5 Tỷ, 12000 = 12 Tỷ). Hệ thống tự format hiển thị dấu chấm hàng nghìn chuẩn Việt Nam.</div>
+                <div><strong>• Thông tin chủ nhà & Đầu chủ:</strong> Lưu số điện thoại đầu chủ để bảo mật và gọi điện nhanh khi dẫn khách.</div>
+                <div><strong>• Sao chép tin đăng Zalo:</strong> Bấm nút copy ở Drawer để lấy mẫu chào hàng đã soạn sẵn (bao gồm thông số, địa chỉ, diện tích, giá bán) để dán nhanh gửi khách qua Zalo/Facebook.</div>
+                <div><strong>• Chốt cọc 1 chạm:</strong> Khi căn nhà được cọc, bấm nút <em>Chốt cọc căn này</em> để chuyển toàn bộ thông tin sang Module 5 tính hoa hồng mà không cần gõ lại.</div>
+              </div>
+            </details>
+
+            <!-- Module 4 -->
+            <details class="group border border-slate-200 rounded-lg overflow-hidden bg-slate-50/30 open:bg-white transition">
+              <summary class="flex items-center justify-between p-3 font-bold text-slate-800 cursor-pointer select-none hover:bg-slate-50 transition">
+                <div class="flex items-center gap-2.5">
+                  <div class="w-6 h-6 rounded bg-emerald-100 text-emerald-700 flex items-center justify-center text-xs font-mono font-bold">M4</div>
+                  <span>Module 4: Lịch hẹn & Nhật ký chăm sóc (Interactions)</span>
+                </div>
+                <i data-lucide="chevron-down" class="w-4 h-4 text-slate-400 group-open:rotate-180 transition-transform"></i>
+              </summary>
+              <div class="p-4 pt-1 border-t border-slate-100 text-[11px] text-slate-600 space-y-2.5 leading-relaxed">
+                <div><strong>• Ghi nhật ký:</strong> Chọn khách hàng, chọn hình thức (<em>Cuộc gọi, Nhắn tin Zalo, Cafe tư vấn, Dẫn đi xem nhà</em>) và ghi vắn tắt phản hồi của khách.</div>
+                <div><strong>• Hẹn ngày nhắc việc:</strong> Nếu chọn ngày hẹn tiếp theo, hệ thống sẽ tự động ghim lên bảng làm việc của Dashboard khi đến ngày, giúp môi giới không bao giờ quên lịch chăm khách.</div>
+              </div>
+            </details>
+
+            <!-- Module 5 -->
+            <details class="group border border-slate-200 rounded-lg overflow-hidden bg-slate-50/30 open:bg-white transition">
+              <summary class="flex items-center justify-between p-3 font-bold text-slate-800 cursor-pointer select-none hover:bg-slate-50 transition">
+                <div class="flex items-center gap-2.5">
+                  <div class="w-6 h-6 rounded bg-emerald-100 text-emerald-700 flex items-center justify-center text-xs font-mono font-bold">M5</div>
+                  <span>Module 5: Chốt cọc & Doanh số hoa hồng (Deals & VietQR)</span>
+                </div>
+                <i data-lucide="chevron-down" class="w-4 h-4 text-slate-400 group-open:rotate-180 transition-transform"></i>
+              </summary>
+              <div class="p-4 pt-1 border-t border-slate-100 text-[11px] text-slate-600 space-y-2.5 leading-relaxed">
+                <div><strong>• Tính hoa hồng tự động:</strong> Khi nhập Giá chốt (Triệu) và Tỷ lệ hoa hồng (%), hệ thống tự động nhân và hiển thị ngay số tiền hoa hồng thực nhận mà không cần bấm máy tính.</div>
+                <div><strong>• Mã VietQR động:</strong> Mở chi tiết giao dịch để hiện mã VietQR Napas247 có sẵn số tài khoản và đúng số tiền hoa hồng để chủ nhà quét chuyển khoản ngay lập tức.</div>
+                <div><strong>• Quản lý thu tiền:</strong> Trạng thái phân định rõ ràng giữa <em>● Đã thu hoa hồng</em> và <em>● Chờ chủ nhà thanh toán</em>.</div>
+              </div>
+            </details>
+
+            <!-- Module 6 -->
+            <details class="group border border-slate-200 rounded-lg overflow-hidden bg-slate-50/30 open:bg-white transition">
+              <summary class="flex items-center justify-between p-3 font-bold text-slate-800 cursor-pointer select-none hover:bg-slate-50 transition">
+                <div class="flex items-center gap-2.5">
+                  <div class="w-6 h-6 rounded bg-emerald-100 text-emerald-700 flex items-center justify-center text-xs font-mono font-bold">M6</div>
+                  <span>Module 6: Cài đặt hệ thống & Quản lý danh mục thượng nguồn (Master Taxonomy)</span>
+                </div>
+                <i data-lucide="chevron-down" class="w-4 h-4 text-slate-400 group-open:rotate-180 transition-transform"></i>
+              </summary>
+              <div class="p-4 pt-1 border-t border-slate-100 text-[11px] text-slate-600 space-y-2.5 leading-relaxed">
+                <div><strong>• Vai trò Thượng Nguồn:</strong> Là nơi khai báo Loại hình BĐS, Khu vực địa bàn, Nguồn khách, Trạng thái giỏ hàng. Mọi thay đổi tại đây tự động nạp thành các tùy chọn dropdown cho toàn bộ ứng dụng, triệt tiêu lỗi gõ tay sai chính tả.</div>
+                <div><strong>• Hồ sơ & VietQR:</strong> Cài đặt Họ tên môi giới, Hotline, Tên ngân hàng, Số tài khoản để phục vụ xuất hóa đơn và mã QR thu tiền.</div>
+                <div><strong>• Khôi phục mặc định:</strong> Bấm nút <em>Khôi phục mặc định</em> nếu muốn đặt lại bộ danh mục chuẩn gốc của File Đi Làm.</div>
+              </div>
+            </details>
+          </div>
+        </div>
+
+        <!-- PHÂN KHU 4: CÂU HỎI THƯỜNG GẶP (FAQ) -->
+        <div class="bg-white border border-slate-200/90 rounded-xl p-5 shadow-xs space-y-4">
+          <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+            <h3 class="text-xs font-bold text-slate-800 uppercase tracking-wider flex items-center gap-2">
+              <i data-lucide="help-circle" class="w-4 h-4 text-emerald-600"></i> Câu hỏi thường gặp & Xử lý sự cố (FAQ)
+            </h3>
+          </div>
+
+          <div class="space-y-3 text-xs">
+            <div class="p-3 bg-slate-50 rounded-lg border border-slate-100 space-y-1">
+              <div class="font-bold text-slate-900">Q: Dữ liệu nhập trên Web App lưu ở đâu? Có bị lộ không?</div>
+              <div class="text-[11px] text-slate-600 leading-relaxed">
+                A: Dữ liệu được lưu trữ 100% trên chính file Google Sheets trong Google Drive của bạn. Không đi qua máy chủ bên thứ ba nào khác, đảm bảo bảo mật tuyệt đối thông tin khách hàng và hoa hồng.
+              </div>
+            </div>
+
+            <div class="p-3 bg-slate-50 rounded-lg border border-slate-100 space-y-1">
+              <div class="font-bold text-slate-900">Q: Làm sao để cài đặt Web App lên màn hình chính điện thoại như App thật?</div>
+              <div class="text-[11px] text-slate-600 leading-relaxed">
+                A: Mở link Web App bằng trình duyệt Safari (trên iPhone) bấm nút Share $\rightarrow$ chọn <em>Thêm vào Màn hình chính (Add to Home Screen)</em>. Trên Android mở bằng Chrome bấm menu 3 chấm $\rightarrow$ chọn <em>Cài đặt ứng dụng</em>.
+              </div>
+            </div>
+
+            <div class="p-3 bg-slate-50 rounded-lg border border-slate-100 space-y-1">
+              <div class="font-bold text-slate-900">Q: Tôi muốn thêm khu vực quận/huyện mới thì làm thế nào?</div>
+              <div class="text-[11px] text-slate-600 leading-relaxed">
+                A: Vào module <strong class="text-emerald-700">Cài đặt & Danh mục</strong> $\rightarrow$ chọn mục <em>Khu vực địa bàn</em> $\rightarrow$ bấm <em>+ Thêm khu vực</em>. Sau khi lưu, ô Khu vực mong muốn ở Form thêm khách sẽ tự động gợi ý địa bàn mới này.
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -1208,7 +1486,7 @@
       state.activeTab = tabId;
 
       // Update Desktop Nav
-      ['dashboard', 'customers', 'properties', 'interactions', 'deals', 'settings'].forEach(t => {
+      ['dashboard', 'customers', 'properties', 'interactions', 'deals', 'settings', 'guide'].forEach(t => {
         const navEl = document.getElementById('nav-' + t);
         if (navEl) {
           const iconEl = navEl.querySelector('i');
@@ -1265,6 +1543,9 @@
         btnActionText.innerText = 'Chốt Cọc';
       } else if (tabId === 'settings') {
         titleEl.innerText = 'Cài đặt hệ thống & Danh mục';
+        btnAction.classList.add('hidden');
+      } else if (tabId === 'guide') {
+        titleEl.innerText = 'Hướng dẫn sử dụng & Cẩm nang vận hành';
         btnAction.classList.add('hidden');
       }
 
