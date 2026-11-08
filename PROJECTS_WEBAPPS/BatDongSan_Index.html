@@ -286,29 +286,58 @@
         <div id="cardPropertyContainer" class="sm:hidden space-y-2.5 pb-16"></div>
       </div>
 
-      <!-- ==================== MODULE 4: LỊCH HẸN & NHẬT KÝ ==================== -->
-      <div id="module-interactions" class="module-tab-content space-y-4">
-        <div class="bg-white border border-slate-200/90 rounded-xl shadow-xs overflow-hidden">
-          <div class="p-3 bg-slate-50/60 border-b border-slate-100 flex items-center justify-between">
-            <span class="text-xs font-semibold text-slate-700">Dòng thời gian tương tác (Activity Timeline)</span>
-            <button onclick="openAddInteractionModal()" class="text-xs font-semibold text-emerald-600 hover:text-emerald-700">+ Ghi nhật ký mới</button>
+      <!-- ==================== MODULE 4: LỊCH HẸN & NHẬT KÝ (SPRINT 6 ENHANCED) ==================== -->
+      <div id="module-interactions" class="module-tab-content space-y-3">
+        <!-- Sub-Toolbar Bộ Lọc Lịch Hẹn & Nhật Ký -->
+        <div class="bg-white border border-slate-200/90 rounded-xl p-3 shadow-xs flex flex-wrap items-center justify-between gap-2.5 text-xs">
+          <div class="flex flex-wrap items-center gap-2">
+            <span class="font-semibold text-slate-700 text-[11px] uppercase tracking-wider flex items-center gap-1">
+              <i data-lucide="filter" class="w-3.5 h-3.5 text-emerald-600"></i> Lọc lịch:
+            </span>
+            <select id="filterLogType" onchange="filterInteractionsLocal()" class="h-8 px-2.5 bg-slate-50 border border-slate-200 rounded-lg text-slate-700 font-medium focus:bg-white focus:outline-none">
+              <option value="">-- Tất cả hình thức --</option>
+              <option value="Cuộc gọi tư vấn">Cuộc gọi tư vấn</option>
+              <option value="Nhắn tin Zalo">Nhắn tin Zalo</option>
+              <option value="Hẹn cafe trao đổi">Hẹn cafe trao đổi</option>
+              <option value="Dẫn xem thực tế">Dẫn xem thực tế</option>
+            </select>
+            <select id="filterLogSchedule" onchange="filterInteractionsLocal()" class="h-8 px-2.5 bg-slate-50 border border-slate-200 rounded-lg text-slate-700 font-medium focus:bg-white focus:outline-none">
+              <option value="">-- Tất cả thời gian hẹn --</option>
+              <option value="today">Lịch hẹn hôm nay</option>
+              <option value="upcoming">Lịch hẹn sắp tới</option>
+              <option value="overdue">Lịch hẹn đã quá hạn</option>
+              <option value="none">Không có lịch hẹn tiếp</option>
+            </select>
           </div>
-          <div class="overflow-x-auto">
-            <table class="w-full text-left text-xs">
-              <thead class="bg-slate-50 text-slate-500 font-medium border-b border-slate-100">
-                <tr>
-                  <th class="p-3">Mã Nhật Ký</th>
-                  <th class="p-3">Khách Hàng</th>
-                  <th class="p-3">Hình Thức</th>
-                  <th class="p-3">Nội Dung Trao Đổi</th>
-                  <th class="p-3">Lịch Hẹn Tiếp</th>
-                  <th class="p-3">Ngày Ghi</th>
+          <div class="flex items-center gap-2">
+            <span class="text-[11px] text-slate-400 font-medium">Có <span id="countFilteredLogs" class="font-bold text-slate-700 font-mono">0</span> nhật ký</span>
+            <button onclick="openAddInteractionModal()" class="px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs flex items-center gap-1.5 shadow-xs transition">
+              <i data-lucide="plus" class="w-3.5 h-3.5"></i> Ghi nhật ký mới
+            </button>
+          </div>
+        </div>
+
+        <!-- Master Table Nhật Ký & Timeline -->
+        <div class="hidden sm:block bg-white border border-slate-200/90 rounded-xl shadow-xs overflow-hidden">
+          <div class="overflow-x-auto max-h-[calc(100vh-230px)] custom-scrollbar">
+            <table class="w-full text-left border-collapse sticky-header text-xs">
+              <thead>
+                <tr class="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">
+                  <th class="py-3 px-4">Mã Log</th>
+                  <th class="py-3 px-4">Khách Hàng</th>
+                  <th class="py-3 px-4">Hình Thức</th>
+                  <th class="py-3 px-4">Nội Dung Trao Đổi</th>
+                  <th class="py-3 px-4">Lịch Hẹn Tiếp</th>
+                  <th class="py-3 px-4">Ngày Ghi</th>
+                  <th class="py-3 px-4 w-14 text-center">Thao tác</th>
                 </tr>
               </thead>
               <tbody id="tblInteractionBody" class="divide-y divide-slate-100"></tbody>
             </table>
           </div>
         </div>
+        <!-- Mobile Cards Nhật Ký -->
+        <div id="cardInteractionContainer" class="sm:hidden space-y-2.5 pb-16"></div>
       </div>
 
       <!-- ==================== MODULE 5: CHỐT CỌC & HOA HỒNG ==================== -->
@@ -765,21 +794,25 @@
       </div>
     </div>
 
-    <!-- ==================== MODAL 3: GHI NHẬT KÝ / LỊCH HẸN ==================== -->
+    <!-- ==================== MODAL 3: GHI / SỬA NHẬT KÝ & LỊCH HẸN (SPRINT 6) ==================== -->
     <div id="modalAddInteraction" class="fixed inset-0 bg-slate-900/30 backdrop-blur-xs z-50 flex items-center justify-center p-4 hidden">
       <div class="bg-white rounded-xl shadow-xl border border-slate-200 w-full max-w-md overflow-hidden animate-in fade-in zoom-in-95">
         <div class="px-4 py-3 border-b border-slate-100 flex items-center justify-between">
-          <h3 class="text-xs font-bold text-slate-800 uppercase tracking-wider">+ Ghi Nhật Ký & Lịch Hẹn</h3>
+          <div class="flex items-center gap-2">
+            <div class="w-6 h-6 rounded-md bg-emerald-100 text-emerald-700 flex items-center justify-center font-bold text-xs"><i data-lucide="calendar" class="w-3.5 h-3.5"></i></div>
+            <h3 class="text-xs font-bold text-slate-800 uppercase tracking-wider" id="modalLogTitle">Ghi Nhật Ký & Lịch Hẹn Mới</h3>
+          </div>
           <button onclick="closeAddInteractionModal()" class="text-slate-400 hover:text-slate-600"><i data-lucide="x" class="w-4 h-4"></i></button>
         </div>
-        <form onsubmit="submitNewInteraction(event)" class="p-4 space-y-3 text-xs">
+        <form onsubmit="submitInteractionForm(event)" class="p-4 space-y-3 text-xs">
+          <input type="hidden" id="formLogId" value="">
           <div>
-            <label class="block font-medium text-slate-700 mb-1">Chọn Khách Hàng <span class="text-rose-500">*</span></label>
+            <label class="block font-medium text-slate-700 mb-1">Khách hàng tương tác <span class="text-rose-500">*</span></label>
             <select id="formLogCustomer" required class="w-full h-8 px-2 border border-slate-200 rounded-lg focus:border-emerald-500 focus:outline-none"></select>
           </div>
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <label class="block font-medium text-slate-700 mb-1">Hình thức</label>
+              <label class="block font-medium text-slate-700 mb-1">Hình thức tiếp cận</label>
               <select id="formLogType" class="w-full h-8 px-2 border border-slate-200 rounded-lg focus:border-emerald-500 focus:outline-none">
                 <option value="Cuộc gọi tư vấn">Cuộc gọi tư vấn</option>
                 <option value="Nhắn tin Zalo">Nhắn tin Zalo</option>
@@ -788,17 +821,24 @@
               </select>
             </div>
             <div>
-              <label class="block font-medium text-slate-700 mb-1">Lịch hẹn tiếp theo</label>
-              <input type="date" id="formLogFollowUp" class="w-full h-8 px-2 border border-slate-200 rounded-lg focus:border-emerald-500 focus:outline-none">
+              <label class="block font-medium text-slate-700 mb-1">Lịch hẹn tiếp theo (Follow-up)</label>
+              <input type="date" id="formLogFollowUp" class="w-full h-8 px-2 border border-slate-200 rounded-lg focus:border-emerald-500 focus:outline-none font-mono">
             </div>
           </div>
           <div>
-            <label class="block font-medium text-slate-700 mb-1">Nội dung trao đổi <span class="text-rose-500">*</span></label>
-            <textarea id="formLogContent" required rows="3" class="w-full p-2 border border-slate-200 rounded-lg focus:border-emerald-500 focus:outline-none" placeholder="Khách thích view nhưng muốn đàm phán giảm 50 triệu..."></textarea>
+            <label class="block font-medium text-slate-700 mb-1">Nội dung trao đổi & Kết quả <span class="text-rose-500">*</span></label>
+            <textarea id="formLogContent" required rows="3" class="w-full p-2 border border-slate-200 rounded-lg focus:border-emerald-500 focus:outline-none leading-relaxed" placeholder="Khách thích layout căn nhưng muốn thương lượng giảm 50 triệu, hẹn chiều mai dẫn vợ đi xem lại..."></textarea>
           </div>
-          <div class="pt-2 flex justify-end gap-2 border-t border-slate-100">
-            <button type="button" onclick="closeAddInteractionModal()" class="px-3 py-1.5 rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50">Hủy</button>
-            <button type="submit" id="btnSubmitLog" class="px-4 py-1.5 rounded-lg bg-emerald-600 text-white font-semibold hover:bg-emerald-700">Lưu nhật ký</button>
+          <div class="pt-2 flex items-center justify-between border-t border-slate-100">
+            <button type="button" id="btnDeleteLogModal" onclick="deleteCurrentInteraction()" class="hidden px-2.5 py-1.5 text-xs text-rose-600 hover:bg-rose-50 rounded-lg border border-rose-200 flex items-center gap-1">
+              <i data-lucide="trash-2" class="w-3.5 h-3.5"></i> Xóa log
+            </button>
+            <div class="flex items-center gap-2 ml-auto">
+              <button type="button" onclick="closeAddInteractionModal()" class="px-3 py-1.5 rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50">Hủy</button>
+              <button type="submit" id="btnSubmitLog" class="px-4 py-1.5 rounded-lg bg-emerald-600 text-white font-semibold hover:bg-emerald-700 flex items-center gap-1.5">
+                <i data-lucide="save" class="w-3.5 h-3.5"></i> <span id="btnSubmitLogText">Lưu nhật ký</span>
+              </button>
+            </div>
           </div>
         </form>
       </div>
@@ -1326,24 +1366,118 @@
       renderProperties(list);
     }
 
-    // ==================== MODULE 4: INTERACTIONS ====================
+    // ==================== MODULE 4: INTERACTIONS (SPRINT 6 ENHANCED) ====================
     function renderInteractions(list) {
+      const activeList = list || [];
+      const countEl = document.getElementById('countFilteredLogs');
+      if (countEl) countEl.innerText = activeList.length;
+
       const tbody = document.getElementById('tblInteractionBody');
+      const cards = document.getElementById('cardInteractionContainer');
       if (!tbody) return;
-      if (!list || list.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="6" class="text-center py-6 text-slate-400">Chưa có nhật ký tương tác nào.</td></tr>';
+
+      if (!activeList || activeList.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="7" class="text-center py-8 text-slate-400">Không có lịch hẹn hoặc nhật ký nào phù hợp.</td></tr>';
+        if (cards) cards.innerHTML = '<div class="text-center py-8 text-slate-400 text-xs">Chưa có nhật ký nào.</div>';
         return;
       }
-      tbody.innerHTML = list.map(l => `
-        <tr class="table-row-hover transition-colors">
-          <td class="p-3 font-mono font-semibold text-slate-700">${l['Mã Nhật Ký']}</td>
-          <td class="p-3 font-semibold text-slate-900">${l['Tên Khách']}</td>
-          <td class="p-3 text-slate-600">${l['Hình Thức']}</td>
-          <td class="p-3 text-slate-700">${l['Nội Dung Trao Đổi']}</td>
-          <td class="p-3 font-mono text-blue-600 font-medium">${l['Lịch Hẹn Tiếp'] || '--'}</td>
-          <td class="p-3 text-slate-400 text-[11px]">${String(l['Ngày Tạo']).slice(0, 10)}</td>
-        </tr>
-      `).join('');
+
+      const todayStr = new Date().toISOString().slice(0, 10);
+
+      // Desktop Rows
+      tbody.innerHTML = activeList.map(l => {
+        const isToday = l['Lịch Hẹn Tiếp'] === todayStr;
+        const isOverdue = l['Lịch Hẹn Tiếp'] && l['Lịch Hẹn Tiếp'] < todayStr;
+        return `
+          <tr class="table-row-hover transition-colors">
+            <td class="py-2.5 px-4 font-mono font-semibold text-slate-700">${l['Mã Nhật Ký']}</td>
+            <td class="py-2.5 px-4">
+              <div class="font-semibold text-slate-900">${l['Tên Khách']}</div>
+              <div class="text-[10px] text-slate-400 font-mono">${l['Mã Khách']}</div>
+            </td>
+            <td class="py-2.5 px-4">
+              <span class="inline-flex items-center gap-1 font-medium text-slate-700">
+                <i data-lucide="${l['Hình Thức']==='Cuộc gọi tư vấn'?'phone':l['Hình Thức']==='Dẫn xem thực tế'?'map-pin':'message-square'}" class="w-3.5 h-3.5 text-emerald-600"></i>
+                ${l['Hình Thức']}
+              </span>
+            </td>
+            <td class="py-2.5 px-4 text-slate-700 leading-relaxed max-w-xs truncate">${l['Nội Dung Trao Đổi']}</td>
+            <td class="py-2.5 px-4 font-mono">
+              ${l['Lịch Hẹn Tiếp'] ? `
+                <span class="inline-flex items-center gap-1 font-semibold ${isToday?'text-blue-600 bg-blue-50 px-2 py-0.5 rounded':isOverdue?'text-rose-600 bg-rose-50 px-2 py-0.5 rounded':'text-slate-600'}">
+                  ${isToday?'<span class="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse"></span>':''}
+                  ${l['Lịch Hẹn Tiếp']}
+                </span>
+              ` : '<span class="text-slate-300">--</span>'}
+            </td>
+            <td class="py-2.5 px-4 text-slate-400 text-[11px] font-mono">${String(l['Ngày Tạo']).slice(0, 10)}</td>
+            <td class="py-2.5 px-4 text-center">
+              <div class="flex items-center justify-center gap-1">
+                <button onclick="editInteraction('${l['Mã Nhật Ký']}')" title="Sửa nhật ký" class="p-1 rounded text-slate-400 hover:text-emerald-600 hover:bg-slate-100"><i data-lucide="edit-3" class="w-3.5 h-3.5"></i></button>
+                <button onclick="confirmDeleteInteraction('${l['Mã Nhật Ký']}')" title="Xóa nhật ký" class="p-1 rounded text-slate-400 hover:text-rose-600 hover:bg-rose-50"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i></button>
+              </div>
+            </td>
+          </tr>
+        `;
+      }).join('');
+
+      // Mobile Cards
+      if (cards) {
+        cards.innerHTML = activeList.map(l => {
+          const isToday = l['Lịch Hẹn Tiếp'] === todayStr;
+          return `
+            <div class="bg-white p-3.5 rounded-xl border border-slate-200/90 shadow-xs space-y-2">
+              <div class="flex items-center justify-between text-xs">
+                <span class="font-bold text-slate-900">${l['Tên Khách']}</span>
+                <span class="font-mono text-[10px] text-slate-400">${l['Mã Nhật Ký']}</span>
+              </div>
+              <div class="text-[11px] text-slate-500 flex items-center gap-1">
+                <i data-lucide="clock" class="w-3 h-3 text-emerald-600"></i> ${l['Hình Thức']} · ${String(l['Ngày Tạo']).slice(0, 10)}
+              </div>
+              <p class="text-xs text-slate-700 leading-relaxed">${l['Nội Dung Trao Đổi']}</p>
+              ${l['Lịch Hẹn Tiếp'] ? `
+                <div class="pt-1.5 border-t border-slate-100 flex items-center justify-between text-xs">
+                  <span class="font-semibold ${isToday?'text-blue-600':'text-slate-600'}">Hẹn tiếp: ${l['Lịch Hẹn Tiếp']}</span>
+                  <button onclick="editInteraction('${l['Mã Nhật Ký']}')" class="font-semibold text-emerald-600">Sửa</button>
+                </div>
+              ` : `
+                <div class="pt-1.5 border-t border-slate-100 flex justify-end">
+                  <button onclick="editInteraction('${l['Mã Nhật Ký']}')" class="text-xs font-semibold text-slate-600">Sửa nhật ký</button>
+                </div>
+              `}
+            </div>
+          `;
+        }).join('');
+      }
+
+      lucide.createIcons();
+    }
+
+    function filterInteractionsLocal() {
+      const type = document.getElementById('filterLogType').value;
+      const sched = document.getElementById('filterLogSchedule').value;
+      const q = (document.getElementById('globalSearchInput').value || '').toLowerCase().trim();
+      const todayStr = new Date().toISOString().slice(0, 10);
+
+      let list = state.data.logs || [];
+
+      if (type) list = list.filter(l => l['Hình Thức'] === type);
+
+      if (sched === 'today') list = list.filter(l => l['Lịch Hẹn Tiếp'] === todayStr);
+      else if (sched === 'upcoming') list = list.filter(l => l['Lịch Hẹn Tiếp'] && l['Lịch Hẹn Tiếp'] > todayStr);
+      else if (sched === 'overdue') list = list.filter(l => l['Lịch Hẹn Tiếp'] && l['Lịch Hẹn Tiếp'] < todayStr);
+      else if (sched === 'none') list = list.filter(l => !l['Lịch Hẹn Tiếp']);
+
+      if (q) {
+        list = list.filter(l => 
+          (l['Tên Khách']||'').toLowerCase().includes(q) ||
+          (l['Nội Dung Trao Đổi']||'').toLowerCase().includes(q) ||
+          (l['Mã Khách']||'').toLowerCase().includes(q) ||
+          (l['Mã Nhật Ký']||'').toLowerCase().includes(q)
+        );
+      }
+
+      renderInteractions(list);
     }
 
     // ==================== MODULE 5: DEALS ====================
@@ -1920,8 +2054,61 @@
         confirmDeleteProperty(code);
       }
     }
-    function openAddInteractionModal() { document.getElementById('modalAddInteraction').classList.remove('hidden'); }
-    function closeAddInteractionModal() { document.getElementById('modalAddInteraction').classList.add('hidden'); }
+    function openAddInteractionModal(isEdit = false) {
+      document.getElementById('modalAddInteraction').classList.remove('hidden');
+      const title = document.getElementById('modalInteractionTitle');
+      const btn = document.getElementById('btnSubmitLog');
+      const btnDel = document.getElementById('btnDeleteLog');
+      if (title) title.innerText = isEdit ? 'Chỉnh sửa nhật ký & Lịch hẹn' : 'Ghi nhận trao đổi & Lên lịch hẹn';
+      if (btn) btn.innerText = isEdit ? 'Cập nhật nhật ký' : 'Lưu nhật ký chăm sóc';
+      if (btnDel) {
+        if (isEdit) btnDel.classList.remove('hidden');
+        else btnDel.classList.add('hidden');
+      }
+      if (!isEdit) {
+        document.getElementById('formLogId').value = '';
+        document.getElementById('formInteraction').reset();
+      }
+    }
+    function closeAddInteractionModal() { 
+      document.getElementById('modalAddInteraction').classList.add('hidden'); 
+      document.getElementById('formLogId').value = '';
+      document.getElementById('formInteraction').reset();
+    }
+    function editInteraction(logCode) {
+      const log = (state.data.logs || []).find(l => l['Mã Nhật Ký'] === logCode);
+      if (!log) return;
+      openAddInteractionModal(true);
+      document.getElementById('formLogId').value = log['Mã Nhật Ký'] || '';
+      document.getElementById('formLogCustomer').value = log['Mã Khách'] || '';
+      document.getElementById('formLogType').value = log['Hình Thức'] || 'Gọi điện';
+      document.getElementById('formLogFollowUp').value = log['Lịch Hẹn Tiếp'] || '';
+      document.getElementById('formLogContent').value = log['Nội Dung Trao Đổi'] || '';
+    }
+    function confirmDeleteInteraction(code) {
+      if (!confirm('Bạn có chắc chắn muốn xóa bản ghi tương tác/lịch hẹn [' + code + '] không?')) return;
+      if (typeof google !== 'undefined' && google.script) {
+        google.script.run.withSuccessHandler(res => {
+          if (res.success) {
+            loadAllSystemData();
+          } else {
+            alert('Lỗi: ' + res.error);
+          }
+        }).deleteInteraction(code);
+      } else {
+        const item = (state.data.logs || []).find(l => l['Mã Nhật Ký'] === code);
+        if (item) item['Trạng Thái'] = 'Đã xóa';
+        renderInteractions(state.data.logs);
+        alert('[Demo] Đã xóa lịch hẹn/nhật ký!');
+      }
+    }
+    function deleteCurrentInteraction() {
+      const code = document.getElementById('formLogId').value;
+      if (code) {
+        closeAddInteractionModal();
+        confirmDeleteInteraction(code);
+      }
+    }
     function openAddDealModal() { document.getElementById('modalAddDeal').classList.remove('hidden'); }
     function closeAddDealModal() { document.getElementById('modalAddDeal').classList.add('hidden'); }
 
@@ -2056,12 +2243,14 @@
     function submitNewInteraction(e) {
       e.preventDefault();
       const btn = document.getElementById('btnSubmitLog');
+      const logId = document.getElementById('formLogId').value;
       btn.innerText = 'Đang lưu...'; btn.disabled = true;
 
       const custCode = document.getElementById('formLogCustomer').value;
       const cust = (state.data.customers || []).find(c => c['Mã Khách'] === custCode);
 
       const payload = {
+        id: logId || null,
         customerId: custCode,
         customerName: cust ? cust['Họ Và Tên'] : '',
         interactionType: document.getElementById('formLogType').value,
@@ -2070,16 +2259,31 @@
       };
 
       if (typeof google !== 'undefined' && google.script) {
-        google.script.run.withSuccessHandler(() => {
+        google.script.run.withSuccessHandler((res) => {
           closeAddInteractionModal();
-          btn.innerText = 'Lưu nhật ký'; btn.disabled = false;
-          loadAllSystemData();
+          btn.innerText = 'Lưu nhật ký chăm sóc'; btn.disabled = false;
+          if (res && res.error) {
+            alert('Lỗi: ' + res.error);
+          } else {
+            loadAllSystemData();
+          }
         }).saveInteraction(payload);
       } else {
         setTimeout(() => {
-          state.data.logs.push({ 'Mã Nhật Ký': 'LOG-' + Math.floor(1000+Math.random()*9000), 'Mã Khách': payload.customerId, 'Tên Khách': payload.customerName, 'Hình Thức': payload.interactionType, 'Nội Dung Trao Đổi': payload.content, 'Lịch Hẹn Tiếp': payload.followUpDate, 'Ngày Tạo': new Date().toISOString() });
+          if (payload.id) {
+            const idx = state.data.logs.findIndex(l => l['Mã Nhật Ký'] === payload.id);
+            if (idx >= 0) {
+              state.data.logs[idx]['Mã Khách'] = payload.customerId;
+              state.data.logs[idx]['Tên Khách'] = payload.customerName;
+              state.data.logs[idx]['Hình Thức'] = payload.interactionType;
+              state.data.logs[idx]['Nội Dung Trao Đổi'] = payload.content;
+              state.data.logs[idx]['Lịch Hẹn Tiếp'] = payload.followUpDate;
+            }
+          } else {
+            state.data.logs.push({ 'Mã Nhật Ký': 'LOG-' + Math.floor(1000+Math.random()*9000), 'Mã Khách': payload.customerId, 'Tên Khách': payload.customerName, 'Hình Thức': payload.interactionType, 'Nội Dung Trao Đổi': payload.content, 'Lịch Hẹn Tiếp': payload.followUpDate, 'Trạng Thái': 'Hoạt động', 'Ngày Tạo': new Date().toISOString() });
+          }
           closeAddInteractionModal();
-          btn.innerText = 'Lưu nhật ký'; btn.disabled = false;
+          btn.innerText = 'Lưu nhật ký chăm sóc'; btn.disabled = false;
           renderInteractions(state.data.logs);
           renderDashboard();
         }, 400);

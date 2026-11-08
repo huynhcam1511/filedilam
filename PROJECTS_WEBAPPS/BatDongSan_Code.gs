@@ -273,7 +273,8 @@ function deleteProperty(propertyId) {
 }
 
 /**
- * Ghi Nhật Ký Tương Tác / Lịch Hẹn (Module 4)
+ * SPRINT 6 CHUYÊN SÂU: Ghi Nhật Ký Tương Tác / Lịch Hẹn (Module 4)
+ * Hỗ trợ: Gắn mã khách + mã căn (nếu có), Cập nhật theo ID, Cảnh báo ngày hẹn
  */
 function saveInteraction(payload) {
   const lock = LockService.getScriptLock();
@@ -281,18 +282,75 @@ function saveInteraction(payload) {
     lock.waitLock(10000);
     const ss = SpreadsheetApp.getActiveSpreadsheet();
     const sh = ss.getSheetByName(CONFIG_BDS.SHEET_NAMES.LOGS);
-    const newId = 'LOG-' + Math.floor(100000 + Math.random() * 900000);
-    
-    sh.appendRow([
-      newId,
-      payload.customerId || '',
-      payload.customerName || '',
-      payload.interactionType || 'Cuộc gọi tư vấn',
-      payload.content || '',
-      payload.followUpDate || '',
-      new Date()
-    ]);
-    return { success: true, id: newId };
+    if (!sh) throw new Error('Không tìm thấy tab ' + CONFIG_BDS.SHEET_NAMES.LOGS);
+
+    const isUpdate = Boolean(payload.id);
+    const data = sh.getDataRange().getValues();
+
+    if (isUpdate) {
+      let foundRow = -1;
+      for (let i = 1; i < data.length; i++) {
+        if (String(data[i][0]).trim() === String(payload.id).trim()) {
+          foundRow = i + 1;
+          break;
+        }
+      }
+      if (foundRow === -1) {
+        return { success: false, error: 'Không tìm thấy nhật ký có mã ' + payload.id + ' để cập nhật!' };
+      }
+
+      sh.getRange(foundRow, 2).setValue(payload.customerId || '');
+      sh.getRange(foundRow, 3).setValue(payload.customerName || '');
+      sh.getRange(foundRow, 4).setValue(payload.interactionType || 'Cuộc gọi tư vấn');
+      sh.getRange(foundRow, 5).setValue(payload.content || '');
+      sh.getRange(foundRow, 6).setValue(payload.followUpDate || '');
+
+      return { success: true, id: payload.id, isUpdate: true };
+    } else {
+      const newId = 'LOG-' + Math.floor(100000 + Math.random() * 900000);
+      sh.appendRow([
+        newId,
+        payload.customerId || '',
+        payload.customerName || '',
+        payload.interactionType || 'Cuộc gọi tư vấn',
+        payload.content || '',
+        payload.followUpDate || '',
+        new Date()
+      ]);
+      return { success: true, id: newId, isUpdate: false };
+    }
+  } catch (err) {
+    return { success: false, error: err.toString() };
+  } finally {
+    lock.releaseLock();
+  }
+}
+
+/**
+ * SPRINT 6 CHUYÊN SÂU: Xóa nhật ký tương tác
+ */
+function deleteInteraction(logId) {
+  const lock = LockService.getScriptLock();
+  try {
+    lock.waitLock(10000);
+    const ss = SpreadsheetApp.getActiveSpreadsheet();
+    const sh = ss.getSheetByName(CONFIG_BDS.SHEET_NAMES.LOGS);
+    if (!sh) throw new Error('Không tìm thấy tab ' + CONFIG_BDS.SHEET_NAMES.LOGS);
+
+    const data = sh.getDataRange().getValues();
+    let foundRow = -1;
+    for (let i = 1; i < data.length; i++) {
+      if (String(data[i][0]).trim() === String(logId).trim()) {
+        foundRow = i + 1;
+        break;
+      }
+    }
+    if (foundRow === -1) {
+      return { success: false, error: 'Không tìm thấy nhật ký cần xóa!' };
+    }
+
+    sh.deleteRow(foundRow);
+    return { success: true, id: logId };
   } catch (err) {
     return { success: false, error: err.toString() };
   } finally {
