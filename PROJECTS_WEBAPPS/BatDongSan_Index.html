@@ -125,7 +125,7 @@
 
         <!-- Primary Action Button -->
         <button id="btnMainAction" onclick="handleMainAction()" class="hidden h-8 px-3 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold flex items-center gap-1.5 shadow-xs transition-colors whitespace-nowrap">
-          <i data-lucide="plus" class="w-3.5 h-3.5"></i><span id="btnMainActionText">+ Thêm Khách Hàng</span>
+          <i data-lucide="plus" class="w-3.5 h-3.5"></i><span id="btnMainActionText">Thêm Khách Hàng</span>
         </button>
       </div>
     </header>
@@ -413,7 +413,7 @@
           </div>
 
           <button onclick="openAddDealModal(false)" class="h-8 px-3 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs flex items-center gap-1.5 transition-colors shadow-xs">
-            <i data-lucide="badge-dollar-sign" class="w-3.5 h-3.5"></i> + Lập HĐ Chốt Deal
+            <i data-lucide="badge-dollar-sign" class="w-3.5 h-3.5"></i> Lập HĐ Chốt Deal
           </button>
         </div>
 
@@ -1033,6 +1033,28 @@
       if (dealDateInput) dealDateInput.value = todayStr;
     });
 
+    // ==================== HELPER FORMAT DATE VN (dd/mm/yyyy) ====================
+    function formatDateVN(dateVal) {
+      if (!dateVal) return '--';
+      try {
+        const d = new Date(dateVal);
+        if (isNaN(d.getTime())) {
+          const str = String(dateVal).trim();
+          if (/^\d{4}-\d{2}-\d{2}/.test(str)) {
+            const parts = str.slice(0, 10).split('-');
+            return `${parts[2]}/${parts[1]}/${parts[0]}`;
+          }
+          return dateVal;
+        }
+        const day = String(d.getDate()).padStart(2, '0');
+        const month = String(d.getMonth() + 1).padStart(2, '0');
+        const year = d.getFullYear();
+        return `${day}/${month}/${year}`;
+      } catch (e) {
+        return dateVal;
+      }
+    }
+
     // ==================== TABS & NAVIGATION ====================
     function switchTab(tabId) {
       state.activeTab = tabId;
@@ -1080,19 +1102,19 @@
       } else if (tabId === 'customers') {
         titleEl.innerText = 'Quản lý khách hàng (Leads)';
         btnAction.classList.remove('hidden');
-        btnActionText.innerText = '+ Thêm Khách Hàng';
+        btnActionText.innerText = 'Thêm Khách Hàng';
       } else if (tabId === 'properties') {
         titleEl.innerText = 'Kho hàng Bất Động Sản';
         btnAction.classList.remove('hidden');
-        btnActionText.innerText = '+ Thêm Căn Mới';
+        btnActionText.innerText = 'Thêm Căn Mới';
       } else if (tabId === 'interactions') {
         titleEl.innerText = 'Lịch hẹn & Nhật ký chăm sóc';
         btnAction.classList.remove('hidden');
-        btnActionText.innerText = '+ Ghi Nhật Ký';
+        btnActionText.innerText = 'Ghi Nhật Ký';
       } else if (tabId === 'deals') {
         titleEl.innerText = 'Chốt cọc & Doanh số hoa hồng';
         btnAction.classList.remove('hidden');
-        btnActionText.innerText = '+ Chốt Cọc';
+        btnActionText.innerText = 'Chốt Cọc';
       } else if (tabId === 'settings') {
         titleEl.innerText = 'Cài đặt hệ thống & Danh mục';
         btnAction.classList.add('hidden');
@@ -1586,11 +1608,11 @@
               ${l['Lịch Hẹn Tiếp'] ? `
                 <span class="inline-flex items-center gap-1 font-semibold ${isToday?'text-blue-600 bg-blue-50 px-2 py-0.5 rounded':isOverdue?'text-rose-600 bg-rose-50 px-2 py-0.5 rounded':'text-slate-600'}">
                   ${isToday?'<span class="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse"></span>':''}
-                  ${l['Lịch Hẹn Tiếp']}
+                  ${formatDateVN(l['Lịch Hẹn Tiếp'])}
                 </span>
               ` : '<span class="text-slate-300">--</span>'}
             </td>
-            <td class="py-2.5 px-4 text-slate-400 text-[11px] font-mono">${String(l['Ngày Tạo']).slice(0, 10)}</td>
+            <td class="py-2.5 px-4 text-slate-400 text-[11px] font-mono">${formatDateVN(l['Ngày Tạo'])}</td>
             <td class="py-2.5 px-4 text-center">
               <div class="flex items-center justify-center gap-1">
                 <button onclick="editInteraction('${l['Mã Nhật Ký']}')" title="Sửa nhật ký" class="p-1 rounded text-slate-400 hover:text-emerald-600 hover:bg-slate-100"><i data-lucide="edit-3" class="w-3.5 h-3.5"></i></button>
@@ -1612,12 +1634,12 @@
                 <span class="font-mono text-[10px] text-slate-400">${l['Mã Nhật Ký']}</span>
               </div>
               <div class="text-[11px] text-slate-500 flex items-center gap-1">
-                <i data-lucide="clock" class="w-3 h-3 text-emerald-600"></i> ${l['Hình Thức']} · ${String(l['Ngày Tạo']).slice(0, 10)}
+                <i data-lucide="clock" class="w-3 h-3 text-emerald-600"></i> ${l['Hình Thức']} · ${formatDateVN(l['Ngày Tạo'])}
               </div>
               <p class="text-xs text-slate-700 leading-relaxed">${l['Nội Dung Trao Đổi']}</p>
               ${l['Lịch Hẹn Tiếp'] ? `
                 <div class="pt-1.5 border-t border-slate-100 flex items-center justify-between text-xs">
-                  <span class="font-semibold ${isToday?'text-blue-600':'text-slate-600'}">Hẹn tiếp: ${l['Lịch Hẹn Tiếp']}</span>
+                  <span class="font-semibold ${isToday?'text-blue-600':'text-slate-600'}">Hẹn tiếp: ${formatDateVN(l['Lịch Hẹn Tiếp'])}</span>
                   <button onclick="editInteraction('${l['Mã Nhật Ký']}')" class="font-semibold text-emerald-600">Sửa</button>
                 </div>
               ` : `
@@ -1688,7 +1710,7 @@
             <td class="py-3 px-4 font-bold text-slate-900">${Number(d['Giá Chốt (Triệu)']).toLocaleString('vi-VN')} Tr</td>
             <td class="py-3 px-4 font-medium text-slate-600">${d['Tỷ Lệ Hoa Hồng (%)']}%</td>
             <td class="py-3 px-4 font-mono font-bold text-emerald-600">${Number(d['Hoa Hồng Thực Nhận (đ)']).toLocaleString('vi-VN')} đ</td>
-            <td class="py-3 px-4 font-mono text-slate-500">${String(d['Ngày Chốt'] || '').slice(0, 10)}</td>
+            <td class="py-3 px-4 font-mono text-slate-500">${formatDateVN(d['Ngày Chốt'])}</td>
             <td class="py-3 px-4">
               <span class="inline-flex items-center gap-1.5 text-xs font-semibold ${isPaid ? 'text-emerald-700' : 'text-amber-700'}">
                 <span class="w-1.5 h-1.5 rounded-full ${isPaid ? 'bg-emerald-500' : 'bg-amber-500'}"></span>
@@ -1730,7 +1752,7 @@
                 </div>
               </div>
               <div class="pt-1.5 border-t border-slate-50 flex items-center justify-between text-xs">
-                <span class="text-[10px] font-mono text-slate-400">${String(d['Ngày Chốt'] || '').slice(0, 10)}</span>
+                <span class="text-[10px] font-mono text-slate-400">${formatDateVN(d['Ngày Chốt'])}</span>
                 <button onclick="editDeal('${d['Mã Hợp Đồng']}')" class="font-semibold text-emerald-600 text-xs">Sửa hợp đồng</button>
               </div>
             </div>
@@ -1889,39 +1911,33 @@
     // ==================== FORM DROPDOWNS POPULATE ====================
     function populateDropdowns() {
       const s = state.data.settings || {};
-      const types = s.propertyTypes || ['Chung cư', 'Nhà phố', 'Đất nền'];
-      const sources = s.customerSources || ['Facebook Ads', 'Tiktok Bio'];
+      const types = s.propertyTypes || ['Chung cư', 'Nhà phố', 'Đất nền', 'Biệt thự / Shophouse', 'Cho thuê'];
+      const sources = s.customerSources || ['Facebook Ads', 'Tiktok Bio', 'Người quen giới thiệu', 'Đăng tin BĐS', 'Khách vãng lai'];
       const custStatuses = s.customerStatuses || ['Mới tiếp cận', 'Đang chăm', 'Đang dẫn xem', 'Đang thương lượng', 'Đã chốt cọc', 'Dừng chăm sóc'];
+      const propStatuses = s.propertyStatuses || ['Đang bán', 'Đã cọc/Đã bán', 'Tạm ngưng'];
 
-      // Populate Cust Demand & Prop Type
+      // 1. Populate Cust Demand & Prop Type
       const custDemandSel = document.getElementById('formCustDemand');
       const propTypeSel = document.getElementById('formPropType');
       if (custDemandSel) custDemandSel.innerHTML = types.map(t => `<option value="${t}">${t}</option>`).join('');
       if (propTypeSel) propTypeSel.innerHTML = types.map(t => `<option value="${t}">${t}</option>`).join('');
 
-      // Populate Sources
+      // 2. Populate Sources
       const custSourceSel = document.getElementById('formCustSource');
       if (custSourceSel) custSourceSel.innerHTML = sources.map(src => `<option value="${src}">${src}</option>`).join('');
 
-      // Populate Prop Filter Dropdowns (Sprint 5)
-      const filterPropType = document.getElementById('filterPropType');
-      if (filterPropType) {
-        filterPropType.innerHTML = '<option value="">-- Tất cả loại hình --</option>' + types.map(t => `<option value="${t}">${t}</option>`).join('');
-      }
-      const filterPropStatus = document.getElementById('filterPropStatus');
-      if (filterPropStatus) {
-        filterPropStatus.innerHTML = '<option value="">-- Tất cả trạng thái --</option>' + propStatuses.map(st => `<option value="${st}">${st}</option>`).join('');
-      }
+      // 3. Populate Cust Statuses
+      const custStatusSel = document.getElementById('formCustStatus');
+      if (custStatusSel) custStatusSel.innerHTML = custStatuses.map(st => `<option value="${st}">${st}</option>`).join('');
 
-      // Populate Prop Statuses (Sprint 4)
-      const propStatuses = s.propertyStatuses || ['Đang bán', 'Đã cọc/Đã bán', 'Tạm ngưng'];
+      // 4. Populate Prop Statuses
       const propStatusSel = document.getElementById('formPropStatus');
       if (propStatusSel) propStatusSel.innerHTML = propStatuses.map(st => `<option value="${st}">${st}</option>`).join('');
 
-      // Populate Filter Dropdowns
-      const filterStatus = document.getElementById('filterCustStatus');
-      if (filterStatus) {
-        filterStatus.innerHTML = '<option value="">-- Tất cả trạng thái --</option>' + custStatuses.map(st => `<option value="${st}">${st}</option>`).join('');
+      // 5. Populate Filter Dropdowns (Khách hàng)
+      const filterCustStatus = document.getElementById('filterCustStatus');
+      if (filterCustStatus) {
+        filterCustStatus.innerHTML = '<option value="">-- Tất cả trạng thái --</option>' + custStatuses.map(st => `<option value="${st}">${st}</option>`).join('');
       }
       const filterDemand = document.getElementById('filterCustDemand');
       if (filterDemand) {
@@ -1932,12 +1948,22 @@
         filterSource.innerHTML = '<option value="">-- Tất cả nguồn khách --</option>' + sources.map(src => `<option value="${src}">${src}</option>`).join('');
       }
 
-      // Populate Dropdowns in Deal & Log Modal
+      // 6. Populate Filter Dropdowns (Giỏ hàng BĐS)
+      const filterPropType = document.getElementById('filterPropType');
+      if (filterPropType) {
+        filterPropType.innerHTML = '<option value="">-- Tất cả loại hình --</option>' + types.map(t => `<option value="${t}">${t}</option>`).join('');
+      }
+      const filterPropStatus = document.getElementById('filterPropStatus');
+      if (filterPropStatus) {
+        filterPropStatus.innerHTML = '<option value="">-- Tất cả trạng thái --</option>' + propStatuses.map(st => `<option value="${st}">${st}</option>`).join('');
+      }
+
+      // 7. Populate Dropdowns in Deal & Log Modal
       const dealCustSel = document.getElementById('formDealCustomer');
       const logCustSel = document.getElementById('formLogCustomer');
       const custOpts = (state.data.customers || []).filter(c => c['Trạng Thái'] !== 'Đã xóa').map(c => `<option value="${c['Mã Khách']}">${c['Họ Và Tên']} (${c['Mã Khách']})</option>`).join('');
-      if (dealCustSel) dealCustSel.innerHTML = custOpts;
-      if (logCustSel) logCustSel.innerHTML = custOpts;
+      if (dealCustSel) dealCustSel.innerHTML = custOpts || '<option value="">-- Chưa có khách hàng --</option>';
+      if (logCustSel) logCustSel.innerHTML = custOpts || '<option value="">-- Chưa có khách hàng --</option>';
 
       const dealPropSel = document.getElementById('formDealProperty');
       if (dealPropSel) {
@@ -2043,7 +2069,7 @@
 
       document.getElementById('drawerSource').innerText = cust['Nguồn Khách'] || 'Chưa rõ';
       document.getElementById('drawerStatusBadge').innerText = cust['Trạng Thái'] || 'Mới tiếp cận';
-      document.getElementById('drawerCreatedAt').innerText = cust['Ngày Tạo'] ? String(cust['Ngày Tạo']).slice(0, 10) : 'Hôm nay';
+      document.getElementById('drawerCreatedAt').innerText = cust['Ngày Tạo'] ? formatDateVN(cust['Ngày Tạo']) : 'Hôm nay';
       
       document.getElementById('drawerPriceRange').innerText = cust['Khoảng Giá'] || '--';
       document.getElementById('drawerDemand').innerText = cust['Nhu Cầu'] || '--';
@@ -2067,7 +2093,7 @@
               <span class="font-bold text-slate-800 flex items-center gap-1">
                 <i data-lucide="message-circle" class="w-3 h-3 text-emerald-600"></i> ${l['Hình Thức']}
               </span>
-              <span class="text-slate-400 font-mono text-[10px]">${String(l['Ngày Tạo']).slice(0, 10)}</span>
+              <span class="text-slate-400 font-mono text-[10px]">${formatDateVN(l['Ngày Tạo'])}</span>
             </div>
             <div class="text-slate-600 leading-relaxed">${l['Nội Dung Trao Đổi']}</div>
             ${l['Lịch Hẹn Tiếp'] ? `

@@ -662,4 +662,10 @@ function ensureRequiredSheets_(ss) {
       sh.appendRow(item.headers);
     }
   });
+
+  // TỰ ĐỘNG KHỞI TẠO DỮ LIỆU CÀI ĐẶT & MASTER TAXONOMY NẾU SHEET TRỐNG
+  const shSettings = ss.getSheetByName(CONFIG_BDS.SHEET_NAMES.SETTINGS);
+  if (shSettings && shSettings.getLastRow() <= 1) {
+    resetDefaultSettings();
+  }
 }
