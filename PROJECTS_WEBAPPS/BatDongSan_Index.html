@@ -340,31 +340,54 @@
         <div id="cardInteractionContainer" class="sm:hidden space-y-2.5 pb-16"></div>
       </div>
 
-      <!-- ==================== MODULE 5: CHỐT CỌC & HOA HỒNG ==================== -->
-      <div id="module-deals" class="module-tab-content space-y-4">
-        <div class="bg-white border border-slate-200/90 rounded-xl shadow-xs overflow-hidden">
-          <div class="p-3 bg-slate-50/60 border-b border-slate-100 flex items-center justify-between">
-            <span class="text-xs font-semibold text-slate-700">Sổ hợp đồng chốt cọc & hoa hồng thực nhận</span>
-            <button onclick="openAddDealModal()" class="text-xs font-semibold text-emerald-600 hover:text-emerald-700">+ Lập hợp đồng chốt deal</button>
+      <!-- ==================== MODULE 5: CHỐT CỌC & HOA HỒNG (SPRINT 7) ==================== -->
+      <div id="module-deals" class="module-tab-content space-y-3">
+        <!-- Sub-Toolbar Lọc Hợp Đồng & Deals -->
+        <div class="flex flex-wrap items-center justify-between gap-2.5 bg-white p-3 rounded-xl border border-slate-200/90 shadow-xs">
+          <div class="flex flex-wrap items-center gap-2">
+            <select id="filterDealStatus" onchange="filterDealsLocal()" class="h-8 px-2.5 text-xs bg-slate-50 border border-slate-200 rounded-lg focus:border-emerald-500 focus:outline-none font-medium text-slate-700">
+              <option value="">-- Tất cả trạng thái --</option>
+              <option value="Đã thu hoa hồng">Đã thu hoa hồng</option>
+              <option value="Chờ chủ nhà thanh toán">Chờ chủ nhà thanh toán</option>
+            </select>
+            <select id="filterDealTime" onchange="filterDealsLocal()" class="h-8 px-2.5 text-xs bg-slate-50 border border-slate-200 rounded-lg focus:border-emerald-500 focus:outline-none font-medium text-slate-700">
+              <option value="">-- Mọi thời điểm --</option>
+              <option value="this_month">Tháng này</option>
+              <option value="last_month">Tháng trước</option>
+              <option value="this_year">Năm nay</option>
+            </select>
+            <span class="text-xs text-slate-400 font-mono" id="dealCountBadge">0 hợp đồng</span>
           </div>
-          <div class="overflow-x-auto">
-            <table class="w-full text-left text-xs">
-              <thead class="bg-slate-50 text-slate-500 font-medium border-b border-slate-100">
-                <tr>
-                  <th class="p-3">Mã HĐ</th>
-                  <th class="p-3">Khách Mua</th>
-                  <th class="p-3">Căn BĐS</th>
-                  <th class="p-3">Giá Chốt</th>
-                  <th class="p-3">% Hoa Hồng</th>
-                  <th class="p-3">Hoa Hồng Thực Nhận</th>
-                  <th class="p-3">Ngày Chốt</th>
-                  <th class="p-3">Trạng Thái</th>
+
+          <button onclick="openAddDealModal(false)" class="h-8 px-3 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs flex items-center gap-1.5 transition-colors shadow-xs">
+            <i data-lucide="badge-dollar-sign" class="w-3.5 h-3.5"></i> + Lập HĐ Chốt Deal
+          </button>
+        </div>
+
+        <!-- Master Table Hợp Đồng (Desktop) -->
+        <div class="hidden sm:block bg-white border border-slate-200/90 rounded-xl shadow-xs overflow-hidden">
+          <div class="overflow-x-auto max-h-[calc(100vh-230px)] custom-scrollbar">
+            <table class="w-full text-left border-collapse sticky-header text-xs">
+              <thead>
+                <tr class="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">
+                  <th class="py-3 px-4">Mã HĐ</th>
+                  <th class="py-3 px-4">Khách Mua</th>
+                  <th class="py-3 px-4">Căn BĐS</th>
+                  <th class="py-3 px-4">Giá Chốt</th>
+                  <th class="py-3 px-4">% Hoa Hồng</th>
+                  <th class="py-3 px-4">Hoa Hồng Thực Nhận</th>
+                  <th class="py-3 px-4">Ngày Chốt</th>
+                  <th class="py-3 px-4">Trạng Thái</th>
+                  <th class="py-3 px-4 w-14 text-center">Thao tác</th>
                 </tr>
               </thead>
               <tbody id="tblDealBody" class="divide-y divide-slate-100"></tbody>
             </table>
           </div>
         </div>
+
+        <!-- Mobile Cards Hợp Đồng (Mobile View) -->
+        <div id="cardDealContainer" class="sm:hidden space-y-2.5 pb-16"></div>
       </div>
 
       <!-- ==================== MODULE 6: CÀI ĐẶT & DANH MỤC (SETTINGS & TAXONOMY) ==================== -->
@@ -844,17 +867,18 @@
       </div>
     </div>
 
-    <!-- ==================== MODAL 4: CHỐT CỌC & HOA HỒNG ==================== -->
+    <!-- ==================== MODAL 4: CHỐT CỌC & HOA HỒNG (SPRINT 7) ==================== -->
     <div id="modalAddDeal" class="fixed inset-0 bg-slate-900/30 backdrop-blur-xs z-50 flex items-center justify-center p-4 hidden">
       <div class="bg-white rounded-xl shadow-xl border border-slate-200 w-full max-w-lg overflow-hidden animate-in fade-in zoom-in-95">
         <div class="px-4 py-3 border-b border-slate-100 flex items-center justify-between">
           <div class="flex items-center gap-2">
-            <i data-lucide="badge-dollar-sign" class="w-4 h-4 text-emerald-600"></i>
-            <h3 class="text-xs font-bold text-slate-800 uppercase tracking-wider">Lập Hợp Đồng Chốt Cọc & Hoa Hồng</h3>
+            <div class="w-6 h-6 rounded-md bg-emerald-100 text-emerald-700 flex items-center justify-center font-bold text-xs"><i data-lucide="badge-dollar-sign" class="w-3.5 h-3.5"></i></div>
+            <h3 class="text-xs font-bold text-slate-800 uppercase tracking-wider" id="modalDealTitle">Lập Hợp Đồng Chốt Cọc & Hoa Hồng</h3>
           </div>
           <button onclick="closeAddDealModal()" class="text-slate-400 hover:text-slate-600"><i data-lucide="x" class="w-4 h-4"></i></button>
         </div>
         <form onsubmit="submitNewDeal(event)" class="p-4 space-y-3 text-xs">
+          <input type="hidden" id="formDealId" value="">
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
               <label class="block font-medium text-slate-700 mb-1">Chọn Khách Mua <span class="text-rose-500">*</span></label>
@@ -883,7 +907,7 @@
               <div class="text-[11px] text-emerald-800 font-medium">Hoa hồng thực nhận ước tính:</div>
               <div class="text-lg font-bold text-emerald-700 font-mono" id="formDealEstimatedComm">0 VNĐ</div>
             </div>
-            <div class="text-[10px] text-slate-400 font-mono text-right">Tự động khớp lệnh<br>& cập nhật giỏ hàng</div>
+            <div class="text-[10px] text-slate-400 font-mono text-right">Tự động tính toán<br>& đồng bộ quan hệ</div>
           </div>
 
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -905,9 +929,16 @@
             <input type="text" id="formDealNote" class="w-full h-8 px-2.5 border border-slate-200 rounded-lg focus:border-emerald-500 focus:outline-none" placeholder="Đã nhận cọc 200 triệu tại văn phòng công chứng...">
           </div>
 
-          <div class="pt-2 flex justify-end gap-2 border-t border-slate-100">
-            <button type="button" onclick="closeAddDealModal()" class="px-3 py-1.5 rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50">Hủy</button>
-            <button type="submit" id="btnSubmitDeal" class="px-4 py-1.5 rounded-lg bg-emerald-600 text-white font-semibold hover:bg-emerald-700">Xác nhận chốt deal</button>
+          <div class="pt-2 flex items-center justify-between border-t border-slate-100">
+            <button type="button" id="btnDeleteDealModal" onclick="deleteCurrentDeal()" class="hidden px-2.5 py-1.5 text-xs text-rose-600 hover:bg-rose-50 rounded-lg border border-rose-200 flex items-center gap-1">
+              <i data-lucide="trash-2" class="w-3.5 h-3.5"></i> Xóa deal
+            </button>
+            <div class="flex items-center gap-2 ml-auto">
+              <button type="button" onclick="closeAddDealModal()" class="px-3 py-1.5 rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50">Hủy</button>
+              <button type="submit" id="btnSubmitDeal" class="px-4 py-1.5 rounded-lg bg-emerald-600 text-white font-semibold hover:bg-emerald-700 flex items-center gap-1.5">
+                <i data-lucide="check-circle" class="w-3.5 h-3.5"></i> <span id="btnSubmitDealText">Xác nhận chốt deal</span>
+              </button>
+            </div>
           </div>
         </form>
       </div>
@@ -1480,26 +1511,129 @@
       renderInteractions(list);
     }
 
-    // ==================== MODULE 5: DEALS ====================
+    // ==================== MODULE 5: DEALS (SPRINT 7 CHUYÊN SÂU) ====================
     function renderDeals(list) {
       const tbody = document.getElementById('tblDealBody');
+      const cards = document.getElementById('cardDealContainer');
+      const badge = document.getElementById('dealCountBadge');
       if (!tbody) return;
-      if (!list || list.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="8" class="text-center py-6 text-slate-400">Chưa có giao dịch chốt cọc nào.</td></tr>';
+
+      const activeList = (list || []).filter(d => d['Trạng Thái'] !== 'Đã hủy/Đã xóa' && d['Trạng Thái'] !== 'Đã xóa');
+
+      if (badge) badge.innerText = `${activeList.length} hợp đồng`;
+
+      if (activeList.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="9" class="text-center py-8 text-slate-400">Chưa có giao dịch chốt cọc nào phù hợp bộ lọc.</td></tr>';
+        if (cards) cards.innerHTML = '<div class="text-center py-8 text-slate-400 text-xs bg-white rounded-xl border border-slate-200">Chưa có giao dịch chốt cọc nào.</div>';
         return;
       }
-      tbody.innerHTML = list.map(d => `
-        <tr class="table-row-hover transition-colors">
-          <td class="p-3 font-mono font-semibold text-slate-700">${d['Mã Hợp Đồng']}</td>
-          <td class="p-3 font-semibold text-slate-900">${d['Tên Khách']}</td>
-          <td class="p-3 text-slate-700">${d['Địa Chỉ Căn']}</td>
-          <td class="p-3 font-bold text-slate-900">${Number(d['Giá Chốt (Triệu)']).toLocaleString('vi-VN')} Tr</td>
-          <td class="p-3 font-medium text-slate-600">${d['Tỷ Lệ Hoa Hồng (%)']}%</td>
-          <td class="p-3 font-mono font-bold text-emerald-600">${Number(d['Hoa Hồng Thực Nhận (đ)']).toLocaleString('vi-VN')} đ</td>
-          <td class="p-3 font-mono text-slate-500">${d['Ngày Chốt']}</td>
-          <td class="p-3"><span class="text-xs font-semibold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded">${d['Trạng Thái']}</span></td>
-        </tr>
-      `).join('');
+
+      // Master Table (Desktop)
+      tbody.innerHTML = activeList.map(d => {
+        const isPaid = d['Trạng Thái'] === 'Đã thu hoa hồng';
+        return `
+          <tr class="table-row-hover transition-colors">
+            <td class="py-3 px-4 font-mono font-bold text-slate-800">${d['Mã Hợp Đồng']}</td>
+            <td class="py-3 px-4 font-semibold text-slate-900">${d['Tên Khách']}</td>
+            <td class="py-3 px-4 text-slate-700 max-w-xs truncate" title="${d['Địa Chỉ Căn']}">${d['Địa Chỉ Căn']}</td>
+            <td class="py-3 px-4 font-bold text-slate-900">${Number(d['Giá Chốt (Triệu)']).toLocaleString('vi-VN')} Tr</td>
+            <td class="py-3 px-4 font-medium text-slate-600">${d['Tỷ Lệ Hoa Hồng (%)']}%</td>
+            <td class="py-3 px-4 font-mono font-bold text-emerald-600">${Number(d['Hoa Hồng Thực Nhận (đ)']).toLocaleString('vi-VN')} đ</td>
+            <td class="py-3 px-4 font-mono text-slate-500">${String(d['Ngày Chốt'] || '').slice(0, 10)}</td>
+            <td class="py-3 px-4">
+              <span class="inline-flex items-center gap-1.5 text-xs font-semibold ${isPaid ? 'text-emerald-700' : 'text-amber-700'}">
+                <span class="w-1.5 h-1.5 rounded-full ${isPaid ? 'bg-emerald-500' : 'bg-amber-500'}"></span>
+                ${d['Trạng Thái']}
+              </span>
+            </td>
+            <td class="py-3 px-4 text-center">
+              <button onclick="editDeal('${d['Mã Hợp Đồng']}')" class="p-1 hover:bg-slate-100 rounded text-slate-400 hover:text-slate-600 transition-colors" title="Chỉnh sửa hợp đồng">
+                <i data-lucide="edit-3" class="w-4 h-4"></i>
+              </button>
+            </td>
+          </tr>
+        `;
+      }).join('');
+
+      // Mobile Cards
+      if (cards) {
+        cards.innerHTML = activeList.map(d => {
+          const isPaid = d['Trạng Thái'] === 'Đã thu hoa hồng';
+          return `
+            <div class="bg-white p-3.5 rounded-xl border border-slate-200/90 shadow-xs space-y-2">
+              <div class="flex items-center justify-between text-xs">
+                <span class="font-mono font-bold text-slate-800">${d['Mã Hợp Đồng']}</span>
+                <span class="inline-flex items-center gap-1 text-[11px] font-semibold ${isPaid ? 'text-emerald-700' : 'text-amber-700'}">
+                  <span class="w-1.5 h-1.5 rounded-full ${isPaid ? 'bg-emerald-500' : 'bg-amber-500'}"></span>
+                  ${d['Trạng Thái']}
+                </span>
+              </div>
+              <div class="text-xs font-bold text-slate-900">${d['Tên Khách']}</div>
+              <div class="text-[11px] text-slate-600 truncate">${d['Địa Chỉ Căn']}</div>
+              <div class="pt-2 border-t border-slate-100 grid grid-cols-2 gap-2 text-xs">
+                <div>
+                  <div class="text-[10px] text-slate-400">Giá chốt:</div>
+                  <div class="font-bold text-slate-800">${Number(d['Giá Chốt (Triệu)']).toLocaleString('vi-VN')} Triệu</div>
+                </div>
+                <div>
+                  <div class="text-[10px] text-slate-400">Hoa hồng nhận:</div>
+                  <div class="font-mono font-bold text-emerald-600">${Number(d['Hoa Hồng Thực Nhận (đ)']).toLocaleString('vi-VN')} đ</div>
+                </div>
+              </div>
+              <div class="pt-1.5 border-t border-slate-50 flex items-center justify-between text-xs">
+                <span class="text-[10px] font-mono text-slate-400">${String(d['Ngày Chốt'] || '').slice(0, 10)}</span>
+                <button onclick="editDeal('${d['Mã Hợp Đồng']}')" class="font-semibold text-emerald-600 text-xs">Sửa hợp đồng</button>
+              </div>
+            </div>
+          `;
+        }).join('');
+      }
+
+      lucide.createIcons();
+    }
+
+    function filterDealsLocal() {
+      const status = document.getElementById('filterDealStatus').value;
+      const time = document.getElementById('filterDealTime').value;
+      const q = (document.getElementById('globalSearchInput').value || '').toLowerCase().trim();
+
+      const now = new Date();
+      const currentYear = now.getFullYear();
+      const currentMonth = now.getMonth(); // 0-based
+
+      let list = state.data.deals || [];
+
+      if (status) list = list.filter(d => d['Trạng Thái'] === status);
+
+      if (time) {
+        list = list.filter(d => {
+          if (!d['Ngày Chốt']) return false;
+          const dDate = new Date(d['Ngày Chốt']);
+          if (isNaN(dDate.getTime())) return true;
+          if (time === 'this_month') {
+            return dDate.getFullYear() === currentYear && dDate.getMonth() === currentMonth;
+          } else if (time === 'last_month') {
+            const prevMonth = currentMonth === 0 ? 11 : currentMonth - 1;
+            const prevYear = currentMonth === 0 ? currentYear - 1 : currentYear;
+            return dDate.getFullYear() === prevYear && dDate.getMonth() === prevMonth;
+          } else if (time === 'this_year') {
+            return dDate.getFullYear() === currentYear;
+          }
+          return true;
+        });
+      }
+
+      if (q) {
+        list = list.filter(d => 
+          (d['Tên Khách']||'').toLowerCase().includes(q) ||
+          (d['Địa Chỉ Căn']||'').toLowerCase().includes(q) ||
+          (d['Mã Hợp Đồng']||'').toLowerCase().includes(q) ||
+          (d['Mã Khách']||'').toLowerCase().includes(q) ||
+          (d['Mã Căn']||'').toLowerCase().includes(q)
+        );
+      }
+
+      renderDeals(list);
     }
 
     // ==================== MODULE 6: SETTINGS & MASTER TAXONOMY (SPRINT 1) ====================
@@ -2109,8 +2243,71 @@
         confirmDeleteInteraction(code);
       }
     }
-    function openAddDealModal() { document.getElementById('modalAddDeal').classList.remove('hidden'); }
-    function closeAddDealModal() { document.getElementById('modalAddDeal').classList.add('hidden'); }
+    function openAddDealModal(isEdit = false) { 
+      document.getElementById('modalAddDeal').classList.remove('hidden'); 
+      const title = document.getElementById('modalDealTitle');
+      const btn = document.getElementById('btnSubmitDealText');
+      const btnDel = document.getElementById('btnDeleteDealModal');
+      if (title) title.innerText = isEdit ? 'Chỉnh Sửa Hợp Đồng & Hoa Hồng' : 'Lập Hợp Đồng Chốt Cọc & Hoa Hồng';
+      if (btn) btn.innerText = isEdit ? 'Cập nhật hợp đồng' : 'Xác nhận chốt deal';
+      if (btnDel) {
+        if (isEdit) btnDel.classList.remove('hidden');
+        else btnDel.classList.add('hidden');
+      }
+      if (!isEdit) {
+        document.getElementById('formDealId').value = '';
+        document.getElementById('formDealCustomer').value = '';
+        document.getElementById('formDealProperty').value = '';
+        document.getElementById('formDealPrice').value = '';
+        document.getElementById('formDealCommRate').value = (state.data.settings && state.data.settings.defaultCommRate) || 1.5;
+        document.getElementById('formDealDate').value = new Date().toISOString().slice(0, 10);
+        document.getElementById('formDealStatus').value = 'Đã thu hoa hồng';
+        document.getElementById('formDealNote').value = '';
+        calculateCommissionLive();
+      }
+    }
+    function closeAddDealModal() { 
+      document.getElementById('modalAddDeal').classList.add('hidden'); 
+      document.getElementById('formDealId').value = '';
+    }
+    function editDeal(dealCode) {
+      const deal = (state.data.deals || []).find(d => d['Mã Hợp Đồng'] === dealCode);
+      if (!deal) return;
+      openAddDealModal(true);
+      document.getElementById('formDealId').value = deal['Mã Hợp Đồng'] || '';
+      document.getElementById('formDealCustomer').value = deal['Mã Khách'] || '';
+      document.getElementById('formDealProperty').value = deal['Mã Căn'] || '';
+      document.getElementById('formDealPrice').value = deal['Giá Chốt (Triệu)'] || 0;
+      document.getElementById('formDealCommRate').value = deal['Tỷ Lệ Hoa Hồng (%)'] || 1.5;
+      document.getElementById('formDealDate').value = String(deal['Ngày Chốt'] || '').slice(0, 10);
+      document.getElementById('formDealStatus').value = deal['Trạng Thái'] || 'Đã thu hoa hồng';
+      document.getElementById('formDealNote').value = deal['Ghi Chú'] || '';
+      calculateCommissionLive();
+    }
+    function confirmDeleteDeal(code) {
+      if (!confirm('Bạn có chắc chắn muốn xóa/hủy hợp đồng chốt cọc [' + code + '] không?')) return;
+      if (typeof google !== 'undefined' && google.script) {
+        google.script.run.withSuccessHandler(res => {
+          if (res.success) {
+            loadAllSystemData();
+          } else {
+            alert('Lỗi: ' + res.error);
+          }
+        }).deleteDeal(code);
+      } else {
+        const item = (state.data.deals || []).find(d => d['Mã Hợp Đồng'] === code);
+        if (item) item['Trạng Thái'] = 'Đã xóa';
+        renderDeals(state.data.deals);
+        alert('[Demo] Đã xóa hợp đồng!');
+      }
+    }
+    function deleteCurrentDeal() {
+      const code = document.getElementById('formDealId').value;
+      if (code) {
+        closeAddDealModal();
+        confirmDeleteDeal(code);
+      }
+    }
 
     function submitCustomerForm(e) {
       e.preventDefault();
@@ -2293,7 +2490,8 @@
     function submitNewDeal(e) {
       e.preventDefault();
       const btn = document.getElementById('btnSubmitDeal');
-      btn.innerText = 'Đang khớp lệnh...'; btn.disabled = true;
+      const dealId = document.getElementById('formDealId').value;
+      btn.innerText = 'Đang lưu hợp đồng...'; btn.disabled = true;
 
       const custCode = document.getElementById('formDealCustomer').value;
       const cust = (state.data.customers || []).find(c => c['Mã Khách'] === custCode);
@@ -2306,6 +2504,7 @@
       const commVND = priceMillion * 1000000 * (commRate / 100);
 
       const payload = {
+        id: dealId || null,
         customerId: custCode,
         customerName: cust ? cust['Họ Và Tên'] : '',
         propertyId: propCode,
@@ -2318,18 +2517,36 @@
       };
 
       if (typeof google !== 'undefined' && google.script) {
-        google.script.run.withSuccessHandler(() => {
+        google.script.run.withSuccessHandler((res) => {
           closeAddDealModal();
           btn.innerText = 'Xác nhận chốt deal'; btn.disabled = false;
-          loadAllSystemData();
+          if (res && res.error) {
+            alert('Lỗi: ' + res.error);
+          } else {
+            loadAllSystemData();
+          }
         }).saveDeal(payload);
       } else {
         setTimeout(() => {
-          // Client-side demo update with relational integrity
-          state.data.deals.push({ 'Mã Hợp Đồng': 'HD-' + Math.floor(1000+Math.random()*9000), 'Tên Khách': payload.customerName, 'Địa Chỉ Căn': payload.propertyAddress, 'Giá Chốt (Triệu)': payload.closedPriceMillion, 'Tỷ Lệ Hoa Hồng (%)': payload.commissionPercent, 'Hoa Hồng Thực Nhận (đ)': commVND, 'Ngày Chốt': payload.dealDate, 'Trạng Thái': payload.status });
-          
-          if (prop) prop['Trạng Thái'] = 'Đã cọc/Đã bán';
-          if (cust) cust['Trạng Thái'] = 'Đã chốt cọc';
+          if (payload.id) {
+            const idx = state.data.deals.findIndex(d => d['Mã Hợp Đồng'] === payload.id);
+            if (idx >= 0) {
+              state.data.deals[idx]['Mã Khách'] = payload.customerId;
+              state.data.deals[idx]['Tên Khách'] = payload.customerName;
+              state.data.deals[idx]['Mã Căn'] = payload.propertyId;
+              state.data.deals[idx]['Địa Chỉ Căn'] = payload.propertyAddress;
+              state.data.deals[idx]['Giá Chốt (Triệu)'] = payload.closedPriceMillion;
+              state.data.deals[idx]['Tỷ Lệ Hoa Hồng (%)'] = payload.commissionPercent;
+              state.data.deals[idx]['Hoa Hồng Thực Nhận (đ)'] = commVND;
+              state.data.deals[idx]['Ngày Chốt'] = payload.dealDate;
+              state.data.deals[idx]['Trạng Thái'] = payload.status;
+              state.data.deals[idx]['Ghi Chú'] = payload.note;
+            }
+          } else {
+            state.data.deals.push({ 'Mã Hợp Đồng': 'HD-' + Math.floor(1000+Math.random()*9000), 'Mã Khách': payload.customerId, 'Tên Khách': payload.customerName, 'Mã Căn': payload.propertyId, 'Địa Chỉ Căn': payload.propertyAddress, 'Giá Chốt (Triệu)': payload.closedPriceMillion, 'Tỷ Lệ Hoa Hồng (%)': payload.commissionPercent, 'Hoa Hồng Thực Nhận (đ)': commVND, 'Ngày Chốt': payload.dealDate, 'Trạng Thái': payload.status, 'Ghi Chú': payload.note });
+            if (prop) prop['Trạng Thái'] = 'Đã cọc/Đã bán';
+            if (cust) cust['Trạng Thái'] = 'Đã chốt cọc';
+          }
 
           closeAddDealModal();
           btn.innerText = 'Xác nhận chốt deal'; btn.disabled = false;
@@ -2337,7 +2554,7 @@
           renderProperties(state.data.properties);
           renderCustomers(state.data.customers);
           renderDashboard();
-          alert('Khớp lệnh chốt cọc thành công! Trạng thái căn đã chuyển sang "Đã cọc/Đã bán".');
+          alert(payload.id ? '[Demo] Đã cập nhật hợp đồng!' : '[Demo] Khớp lệnh chốt cọc thành công! Trạng thái căn đã chuyển sang "Đã cọc/Đã bán".');
         }, 500);
       }
     }

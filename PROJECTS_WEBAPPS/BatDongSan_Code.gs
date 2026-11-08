@@ -360,19 +360,49 @@ function deleteInteraction(logId) {
 
 /**
  * Chốt Cọc & Hoa Hồng - CẬP NHẬT TỰ ĐỘNG QUAN HỆ CHÉO (Module 5)
+ * SPRINT 7: Hỗ trợ Tạo mới (HD-XXXXXX), Cập nhật Hợp đồng & Xóa mềm
  */
 function saveDeal(payload) {
   const lock = LockService.getScriptLock();
   try {
     lock.waitLock(15000);
     const ss = SpreadsheetApp.getActiveSpreadsheet();
-    const shDeals = ss.getSheetByName(CONFIG_BDS.SHEET_NAMES.DEALS);
-    const newId = 'HD-' + Math.floor(100000 + Math.random() * 900000);
-    
+    let shDeals = ss.getSheetByName(CONFIG_BDS.SHEET_NAMES.DEALS);
+    if (!shDeals) {
+      shDeals = ss.insertSheet(CONFIG_BDS.SHEET_NAMES.DEALS);
+      shDeals.appendRow(['Mã Hợp Đồng', 'Mã Khách', 'Tên Khách', 'Mã Căn', 'Địa Chỉ Căn', 'Giá Chốt (Triệu)', 'Tỷ Lệ Hoa Hồng (%)', 'Hoa Hồng Thực Nhận (đ)', 'Ngày Chốt', 'Trạng Thái', 'Ghi Chú', 'Ngày Tạo']);
+    }
+
     const closedPrice = Number(payload.closedPriceMillion) || 0;
     const commRate = Number(payload.commissionPercent) || 0;
-    // Tính số tiền hoa hồng thực nhận (đ)
     const commAmount = closedPrice * 1000000 * (commRate / 100);
+    const dealDate = payload.dealDate || new Date().toISOString().slice(0, 10);
+    const status = payload.status || 'Đã thu hoa hồng';
+    const note = payload.note || '';
+
+    // Trường hợp CẬP NHẬT Hợp Đồng đã có
+    if (payload.id) {
+      const data = shDeals.getDataRange().getValues();
+      for (let i = 1; i < data.length; i++) {
+        if (data[i][0] === payload.id) {
+          shDeals.getRange(i + 1, 2).setValue(payload.customerId || '');
+          shDeals.getRange(i + 1, 3).setValue(payload.customerName || '');
+          shDeals.getRange(i + 1, 4).setValue(payload.propertyId || '');
+          shDeals.getRange(i + 1, 5).setValue(payload.propertyAddress || '');
+          shDeals.getRange(i + 1, 6).setValue(closedPrice);
+          shDeals.getRange(i + 1, 7).setValue(commRate);
+          shDeals.getRange(i + 1, 8).setValue(commAmount);
+          shDeals.getRange(i + 1, 9).setValue(dealDate);
+          shDeals.getRange(i + 1, 10).setValue(status);
+          shDeals.getRange(i + 1, 11).setValue(note);
+          
+          return { success: true, id: payload.id, commissionAmount: commAmount, updated: true };
+        }
+      }
+    }
+
+    // Trường hợp TẠO MỚI Hợp Đồng
+    const newId = 'HD-' + Math.floor(100000 + Math.random() * 900000);
 
     shDeals.appendRow([
       newId,
@@ -383,13 +413,13 @@ function saveDeal(payload) {
       closedPrice,
       commRate,
       commAmount,
-      payload.dealDate || new Date().toISOString().slice(0, 10),
-      payload.status || 'Đã thu hoa hồng',
-      payload.note || '',
+      dealDate,
+      status,
+      note,
       new Date()
     ]);
 
-    // RELATIONAL INTEGRITY 1: Cập nhật trạng thái Căn BĐS sang 'Đã bán/Đã cọc'
+    // RELATIONAL INTEGRITY 1: Cập nhật trạng thái Căn BĐS sang 'Đã cọc/Đã bán'
     if (payload.propertyId) {
       updateEntityStatus_(ss, CONFIG_BDS.SHEET_NAMES.PROPERTIES, 0, payload.propertyId, 8, 'Đã cọc/Đã bán');
     }
@@ -400,6 +430,33 @@ function saveDeal(payload) {
     }
 
     return { success: true, id: newId, commissionAmount: commAmount };
+  } catch (err) {
+    return { success: false, error: err.toString() };
+  } finally {
+    lock.releaseLock();
+  }
+}
+
+/**
+ * Xóa mềm giao dịch chốt cọc (Module 5)
+ */
+function deleteDeal(dealId) {
+  const lock = LockService.getScriptLock();
+  try {
+    lock.waitLock(10000);
+    const ss = SpreadsheetApp.getActiveSpreadsheet();
+    const sh = ss.getSheetByName(CONFIG_BDS.SHEET_NAMES.DEALS);
+    if (!sh) return { success: false, error: 'Sheet giao dịch không tồn tại' };
+
+    const data = sh.getDataRange().getValues();
+    for (let i = 1; i < data.length; i++) {
+      if (data[i][0] === dealId) {
+        // Cột 10 là Trạng Thái (index 9)
+        sh.getRange(i + 1, 10).setValue('Đã hủy/Đã xóa');
+        return { success: true };
+      }
+    }
+    return { success: false, error: 'Không tìm thấy mã hợp đồng: ' + dealId };
   } catch (err) {
     return { success: false, error: err.toString() };
   } finally {
