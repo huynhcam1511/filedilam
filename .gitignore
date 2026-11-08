@@ -36,6 +36,7 @@ desktop.ini
 scratch/
 scratch_*
 outputs/
+!outputs/weekly_planner_m37/
 *.reconstructed
 apply_*.js
 index_backup_*.html

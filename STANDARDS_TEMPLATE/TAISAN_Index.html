@@ -1,0 +1,2146 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Quản Lý Tài Sản & Thiết Bị — FILE ĐI LÀM</title>
+  
+  <!-- 1. Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#ecfdf5',
+              100: '#d1fae5',
+              500: '#10b981',
+              600: '#059669', // Mint Emerald Chủ đạo
+              700: '#047857'
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- 2. Lucide Icons CDN -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <!-- 3. Chart.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <style>
+    /* Chống giật cuộn & thanh cuộn mảnh trang nhã */
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: #f1f5f9; }
+    ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-800 antialiased min-h-screen flex flex-col">
+
+  <!-- TOP LOADING BAR (Hiển thị khi gọi RPC) -->
+  <div id="top-loading-bar" class="fixed top-0 left-0 right-0 h-1 bg-brand-500 z-50 transform -translate-y-full transition-transform duration-300"></div>
+
+  <!-- TOAST NOTIFICATION CONTAINER -->
+  <div id="toast-container" class="fixed top-4 right-4 z-50 flex flex-col gap-2 pointer-events-none"></div>
+
+  <!-- CONFIRMATION MODAL CONTAINER -->
+  <div id="confirm-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm hidden">
+    <div class="bg-white rounded-2xl max-w-sm w-full p-6 shadow-2xl border border-slate-100 transform transition-all">
+      <div class="w-12 h-12 rounded-full bg-rose-50 flex items-center justify-center mb-4 text-rose-600">
+        <i data-lucide="alert-triangle" class="w-6 h-6"></i>
+      </div>
+      <h3 id="confirm-modal-title" class="text-base font-semibold text-slate-900 mb-1">Xác nhận thao tác</h3>
+      <p id="confirm-modal-msg" class="text-sm text-slate-500 mb-6 leading-relaxed">Bạn có chắc chắn muốn thực hiện hành động này?</p>
+      <div class="flex items-center justify-end gap-3">
+        <button id="confirm-modal-cancel" class="px-4 h-[42px] rounded-xl text-xs font-semibold text-slate-600 hover:bg-slate-100 transition">Hủy bỏ</button>
+        <button id="confirm-modal-ok" class="px-5 h-[42px] rounded-xl text-xs font-semibold text-white bg-rose-600 hover:bg-rose-700 shadow-sm transition">Xác nhận</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- RIGHT SLIDE-OVER DRAWER (Desktop) & BOTTOM SHEET (Mobile) -->
+  <div id="action-drawer-backdrop" class="fixed inset-0 z-40 bg-slate-900/30 backdrop-blur-xs hidden transition-opacity"></div>
+  <aside id="action-drawer" class="fixed z-40 bg-white shadow-2xl transition-all duration-300
+    lg:top-0 lg:right-0 lg:bottom-0 lg:w-[480px] lg:translate-x-full lg:rounded-none
+    bottom-0 left-0 right-0 max-h-[85vh] rounded-t-2xl translate-y-full flex flex-col">
+    <!-- Header Drawer -->
+    <div class="p-4 border-b border-slate-100 flex items-center justify-between">
+      <h2 id="drawer-title" class="text-sm font-bold text-slate-900">Chi tiết tác vụ</h2>
+      <button onclick="closeDrawer()" class="w-8 h-8 rounded-lg flex items-center justify-center text-slate-400 hover:text-slate-600 hover:bg-slate-100">
+        <i data-lucide="x" class="w-5 h-5"></i>
+      </button>
+    </div>
+    <!-- Body Drawer -->
+    <div id="drawer-body" class="p-5 overflow-y-auto flex-1 space-y-4">
+      <!-- Ruột Form sẽ nạp động từ các Sprint -->
+    </div>
+  </aside>
+
+  <!-- MAIN APP WRAPPER -->
+  <div class="flex-1 flex overflow-hidden">
+
+    <!-- DESKTOP SIDEBAR (240px, Thu gọn 64px) -->
+    <aside id="desktop-sidebar" class="hidden lg:flex flex-col w-60 border-r border-slate-200/80 bg-white transition-all duration-300 select-none">
+      <!-- Header Brand -->
+      <div class="h-16 px-5 border-b border-slate-100 flex items-center justify-between">
+        <div class="flex items-center gap-3 overflow-hidden">
+          <div class="w-8 h-8 rounded-lg bg-brand-600 flex items-center justify-center text-white shrink-0 shadow-sm">
+            <i data-lucide="box" class="w-4 h-4"></i>
+          </div>
+          <span class="font-bold text-sm tracking-tight text-slate-900 truncate sidebar-text">TÀI SẢN & THIẾT BỊ</span>
+        </div>
+        <button onclick="toggleSidebar()" class="text-slate-400 hover:text-slate-600 p-1 rounded-md hover:bg-slate-50">
+          <i data-lucide="panel-left-close" class="w-4 h-4 sidebar-toggle-icon"></i>
+        </button>
+      </div>
+
+      <!-- Navigation Menu (3 Cụm Chuẩn) -->
+      <nav class="flex-1 p-3 space-y-6 overflow-y-auto">
+        <!-- CỤM 1: VẬN HÀNH -->
+        <div>
+          <div class="px-3 mb-2 text-[11px] font-semibold tracking-wider text-slate-400 uppercase sidebar-text">Vận Hành</div>
+          <div class="space-y-1">
+            <button onclick="switchTab('tab-dashboard')" id="nav-tab-dashboard" class="nav-item w-full flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-semibold transition text-slate-600 hover:bg-slate-50">
+              <i data-lucide="layout-dashboard" class="w-4 h-4 shrink-0"></i>
+              <span class="sidebar-text truncate">Tổng Quan</span>
+            </button>
+            <button onclick="switchTab('tab-dispatch')" id="nav-tab-dispatch" class="nav-item w-full flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-semibold transition text-slate-600 hover:bg-slate-50">
+              <i data-lucide="arrow-left-right" class="w-4 h-4 shrink-0"></i>
+              <span class="sidebar-text truncate">Cấp Phát & Thu Hồi</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- CỤM 2: QUẢN LÝ -->
+        <div>
+          <div class="px-3 mb-2 text-[11px] font-semibold tracking-wider text-slate-400 uppercase sidebar-text">Quản Lý</div>
+          <div class="space-y-1">
+            <button onclick="switchTab('tab-maintenance')" id="nav-tab-maintenance" class="nav-item w-full flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-semibold transition text-slate-600 hover:bg-slate-50">
+              <i data-lucide="wrench" class="w-4 h-4 shrink-0"></i>
+              <span class="sidebar-text truncate">Sổ Bảo Trì</span>
+            </button>
+            <button onclick="switchTab('tab-assets')" id="nav-tab-assets" class="nav-item w-full flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-semibold transition text-slate-600 hover:bg-slate-50">
+              <i data-lucide="layers" class="w-4 h-4 shrink-0"></i>
+              <span class="sidebar-text truncate">Hồ Sơ Tài Sản</span>
+            </button>
+            <button onclick="switchTab('tab-staff')" id="nav-tab-staff" class="nav-item w-full flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-semibold transition text-slate-600 hover:bg-slate-50">
+              <i data-lucide="users" class="w-4 h-4 shrink-0"></i>
+              <span class="sidebar-text truncate">Danh Bạ Nhân Sự</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- CỤM 3: HỆ THỐNG -->
+        <div>
+          <div class="px-3 mb-2 text-[11px] font-semibold tracking-wider text-slate-400 uppercase sidebar-text">Hệ Thống</div>
+          <div class="space-y-1">
+            <button onclick="switchTab('tab-catalogs')" id="nav-tab-catalogs" class="nav-item w-full flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-semibold transition text-slate-600 hover:bg-slate-50">
+              <i data-lucide="tag" class="w-4 h-4 shrink-0"></i>
+              <span class="sidebar-text truncate">Danh Mục Hệ Thống</span>
+            </button>
+            <button onclick="switchTab('tab-settings')" id="nav-tab-settings" class="nav-item w-full flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-semibold transition text-slate-600 hover:bg-slate-50">
+              <i data-lucide="settings" class="w-4 h-4 shrink-0"></i>
+              <span class="sidebar-text truncate">Cài Đặt Cơ Sở</span>
+            </button>
+            <button onclick="switchTab('tab-guide')" id="nav-tab-guide" class="nav-item w-full flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-semibold transition text-slate-600 hover:bg-slate-50">
+              <i data-lucide="help-circle" class="w-4 h-4 shrink-0"></i>
+              <span class="sidebar-text truncate">Hướng Dẫn Sử Dụng</span>
+            </button>
+          </div>
+        </div>
+      </nav>
+
+      <!-- Footer Info -->
+      <div class="p-3 border-t border-slate-100 flex items-center gap-3">
+        <div class="w-7 h-7 rounded-full bg-slate-100 flex items-center justify-center text-slate-500 font-bold text-xs shrink-0">F</div>
+        <div class="sidebar-text truncate">
+          <div class="text-xs font-semibold text-slate-800">FILE ĐI LÀM</div>
+          <div class="text-[10px] text-slate-400">Phiên bản Standard V2.2</div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- MAIN VIEWPORT -->
+    <main class="flex-1 flex flex-col overflow-y-auto">
+
+      <!-- TOP HEADER (Desktop & Mobile) -->
+      <header class="h-16 px-4 lg:px-8 border-b border-slate-200/80 bg-white/90 backdrop-blur-sm sticky top-0 z-30 flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <div class="lg:hidden w-8 h-8 rounded-lg bg-brand-600 flex items-center justify-center text-white shrink-0">
+            <i data-lucide="box" class="w-4 h-4"></i>
+          </div>
+          <div>
+            <h1 id="top-page-title" class="text-sm lg:text-base font-bold text-slate-900 tracking-tight">Tổng Quan Điều Hành</h1>
+            <p id="top-page-subtitle" class="text-[11px] text-slate-400 hidden sm:block">Theo dõi nguyên giá, tình trạng cấp phát và hạn bảo dưỡng thiết bị</p>
+          </div>
+        </div>
+        <div class="flex items-center gap-2">
+          <button onclick="switchTab('tab-guide')" class="w-9 h-9 rounded-xl flex items-center justify-center text-slate-500 hover:text-slate-800 hover:bg-slate-100 transition" title="Hướng dẫn sử dụng">
+            <i data-lucide="help-circle" class="w-5 h-5"></i>
+          </button>
+          <button onclick="refreshData()" class="w-9 h-9 rounded-xl flex items-center justify-center text-slate-500 hover:text-brand-600 hover:bg-brand-50 transition" title="Đồng bộ dữ liệu">
+            <i data-lucide="rotate-cw" class="w-4 h-4"></i>
+          </button>
+        </div>
+      </header>
+
+      <!-- CONTENT PANELS CONTAINER (Chứa 7 Module) -->
+      <div class="p-4 lg:p-8 flex-1 max-w-7xl w-full mx-auto pb-24 lg:pb-12">
+        
+        <!-- MODULE 1: TỔNG QUAN (Dashboard Điều Hành) -->
+        <section id="tab-dashboard" class="tab-panel space-y-6">
+          
+          <!-- 1.1. BỘ 5 THẺ KPI CỐT LÕI (FINTECH CLEAN) -->
+          <div class="grid grid-cols-2 lg:grid-cols-5 gap-3 lg:gap-4">
+            <!-- KPI 1: Tổng Nguyên Giá -->
+            <div class="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-xs flex flex-col justify-between col-span-2 lg:col-span-1">
+              <div class="flex items-center justify-between text-slate-400 mb-2">
+                <span class="text-[11px] font-semibold uppercase tracking-wider text-slate-500">Tổng Nguyên Giá</span>
+                <div class="w-7 h-7 rounded-lg bg-emerald-50 text-brand-600 flex items-center justify-center"><i data-lucide="coins" class="w-4 h-4"></i></div>
+              </div>
+              <div>
+                <div id="kpi-total-value" class="text-lg lg:text-xl font-bold text-slate-900 tracking-tight font-mono">0 đ</div>
+                <div class="text-[10px] text-slate-400 mt-0.5">Toàn bộ tài sản doanh nghiệp</div>
+              </div>
+            </div>
+
+            <!-- KPI 2: Đang Sử Dụng -->
+            <div class="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-xs flex flex-col justify-between">
+              <div class="flex items-center justify-between text-slate-400 mb-2">
+                <span class="text-[11px] font-semibold uppercase tracking-wider text-slate-500">Đang Sử Dụng</span>
+                <div class="w-7 h-7 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center"><i data-lucide="user-check" class="w-4 h-4"></i></div>
+              </div>
+              <div>
+                <div id="kpi-in-use" class="text-lg lg:text-xl font-bold text-slate-900 tracking-tight font-mono">0</div>
+                <div class="text-[10px] text-emerald-600 font-medium flex items-center gap-1 mt-0.5">● Đã cấp phát nhân viên</div>
+              </div>
+            </div>
+
+            <!-- KPI 3: Sẵn Sàng Trong Kho -->
+            <div class="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-xs flex flex-col justify-between">
+              <div class="flex items-center justify-between text-slate-400 mb-2">
+                <span class="text-[11px] font-semibold uppercase tracking-wider text-slate-500">Trong Kho</span>
+                <div class="w-7 h-7 rounded-lg bg-slate-100 text-slate-600 flex items-center justify-center"><i data-lucide="package" class="w-4 h-4"></i></div>
+              </div>
+              <div>
+                <div id="kpi-in-stock" class="text-lg lg:text-xl font-bold text-slate-900 tracking-tight font-mono">0</div>
+                <div class="text-[10px] text-slate-500 font-medium flex items-center gap-1 mt-0.5">● Sẵn sàng bàn giao</div>
+              </div>
+            </div>
+
+            <!-- KPI 4: Cần Bảo Trì / Sửa Chữa -->
+            <div class="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-xs flex flex-col justify-between">
+              <div class="flex items-center justify-between text-slate-400 mb-2">
+                <span class="text-[11px] font-semibold uppercase tracking-wider text-slate-500">Cần Bảo Trì</span>
+                <div class="w-7 h-7 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center"><i data-lucide="alert-circle" class="w-4 h-4"></i></div>
+              </div>
+              <div>
+                <div id="kpi-maintenance" class="text-lg lg:text-xl font-bold text-amber-600 tracking-tight font-mono">0</div>
+                <div class="text-[10px] text-amber-600 font-medium flex items-center gap-1 mt-0.5">● Đang hỏng / bảo dưỡng</div>
+              </div>
+            </div>
+
+            <!-- KPI 5: Tổng Thiết Bị -->
+            <div class="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-xs flex flex-col justify-between col-span-2 lg:col-span-1">
+              <div class="flex items-center justify-between text-slate-400 mb-2">
+                <span class="text-[11px] font-semibold uppercase tracking-wider text-slate-500">Tổng Thiết Bị</span>
+                <div class="w-7 h-7 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center"><i data-lucide="boxes" class="w-4 h-4"></i></div>
+              </div>
+              <div>
+                <div id="kpi-total-items" class="text-lg lg:text-xl font-bold text-slate-900 tracking-tight font-mono">0</div>
+                <div class="text-[10px] text-slate-400 mt-0.5">Mã tài sản quản lý</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 1.2. KHỐI LỊCH NHẮC BẢO TRÌ & VIỆC HÔM NAY (DAILY ACTION CENTER) -->
+          <div class="bg-white rounded-2xl border border-slate-200/80 shadow-xs p-5">
+            <div class="flex items-center justify-between pb-4 border-b border-slate-100 mb-4">
+              <div class="flex items-center gap-2.5">
+                <div class="w-7 h-7 rounded-lg bg-rose-50 text-rose-600 flex items-center justify-center">
+                  <i data-lucide="calendar-clock" class="w-4 h-4"></i>
+                </div>
+                <div>
+                  <h3 class="text-sm font-bold text-slate-900">Lịch Nhắc Bảo Dưỡng & Cảnh Báo Hôm Nay</h3>
+                  <p class="text-[11px] text-slate-400">Thiết bị đến hạn kiểm định, hết hạn bảo hành hoặc cần xử lý gấp</p>
+                </div>
+              </div>
+              <span id="daily-count-badge" class="text-xs font-mono font-semibold px-2.5 py-1 rounded-full bg-slate-100 text-slate-700">0 sự vụ</span>
+            </div>
+
+            <div id="daily-action-list" class="divide-y divide-slate-100">
+              <!-- Render động qua JS -->
+            </div>
+          </div>
+
+          <!-- 1.3. LƯỚI 8 BIỂU ĐỒ TRỰC QUAN CHART.JS (GRID 2 CỘT DESKTOP / 1 CỘT MOBILE) -->
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
+            
+            <!-- BIỂU ĐỒ 1: Biến Động Chi Phí Bảo Trì & Mua Sắm (Bar) -->
+            <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs flex flex-col">
+              <div class="flex items-center justify-between mb-4">
+                <div>
+                  <h4 class="text-xs font-bold text-slate-800 uppercase tracking-wider">1. Chi Phí Bảo Trì & Sửa Chữa</h4>
+                  <p class="text-[11px] text-slate-400 mt-0.5">Phát sinh thực tế theo các tháng trong năm (VND)</p>
+                </div>
+                <div class="text-slate-300"><i data-lucide="bar-chart-3" class="w-4 h-4"></i></div>
+              </div>
+              <div class="h-64 relative flex-1"><canvas id="chart-maintenance-cost"></canvas></div>
+            </div>
+
+            <!-- BIỂU ĐỒ 2: Giá Trị Tài Sản Theo Phòng Ban (Grouped Bar) -->
+            <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs flex flex-col">
+              <div class="flex items-center justify-between mb-4">
+                <div>
+                  <h4 class="text-xs font-bold text-slate-800 uppercase tracking-wider">2. Phân Bổ Giá Trị Theo Phòng Ban</h4>
+                  <p class="text-[11px] text-slate-400 mt-0.5">So sánh Đang Dùng vs Trong Kho (Triệu đồng)</p>
+                </div>
+                <div class="text-slate-300"><i data-lucide="bar-chart-2" class="w-4 h-4"></i></div>
+              </div>
+              <div class="h-64 relative flex-1"><canvas id="chart-dept-value"></canvas></div>
+            </div>
+
+            <!-- BIỂU ĐỒ 3: Cơ Cấu Phân Loại Tài Sản (Doughnut) -->
+            <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs flex flex-col">
+              <div class="flex items-center justify-between mb-4">
+                <div>
+                  <h4 class="text-xs font-bold text-slate-800 uppercase tracking-wider">3. Cơ Cấu Phân Loại Tài Sản</h4>
+                  <p class="text-[11px] text-slate-400 mt-0.5">Tỷ trọng số lượng thiết bị theo nhóm danh mục</p>
+                </div>
+                <div class="text-slate-300"><i data-lucide="pie-chart" class="w-4 h-4"></i></div>
+              </div>
+              <div class="h-64 relative flex-1"><canvas id="chart-category-dist"></canvas></div>
+            </div>
+
+            <!-- BIỂU ĐỒ 4: Top 5 Phòng Ban Giữ Giá Trị Lớn Nhất (Horizontal Bar) -->
+            <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs flex flex-col">
+              <div class="flex items-center justify-between mb-4">
+                <div>
+                  <h4 class="text-xs font-bold text-slate-800 uppercase tracking-wider">4. Top Phòng Ban Giữ Tài Sản</h4>
+                  <p class="text-[11px] text-slate-400 mt-0.5">Xếp hạng giá trị thiết bị đang bàn giao</p>
+                </div>
+                <div class="text-slate-300"><i data-lucide="align-left" class="w-4 h-4"></i></div>
+              </div>
+              <div class="h-64 relative flex-1"><canvas id="chart-top-dept"></canvas></div>
+            </div>
+
+            <!-- BIỂU ĐỒ 5: Xu Hướng Khấu Hao Tài Sản Lũy Kế (Line) -->
+            <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs flex flex-col">
+              <div class="flex items-center justify-between mb-4">
+                <div>
+                  <h4 class="text-xs font-bold text-slate-800 uppercase tracking-wider">5. Xu Hướng Khấu Hao Lũy Kế</h4>
+                  <p class="text-[11px] text-slate-400 mt-0.5">Ước tính giá trị còn lại theo thời gian sử dụng</p>
+                </div>
+                <div class="text-slate-300"><i data-lucide="trending-down" class="w-4 h-4"></i></div>
+              </div>
+              <div class="h-64 relative flex-1"><canvas id="chart-depreciation-trend"></canvas></div>
+            </div>
+
+            <!-- BIỂU ĐỒ 6: Tỷ Lệ Hoạt Động Tốt vs Cần Bảo Dưỡng (Area / Line) -->
+            <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs flex flex-col">
+              <div class="flex items-center justify-between mb-4">
+                <div>
+                  <h4 class="text-xs font-bold text-slate-800 uppercase tracking-wider">6. Sức Khỏe Vận Hành Thiết Bị</h4>
+                  <p class="text-[11px] text-slate-400 mt-0.5">Tỷ lệ % thiết bị sẵn sàng làm việc (Uptime Index)</p>
+                </div>
+                <div class="text-slate-300"><i data-lucide="activity" class="w-4 h-4"></i></div>
+              </div>
+              <div class="h-64 relative flex-1"><canvas id="chart-health-status"></canvas></div>
+            </div>
+
+            <!-- BIỂU ĐỒ 7: Tình Trạng Thiết Bị Tổng Thể (Polar Area) -->
+            <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs flex flex-col">
+              <div class="flex items-center justify-between mb-4">
+                <div>
+                  <h4 class="text-xs font-bold text-slate-800 uppercase tracking-wider">7. Tình Trạng Thiết Bị Tổng Thể</h4>
+                  <p class="text-[11px] text-slate-400 mt-0.5">Đang Dùng, Trong Kho, Đang Sửa, Chờ Thanh Lý</p>
+                </div>
+                <div class="text-slate-300"><i data-lucide="compass" class="w-4 h-4"></i></div>
+              </div>
+              <div class="h-64 relative flex-1"><canvas id="chart-status-polar"></canvas></div>
+            </div>
+
+            <!-- BIỂU ĐỒ 8: Kế Hoạch Dự Chi Bảo Trì Định Kỳ (Bar Forecast) -->
+            <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs flex flex-col">
+              <div class="flex items-center justify-between mb-4">
+                <div>
+                  <h4 class="text-xs font-bold text-slate-800 uppercase tracking-wider">8. Dự Báo Chi Phí Bảo Dưỡng</h4>
+                  <p class="text-[11px] text-slate-400 mt-0.5">Kế hoạch ngân sách bảo trì 4 tuần tới (VND)</p>
+                </div>
+                <div class="text-slate-300"><i data-lucide="calendar" class="w-4 h-4"></i></div>
+              </div>
+              <div class="h-64 relative flex-1"><canvas id="chart-maintenance-forecast"></canvas></div>
+            </div>
+
+          </div>
+
+        </section>
+
+                <!-- MODULE 2: CẤP PHÁT & THU HỒI TÀI SẢN -->
+        <section id="tab-dispatch" class="tab-panel hidden space-y-5">
+          <!-- TOOLBAR TÁC VỤ & BỘ LỌC NHANH -->
+          <div class="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div class="flex items-center gap-2 overflow-x-auto pb-1 sm:pb-0">
+              <button onclick="filterDispatch('ALL')" id="filter-disp-ALL" class="disp-filter-btn px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-900 text-white transition">Tất cả</button>
+              <button onclick="filterDispatch('CAP_PHAT')" id="filter-disp-CAP_PHAT" class="disp-filter-btn px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-100 text-slate-600 hover:bg-slate-200 transition">Bàn giao (BGIA)</button>
+              <button onclick="filterDispatch('THOI')" id="filter-disp-THOI" class="disp-filter-btn px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-100 text-slate-600 hover:bg-slate-200 transition">Thu hồi (THOI)</button>
+            </div>
+            <div class="flex items-center gap-2">
+              <div class="relative flex-1 sm:w-64">
+                <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2"></i>
+                <input type="text" id="disp-search-input" oninput="searchDispatch(this.value)" placeholder="Tìm mã phiếu, thiết bị, nhân sự..." class="w-full pl-9 pr-3 h-[38px] rounded-xl border border-slate-200 text-xs focus:border-brand-500 focus:ring-brand-500/20">
+              </div>
+              <button onclick="openDispatchDrawer('CAP_PHAT')" class="hidden sm:inline-flex items-center gap-1.5 px-4 h-[38px] rounded-xl bg-brand-600 hover:bg-brand-700 text-white text-xs font-semibold transition shadow-xs">
+                <i data-lucide="plus" class="w-4 h-4"></i>
+                <span>Tạo phiếu mới</span>
+              </button>
+            </div>
+          </div>
+          <!-- BẢNG MASTER-TABLE (DESKTOP) & THẺ PHẲNG (MOBILE) -->
+          <div class="bg-white rounded-2xl border border-slate-200/80 shadow-xs overflow-hidden">
+            <div class="hidden md:block overflow-x-auto">
+              <table class="w-full text-left border-collapse">
+                <thead>
+                  <tr class="border-b border-slate-100 bg-slate-50/75 text-[11px] font-bold text-slate-500 uppercase tracking-wider">
+                    <th class="py-3 px-4">Mã Phiếu</th>
+                    <th class="py-3 px-4">Loại Phiếu</th>
+                    <th class="py-3 px-4">Thiết Bị / Mã TS</th>
+                    <th class="py-3 px-4">Nhân Sự Nhận / Trả</th>
+                    <th class="py-3 px-4">Ngày Thực Hiện</th>
+                    <th class="py-3 px-4">Tình Trạng</th>
+                    <th class="py-3 px-4 text-right"></th>
+                  </tr>
+                </thead>
+                <tbody id="dispatch-table-body" class="divide-y divide-slate-100 text-xs"></tbody>
+              </table>
+            </div>
+            <div id="dispatch-cards-list" class="md:hidden divide-y divide-slate-100 p-2"></div>
+            <div id="dispatch-empty-state" class="py-12 text-center hidden">
+              <i data-lucide="inbox" class="w-8 h-8 text-slate-300 mx-auto mb-2"></i>
+              <div class="text-xs font-semibold text-slate-700">Chưa có phiếu cấp phát hay thu hồi nào</div>
+              <div class="text-[11px] text-slate-400 mt-0.5">Bấm nút Tạo phiếu mới để lập biên bản bàn giao</div>
+            </div>
+          </div>
+        </section>
+
+                <!-- MODULE 3: SỔ THEO DÕI BẢO TRÌ & SỬA CHỮA -->
+        <section id="tab-maintenance" class="tab-panel hidden space-y-5">
+          <!-- TOOLBAR TÁC VỤ & BỘ LỌC TRẠNG THÁI -->
+          <div class="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div class="flex items-center gap-2 overflow-x-auto pb-1 sm:pb-0">
+              <button onclick="filterMaintenance('ALL')" id="filter-maint-ALL" class="maint-filter-btn px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-900 text-white transition">Tất cả</button>
+              <button onclick="filterMaintenance('DANG_SUA')" id="filter-maint-DANG_SUA" class="maint-filter-btn px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-100 text-slate-600 hover:bg-slate-200 transition">Đang sửa chữa</button>
+              <button onclick="filterMaintenance('CHO_LINH_KIEN')" id="filter-maint-CHO_LINH_KIEN" class="maint-filter-btn px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-100 text-slate-600 hover:bg-slate-200 transition">Chờ linh kiện</button>
+              <button onclick="filterMaintenance('HOAN_TAT')" id="filter-maint-HOAN_TAT" class="maint-filter-btn px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-100 text-slate-600 hover:bg-slate-200 transition">Hoàn tất</button>
+            </div>
+            <div class="flex items-center gap-2">
+              <div class="relative flex-1 sm:w-64">
+                <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2"></i>
+                <input type="text" id="maint-search-input" oninput="searchMaintenance(this.value)" placeholder="Tìm mã phiếu, thiết bị, đơn vị..." class="w-full pl-9 pr-3 h-[38px] rounded-xl border border-slate-200 text-xs focus:border-brand-500 focus:ring-brand-500/20">
+              </div>
+              <button onclick="openMaintenanceDrawer()" class="hidden sm:inline-flex items-center gap-1.5 px-4 h-[38px] rounded-xl bg-brand-600 hover:bg-brand-700 text-white text-xs font-semibold transition shadow-xs">
+                <i data-lucide="plus" class="w-4 h-4"></i>
+                <span>Tạo phiếu bảo trì</span>
+              </button>
+            </div>
+          </div>
+          <!-- BẢNG MASTER-TABLE (DESKTOP) & THẺ PHẲNG (MOBILE) -->
+          <div class="bg-white rounded-2xl border border-slate-200/80 shadow-xs overflow-hidden">
+            <div class="hidden md:block overflow-x-auto">
+              <table class="w-full text-left border-collapse">
+                <thead>
+                  <tr class="border-b border-slate-100 bg-slate-50/75 text-[11px] font-bold text-slate-500 uppercase tracking-wider">
+                    <th class="py-3 px-4">Mã Phiếu</th>
+                    <th class="py-3 px-4">Trạng Thái</th>
+                    <th class="py-3 px-4">Thiết Bị / Mã TS</th>
+                    <th class="py-3 px-4">Nội Dung Sự Cố</th>
+                    <th class="py-3 px-4">Đơn Vị Sửa Chữa</th>
+                    <th class="py-3 px-4">Chi Phí (đ)</th>
+                    <th class="py-3 px-4">Ngày Yêu Cầu</th>
+                    <th class="py-3 px-4 text-right"></th>
+                  </tr>
+                </thead>
+                <tbody id="maint-table-body" class="divide-y divide-slate-100 text-xs"></tbody>
+              </table>
+            </div>
+            <div id="maint-cards-list" class="md:hidden divide-y divide-slate-100 p-2"></div>
+            <div id="maint-empty-state" class="py-12 text-center hidden">
+              <i data-lucide="check-circle" class="w-8 h-8 text-slate-300 mx-auto mb-2"></i>
+              <div class="text-xs font-semibold text-slate-700">Không có thiết bị nào đang cần bảo trì</div>
+              <div class="text-[11px] text-slate-400 mt-0.5">Tất cả thiết bị đều đang hoạt động tốt hoặc đã sửa xong</div>
+            </div>
+          </div>
+        </section>
+
+                <!-- MODULE 4A: HỒ SƠ TÀI SẢN -->
+        <section id="tab-assets" class="tab-panel hidden space-y-5">
+          <!-- TOOLBAR TÁC VỤ & BỘ LỌC TRẠNG THÁI TÀI SẢN -->
+          <div class="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div class="flex items-center gap-2 overflow-x-auto pb-1 sm:pb-0">
+              <button onclick="filterAssets('ALL')" id="filter-asset-ALL" class="asset-filter-btn px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-900 text-white transition">Tất cả</button>
+              <button onclick="filterAssets('DANG_DUNG')" id="filter-asset-DANG_DUNG" class="asset-filter-btn px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-100 text-slate-600 hover:bg-slate-200 transition">Đang sử dụng</button>
+              <button onclick="filterAssets('TRONG_KHO')" id="filter-asset-TRONG_KHO" class="asset-filter-btn px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-100 text-slate-600 hover:bg-slate-200 transition">Trong kho</button>
+              <button onclick="filterAssets('DANG_SUA')" id="filter-asset-DANG_SUA" class="asset-filter-btn px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-100 text-slate-600 hover:bg-slate-200 transition">Đang sửa chữa</button>
+            </div>
+            <div class="flex items-center gap-2">
+              <div class="relative flex-1 sm:w-64">
+                <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2"></i>
+                <input type="text" id="asset-search-input" oninput="searchAssets(this.value)" placeholder="Tìm mã TS, tên, số serial..." class="w-full pl-9 pr-3 h-[38px] rounded-xl border border-slate-200 text-xs focus:border-brand-500 focus:ring-brand-500/20">
+              </div>
+              <button onclick="openAssetDrawer()" class="hidden sm:inline-flex items-center gap-1.5 px-4 h-[38px] rounded-xl bg-brand-600 hover:bg-brand-700 text-white text-xs font-semibold transition shadow-xs">
+                <i data-lucide="plus" class="w-4 h-4"></i>
+                <span>Thêm tài sản</span>
+              </button>
+            </div>
+          </div>
+          <!-- BẢNG MASTER-TABLE TRÀN VIỀN (DESKTOP) & THẺ PHẲNG (MOBILE) -->
+          <div class="bg-white rounded-2xl border border-slate-200/80 shadow-xs overflow-hidden">
+            <div class="hidden md:block overflow-x-auto">
+              <table class="w-full text-left border-collapse">
+                <thead>
+                  <tr class="border-b border-slate-100 bg-slate-50/75 text-[11px] font-bold text-slate-500 uppercase tracking-wider">
+                    <th class="py-3 px-4">Mã Tài Sản</th>
+                    <th class="py-3 px-4">Trạng Thái</th>
+                    <th class="py-3 px-4">Tên Thiết Bị / Danh Mục</th>
+                    <th class="py-3 px-4">Số Serial / IMEI</th>
+                    <th class="py-3 px-4">Phòng Ban</th>
+                    <th class="py-3 px-4">Người Đang Giữ</th>
+                    <th class="py-3 px-4 text-right">Nguyên Giá (đ)</th>
+                    <th class="py-3 px-4 text-right"></th>
+                  </tr>
+                </thead>
+                <tbody id="assets-table-body" class="divide-y divide-slate-100 text-xs"></tbody>
+              </table>
+            </div>
+            <div id="assets-cards-list" class="md:hidden divide-y divide-slate-100 p-2"></div>
+            <div id="assets-empty-state" class="py-12 text-center hidden">
+              <i data-lucide="box" class="w-8 h-8 text-slate-300 mx-auto mb-2"></i>
+              <div class="text-xs font-semibold text-slate-700">Chưa tìm thấy tài sản nào phù hợp</div>
+            </div>
+          </div>
+        </section>
+
+                <!-- MODULE 4B: DANH BẠ NHÂN SỰ -->
+        <section id="tab-staff" class="tab-panel hidden space-y-5">
+          <div class="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div class="relative flex-1 sm:w-72">
+              <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2"></i>
+              <input type="text" id="staff-search-input" oninput="searchStaff(this.value)" placeholder="Tìm họ tên, mã nhân sự, phòng ban..." class="w-full pl-9 pr-3 h-[38px] rounded-xl border border-slate-200 text-xs focus:border-brand-500 focus:ring-brand-500/20">
+            </div>
+            <button onclick="openStaffDrawer()" class="hidden sm:inline-flex items-center gap-1.5 px-4 h-[38px] rounded-xl bg-brand-600 hover:bg-brand-700 text-white text-xs font-semibold transition shadow-xs">
+              <i data-lucide="user-plus" class="w-4 h-4"></i>
+              <span>Thêm nhân sự</span>
+            </button>
+          </div>
+          <div class="bg-white rounded-2xl border border-slate-200/80 shadow-xs overflow-hidden">
+            <div class="hidden md:block overflow-x-auto">
+              <table class="w-full text-left border-collapse">
+                <thead>
+                  <tr class="border-b border-slate-100 bg-slate-50/75 text-[11px] font-bold text-slate-500 uppercase tracking-wider">
+                    <th class="py-3 px-4">Mã Nhân Sự</th>
+                    <th class="py-3 px-4">Họ Và Tên</th>
+                    <th class="py-3 px-4">Phòng Ban</th>
+                    <th class="py-3 px-4">Chức Vụ</th>
+                    <th class="py-3 px-4">Số Điện Thoại</th>
+                    <th class="py-3 px-4">Email</th>
+                    <th class="py-3 px-4 text-right"></th>
+                  </tr>
+                </thead>
+                <tbody id="staff-table-body" class="divide-y divide-slate-100 text-xs"></tbody>
+              </table>
+            </div>
+            <div id="staff-cards-list" class="md:hidden divide-y divide-slate-100 p-2"></div>
+          </div>
+        </section>
+
+                <!-- MODULE 5: DANH MỤC HỆ THỐNG -->
+        <section id="tab-catalogs" class="tab-panel hidden space-y-5">
+          <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs">
+            <div class="flex items-center justify-between pb-4 border-b border-slate-100 mb-4">
+              <div>
+                <h3 class="text-sm font-bold text-slate-900">Danh Mục Nhóm Tài Sản & Phòng Ban</h3>
+                <p class="text-[11px] text-slate-400">Dữ liệu nguồn đồng bộ tự động với tab DB_DanhMuc trên Google Sheets</p>
+              </div>
+              <button onclick="openCatalogDrawer()" class="inline-flex items-center gap-1.5 px-4 h-[38px] rounded-xl bg-brand-600 hover:bg-brand-700 text-white text-xs font-semibold transition shadow-xs">
+                <i data-lucide="plus" class="w-4 h-4"></i>
+                <span>Thêm mục mới</span>
+              </button>
+            </div>
+            <div class="overflow-x-auto">
+              <table class="w-full text-left border-collapse">
+                <thead>
+                  <tr class="border-b border-slate-100 bg-slate-50/75 text-[11px] font-bold text-slate-500 uppercase tracking-wider">
+                    <th class="py-3 px-4">Loại Danh Mục</th>
+                    <th class="py-3 px-4">Mã Rút Gọn</th>
+                    <th class="py-3 px-4">Tên Hiển Thị Dropdown</th>
+                    <th class="py-3 px-4">Ghi Chú / Mô Tả</th>
+                    <th class="py-3 px-4 text-right"></th>
+                  </tr>
+                </thead>
+                <tbody id="catalogs-table-body" class="divide-y divide-slate-100 text-xs"></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+                <!-- MODULE 6: CÀI ĐẶT CƠ SỞ -->
+        <section id="tab-settings" class="tab-panel hidden space-y-5">
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
+            <!-- Cấu hình thông tin doanh nghiệp -->
+            <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs space-y-4">
+              <div class="pb-3 border-b border-slate-100">
+                <h3 class="text-sm font-bold text-slate-900">Thông Tin Doanh Nghiệp & Đơn Vị</h3>
+                <p class="text-[11px] text-slate-400">Hiển thị trên tiêu đề biên bản bàn giao và báo cáo xuất ra</p>
+              </div>
+              <form id="settings-form" onsubmit="handleSettingsSubmit(event)" class="space-y-4">
+                <div>
+                  <label class="block text-xs font-semibold text-slate-700 mb-1.5">Tên doanh nghiệp / Công ty <span class="text-rose-500">*</span></label>
+                  <input type="text" id="setting-company-name" required value="CÔNG TY TNHH FILE ĐI LÀM VIỆT NAM" class="w-full h-[44px] px-3 rounded-xl border border-slate-200 text-xs focus:border-brand-500 focus:ring-brand-500/20">
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                  <div>
+                    <label class="block text-xs font-semibold text-slate-700 mb-1.5">Hotline liên hệ</label>
+                    <input type="text" id="setting-hotline" value="0901 234 567" inputmode="tel" class="w-full h-[44px] px-3 rounded-xl border border-slate-200 text-xs font-mono focus:border-brand-500 focus:ring-brand-500/20">
+                  </div>
+                  <div>
+                    <label class="block text-xs font-semibold text-slate-700 mb-1.5">Email hỗ trợ</label>
+                    <input type="email" id="setting-email" value="support@filedilam.com" class="w-full h-[44px] px-3 rounded-xl border border-slate-200 text-xs font-mono focus:border-brand-500 focus:ring-brand-500/20">
+                  </div>
+                </div>
+                <div>
+                  <label class="block text-xs font-semibold text-slate-700 mb-1.5">Địa chỉ trụ sở</label>
+                  <input type="text" id="setting-address" value="Tòa nhà Innovation Hub, Quận 1, TP.HCM" class="w-full h-[44px] px-3 rounded-xl border border-slate-200 text-xs focus:border-brand-500 focus:ring-brand-500/20">
+                </div>
+                <div class="pt-2">
+                  <button type="submit" class="w-full h-[46px] rounded-xl text-xs font-semibold text-white bg-brand-600 hover:bg-brand-700 shadow-sm transition">Lưu cấu hình doanh nghiệp</button>
+                </div>
+              </form>
+            </div>
+            <!-- Xem trước mẫu in biên bản bàn giao A4 -->
+            <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs flex flex-col justify-between">
+              <div>
+                <div class="pb-3 border-b border-slate-100 mb-4">
+                  <h3 class="text-sm font-bold text-slate-900">Mẫu In Biên Bản Bàn Giao Chuẩn A4</h3>
+                  <p class="text-[11px] text-slate-400">Xuất file in PDF hoặc in trực tiếp có sẵn chữ ký 2 bên</p>
+                </div>
+                <div class="p-4 rounded-xl border border-slate-200/70 bg-slate-50 space-y-2 text-xs text-slate-600">
+                  <div class="font-bold text-slate-800 text-center uppercase tracking-wide">CỘNG HÒA XÃ HỘI CHỦ NGHĨA VIỆT NAM</div>
+                  <div class="text-[11px] text-center text-slate-500">Độc lập - Tự do - Hạnh phúc</div>
+                  <div class="text-center font-bold text-brand-700 pt-2 pb-1">BIÊN BẢN BÀN GIAO TÀI SẢN & THIẾT BỊ</div>
+                  <p class="text-[11px] text-slate-500">• Tự động điền: Tên thiết bị, số Serial, cấu hình phụ kiện.</p>
+                  <p class="text-[11px] text-slate-500">• Tự động điền: Họ tên người bàn giao và người tiếp nhận.</p>
+                  <p class="text-[11px] text-slate-500">• Khung chữ ký pháp lý 2 bên chuẩn form hành chính.</p>
+                </div>
+              </div>
+              <div class="pt-4">
+                <button onclick="printSampleHandoverDoc()" class="w-full h-[46px] rounded-xl text-xs font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 transition flex items-center justify-center gap-2">
+                  <i data-lucide="printer" class="w-4 h-4"></i>
+                  <span>In thử biên bản bàn giao mẫu A4</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+                <!-- MODULE 7: HƯỚNG DẪN SỬ DỤNG -->
+        <section id="tab-guide" class="tab-panel hidden space-y-5">
+          <!-- BANNER 3 BƯỚC ONBOARDING -->
+          <div class="bg-gradient-to-r from-emerald-600 to-teal-700 rounded-2xl p-6 text-white shadow-lg">
+            <div class="max-w-2xl">
+              <span class="px-2.5 py-1 rounded-full bg-white/20 text-[11px] font-semibold uppercase tracking-wider">Quy trình bắt đầu</span>
+              <h2 class="text-lg lg:text-xl font-bold mt-2">3 Bước Vận Hành Phần Mềm Tài Sản Trong 3 Phút</h2>
+              <p class="text-xs text-emerald-100 mt-1 leading-relaxed">Hướng dẫn chi tiết dành cho người mua link /copy để sử dụng ngay mà không cần cấu hình kỹ thuật phức tạp.</p>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
+              <div class="bg-white/10 backdrop-blur-xs p-4 rounded-xl border border-white/10">
+                <div class="w-6 h-6 rounded-full bg-white text-brand-600 font-bold text-xs flex items-center justify-center mb-2">1</div>
+                <h4 class="font-bold text-xs">Khai báo danh mục</h4>
+                <p class="text-[11px] text-emerald-100 mt-1">Vào mục Danh mục & Nhân sự để khai báo phòng ban và danh sách nhân viên công ty.</p>
+              </div>
+              <div class="bg-white/10 backdrop-blur-xs p-4 rounded-xl border border-white/10">
+                <div class="w-6 h-6 rounded-full bg-white text-brand-600 font-bold text-xs flex items-center justify-center mb-2">2</div>
+                <h4 class="font-bold text-xs">Nhập kho thiết bị</h4>
+                <p class="text-[11px] text-emerald-100 mt-1">Vào Hồ sơ tài sản bấm Thêm mới để nhập máy tính, xe cộ, serial và nguyên giá.</p>
+              </div>
+              <div class="bg-white/10 backdrop-blur-xs p-4 rounded-xl border border-white/10">
+                <div class="w-6 h-6 rounded-full bg-white text-brand-600 font-bold text-xs flex items-center justify-center mb-2">3</div>
+                <h4 class="font-bold text-xs">Bàn giao & Theo dõi</h4>
+                <p class="text-[11px] text-emerald-100 mt-1">Lập phiếu bàn giao BGIA khi cấp phát và theo dõi toàn bộ trên Dashboard điều hành.</p>
+              </div>
+            </div>
+          </div>
+          <!-- ACCORDION FAQ & KÊNH HỖ TRỢ FILE ĐI LÀM -->
+          <div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
+            <!-- Accordion FAQ -->
+            <div class="lg:col-span-2 bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs space-y-3">
+              <h3 class="text-sm font-bold text-slate-900 pb-2 border-b border-slate-100">Câu Hỏi Thường Gặp (FAQ)</h3>
+              <div class="space-y-2 text-xs">
+                <details class="p-3.5 rounded-xl bg-slate-50 border border-slate-200/60 group" open>
+                  <summary class="font-semibold text-slate-800 cursor-pointer list-none flex items-center justify-between">
+                    <span>Làm thế nào để in biên bản bàn giao cho nhân viên ký nhận?</span>
+                    <i data-lucide="chevron-down" class="w-4 h-4 text-slate-400 group-open:rotate-180 transition"></i>
+                  </summary>
+                  <p class="text-slate-500 mt-2 leading-relaxed">Bạn vào mục Cài đặt cơ sở để bấm In thử biên bản bàn giao mẫu A4, hoặc tại mục Cấp phát thu hồi bấm vào phiếu bất kỳ để xuất biên bản in sẵn thông tin.</p>
+                </details>
+                <details class="p-3.5 rounded-xl bg-slate-50 border border-slate-200/60 group">
+                  <summary class="font-semibold text-slate-800 cursor-pointer list-none flex items-center justify-between">
+                    <span>Dữ liệu có tự động lưu vào Google Sheets của tôi không?</span>
+                    <i data-lucide="chevron-down" class="w-4 h-4 text-slate-400 group-open:rotate-180 transition"></i>
+                  </summary>
+                  <p class="text-slate-500 mt-2 leading-relaxed">Có! 100% dữ liệu được lưu an toàn tại các tab DB_TaiSan, DB_GiaoDich... trên chính Google Sheet trong Google Drive của bạn.</p>
+                </details>
+                <details class="p-3.5 rounded-xl bg-slate-50 border border-slate-200/60 group">
+                  <summary class="font-semibold text-slate-800 cursor-pointer list-none flex items-center justify-between">
+                    <span>Làm sao để đổi thông tin công ty hiển thị trên ứng dụng?</span>
+                    <i data-lucide="chevron-down" class="w-4 h-4 text-slate-400 group-open:rotate-180 transition"></i>
+                  </summary>
+                  <p class="text-slate-500 mt-2 leading-relaxed">Bạn chỉ cần vào tab Cài Đặt Cơ Sở (Module 6), nhập Tên công ty, Hotline, Địa chỉ rồi bấm nút Lưu cấu hình doanh nghiệp.</p>
+                </details>
+              </div>
+            </div>
+            <!-- Fintech Support Card -->
+            <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs flex flex-col justify-between">
+              <div>
+                <div class="w-10 h-10 rounded-xl bg-brand-50 text-brand-600 flex items-center justify-center mb-3">
+                  <i data-lucide="headset" class="w-5 h-5"></i>
+                </div>
+                <h4 class="text-sm font-bold text-slate-900">Kênh Hỗ Trợ Kỹ Thuật</h4>
+                <p class="text-[11px] text-slate-400 mt-1 leading-relaxed">Đội ngũ kỹ thuật FILE ĐI LÀM luôn sẵn sàng hỗ trợ trực tiếp qua Zalo khi bạn cần tùy biến thêm tính năng.</p>
+                <div class="mt-4 p-3 rounded-xl bg-slate-50 border border-slate-100 text-xs space-y-1.5 font-medium text-slate-700">
+                  <div>Thương hiệu: <span class="font-bold text-brand-600">FILE ĐI LÀM</span></div>
+                  <div>Hotline / Zalo: <a href="tel:0901234567" class="font-mono font-bold text-slate-900 hover:underline">0901 234 567</a></div>
+                  <div>Thời gian: 8:00 - 22:00 (Hằng ngày)</div>
+                </div>
+              </div>
+              <div class="pt-4">
+                <a href="https://zalo.me/0901234567" target="_blank" class="w-full h-[46px] rounded-xl text-xs font-semibold text-white bg-brand-600 hover:bg-brand-700 shadow-sm transition flex items-center justify-center gap-2">
+                  <i data-lucide="message-circle" class="w-4 h-4"></i>
+                  <span>Nhắn tin Zalo hỗ trợ 1 chạm</span>
+                </a>
+              </div>
+            </div>
+          </div>
+        </section>
+
+      </div>
+    </main>
+  </div>
+
+  <!-- FLOATING ACTION BUTTON (FAB Mint Mobile) -->
+  <button onclick="openDrawer('quick-add')" class="lg:hidden fixed bottom-20 right-4 w-14 h-14 rounded-full bg-brand-600 text-white shadow-xl shadow-brand-600/30 flex items-center justify-center hover:bg-brand-700 transition active:scale-95 z-30">
+    <i data-lucide="plus" class="w-6 h-6"></i>
+  </button>
+
+  <!-- BOTTOM NAVIGATION DOCK (Mobile - Chuẩn đúng 4 Icon) -->
+  <nav class="lg:hidden fixed bottom-0 left-0 right-0 h-16 bg-white/95 backdrop-blur-md border-t border-slate-200/80 z-30 flex items-center justify-around px-2">
+    <button onclick="switchTab('tab-dashboard')" id="mobile-tab-dashboard" class="mobile-nav-item flex flex-col items-center justify-center flex-1 py-1 text-slate-400 transition">
+      <i data-lucide="layout-dashboard" class="w-5 h-5 mb-0.5"></i>
+      <span class="text-[10px] font-semibold">Tổng Quan</span>
+    </button>
+    <button onclick="switchTab('tab-dispatch')" id="mobile-tab-dispatch" class="mobile-nav-item flex flex-col items-center justify-center flex-1 py-1 text-slate-400 transition">
+      <i data-lucide="arrow-left-right" class="w-5 h-5 mb-0.5"></i>
+      <span class="text-[10px] font-semibold">Cấp Phát</span>
+    </button>
+    <button onclick="switchTab('tab-assets')" id="mobile-tab-assets" class="mobile-nav-item flex flex-col items-center justify-center flex-1 py-1 text-slate-400 transition">
+      <i data-lucide="layers" class="w-5 h-5 mb-0.5"></i>
+      <span class="text-[10px] font-semibold">Tài Sản</span>
+    </button>
+    <button onclick="switchTab('tab-settings')" id="mobile-tab-settings" class="mobile-nav-item flex flex-col items-center justify-center flex-1 py-1 text-slate-400 transition">
+      <i data-lucide="settings" class="w-5 h-5 mb-0.5"></i>
+      <span class="text-[10px] font-semibold">Hệ Thống</span>
+    </button>
+  </nav>
+
+  <!-- ==================== JAVASCRIPT CORE ENGINE ==================== -->
+  <script>
+    
+    // DASHBOARD CHART INSTANCES
+    let ChartInstances = {};
+
+    function renderDashboard() {
+      const data = AppState.rawData;
+      const taiSanList = data.taiSan && data.taiSan.length ? data.taiSan : [
+        { MaTaiSan: 'TSAN-102938', TenTaiSan: 'MacBook Pro 14 M3 Pro', MaNhom: 'IT', PhongBan: 'Kỹ thuật', NguoiGiu: 'Nguyễn Văn An', NguyenGia: 45000000, TrangThai: 'DANG_DUNG' },
+        { MaTaiSan: 'TSAN-294819', TenTaiSan: 'Màn hình Dell UltraSharp 27', MaNhom: 'IT', PhongBan: 'Thiết kế', NguoiGiu: 'Trần Thị Mai', NguyenGia: 12500000, TrangThai: 'DANG_DUNG' },
+        { MaTaiSan: 'TSAN-394821', TenTaiSan: 'Máy in Canon LBP 2900', MaNhom: 'TBVP', PhongBan: 'Hành chính', NguoiGiu: '', NguyenGia: 4200000, TrangThai: 'TRONG_KHO' },
+        { MaTaiSan: 'TSAN-482910', TenTaiSan: 'Xe máy Honda Wave Alpha', MaNhom: 'XE', PhongBan: 'Giao vận', NguoiGiu: '', NguyenGia: 19000000, TrangThai: 'DANG_SUA' }
+      ];
+      const baoTriList = data.baoTri || [];
+
+      // 1. TÍNH TOÁN 5 THẺ KPI
+      let totalValue = 0;
+      let inUseCount = 0;
+      let inStockCount = 0;
+      let maintenanceCount = 0;
+
+      taiSanList.forEach(item => {
+        totalValue += Number(item.NguyenGia) || 0;
+        if (item.TrangThai === 'DANG_DUNG') inUseCount++;
+        else if (item.TrangThai === 'TRONG_KHO') inStockCount++;
+        else if (item.TrangThai === 'DANG_SUA') maintenanceCount++;
+      });
+
+      const elVal = document.getElementById('kpi-total-value');
+      if (elVal) elVal.innerText = new Intl.NumberFormat('vi-VN').format(totalValue) + ' đ';
+      const elUse = document.getElementById('kpi-in-use');
+      if (elUse) elUse.innerText = inUseCount;
+      const elStock = document.getElementById('kpi-in-stock');
+      if (elStock) elStock.innerText = inStockCount;
+      const elMaint = document.getElementById('kpi-maintenance');
+      if (elMaint) elMaint.innerText = maintenanceCount;
+      const elItems = document.getElementById('kpi-total-items');
+      if (elItems) elItems.innerText = taiSanList.length;
+
+      // 2. RENDER KHỐI LỊCH NHẮC BẢO TRÌ HÔM NAY (DAILY ACTION CENTER)
+      renderDailyActionList(taiSanList, baoTriList);
+
+      // 3. RENDER 8 BIỂU ĐỒ CHART.JS
+      render8Charts(taiSanList, baoTriList);
+    }
+
+    function renderDailyActionList(taiSanList, baoTriList) {
+      const listContainer = document.getElementById('daily-action-list');
+      const badge = document.getElementById('daily-count-badge');
+      if (!listContainer) return;
+      
+      const urgentItems = taiSanList.filter(ts => ts.TrangThai === 'DANG_SUA' || ts.TrangThai === 'DANG_DUNG');
+
+      if (!urgentItems.length) {
+        listContainer.innerHTML = '<div class="py-8 text-center text-xs text-slate-400">Hiện tại không có cảnh báo hay thiết bị nào cần xử lý khẩn cấp.</div>';
+        if (badge) badge.innerText = '0 sự vụ';
+        return;
+      }
+
+      if (badge) badge.innerText = Math.min(urgentItems.length, 5) + ' sự vụ ưu tiên';
+      
+      let html = '';
+      urgentItems.slice(0, 5).forEach(ts => {
+        const isRepairing = ts.TrangThai === 'DANG_SUA';
+        html += '<div class="py-3.5 flex items-center justify-between gap-4">' +
+          '<div class="flex items-start gap-3 min-w-0">' +
+            '<div class="w-8 h-8 rounded-lg ' + (isRepairing ? 'bg-amber-50 text-amber-600' : 'bg-slate-100 text-slate-600') + ' flex items-center justify-center shrink-0 mt-0.5">' +
+              '<i data-lucide="' + (isRepairing ? 'wrench' : 'laptop') + '" class="w-4 h-4"></i>' +
+            '</div>' +
+            '<div class="min-w-0">' +
+              '<div class="flex items-center gap-2">' +
+                '<span class="font-mono text-xs font-semibold text-slate-700">' + ts.MaTaiSan + '</span>' +
+                '<span class="text-[11px] font-medium ' + (isRepairing ? 'text-amber-600' : 'text-emerald-600') + '">● ' + (isRepairing ? 'Đang sửa chữa' : 'Đang sử dụng') + '</span>' +
+              '</div>' +
+              '<div class="text-xs font-bold text-slate-900 truncate mt-0.5">' + ts.TenTaiSan + '</div>' +
+              '<div class="text-[11px] text-slate-400 mt-0.5">Phòng ban: ' + (ts.PhongBan || 'Chưa gán') + ' | Người giữ: ' + (ts.NguoiGiu || 'Trong kho') + '</div>' +
+            '</div>' +
+          '</div>' +
+          '<div class="shrink-0 flex items-center gap-2">' +
+            (ts.NguoiGiu ? '<a href="tel:0901234567" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-xs font-semibold text-slate-700 transition shadow-2xs"><i data-lucide="phone" class="w-3.5 h-3.5 text-brand-600"></i>Gọi liên hệ</a>' : '') +
+            '<button onclick="showToast('Chi tiết thiết bị', 'Mã ' + ts.MaTaiSan + ': ' + ts.TenTaiSan + '')" class="p-1.5 rounded-lg hover:bg-slate-100 text-slate-400 hover:text-slate-600"><i data-lucide="more-vertical" class="w-4 h-4"></i></button>' +
+          '</div>' +
+        '</div>';
+      });
+      listContainer.innerHTML = html;
+      lucide.createIcons();
+    }
+
+    function render8Charts(taiSanList, baoTriList) {
+      Object.keys(ChartInstances).forEach(k => {
+        if (ChartInstances[k]) ChartInstances[k].destroy();
+      });
+
+      const primaryMint = '#059669';
+      const secondaryMint = '#10b981';
+
+      // 1. Chi Phí Bảo Trì Theo Tháng
+      const ctx1 = document.getElementById('chart-maintenance-cost');
+      if (ctx1) {
+        ChartInstances.c1 = new Chart(ctx1, {
+          type: 'bar',
+          data: {
+            labels: ['T1', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'T8', 'T9', 'T10', 'T11', 'T12'],
+            datasets: [{
+              label: 'Chi phí sửa chữa (đ)',
+              data: [1200000, 450000, 2100000, 800000, 350000, 1600000, 950000, 1100000, 400000, 750000, 1350000, 900000],
+              backgroundColor: primaryMint,
+              borderRadius: 6
+            }]
+          },
+          options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
+        });
+      }
+
+      // 2. Phân Bổ Giá Trị Theo Phòng Ban (Grouped Bar)
+      const ctx2 = document.getElementById('chart-dept-value');
+      if (ctx2) {
+        ChartInstances.c2 = new Chart(ctx2, {
+          type: 'bar',
+          data: {
+            labels: ['Kỹ thuật', 'Thiết kế', 'Hành chính', 'Giao vận'],
+            datasets: [
+              { label: 'Đang dùng', data: [85, 45, 25, 30], backgroundColor: primaryMint, borderRadius: 6 },
+              { label: 'Trong kho', data: [15, 10, 5, 12], backgroundColor: '#cbd5e1', borderRadius: 6 }
+            ]
+          },
+          options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } }
+        });
+      }
+
+      // 3. Cơ Cấu Phân Loại Tài Sản (Doughnut)
+      const ctx3 = document.getElementById('chart-category-dist');
+      if (ctx3) {
+        ChartInstances.c3 = new Chart(ctx3, {
+          type: 'doughnut',
+          data: {
+            labels: ['IT & Máy tính', 'Thiết bị Văn phòng', 'Phương tiện Đi lại', 'Khác'],
+            datasets: [{
+              data: [55, 25, 15, 5],
+              backgroundColor: ['#059669', '#3b82f6', '#f59e0b', '#64748b'],
+              borderWidth: 2,
+              borderColor: '#ffffff'
+            }]
+          },
+          options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } }
+        });
+      }
+
+      // 4. Top Phòng Ban Giữ Giá Trị (Horizontal Bar)
+      const ctx4 = document.getElementById('chart-top-dept');
+      if (ctx4) {
+        ChartInstances.c4 = new Chart(ctx4, {
+          type: 'bar',
+          indexAxis: 'y',
+          data: {
+            labels: ['Phòng Kỹ thuật', 'Phòng Thiết kế', 'Đội Giao vận', 'Hành chính Nhân sự'],
+            datasets: [{
+              label: 'Giá trị (Tr.đ)',
+              data: [120, 65, 42, 30],
+              backgroundColor: '#334155',
+              borderRadius: 6
+            }]
+          },
+          options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
+        });
+      }
+
+      // 5. Xu Hướng Khấu Hao Lũy Kế (Line)
+      const ctx5 = document.getElementById('chart-depreciation-trend');
+      if (ctx5) {
+        ChartInstances.c5 = new Chart(ctx5, {
+          type: 'line',
+          data: {
+            labels: ['Năm 1', 'Năm 2', 'Năm 3', 'Năm 4', 'Năm 5'],
+            datasets: [{
+              label: 'Giá trị còn lại (%)',
+              data: [100, 80, 60, 40, 20],
+              borderColor: primaryMint,
+              backgroundColor: 'rgba(5, 150, 105, 0.1)',
+              fill: true,
+              tension: 0.3
+            }]
+          },
+          options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
+        });
+      }
+
+      // 6. Sức Khỏe Vận Hành Thiết Bị (Area)
+      const ctx6 = document.getElementById('chart-health-status');
+      if (ctx6) {
+        ChartInstances.c6 = new Chart(ctx6, {
+          type: 'line',
+          data: {
+            labels: ['Tuần 1', 'Tuần 2', 'Tuần 3', 'Tuần 4'],
+            datasets: [{
+              label: 'Uptime (%)',
+              data: [98, 96, 94, 97],
+              borderColor: '#3b82f6',
+              backgroundColor: 'rgba(59, 130, 246, 0.08)',
+              fill: true,
+              tension: 0.3
+            }]
+          },
+          options: { responsive: true, maintainAspectRatio: false, scales: { y: { min: 80, max: 100 } } }
+        });
+      }
+
+      // 7. Tình Trạng Thiết Bị Tổng Thể (Polar Area)
+      const ctx7 = document.getElementById('chart-status-polar');
+      if (ctx7) {
+        ChartInstances.c7 = new Chart(ctx7, {
+          type: 'polarArea',
+          data: {
+            labels: ['Đang dùng', 'Trong kho', 'Đang sửa'],
+            datasets: [{
+              data: [65, 25, 10],
+              backgroundColor: ['rgba(5, 150, 105, 0.7)', 'rgba(100, 116, 139, 0.7)', 'rgba(245, 158, 11, 0.7)']
+            }]
+          },
+          options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } }
+        });
+      }
+
+      // 8. Dự Báo Chi Phí Bảo Dưỡng (Bar Forecast)
+      const ctx8 = document.getElementById('chart-maintenance-forecast');
+      if (ctx8) {
+        ChartInstances.c8 = new Chart(ctx8, {
+          type: 'bar',
+          data: {
+            labels: ['Tuần tới', '+2 Tuần', '+3 Tuần', '+4 Tuần'],
+            datasets: [{
+              label: 'Dự chi (đ)',
+              data: [450000, 1200000, 300000, 850000],
+              backgroundColor: '#f59e0b',
+              borderRadius: 6
+            }]
+          },
+          options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
+        });
+      }
+    }
+
+        // ==================== MODULE 2: DISPATCH & RETURN LOGIC ====================
+    let currentDispFilter = "ALL";
+    let currentDispKeyword = "";
+
+    function renderDispatchModule() {
+      const data = AppState.rawData;
+      const giaoDichList = data.giaoDich && data.giaoDich.length ? data.giaoDich : [
+        { MaGiaoDich: "BGIA-582910", LoaiGiaoDich: "CAP_PHAT", MaTaiSan: "TSAN-102938", TenTaiSan: "MacBook Pro 14 M3 Pro", MaNhanSu: "NHAN-839201", TenNhanSu: "Nguyễn Văn An", NgayGiaoDich: "15/01/2026", TinhTrang: "Mới 100%", NguoiThucHien: "Admin", GhiChu: "Cấp phát nhận việc" },
+        { MaGiaoDich: "BGIA-691823", LoaiGiaoDich: "CAP_PHAT", MaTaiSan: "TSAN-294819", TenTaiSan: "Màn hình Dell UltraSharp 27", MaNhanSu: "NHAN-910283", TenNhanSu: "Trần Thị Mai", NgayGiaoDich: "20/02/2026", TinhTrang: "Mới 100%", NguoiThucHien: "Admin", GhiChu: "Bàn giao thiết bị làm việc" },
+        { MaGiaoDich: "THOI-394821", LoaiGiaoDich: "THOI", MaTaiSan: "TSAN-394821", TenTaiSan: "Máy in Canon LBP 2900", MaNhanSu: "NHAN-748291", TenNhanSu: "Lê Hoàng Nam", NgayGiaoDich: "05/03/2026", TinhTrang: "Hoạt động tốt", NguoiThucHien: "Admin", GhiChu: "Thu hồi về kho" }
+      ];
+
+      let filtered = giaoDichList.filter(item => {
+        const matchType = currentDispFilter === "ALL" || item.LoaiGiaoDich === currentDispFilter;
+        const kw = currentDispKeyword.toLowerCase();
+        const matchKw = !kw ||
+          (item.MaGiaoDich && item.MaGiaoDich.toLowerCase().includes(kw)) ||
+          (item.TenTaiSan && item.TenTaiSan.toLowerCase().includes(kw)) ||
+          (item.TenNhanSu && item.TenNhanSu.toLowerCase().includes(kw)) ||
+          (item.MaTaiSan && item.MaTaiSan.toLowerCase().includes(kw));
+        return matchType && matchKw;
+      });
+
+      const tbody = document.getElementById("dispatch-table-body");
+      const cardsList = document.getElementById("dispatch-cards-list");
+      const emptyState = document.getElementById("dispatch-empty-state");
+
+      if (!filtered.length) {
+        if (tbody) tbody.innerHTML = "";
+        if (cardsList) cardsList.innerHTML = "";
+        if (emptyState) emptyState.classList.remove("hidden");
+        return;
+      }
+      if (emptyState) emptyState.classList.add("hidden");
+
+      // 1. RENDER DESKTOP TABLE
+      let tableHtml = "";
+      filtered.forEach(item => {
+        const isCapPhat = item.LoaiGiaoDich === "CAP_PHAT";
+        tableHtml += '<tr class="hover:bg-slate-50/80 transition">' +
+          '<td class="py-3 px-4 font-mono font-semibold text-slate-700">' + item.MaGiaoDich + '</td>' +
+          '<td class="py-3 px-4">' +
+            '<span class="text-xs font-medium ' + (isCapPhat ? "text-emerald-600" : "text-slate-600") + '">' +
+              '● ' + (isCapPhat ? "Bàn giao" : "Thu hồi") +
+            '</span>' +
+          '</td>' +
+          '<td class="py-3 px-4">' +
+            '<div class="font-bold text-slate-900">' + item.TenTaiSan + '</div>' +
+            '<div class="font-mono text-[11px] text-slate-400">' + item.MaTaiSan + '</div>' +
+          '</td>' +
+          '<td class="py-3 px-4">' +
+            '<div class="font-medium text-slate-800">' + (item.TenNhanSu || "Chưa gán") + '</div>' +
+            '<div class="font-mono text-[11px] text-slate-400">' + (item.MaNhanSu || "") + '</div>' +
+          '</td>' +
+          '<td class="py-3 px-4 text-slate-600">' + (item.NgayGiaoDich || "—") + '</td>' +
+          '<td class="py-3 px-4 text-slate-500">' + (item.TinhTrang || "Bình thường") + '</td>' +
+          '<td class="py-3 px-4 text-right">' +
+            '<button onclick="showToast(\'Chi tiết phiếu\', \'Mã: ' + item.MaGiaoDich + ' | ' + item.TenTaiSan + '\')" class="p-1.5 rounded-lg hover:bg-slate-100 text-slate-400 hover:text-slate-600"><i data-lucide="more-vertical" class="w-4 h-4"></i></button>' +
+          '</td>' +
+        '</tr>';
+      });
+      if (tbody) tbody.innerHTML = tableHtml;
+
+      // 2. RENDER MOBILE CARDS
+      let cardsHtml = "";
+      filtered.forEach(item => {
+        const isCapPhat = item.LoaiGiaoDich === "CAP_PHAT";
+        cardsHtml += '<div class="p-3 bg-white rounded-xl flex items-center justify-between gap-3">' +
+          '<div class="min-w-0 flex-1">' +
+            '<div class="flex items-center gap-2 mb-1">' +
+              '<span class="font-mono text-xs font-semibold text-slate-700">' + item.MaGiaoDich + '</span>' +
+              '<span class="text-[11px] font-medium ' + (isCapPhat ? "text-emerald-600" : "text-slate-600") + '">● ' + (isCapPhat ? "Bàn giao" : "Thu hồi") + '</span>' +
+            '</div>' +
+            '<div class="text-xs font-bold text-slate-900 truncate">' + item.TenTaiSan + '</div>' +
+            '<div class="text-[11px] text-slate-500 mt-0.5 flex items-center gap-2">' +
+              '<span>' + item.TenNhanSu + '</span>' +
+              '<span>•</span>' +
+              '<span>' + item.NgayGiaoDich + '</span>' +
+            '</div>' +
+          '</div>' +
+          '<div class="shrink-0">' +
+            '<button onclick="showToast(\'Phiếu ' + item.MaGiaoDich + '\', \'Tình trạng: ' + item.TinhTrang + '\')" class="p-2 rounded-lg bg-slate-50 text-slate-500 hover:text-slate-800"><i data-lucide="chevron-right" class="w-4 h-4"></i></button>' +
+          '</div>' +
+        '</div>';
+      });
+      if (cardsList) cardsList.innerHTML = cardsHtml;
+      lucide.createIcons();
+    }
+
+    function filterDispatch(type) {
+      currentDispFilter = type;
+      document.querySelectorAll(".disp-filter-btn").forEach(btn => {
+        btn.classList.remove("bg-slate-900", "text-white");
+        btn.classList.add("bg-slate-100", "text-slate-600");
+      });
+      const activeBtn = document.getElementById("filter-disp-" + type);
+      if (activeBtn) {
+        activeBtn.classList.remove("bg-slate-100", "text-slate-600");
+        activeBtn.classList.add("bg-slate-900", "text-white");
+      }
+      renderDispatchModule();
+    }
+
+    function searchDispatch(val) {
+      currentDispKeyword = val;
+      renderDispatchModule();
+    }
+
+    function openDispatchDrawer(defaultType) {
+      defaultType = defaultType || "CAP_PHAT";
+      const data = AppState.rawData;
+      const taiSanList = data.taiSan || [];
+      const nhanSuList = data.nhanSu || [];
+
+      let assetOptions = taiSanList.map(a =>
+        '<option value="' + a.MaTaiSan + '" data-name="' + a.TenTaiSan + '">' + a.MaTaiSan + " - " + a.TenTaiSan + (a.NguoiGiu ? " (" + a.NguoiGiu + ")" : "") + '</option>'
+      ).join("");
+
+      let staffOptions = nhanSuList.map(ns =>
+        '<option value="' + ns.MaNhanSu + '" data-name="' + ns.HoTen + '">' + ns.MaNhanSu + " - " + ns.HoTen + " (" + ns.PhongBan + ")</option>"
+      ).join("");
+
+      const formHtml = [
+        '<form id="dispatch-form" onsubmit="handleDispatchSubmit(event)" class="space-y-4">',
+          '<div>',
+            '<label class="block text-xs font-semibold text-slate-700 mb-1.5">Loại nghiệp vụ <span class="text-rose-500">*</span></label>',
+            '<div class="grid grid-cols-2 gap-2 p-1 bg-slate-100 rounded-xl">',
+              '<button type="button" onclick="setDrawerDispType(\'CAP_PHAT\')" id="btn-type-capphat" class="h-9 rounded-lg text-xs font-semibold ' + (defaultType === "CAP_PHAT" ? "bg-white shadow-xs text-brand-600" : "text-slate-500") + ' transition">Cấp phát (Bàn giao)</button>',
+              '<button type="button" onclick="setDrawerDispType(\'THOI\')" id="btn-type-thuhoi" class="h-9 rounded-lg text-xs font-semibold ' + (defaultType === "THOI" ? "bg-white shadow-xs text-brand-600" : "text-slate-500") + ' transition">Thu hồi thiết bị</button>',
+            '</div>',
+            '<input type="hidden" id="form-disp-type" value="' + defaultType + '">',
+          '</div>',
+          '<div>',
+            '<label class="block text-xs font-semibold text-slate-700 mb-1.5">Chọn tài sản / thiết bị <span class="text-rose-500">*</span></label>',
+            '<select id="form-disp-asset" required class="w-full h-[44px] px-3 rounded-xl border border-slate-200 text-xs bg-white focus:border-brand-500 focus:ring-brand-500/20">',
+              '<option value="">-- Chọn thiết bị trong danh sách --</option>',
+              assetOptions || '<option value="TSAN-394821" data-name="Máy in Canon LBP 2900">TSAN-394821 - Máy in Canon LBP 2900</option>',
+            '</select>',
+          '</div>',
+          '<div>',
+            '<label class="block text-xs font-semibold text-slate-700 mb-1.5">Nhân sự thực hiện <span class="text-rose-500">*</span></label>',
+            '<select id="form-disp-staff" required class="w-full h-[44px] px-3 rounded-xl border border-slate-200 text-xs bg-white focus:border-brand-500 focus:ring-brand-500/20">',
+              '<option value="">-- Chọn nhân viên tiếp nhận / bàn giao --</option>',
+              staffOptions || '<option value="NHAN-839201" data-name="Nguyễn Văn An">NHAN-839201 - Nguyễn Văn An</option>',
+            '</select>',
+          '</div>',
+          '<div>',
+            '<label class="block text-xs font-semibold text-slate-700 mb-1.5">Ngày thực hiện <span class="text-rose-500">*</span></label>',
+            '<input type="text" id="form-disp-date" value="09/11/2026" required placeholder="dd/mm/yyyy" inputmode="numeric" class="w-full h-[44px] px-3 rounded-xl border border-slate-200 text-xs focus:border-brand-500 focus:ring-brand-500/20">',
+          '</div>',
+          '<div>',
+            '<label class="block text-xs font-semibold text-slate-700 mb-1.5">Tình trạng ngoại quan</label>',
+            '<input type="text" id="form-disp-condition" value="Mới 100%, hoạt động tốt" placeholder="Ví dụ: Đầy đủ sạc cáp, không trầy xước..." class="w-full h-[44px] px-3 rounded-xl border border-slate-200 text-xs focus:border-brand-500 focus:ring-brand-500/20">',
+          '</div>',
+          '<div>',
+            '<label class="block text-xs font-semibold text-slate-700 mb-1.5">Ghi chú bổ sung</label>',
+            '<textarea id="form-disp-notes" rows="2" placeholder="Ghi chú thêm nếu có..." class="w-full p-3 rounded-xl border border-slate-200 text-xs focus:border-brand-500 focus:ring-brand-500/20"></textarea>',
+          '</div>',
+          '<div class="pt-3 flex items-center gap-3">',
+            '<button type="button" onclick="closeDrawer()" class="flex-1 h-[46px] rounded-xl text-xs font-semibold text-slate-600 bg-slate-100 hover:bg-slate-200 transition">Hủy bỏ</button>',
+            '<button type="submit" class="flex-1 h-[46px] rounded-xl text-xs font-semibold text-white bg-brand-600 hover:bg-brand-700 shadow-sm transition">Hoàn tất lưu phiếu</button>',
+          '</div>',
+        '</form>'
+      ].join("");
+
+      document.getElementById("drawer-title").innerText = defaultType === "CAP_PHAT" ? "Lập Phiếu Bàn Giao Thiết Bị" : "Lập Phiếu Thu Hồi Thiết Bị";
+      document.getElementById("drawer-body").innerHTML = formHtml;
+      openDrawer("dispatch");
+    }
+
+    function setDrawerDispType(type) {
+      document.getElementById("form-disp-type").value = type;
+      const btnCapPhat = document.getElementById("btn-type-capphat");
+      const btnThuHoi = document.getElementById("btn-type-thuhoi");
+      if (type === "CAP_PHAT") {
+        btnCapPhat.className = "h-9 rounded-lg text-xs font-semibold bg-white shadow-xs text-brand-600 transition";
+        btnThuHoi.className = "h-9 rounded-lg text-xs font-semibold text-slate-500 transition";
+        document.getElementById("drawer-title").innerText = "Lập Phiếu Bàn Giao Thiết Bị";
+      } else {
+        btnThuHoi.className = "h-9 rounded-lg text-xs font-semibold bg-white shadow-xs text-brand-600 transition";
+        btnCapPhat.className = "h-9 rounded-lg text-xs font-semibold text-slate-500 transition";
+        document.getElementById("drawer-title").innerText = "Lập Phiếu Thu Hồi Thiết Bị";
+      }
+    }
+
+    function handleDispatchSubmit(e) {
+      e.preventDefault();
+      const type = document.getElementById("form-disp-type").value;
+      const assetSelect = document.getElementById("form-disp-asset");
+      const staffSelect = document.getElementById("form-disp-staff");
+      const date = document.getElementById("form-disp-date").value;
+      const condition = document.getElementById("form-disp-condition").value;
+      const notes = document.getElementById("form-disp-notes").value;
+
+      const maTaiSan = assetSelect.value;
+      const tenTaiSan = assetSelect.options[assetSelect.selectedIndex].getAttribute("data-name") || maTaiSan;
+      const maNhanSu = staffSelect.value;
+      const tenNhanSu = staffSelect.options[staffSelect.selectedIndex].getAttribute("data-name") || maNhanSu;
+
+      const prefix = type === "CAP_PHAT" ? "BGIA-" : "THOI-";
+      const maGiaoDich = prefix + Math.floor(100000 + Math.random() * 900000);
+
+      const payload = {
+        MaGiaoDich: maGiaoDich,
+        LoaiGiaoDich: type,
+        MaTaiSan: maTaiSan,
+        TenTaiSan: tenTaiSan,
+        MaNhanSu: maNhanSu,
+        TenNhanSu: tenNhanSu,
+        NgayGiaoDich: date,
+        TinhTrang: condition,
+        GhiChu: notes
+      };
+
+      if (!AppState.rawData.giaoDich) AppState.rawData.giaoDich = [];
+      AppState.rawData.giaoDich.unshift(payload);
+
+      // CẤN TRỪ TRẠNG THÁI THIẾT BỊ
+      if (AppState.rawData.taiSan) {
+        const targetAsset = AppState.rawData.taiSan.find(ts => ts.MaTaiSan === maTaiSan);
+        if (targetAsset) {
+          if (type === "CAP_PHAT") {
+            targetAsset.TrangThai = "DANG_DUNG";
+            targetAsset.MaNguoiGiu = maNhanSu;
+            targetAsset.NguoiGiu = tenNhanSu;
+          } else {
+            targetAsset.TrangThai = "TRONG_KHO";
+            targetAsset.MaNguoiGiu = "";
+            targetAsset.NguoiGiu = "";
+          }
+        }
+      }
+
+      closeDrawer();
+      renderDispatchModule();
+      renderDashboard();
+
+      if (typeof google !== "undefined" && google.script && google.script.run) {
+        google.script.run
+          .withSuccessHandler(res => {
+            showToast("Lưu phiếu thành công", "Mã: " + res.maGiaoDich);
+          })
+          .withFailureHandler(err => {
+            showToast("Lỗi lưu server", err.toString(), "error");
+          })
+          .saveGiaoDich(payload);
+      } else {
+        showToast("Tạo phiếu thành công", "Mã " + maGiaoDich + " (" + (type === "CAP_PHAT" ? "Bàn giao" : "Thu hồi") + ")");
+      }
+    }
+        // ==================== MODULE 3: MAINTENANCE LOGIC ====================
+    let currentMaintFilter = "ALL";
+    let currentMaintKeyword = "";
+
+    function renderMaintenanceModule() {
+      const data = AppState.rawData;
+      const baoTriList = data.baoTri && data.baoTri.length ? data.baoTri : [
+        { MaBaoTri: "BTRI-749102", MaTaiSan: "TSAN-482910", TenTaiSan: "Xe máy Honda Wave Alpha", NgayYeuCau: "02/11/2026", NoiDung: "Thay nhớt định kỳ, bảo dưỡng phanh trước", ChiPhi: 350000, DonViSua: "Head Honda Phát Tiến", NgayHoanThanh: "", TrangThai: "DANG_SUA" },
+        { MaBaoTri: "BTRI-839102", MaTaiSan: "TSAN-102938", TenTaiSan: "MacBook Pro 14 M3 Pro", NgayYeuCau: "18/10/2026", NoiDung: "Vệ sinh quạt gió, tra keo tản nhiệt", ChiPhi: 250000, DonViSua: "Trung tâm bảo hành Apple", NgayHoanThanh: "19/10/2026", TrangThai: "HOAN_TAT" },
+        { MaBaoTri: "BTRI-920194", MaTaiSan: "TSAN-394821", TenTaiSan: "Máy in Canon LBP 2900", NgayYeuCau: "25/10/2026", NoiDung: "Kẹt giấy, cần thay cụm sấy", ChiPhi: 650000, DonViSua: "Công ty Mực in Á Châu", NgayHoanThanh: "", TrangThai: "CHO_LINH_KIEN" }
+      ];
+
+      let filtered = baoTriList.filter(item => {
+        const matchStatus = currentMaintFilter === "ALL" || item.TrangThai === currentMaintFilter;
+        const kw = currentMaintKeyword.toLowerCase();
+        const matchKw = !kw ||
+          (item.MaBaoTri && item.MaBaoTri.toLowerCase().includes(kw)) ||
+          (item.TenTaiSan && item.TenTaiSan.toLowerCase().includes(kw)) ||
+          (item.DonViSua && item.DonViSua.toLowerCase().includes(kw)) ||
+          (item.NoiDung && item.NoiDung.toLowerCase().includes(kw));
+        return matchStatus && matchKw;
+      });
+
+      const tbody = document.getElementById("maint-table-body");
+      const cardsList = document.getElementById("maint-cards-list");
+      const emptyState = document.getElementById("maint-empty-state");
+
+      if (!filtered.length) {
+        if (tbody) tbody.innerHTML = "";
+        if (cardsList) cardsList.innerHTML = "";
+        if (emptyState) emptyState.classList.remove("hidden");
+        return;
+      }
+      if (emptyState) emptyState.classList.add("hidden");
+
+      // 1. RENDER DESKTOP TABLE
+      let tableHtml = "";
+      filtered.forEach(item => {
+        const st = getMaintStatusStyle(item.TrangThai);
+        const costStr = new Intl.NumberFormat("vi-VN").format(Number(item.ChiPhi) || 0) + " đ";
+        tableHtml += '<tr class="hover:bg-slate-50/80 transition">' +
+          '<td class="py-3 px-4 font-mono font-semibold text-slate-700">' + item.MaBaoTri + '</td>' +
+          '<td class="py-3 px-4">' +
+            '<span class="text-xs font-medium ' + st.color + '">● ' + st.label + '</span>' +
+          '</td>' +
+          '<td class="py-3 px-4">' +
+            '<div class="font-bold text-slate-900">' + item.TenTaiSan + '</div>' +
+            '<div class="font-mono text-[11px] text-slate-400">' + item.MaTaiSan + '</div>' +
+          '</td>' +
+          '<td class="py-3 px-4 text-slate-600 max-w-xs truncate">' + (item.NoiDung || "—") + '</td>' +
+          '<td class="py-3 px-4 text-slate-800 font-medium">' + (item.DonViSua || "Nội bộ") + '</td>' +
+          '<td class="py-3 px-4 font-mono font-bold text-slate-900">' + costStr + '</td>' +
+          '<td class="py-3 px-4 text-slate-500">' + (item.NgayYeuCau || "—") + '</td>' +
+          '<td class="py-3 px-4 text-right">' +
+            '<button onclick="printMaintReport(\'' + item.MaBaoTri + '\')" class="p-1.5 rounded-lg hover:bg-slate-100 text-slate-500 hover:text-slate-800 mr-1" title="In biên bản sửa chữa"><i data-lucide="printer" class="w-4 h-4"></i></button>' +
+            '<button onclick="updateMaintStatus(\'' + item.MaBaoTri + '\')" class="p-1.5 rounded-lg hover:bg-slate-100 text-brand-600" title="Chuyển trạng thái"><i data-lucide="check-square" class="w-4 h-4"></i></button>' +
+          '</td>' +
+        '</tr>';
+      });
+      if (tbody) tbody.innerHTML = tableHtml;
+
+      // 2. RENDER MOBILE CARDS
+      let cardsHtml = "";
+      filtered.forEach(item => {
+        const st = getMaintStatusStyle(item.TrangThai);
+        const costStr = new Intl.NumberFormat("vi-VN").format(Number(item.ChiPhi) || 0) + " đ";
+        cardsHtml += '<div class="p-3.5 bg-white rounded-xl flex items-center justify-between gap-3">' +
+          '<div class="min-w-0 flex-1">' +
+            '<div class="flex items-center gap-2 mb-1">' +
+              '<span class="font-mono text-xs font-semibold text-slate-700">' + item.MaBaoTri + '</span>' +
+              '<span class="text-[11px] font-medium ' + st.color + '">● ' + st.label + '</span>' +
+            '</div>' +
+            '<div class="text-xs font-bold text-slate-900 truncate">' + item.TenTaiSan + '</div>' +
+            '<div class="text-[11px] text-slate-500 mt-1 line-clamp-1">' + item.NoiDung + '</div>' +
+            '<div class="text-[11px] text-slate-400 mt-1 flex items-center justify-between">' +
+              '<span>' + item.DonViSua + '</span>' +
+              '<span class="font-mono font-bold text-slate-900">' + costStr + '</span>' +
+            '</div>' +
+          '</div>' +
+          '<div class="shrink-0 flex flex-col gap-1">' +
+            '<button onclick="printMaintReport(\'' + item.MaBaoTri + '\')" class="p-2 rounded-lg bg-slate-50 text-slate-600 hover:bg-slate-100"><i data-lucide="printer" class="w-4 h-4"></i></button>' +
+            '<button onclick="updateMaintStatus(\'' + item.MaBaoTri + '\')" class="p-2 rounded-lg bg-emerald-50 text-brand-600 hover:bg-emerald-100"><i data-lucide="check" class="w-4 h-4"></i></button>' +
+          '</div>' +
+        '</div>';
+      });
+      if (cardsList) cardsList.innerHTML = cardsHtml;
+      lucide.createIcons();
+    }
+
+    function getMaintStatusStyle(status) {
+      if (status === "HOAN_TAT") return { label: "Hoàn tất", color: "text-emerald-600" };
+      if (status === "CHO_LINH_KIEN") return { label: "Chờ linh kiện", color: "text-blue-600" };
+      return { label: "Đang sửa chữa", color: "text-amber-600" };
+    }
+
+    function filterMaintenance(status) {
+      currentMaintFilter = status;
+      document.querySelectorAll(".maint-filter-btn").forEach(btn => {
+        btn.classList.remove("bg-slate-900", "text-white");
+        btn.classList.add("bg-slate-100", "text-slate-600");
+      });
+      const activeBtn = document.getElementById("filter-maint-" + status);
+      if (activeBtn) {
+        activeBtn.classList.remove("bg-slate-100", "text-slate-600");
+        activeBtn.classList.add("bg-slate-900", "text-white");
+      }
+      renderMaintenanceModule();
+    }
+
+    function searchMaintenance(val) {
+      currentMaintKeyword = val;
+      renderMaintenanceModule();
+    }
+
+    // FORM LẬP PHIẾU BẢO TRÌ SỬA CHỮA
+    function openMaintenanceDrawer() {
+      const taiSanList = AppState.rawData.taiSan || [];
+      let assetOptions = taiSanList.map(a =>
+        '<option value="' + a.MaTaiSan + '" data-name="' + a.TenTaiSan + '">' + a.MaTaiSan + " - " + a.TenTaiSan + '</option>'
+      ).join("");
+
+      const formHtml = [
+        '<form id="maint-form" onsubmit="handleMaintSubmit(event)" class="space-y-4">',
+          '<div>',
+            '<label class="block text-xs font-semibold text-slate-700 mb-1.5">Chọn thiết bị cần bảo trì <span class="text-rose-500">*</span></label>',
+            '<select id="form-maint-asset" required class="w-full h-[44px] px-3 rounded-xl border border-slate-200 text-xs bg-white focus:border-brand-500 focus:ring-brand-500/20">',
+              '<option value="">-- Chọn thiết bị trong danh sách --</option>',
+              assetOptions || '<option value="TSAN-482910" data-name="Xe máy Honda Wave Alpha">TSAN-482910 - Xe máy Honda Wave Alpha</option>',
+            '</select>',
+          '</div>',
+          '<div>',
+            '<label class="block text-xs font-semibold text-slate-700 mb-1.5">Ngày yêu cầu sửa chữa <span class="text-rose-500">*</span></label>',
+            '<input type="text" id="form-maint-date" value="09/11/2026" required placeholder="dd/mm/yyyy" inputmode="numeric" class="w-full h-[44px] px-3 rounded-xl border border-slate-200 text-xs focus:border-brand-500 focus:ring-brand-500/20">',
+          '</div>',
+          '<div>',
+            '<label class="block text-xs font-semibold text-slate-700 mb-1.5">Nội dung sự cố / Hỏng hóc <span class="text-rose-500">*</span></label>',
+            '<textarea id="form-maint-desc" required rows="2" placeholder="Mô tả chi tiết hiện tượng lỗi, linh kiện cần thay thế..." class="w-full p-3 rounded-xl border border-slate-200 text-xs focus:border-brand-500 focus:ring-brand-500/20"></textarea>',
+          '</div>',
+          '<div class="grid grid-cols-2 gap-3">',
+            '<div>',
+              '<label class="block text-xs font-semibold text-slate-700 mb-1.5">Chi phí dự kiến (đ)</label>',
+              '<input type="number" id="form-maint-cost" value="0" min="0" step="50000" inputmode="numeric" class="w-full h-[44px] px-3 rounded-xl border border-slate-200 text-xs focus:border-brand-500 focus:ring-brand-500/20 font-mono">',
+            '</div>',
+            '<div>',
+              '<label class="block text-xs font-semibold text-slate-700 mb-1.5">Trạng thái khởi tạo</label>',
+              '<select id="form-maint-status" class="w-full h-[44px] px-3 rounded-xl border border-slate-200 text-xs bg-white focus:border-brand-500 focus:ring-brand-500/20">',
+                '<option value="DANG_SUA">Đang sửa chữa</option>',
+                '<option value="CHO_LINH_KIEN">Chờ linh kiện</option>',
+                '<option value="HOAN_TAT">Đã sửa xong</option>',
+              '</select>',
+            '</div>',
+          '</div>',
+          '<div>',
+            '<label class="block text-xs font-semibold text-slate-700 mb-1.5">Đơn vị sửa chữa / Bảo hành</label>',
+            '<input type="text" id="form-maint-vendor" value="Trung tâm bảo hành chính hãng" placeholder="Tên cửa hàng, thợ sửa, gara..." class="w-full h-[44px] px-3 rounded-xl border border-slate-200 text-xs focus:border-brand-500 focus:ring-brand-500/20">',
+          '</div>',
+          '<div class="pt-3 flex items-center gap-3">',
+            '<button type="button" onclick="closeDrawer()" class="flex-1 h-[46px] rounded-xl text-xs font-semibold text-slate-600 bg-slate-100 hover:bg-slate-200 transition">Hủy bỏ</button>',
+            '<button type="submit" class="flex-1 h-[46px] rounded-xl text-xs font-semibold text-white bg-brand-600 hover:bg-brand-700 shadow-sm transition">Tạo phiếu bảo trì</button>',
+          '</div>',
+        '</form>'
+      ].join("");
+
+      document.getElementById("drawer-title").innerText = "Lập Phiếu Bảo Trì & Sửa Chữa";
+      document.getElementById("drawer-body").innerHTML = formHtml;
+      openDrawer("maintenance");
+    }
+
+    function handleMaintSubmit(e) {
+      e.preventDefault();
+      const assetSelect = document.getElementById("form-maint-asset");
+      const date = document.getElementById("form-maint-date").value;
+      const desc = document.getElementById("form-maint-desc").value;
+      const cost = Number(document.getElementById("form-maint-cost").value) || 0;
+      const status = document.getElementById("form-maint-status").value;
+      const vendor = document.getElementById("form-maint-vendor").value;
+
+      const maTaiSan = assetSelect.value;
+      const tenTaiSan = assetSelect.options[assetSelect.selectedIndex].getAttribute("data-name") || maTaiSan;
+      const maBaoTri = "BTRI-" + Math.floor(100000 + Math.random() * 900000);
+
+      const payload = {
+        MaBaoTri: maBaoTri,
+        MaTaiSan: maTaiSan,
+        TenTaiSan: tenTaiSan,
+        NgayYeuCau: date,
+        NoiDung: desc,
+        ChiPhi: cost,
+        DonViSua: vendor,
+        NgayHoanThanh: status === "HOAN_TAT" ? date : "",
+        TrangThai: status
+      };
+
+      if (!AppState.rawData.baoTri) AppState.rawData.baoTri = [];
+      AppState.rawData.baoTri.unshift(payload);
+
+      // Cập nhật trạng thái tài sản thành ĐANG_SUA nếu chưa hoàn tất
+      if (AppState.rawData.taiSan) {
+        const targetAsset = AppState.rawData.taiSan.find(ts => ts.MaTaiSan === maTaiSan);
+        if (targetAsset) {
+          if (status === "HOAN_TAT") {
+            targetAsset.TrangThai = targetAsset.NguoiGiu ? "DANG_DUNG" : "TRONG_KHO";
+          } else {
+            targetAsset.TrangThai = "DANG_SUA";
+          }
+        }
+      }
+
+      closeDrawer();
+      renderMaintenanceModule();
+      renderDashboard();
+      showToast("Tạo phiếu bảo trì thành công", "Mã: " + maBaoTri);
+    }
+
+    function updateMaintStatus(maBaoTri) {
+      const target = (AppState.rawData.baoTri || []).find(b => b.MaBaoTri === maBaoTri);
+      if (!target) return;
+      if (target.TrangThai === "HOAN_TAT") {
+        showToast("Thông báo", "Phiếu này đã hoàn tất sửa chữa.");
+        return;
+      }
+      target.TrangThai = "HOAN_TAT";
+      target.NgayHoanThanh = "09/11/2026";
+
+      // Cập nhật trạng thái tài sản trở lại
+      if (AppState.rawData.taiSan) {
+        const asset = AppState.rawData.taiSan.find(ts => ts.MaTaiSan === target.MaTaiSan);
+        if (asset) {
+          asset.TrangThai = asset.NguoiGiu ? "DANG_DUNG" : "TRONG_KHO";
+        }
+      }
+      renderMaintenanceModule();
+      renderDashboard();
+      showToast("Đã hoàn tất sửa chữa", "Thiết bị " + target.MaTaiSan + " đã sẵn sàng.");
+    }
+
+    function printMaintReport(maBaoTri) {
+      const target = (AppState.rawData.baoTri || []).find(b => b.MaBaoTri === maBaoTri);
+      if (!target) return;
+      const costStr = new Intl.NumberFormat("vi-VN").format(Number(target.ChiPhi) || 0) + " đ";
+      const printWin = window.open("", "_blank", "width=700,height=800");
+      printWin.document.write('<html><head><title>Biên Bản Sửa Chữa ' + maBaoTri + '</title><style>body{font-family:sans-serif;padding:30px;line-height:1.6}h2{text-align:center;color:#0f172a}.meta{margin:20px 0;border-bottom:1px solid #e2e8f0;padding-bottom:10px}.field{display:flex;justify-content:space-between;margin:8px 0}.sign{margin-top:50px;display:flex;justify-content:space-between;text-align:center}</style></head><body><h2>BIÊN BẢN BẢO TRÌ & SỬA CHỮA THIẾT BỊ</h2><div class="meta"><div class="field"><span>Mã biên bản:</span><b>' + maBaoTri + '</b></div><div class="field"><span>Tài sản:</span><b>' + target.TenTaiSan + ' (' + target.MaTaiSan + ')</b></div><div class="field"><span>Ngày yêu cầu:</span><span>' + target.NgayYeuCau + '</span></div><div class="field"><span>Đơn vị sửa chữa:</span><span>' + target.DonViSua + '</span></div><div class="field"><span>Chi phí:</span><b>' + costStr + '</b></div><div class="field"><span>Nội dung khắc phục:</span><span>' + target.NoiDung + '</span></div></div><div class="sign"><div><b>ĐƠN VỊ SỬA CHỮA</b><br><br><br>(Ký & ghi rõ họ tên)</div><div><b>ĐẠI DIỆN CÔNG TY</b><br><br><br>(Ký & ghi rõ họ tên)</div></div></body></html>');
+      printWin.document.close();
+      printWin.focus();
+      setTimeout(() => printWin.print(), 300);
+    }
+        // ==================== MODULE 4: ASSETS & STAFF DIRECTORY ====================
+    let currentAssetFilter = "ALL";
+    let currentAssetKeyword = "";
+    let currentStaffKeyword = "";
+
+    function renderAssetsModule() {
+      const taiSanList = AppState.rawData.taiSan || [];
+      let filtered = taiSanList.filter(item => {
+        const matchStatus = currentAssetFilter === "ALL" || item.TrangThai === currentAssetFilter;
+        const kw = currentAssetKeyword.toLowerCase();
+        const matchKw = !kw ||
+          (item.MaTaiSan && item.MaTaiSan.toLowerCase().includes(kw)) ||
+          (item.TenTaiSan && item.TenTaiSan.toLowerCase().includes(kw)) ||
+          (item.SoSerial && item.SoSerial.toLowerCase().includes(kw)) ||
+          (item.PhongBan && item.PhongBan.toLowerCase().includes(kw)) ||
+          (item.NguoiGiu && item.NguoiGiu.toLowerCase().includes(kw));
+        return matchStatus && matchKw;
+      });
+
+      const tbody = document.getElementById("assets-table-body");
+      const cardsList = document.getElementById("assets-cards-list");
+      const emptyState = document.getElementById("assets-empty-state");
+
+      if (!filtered.length) {
+        if (tbody) tbody.innerHTML = "";
+        if (cardsList) cardsList.innerHTML = "";
+        if (emptyState) emptyState.classList.remove("hidden");
+        return;
+      }
+      if (emptyState) emptyState.classList.add("hidden");
+
+      // 1. RENDER DESKTOP MASTER-TABLE
+      let tableHtml = "";
+      filtered.forEach(item => {
+        const st = getAssetStatusStyle(item.TrangThai);
+        const priceStr = new Intl.NumberFormat("vi-VN").format(Number(item.NguyenGia) || 0) + " đ";
+        tableHtml += '<tr class="hover:bg-slate-50/80 transition">' +
+          '<td class="py-3 px-4 font-mono font-semibold text-slate-700">' + item.MaTaiSan + '</td>' +
+          '<td class="py-3 px-4">' +
+            '<span class="text-xs font-medium ' + st.color + '">● ' + st.label + '</span>' +
+          '</td>' +
+          '<td class="py-3 px-4">' +
+            '<div class="font-bold text-slate-900">' + item.TenTaiSan + '</div>' +
+            '<div class="text-[11px] text-slate-400">Nhóm: ' + (item.MaNhom || "IT") + '</div>' +
+          '</td>' +
+          '<td class="py-3 px-4 font-mono text-slate-600">' + (item.SoSerial || "—") + '</td>' +
+          '<td class="py-3 px-4 text-slate-700">' + (item.PhongBan || "Chưa gán") + '</td>' +
+          '<td class="py-3 px-4">' +
+            '<div class="font-medium text-slate-800">' + (item.NguoiGiu || "Trong kho") + '</div>' +
+            '<div class="font-mono text-[10px] text-slate-400">' + (item.MaNguoiGiu || "") + '</div>' +
+          '</td>' +
+          '<td class="py-3 px-4 text-right font-mono font-bold text-slate-900">' + priceStr + '</td>' +
+          '<td class="py-3 px-4 text-right">' +
+            '<button onclick="editAsset(\'' + item.MaTaiSan + '\')" class="p-1.5 rounded-lg hover:bg-slate-100 text-slate-500 hover:text-slate-800 mr-1" title="Chỉnh sửa"><i data-lucide="edit-3" class="w-4 h-4"></i></button>' +
+            '<button onclick="deleteAsset(\'' + item.MaTaiSan + '\')" class="p-1.5 rounded-lg hover:bg-rose-50 text-slate-400 hover:text-rose-600" title="Xóa"><i data-lucide="trash-2" class="w-4 h-4"></i></button>' +
+          '</td>' +
+        '</tr>';
+      });
+      if (tbody) tbody.innerHTML = tableHtml;
+
+      // 2. RENDER MOBILE CARDS
+      let cardsHtml = "";
+      filtered.forEach(item => {
+        const st = getAssetStatusStyle(item.TrangThai);
+        const priceStr = new Intl.NumberFormat("vi-VN").format(Number(item.NguyenGia) || 0) + " đ";
+        cardsHtml += '<div class="p-3.5 bg-white rounded-xl flex items-center justify-between gap-3">' +
+          '<div class="min-w-0 flex-1">' +
+            '<div class="flex items-center gap-2 mb-1">' +
+              '<span class="font-mono text-xs font-semibold text-slate-700">' + item.MaTaiSan + '</span>' +
+              '<span class="text-[11px] font-medium ' + st.color + '">● ' + st.label + '</span>' +
+            '</div>' +
+            '<div class="text-xs font-bold text-slate-900 truncate">' + item.TenTaiSan + '</div>' +
+            '<div class="text-[11px] text-slate-400 font-mono mt-0.5">SN: ' + (item.SoSerial || "—") + '</div>' +
+            '<div class="text-[11px] text-slate-500 mt-1 flex items-center justify-between">' +
+              '<span>' + (item.NguoiGiu || "Trong kho") + ' (' + (item.PhongBan || "") + ')</span>' +
+              '<span class="font-mono font-bold text-slate-900">' + priceStr + '</span>' +
+            '</div>' +
+          '</div>' +
+          '<div class="shrink-0 flex flex-col gap-1">' +
+            '<button onclick="editAsset(\'' + item.MaTaiSan + '\')" class="p-2 rounded-lg bg-slate-50 text-slate-600"><i data-lucide="edit-3" class="w-4 h-4"></i></button>' +
+          '</div>' +
+        '</div>';
+      });
+      if (cardsList) cardsList.innerHTML = cardsHtml;
+      lucide.createIcons();
+    }
+
+    function getAssetStatusStyle(status) {
+      if (status === "DANG_DUNG") return { label: "Đang sử dụng", color: "text-emerald-600" };
+      if (status === "DANG_SUA") return { label: "Đang sửa chữa", color: "text-amber-600" };
+      return { label: "Trong kho", color: "text-slate-600" };
+    }
+
+    function filterAssets(st) {
+      currentAssetFilter = st;
+      document.querySelectorAll(".asset-filter-btn").forEach(btn => {
+        btn.classList.remove("bg-slate-900", "text-white");
+        btn.classList.add("bg-slate-100", "text-slate-600");
+      });
+      const activeBtn = document.getElementById("filter-asset-" + st);
+      if (activeBtn) {
+        activeBtn.classList.remove("bg-slate-100", "text-slate-600");
+        activeBtn.classList.add("bg-slate-900", "text-white");
+      }
+      renderAssetsModule();
+    }
+
+    function searchAssets(val) {
+      currentAssetKeyword = val;
+      renderAssetsModule();
+    }
+
+    // FORM THÊM / SỬA TÀI SẢN
+    function openAssetDrawer(editItem) {
+      const isEdit = !!editItem;
+      const formHtml = [
+        '<form id="asset-form" onsubmit="handleAssetSubmit(event)" class="space-y-4">',
+          '<input type="hidden" id="form-asset-code" value="' + (isEdit ? editItem.MaTaiSan : "") + '">',
+          '<div>',
+            '<label class="block text-xs font-semibold text-slate-700 mb-1.5">Tên thiết bị / tài sản <span class="text-rose-500">*</span></label>',
+            '<input type="text" id="form-asset-name" value="' + (isEdit ? editItem.TenTaiSan : "") + '" required placeholder="Ví dụ: MacBook Pro 14 M3, Dell 27..." class="w-full h-[44px] px-3 rounded-xl border border-slate-200 text-xs focus:border-brand-500 focus:ring-brand-500/20">',
+          '</div>',
+          '<div class="grid grid-cols-2 gap-3">',
+            '<div>',
+              '<label class="block text-xs font-semibold text-slate-700 mb-1.5">Nhóm tài sản</label>',
+              '<select id="form-asset-category" class="w-full h-[44px] px-3 rounded-xl border border-slate-200 text-xs bg-white focus:border-brand-500 focus:ring-brand-500/20">',
+                '<option value="IT" ' + (isEdit && editItem.MaNhom === "IT" ? "selected" : "") + '>IT & Máy tính</option>',
+                '<option value="TBVP" ' + (isEdit && editItem.MaNhom === "TBVP" ? "selected" : "") + '>Thiết bị văn phòng</option>',
+                '<option value="XE" ' + (isEdit && editItem.MaNhom === "XE" ? "selected" : "") + '>Phương tiện đi lại</option>',
+              '</select>',
+            '</div>',
+            '<div>',
+              '<label class="block text-xs font-semibold text-slate-700 mb-1.5">Số Serial / IMEI</label>',
+              '<input type="text" id="form-asset-serial" value="' + (isEdit ? (editItem.SoSerial || "") : "") + '" placeholder="C02G... hoặc biển số" class="w-full h-[44px] px-3 rounded-xl border border-slate-200 text-xs font-mono focus:border-brand-500 focus:ring-brand-500/20">',
+            '</div>',
+          '</div>',
+          '<div class="grid grid-cols-2 gap-3">',
+            '<div>',
+              '<label class="block text-xs font-semibold text-slate-700 mb-1.5">Phòng ban quản lý</label>',
+              '<input type="text" id="form-asset-dept" value="' + (isEdit ? (editItem.PhongBan || "") : "Kỹ thuật") + '" class="w-full h-[44px] px-3 rounded-xl border border-slate-200 text-xs focus:border-brand-500 focus:ring-brand-500/20">',
+            '</div>',
+            '<div>',
+              '<label class="block text-xs font-semibold text-slate-700 mb-1.5">Nguyên giá (đ) <span class="text-rose-500">*</span></label>',
+              '<input type="number" id="form-asset-price" value="' + (isEdit ? (editItem.NguyenGia || 0) : 10000000) + '" required inputmode="numeric" class="w-full h-[44px] px-3 rounded-xl border border-slate-200 text-xs font-mono focus:border-brand-500 focus:ring-brand-500/20">',
+            '</div>',
+          '</div>',
+          '<div>',
+            '<label class="block text-xs font-semibold text-slate-700 mb-1.5">Ghi chú ngoại quan / phụ kiện</label>',
+            '<textarea id="form-asset-notes" rows="2" class="w-full p-3 rounded-xl border border-slate-200 text-xs focus:border-brand-500 focus:ring-brand-500/20">' + (isEdit ? (editItem.GhiChu || "") : "Máy kèm sạc zin") + '</textarea>',
+          '</div>',
+          '<div class="pt-3 flex items-center gap-3">',
+            '<button type="button" onclick="closeDrawer()" class="flex-1 h-[46px] rounded-xl text-xs font-semibold text-slate-600 bg-slate-100 hover:bg-slate-200 transition">Hủy bỏ</button>',
+            '<button type="submit" class="flex-1 h-[46px] rounded-xl text-xs font-semibold text-white bg-brand-600 hover:bg-brand-700 shadow-sm transition">' + (isEdit ? "Cập nhật tài sản" : "Thêm mới tài sản") + '</button>',
+          '</div>',
+        '</form>'
+      ].join("");
+
+      document.getElementById("drawer-title").innerText = isEdit ? "Chỉnh Sửa Tài Sản" : "Thêm Mới Tài Sản";
+      document.getElementById("drawer-body").innerHTML = formHtml;
+      openDrawer("asset");
+    }
+
+    function editAsset(maTaiSan) {
+      const item = (AppState.rawData.taiSan || []).find(ts => ts.MaTaiSan === maTaiSan);
+      if (item) openAssetDrawer(item);
+    }
+
+    function deleteAsset(maTaiSan) {
+      openConfirmModal({
+        title: "Xác nhận xóa tài sản",
+        message: "Bạn có chắc chắn muốn xóa mã " + maTaiSan + " khỏi hệ thống?",
+        onConfirm: () => {
+          AppState.rawData.taiSan = (AppState.rawData.taiSan || []).filter(ts => ts.MaTaiSan !== maTaiSan);
+          renderAssetsModule();
+          renderDashboard();
+          showToast("Đã xóa tài sản", "Mã: " + maTaiSan);
+        }
+      });
+    }
+
+    function handleAssetSubmit(e) {
+      e.preventDefault();
+      const code = document.getElementById("form-asset-code").value;
+      const name = document.getElementById("form-asset-name").value;
+      const cat = document.getElementById("form-asset-category").value;
+      const serial = document.getElementById("form-asset-serial").value;
+      const dept = document.getElementById("form-asset-dept").value;
+      const price = Number(document.getElementById("form-asset-price").value) || 0;
+      const notes = document.getElementById("form-asset-notes").value;
+
+      const isNew = !code;
+      const maTS = code || ("TSAN-" + Math.floor(100000 + Math.random() * 900000));
+
+      const payload = {
+        MaTaiSan: maTS,
+        TenTaiSan: name,
+        MaNhom: cat,
+        SoSerial: serial,
+        PhongBan: dept,
+        MaNguoiGiu: "",
+        NguoiGiu: "",
+        NguyenGia: price,
+        NgayMua: "09/11/2026",
+        HanBaoHanh: "09/11/2028",
+        TrangThai: "TRONG_KHO",
+        GhiChu: notes
+      };
+
+      if (!AppState.rawData.taiSan) AppState.rawData.taiSan = [];
+      if (isNew) {
+        AppState.rawData.taiSan.unshift(payload);
+      } else {
+        const idx = AppState.rawData.taiSan.findIndex(ts => ts.MaTaiSan === code);
+        if (idx >= 0) {
+          payload.MaNguoiGiu = AppState.rawData.taiSan[idx].MaNguoiGiu;
+          payload.NguoiGiu = AppState.rawData.taiSan[idx].NguoiGiu;
+          payload.TrangThai = AppState.rawData.taiSan[idx].TrangThai;
+          AppState.rawData.taiSan[idx] = payload;
+        }
+      }
+
+      closeDrawer();
+      renderAssetsModule();
+      renderDashboard();
+      showToast(isNew ? "Thêm mới thành công" : "Cập nhật thành công", "Mã: " + maTS);
+    }
+
+    // ==================== DANH BẠ NHÂN SỰ LOGIC ====================
+    function renderStaffModule() {
+      const nhanSuList = AppState.rawData.nhanSu || [];
+      const kw = currentStaffKeyword.toLowerCase();
+      const filtered = nhanSuList.filter(item => {
+        return !kw ||
+          (item.MaNhanSu && item.MaNhanSu.toLowerCase().includes(kw)) ||
+          (item.HoTen && item.HoTen.toLowerCase().includes(kw)) ||
+          (item.PhongBan && item.PhongBan.toLowerCase().includes(kw)) ||
+          (item.SoDienThoai && item.SoDienThoai.toLowerCase().includes(kw));
+      });
+
+      const tbody = document.getElementById("staff-table-body");
+      const cardsList = document.getElementById("staff-cards-list");
+
+      // 1. RENDER DESKTOP TABLE
+      let tableHtml = "";
+      filtered.forEach(item => {
+        tableHtml += '<tr class="hover:bg-slate-50/80 transition">' +
+          '<td class="py-3 px-4 font-mono font-semibold text-slate-700">' + item.MaNhanSu + '</td>' +
+          '<td class="py-3 px-4 font-bold text-slate-900">' + item.HoTen + '</td>' +
+          '<td class="py-3 px-4 text-slate-700">' + item.PhongBan + '</td>' +
+          '<td class="py-3 px-4 text-slate-600">' + item.ChucVu + '</td>' +
+          '<td class="py-3 px-4">' +
+            '<a href="tel:' + item.SoDienThoai + '" class="font-mono text-brand-600 hover:underline flex items-center gap-1.5"><i data-lucide="phone" class="w-3.5 h-3.5"></i>' + item.SoDienThoai + '</a>' +
+          '</td>' +
+          '<td class="py-3 px-4 text-slate-500 font-mono text-[11px]">' + (item.Email || "—") + '</td>' +
+          '<td class="py-3 px-4 text-right">' +
+            '<button onclick="showToast(\'Nhân sự\', \'Mã: ' + item.MaNhanSu + ' | ' + item.HoTen + '\')" class="p-1.5 rounded-lg hover:bg-slate-100 text-slate-400 hover:text-slate-600"><i data-lucide="more-vertical" class="w-4 h-4"></i></button>' +
+          '</td>' +
+        '</tr>';
+      });
+      if (tbody) tbody.innerHTML = tableHtml;
+
+      // 2. RENDER MOBILE CARDS
+      let cardsHtml = "";
+      filtered.forEach(item => {
+        cardsHtml += '<div class="p-3.5 bg-white rounded-xl flex items-center justify-between gap-3">' +
+          '<div class="min-w-0 flex-1">' +
+            '<div class="flex items-center gap-2 mb-1">' +
+              '<span class="font-mono text-xs font-semibold text-slate-700">' + item.MaNhanSu + '</span>' +
+              '<span class="text-[11px] text-slate-400">• ' + item.PhongBan + '</span>' +
+            '</div>' +
+            '<div class="text-xs font-bold text-slate-900 truncate">' + item.HoTen + ' (' + item.ChucVu + ')</div>' +
+            '<div class="text-[11px] text-slate-500 mt-1">' +
+              '<a href="tel:' + item.SoDienThoai + '" class="font-mono text-brand-600 flex items-center gap-1"><i data-lucide="phone" class="w-3.5 h-3.5"></i>' + item.SoDienThoai + '</a>' +
+            '</div>' +
+          '</div>' +
+          '<div class="shrink-0">' +
+            '<a href="tel:' + item.SoDienThoai + '" class="p-2.5 rounded-xl bg-brand-50 text-brand-600 flex items-center justify-center"><i data-lucide="phone-call" class="w-4 h-4"></i></a>' +
+          '</div>' +
+        '</div>';
+      });
+      if (cardsList) cardsList.innerHTML = cardsHtml;
+      lucide.createIcons();
+    }
+
+    function searchStaff(val) {
+      currentStaffKeyword = val;
+      renderStaffModule();
+    }
+
+    function openStaffDrawer() {
+      const formHtml = [
+        '<form id="staff-form" onsubmit="handleStaffSubmit(event)" class="space-y-4">',
+          '<div>',
+            '<label class="block text-xs font-semibold text-slate-700 mb-1.5">Họ và tên nhân sự <span class="text-rose-500">*</span></label>',
+            '<input type="text" id="form-staff-name" required placeholder="Ví dụ: Hoàng Văn Tuấn..." class="w-full h-[44px] px-3 rounded-xl border border-slate-200 text-xs focus:border-brand-500 focus:ring-brand-500/20">',
+          '</div>',
+          '<div class="grid grid-cols-2 gap-3">',
+            '<div>',
+              '<label class="block text-xs font-semibold text-slate-700 mb-1.5">Số điện thoại <span class="text-rose-500">*</span></label>',
+              '<input type="tel" id="form-staff-phone" required placeholder="0901234567" inputmode="tel" class="w-full h-[44px] px-3 rounded-xl border border-slate-200 text-xs font-mono focus:border-brand-500 focus:ring-brand-500/20">',
+            '</div>',
+            '<div>',
+              '<label class="block text-xs font-semibold text-slate-700 mb-1.5">Phòng ban</label>',
+              '<input type="text" id="form-staff-dept" value="Kỹ thuật" class="w-full h-[44px] px-3 rounded-xl border border-slate-200 text-xs focus:border-brand-500 focus:ring-brand-500/20">',
+            '</div>',
+          '</div>',
+          '<div>',
+            '<label class="block text-xs font-semibold text-slate-700 mb-1.5">Chức danh / Vị trí</label>',
+            '<input type="text" id="form-staff-role" value="Chuyên viên" class="w-full h-[44px] px-3 rounded-xl border border-slate-200 text-xs focus:border-brand-500 focus:ring-brand-500/20">',
+          '</div>',
+          '<div>',
+            '<label class="block text-xs font-semibold text-slate-700 mb-1.5">Email công ty</label>',
+            '<input type="email" id="form-staff-email" placeholder="tuan.hoang@congty.com" class="w-full h-[44px] px-3 rounded-xl border border-slate-200 text-xs font-mono focus:border-brand-500 focus:ring-brand-500/20">',
+          '</div>',
+          '<div class="pt-3 flex items-center gap-3">',
+            '<button type="button" onclick="closeDrawer()" class="flex-1 h-[46px] rounded-xl text-xs font-semibold text-slate-600 bg-slate-100 hover:bg-slate-200 transition">Hủy bỏ</button>',
+            '<button type="submit" class="flex-1 h-[46px] rounded-xl text-xs font-semibold text-white bg-brand-600 hover:bg-brand-700 shadow-sm transition">Thêm nhân sự</button>',
+          '</div>',
+        '</form>'
+      ].join("");
+
+      document.getElementById("drawer-title").innerText = "Thêm Mới Nhân Sự";
+      document.getElementById("drawer-body").innerHTML = formHtml;
+      openDrawer("staff");
+    }
+
+    function handleStaffSubmit(e) {
+      e.preventDefault();
+      const name = document.getElementById("form-staff-name").value;
+      const phone = document.getElementById("form-staff-phone").value;
+      const dept = document.getElementById("form-staff-dept").value;
+      const role = document.getElementById("form-staff-role").value;
+      const email = document.getElementById("form-staff-email").value;
+
+      const maNS = "NHAN-" + Math.floor(100000 + Math.random() * 900000);
+      const payload = {
+        MaNhanSu: maNS,
+        HoTen: name,
+        SoDienThoai: phone,
+        Email: email,
+        PhongBan: dept,
+        ChucVu: role,
+        TrangThai: "DANG_LAM"
+      };
+
+      if (!AppState.rawData.nhanSu) AppState.rawData.nhanSu = [];
+      AppState.rawData.nhanSu.unshift(payload);
+
+      closeDrawer();
+      renderStaffModule();
+      showToast("Thêm nhân sự thành công", "Mã: " + maNS);
+    }
+        // ==================== MODULE 5, 6, 7: SYSTEM & GUIDE ====================
+    function renderCatalogsModule() {
+      const danhMucList = AppState.rawData.danhMuc || [
+        { LoaiDanhMuc: "NHOM_TAI_SAN", MaDanhMuc: "IT", TenDanhMuc: "Thiết bị Công nghệ & Máy tính", GhiChu: "Laptop, PC, Màn hình" },
+        { LoaiDanhMuc: "NHOM_TAI_SAN", MaDanhMuc: "TBVP", TenDanhMuc: "Thiết bị Văn phòng", GhiChu: "Máy in, Máy chiếu, Bàn ghế" },
+        { LoaiDanhMuc: "NHOM_TAI_SAN", MaDanhMuc: "XE", TenDanhMuc: "Phương tiện Đi lại & Vận chuyển", GhiChu: "Xe máy, Xe tải" },
+        { LoaiDanhMuc: "PHONG_BAN", MaDanhMuc: "PB_KT", TenDanhMuc: "Kỹ thuật", GhiChu: "Phòng Công nghệ & IT" },
+        { LoaiDanhMuc: "PHONG_BAN", MaDanhMuc: "PB_TK", TenDanhMuc: "Thiết kế", GhiChu: "Phòng Sáng tạo & Media" },
+        { LoaiDanhMuc: "PHONG_BAN", MaDanhMuc: "PB_HC", TenDanhMuc: "Hành chính", GhiChu: "Phòng Hành chính Nhân sự" }
+      ];
+
+      const tbody = document.getElementById("catalogs-table-body");
+      if (!tbody) return;
+
+      let tableHtml = "";
+      danhMucList.forEach(item => {
+        const isGroup = item.LoaiDanhMuc === "NHOM_TAI_SAN";
+        tableHtml += '<tr class="hover:bg-slate-50/80 transition">' +
+          '<td class="py-3 px-4">' +
+            '<span class="text-xs font-medium ' + (isGroup ? "text-brand-600" : "text-blue-600") + '">● ' + (isGroup ? "Nhóm tài sản" : "Phòng ban") + '</span>' +
+          '</td>' +
+          '<td class="py-3 px-4 font-mono font-semibold text-slate-700">' + item.MaDanhMuc + '</td>' +
+          '<td class="py-3 px-4 font-bold text-slate-900">' + item.TenDanhMuc + '</td>' +
+          '<td class="py-3 px-4 text-slate-500">' + (item.GhiChu || "—") + '</td>' +
+          '<td class="py-3 px-4 text-right">' +
+            '<button onclick="showToast(\'Danh mục\', \'' + item.TenDanhMuc + '\')" class="p-1.5 rounded-lg hover:bg-slate-100 text-slate-400 hover:text-slate-600"><i data-lucide="more-vertical" class="w-4 h-4"></i></button>' +
+          '</td>' +
+        '</tr>';
+      });
+      tbody.innerHTML = tableHtml;
+      lucide.createIcons();
+    }
+
+    function openCatalogDrawer() {
+      const formHtml = [
+        '<form id="catalog-form" onsubmit="handleCatalogSubmit(event)" class="space-y-4">',
+          '<div>',
+            '<label class="block text-xs font-semibold text-slate-700 mb-1.5">Loại danh mục <span class="text-rose-500">*</span></label>',
+            '<select id="form-cat-type" class="w-full h-[44px] px-3 rounded-xl border border-slate-200 text-xs bg-white focus:border-brand-500 focus:ring-brand-500/20">',
+              '<option value="NHOM_TAI_SAN">Nhóm tài sản (Thiết bị)</option>',
+              '<option value="PHONG_BAN">Phòng ban công ty</option>',
+            '</select>',
+          '</div>',
+          '<div>',
+            '<label class="block text-xs font-semibold text-slate-700 mb-1.5">Mã rút gọn <span class="text-rose-500">*</span></label>',
+            '<input type="text" id="form-cat-code" required placeholder="Ví dụ: IT, XE, PB_KT..." class="w-full h-[44px] px-3 rounded-xl border border-slate-200 text-xs font-mono uppercase focus:border-brand-500 focus:ring-brand-500/20">',
+          '</div>',
+          '<div>',
+            '<label class="block text-xs font-semibold text-slate-700 mb-1.5">Tên hiển thị <span class="text-rose-500">*</span></label>',
+            '<input type="text" id="form-cat-name" required placeholder="Ví dụ: Thiết bị Công nghệ..." class="w-full h-[44px] px-3 rounded-xl border border-slate-200 text-xs focus:border-brand-500 focus:ring-brand-500/20">',
+          '</div>',
+          '<div>',
+            '<label class="block text-xs font-semibold text-slate-700 mb-1.5">Mô tả / Ghi chú</label>',
+            '<textarea id="form-cat-notes" rows="2" class="w-full p-3 rounded-xl border border-slate-200 text-xs focus:border-brand-500 focus:ring-brand-500/20"></textarea>',
+          '</div>',
+          '<div class="pt-3 flex items-center gap-3">',
+            '<button type="button" onclick="closeDrawer()" class="flex-1 h-[46px] rounded-xl text-xs font-semibold text-slate-600 bg-slate-100 hover:bg-slate-200 transition">Hủy bỏ</button>',
+            '<button type="submit" class="flex-1 h-[46px] rounded-xl text-xs font-semibold text-white bg-brand-600 hover:bg-brand-700 shadow-sm transition">Thêm danh mục</button>',
+          '</div>',
+        '</form>'
+      ].join("");
+
+      document.getElementById("drawer-title").innerText = "Thêm Mục Danh Mục Mới";
+      document.getElementById("drawer-body").innerHTML = formHtml;
+      openDrawer("catalog");
+    }
+
+    function handleCatalogSubmit(e) {
+      e.preventDefault();
+      const type = document.getElementById("form-cat-type").value;
+      const code = document.getElementById("form-cat-code").value.trim().toUpperCase();
+      const name = document.getElementById("form-cat-name").value;
+      const notes = document.getElementById("form-cat-notes").value;
+
+      const payload = { LoaiDanhMuc: type, MaDanhMuc: code, TenDanhMuc: name, GhiChu: notes };
+      if (!AppState.rawData.danhMuc) AppState.rawData.danhMuc = [];
+      AppState.rawData.danhMuc.push(payload);
+
+      closeDrawer();
+      renderCatalogsModule();
+      showToast("Thêm danh mục thành công", code + " - " + name);
+    }
+
+    function handleSettingsSubmit(e) {
+      e.preventDefault();
+      const compName = document.getElementById("setting-company-name").value;
+      const hotline = document.getElementById("setting-hotline").value;
+      const email = document.getElementById("setting-email").value;
+      const address = document.getElementById("setting-address").value;
+
+      AppState.rawData.caiDat = {
+        TenDoanhNghiep: compName,
+        Hotline: hotline,
+        EmailLienHe: email,
+        DiaChi: address
+      };
+
+      showToast("Đã lưu cấu hình", "Thông tin doanh nghiệp đã được cập nhật thành công.");
+    }
+
+    function printSampleHandoverDoc() {
+      const compName = (AppState.rawData.caiDat && AppState.rawData.caiDat.TenDoanhNghiep) || "CÔNG TY TNHH FILE ĐI LÀM VIỆT NAM";
+      const printWin = window.open("", "_blank", "width=750,height=850");
+      printWin.document.write('<html><head><title>Biên Bản Bàn Giao Thiết Bị</title><style>body{font-family:sans-serif;padding:40px;line-height:1.6}h3,h2{text-align:center;margin:4px 0}table{width:100%;border-collapse:collapse;margin:20px 0}th,td{border:1px solid #cbd5e1;padding:8px 12px;font-size:13px}th{background:#f8fafc}.sign{margin-top:60px;display:flex;justify-content:space-between;text-align:center}</style></head><body><div style="text-align:center;font-size:14px;font-weight:bold">CỘNG HÒA XÃ HỘI CHỦ NGHĨA VIỆT NAM<br><span style="font-size:12px;font-weight:normal">Độc lập - Tự do - Hạnh phúc</span><br>---o0o---</div><h2 style="margin-top:25px;color:#0f172a">BIÊN BẢN BÀN GIAO TÀI SẢN & THIẾT BỊ</h2><p style="text-align:center;font-size:12px;color:#64748b">Căn cứ nhu cầu phục vụ công việc tại: <b>' + compName + '</b></p><p style="font-size:13px;margin-top:20px">Hôm nay, ngày 09 tháng 11 năm 2026, chúng tôi gồm có:</p><div style="font-size:13px;margin:8px 0"><b>BÊN BÀN GIAO:</b> Đại diện Bộ phận IT / Quản lý tài sản<br><b>BÊN TIẾP NHẬN:</b> Ông/Bà: <b>Nguyễn Văn An</b> - Chức vụ: Lập trình viên</div><table><thead><tr><th>STT</th><th>Mã Tài Sản</th><th>Tên Thiết Bị</th><th>Số Serial</th><th>Tình Trạng</th></tr></thead><tbody><tr><td>1</td><td>TSAN-102938</td><td>MacBook Pro 14 M3 Pro</td><td>C02G901KMD6R</td><td>Mới 100%, kèm sạc zin</td></tr><tr><td>2</td><td>TSAN-294819</td><td>Màn hình Dell UltraSharp 27</td><td>CN-0K7910-742</td><td>Mới 100%, kèm cáp Type-C</td></tr></tbody></table><p style="font-size:12px;color:#475569">Bên tiếp nhận cam kết sử dụng và bảo quản tài sản đúng quy định của công ty.</p><div class="sign"><div><b>NGƯỜI TIẾP NHẬN</b><br><br><br><br>(Ký & ghi rõ họ tên)</div><div><b>ĐẠI DIỆN BÀN GIAO</b><br><br><br><br>(Ký & đóng dấu)</div></div></body></html>');
+      printWin.document.close();
+      printWin.focus();
+      setTimeout(() => printWin.print(), 300);
+    }
+    // 1. STATE MANAGEMENT
+    const AppState = {
+      currentTab: 'tab-dashboard',
+      sidebarCollapsed: false,
+      rawData: { taiSan: [], nhanSu: [], giaoDich: [], baoTri: [], danhMuc: [], caiDat: {} }
+    };
+
+    // 2. TAB TITLES METADATA
+    const TabMeta = {
+      'tab-dashboard': { title: 'Tổng Quan Điều Hành', subtitle: 'Theo dõi nguyên giá, tình trạng cấp phát và hạn bảo dưỡng thiết bị' },
+      'tab-dispatch': { title: 'Cấp Phát & Thu Hồi Tài Sản', subtitle: 'Lập phiếu bàn giao nhân viên mới và tiếp nhận thiết bị hoàn trả' },
+      'tab-maintenance': { title: 'Sổ Theo Dõi Bảo Trì & Sửa Chữa', subtitle: 'Ghi nhận sự cố, chi phí sửa chữa và theo dõi đơn vị bảo hành' },
+      'tab-assets': { title: 'Hồ Sơ Danh Mục Tài Sản', subtitle: 'Quản lý toàn bộ danh bạ thiết bị, số serial và vị trí sử dụng' },
+      'tab-staff': { title: 'Danh Bạ Nhân Sự Công Ty', subtitle: 'Quản lý danh sách người dùng và phòng ban tiếp nhận thiết bị' },
+      'tab-catalogs': { title: 'Danh Mục Hệ Thống', subtitle: 'Cấu hình nhóm tài sản và phòng ban chuẩn hóa toàn bộ ứng dụng' },
+      'tab-settings': { title: 'Cài Đặt Cơ Sở & Doanh Nghiệp', subtitle: 'Cấu hình thông tin công ty và mẫu in biên bản bàn giao' },
+      'tab-guide': { title: 'Hướng Dẫn Sử Dụng & Trợ Giúp', subtitle: 'Quy trình 3 bước Onboarding và hotline hỗ trợ kỹ thuật FILE ĐI LÀM' }
+    };
+
+    // 3. ROUTER SWITCH TAB
+    function switchTab(tabId) {
+      if (!TabMeta[tabId]) return;
+      AppState.currentTab = tabId;
+
+      // Ẩn tất cả panels, hiện panel active
+      document.querySelectorAll('.tab-panel').forEach(p => p.classList.add('hidden'));
+      const activePanel = document.getElementById(tabId);
+      if (activePanel) activePanel.classList.remove('hidden');
+      if (tabId === 'tab-dashboard') renderDashboard();
+      if (tabId === 'tab-dispatch') renderDispatchModule();
+      if (tabId === 'tab-maintenance') renderMaintenanceModule();
+      if (tabId === 'tab-assets') renderAssetsModule();
+      if (tabId === 'tab-staff') renderStaffModule();
+      if (tabId === 'tab-catalogs') renderCatalogsModule();
+
+      // Update tiêu đề header
+      document.getElementById('top-page-title').innerText = TabMeta[tabId].title;
+      document.getElementById('top-page-subtitle').innerText = TabMeta[tabId].subtitle;
+
+      // Update Sidebar Desktop Active
+      document.querySelectorAll('.nav-item').forEach(el => {
+        el.classList.remove('bg-brand-50', 'text-brand-600');
+        el.classList.add('text-slate-600');
+      });
+      const activeNav = document.getElementById('nav-' + tabId);
+      if (activeNav) {
+        activeNav.classList.remove('text-slate-600');
+        activeNav.classList.add('bg-brand-50', 'text-brand-600');
+      }
+
+      // Update Mobile Bottom Dock Active
+      document.querySelectorAll('.mobile-nav-item').forEach(el => {
+        el.classList.remove('text-brand-600');
+        el.classList.add('text-slate-400');
+      });
+      const activeMob = document.getElementById('mobile-' + tabId);
+      if (activeMob) {
+        activeMob.classList.remove('text-slate-400');
+        activeMob.classList.add('text-brand-600');
+      }
+
+      // Re-render icon Lucide
+      lucide.createIcons();
+    }
+
+    // 4. TOAST NOTIFICATION ENGINE
+    function showToast(title, message = '', type = 'success') {
+      const container = document.getElementById('toast-container');
+      const toast = document.createElement('div');
+      toast.className = 'pointer-events-auto flex items-start gap-3 p-4 rounded-xl shadow-lg border text-xs max-w-sm w-80 transform transition-all duration-300 translate-y-2 opacity-0 ' +
+        (type === 'success' ? 'bg-white border-brand-200 text-slate-800' :
+         type === 'error' ? 'bg-white border-rose-200 text-slate-800' : 'bg-white border-slate-200 text-slate-800');
+
+      const iconColor = type === 'success' ? 'text-brand-600' : type === 'error' ? 'text-rose-600' : 'text-slate-600';
+      const iconName = type === 'success' ? 'check-circle' : type === 'error' ? 'alert-circle' : 'info';
+
+      toast.innerHTML = `
+        <div class="shrink-0 ${iconColor} mt-0.5"><i data-lucide="${iconName}" class="w-4 h-4"></i></div>
+        <div class="flex-1">
+          <div class="font-bold text-slate-900">${title}</div>
+          ${message ? `<div class="text-slate-500 mt-0.5 leading-relaxed">${message}</div>` : ''}
+        </div>
+      `;
+
+      container.appendChild(toast);
+      lucide.createIcons();
+
+      requestAnimationFrame(() => {
+        toast.classList.remove('translate-y-2', 'opacity-0');
+      });
+
+      setTimeout(() => {
+        toast.classList.add('opacity-0', 'translate-x-full');
+        setTimeout(() => toast.remove(), 300);
+      }, 3000);
+    }
+
+    // 5. CUSTOM CONFIRMATION MODAL ENGINE (Triệt tiêu alert/confirm)
+    let pendingConfirmAction = null;
+    function openConfirmModal({ title = 'Xác nhận xóa', message = 'Hành động này không thể hoàn tác.', onConfirm }) {
+      document.getElementById('confirm-modal-title').innerText = title;
+      document.getElementById('confirm-modal-msg').innerText = message;
+      pendingConfirmAction = onConfirm;
+      document.getElementById('confirm-modal').classList.remove('hidden');
+    }
+
+    document.getElementById('confirm-modal-cancel').onclick = () => {
+      document.getElementById('confirm-modal').classList.add('hidden');
+      pendingConfirmAction = null;
+    };
+
+    document.getElementById('confirm-modal-ok').onclick = () => {
+      document.getElementById('confirm-modal').classList.add('hidden');
+      if (typeof pendingConfirmAction === 'function') {
+        pendingConfirmAction();
+      }
+      pendingConfirmAction = null;
+    };
+
+    // 6. DRAWER CONTROLS
+    function openDrawer(actionType) {
+      document.getElementById('action-drawer-backdrop').classList.remove('hidden');
+      const drawer = document.getElementById('action-drawer');
+      drawer.classList.remove('lg:translate-x-full', 'translate-y-full');
+      document.getElementById('drawer-title').innerText = actionType === 'quick-add' ? 'Thao Tác Nhanh' : 'Chi Tiết Nghiệp Vụ';
+    }
+
+    function closeDrawer() {
+      document.getElementById('action-drawer-backdrop').classList.add('hidden');
+      const drawer = document.getElementById('action-drawer');
+      drawer.classList.add('lg:translate-x-full', 'translate-y-full');
+    }
+
+    // 7. TOGGLE SIDEBAR DESKTOP
+    function toggleSidebar() {
+      const sb = document.getElementById('desktop-sidebar');
+      AppState.sidebarCollapsed = !AppState.sidebarCollapsed;
+      if (AppState.sidebarCollapsed) {
+        sb.classList.remove('w-60');
+        sb.classList.add('w-16');
+        document.querySelectorAll('.sidebar-text').forEach(el => el.classList.add('hidden'));
+      } else {
+        sb.classList.remove('w-16');
+        sb.classList.add('w-60');
+        document.querySelectorAll('.sidebar-text').forEach(el => el.classList.remove('hidden'));
+      }
+    }
+
+    // 8. DATA SYNC & API BRIDGE
+    function refreshData() {
+      const bar = document.getElementById('top-loading-bar');
+      bar.classList.remove('-translate-y-full');
+
+      if (typeof google !== 'undefined' && google.script && google.script.run) {
+        google.script.run
+          .withSuccessHandler(res => {
+            bar.classList.add('-translate-y-full');
+            if (res && res.success) {
+              AppState.rawData = res.data;
+              renderDashboard();
+              showToast('Đồng bộ thành công', 'Dữ liệu đã cập nhật mới nhất từ Google Sheets.');
+            } else {
+              showToast('Lỗi nạp dữ liệu', res.error || 'Không thể đọc dữ liệu', 'error');
+            }
+          })
+          .withFailureHandler(err => {
+            bar.classList.add('-translate-y-full');
+            showToast('Lỗi kết nối', err.toString(), 'error');
+          })
+          .getInitialData();
+      } else {
+        // Mock data khi chạy local test
+        setTimeout(() => {
+          bar.classList.add('-translate-y-full');
+          renderDashboard();
+          showToast('Chế độ Local Mock', 'Đang hiển thị Dashboard Sprint 1.');
+        }, 400);
+      }
+    }
+
+    // INITIALIZATION
+    window.addEventListener('DOMContentLoaded', () => {
+      lucide.createIcons();
+      switchTab('tab-dashboard');
+      refreshData();
+    });
+  </script>
+</body>
+</html>
