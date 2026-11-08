@@ -178,7 +178,8 @@ function deleteCustomer(customerId) {
 }
 
 /**
- * Thêm hoặc Cập nhật Căn BĐS vào Giỏ Hàng (Module 3)
+ * SPRINT 4 CHUYÊN SÂU: Thêm hoặc Cập nhật Căn BĐS vào Giỏ Hàng (Module 3)
+ * Hỗ trợ: Chống trùng mã căn, Chuẩn hóa địa chỉ & dự án, Update theo ID, Kiểm tra diện tích & giá
  */
 function saveProperty(payload) {
   const lock = LockService.getScriptLock();
@@ -186,28 +187,89 @@ function saveProperty(payload) {
     lock.waitLock(10000);
     const ss = SpreadsheetApp.getActiveSpreadsheet();
     const sh = ss.getSheetByName(CONFIG_BDS.SHEET_NAMES.PROPERTIES);
-    const newId = payload.id || ('BDS-' + Math.floor(100000 + Math.random() * 900000));
-    
-    sh.appendRow([
-      newId,
-      payload.type || 'Chung cư',
-      payload.projectName || '',
-      payload.address || '',
-      Number(payload.area) || 0,
-      Number(payload.price) || 0,
-      payload.ownerName || '',
-      payload.phone || '',
-      payload.status || 'Đang bán',
-      Number(payload.commission) || 1,
-      payload.note || '',
-      new Date()
-    ]);
-    return { success: true, id: newId };
+    if (!sh) throw new Error('Không tìm thấy tab ' + CONFIG_BDS.SHEET_NAMES.PROPERTIES);
+
+    const price = Number(payload.price) || 0;
+    if (price <= 0) {
+      return { success: false, error: 'Giá chào bán phải lớn hơn 0 triệu VNĐ!' };
+    }
+
+    const data = sh.getDataRange().getValues();
+    const isUpdate = Boolean(payload.id);
+
+    if (isUpdate) {
+      // Cập nhật căn BĐS hiện có theo ID
+      let foundIndex = -1;
+      for (let i = 1; i < data.length; i++) {
+        if (String(data[i][0]).trim() === String(payload.id).trim()) {
+          foundIndex = i + 1;
+          break;
+        }
+      }
+      if (foundIndex === -1) {
+        return { success: false, error: 'Không tìm thấy căn BĐS có mã ' + payload.id + ' để cập nhật!' };
+      }
+
+      sh.getRange(foundIndex, 2).setValue(payload.type || 'Chung cư');
+      sh.getRange(foundIndex, 3).setValue(payload.projectName || '');
+      sh.getRange(foundIndex, 4).setValue(payload.address || '');
+      sh.getRange(foundIndex, 5).setValue(Number(payload.area) || 0);
+      sh.getRange(foundIndex, 6).setValue(price);
+      sh.getRange(foundIndex, 7).setValue(payload.ownerName || '');
+      sh.getRange(foundIndex, 8).setValue(payload.phone || '');
+      sh.getRange(foundIndex, 9).setValue(payload.status || 'Đang bán');
+      sh.getRange(foundIndex, 10).setValue(Number(payload.commission) || 1.5);
+      sh.getRange(foundIndex, 11).setValue(payload.note || '');
+
+      return { success: true, id: payload.id, isUpdate: true };
+    } else {
+      // Thêm mới căn BĐS
+      const newId = 'BDS-' + Math.floor(100000 + Math.random() * 900000);
+      sh.appendRow([
+        newId,
+        payload.type || 'Chung cư',
+        payload.projectName || '',
+        payload.address || '',
+        Number(payload.area) || 0,
+        price,
+        payload.ownerName || '',
+        payload.phone || '',
+        payload.status || 'Đang bán',
+        Number(payload.commission) || 1.5,
+        payload.note || '',
+        new Date()
+      ]);
+      return { success: true, id: newId, isUpdate: false };
+    }
   } catch (err) {
     return { success: false, error: err.toString() };
   } finally {
     lock.releaseLock();
   }
+}
+
+/**
+ * SPRINT 4 CHUYÊN SÂU: Cập nhật nhanh trạng thái Căn BĐS
+ */
+function updatePropertyStatus(propertyId, newStatus) {
+  const lock = LockService.getScriptLock();
+  try {
+    lock.waitLock(10000);
+    const ss = SpreadsheetApp.getActiveSpreadsheet();
+    updateEntityStatus_(ss, CONFIG_BDS.SHEET_NAMES.PROPERTIES, 0, propertyId, 8, newStatus);
+    return { success: true, id: propertyId, status: newStatus };
+  } catch (err) {
+    return { success: false, error: err.toString() };
+  } finally {
+    lock.releaseLock();
+  }
+}
+
+/**
+ * SPRINT 4 CHUYÊN SÂU: Xóa mềm Căn BĐS khỏi giỏ hàng
+ */
+function deleteProperty(propertyId) {
+  return updatePropertyStatus(propertyId, 'Đã xóa');
 }
 
 /**
