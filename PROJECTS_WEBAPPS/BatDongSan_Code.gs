@@ -360,7 +360,11 @@ function deleteInteraction(logId) {
 
 /**
  * Chốt Cọc & Hoa Hồng - CẬP NHẬT TỰ ĐỘNG QUAN HỆ CHÉO (Module 5)
- * SPRINT 7: Hỗ trợ Tạo mới (HD-XXXXXX), Cập nhật Hợp đồng & Xóa mềm
+ * SPRINT 9: ATOMIC DEAL TRANSACTION
+ * Tự động đồng bộ quan hệ 2 chiều giữa Hợp Đồng <-> Căn BĐS <-> Khách Hàng:
+ * 1. Khi tạo deal mới hoặc deal active: Prop -> 'Đã cọc/Đã bán', Cust -> 'Đã chốt cọc'.
+ * 2. Khi đổi căn BĐS trong hợp đồng: Hoàn trả căn cũ về 'Đang bán', chuyển căn mới sang 'Đã cọc/Đã bán'.
+ * 3. Khi chuyển trạng thái hợp đồng sang 'Đã hủy/Đã xóa': Hoàn trả căn BĐS về 'Đang bán'.
  */
 function saveDeal(payload) {
   const lock = LockService.getScriptLock();
@@ -385,6 +389,10 @@ function saveDeal(payload) {
       const data = shDeals.getDataRange().getValues();
       for (let i = 1; i < data.length; i++) {
         if (data[i][0] === payload.id) {
+          const oldPropId = String(data[i][3] || '').trim();
+          const oldCustId = String(data[i][1] || '').trim();
+          const oldStatus = String(data[i][9] || '').trim();
+
           shDeals.getRange(i + 1, 2).setValue(payload.customerId || '');
           shDeals.getRange(i + 1, 3).setValue(payload.customerName || '');
           shDeals.getRange(i + 1, 4).setValue(payload.propertyId || '');
@@ -396,6 +404,24 @@ function saveDeal(payload) {
           shDeals.getRange(i + 1, 10).setValue(status);
           shDeals.getRange(i + 1, 11).setValue(note);
           
+          // ATOMIC SYNC 1: Nếu hợp đồng bị hủy, hoàn trả căn BĐS về 'Đang bán'
+          if (status === 'Đã hủy/Đã xóa' || status === 'Đã xóa') {
+            if (payload.propertyId) {
+              updateEntityStatus_(ss, CONFIG_BDS.SHEET_NAMES.PROPERTIES, 0, payload.propertyId, 8, 'Đang bán');
+            }
+          } else {
+            // Nếu đổi sang căn BĐS khác, hoàn trả căn cũ về 'Đang bán'
+            if (oldPropId && oldPropId !== payload.propertyId) {
+              updateEntityStatus_(ss, CONFIG_BDS.SHEET_NAMES.PROPERTIES, 0, oldPropId, 8, 'Đang bán');
+            }
+            if (payload.propertyId) {
+              updateEntityStatus_(ss, CONFIG_BDS.SHEET_NAMES.PROPERTIES, 0, payload.propertyId, 8, 'Đã cọc/Đã bán');
+            }
+            if (payload.customerId) {
+              updateEntityStatus_(ss, CONFIG_BDS.SHEET_NAMES.CUSTOMERS, 0, payload.customerId, 8, 'Đã chốt cọc');
+            }
+          }
+
           return { success: true, id: payload.id, commissionAmount: commAmount, updated: true };
         }
       }
@@ -419,14 +445,14 @@ function saveDeal(payload) {
       new Date()
     ]);
 
-    // RELATIONAL INTEGRITY 1: Cập nhật trạng thái Căn BĐS sang 'Đã cọc/Đã bán'
-    if (payload.propertyId) {
-      updateEntityStatus_(ss, CONFIG_BDS.SHEET_NAMES.PROPERTIES, 0, payload.propertyId, 8, 'Đã cọc/Đã bán');
-    }
-
-    // RELATIONAL INTEGRITY 2: Cập nhật trạng thái Khách hàng sang 'Đã chốt cọc'
-    if (payload.customerId) {
-      updateEntityStatus_(ss, CONFIG_BDS.SHEET_NAMES.CUSTOMERS, 0, payload.customerId, 8, 'Đã chốt cọc');
+    // ATOMIC SYNC 2: Cập nhật tự động liên module khi tạo hợp đồng
+    if (status !== 'Đã hủy/Đã xóa' && status !== 'Đã xóa') {
+      if (payload.propertyId) {
+        updateEntityStatus_(ss, CONFIG_BDS.SHEET_NAMES.PROPERTIES, 0, payload.propertyId, 8, 'Đã cọc/Đã bán');
+      }
+      if (payload.customerId) {
+        updateEntityStatus_(ss, CONFIG_BDS.SHEET_NAMES.CUSTOMERS, 0, payload.customerId, 8, 'Đã chốt cọc');
+      }
     }
 
     return { success: true, id: newId, commissionAmount: commAmount };
@@ -438,7 +464,7 @@ function saveDeal(payload) {
 }
 
 /**
- * Xóa mềm giao dịch chốt cọc (Module 5)
+ * Xóa mềm giao dịch chốt cọc (Module 5) & GIẢI PHÓNG HÀNG TỒN KHO ATOMIC (SPRINT 9)
  */
 function deleteDeal(dealId) {
   const lock = LockService.getScriptLock();
@@ -451,9 +477,18 @@ function deleteDeal(dealId) {
     const data = sh.getDataRange().getValues();
     for (let i = 1; i < data.length; i++) {
       if (data[i][0] === dealId) {
-        // Cột 10 là Trạng Thái (index 9)
+        const propId = String(data[i][3] || '').trim();
+        const custId = String(data[i][1] || '').trim();
+
+        // 1. Đánh dấu xóa mềm Hợp đồng
         sh.getRange(i + 1, 10).setValue('Đã hủy/Đã xóa');
-        return { success: true };
+
+        // 2. ATOMIC ROLLBACK: Hoàn trả trạng thái Căn BĐS về 'Đang bán' để môi giới tiếp tục dẫn khách
+        if (propId) {
+          updateEntityStatus_(ss, CONFIG_BDS.SHEET_NAMES.PROPERTIES, 0, propId, 8, 'Đang bán');
+        }
+
+        return { success: true, dealId: dealId, releasedPropertyId: propId };
       }
     }
     return { success: false, error: 'Không tìm thấy mã hợp đồng: ' + dealId };

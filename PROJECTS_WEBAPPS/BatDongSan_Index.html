@@ -2428,7 +2428,7 @@
       calculateCommissionLive();
     }
     function confirmDeleteDeal(code) {
-      if (!confirm('Bạn có chắc chắn muốn xóa/hủy hợp đồng chốt cọc [' + code + '] không?')) return;
+      if (!confirm('Bạn có chắc chắn muốn xóa/hủy hợp đồng chốt cọc [' + code + '] không?\n(Trạng thái căn BĐS liên quan sẽ tự động được hoàn trả về "Đang bán" để tiếp tục khai thác).')) return;
       if (typeof google !== 'undefined' && google.script) {
         google.script.run.withSuccessHandler(res => {
           if (res.success) {
@@ -2439,9 +2439,16 @@
         }).deleteDeal(code);
       } else {
         const item = (state.data.deals || []).find(d => d['Mã Hợp Đồng'] === code);
-        if (item) item['Trạng Thái'] = 'Đã xóa';
+        if (item) {
+          item['Trạng Thái'] = 'Đã hủy/Đã xóa';
+          // ATOMIC DEMO ROLLBACK: Giải phóng căn BĐS về 'Đang bán'
+          const prop = (state.data.properties || []).find(p => p['Mã Căn'] === item['Mã Căn']);
+          if (prop) prop['Trạng Thái'] = 'Đang bán';
+        }
         renderDeals(state.data.deals);
-        alert('[Demo] Đã xóa hợp đồng!');
+        renderProperties(state.data.properties);
+        renderDashboard();
+        alert('[Demo] Đã hủy hợp đồng và hoàn trả căn BĐS về trạng thái "Đang bán"!');
       }
     }
     function deleteCurrentDeal() {
@@ -2674,6 +2681,13 @@
           if (payload.id) {
             const idx = state.data.deals.findIndex(d => d['Mã Hợp Đồng'] === payload.id);
             if (idx >= 0) {
+              const oldPropId = state.data.deals[idx]['Mã Căn'];
+              // Rollback căn cũ nếu có đổi căn
+              if (oldPropId && oldPropId !== payload.propertyId) {
+                const oldP = (state.data.properties || []).find(p => p['Mã Căn'] === oldPropId);
+                if (oldP) oldP['Trạng Thái'] = 'Đang bán';
+              }
+
               state.data.deals[idx]['Mã Khách'] = payload.customerId;
               state.data.deals[idx]['Tên Khách'] = payload.customerName;
               state.data.deals[idx]['Mã Căn'] = payload.propertyId;
@@ -2684,6 +2698,10 @@
               state.data.deals[idx]['Ngày Chốt'] = payload.dealDate;
               state.data.deals[idx]['Trạng Thái'] = payload.status;
               state.data.deals[idx]['Ghi Chú'] = payload.note;
+
+              if (prop && payload.status !== 'Đã hủy/Đã xóa') {
+                prop['Trạng Thái'] = 'Đã cọc/Đã bán';
+              }
             }
           } else {
             state.data.deals.push({ 'Mã Hợp Đồng': 'HD-' + Math.floor(1000+Math.random()*9000), 'Mã Khách': payload.customerId, 'Tên Khách': payload.customerName, 'Mã Căn': payload.propertyId, 'Địa Chỉ Căn': payload.propertyAddress, 'Giá Chốt (Triệu)': payload.closedPriceMillion, 'Tỷ Lệ Hoa Hồng (%)': payload.commissionPercent, 'Hoa Hồng Thực Nhận (đ)': commVND, 'Ngày Chốt': payload.dealDate, 'Trạng Thái': payload.status, 'Ghi Chú': payload.note });
@@ -2697,7 +2715,7 @@
           renderProperties(state.data.properties);
           renderCustomers(state.data.customers);
           renderDashboard();
-          alert(payload.id ? '[Demo] Đã cập nhật hợp đồng!' : '[Demo] Khớp lệnh chốt cọc thành công! Trạng thái căn đã chuyển sang "Đã cọc/Đã bán".');
+          alert(payload.id ? '[Demo] Đã cập nhật hợp đồng và đồng bộ trạng thái kho hàng!' : '[Demo] Khớp lệnh chốt cọc thành công! Trạng thái căn đã chuyển sang "Đã cọc/Đã bán".');
         }, 500);
       }
     }
