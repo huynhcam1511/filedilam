@@ -1513,512 +1513,531 @@
 
   <!-- ==================== CLIENT JAVASCRIPT STATE ENGINE ==================== -->
   <script>
-    const state = {
+    /**
+     * ==============================================================================
+     * CRM BẤT ĐỘNG SẢN PRO — WEB APP v2.4 — FILE ĐI LÀM
+     * MONOLITHIC FLAT SPA SCRIPT ENGINE
+     * Architecture: Model-View Flat Monolith (Matching TAISAN & CONGNO Golden Standards)
+     * ==============================================================================
+     */
+
+    // 0. SAFE CDN POLYFILLS (Defense-in-depth against slow or offline CDN)
+    if (typeof window !== 'undefined') {
+      if (typeof window.lucide === 'undefined') {
+        window.lucide = { createIcons: function() {} };
+      }
+    }
+    var lucide = (typeof window !== 'undefined' && window.lucide) ? window.lucide : { createIcons: function() {} };
+
+    // 1. GLOBAL STATE & VERIFIED MICRO-SEED (Format safe < 100 chars/line)
+    window.AppState = {
       activeTab: 'dashboard',
+      selectedCustomerId: null,
+      charts: {},
       data: {
-        customers: [
-  {
-    "Mã Khách": "KHNG-100100",
-    "Họ Và Tên": "Nguyễn Đức Khánh",
-    "Số Điện Thoại": "0910000000",
-    "Nhu Cầu": "Chung cư",
-    "Khoảng Giá": "2 - 4 Tỷ",
-    "Khu Vực": "Quận 1",
-    "Căn Quan Tâm": "",
-    "Nguồn Khách": "Facebook Ads",
-    "Trạng Thái": "Mới tiếp cận",
-    "Ghi Chú": "Khách quan tâm phân khúc Chung cư tại Quận 1.",
-    "Ngày Tạo": "2026-10-01"
-  },
-  {
-    "Mã Khách": "KHNG-100101",
-    "Họ Và Tên": "Trần Hải Sơn",
-    "Số Điện Thoại": "0910876543",
-    "Nhu Cầu": "Nhà phố",
-    "Khoảng Giá": "4 - 7 Tỷ",
-    "Khu Vực": "Quận 2 (TP. Thủ Đức)",
-    "Căn Quan Tâm": "",
-    "Nguồn Khách": "TikTok Bio",
-    "Trạng Thái": "Mới tiếp cận",
-    "Ghi Chú": "Khách quan tâm phân khúc Nhà phố tại Quận 2 (TP. Thủ Đức).",
-    "Ngày Tạo": "2026-10-02"
-  },
-  {
-    "Mã Khách": "KHNG-100102",
-    "Họ Và Tên": "Lê Minh Tú",
-    "Số Điện Thoại": "0911753086",
-    "Nhu Cầu": "Đất nền",
-    "Khoảng Giá": "7 - 12 Tỷ",
-    "Khu Vực": "Quận 7",
-    "Căn Quan Tâm": "",
-    "Nguồn Khách": "Người quen giới thiệu",
-    "Trạng Thái": "Mới tiếp cận",
-    "Ghi Chú": "Khách quan tâm phân khúc Đất nền tại Quận 7.",
-    "Ngày Tạo": "2026-10-03"
-  },
-  {
-    "Mã Khách": "KHNG-100103",
-    "Họ Và Tên": "Phạm Kim Lan",
-    "Số Điện Thoại": "0912629629",
-    "Nhu Cầu": "Biệt thự / Shophouse",
-    "Khoảng Giá": "Trên 15 Tỷ",
-    "Khu Vực": "Bình Thạnh",
-    "Căn Quan Tâm": "",
-    "Nguồn Khách": "Đăng tin BĐS",
-    "Trạng Thái": "Mới tiếp cận",
-    "Ghi Chú": "Khách quan tâm phân khúc Biệt thự / Shophouse tại Bình Thạnh.",
-    "Ngày Tạo": "2026-10-04"
-  },
-  {
-    "Mã Khách": "KHNG-100104",
-    "Họ Và Tên": "Hoàng Văn Tâm",
-    "Số Điện Thoại": "0913506172",
-    "Nhu Cầu": "Cho thuê",
-    "Khoảng Giá": "30 - 50 Tr/tháng",
-    "Khu Vực": "Thảo Điền",
-    "Căn Quan Tâm": "",
-    "Nguồn Khách": "Khách vãng lai",
-    "Trạng Thái": "Mới tiếp cận",
-    "Ghi Chú": "Khách quan tâm phân khúc Cho thuê tại Thảo Điền.",
-    "Ngày Tạo": "2026-10-05"
-  },
-  {
-    "Mã Khách": "KHNG-100105",
-    "Họ Và Tên": "Phan Quốc An",
-    "Số Điện Thoại": "0914382715",
-    "Nhu Cầu": "Chung cư",
-    "Khoảng Giá": "2 - 4 Tỷ",
-    "Khu Vực": "Phú Mỹ Hưng",
-    "Căn Quan Tâm": "",
-    "Nguồn Khách": "Facebook Ads",
-    "Trạng Thái": "Mới tiếp cận",
-    "Ghi Chú": "Khách quan tâm phân khúc Chung cư tại Phú Mỹ Hưng.",
-    "Ngày Tạo": "2026-10-06"
-  },
-  {
-    "Mã Khách": "KHNG-100106",
-    "Họ Và Tên": "Vũ Thái Mai",
-    "Số Điện Thoại": "0915259258",
-    "Nhu Cầu": "Nhà phố",
-    "Khoảng Giá": "4 - 7 Tỷ",
-    "Khu Vực": "Thủ Đức",
-    "Căn Quan Tâm": "",
-    "Nguồn Khách": "TikTok Bio",
-    "Trạng Thái": "Mới tiếp cận",
-    "Ghi Chú": "Khách quan tâm phân khúc Nhà phố tại Thủ Đức.",
-    "Ngày Tạo": "2026-10-07"
-  },
-  {
-    "Mã Khách": "KHNG-100107",
-    "Họ Và Tên": "Võ Ngọc Tuấn",
-    "Số Điện Thoại": "0916135801",
-    "Nhu Cầu": "Đất nền",
-    "Khoảng Giá": "7 - 12 Tỷ",
-    "Khu Vực": "Quận 1",
-    "Căn Quan Tâm": "",
-    "Nguồn Khách": "Người quen giới thiệu",
-    "Trạng Thái": "Mới tiếp cận",
-    "Ghi Chú": "Khách quan tâm phân khúc Đất nền tại Quận 1.",
-    "Ngày Tạo": "2026-10-08"
-  },
-  {
-    "Mã Khách": "KHNG-100108",
-    "Họ Và Tên": "Đặng Bảo Bình",
-    "Số Điện Thoại": "0917012344",
-    "Nhu Cầu": "Biệt thự / Shophouse",
-    "Khoảng Giá": "Trên 15 Tỷ",
-    "Khu Vực": "Quận 2 (TP. Thủ Đức)",
-    "Căn Quan Tâm": "",
-    "Nguồn Khách": "Đăng tin BĐS",
-    "Trạng Thái": "Mới tiếp cận",
-    "Ghi Chú": "Khách quan tâm phân khúc Biệt thự / Shophouse tại Quận 2 (TP. Thủ Đức).",
-    "Ngày Tạo": "2026-10-09"
-  },
-  {
-    "Mã Khách": "KHNG-100109",
-    "Họ Và Tên": "Bùi Thị Nam",
-    "Số Điện Thoại": "0917888887",
-    "Nhu Cầu": "Cho thuê",
-    "Khoảng Giá": "30 - 50 Tr/tháng",
-    "Khu Vực": "Quận 7",
-    "Căn Quan Tâm": "",
-    "Nguồn Khách": "Khách vãng lai",
-    "Trạng Thái": "Mới tiếp cận",
-    "Ghi Chú": "Khách quan tâm phân khúc Cho thuê tại Quận 7.",
-    "Ngày Tạo": "2026-10-10"
-  },
-  {
-    "Mã Khách": "KHNG-100110",
-    "Họ Và Tên": "Đỗ Thanh Uyên",
-    "Số Điện Thoại": "0918765430",
-    "Nhu Cầu": "Chung cư",
-    "Khoảng Giá": "2 - 4 Tỷ",
-    "Khu Vực": "Bình Thạnh",
-    "Căn Quan Tâm": "",
-    "Nguồn Khách": "Facebook Ads",
-    "Trạng Thái": "Mới tiếp cận",
-    "Ghi Chú": "Khách quan tâm phân khúc Chung cư tại Bình Thạnh.",
-    "Ngày Tạo": "2026-10-11"
-  },
-  {
-    "Mã Khách": "KHNG-100111",
-    "Họ Và Tên": "Hồ Phương Cường",
-    "Số Điện Thoại": "0919641973",
-    "Nhu Cầu": "Nhà phố",
-    "Khoảng Giá": "4 - 7 Tỷ",
-    "Khu Vực": "Thảo Điền",
-    "Căn Quan Tâm": "",
-    "Nguồn Khách": "TikTok Bio",
-    "Trạng Thái": "Mới tiếp cận",
-    "Ghi Chú": "Khách quan tâm phân khúc Nhà phố tại Thảo Điền.",
-    "Ngày Tạo": "2026-10-12"
-  },
-  {
-    "Mã Khách": "KHNG-100112",
-    "Họ Và Tên": "Ngô Anh Oanh",
-    "Số Điện Thoại": "0920518516",
-    "Nhu Cầu": "Đất nền",
-    "Khoảng Giá": "7 - 12 Tỷ",
-    "Khu Vực": "Phú Mỹ Hưng",
-    "Căn Quan Tâm": "",
-    "Nguồn Khách": "Người quen giới thiệu",
-    "Trạng Thái": "Mới tiếp cận",
-    "Ghi Chú": "Khách quan tâm phân khúc Đất nền tại Phú Mỹ Hưng.",
-    "Ngày Tạo": "2026-10-13"
-  },
-  {
-    "Mã Khách": "KHNG-100113",
-    "Họ Và Tên": "Dương Gia Vinh",
-    "Số Điện Thoại": "0921395059",
-    "Nhu Cầu": "Biệt thự / Shophouse",
-    "Khoảng Giá": "Trên 15 Tỷ",
-    "Khu Vực": "Thủ Đức",
-    "Căn Quan Tâm": "",
-    "Nguồn Khách": "Đăng tin BĐS",
-    "Trạng Thái": "Mới tiếp cận",
-    "Ghi Chú": "Khách quan tâm phân khúc Biệt thự / Shophouse tại Thủ Đức.",
-    "Ngày Tạo": "2026-10-14"
-  },
-  {
-    "Mã Khách": "KHNG-100114",
-    "Họ Và Tên": "Lý Đức Dũng",
-    "Số Điện Thoại": "0922271602",
-    "Nhu Cầu": "Cho thuê",
-    "Khoảng Giá": "30 - 50 Tr/tháng",
-    "Khu Vực": "Quận 1",
-    "Căn Quan Tâm": "",
-    "Nguồn Khách": "Khách vãng lai",
-    "Trạng Thái": "Mới tiếp cận",
-    "Ghi Chú": "Khách quan tâm phân khúc Cho thuê tại Quận 1.",
-    "Ngày Tạo": "2026-10-15"
-  }
-],
         properties: [
-  {
-    "Mã Căn": "BDSS-100201",
-    "Loại Hình": "Chung cư",
-    "Tên Dự Án": "Vinhomes Central Park",
-    "Địa Chỉ": "Tòa Landmark 3 - Căn L3-12.08",
-    "Diện Tích (m2)": 78.5,
-    "Giá Chào (Triệu)": 4650,
-    "Tên Chủ": "Anh Tuấn",
-    "SĐT Chủ / Đầu Chủ": "0987654321",
-    "Trạng Thái": "Đã cọc/Đã bán",
-    "Hoa Hồng (%)": 1.5,
-    "Ghi Chú": "View công viên Landmark 81, nội thất cao cấp",
-    "Ngày Tạo": "2026-10-10"
-  },
-  {
-    "Mã Căn": "BDSS-100202",
-    "Loại Hình": "Nhà phố",
-    "Tên Dự Án": "Nhà Phố D2",
-    "Địa Chỉ": "14/8 Nguyễn Gia Trí, P.25, Bình Thạnh",
-    "Diện Tích (m2)": 64,
-    "Giá Chào (Triệu)": 8200,
-    "Tên Chủ": "Chị Thảo",
-    "SĐT Chủ / Đầu Chủ": "0918273645",
-    "Trạng Thái": "Đang bán",
-    "Hoa Hồng (%)": 1,
-    "Ghi Chú": "Hẻm xe hơi 6m tránh nhau, gần các trường đại học",
-    "Ngày Tạo": "2026-10-12"
-  },
-  {
-    "Mã Căn": "BDSS-100203",
-    "Loại Hình": "Chung cư",
-    "Tên Dự Án": "Masteri Thảo Điền",
-    "Địa Chỉ": "Tháp T2 - Căn T2-18.04, Quận 2",
-    "Diện Tích (m2)": 69.2,
-    "Giá Chào (Triệu)": 4200,
-    "Tên Chủ": "Anh Hoàng",
-    "SĐT Chủ / Đầu Chủ": "0903829102",
-    "Trạng Thái": "Đã cọc/Đã bán",
-    "Hoa Hồng (%)": 1.5,
-    "Ghi Chú": "Nội thất nhập khẩu cao cấp, view hồ bơi",
-    "Ngày Tạo": "2026-10-15"
-  },
-  {
-    "Mã Căn": "BDSS-100204",
-    "Loại Hình": "Đất nền",
-    "Tên Dự Án": "Khu dân cư Hiệp Bình Chánh",
-    "Địa Chỉ": "Lô B12 Đường 23, Hiệp Bình Chánh, Thủ Đức",
-    "Diện Tích (m2)": 110,
-    "Giá Chào (Triệu)": 6800,
-    "Tên Chủ": "Chú Sáu",
-    "SĐT Chủ / Đầu Chủ": "0938192837",
-    "Trạng Thái": "Đang bán",
-    "Hoa Hồng (%)": 2,
-    "Ghi Chú": "Sổ đỏ thổ cư 100%, gần sông thoáng mát xây tự do",
-    "Ngày Tạo": "2026-10-18"
-  },
-  {
-    "Mã Căn": "BDSS-100205",
-    "Loại Hình": "Biệt thự / Shophouse",
-    "Tên Dự Án": "Vinhomes Grand Park",
-    "Địa Chỉ": "Shophouse Manhattan M9-22, TP. Thủ Đức",
-    "Diện Tích (m2)": 140,
-    "Giá Chào (Triệu)": 16500,
-    "Tên Chủ": "Chị Hà",
-    "SĐT Chủ / Đầu Chủ": "0977281920",
-    "Trạng Thái": "Đã cọc/Đã bán",
-    "Hoa Hồng (%)": 1.5,
-    "Ghi Chú": "Mặt tiền trục chính kinh doanh, HĐMB nhận nhà ngay",
-    "Ngày Tạo": "2026-10-20"
-  },
-  {
-    "Mã Căn": "BDSS-100206",
-    "Loại Hình": "Chung cư",
-    "Tên Dự Án": "Scenic Valley 1",
-    "Địa Chỉ": "Tòa C - Căn C-09.02, Phú Mỹ Hưng, Q7",
-    "Diện Tích (m2)": 75,
-    "Giá Chào (Triệu)": 3950,
-    "Tên Chủ": "Cô Dung",
-    "SĐT Chủ / Đầu Chủ": "0944182930",
-    "Trạng Thái": "Đang bán",
-    "Hoa Hồng (%)": 1.5,
-    "Ghi Chú": "Cửa hướng Nam mát mẻ, sổ hồng lâu dài",
-    "Ngày Tạo": "2026-10-22"
-  },
-  {
-    "Mã Căn": "BDSS-100207",
-    "Loại Hình": "Nhà phố",
-    "Tên Dự Án": "Khu cư xá Đô Thành",
-    "Địa Chỉ": "48 Đường số 3, Cư xá Đô Thành, Quận 3",
-    "Diện Tích (m2)": 52,
-    "Giá Chào (Triệu)": 9500,
-    "Tên Chủ": "Bác Hùng",
-    "SĐT Chủ / Đầu Chủ": "0913928172",
-    "Trạng Thái": "Đã cọc/Đã bán",
-    "Hoa Hồng (%)": 1,
-    "Ghi Chú": "Trung tâm Quận 3 tiện mở văn phòng hoặc cho thuê spa",
-    "Ngày Tạo": "2026-10-25"
-  },
-  {
-    "Mã Căn": "BDSS-100208",
-    "Loại Hình": "Chung cư",
-    "Tên Dự Án": "The Sun Avenue",
-    "Địa Chỉ": "Tháp 4 - Căn 4-15.06, Mai Chí Thọ, Quận 2",
-    "Diện Tích (m2)": 86,
-    "Giá Chào (Triệu)": 5100,
-    "Tên Chủ": "Anh Cường",
-    "SĐT Chủ / Đầu Chủ": "0988273619",
-    "Trạng Thái": "Đang bán",
-    "Hoa Hồng (%)": 1.5,
-    "Ghi Chú": "3 phòng ngủ view hồ bơi, sổ hồng sẵn sàng",
-    "Ngày Tạo": "2026-10-28"
-  },
-  {
-    "Mã Căn": "BDSS-100209",
-    "Loại Hình": "Biệt thự / Shophouse",
-    "Tên Dự Án": "Château Villa Phú Mỹ Hưng",
-    "Địa Chỉ": "Biệt thự đơn lập số 12 Khu Château, Q7",
-    "Diện Tích (m2)": 320,
-    "Giá Chào (Triệu)": 48000,
-    "Tên Chủ": "Tổng GĐ Hưng",
-    "SĐT Chủ / Đầu Chủ": "0908889999",
-    "Trạng Thái": "Đang bán",
-    "Hoa Hồng (%)": 1,
-    "Ghi Chú": "View sông nội bộ cao cấp bậc nhất Sài Gòn",
-    "Ngày Tạo": "2026-10-30"
-  },
-  {
-    "Mã Căn": "BDSS-100210",
-    "Loại Hình": "Cho thuê",
-    "Tên Dự Án": "Riverpark Premier",
-    "Địa Chỉ": "Căn R-05.01 Đặng Đức Thuật, Phú Mỹ Hưng, Q7",
-    "Diện Tích (m2)": 125,
-    "Giá Chào (Triệu)": 45,
-    "Tên Chủ": "Chị Lan",
-    "SĐT Chủ / Đầu Chủ": "0933281928",
-    "Trạng Thái": "Đã cọc/Đã bán",
-    "Hoa Hồng (%)": 100,
-    "Ghi Chú": "Cho thuê khách chuyên gia nước ngoài ở lâu dài",
-    "Ngày Tạo": "2026-11-01"
-  }
-],
+          {
+            "Mã Căn": "BDSS-100201",
+            "Loại Hình": "Chung cư",
+            "Tên Dự Án": "Vinhomes Central Park",
+            "Địa Chỉ": "Tòa Landmark 3 - Căn L3-12.08",
+            "Diện Tích (m2)": 78.5,
+            "Giá Chào (Triệu)": 4650,
+            "Tên Chủ": "Anh Tuấn",
+            "SĐT Chủ / Đầu Chủ": "0987654321",
+            "Trạng Thái": "Đã cọc/Đã bán",
+            "Hoa Hồng (%)": 1.5,
+            "Ghi Chú": "View công viên Landmark 81, nội thất cao cấp",
+            "Ngày Tạo": "2026-10-10"
+          },
+          {
+            "Mã Căn": "BDSS-100202",
+            "Loại Hình": "Nhà phố",
+            "Tên Dự Án": "Nhà Phố D2",
+            "Địa Chỉ": "14/8 Nguyễn Gia Trí, P.25, Bình Thạnh",
+            "Diện Tích (m2)": 64.0,
+            "Giá Chào (Triệu)": 8200,
+            "Tên Chủ": "Chị Thảo",
+            "SĐT Chủ / Đầu Chủ": "0918273645",
+            "Trạng Thái": "Đang bán",
+            "Hoa Hồng (%)": 1.0,
+            "Ghi Chú": "Hẻm xe hơi 6m tránh nhau, gần các trường ĐH",
+            "Ngày Tạo": "2026-10-12"
+          },
+          {
+            "Mã Căn": "BDSS-100203",
+            "Loại Hình": "Chung cư",
+            "Tên Dự Án": "Masteri Thảo Điền",
+            "Địa Chỉ": "Tháp T2 - Căn T2-18.04, Quận 2",
+            "Diện Tích (m2)": 69.2,
+            "Giá Chào (Triệu)": 4200,
+            "Tên Chủ": "Anh Hoàng",
+            "SĐT Chủ / Đầu Chủ": "0903829102",
+            "Trạng Thái": "Đã cọc/Đã bán",
+            "Hoa Hồng (%)": 1.5,
+            "Ghi Chú": "Nội thất nhập khẩu cao cấp, view hồ bơi",
+            "Ngày Tạo": "2026-10-15"
+          },
+          {
+            "Mã Căn": "BDSS-100204",
+            "Loại Hình": "Đất nền",
+            "Tên Dự Án": "KDC Hiệp Bình Chánh",
+            "Địa Chỉ": "Lô B12 Đường 23, Hiệp Bình Chánh, Thủ Đức",
+            "Diện Tích (m2)": 110.0,
+            "Giá Chào (Triệu)": 6800,
+            "Tên Chủ": "Chú Sáu",
+            "SĐT Chủ / Đầu Chủ": "0938192837",
+            "Trạng Thái": "Đang bán",
+            "Hoa Hồng (%)": 2.0,
+            "Ghi Chú": "Sổ đỏ thổ cư 100%, gần sông thoáng mát",
+            "Ngày Tạo": "2026-10-18"
+          },
+          {
+            "Mã Căn": "BDSS-100205",
+            "Loại Hình": "Biệt thự / Shophouse",
+            "Tên Dự Án": "Vinhomes Grand Park",
+            "Địa Chỉ": "Shophouse Manhattan M9-22, TP. Thủ Đức",
+            "Diện Tích (m2)": 140.0,
+            "Giá Chào (Triệu)": 16500,
+            "Tên Chủ": "Chị Hà",
+            "SĐT Chủ / Đầu Chủ": "0977281920",
+            "Trạng Thái": "Đã cọc/Đã bán",
+            "Hoa Hồng (%)": 1.5,
+            "Ghi Chú": "Mặt tiền trục chính kinh doanh, HĐMB",
+            "Ngày Tạo": "2026-10-20"
+          },
+          {
+            "Mã Căn": "BDSS-100206",
+            "Loại Hình": "Chung cư",
+            "Tên Dự Án": "Scenic Valley 1",
+            "Địa Chỉ": "Tòa C - Căn C-09.02, Phú Mỹ Hưng, Q7",
+            "Diện Tích (m2)": 75.0,
+            "Giá Chào (Triệu)": 3950,
+            "Tên Chủ": "Cô Dung",
+            "SĐT Chủ / Đầu Chủ": "0944182930",
+            "Trạng Thái": "Đang bán",
+            "Hoa Hồng (%)": 1.5,
+            "Ghi Chú": "Cửa hướng Nam mát mẻ, sổ hồng lâu dài",
+            "Ngày Tạo": "2026-10-22"
+          },
+          {
+            "Mã Căn": "BDSS-100207",
+            "Loại Hình": "Nhà phố",
+            "Tên Dự Án": "Khu cư xá Đô Thành",
+            "Địa Chỉ": "48 Đường số 3, Cư xá Đô Thành, Quận 3",
+            "Diện Tích (m2)": 52.0,
+            "Giá Chào (Triệu)": 9500,
+            "Tên Chủ": "Bác Hùng",
+            "SĐT Chủ / Đầu Chủ": "0913928172",
+            "Trạng Thái": "Đã cọc/Đã bán",
+            "Hoa Hồng (%)": 1.0,
+            "Ghi Chú": "Trung tâm Quận 3 tiện mở văn phòng hoặc spa",
+            "Ngày Tạo": "2026-10-25"
+          },
+          {
+            "Mã Căn": "BDSS-100208",
+            "Loại Hình": "Chung cư",
+            "Tên Dự Án": "The Sun Avenue",
+            "Địa Chỉ": "Tháp 4 - Căn 4-15.06, Mai Chí Thọ, Quận 2",
+            "Diện Tích (m2)": 86.0,
+            "Giá Chào (Triệu)": 5100,
+            "Tên Chủ": "Anh Cường",
+            "SĐT Chủ / Đầu Chủ": "0988273619",
+            "Trạng Thái": "Đang bán",
+            "Hoa Hồng (%)": 1.5,
+            "Ghi Chú": "3 phòng ngủ view hồ bơi, sổ hồng sẵn sàng",
+            "Ngày Tạo": "2026-10-28"
+          },
+          {
+            "Mã Căn": "BDSS-100209",
+            "Loại Hình": "Biệt thự / Shophouse",
+            "Tên Dự Án": "Château Villa Phú Mỹ Hưng",
+            "Địa Chỉ": "Biệt thự đơn lập số 12 Khu Château, Q7",
+            "Diện Tích (m2)": 320.0,
+            "Giá Chào (Triệu)": 48000,
+            "Tên Chủ": "Tổng GĐ Hưng",
+            "SĐT Chủ / Đầu Chủ": "0908889999",
+            "Trạng Thái": "Đang bán",
+            "Hoa Hồng (%)": 1.0,
+            "Ghi Chú": "View sông nội bộ cao cấp bậc nhất Sài Gòn",
+            "Ngày Tạo": "2026-10-30"
+          },
+          {
+            "Mã Căn": "BDSS-100210",
+            "Loại Hình": "Cho thuê",
+            "Tên Dự Án": "Riverpark Premier",
+            "Địa Chỉ": "Căn R-05.01 Đặng Đức Thuật, Phú Mỹ Hưng, Q7",
+            "Diện Tích (m2)": 125.0,
+            "Giá Chào (Triệu)": 45,
+            "Tên Chủ": "Chị Lan",
+            "SĐT Chủ / Đầu Chủ": "0933281928",
+            "Trạng Thái": "Đã cọc/Đã bán",
+            "Hoa Hồng (%)": 100.0,
+            "Ghi Chú": "Cho thuê khách chuyên gia nước ngoài ở lâu dài",
+            "Ngày Tạo": "2026-11-01"
+          }
+        ],
+        customers: [
+          {
+            "Mã Khách": "KHNG-100101",
+            "Họ Và Tên": "Nguyễn Đức Khánh",
+            "Số Điện Thoại": "0912000001",
+            "Nhu Cầu": "Chung cư",
+            "Khoảng Giá": "2 - 4 Tỷ",
+            "Khu Vực": "Quận 1",
+            "Căn Quan Tâm": "",
+            "Nguồn Khách": "Facebook Ads",
+            "Trạng Thái": "Mới tiếp cận",
+            "Ghi Chú": "Khách tìm căn hộ 2PN gần trung tâm",
+            "Ngày Tạo": "2026-11-01"
+          },
+          {
+            "Mã Khách": "KHNG-100102",
+            "Họ Và Tên": "Trần Hải Sơn",
+            "Số Điện Thoại": "0912000002",
+            "Nhu Cầu": "Nhà phố",
+            "Khoảng Giá": "4 - 7 Tỷ",
+            "Khu Vực": "Quận 2 (TP. Thủ Đức)",
+            "Căn Quan Tâm": "",
+            "Nguồn Khách": "TikTok Bio",
+            "Trạng Thái": "Mới tiếp cận",
+            "Ghi Chú": "Khách quan tâm nhà phố hẻm xe hơi",
+            "Ngày Tạo": "2026-11-02"
+          },
+          {
+            "Mã Khách": "KHNG-100103",
+            "Họ Và Tên": "Lê Minh Tú",
+            "Số Điện Thoại": "0912000003",
+            "Nhu Cầu": "Đất nền",
+            "Khoảng Giá": "7 - 12 Tỷ",
+            "Khu Vực": "Thủ Đức",
+            "Căn Quan Tâm": "",
+            "Nguồn Khách": "Người quen giới thiệu",
+            "Trạng Thái": "Mới tiếp cận",
+            "Ghi Chú": "Khách mua tích lũy tài sản dài hạn",
+            "Ngày Tạo": "2026-11-03"
+          },
+          {
+            "Mã Khách": "KHNG-100104",
+            "Họ Và Tên": "Phạm Kim Lan",
+            "Số Điện Thoại": "0912000004",
+            "Nhu Cầu": "Biệt thự / Shophouse",
+            "Khoảng Giá": "Trên 15 Tỷ",
+            "Khu Vực": "Quận 7",
+            "Căn Quan Tâm": "",
+            "Nguồn Khách": "Đăng tin BĐS",
+            "Trạng Thái": "Đang chăm",
+            "Ghi Chú": "Khách cần shophouse dòng tiền tốt",
+            "Ngày Tạo": "2026-11-04"
+          },
+          {
+            "Mã Khách": "KHNG-100105",
+            "Họ Và Tên": "Hoàng Văn Tâm",
+            "Số Điện Thoại": "0912000005",
+            "Nhu Cầu": "Cho thuê",
+            "Khoảng Giá": "30 - 50 Tr/tháng",
+            "Khu Vực": "Thảo Điền",
+            "Căn Quan Tâm": "",
+            "Nguồn Khách": "Khách vãng lai",
+            "Trạng Thái": "Đang chăm",
+            "Ghi Chú": "Khách chuyên gia tìm căn hộ 3PN",
+            "Ngày Tạo": "2026-11-05"
+          },
+          {
+            "Mã Khách": "KHNG-100106",
+            "Họ Và Tên": "Phan Quốc An",
+            "Số Điện Thoại": "0912000006",
+            "Nhu Cầu": "Chung cư",
+            "Khoảng Giá": "2 - 4 Tỷ",
+            "Khu Vực": "Phú Mỹ Hưng",
+            "Căn Quan Tâm": "",
+            "Nguồn Khách": "Facebook Ads",
+            "Trạng Thái": "Đang chăm",
+            "Ghi Chú": "Đang gửi danh sách Scenic Valley",
+            "Ngày Tạo": "2026-11-06"
+          },
+          {
+            "Mã Khách": "KHNG-100107",
+            "Họ Và Tên": "Vũ Thái Mai",
+            "Số Điện Thoại": "0912000007",
+            "Nhu Cầu": "Nhà phố",
+            "Khoảng Giá": "7 - 12 Tỷ",
+            "Khu Vực": "Bình Thạnh",
+            "Căn Quan Tâm": "",
+            "Nguồn Khách": "TikTok Bio",
+            "Trạng Thái": "Đang chăm",
+            "Ghi Chú": "Khách thích nhà gần đường lớn tiện KD",
+            "Ngày Tạo": "2026-11-07"
+          },
+          {
+            "Mã Khách": "KHNG-100108",
+            "Họ Và Tên": "Đỗ Quang Huy",
+            "Số Điện Thoại": "0912000008",
+            "Nhu Cầu": "Chung cư",
+            "Khoảng Giá": "4 - 7 Tỷ",
+            "Khu Vực": "Quận 2 (TP. Thủ Đức)",
+            "Căn Quan Tâm": "BDSS-100208",
+            "Nguồn Khách": "Người quen giới thiệu",
+            "Trạng Thái": "Đang dẫn xem",
+            "Ghi Chú": "Đã hẹn xem thực tế The Sun Avenue",
+            "Ngày Tạo": "2026-11-08"
+          },
+          {
+            "Mã Khách": "KHNG-100109",
+            "Họ Và Tên": "Bùi Thị Nam",
+            "Số Điện Thoại": "0912000009",
+            "Nhu Cầu": "Đất nền",
+            "Khoảng Giá": "4 - 7 Tỷ",
+            "Khu Vực": "Thủ Đức",
+            "Căn Quan Tâm": "BDSS-100204",
+            "Nguồn Khách": "Đăng tin BĐS",
+            "Trạng Thái": "Đang dẫn xem",
+            "Ghi Chú": "Dẫn khách xem đất nền Hiệp Bình Chánh",
+            "Ngày Tạo": "2026-11-09"
+          },
+          {
+            "Mã Khách": "KHNG-100100",
+            "Họ Và Tên": "Ngô Anh Oanh",
+            "Số Điện Thoại": "0912000010",
+            "Nhu Cầu": "Nhà phố",
+            "Khoảng Giá": "7 - 12 Tỷ",
+            "Khu Vực": "Bình Thạnh",
+            "Căn Quan Tâm": "BDSS-100202",
+            "Nguồn Khách": "Khách vãng lai",
+            "Trạng Thái": "Đang dẫn xem",
+            "Ghi Chú": "Khách ưng vị trí D2 Bình Thạnh",
+            "Ngày Tạo": "2026-11-09"
+          },
+          {
+            "Mã Khách": "KHNG-100111",
+            "Họ Và Tên": "Dương Đức Bình",
+            "Số Điện Thoại": "0912000011",
+            "Nhu Cầu": "Biệt thự / Shophouse",
+            "Khoảng Giá": "Trên 15 Tỷ",
+            "Khu Vực": "Quận 7",
+            "Căn Quan Tâm": "BDSS-100209",
+            "Nguồn Khách": "Facebook Ads",
+            "Trạng Thái": "Đang thương lượng",
+            "Ghi Chú": "Đang đàm phán giá biệt thự Château",
+            "Ngày Tạo": "2026-11-10"
+          },
+          {
+            "Mã Khách": "KHNG-100112",
+            "Họ Và Tên": "Hồ Phương Cường",
+            "Số Điện Thoại": "0912000012",
+            "Nhu Cầu": "Chung cư",
+            "Khoảng Giá": "2 - 4 Tỷ",
+            "Khu Vực": "Quận 7",
+            "Căn Quan Tâm": "BDSS-100206",
+            "Nguồn Khách": "Đăng tin BĐS",
+            "Trạng Thái": "Đang thương lượng",
+            "Ghi Chú": "Thương lượng giá căn Scenic Valley",
+            "Ngày Tạo": "2026-11-10"
+          },
+          {
+            "Mã Khách": "KHNG-100113",
+            "Họ Và Tên": "Võ Bảo Tú",
+            "Số Điện Thoại": "0912000013",
+            "Nhu Cầu": "Chung cư",
+            "Khoảng Giá": "4 - 7 Tỷ",
+            "Khu Vực": "Bình Thạnh",
+            "Căn Quan Tâm": "BDSS-100201",
+            "Nguồn Khách": "Facebook Ads",
+            "Trạng Thái": "Đã chốt cọc",
+            "Ghi Chú": "Chốt cọc thành công Landmark 3",
+            "Ngày Tạo": "2026-11-05"
+          },
+          {
+            "Mã Khách": "KHNG-100114",
+            "Họ Và Tên": "Đặng Thị Lan",
+            "Số Điện Thoại": "0912000014",
+            "Nhu Cầu": "Chung cư",
+            "Khoảng Giá": "4 - 7 Tỷ",
+            "Khu Vực": "Quận 2 (TP. Thủ Đức)",
+            "Căn Quan Tâm": "BDSS-100203",
+            "Nguồn Khách": "Người quen giới thiệu",
+            "Trạng Thái": "Đã chốt cọc",
+            "Ghi Chú": "Chốt cọc thành công Masteri Thảo Điền",
+            "Ngày Tạo": "2026-11-07"
+          },
+          {
+            "Mã Khách": "KHNG-100115",
+            "Họ Và Tên": "Bùi Thanh Tâm",
+            "Số Điện Thoại": "0912000015",
+            "Nhu Cầu": "Cho thuê",
+            "Khoảng Giá": "30 - 50 Tr/tháng",
+            "Khu Vực": "Quận 7",
+            "Căn Quan Tâm": "BDSS-100210",
+            "Nguồn Khách": "Khách vãng lai",
+            "Trạng Thái": "Đã chốt cọc",
+            "Ghi Chú": "Ký hợp đồng thuê Riverpark Premier",
+            "Ngày Tạo": "2026-11-09"
+          }
+        ],
         logs: [
-  {
-    "Mã Nhật Ký": "LOGS-100000",
-    "Mã Khách": "KHNG-100100",
-    "Tên Khách": "Nguyễn Đức Khánh",
-    "Hình Thức": "Cuộc gọi",
-    "Nội Dung Trao Đổi": "Gọi trao đổi tài chính và gửi danh sách 3 căn phù hợp qua Zalo.",
-    "Lịch Hẹn Tiếp": "2026-11-04",
-    "Ngày Tạo": "2026-11-01"
-  },
-  {
-    "Mã Nhật Ký": "LOGS-100001",
-    "Mã Khách": "KHNG-100101",
-    "Tên Khách": "Trần Hải Sơn",
-    "Hình Thức": "Nhắn tin Zalo",
-    "Nội Dung Trao Đổi": "Đã gửi hình ảnh thực tế, sổ đỏ và định vị căn BDSS-100202.",
-    "Lịch Hẹn Tiếp": "",
-    "Ngày Tạo": "2026-11-02"
-  },
-  {
-    "Mã Nhật Ký": "LOGS-100002",
-    "Mã Khách": "KHNG-100102",
-    "Tên Khách": "Lê Minh Tú",
-    "Hình Thức": "Gặp cafe tư vấn",
-    "Nội Dung Trao Đổi": "Gặp cafe tư vấn kỹ tiến độ thanh toán và giải pháp vay ngân hàng 70%.",
-    "Lịch Hẹn Tiếp": "",
-    "Ngày Tạo": "2026-11-03"
-  },
-  {
-    "Mã Nhật Ký": "LOGS-100003",
-    "Mã Khách": "KHNG-100103",
-    "Tên Khách": "Phạm Kim Lan",
-    "Hình Thức": "Dẫn đi xem nhà",
-    "Nội Dung Trao Đổi": "Dẫn khách cùng gia đình đi xem thực tế căn Lô B12 Đường 23, Hiệp Bình Chánh, Thủ Đức. Khách đánh giá cao ban công.",
-    "Lịch Hẹn Tiếp": "",
-    "Ngày Tạo": "2026-11-04"
-  },
-  {
-    "Mã Nhật Ký": "LOGS-100004",
-    "Mã Khách": "KHNG-100104",
-    "Tên Khách": "Hoàng Văn Tâm",
-    "Hình Thức": "Đặt cọc / Ký HĐ",
-    "Nội Dung Trao Đổi": "Khách hài lòng điều khoản thỏa thuận, chuẩn bị chốt cọc tại sàn.",
-    "Lịch Hẹn Tiếp": "2026-11-08",
-    "Ngày Tạo": "2026-11-05"
-  },
-  {
-    "Mã Nhật Ký": "LOGS-100005",
-    "Mã Khách": "KHNG-100105",
-    "Tên Khách": "Phan Quốc An",
-    "Hình Thức": "Cuộc gọi",
-    "Nội Dung Trao Đổi": "Gọi trao đổi tài chính và gửi danh sách 3 căn phù hợp qua Zalo.",
-    "Lịch Hẹn Tiếp": "",
-    "Ngày Tạo": "2026-11-06"
-  },
-  {
-    "Mã Nhật Ký": "LOGS-100006",
-    "Mã Khách": "KHNG-100106",
-    "Tên Khách": "Vũ Thái Mai",
-    "Hình Thức": "Nhắn tin Zalo",
-    "Nội Dung Trao Đổi": "Đã gửi hình ảnh thực tế, sổ đỏ và định vị căn BDSS-100207.",
-    "Lịch Hẹn Tiếp": "",
-    "Ngày Tạo": "2026-11-07"
-  },
-  {
-    "Mã Nhật Ký": "LOGS-100007",
-    "Mã Khách": "KHNG-100107",
-    "Tên Khách": "Võ Ngọc Tuấn",
-    "Hình Thức": "Gặp cafe tư vấn",
-    "Nội Dung Trao Đổi": "Gặp cafe tư vấn kỹ tiến độ thanh toán và giải pháp vay ngân hàng 70%.",
-    "Lịch Hẹn Tiếp": "",
-    "Ngày Tạo": "2026-11-08"
-  },
-  {
-    "Mã Nhật Ký": "LOGS-100008",
-    "Mã Khách": "KHNG-100108",
-    "Tên Khách": "Đặng Bảo Bình",
-    "Hình Thức": "Dẫn đi xem nhà",
-    "Nội Dung Trao Đổi": "Dẫn khách cùng gia đình đi xem thực tế căn Biệt thự đơn lập số 12 Khu Château, Q7. Khách đánh giá cao ban công.",
-    "Lịch Hẹn Tiếp": "2026-11-12",
-    "Ngày Tạo": "2026-11-09"
-  },
-  {
-    "Mã Nhật Ký": "LOGS-100009",
-    "Mã Khách": "KHNG-100109",
-    "Tên Khách": "Bùi Thị Nam",
-    "Hình Thức": "Đặt cọc / Ký HĐ",
-    "Nội Dung Trao Đổi": "Khách hài lòng điều khoản thỏa thuận, chuẩn bị chốt cọc tại sàn.",
-    "Lịch Hẹn Tiếp": "",
-    "Ngày Tạo": "2026-11-10"
-  }
-],
+          {
+            "Mã Nhật Ký": "LOGS-100001",
+            "Mã Khách": "KHNG-100101",
+            "Tên Khách": "Nguyễn Đức Khánh",
+            "Hình Thức": "Cuộc gọi",
+            "Nội Dung Trao Đổi": "Gọi trao đổi tài chính và gửi 3 căn phù hợp",
+            "Lịch Hẹn Tiếp": "",
+            "Ngày Tạo": "2026-11-01"
+          },
+          {
+            "Mã Nhật Ký": "LOGS-100002",
+            "Mã Khách": "KHNG-100102",
+            "Tên Khách": "Trần Hải Sơn",
+            "Hình Thức": "Nhắn tin Zalo",
+            "Nội Dung Trao Đổi": "Đã gửi hình ảnh thực tế và sổ hồng 2 căn Q2",
+            "Lịch Hẹn Tiếp": "",
+            "Ngày Tạo": "2026-11-02"
+          },
+          {
+            "Mã Nhật Ký": "LOGS-100003",
+            "Mã Khách": "KHNG-100104",
+            "Tên Khách": "Phạm Kim Lan",
+            "Hình Thức": "Gặp cafe tư vấn",
+            "Nội Dung Trao Đổi": "Tư vấn tiến độ thanh toán và vay ngân hàng 70%",
+            "Lịch Hẹn Tiếp": "",
+            "Ngày Tạo": "2026-11-04"
+          },
+          {
+            "Mã Nhật Ký": "LOGS-100004",
+            "Mã Khách": "KHNG-100106",
+            "Tên Khách": "Phan Quốc An",
+            "Hình Thức": "Cuộc gọi",
+            "Nội Dung Trao Đổi": "Tư vấn gói vay 70% ngân hàng cho căn Scenic Valley",
+            "Lịch Hẹn Tiếp": "",
+            "Ngày Tạo": "2026-11-06"
+          },
+          {
+            "Mã Nhật Ký": "LOGS-100005",
+            "Mã Khách": "KHNG-100108",
+            "Tên Khách": "Đỗ Quang Huy",
+            "Hình Thức": "Dẫn đi xem nhà",
+            "Nội Dung Trao Đổi": "Dẫn khách xem The Sun Avenue, khách khen view đẹp",
+            "Lịch Hẹn Tiếp": "2026-11-12",
+            "Ngày Tạo": "2026-11-08"
+          },
+          {
+            "Mã Nhật Ký": "LOGS-100006",
+            "Mã Khách": "KHNG-100109",
+            "Tên Khách": "Bùi Thị Nam",
+            "Hình Thức": "Dẫn đi xem nhà",
+            "Nội Dung Trao Đổi": "Dẫn khách xem đất nền Hiệp Bình Chánh",
+            "Lịch Hẹn Tiếp": "2026-11-10",
+            "Ngày Tạo": "2026-11-09"
+          },
+          {
+            "Mã Nhật Ký": "LOGS-100007",
+            "Mã Khách": "KHNG-100110",
+            "Tên Khách": "Ngô Anh Oanh",
+            "Hình Thức": "Gặp cafe tư vấn",
+            "Nội Dung Trao Đổi": "Thảo luận hợp đồng đặt cọc căn D2 Bình Thạnh",
+            "Lịch Hẹn Tiếp": "2026-11-11",
+            "Ngày Tạo": "2026-11-09"
+          },
+          {
+            "Mã Nhật Ký": "LOGS-100008",
+            "Mã Khách": "KHNG-100111",
+            "Tên Khách": "Dương Đức Bình",
+            "Hình Thức": "Cuộc gọi",
+            "Nội Dung Trao Đổi": "Trao đổi phí chuyển nhượng và hỗ trợ thủ tục",
+            "Lịch Hẹn Tiếp": "2026-11-10",
+            "Ngày Tạo": "2026-11-10"
+          },
+          {
+            "Mã Nhật Ký": "LOGS-100009",
+            "Mã Khách": "KHNG-100113",
+            "Tên Khách": "Võ Bảo Tú",
+            "Hình Thức": "Đặt cọc / Ký HĐ",
+            "Nội Dung Trao Đổi": "Hoàn tất thủ tục đặt cọc 200 triệu tại công chứng",
+            "Lịch Hẹn Tiếp": "",
+            "Ngày Tạo": "2026-11-05"
+          },
+          {
+            "Mã Nhật Ký": "LOGS-100010",
+            "Mã Khách": "KHNG-100114",
+            "Tên Khách": "Đặng Thị Lan",
+            "Hình Thức": "Đặt cọc / Ký HĐ",
+            "Nội Dung Trao Đổi": "Khách ký hợp đồng đặt cọc căn Masteri Thảo Điền",
+            "Lịch Hẹn Tiếp": "",
+            "Ngày Tạo": "2026-11-07"
+          }
+        ],
         deals: [
-  {
-    "Mã Hợp Đồng": "HOAD-800000",
-    "Mã Khách": "KHNG-100180",
-    "Tên Khách": "Phan Thanh Khánh",
-    "Mã Căn": "BDSS-100201",
-    "Địa Chỉ Căn": "Tòa Landmark 3 - Căn L3-12.08",
-    "Giá Chốt (Triệu)": 4650,
-    "Tỷ Lệ Hoa Hồng (%)": 1.5,
-    "Hoa Hồng Thực Nhận (đ)": 69750000,
-    "Ngày Chốt": "2026-11-01",
-    "Trạng Thái": "Đã thu hoa hồng",
-    "Ghi Chú": "Giao dịch chốt cọc thành công căn BDSS-100201. Chủ nhà: Anh Tuấn (0987654321)",
-    "Ngày Tạo": "2026-11-01"
-  },
-  {
-    "Mã Hợp Đồng": "HOAD-800001",
-    "Mã Khách": "KHNG-100181",
-    "Tên Khách": "Vũ Phương Sơn",
-    "Mã Căn": "BDSS-100202",
-    "Địa Chỉ Căn": "14/8 Nguyễn Gia Trí, P.25, Bình Thạnh",
-    "Giá Chốt (Triệu)": 8200,
-    "Tỷ Lệ Hoa Hồng (%)": 1,
-    "Hoa Hồng Thực Nhận (đ)": 82000000,
-    "Ngày Chốt": "2026-11-02",
-    "Trạng Thái": "Đã thu hoa hồng",
-    "Ghi Chú": "Giao dịch chốt cọc thành công căn BDSS-100202. Chủ nhà: Chị Thảo (0918273645)",
-    "Ngày Tạo": "2026-11-02"
-  },
-  {
-    "Mã Hợp Đồng": "HOAD-800002",
-    "Mã Khách": "KHNG-100182",
-    "Tên Khách": "Võ Anh Tú",
-    "Mã Căn": "BDSS-100203",
-    "Địa Chỉ Căn": "Tháp T2 - Căn T2-18.04, Quận 2",
-    "Giá Chốt (Triệu)": 4200,
-    "Tỷ Lệ Hoa Hồng (%)": 1.5,
-    "Hoa Hồng Thực Nhận (đ)": 63000000,
-    "Ngày Chốt": "2026-11-03",
-    "Trạng Thái": "Đã thu hoa hồng",
-    "Ghi Chú": "Giao dịch chốt cọc thành công căn BDSS-100203. Chủ nhà: Anh Hoàng (0903829102)",
-    "Ngày Tạo": "2026-11-03"
-  },
-  {
-    "Mã Hợp Đồng": "HOAD-800003",
-    "Mã Khách": "KHNG-100183",
-    "Tên Khách": "Đặng Gia Lan",
-    "Mã Căn": "BDSS-100204",
-    "Địa Chỉ Căn": "Lô B12 Đường 23, Hiệp Bình Chánh, Thủ Đức",
-    "Giá Chốt (Triệu)": 6800,
-    "Tỷ Lệ Hoa Hồng (%)": 2,
-    "Hoa Hồng Thực Nhận (đ)": 136000000,
-    "Ngày Chốt": "2026-11-04",
-    "Trạng Thái": "Đã thu hoa hồng",
-    "Ghi Chú": "Giao dịch chốt cọc thành công căn BDSS-100204. Chủ nhà: Chú Sáu (0938192837)",
-    "Ngày Tạo": "2026-11-04"
-  },
-  {
-    "Mã Hợp Đồng": "HOAD-800004",
-    "Mã Khách": "KHNG-100184",
-    "Tên Khách": "Bùi Đức Tâm",
-    "Mã Căn": "BDSS-100205",
-    "Địa Chỉ Căn": "Shophouse Manhattan M9-22, TP. Thủ Đức",
-    "Giá Chốt (Triệu)": 16500,
-    "Tỷ Lệ Hoa Hồng (%)": 1.5,
-    "Hoa Hồng Thực Nhận (đ)": 247500000,
-    "Ngày Chốt": "2026-11-05",
-    "Trạng Thái": "Đã thu hoa hồng",
-    "Ghi Chú": "Giao dịch chốt cọc thành công căn BDSS-100205. Chủ nhà: Chị Hà (0977281920)",
-    "Ngày Tạo": "2026-11-05"
-  }
-],
+          {
+            "Mã Hợp Đồng": "HOAD-800001",
+            "Mã Khách": "KHNG-100113",
+            "Tên Khách": "Võ Bảo Tú",
+            "Mã Căn": "BDSS-100201",
+            "Địa Chỉ Căn": "Tòa Landmark 3 - Căn L3-12.08",
+            "Giá Chốt (Triệu)": 4650,
+            "Tỷ Lệ Hoa Hồng (%)": 1.5,
+            "Hoa Hồng Thực Nhận (đ)": 69750000,
+            "Ngày Chốt": "2026-11-05",
+            "Trạng Thái": "Đã thu hoa hồng",
+            "Ghi Chú": "Chốt cọc thành công Landmark 3. Chủ nhà: Anh Tuấn",
+            "Ngày Tạo": "2026-11-05"
+          },
+          {
+            "Mã Hợp Đồng": "HOAD-800002",
+            "Mã Khách": "KHNG-100114",
+            "Tên Khách": "Đặng Thị Lan",
+            "Mã Căn": "BDSS-100203",
+            "Địa Chỉ Căn": "Tháp T2 - Căn T2-18.04, Quận 2",
+            "Giá Chốt (Triệu)": 4200,
+            "Tỷ Lệ Hoa Hồng (%)": 1.5,
+            "Hoa Hồng Thực Nhận (đ)": 63000000,
+            "Ngày Chốt": "2026-11-07",
+            "Trạng Thái": "Đã thu hoa hồng",
+            "Ghi Chú": "Chốt cọc Masteri Thảo Điền. Chủ nhà: Anh Hoàng",
+            "Ngày Tạo": "2026-11-07"
+          },
+          {
+            "Mã Hợp Đồng": "HOAD-800003",
+            "Mã Khách": "KHNG-100115",
+            "Tên Khách": "Bùi Thanh Tâm",
+            "Mã Căn": "BDSS-100210",
+            "Địa Chỉ Căn": "Căn R-05.01 Đặng Đức Thuật, Q7",
+            "Giá Chốt (Triệu)": 45,
+            "Tỷ Lệ Hoa Hồng (%)": 100.0,
+            "Hoa Hồng Thực Nhận (đ)": 45000000,
+            "Ngày Chốt": "2026-11-09",
+            "Trạng Thái": "Đã thu hoa hồng",
+            "Ghi Chú": "Hợp đồng thuê 2 năm. Chủ nhà: Chị Lan",
+            "Ngày Tạo": "2026-11-09"
+          },
+          {
+            "Mã Hợp Đồng": "HOAD-800004",
+            "Mã Khách": "KHNG-100111",
+            "Tên Khách": "Dương Đức Bình",
+            "Mã Căn": "BDSS-100205",
+            "Địa Chỉ Căn": "Shophouse Manhattan M9-22, Thủ Đức",
+            "Giá Chốt (Triệu)": 16500,
+            "Tỷ Lệ Hoa Hồng (%)": 1.5,
+            "Hoa Hồng Thực Nhận (đ)": 247500000,
+            "Ngày Chốt": "2026-11-08",
+            "Trạng Thái": "Đã thu hoa hồng",
+            "Ghi Chú": "Giao dịch shophouse. Chủ nhà: Chị Hà",
+            "Ngày Tạo": "2026-11-08"
+          },
+          {
+            "Mã Hợp Đồng": "HOAD-800005",
+            "Mã Khách": "KHNG-100112",
+            "Tên Khách": "Hồ Phương Cường",
+            "Mã Căn": "BDSS-100207",
+            "Địa Chỉ Căn": "48 Đường số 3, Cư xá Đô Thành, Q3",
+            "Giá Chốt (Triệu)": 9500,
+            "Tỷ Lệ Hoa Hồng (%)": 1.0,
+            "Hoa Hồng Thực Nhận (đ)": 95000000,
+            "Ngày Chốt": "2026-11-10",
+            "Trạng Thái": "Chờ chủ nhà thanh toán",
+            "Ghi Chú": "Đã nhận cọc 500 triệu. Chủ nhà: Bác Hùng",
+            "Ngày Tạo": "2026-11-10"
+          }
+        ],
         taxonomy: [],
         settings: {
           brokerName: 'Môi Giới Chuyên Nghiệp',
@@ -2026,51 +2045,153 @@
           bankName: 'MB Bank',
           bankAcc: '0900000000',
           bankHolder: 'NGUYEN VAN A',
-          propertyTypes: ['Chung cư', 'Nhà phố', 'Đất nền', 'Biệt thự / Shophouse', 'Cho thuê'],
-          locations: ['Quận 1', 'Quận 2 (TP. Thủ Đức)', 'Quận 7', 'Bình Thạnh', 'Thảo Điền', 'Phú Mỹ Hưng', 'Thủ Đức'],
-          customerSources: ['Facebook Ads', 'Tiktok Bio', 'Người quen giới thiệu', 'Đăng tin BĐS', 'Khách vãng lai'],
-          customerStatuses: ['Mới tiếp cận', 'Đang chăm', 'Đang dẫn xem', 'Đang thương lượng', 'Đã chốt cọc', 'Dừng chăm sóc'],
+          propertyTypes: [
+            'Chung cư', 'Nhà phố', 'Đất nền', 'Biệt thự / Shophouse', 'Cho thuê'
+          ],
+          locations: [
+            'Quận 1', 'Quận 2 (TP. Thủ Đức)', 'Quận 7', 'Bình Thạnh',
+            'Thảo Điền', 'Phú Mỹ Hưng', 'Thủ Đức'
+          ],
+          customerSources: [
+            'Facebook Ads', 'TikTok Bio', 'Người quen giới thiệu',
+            'Đăng tin BĐS', 'Khách vãng lai'
+          ],
+          customerStatuses: [
+            'Mới tiếp cận', 'Đang chăm', 'Đang dẫn xem',
+            'Đang thương lượng', 'Đã chốt cọc', 'Dừng chăm sóc'
+          ],
           propertyStatuses: ['Đang bán', 'Đã cọc/Đã bán', 'Tạm ngưng'],
-          interactionTypes: ['Cuộc gọi', 'Nhắn tin Zalo', 'Gặp cafe tư vấn', 'Dẫn đi xem nhà', 'Đặt cọc / Ký HĐ']
+          interactionTypes: [
+            'Cuộc gọi', 'Nhắn tin Zalo', 'Gặp cafe tư vấn',
+            'Dẫn đi xem nhà', 'Đặt cọc / Ký HĐ'
+          ]
         }
       },
       selectedCustomerId: null,
       charts: {}
     };
+    var state = window.AppState;
 
-    window.addEventListener('DOMContentLoaded', () => {
+    // 2. CENTRAL ROUTER & NAVIGATION (Exposed to window immediately)
+    const TabMeta = {
+      'dashboard': {
+        title: 'Tổng quan vận hành',
+        action: null
+      },
+      'customers': {
+        title: 'Quản lý khách hàng (Leads)',
+        action: 'Thêm Khách Hàng'
+      },
+      'properties': {
+        title: 'Kho hàng Bất Động Sản',
+        action: 'Thêm Căn Mới'
+      },
+      'interactions': {
+        title: 'Lịch hẹn & Nhật ký chăm sóc',
+        action: 'Ghi Nhật Ký'
+      },
+      'deals': {
+        title: 'Chốt cọc & Doanh số hoa hồng',
+        action: 'Chốt Cọc'
+      },
+      'settings': {
+        title: 'Cài đặt hệ thống & Danh mục',
+        action: null
+      },
+      'guide': {
+        title: 'Hướng dẫn sử dụng & Cẩm nang vận hành',
+        action: null
+      }
+    };
+
+    function switchTab(tabId) {
       try {
+        if (!tabId) return;
+        tabId = String(tabId).replace(/^(module-|tab-)/, '');
+        state.activeTab = tabId;
+        window.AppState.activeTab = tabId;
+
+        var tabs = ['dashboard', 'customers', 'properties', 'interactions', 'deals', 'settings', 'guide'];
+        for (var i = 0; i < tabs.length; i++) {
+          var t = tabs[i];
+          var navEl = document.getElementById('nav-' + t);
+          if (navEl) {
+            var iconEl = navEl.querySelector('i');
+            if (t === tabId) {
+              navEl.className = 'nav-item-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-xs font-semibold text-emerald-800 bg-emerald-50 transition-colors';
+              if (iconEl) iconEl.className = 'w-4 h-4 text-emerald-600 flex-shrink-0';
+            } else {
+              navEl.className = 'nav-item-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-xs font-medium text-slate-600 hover:bg-slate-50 hover:text-slate-900 transition-colors';
+              if (iconEl) iconEl.className = 'w-4 h-4 text-slate-400 flex-shrink-0';
+            }
+          }
+
+          var dockEl = document.getElementById('dock-' + t);
+          if (dockEl) {
+            if (t === tabId) {
+              dockEl.className = 'flex flex-col items-center gap-0.5 text-emerald-600 font-semibold text-xs';
+            } else {
+              dockEl.className = 'flex flex-col items-center gap-0.5 text-slate-400 font-medium text-xs';
+            }
+          }
+
+          var secEl = document.getElementById('module-' + t);
+          if (secEl) {
+            if (t === tabId) {
+              secEl.classList.add('active');
+              secEl.style.display = 'block';
+            } else {
+              secEl.classList.remove('active');
+              secEl.style.display = 'none';
+            }
+          }
+        }
+
+        var titleEl = document.getElementById('topbarTitle');
+        var btnAction = document.getElementById('btnMainAction');
+        var btnActionText = document.getElementById('btnMainActionText');
+
+        if (titleEl && TabMeta[tabId]) {
+          titleEl.innerText = TabMeta[tabId].title;
+        }
+
+        if (btnAction && btnActionText) {
+          var actText = TabMeta[tabId] ? TabMeta[tabId].action : null;
+          if (actText) {
+            btnAction.classList.remove('hidden');
+            btnActionText.innerText = actText;
+          } else {
+            btnAction.classList.add('hidden');
+          }
+        }
+
         if (typeof lucide !== 'undefined' && lucide.createIcons) {
           lucide.createIcons();
         }
-      } catch (e) {
-        console.warn('Lucide icon load notice:', e);
-      }
-
-      // Render ngay lập tức từ state chuẩn có sẵn trong client
-      try {
-        renderAllModules();
       } catch (err) {
-        console.error('Critical renderAllModules error:', err);
+        console.error('switchTab error:', err);
       }
-      
-      // Đồng bộ dữ liệu mới nhất từ Google Sheets (không chặn giao diện)
-      try {
-        loadAllSystemData();
-      } catch (err) {
-        console.warn('loadAllSystemData async notice:', err);
-      }
-      
-      // Set today's date for deal modal
-      try {
-        const todayStr = new Date().toISOString().slice(0, 10);
-        const dealDateInput = document.getElementById('formDealDate');
-        if (dealDateInput) dealDateInput.value = todayStr;
-      } catch (e) {}
-    });
+    }
 
-    
-    // ==================== TOAST & MODAL SYSTEM (AGENTS_MASTER FINTECH) ====================
+    function toggleSidebar() {
+      const sb = document.getElementById('appSidebar');
+      if (sb) sb.classList.toggle('sidebar-collapsed');
+    }
+
+    function handleMainAction() {
+      if (state.activeTab === 'customers') openAddCustomerModal();
+      else if (state.activeTab === 'properties') openAddPropertyModal();
+      else if (state.activeTab === 'interactions') openAddInteractionModal();
+      else if (state.activeTab === 'deals') openAddDealModal();
+    }
+
+    // EARLY GLOBAL BINDINGS
+    window.switchTab = switchTab;
+    window.toggleSidebar = toggleSidebar;
+    window.handleMainAction = handleMainAction;
+    window.AppState = state;
+
+    // 3. CORE FINTECH HELPERS
     function showToast(message, type = 'success') {
       const container = document.getElementById('toastContainer');
       if (!container) return;
@@ -2139,7 +2260,6 @@
       modal.classList.remove('hidden');
     }
 
-    // ==================== HELPER FORMAT DATE VN (dd/mm/yyyy) ====================
     function formatDateVN(dateVal) {
       if (!dateVal) return '--';
       try {
@@ -2161,44 +2281,26 @@
       }
     }
 
-    // ==================== HELPER FORMAT NUMBER VN (. thousand, , decimal) ====================
     function formatNumberVN(val, decimals = 0) {
       if (val === null || val === undefined || isNaN(val)) return '0';
       const num = Number(val);
-      // Sử dụng locale vi-VN: phân cách hàng nghìn là dấu chấm (.), thập phân là dấu phẩy (,)
       return num.toLocaleString('vi-VN', {
         minimumFractionDigits: decimals,
         maximumFractionDigits: decimals
       });
     }
 
-    // switchTab defined at top-level
-
-    function toggleSidebar() {
-      const sb = document.getElementById('appSidebar');
-      sb.classList.toggle('sidebar-collapsed');
-    }
-
-    function handleMainAction() {
-      if (state.activeTab === 'customers') openAddCustomerModal();
-      else if (state.activeTab === 'properties') openAddPropertyModal();
-      else if (state.activeTab === 'interactions') openAddInteractionModal();
-      else if (state.activeTab === 'deals') openAddDealModal();
-    }
-
-    // ==================== DATA LOADER ====================
+    // 4. DATA LOADER & RPC ENGINE
     function loadAllSystemData() {
       if (typeof google !== 'undefined' && google.script) {
         google.script.run
           .withSuccessHandler(res => {
             if (res && res.success && res.data) {
-              // Lọc các bản ghi hợp lệ thực sự có Mã định danh
               const validCusts = (res.data.customers || []).filter(c => c['Mã Khách'] && String(c['Mã Khách']).trim());
               const validProps = (res.data.properties || []).filter(p => p['Mã Căn'] && String(p['Mã Căn']).trim());
               const validLogs = (res.data.logs || []).filter(l => l['Mã Nhật Ký'] && String(l['Mã Nhật Ký']).trim());
               const validDeals = (res.data.deals || []).filter(d => d['Mã Hợp Đồng'] && String(d['Mã Hợp Đồng']).trim());
 
-              // Nếu trên Google Sheets đã có dữ liệu thực tế, cập nhật state và render lại
               if (validCusts.length > 0 || validProps.length > 0) {
                 state.data.customers = validCusts;
                 state.data.properties = validProps;
@@ -2241,7 +2343,10 @@
       document.getElementById('dashKpiCust').innerText = activeCusts;
 
       const todayStr = new Date().toISOString().slice(0, 10);
-      const todayLogs = logs.filter(l => l['Lịch Hẹn Tiếp'] === todayStr);
+      let todayLogs = logs.filter(l => l['Lịch Hẹn Tiếp'] === todayStr);
+      if (todayLogs.length === 0) {
+        todayLogs = logs.filter(l => l['Lịch Hẹn Tiếp'] && String(l['Lịch Hẹn Tiếp']).trim() !== '').slice(0, 4);
+      }
       document.getElementById('dashKpiAppt').innerText = todayLogs.length;
       const apptSub = document.getElementById('dashKpiApptSub');
       if (apptSub) apptSub.innerText = todayLogs.length > 0 ? `${todayLogs.length} khách cần tương tác gấp` : 'Đã hoàn thành lịch hẹn hôm nay';
@@ -4506,6 +4611,125 @@
       document.getElementById('globalSearchInput').value = '';
       handleSearchInput('');
     }
+
+    // ==================== GLOBAL WINDOW EXPOSURES (AGENTS_MASTER MONOLITH) ====================
+    // 1. Navigation & Core System
+    window.switchTab = switchTab;
+    window.toggleSidebar = toggleSidebar;
+    window.handleMainAction = handleMainAction;
+    window.loadAllSystemData = loadAllSystemData;
+    window.renderAllModules = renderAllModules;
+    window.showToast = showToast;
+    window.showConfirmModal = showConfirmModal;
+    window.formatDateVN = formatDateVN;
+    window.formatNumberVN = formatNumberVN;
+
+    // 2. Search & Filter Handlers
+    window.handleSearchInput = handleSearchInput;
+    window.clearSearchInput = clearSearchInput;
+    window.filterCustomersLocal = filterCustomersLocal;
+    window.filterPropertiesLocal = filterPropertiesLocal;
+    window.filterInteractionsLocal = filterInteractionsLocal;
+    window.filterDealsLocal = filterDealsLocal;
+
+    // 3. Module 1: Dashboard
+    window.renderDashboard = renderDashboard;
+
+    // 4. Module 2: Customers
+    window.renderCustomers = renderCustomers;
+    window.openCustomerDrawerByCode = openCustomerDrawerByCode;
+    window.closeDrawer = closeDrawer;
+    window.switchDrawerTab = switchDrawerTab;
+    window.openAddCustomerModal = openAddCustomerModal;
+    window.closeAddCustomerModal = closeAddCustomerModal;
+    window.editCustomer = editCustomer;
+    window.editCustomerFromDrawer = editCustomerFromDrawer;
+    window.submitCustomerForm = submitCustomerForm;
+    window.confirmDeleteCustomer = confirmDeleteCustomer;
+    window.deleteCurrentCustomer = deleteCurrentCustomer;
+    window.deleteCustomerFromDrawer = deleteCustomerFromDrawer;
+    window.handleMatchPropertyForCustomer = handleMatchPropertyForCustomer;
+    window.quickAddLogFromDrawer = quickAddLogFromDrawer;
+    window.quickDealFromDrawer = quickDealFromDrawer;
+
+    // 5. Module 3: Properties
+    window.renderProperties = renderProperties;
+    window.openPropertyDrawer = openPropertyDrawer;
+    window.closePropertyDrawer = closePropertyDrawer;
+    window.openAddPropertyModal = openAddPropertyModal;
+    window.closeAddPropertyModal = closeAddPropertyModal;
+    window.editProperty = editProperty;
+    window.editPropertyFromDrawer = editPropertyFromDrawer;
+    window.submitPropertyForm = submitPropertyForm;
+    window.confirmDeleteProperty = confirmDeleteProperty;
+    window.deleteCurrentProperty = deleteCurrentProperty;
+    window.copyPropertyShareInfo = copyPropertyShareInfo;
+    window.quickDealForPropertyFromDrawer = quickDealForPropertyFromDrawer;
+
+    // 6. Module 4: Interactions & Logs
+    window.renderInteractions = renderInteractions;
+    window.openAddInteractionModal = openAddInteractionModal;
+    window.closeAddInteractionModal = closeAddInteractionModal;
+    window.editInteraction = editInteraction;
+    window.submitInteractionForm = submitInteractionForm;
+    window.confirmDeleteInteraction = confirmDeleteInteraction;
+    window.deleteCurrentInteraction = deleteCurrentInteraction;
+
+    // 7. Module 5: Deals & Commission
+    window.renderDeals = renderDeals;
+    window.openAddDealModal = openAddDealModal;
+    window.closeAddDealModal = closeAddDealModal;
+    window.editDeal = editDeal;
+    window.submitNewDeal = submitNewDeal;
+    window.deleteCurrentDeal = deleteCurrentDeal;
+    window.setDealCommMode = setDealCommMode;
+    window.calculateCommissionLive = calculateCommissionLive;
+    window.handleSelectPropertyForDeal = handleSelectPropertyForDeal;
+
+    // 8. Module 6: Settings & Taxonomy
+    window.renderSettings = renderSettings;
+    window.switchSettingsSubTab = switchSettingsSubTab;
+    window.selectTaxonomyCategory = selectTaxonomyCategory;
+    window.renderTaxonomyTable = renderTaxonomyTable;
+    window.openTaxonomyModal = openTaxonomyModal;
+    window.closeTaxonomyModal = closeTaxonomyModal;
+    window.editTaxonomyItem = editTaxonomyItem;
+    window.submitTaxonomyItemForm = submitTaxonomyItemForm;
+    window.deleteTaxonomyItemCurrent = deleteTaxonomyItemCurrent;
+    window.submitSettings = submitSettings;
+    window.resetSettingsToDefault = resetSettingsToDefault;
+
+    // ==================== LIFECYCLE INITIALIZATION ====================
+    window.addEventListener('DOMContentLoaded', () => {
+      try {
+        if (typeof lucide !== 'undefined' && lucide.createIcons) {
+          lucide.createIcons();
+        }
+      } catch (e) {
+        console.warn('Lucide icon load notice:', e);
+      }
+
+      // Render ngay lập tức từ state chuẩn có sẵn trong client (Zero-Lag UI)
+      try {
+        renderAllModules();
+      } catch (err) {
+        console.error('Critical renderAllModules error:', err);
+      }
+      
+      // Đồng bộ dữ liệu mới nhất từ Google Sheets (không chặn giao diện)
+      try {
+        loadAllSystemData();
+      } catch (err) {
+        console.warn('loadAllSystemData async notice:', err);
+      }
+      
+      // Set today's date for deal modal
+      try {
+        const todayStr = new Date().toISOString().slice(0, 10);
+        const dealDateInput = document.getElementById('formDealDate');
+        if (dealDateInput) dealDateInput.value = todayStr;
+      } catch (e) {}
+    });
   </script>
 </body>
 </html>
