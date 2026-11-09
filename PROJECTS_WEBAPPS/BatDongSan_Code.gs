@@ -84,7 +84,13 @@ const CONFIG_BDS = {
  * Entry point cho Web App
  */
 function doGet(e) {
-  return HtmlService.createHtmlOutputFromFile('Index')
+  var template;
+  try {
+    template = HtmlService.createTemplateFromFile('Index');
+  } catch (err) {
+    template = HtmlService.createTemplateFromFile('BatDongSan_Index');
+  }
+  return template.evaluate()
     .setTitle(CONFIG_BDS.APP_TITLE)
     .addMetaTag('viewport', 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no')
     .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
