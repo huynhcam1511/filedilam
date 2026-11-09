@@ -17,7 +17,11 @@
 2. **Quy chuẩn đặt tên File Google Sheet & File Code Local**:
    - **Tên File Google Sheet (Hiển thị cho khách)**:
      - Bắt buộc cấu trúc: `[TÊN SẢN PHẨM IN HOA CÓ DẤU] v[X.X] — FILE ĐI LÀM`
-     - *Ví dụ*: `QUẢN LÝ TÀI SẢN & THIẾT BỊ DOANH NGHIỆP v1.0 — FILE ĐI LÀM`, `SỔ QUẢN LÝ CÔNG NỢ KHÁCH HÀNG & NCC v1.0 — FILE ĐI LÀM`
+     - *Ví dụ chuẩn mẫu*:
+       - `QUẢN LÝ BÁN HÀNG SHOP ONLINE MINI v1.4.0 — FILE ĐI LÀM`
+       - `BẢNG TÍNH GIÁ VỐN & ĐỊNH GIÁ SẢN PHẨM (COSTING) v1.0 — FILE ĐI LÀM`
+       - `QUẢN LÝ TÀI SẢN & THIẾT BỊ DOANH NGHIỆP v1.0 — FILE ĐI LÀM`
+       - `SỔ QUẢN LÝ CÔNG NỢ KHÁCH HÀNG & NCC v1.0 — FILE ĐI LÀM`
    - **Tên 2 File Code Vật Lý (Local)**:
      - `[TENDUAN]_Code.gs`: Backend logic, menu Sheet, routing `doGet()`, xử lý Sheets, bảo mật và RPC handlers.
      - `[TENDUAN]_Index.html`: File giao diện duy nhất (Monolithic SPA) tích hợp Tailwind CSS, Lucide Icons, Chart.js.
