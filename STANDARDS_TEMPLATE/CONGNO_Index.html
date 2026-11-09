@@ -106,9 +106,9 @@
 
   <!-- RIGHT SLIDE-OVER DRAWER (Desktop) / BOTTOM SHEET (Mobile) DÙNG CHUNG -->
   <div id="action-drawer-backdrop" onclick="closeDrawer()" class="fixed inset-0 z-40 bg-slate-900/30 backdrop-blur-xs hidden transition-opacity"></div>
-  <aside id="action-drawer" class="fixed z-50 bg-white shadow-2xl drawer-transition hidden
+  <aside id="action-drawer" class="fixed z-50 bg-white shadow-2xl transition-all duration-300
     bottom-0 left-0 right-0 max-h-[85vh] rounded-t-2xl translate-y-full
-    lg:top-0 lg:bottom-0 lg:right-0 lg:left-auto lg:w-[480px] lg:h-full lg:max-h-full lg:rounded-none lg:translate-y-0 lg:translate-x-full
+    lg:top-0 lg:right-0 lg:bottom-0 lg:left-auto lg:w-[480px] lg:h-full lg:max-h-full lg:rounded-none lg:translate-y-0 lg:translate-x-full
     flex flex-col">
     <!-- Header Drawer -->
     <div class="p-4 border-b border-slate-100 flex items-center justify-between">
@@ -848,8 +848,7 @@
 </div>
 
         <!-- 7. MODULE HELP (HƯỚNG DẪN SỬ DỤNG) -->
-        <div id="tab-help" class="tab-pane hidden space-y-6">
-<div class="space-y-6">
+        <div id="tab-help" class="tab-pane hidden space-y-5">
           <!-- Banner 3 Bước Onboarding Chuẩn FILE ĐI LÀM (Flat Minimalist Clean) -->
           <div class="bg-white rounded-2xl p-6 border border-slate-200/80 shadow-xs">
             <div>
@@ -1017,7 +1016,6 @@
 
           </div>
         </div>
-</div>
 
       </div>
 
@@ -1368,14 +1366,14 @@ window.AppState = {
       }
     ],
     danhMuc: [
-      { Nhom: 'HinhThucThanhToan', loai: 'HINH_THUC_TT', LoaiDanhMuc: 'HINH_THUC_TT', Ma: 'CK_VIETQR', maDanhMuc: 'CK_VIETQR', Ten: 'Chuyển khoản VietQR', giaTri: 'Chuyển khoản VietQR', GhiChu: 'Thanh toán quét mã ngân hàng', ghiChu: 'Thanh toán quét mã ngân hàng' },
-      { Nhom: 'HinhThucThanhToan', loai: 'HINH_THUC_TT', LoaiDanhMuc: 'HINH_THUC_TT', Ma: 'TIEN_MAT', maDanhMuc: 'TIEN_MAT', Ten: 'Tiền mặt', giaTri: 'Tiền mặt', GhiChu: 'Thu/chi tiền mặt trực tiếp', ghiChu: 'Thu/chi tiền mặt trực tiếp' },
-      { Nhom: 'HinhThucThanhToan', loai: 'HINH_THUC_TT', LoaiDanhMuc: 'HINH_THUC_TT', Ma: 'CHUYEN_KHOAN', maDanhMuc: 'CHUYEN_KHOAN', Ten: 'Chuyển khoản thường', giaTri: 'Chuyển khoản thường', GhiChu: 'Internet Banking thông thường', ghiChu: 'Internet Banking thông thường' },
-      { Nhom: 'LoaiDoiTac', loai: 'LOAI_DOI_TAC', LoaiDanhMuc: 'LOAI_DOI_TAC', Ma: 'KHACH_HANG', maDanhMuc: 'KHACH_HANG', Ten: 'Khách hàng', giaTri: 'Khách hàng', GhiChu: 'Đối tác phát sinh công nợ phải thu', ghiChu: 'Đối tác phát sinh công nợ phải thu' },
-      { Nhom: 'LoaiDoiTac', loai: 'LOAI_DOI_TAC', LoaiDanhMuc: 'LOAI_DOI_TAC', Ma: 'NHA_CUNG_CAP', maDanhMuc: 'NHA_CUNG_CAP', Ten: 'Nhà cung cấp', giaTri: 'Nhà cung cấp', GhiChu: 'Đối tác phát sinh công nợ phải trả', ghiChu: 'Đối tác phát sinh công nợ phải trả' },
-      { Nhom: 'TrangThaiNo', loai: 'TRANG_THAI_NO', LoaiDanhMuc: 'TRANG_THAI_NO', Ma: 'CON_NO', maDanhMuc: 'CON_NO', Ten: 'Còn nợ', giaTri: 'Còn nợ', GhiChu: 'Hóa đơn chưa thanh toán hoặc thanh toán 1 phần', ghiChu: 'Hóa đơn chưa thanh toán hoặc thanh toán 1 phần' },
-      { Nhom: 'TrangThaiNo', loai: 'TRANG_THAI_NO', LoaiDanhMuc: 'TRANG_THAI_NO', Ma: 'DA_TAT_TOAN', maDanhMuc: 'DA_TAT_TOAN', Ten: 'Đã tất toán', giaTri: 'Đã tất toán', GhiChu: 'Đã thanh toán đủ toàn bộ', ghiChu: 'Đã thanh toán đủ toàn bộ' },
-      { Nhom: 'TrangThaiNo', loai: 'TRANG_THAI_NO', LoaiDanhMuc: 'TRANG_THAI_NO', Ma: 'QUA_HAN', maDanhMuc: 'QUA_HAN', Ten: 'Quá hạn', giaTri: 'Quá hạn', GhiChu: 'Còn nợ và đã vượt quá hạn thanh toán', ghiChu: 'Còn nợ và đã vượt quá hạn thanh toán' }
+      { Nhom: 'Hình thức thanh toán', loai: 'HINH_THUC_TT', LoaiDanhMuc: 'HINH_THUC_TT', Ma: 'DMUC-101001', maDanhMuc: 'DMUC-101001', Ten: 'Chuyển khoản VietQR', giaTri: 'Chuyển khoản VietQR', GhiChu: 'Thanh toán quét mã QR động', ghiChu: 'Thanh toán quét mã QR động' },
+      { Nhom: 'Hình thức thanh toán', loai: 'HINH_THUC_TT', LoaiDanhMuc: 'HINH_THUC_TT', Ma: 'DMUC-101002', maDanhMuc: 'DMUC-101002', Ten: 'Tiền mặt', giaTri: 'Tiền mặt', GhiChu: 'Thu chi tiền mặt trực tiếp', ghiChu: 'Thu chi tiền mặt trực tiếp' },
+      { Nhom: 'Hình thức thanh toán', loai: 'HINH_THUC_TT', LoaiDanhMuc: 'HINH_THUC_TT', Ma: 'DMUC-101003', maDanhMuc: 'DMUC-101003', Ten: 'Chuyển khoản thường', giaTri: 'Chuyển khoản thường', GhiChu: 'Internet Banking thông thường', ghiChu: 'Internet Banking thông thường' },
+      { Nhom: 'Loại đối tác', loai: 'LOAI_DOI_TAC', LoaiDanhMuc: 'LOAI_DOI_TAC', Ma: 'DMUC-201001', maDanhMuc: 'DMUC-201001', Ten: 'Khách hàng', giaTri: 'Khách hàng', GhiChu: 'Đối tác phát sinh công nợ phải thu', ghiChu: 'Đối tác phát sinh công nợ phải thu' },
+      { Nhom: 'Loại đối tác', loai: 'LOAI_DOI_TAC', LoaiDanhMuc: 'LOAI_DOI_TAC', Ma: 'DMUC-201002', maDanhMuc: 'DMUC-201002', Ten: 'Nhà cung cấp', giaTri: 'Nhà cung cấp', GhiChu: 'Đối tác phát sinh công nợ phải trả', ghiChu: 'Đối tác phát sinh công nợ phải trả' },
+      { Nhom: 'Trạng thái nợ', loai: 'TRANG_THAI_NO', LoaiDanhMuc: 'TRANG_THAI_NO', Ma: 'DMUC-301001', maDanhMuc: 'DMUC-301001', Ten: 'Còn nợ', giaTri: 'Còn nợ', GhiChu: 'Hóa đơn chưa thanh toán hoặc thanh toán 1 phần', ghiChu: 'Hóa đơn chưa thanh toán hoặc thanh toán 1 phần' },
+      { Nhom: 'Trạng thái nợ', loai: 'TRANG_THAI_NO', LoaiDanhMuc: 'TRANG_THAI_NO', Ma: 'DMUC-301002', maDanhMuc: 'DMUC-301002', Ten: 'Đã tất toán', giaTri: 'Đã tất toán', GhiChu: 'Đã thanh toán đủ toàn bộ', ghiChu: 'Đã thanh toán đủ toàn bộ' },
+      { Nhom: 'Trạng thái nợ', loai: 'TRANG_THAI_NO', LoaiDanhMuc: 'TRANG_THAI_NO', Ma: 'DMUC-301003', maDanhMuc: 'DMUC-301003', Ten: 'Quá hạn', giaTri: 'Quá hạn', GhiChu: 'Còn nợ và đã vượt quá hạn thanh toán', ghiChu: 'Còn nợ và đã vượt quá hạn thanh toán' }
     ],
     caiDat: {
       tenDoanhNghiep: 'CÔNG TY TNHH FILE ĐI LÀM VIỆT NAM',
@@ -1501,6 +1499,24 @@ function destroyAllCharts() {
 }
 
 // 5. FORMATTING & CORE UTILITIES
+// Currency Input Masking Helpers (Thousand separators)
+function formatCurrencyInput(el) {
+  if (!el) return;
+  const raw = el.value.replace(/\D/g, '');
+  if (!raw) {
+    el.value = '';
+    return;
+  }
+  el.value = new Intl.NumberFormat('vi-VN').format(Number(raw));
+}
+
+function getRawCurrency(el) {
+  if (!el) return 0;
+  if (typeof el === 'number') return el;
+  const val = typeof el === 'string' ? el : (el.value || '');
+  return Number(val.replace(/\D/g, '')) || 0;
+}
+
 function formatVND(amount) {
   const val = Number(amount) || 0;
   return new Intl.NumberFormat('vi-VN').format(Math.round(val)) + ' đ';
@@ -1690,14 +1706,7 @@ function openDrawer(title, htmlContent) {
   }
   if (backdrop) backdrop.classList.remove('hidden');
   if (drawer) {
-    drawer.classList.remove('hidden');
-    if (typeof requestAnimationFrame !== 'undefined') {
-      requestAnimationFrame(() => {
-        drawer.classList.remove('lg:translate-x-full', 'translate-y-full');
-      });
-    } else {
-      drawer.classList.remove('lg:translate-x-full', 'translate-y-full');
-    }
+    drawer.classList.remove('hidden', 'lg:translate-x-full', 'translate-y-full');
   }
   if (window.lucide && typeof window.lucide.createIcons === 'function') {
     lucide.createIcons();
@@ -2483,7 +2492,7 @@ function openTransactionDrawer(defaultType = 'PTHU', defaultInvoiceId = '') {
       <div class="grid grid-cols-2 gap-3">
         <div>
           <label class="block text-xs font-semibold text-slate-700 mb-1.5">Số tiền thanh toán (đ) <span class="text-rose-500">*</span></label>
-          <input type="number" id="form-tx-amount" required placeholder="0" oninput="updateDrawerVietQR()" class="w-full h-[44px] px-3 rounded-xl border border-slate-200 text-xs font-mono font-bold text-slate-800 focus:border-brand-500 focus:ring-brand-500/20">
+          <input type="text" inputmode="numeric" id="form-tx-amount" required placeholder="0" oninput="formatCurrencyInput(this); updateDrawerVietQR();" class="w-full h-[44px] px-3 rounded-xl border border-slate-200 text-xs font-mono font-bold text-slate-800 focus:border-brand-500 focus:ring-brand-500/20">
         </div>
         <div>
           <label class="block text-xs font-semibold text-slate-700 mb-1.5">Ngày thanh toán <span class="text-rose-500">*</span></label>
@@ -2510,15 +2519,20 @@ function openTransactionDrawer(defaultType = 'PTHU', defaultInvoiceId = '') {
         <textarea id="form-tx-notes" rows="2" placeholder="Diễn giải thêm nếu có..." class="w-full p-3 rounded-xl border border-slate-200 text-xs focus:border-brand-500 focus:ring-brand-500/20"></textarea>
       </div>
 
-      <!-- Khối VietQR Động -->
-      <div id="drawer-qr-container" class="p-3 bg-slate-50 border border-slate-200 rounded-xl flex items-center gap-3">
-        <div class="w-16 h-16 bg-white rounded-lg border border-slate-200 p-1 flex items-center justify-center shrink-0">
-          <img id="drawer-qr-img" src="https://img.vietqr.io/image/${settings.nganHang || 'Vietcombank'}-${settings.soTaiKhoan || '9901234567'}-compact2.png?amount=0" alt="VietQR" class="w-full h-full object-contain max-h-14">
+      <!-- Khối VietQR Động (Prominent & Scan-Friendly) -->
+      <div id="drawer-qr-container" class="p-4 bg-slate-50/80 border border-slate-200/90 rounded-2xl flex flex-col sm:flex-row items-center gap-4">
+        <div class="w-32 h-32 bg-white rounded-xl border border-slate-200 p-1.5 flex items-center justify-center shrink-0 shadow-xs">
+          <img id="drawer-qr-img" src="https://img.vietqr.io/image/${settings.nganHang || 'Vietcombank'}-${settings.soTaiKhoan || '9901234567'}-compact2.png?amount=0&addInfo=THANH+TOAN+CONG+NO" alt="VietQR" class="w-full h-full object-contain">
         </div>
-        <div class="text-[11px] text-slate-600">
-          <div class="font-bold text-slate-800">VietQR Tự Động Tạo</div>
-          <div>STK: <span class="font-mono font-bold">${settings.soTaiKhoan || '9901234567'}</span> (${settings.nganHang || 'Vietcombank'})</div>
-          <div class="text-slate-400">Khách quét mã chuyển tiền chính xác 100%</div>
+        <div class="text-xs text-slate-600 space-y-1 text-center sm:text-left flex-1">
+          <div class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-emerald-50 text-brand-700 text-[10px] font-bold uppercase tracking-wider">
+            <span class="w-1.5 h-1.5 rounded-full bg-brand-500"></span>
+            VietQR Thanh Toán 1 Chạm
+          </div>
+          <div class="font-bold text-slate-900 mt-1">Ngân hàng: ${settings.nganHang || 'Vietcombank'}</div>
+          <div class="text-xs">STK: <span class="font-mono font-bold text-brand-700">${settings.soTaiKhoan || '9901234567'}</span></div>
+          <div class="text-[11px] text-slate-500">Chủ TK: <span class="font-semibold uppercase text-slate-800">${settings.chuTaiKhoan || 'CONG TY TNHH FILE DI LAM'}</span></div>
+          <div class="text-[10px] text-slate-400 pt-1">Mã QR tự cập nhật theo số tiền nhập bên trên</div>
         </div>
       </div>
 
@@ -2576,7 +2590,9 @@ function onTxInvoiceChange() {
   const opt = invSelect.options[invSelect.selectedIndex];
   if (opt && opt.value) {
     const bal = opt.getAttribute('data-balance');
-    if (bal) amtInput.value = bal;
+    if (bal) {
+      amtInput.value = new Intl.NumberFormat('vi-VN').format(Number(bal) || 0);
+    }
     const dt = opt.getAttribute('data-dt');
     if (dt && pSelect) pSelect.value = dt;
     updateDrawerVietQR();
@@ -2587,7 +2603,7 @@ function updateDrawerVietQR() {
   const amtInput = document.getElementById('form-tx-amount');
   const qrImg = document.getElementById('drawer-qr-img');
   if (!amtInput || !qrImg) return;
-  const amount = Number(amtInput.value) || 0;
+  const amount = getRawCurrency(amtInput);
   const settings = AppState.data.caiDat || {};
   const bank = settings.nganHang || 'Vietcombank';
   const stk = settings.soTaiKhoan || '9901234567';
@@ -2601,7 +2617,7 @@ function handleTransactionSubmit(e) {
   const maDT = partnerSelect.value;
   const tenDT = partnerSelect.options[partnerSelect.selectedIndex]?.getAttribute('data-name') || maDT;
   const maGD = document.getElementById('form-tx-invoice').value;
-  const soTien = Number(document.getElementById('form-tx-amount').value) || 0;
+  const soTien = getRawCurrency(document.getElementById('form-tx-amount'));
   const ngayTT = document.getElementById('form-tx-date').value;
   const phuongThuc = document.getElementById('form-tx-method').value;
   const maThamChieu = document.getElementById('form-tx-ref').value;
@@ -2904,7 +2920,7 @@ function openInvoiceDrawer(maGD = '') {
         </div>
         <div>
           <label class="block text-xs font-semibold text-slate-700 mb-1.5">Số tiền phát sinh (đ) <span class="text-rose-500">*</span></label>
-          <input type="number" id="form-inv-amount" value="${existing ? existing.soTien : ''}" required placeholder="0" class="w-full h-[44px] px-3 rounded-xl border border-slate-200 text-xs font-mono font-bold focus:border-brand-500 focus:ring-brand-500/20">
+          <input type="text" inputmode="numeric" id="form-inv-amount" value="${existing && existing.soTien ? new Intl.NumberFormat('vi-VN').format(existing.soTien) : ''}" required placeholder="0" oninput="formatCurrencyInput(this)" class="w-full h-[44px] px-3 rounded-xl border border-slate-200 text-xs font-mono font-bold focus:border-brand-500 focus:ring-brand-500/20">
         </div>
       </div>
 
@@ -2946,7 +2962,7 @@ function handleInvoiceSubmit(e) {
   const maDT = pSelect.value;
   const tenDT = pSelect.options[pSelect.selectedIndex]?.text?.split(' - ')[1] || maDT;
   const loaiGD = document.getElementById('form-inv-type').value;
-  const soTien = Number(document.getElementById('form-inv-amount').value) || 0;
+  const soTien = getRawCurrency(document.getElementById('form-inv-amount'));
   const hanTT = document.getElementById('form-inv-due').value;
   const ngayCT = document.getElementById('form-inv-date').value;
   const soHD = document.getElementById('form-inv-no').value;
@@ -3373,7 +3389,7 @@ function openPartnerDrawer(maDT = '') {
       <div class="grid grid-cols-2 gap-3">
         <div>
           <label class="block text-xs font-semibold text-slate-700 mb-1.5">Hạn mức tín dụng (đ)</label>
-          <input type="number" id="form-partner-limit" value="${existing ? existing.hanMucTinDung : '50000000'}" placeholder="50000000" class="w-full h-[44px] px-3 rounded-xl border border-slate-200 text-xs font-mono focus:border-brand-500 focus:ring-brand-500/20">
+          <input type="text" inputmode="numeric" id="form-partner-limit" value="${new Intl.NumberFormat('vi-VN').format(existing ? existing.hanMucTinDung : 50000000)}" placeholder="50.000.000" oninput="formatCurrencyInput(this)" class="w-full h-[44px] px-3 rounded-xl border border-slate-200 text-xs font-mono focus:border-brand-500 focus:ring-brand-500/20">
         </div>
         <div>
           <label class="block text-xs font-semibold text-slate-700 mb-1.5">Hạn nợ tối đa (Ngày)</label>
@@ -3404,7 +3420,7 @@ function handlePartnerSubmit(e) {
   const sdt = document.getElementById('form-partner-phone').value;
   const email = document.getElementById('form-partner-email').value;
   const diaChi = document.getElementById('form-partner-address').value;
-  const limit = Number(document.getElementById('form-partner-limit').value) || 0;
+  const limit = getRawCurrency(document.getElementById('form-partner-limit'));
   const days = Number(document.getElementById('form-partner-days').value) || 30;
   const ghiChu = document.getElementById('form-partner-notes').value;
 
@@ -3494,6 +3510,18 @@ function searchCategories(val) {
   renderCategories();
 }
 
+function getCategoryGroupName(nhom) {
+  const map = {
+    'HinhThucThanhToan': 'Hình thức thanh toán',
+    'HINH_THUC_TT': 'Hình thức thanh toán',
+    'LoaiDoiTac': 'Loại đối tác',
+    'LOAI_DOI_TAC': 'Loại đối tác',
+    'TrangThaiNo': 'Trạng thái nợ',
+    'TRANG_THAI_NO': 'Trạng thái nợ'
+  };
+  return map[nhom] || nhom || 'Chung';
+}
+
 function renderCategories() {
   const data = AppState.data || {};
   const list = data.danhMuc || [];
@@ -3532,7 +3560,8 @@ function renderCategories() {
   tbody.innerHTML = filtered.map(item => {
     const ma = item.Ma || item.ma || item['Mã'] || item.maDanhMuc || '';
     const ten = item.Ten || item.ten || item['Tên'] || item.giaTri || item.TenDanhMuc || '';
-    const nhom = item.Nhom || item.nhom || item['Nhóm'] || item.loai || item.LoaiDanhMuc || 'Chung';
+    const nhomRaw = item.Nhom || item.nhom || item['Nhóm'] || item.loai || item.LoaiDanhMuc || 'Chung';
+    const nhom = getCategoryGroupName(nhomRaw);
     const ghiChu = item.GhiChu || item.ghiChu || item['Ghi Chú'] || '—';
 
     return `
@@ -3558,7 +3587,8 @@ function renderCategories() {
   cardsList.innerHTML = filtered.map(item => {
     const ma = item.Ma || item.ma || item['Mã'] || item.maDanhMuc || '';
     const ten = item.Ten || item.ten || item['Tên'] || item.giaTri || item.TenDanhMuc || '';
-    const nhom = item.Nhom || item.nhom || item['Nhóm'] || item.loai || item.LoaiDanhMuc || 'Chung';
+    const nhomRaw = item.Nhom || item.nhom || item['Nhóm'] || item.loai || item.LoaiDanhMuc || 'Chung';
+    const nhom = getCategoryGroupName(nhomRaw);
     return `
       <div class="p-3 bg-white rounded-xl border border-slate-100 mb-2 flex items-center justify-between gap-3">
         <div>
@@ -3597,7 +3627,7 @@ function openCategoryDrawer(code = '') {
 
       <div>
         <label class="block text-xs font-semibold text-slate-700 mb-1.5">Mã danh mục (Rút gọn) <span class="text-rose-500">*</span></label>
-        <input type="text" id="form-cat-code" value="${existing ? (existing.Ma || existing.maDanhMuc) : ''}" required placeholder="CK_VIETQR..." class="w-full h-[44px] px-3 rounded-xl border border-slate-200 text-xs font-mono font-bold focus:border-brand-500 focus:ring-brand-500/20">
+        <input type="text" id="form-cat-code" value="${existing ? (existing.Ma || existing.maDanhMuc) : generateId('DMUC')}" required placeholder="DMUC-XXXXXX" class="w-full h-[44px] px-3 rounded-xl border border-slate-200 text-xs font-mono font-bold focus:border-brand-500 focus:ring-brand-500/20">
       </div>
 
       <div>

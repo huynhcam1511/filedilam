@@ -213,16 +213,16 @@ function setupDatabaseSheets() {
     sDanhMuc.appendRow(['Nhóm', 'Mã', 'Tên', 'Ghi Chú']);
     formatHeaderRow(sDanhMuc);
     // HinhThucThanhToan
-    sDanhMuc.appendRow(['HinhThucThanhToan', 'CK_VIETQR', 'Chuyển khoản VietQR', 'Thanh toán quét mã ngân hàng']);
-    sDanhMuc.appendRow(['HinhThucThanhToan', 'TIEN_MAT', 'Tiền mặt', 'Thu/chi tiền mặt trực tiếp']);
-    sDanhMuc.appendRow(['HinhThucThanhToan', 'CHUYEN_KHOAN', 'Chuyển khoản thường', 'Internet Banking thông thường']);
+    sDanhMuc.appendRow(['Hình thức thanh toán', 'DMUC-101001', 'Chuyển khoản VietQR', 'Thanh toán quét mã QR động']);
+    sDanhMuc.appendRow(['Hình thức thanh toán', 'DMUC-101002', 'Tiền mặt', 'Thu chi tiền mặt trực tiếp']);
+    sDanhMuc.appendRow(['Hình thức thanh toán', 'DMUC-101003', 'Chuyển khoản thường', 'Internet Banking thông thường']);
     // LoaiDoiTac
-    sDanhMuc.appendRow(['LoaiDoiTac', 'KHACH_HANG', 'Khách hàng', 'Đối tác phát sinh công nợ phải thu']);
-    sDanhMuc.appendRow(['LoaiDoiTac', 'NHA_CUNG_CAP', 'Nhà cung cấp', 'Đối tác phát sinh công nợ phải trả']);
+    sDanhMuc.appendRow(['Loại đối tác', 'DMUC-201001', 'Khách hàng', 'Đối tác phát sinh công nợ phải thu']);
+    sDanhMuc.appendRow(['Loại đối tác', 'DMUC-201002', 'Nhà cung cấp', 'Đối tác phát sinh công nợ phải trả']);
     // TrangThaiNo
-    sDanhMuc.appendRow(['TrangThaiNo', 'CON_NO', 'Còn nợ', 'Hóa đơn chưa thanh toán hoặc thanh toán 1 phần']);
-    sDanhMuc.appendRow(['TrangThaiNo', 'DA_TAT_TOAN', 'Đã tất toán', 'Đã thanh toán đủ toàn bộ']);
-    sDanhMuc.appendRow(['TrangThaiNo', 'QUA_HAN', 'Quá hạn', 'Còn nợ và đã vượt quá hạn thanh toán']);
+    sDanhMuc.appendRow(['Trạng thái nợ', 'DMUC-301001', 'Còn nợ', 'Hóa đơn chưa thanh toán hoặc thanh toán 1 phần']);
+    sDanhMuc.appendRow(['Trạng thái nợ', 'DMUC-301002', 'Đã tất toán', 'Đã thanh toán đủ toàn bộ']);
+    sDanhMuc.appendRow(['Trạng thái nợ', 'DMUC-301003', 'Quá hạn', 'Còn nợ và đã vượt quá hạn thanh toán']);
   }
 
   // 5. DB_CaiDat: [Khóa, Giá Trị, Diễn Giải]

@@ -55,8 +55,13 @@
 
 6. **Quy tắc "Auto-Seed On First Load" & Zero Empty State**:
    - Tuyệt đối KHÔNG bắt người dùng phải mở Apps Script editor để bấm Run hàm `setupDatabaseSheets()`.
-   - Hàm backend `getInitialData()` BẮT BUỘC phải tự động kiểm tra: nếu các tab `DB_...` chưa tồn tại hoặc bảng dữ liệu chính rỗng, hệ thống tự động kích hoạt `setupDatabaseSheets()` để nạp bộ dữ liệu mẫu thực chiến (10–15 thực thể đầy đủ trạng thái) ngay trong lần gọi RPC đầu tiên.
+   - Hàm backend `getInitialData()` BẮT BUỘC phải tự động kiểm tra: nếu các tab `DB_...` chưa tồn tại hoặc bảng dữ liệu chính rỗng, hệ thống tự động kích hoạt `setupDatabaseSheets()` để nạp bộ dữ liệu mẫu thực chiến (10–15 thực thể đầy đủ trạng thái) ngay trong lần gọi RPC đầu tiên. Hàm setup phải tối ưu tốc độ (< 1.5s), không gọi các hàm `protect()` lặp gây timeout RPC.
    - Luôn trang bị nút "Khởi tạo / Dữ liệu mẫu" trực quan tại Header Web App để người dùng có thể nạp lại dữ liệu chuẩn 1 chạm trực tiếp từ giao diện bất kỳ lúc nào.
+
+7. **Quy tắc "Instant Render & Zero-Blocking UI" (Tải Ngay 0s, Tuyệt Đối Cấm Vòng Quay Treo Màn Hình)**:
+   - Web App BẮT BUỘC phải áp dụng triết lý **Instant Render (Nạp trước, Đồng bộ ngầm sau)**: Ngay khi trang HTML tải xong (`App.init()`), hệ thống phải hiển thị ngay lập tức dữ liệu từ LocalStorage / Mock Data trong 0.05 giây để người dùng bấm thao tác được ngay.
+   - Quá trình gọi RPC với Google Sheets (`getInitialData`) phải chạy ngầm trong background (Background Sync).
+   - Chỉ báo tải chỉ được phép là biểu tượng xoay nhỏ xíu tại nút Refresh trên Header (`sync-icon`). **TUYỆT ĐỐI CẤM** đặt một khối `loading-state` lớn ở giữa màn hình khiến giao diện bị che khuất và "quay hoài" khi đường truyền Google Apps Script bị trễ.
 
 ---
 
