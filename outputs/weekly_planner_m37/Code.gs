@@ -35,7 +35,9 @@ const THEME = {
     { name: 'Thứ ba',  key: 'tue', color: '#6B9080', light: '#EEF5F1', bgHeader: '#7BA490' },
     { name: 'Thứ tư',  key: 'wed', color: '#9A82B5', light: '#F4EFF8', bgHeader: '#A892C2' },
     { name: 'Thứ năm', key: 'thu', color: '#D97D64', light: '#FDF1ED', bgHeader: '#E28C75' },
-    { name: 'Thứ sáu', key: 'fri', color: '#5B84B1', light: '#EDF3F9', bgHeader: '#6C93BF' }
+    { name: 'Thứ sáu', key: 'fri', color: '#5B84B1', light: '#EDF3F9', bgHeader: '#6C93BF' },
+    { name: 'Thứ bảy', key: 'sat', color: '#D49B55', light: '#FDF6ED', bgHeader: '#DEA766' },
+    { name: 'Chủ nhật', key: 'sun', color: '#C86D7D', light: '#FAF0F2', bgHeader: '#D67E8E' }
   ],
   
   sidebar: {
@@ -59,8 +61,8 @@ function getFormulaSeparator_(ss) {
 function onOpen(e) {
   try {
     SpreadsheetApp.getUi()
-      .createMenu('FILE ĐI LÀM (v3.6.0)')
-      .addItem('Khởi tạo Sheet Weekly Planner M37 Chuẩn (v3.6.0)', 'buildWeeklyPlanner')
+      .createMenu('FILE ĐI LÀM (v3.7.0)')
+      .addItem('Khởi tạo Sheet Weekly Planner M37 Chuẩn (Full 7 Ngày)', 'buildWeeklyPlanner')
       .addSeparator()
       .addItem('Xóa dữ liệu / Sang tuần mới (Clear Planner)', 'clearPlannerData')
       .addItem('Cập nhật Biểu đồ (Refresh Charts)', 'rebuildCharts')
@@ -77,9 +79,9 @@ function buildWeeklyPlanner() {
   const ss = SpreadsheetApp.getActiveSpreadsheet();
   const sep = getFormulaSeparator_(ss);
 
-  // Đổi tên file để nhận biết rõ ràng phiên bản v3.6.0
+  // Đổi tên file để nhận biết rõ ràng phiên bản v3.7.0 (Full 7 ngày)
   try {
-    ss.rename('WEEKLY PLANNER & ROUTINE DASHBOARD M37 v3.6.0 — FILE ĐI LÀM');
+    ss.rename('WEEKLY PLANNER & ROUTINE DASHBOARD M37 v3.7.0 (FULL 7 NGÀY) — FILE ĐI LÀM');
   } catch (e) {
     console.log('Không thể đổi tên file: ' + e);
   }
@@ -100,24 +102,27 @@ function buildWeeklyPlanner() {
   sheet.setTabColor(THEME.days[0].color);
   sheet.setHiddenGridlines(false);
 
-  // CỘT VÀ HÀNG
-  sheet.setColumnWidth(1, 16);  // A
-  sheet.setColumnWidth(2, 108); // B
+  // CỘT VÀ HÀNG (FULL 7 NGÀY: THỨ 2 -> CHỦ NHẬT)
+  sheet.setColumnWidth(1, 16);  // A: Spacer
+  sheet.setColumnWidth(2, 108); // B: Sidebar
   for (let c = 3; c <= 9; c++) {
-    sheet.setColumnWidth(c, 29); // C - I
+    sheet.setColumnWidth(c, 29); // C - I: Sidebar mini
   }
   sheet.setColumnWidth(10, 18); // J: Spacer
 
-  const dayStartCols = [11, 14, 17, 20, 23]; // K, N, Q, T, W (5 thứ)
+  const dayStartCols = [11, 14, 17, 20, 23, 26, 29]; // K, N, Q, T, W, Z, AC (7 ngày trong tuần)
   dayStartCols.forEach(col => {
     sheet.setColumnWidth(col, 30);     // Checkbox
-    sheet.setColumnWidth(col + 1, 155);// Task description
+    sheet.setColumnWidth(col + 1, 145);// Task description
     sheet.setColumnWidth(col + 2, 55); // Time
   });
+  sheet.setColumnWidth(32, 18); // AF: Spacer phải
 
-  const maxCols = sheet.getMaxColumns();
-  if (maxCols > 26) {
-    sheet.deleteColumns(27, maxCols - 26);
+  const curCols = sheet.getMaxColumns();
+  if (curCols < 32) {
+    sheet.insertColumnsAfter(curCols, 32 - curCols);
+  } else if (curCols > 32) {
+    sheet.deleteColumns(33, curCols - 32);
   }
 
   sheet.setRowHeight(1, 15);
@@ -132,7 +137,7 @@ function buildWeeklyPlanner() {
   sheet.setRowHeight(24, 22); // NOTES header
   sheet.setRowHeights(25, 7, 22); // 7 hàng Notes (Hàng 25 -> 31)
 
-  sheet.getRange(1, 1, 31, 26)
+  sheet.getRange(1, 1, 31, 32)
     .setFontFamily(FONT_FAMILY)
     .setFontColor(THEME.textDark)
     .setBackground(THEME.bgMain);
@@ -326,10 +331,10 @@ function buildWeeklyPlanner() {
   }
 
   // =========================================================================
-  // KHỐI 5 NGÀY TRONG TUẦN (CỘT K -> Y)
+  // KHỐI 7 NGÀY TRONG TUẦN (CỘT K -> AE: THỨ 2 -> CHỦ NHẬT)
   // =========================================================================
-  sheet.getRange('K2:Y2').merge()
-    .setValue('Weekly Planner v3.6.0')
+  sheet.getRange('K2:AE2').merge()
+    .setValue('Weekly Planner v3.7.0')
     .setFontSize(22)
     .setFontWeight('bold')
     .setFontFamily('Georgia, serif')
@@ -342,7 +347,9 @@ function buildWeeklyPlanner() {
     'Hoàn thành bài tập dự án',
     'Viết kịch bản video TikTok',
     'Thiết kế giao diện người dùng',
-    'Tổng kết tuần và lên kế hoạch mới'
+    'Tổng kết tuần và báo cáo',
+    'Dọn dẹp không gian & Gặp gỡ',
+    'Nghỉ ngơi & Lên kế hoạch tuần mới'
   ];
 
   const sampleTaskLists = [
@@ -360,7 +367,40 @@ function buildWeeklyPlanner() {
     ['Quản lý dự án', '21:30']
   ];
 
-  const dayDbRows = [2, 3, 4, 5, 6];
+  const weekendTasks = [
+    // Thứ 7
+    [
+      ['Dọn dẹp bàn làm việc', '08:30'],
+      ['Xem lại tài liệu tuần', '09:30'],
+      ['Họp trao đổi ngắn', '10:30'],
+      ['Mua sắm đồ dùng tuần', '11:30'],
+      ['Nấu bữa trưa cuối tuần', '12:30'],
+      ['Đi dạo công viên', '15:00'],
+      ['Đọc sách chuyên môn', '16:30'],
+      ['Cafe gặp gỡ bạn bè', '17:30'],
+      ['Chăm sóc cây cảnh', '18:30'],
+      ['Xem phim thư giãn', '20:00'],
+      ['Viết nhật ký tuần', '21:30'],
+      ['Ngủ sớm phục hồi', '22:30']
+    ],
+    // Chủ nhật
+    [
+      ['Tập thể dục nhẹ', '08:00'],
+      ['Ăn sáng gia đình', '09:00'],
+      ['Lên thực đơn tuần mới', '10:30'],
+      ['Chuẩn bị trang phục làm việc', '14:00'],
+      ['Xem phim tài liệu', '15:30'],
+      ['Đi siêu thị chuẩn bị tuần', '17:00'],
+      ['Review chi tiêu tài chính', '19:00'],
+      ['Lên mục tiêu tuần tới', '20:00'],
+      ['Đọc 20 trang sách', '21:00'],
+      ['Thiền định 15 phút', '21:45'],
+      ['Sắp xếp lịch tuần mới', '22:15'],
+      ['Nghỉ ngơi đúng giờ', '22:30']
+    ]
+  ];
+
+  const dayDbRows = [2, 3, 4, 5, 6, 7, 8];
 
   dayStartCols.forEach((startCol, idx) => {
     const dayTheme = THEME.days[idx];
@@ -446,16 +486,17 @@ function buildWeeklyPlanner() {
     const checkRange = sheet.getRange(12, startCol, 12, 1);
     checkRange.insertCheckboxes().setHorizontalAlignment('center').setVerticalAlignment('middle');
 
-    const doneCounts = [8, 10, 8, 9, 5];
+    const doneCounts = [8, 10, 8, 9, 5, 8, 7];
     const numDone = doneCounts[idx];
+    const taskData = idx >= 5 ? weekendTasks[idx - 5] : sampleTaskLists;
 
     for (let r = 0; r < 12; r++) {
       const curRow = 12 + r;
       if (r < numDone) {
         sheet.getRange(curRow, startCol).setValue(true);
       }
-      sheet.getRange(curRow, startCol + 1).setValue(sampleTaskLists[r][0]).setFontSize(8).setVerticalAlignment('middle');
-      sheet.getRange(curRow, startCol + 2).setValue(sampleTaskLists[r][1]).setFontSize(7).setFontColor(THEME.textMuted).setHorizontalAlignment('center').setVerticalAlignment('middle');
+      sheet.getRange(curRow, startCol + 1).setValue(taskData[r][0]).setFontSize(8).setVerticalAlignment('middle');
+      sheet.getRange(curRow, startCol + 2).setValue(taskData[r][1]).setFontSize(7).setFontColor(THEME.textMuted).setHorizontalAlignment('center').setVerticalAlignment('middle');
       
       const rowBg = r % 2 === 0 ? THEME.bgCard : THEME.bgCardSoft;
       sheet.getRange(curRow, startCol, 1, 3)
@@ -512,14 +553,14 @@ function buildWeeklyPlanner() {
   rebuildCharts();
 
   try {
-    SpreadsheetApp.getUi().alert('Khởi tạo hoàn tất!', 'Bản v3.6 đã quy về dải ô chuẩn DB_PLANNER!B1:C8 cực kỳ đơn giản và sạch sẽ. Cả Biểu đồ Cột và 5 Donut Chart đã vẽ lên trọn vẹn 100%!', SpreadsheetApp.getUi().ButtonSet.OK);
+    SpreadsheetApp.getUi().alert('Khởi tạo hoàn tất!', 'Bản v3.7.0 đã bổ sung đầy đủ Thứ 7 & Chủ nhật (Full 7 ngày trong tuần). Cả Biểu đồ Cột và 7 Donut Chart đã vẽ lên trọn vẹn 100%!', SpreadsheetApp.getUi().ButtonSet.OK);
   } catch (e) {
     console.log('Hoàn tất khởi tạo buildWeeklyPlanner thành công!');
   }
 }
 
 /**
- * THIẾT LẬP TAB DB_PLANNER (DẢI Ô B1:C8 DUY NHẤT & NGUỒN DONUT RÕ RÀNG)
+ * THIẾT LẬP TAB DB_PLANNER (DẢI Ô B1:C8 DUY NHẤT & NGUỒN DONUT RÕ RÀNG CHO 7 NGÀY)
  */
 function setupDatabaseSheet_(ss, sep) {
   let dbSheet = ss.getSheetByName(SHEET_DB);
@@ -540,8 +581,8 @@ function setupDatabaseSheet_(ss, sep) {
     { code: 'WED', name: 'Thứ 4', chkCol: 'Q', taskCol: 'R' },
     { code: 'THU', name: 'Thứ 5', chkCol: 'T', taskCol: 'U' },
     { code: 'FRI', name: 'Thứ 6', chkCol: 'W', taskCol: 'X' },
-    { code: 'SAT', name: 'Thứ 7', chkCol: '', taskCol: '' },
-    { code: 'SUN', name: 'CN',    chkCol: '', taskCol: '' }
+    { code: 'SAT', name: 'Thứ 7', chkCol: 'Z', taskCol: 'AA' },
+    { code: 'SUN', name: 'CN',    chkCol: 'AC', taskCol: 'AD' }
   ];
 
   for (let i = 0; i < dayConfigs.length; i++) {
@@ -550,24 +591,17 @@ function setupDatabaseSheet_(ss, sep) {
     dbSheet.getRange(r, 1).setValue(cfg.code);
     dbSheet.getRange(r, 2).setValue(cfg.name);
 
-    if (cfg.chkCol) {
-      // Bắt buộc dùng ';' cho locale vi_VN để tránh lỗi Formula Parse Error #ERROR!
-      dbSheet.getRange(r, 4).setFormula(`=COUNTIF('${SHEET_MAIN}'!${cfg.chkCol}12:${cfg.chkCol}23; TRUE)`);
-      dbSheet.getRange(r, 6).setFormula(`=COUNTA('${SHEET_MAIN}'!${cfg.taskCol}12:${cfg.taskCol}23)`);
-      dbSheet.getRange(r, 5).setFormula(`=F${r} - D${r}`);
-      dbSheet.getRange(r, 3).setFormula(`=IFERROR(D${r} / F${r}; 0)`).setNumberFormat('0%');
-    } else {
-      dbSheet.getRange(r, 3).setValue(i === 5 ? 0.75 : 0.60).setNumberFormat('0%');
-      dbSheet.getRange(r, 4).setValue(i === 5 ? 9 : 6);
-      dbSheet.getRange(r, 5).setValue(i === 5 ? 3 : 4);
-      dbSheet.getRange(r, 6).setValue(i === 5 ? 12 : 10);
-    }
+    // Bắt buộc dùng ';' cho locale vi_VN để tránh lỗi Formula Parse Error #ERROR!
+    dbSheet.getRange(r, 4).setFormula(`=COUNTIF('${SHEET_MAIN}'!${cfg.chkCol}12:${cfg.chkCol}23; TRUE)`);
+    dbSheet.getRange(r, 6).setFormula(`=COUNTA('${SHEET_MAIN}'!${cfg.taskCol}12:${cfg.taskCol}23)`);
+    dbSheet.getRange(r, 5).setFormula(`=F${r} - D${r}`);
+    dbSheet.getRange(r, 3).setFormula(`=IFERROR(D${r} / F${r}; 0)`).setNumberFormat('0%');
   }
 
-  // 2. NGUỒN DỮ LIỆU CÓ HEADER RÕ RÀNG CHO 5 BIỂU ĐỒ DONUT NATIVE (CỘT J & K, HÀNG 1 -> 20)
-  for (let i = 0; i < 5; i++) {
+  // 2. NGUỒN DỮ LIỆU CÓ HEADER RÕ RÀNG CHO 7 BIỂU ĐỒ DONUT NATIVE (CỘT J & K, HÀNG 1 -> 28)
+  for (let i = 0; i < 7; i++) {
     const srcRow = 2 + i;
-    const blockStart = 1 + (i * 4); // 1, 5, 9, 13, 17
+    const blockStart = 1 + (i * 4); // 1, 5, 9, 13, 17, 21, 25
     
     // HÀNG TIÊU ĐỀ BẮT BUỘC
     dbSheet.getRange(blockStart, 10).setValue('Trạng thái');
@@ -598,7 +632,6 @@ function rebuildCharts() {
   existingCharts.forEach(c => sheet.removeChart(c));
 
   // 1. BIỂU ĐỒ CỘT: DÙNG DẢI Ô B1:C8 ĐƠN GIẢN DUY NHẤT (CỘT B: THỨ, CỘT C: %)
-  // Không dùng options ticks/format phức tạp gây lỗi render SVG trắng
   const chartDataRange = dbSheet.getRange('B1:C8');
   
   const barChart = sheet.newChart()
@@ -617,11 +650,11 @@ function rebuildCharts() {
 
   sheet.insertChart(barChart);
 
-  // 2. DỰNG 5 BIỂU ĐỒ DONUT NATIVE (CỘT J & K)
-  const dayStartCols = [11, 14, 17, 20, 23];
+  // 2. DỰNG 7 BIỂU ĐỒ DONUT NATIVE (CỘT J & K CHO FULL 7 NGÀY)
+  const dayStartCols = [11, 14, 17, 20, 23, 26, 29];
   dayStartCols.forEach((startCol, idx) => {
     const dayTheme = THEME.days[idx];
-    const blockStart = 1 + (idx * 4); // 1, 5, 9, 13, 17
+    const blockStart = 1 + (idx * 4); // 1, 5, 9, 13, 17, 21, 25
     const donutRange = dbSheet.getRange(blockStart, 10, 3, 2);
 
     const donutChart = sheet.newChart()
@@ -665,7 +698,7 @@ function clearPlannerData() {
   const sheet = ss.getSheetByName(SHEET_MAIN);
   if (!sheet) return;
 
-  const dayStartCols = [11, 14, 17, 20, 23];
+  const dayStartCols = [11, 14, 17, 20, 23, 26, 29];
   dayStartCols.forEach(col => {
     sheet.getRange(12, col, 12, 1).setValue(false);
     sheet.getRange(12, col + 1, 12, 1).clearContent();
