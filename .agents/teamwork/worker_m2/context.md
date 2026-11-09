@@ -1,0 +1,11 @@
+# Worker Context
+- Working Directory: c:\Users\zit\OneDrive\Tài liệu\ANTIGRAVITY\FILE_DI_LAM_MVP\.agents\teamwork\worker_m2\
+- Target Files:
+  - STANDARDS_TEMPLATE/CONGNO_Index.html
+  - STANDARDS_TEMPLATE/CONGNO_Code.gs
+- Reference:
+  - STANDARDS_TEMPLATE/TAISAN_Index.html
+  - .agents/teamwork/explorer_1/analysis.md
+  - .agents/teamwork/explorer_1/handoff.md
+  - ORIGINAL_REQUEST.md
+  - plan_refactor_congno.md

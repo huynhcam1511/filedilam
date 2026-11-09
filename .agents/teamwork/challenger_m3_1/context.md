@@ -1,0 +1,11 @@
+# Challenger 1 Context
+- Working Directory: c:\Users\zit\OneDrive\Tài liệu\ANTIGRAVITY\FILE_DI_LAM_MVP\.agents\teamwork\challenger_m3_1\
+- Target Files:
+  - STANDARDS_TEMPLATE/CONGNO_Index.html
+  - STANDARDS_TEMPLATE/CONGNO_Code.gs
+- Verification Suite:
+  - .agents/teamwork/worker_m2/test_dom_simulation.js
+- Reference:
+  - plan_refactor_congno.md
+  - ORIGINAL_REQUEST.md
+  - .agents/teamwork/worker_m2/handoff.md

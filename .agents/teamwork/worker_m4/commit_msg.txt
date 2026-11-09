@@ -1,0 +1,10 @@
+refactor(congno): restructure CONGNO_Index.html and CONGNO_Code.gs to monolithic flat SPA pattern
+
+- Re-architect CONGNO_Index.html following the proven TAISAN monolithic flat pattern
+- Implement 7 flat renderers: renderDashboard(), renderTransactions(), renderInvoices(), renderPartners(), renderCategories(), renderSettings(), renderHelp()
+- Eliminate JS scope and reference errors by binding state directly to window.AppState
+- Embed full initial default seed data into AppState to eliminate blank screen on first load
+- Re-architect action-drawer lifecycle with .hidden class to prevent bottom popup leak
+- Add backend RPC deleteThanhToan (with invoice reversal) and saveDanhMuc with LockService in CONGNO_Code.gs
+- Enforce Single Visible Tab rule: lock and hide DB_* sheets, expose only HDSD with B2:D3 Mint CTA button
+- Include comprehensive DOM simulation and adversarial verification test suites (57/57 passed, 100% gate approval)
