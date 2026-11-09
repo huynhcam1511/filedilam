@@ -94,7 +94,7 @@
 
   <!-- RIGHT SLIDE-OVER DRAWER (Desktop) / BOTTOM SHEET (Mobile) DÙNG CHUNG -->
   <div id="action-drawer-backdrop" onclick="closeDrawer()" class="fixed inset-0 z-40 bg-slate-900/30 backdrop-blur-xs hidden transition-opacity"></div>
-  <aside id="action-drawer" class="fixed z-40 bg-white shadow-2xl drawer-transition
+  <aside id="action-drawer" class="fixed z-40 bg-white shadow-2xl drawer-transition hidden
     lg:top-0 lg:right-0 lg:bottom-0 lg:w-[480px] lg:translate-x-full lg:rounded-none
     bottom-0 left-0 right-0 max-h-[85vh] rounded-t-2xl translate-y-full flex flex-col">
     <!-- Header Drawer -->
@@ -1333,6 +1333,9 @@
 
       if (backdrop) backdrop.classList.remove('hidden');
       if (drawer) {
+        drawer.classList.remove('hidden');
+        // trigger reflow
+        void drawer.offsetWidth;
         drawer.classList.remove('lg:translate-x-full', 'translate-y-full');
       }
 
@@ -1345,6 +1348,11 @@
 
       if (drawer) {
         drawer.classList.add('lg:translate-x-full', 'translate-y-full');
+        setTimeout(() => {
+          if (drawer.classList.contains('lg:translate-x-full') || drawer.classList.contains('translate-y-full')) {
+            drawer.classList.add('hidden');
+          }
+        }, 300);
       }
       if (backdrop) {
         backdrop.classList.add('hidden');

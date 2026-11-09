@@ -300,10 +300,16 @@ function setupDatabaseSheets() {
 /**
  * RPC GOM DỮ LIỆU TẬP TRUNG 1 CHẠM (GET INITIAL DATA)
  * Nạp đồng thời tất cả các bảng phục vụ Web App khởi động cực nhanh
+ * Chuẩn hóa 2 lớp key: vừa giữ Header gốc tiếng Việt, vừa ánh xạ camelCase để Frontend truy xuất 100% không bao giờ bị rỗng
  */
 function getInitialData() {
   try {
     var ss = SpreadsheetApp.getActiveSpreadsheet();
+
+    // Tự động kiểm tra nếu các sheet DB chưa có thì tự khởi tạo mẫu luôn
+    if (!ss.getSheetByName(SHEETS.DOI_TAC) || !ss.getSheetByName(SHEETS.PHAT_SINH_NO)) {
+      setupDatabaseSheets();
+    }
 
     var rawDoiTac = readSheetData(ss, SHEETS.DOI_TAC);
     var rawPhatSinhNo = readSheetData(ss, SHEETS.PHAT_SINH_NO);
@@ -311,23 +317,206 @@ function getInitialData() {
     var rawDanhMuc = readSheetData(ss, SHEETS.DANH_MUC);
     var rawCaiDatList = readSheetData(ss, SHEETS.CAI_DAT);
 
+    // Chuẩn hóa Đối Tác: hỗ trợ cả maDoiTac/maDT/MaDoiTac và tenDoiTac/tenDT/TenDoiTac
+    var doiTacList = rawDoiTac.map(function(item) {
+      var ma = item['Mã ĐT'] || item['maDT'] || item['maDoiTac'] || item['MaDoiTac'] || '';
+      var ten = item['Tên Đối Tác'] || item['tenDT'] || item['tenDoiTac'] || item['TenDoiTac'] || '';
+      var loai = item['Loại'] || item['loaiDT'] || item['loaiDoiTac'] || item['LoaiDoiTac'] || 'Khách hàng';
+      var sdt = item['SĐT'] || item['sdt'] || item['SoDienThoai'] || '';
+      var email = item['Email'] || item['email'] || '';
+      var diaChi = item['Địa Chỉ'] || item['diaChi'] || item['DiaChi'] || '';
+      var hanMuc = Number(item['Hạn Mức Tín Dụng'] || item['hanMucTinDung'] || item['HanMucTinDung']) || 0;
+      var hanNo = Number(item['Hạn Nợ (Ngày)'] || item['hanNoNgay'] || item['HanNoNgay']) || 30;
+      var ghiChu = item['Ghi Chú'] || item['ghiChu'] || '';
+      var trangThai = item['Trạng Thái'] || item['trangThai'] || 'Đang giao dịch';
+      var ngayTao = item['Ngày Tạo'] || item['ngayTao'] || '';
+
+      return {
+        // CamelCase & Alias
+        maDT: ma,
+        maDoiTac: ma,
+        MaDoiTac: ma,
+        tenDT: ten,
+        tenDoiTac: ten,
+        TenDoiTac: ten,
+        loaiDT: loai,
+        loaiDoiTac: loai,
+        LoaiDoiTac: loai,
+        sdt: sdt,
+        SoDienThoai: sdt,
+        email: email,
+        Email: email,
+        diaChi: diaChi,
+        DiaChi: diaChi,
+        hanMucTinDung: hanMuc,
+        HanMucTinDung: hanMuc,
+        hanNoNgay: hanNo,
+        HanNoNgay: hanNo,
+        ghiChu: ghiChu,
+        trangThai: trangThai,
+        ngayTao: ngayTao,
+        // Header tiếng Việt gốc
+        'Mã ĐT': ma,
+        'Tên Đối Tác': ten,
+        'Loại': loai,
+        'SĐT': sdt,
+        'Địa Chỉ': diaChi,
+        'Hạn Mức Tín Dụng': hanMuc,
+        'Hạn Nợ (Ngày)': hanNo,
+        'Ghi Chú': ghiChu,
+        'Trạng Thái': trangThai,
+        'Ngày Tạo': ngayTao
+      };
+    });
+
+    // Chuẩn hóa Phát Sinh Nợ (Hóa đơn)
+    var phatSinhList = rawPhatSinhNo.map(function(item) {
+      var maGD = item['Mã GD'] || item['maPhatSinh'] || item['maHD'] || item['MaHoaDon'] || '';
+      var maDT = item['Mã ĐT'] || item['maDT'] || item['maDoiTac'] || item['MaDoiTac'] || '';
+      var tenDT = item['Tên ĐT'] || item['tenDT'] || item['tenDoiTac'] || item['TenDoiTac'] || '';
+      var loaiGD = item['Loại GD'] || item['loaiGiaoDich'] || item['loai'] || item['Loai'] || 'Bán hàng';
+      var soTien = Number(item['Số Tiền'] || item['soTien'] || item['SoTien'] || item['SoTienGoc']) || 0;
+      var daTra = Number(item['Đã Thanh Toán'] || item['daTra'] || item['DaTra'] || item['DaThanhToan']) || 0;
+      var conLai = Number(item['Còn Lại'] || item['conLai'] || item['conNo'] || item['ConNo']) || (soTien - daTra);
+      var hanTT = item['Hạn Thanh Toán'] || item['hanThanhToan'] || item['HanThanhToan'] || '';
+      var ngayCT = item['Ngày Chứng Từ'] || item['ngayChungTu'] || item['ngay'] || item['Ngay'] || '';
+      var soHD = item['Số Hóa Đơn'] || item['soHoaDon'] || item['soHD'] || '';
+      var ghiChu = item['Ghi Chú'] || item['ghiChu'] || '';
+      var trangThai = item['Trạng Thái'] || item['trangThai'] || (conLai <= 0 ? 'Đã tất toán' : 'Còn nợ');
+
+      return {
+        maGD: maGD,
+        maPhatSinh: maGD,
+        maHD: maGD,
+        MaHoaDon: maGD,
+        MaHD: maGD,
+        maDT: maDT,
+        maDoiTac: maDT,
+        MaDoiTac: maDT,
+        tenDT: tenDT,
+        tenDoiTac: tenDT,
+        TenDoiTac: tenDT,
+        loaiGD: loaiGD,
+        loaiGiaoDich: loaiGD,
+        loai: loaiGD,
+        Loai: loaiGD,
+        soTien: soTien,
+        SoTien: soTien,
+        SoTienGoc: soTien,
+        daTra: daTra,
+        DaTra: daTra,
+        daThanhToan: daTra,
+        conLai: conLai,
+        conNo: conLai,
+        ConNo: conLai,
+        hanThanhToan: hanTT,
+        HanThanhToan: hanTT,
+        ngayChungTu: ngayCT,
+        ngay: ngayCT,
+        Ngay: ngayCT,
+        soHoaDon: soHD,
+        ghiChu: ghiChu,
+        trangThai: trangThai,
+        // Header tiếng Việt gốc
+        'Mã GD': maGD,
+        'Mã ĐT': maDT,
+        'Tên ĐT': tenDT,
+        'Loại GD': loaiGD,
+        'Số Tiền': soTien,
+        'Đã Thanh Toán': daTra,
+        'Còn Lại': conLai,
+        'Hạn Thanh Toán': hanTT,
+        'Ngày Chứng Từ': ngayCT,
+        'Số Hóa Đơn': soHD,
+        'Ghi Chú': ghiChu,
+        'Trạng Thái': trangThai
+      };
+    });
+
+    // Chuẩn hóa Thanh Toán
+    var thanhToanList = rawThanhToan.map(function(item) {
+      var maTT = item['Mã TT'] || item['maThanhToan'] || item['MaThanhToan'] || '';
+      var maGD = item['Mã GD'] || item['maPhatSinh'] || item['maHD'] || item['MaHoaDon'] || '';
+      var maDT = item['Mã ĐT'] || item['maDT'] || item['maDoiTac'] || item['MaDoiTac'] || '';
+      var tenDT = item['Tên ĐT'] || item['tenDT'] || item['tenDoiTac'] || item['TenDoiTac'] || '';
+      var loaiTT = item['Loại TT'] || item['loaiThanhToan'] || item['loai'] || item['Loai'] || 'Thu nợ';
+      var soTien = Number(item['Số Tiền'] || item['soTien'] || item['SoTien']) || 0;
+      var phuongThuc = item['Phương Thức'] || item['phuongThuc'] || item['hinhThuc'] || item['PhuongThuc'] || 'Chuyển khoản VietQR';
+      var ngayTT = item['Ngày TT'] || item['ngayThanhToan'] || item['ngay'] || item['Ngay'] || '';
+      var ghiChu = item['Ghi Chú'] || item['ghiChu'] || '';
+      var maThamChieu = item['Mã Tham Chiếu'] || item['maThamChieu'] || '';
+
+      return {
+        maTT: maTT,
+        maThanhToan: maTT,
+        MaThanhToan: maTT,
+        maGD: maGD,
+        maPhatSinh: maGD,
+        maHD: maGD,
+        MaHoaDon: maGD,
+        MaChungTu: maGD,
+        maDT: maDT,
+        maDoiTac: maDT,
+        MaDoiTac: maDT,
+        tenDT: tenDT,
+        tenDoiTac: tenDT,
+        TenDoiTac: tenDT,
+        loaiTT: loaiTT,
+        loaiThanhToan: loaiTT,
+        loai: loaiTT,
+        Loai: loaiTT,
+        soTien: soTien,
+        SoTien: soTien,
+        phuongThuc: phuongThuc,
+        PhuongThuc: phuongThuc,
+        hinhThuc: phuongThuc,
+        ngayTT: ngayTT,
+        ngayThanhToan: ngayTT,
+        ngay: ngayTT,
+        Ngay: ngayTT,
+        ghiChu: ghiChu,
+        maThamChieu: maThamChieu,
+        // Header tiếng Việt gốc
+        'Mã TT': maTT,
+        'Mã GD': maGD,
+        'Mã ĐT': maDT,
+        'Tên ĐT': tenDT,
+        'Loại TT': loaiTT,
+        'Số Tiền': soTien,
+        'Phương Thức': phuongThuc,
+        'Ngày TT': ngayTT,
+        'Ghi Chú': ghiChu,
+        'Mã Tham Chiếu': maThamChieu
+      };
+    });
+
     // Chuẩn hóa cài đặt thành key-value object
     var caiDatObj = {};
     for (var i = 0; i < rawCaiDatList.length; i++) {
-      var item = rawCaiDatList[i];
-      var key = item['Khóa'] || item['Khoa'] || item['Key'];
-      var val = item['Giá Trị'] || item['Gia Tri'] || item['Value'];
+      var cItem = rawCaiDatList[i];
+      var key = cItem['Khóa'] || cItem['Khoa'] || cItem['Key'];
+      var val = cItem['Giá Trị'] || cItem['Gia Tri'] || cItem['Value'];
       if (key) {
         caiDatObj[key] = val;
       }
     }
 
+    // Bổ sung các key alias cho Cài đặt
+    caiDatObj.tenDoanhNghiep = caiDatObj['TEN_DON_VI'] || caiDatObj['tenCoSo'] || 'CÔNG TY TNHH FILE ĐI LÀM';
+    caiDatObj.diaChi = caiDatObj['DIA_CHI'] || '';
+    caiDatObj.hotline = caiDatObj['SO_DIEN_THOAI'] || '';
+    caiDatObj.email = caiDatObj['EMAIL'] || '';
+    caiDatObj.nganHang = caiDatObj['NGAN_HANG'] || 'Vietcombank';
+    caiDatObj.soTaiKhoan = caiDatObj['STK'] || '';
+    caiDatObj.chuTaiKhoan = caiDatObj['CHU_TAI_KHOAN'] || '';
+    caiDatObj.mauNhacNoZalo = caiDatObj['MAU_NHAC_NO_ZALO'] || '';
+
     return {
       success: true,
       data: {
-        doiTac: rawDoiTac,
-        phatSinhNo: rawPhatSinhNo,
-        thanhToan: rawThanhToan,
+        doiTac: doiTacList,
+        phatSinhNo: phatSinhList,
+        thanhToan: thanhToanList,
         danhMuc: rawDanhMuc,
         caiDat: caiDatObj
       }
