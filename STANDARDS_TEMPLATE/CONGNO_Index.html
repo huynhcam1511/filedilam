@@ -60,6 +60,18 @@
     .drawer-transition {
       transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s ease;
     }
+    @media (min-width: 1024px) {
+      #action-drawer {
+        top: 0 !important;
+        bottom: 0 !important;
+        right: 0 !important;
+        left: auto !important;
+        width: 480px !important;
+        max-height: 100vh !important;
+        height: 100vh !important;
+        border-radius: 0 !important;
+      }
+    }
     .toast-slide {
       animation: slideInRight 0.25s ease-out forwards;
     }
@@ -94,9 +106,10 @@
 
   <!-- RIGHT SLIDE-OVER DRAWER (Desktop) / BOTTOM SHEET (Mobile) DÙNG CHUNG -->
   <div id="action-drawer-backdrop" onclick="closeDrawer()" class="fixed inset-0 z-40 bg-slate-900/30 backdrop-blur-xs hidden transition-opacity"></div>
-  <aside id="action-drawer" class="fixed z-40 bg-white shadow-2xl drawer-transition hidden
-    lg:top-0 lg:right-0 lg:bottom-0 lg:w-[480px] lg:translate-x-full lg:rounded-none
-    bottom-0 left-0 right-0 max-h-[85vh] rounded-t-2xl translate-y-full flex flex-col">
+  <aside id="action-drawer" class="fixed z-50 bg-white shadow-2xl drawer-transition hidden
+    bottom-0 left-0 right-0 max-h-[85vh] rounded-t-2xl translate-y-full
+    lg:top-0 lg:bottom-0 lg:right-0 lg:left-auto lg:w-[480px] lg:h-full lg:max-h-full lg:rounded-none lg:translate-y-0 lg:translate-x-full
+    flex flex-col">
     <!-- Header Drawer -->
     <div class="p-4 border-b border-slate-100 flex items-center justify-between">
       <h2 id="drawer-title" class="text-sm font-bold text-slate-900">Chi tiết tác vụ</h2>
@@ -256,17 +269,17 @@
   </div>
 
   <!-- KHỐI 2: LỊCH NHẮC NỢ HÔM NAY (DAILY ACTION CENTER) -->
-  <div class="bg-white border border-slate-200/80 rounded-2xl shadow-sm overflow-hidden">
+  <div class="bg-white border border-slate-200/80 rounded-2xl shadow-xs overflow-hidden">
     <!-- Header Action Center -->
-    <div class="px-5 py-4 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 bg-gradient-to-r from-slate-50/80 to-white">
+    <div class="px-5 py-4 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 bg-white">
       <div class="flex items-center space-x-3">
-        <div class="w-9 h-9 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center flex-shrink-0 border border-emerald-100">
-          <i data-lucide="bell-ring" class="w-4 h-4"></i>
+        <div class="w-9 h-9 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center flex-shrink-0">
+          <i data-lucide="bell-ring" class="w-4 h-4 stroke-[1.75]"></i>
         </div>
         <div>
           <div class="flex items-center space-x-2">
-            <h2 class="text-sm font-bold text-slate-800 tracking-tight">Lịch Nhắc Nợ Hôm Nay</h2>
-            <span id="dash-due-count-badge" class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-rose-50 text-rose-600 border border-rose-100 font-mono">
+            <h2 class="text-sm font-bold text-slate-900 tracking-tight">Lịch Nhắc Nợ Hôm Nay</h2>
+            <span id="dash-due-count-badge" class="font-mono text-xs font-semibold text-rose-600">
               0 khoản
             </span>
           </div>
@@ -1836,7 +1849,7 @@ function renderDashboard() {
         sub: 'Khách hàng nợ mình',
         value: formatVND(totalAR),
         icon: 'arrow-down-left',
-        iconBg: 'bg-emerald-50 text-emerald-600 border border-emerald-100',
+        iconBg: 'bg-emerald-50 text-emerald-600',
         valColor: 'text-emerald-700'
       },
       {
@@ -1844,7 +1857,7 @@ function renderDashboard() {
         sub: 'Mình nợ nhà cung cấp',
         value: formatVND(totalAP),
         icon: 'arrow-up-right',
-        iconBg: 'bg-amber-50 text-amber-600 border border-amber-100',
+        iconBg: 'bg-amber-50 text-amber-600',
         valColor: 'text-amber-700'
       },
       {
@@ -1852,7 +1865,7 @@ function renderDashboard() {
         sub: 'Phải Thu - Phải Trả',
         value: formatVND(netCashFlow),
         icon: 'wallet',
-        iconBg: netCashFlow >= 0 ? 'bg-teal-50 text-teal-600 border border-teal-100' : 'bg-rose-50 text-rose-600 border border-rose-100',
+        iconBg: netCashFlow >= 0 ? 'bg-teal-50 text-teal-600' : 'bg-rose-50 text-rose-600',
         valColor: netCashFlow >= 0 ? 'text-teal-700' : 'text-rose-700'
       },
       {
@@ -1860,7 +1873,7 @@ function renderDashboard() {
         sub: overdueCount + ' khoản nợ trễ hẹn',
         value: formatVND(totalOverdueAmount),
         icon: 'alert-triangle',
-        iconBg: 'bg-rose-50 text-rose-600 border border-rose-100',
+        iconBg: 'bg-rose-50 text-rose-600',
         valColor: 'text-rose-700'
       },
       {
@@ -1868,7 +1881,7 @@ function renderDashboard() {
         sub: 'Khách hàng & Nhà cung cấp',
         value: (activeDebtorsCount || partners.length) + ' đối tác',
         icon: 'users',
-        iconBg: 'bg-slate-100 text-slate-600 border border-slate-200',
+        iconBg: 'bg-slate-100 text-slate-600',
         valColor: 'text-slate-800'
       }
     ];
@@ -1878,7 +1891,7 @@ function renderDashboard() {
         <div class="flex items-center justify-between mb-3">
           <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider">${c.title}</span>
           <div class="w-8 h-8 rounded-xl ${c.iconBg} flex items-center justify-center flex-shrink-0">
-            <i data-lucide="${c.icon}" class="w-4 h-4"></i>
+            <i data-lucide="${c.icon}" class="w-4 h-4 stroke-[1.75]"></i>
           </div>
         </div>
         <div>
@@ -1897,8 +1910,8 @@ function renderDashboard() {
   if (dueBadge) {
     dueBadge.textContent = dueList.length + ' khoản';
     dueBadge.className = dueList.length > 0 
-      ? 'inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-rose-50 text-rose-600 border border-rose-100 font-mono'
-      : 'inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-600 border border-emerald-100 font-mono';
+      ? 'font-mono text-xs font-semibold text-rose-600'
+      : 'font-mono text-xs font-semibold text-emerald-600';
   }
 
   if (dateLabel) {
@@ -1910,8 +1923,8 @@ function renderDashboard() {
     if (dueList.length === 0) {
       dueListContainer.innerHTML = `
         <div class="p-8 text-center">
-          <div class="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-600 mx-auto flex items-center justify-center mb-3 border border-emerald-100">
-            <i data-lucide="shield-check" class="w-6 h-6"></i>
+          <div class="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-600 mx-auto flex items-center justify-center mb-3">
+            <i data-lucide="shield-check" class="w-6 h-6 stroke-[1.75]"></i>
           </div>
           <h4 class="text-sm font-bold text-slate-700">Tuyệt vời! Không có khoản nợ nào quá hạn hôm nay</h4>
           <p class="text-xs text-slate-400 mt-1">Tất cả khách hàng và nhà cung cấp đều đang trong hạn cam kết an toàn.</p>
@@ -1926,7 +1939,7 @@ function renderDashboard() {
         const statusColor = isOverdue ? 'text-rose-600' : 'text-amber-600';
         const phoneHtml = item.sdt 
           ? `<a href="tel:${item.sdt}" class="inline-flex items-center gap-1 text-xs text-emerald-600 font-mono hover:underline">
-               <i data-lucide="phone" class="w-3.5 h-3.5"></i>
+               <i data-lucide="phone" class="w-3.5 h-3.5 stroke-[1.75]"></i>
                <span>${item.sdt}</span>
              </a>`
           : `<span class="text-xs text-slate-400 italic">Chưa có SĐT</span>`;
@@ -1952,8 +1965,8 @@ function renderDashboard() {
                 <div class="text-sm font-bold text-rose-600 font-mono">${formatVND(item.soTien)}</div>
               </div>
               <button onclick="copyZaloReminder('${item.maDT}', ${item.soTien})" 
-                      class="h-9 px-3.5 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-700 font-medium text-xs border border-emerald-200 transition-colors inline-flex items-center gap-1.5 active:scale-95">
-                <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+                      class="h-9 px-3.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 shadow-2xs font-medium text-xs transition inline-flex items-center gap-1.5 active:scale-95">
+                <i data-lucide="copy" class="w-3.5 h-3.5 stroke-[1.75] text-brand-600"></i>
                 <span>Mẫu Nhắc Nợ</span>
               </button>
             </div>
@@ -2500,7 +2513,7 @@ function openTransactionDrawer(defaultType = 'PTHU', defaultInvoiceId = '') {
       <!-- Khối VietQR Động -->
       <div id="drawer-qr-container" class="p-3 bg-slate-50 border border-slate-200 rounded-xl flex items-center gap-3">
         <div class="w-16 h-16 bg-white rounded-lg border border-slate-200 p-1 flex items-center justify-center shrink-0">
-          <img id="drawer-qr-img" src="https://img.vietqr.io/image/${settings.nganHang || 'Vietcombank'}-${settings.soTaiKhoan || '9901234567'}-compact2.png?amount=0" alt="VietQR" class="w-full h-full object-contain">
+          <img id="drawer-qr-img" src="https://img.vietqr.io/image/${settings.nganHang || 'Vietcombank'}-${settings.soTaiKhoan || '9901234567'}-compact2.png?amount=0" alt="VietQR" class="w-full h-full object-contain max-h-14">
         </div>
         <div class="text-[11px] text-slate-600">
           <div class="font-bold text-slate-800">VietQR Tự Động Tạo</div>
