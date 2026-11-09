@@ -2071,20 +2071,61 @@ function render8Charts(params) {
   const blue = '#0284c7';
   const slate = '#64748b';
 
-  // 1. Dòng tiền thu - chi 6 tháng
+  const invoices = params.invoices || [];
+  const payments = params.payments || [];
+  const partners = params.partners || [];
+  const partnerMap = params.partnerMap || {};
+
+  // ==========================================
+  // DỮ LIỆU ĐỘNG 1: Dòng tiền thu - chi 6 tháng gần nhất từ DB_ThanhToan
+  // ==========================================
+  const now = new Date();
+  const monthLabels = [];
+  const monthlyIn = [0, 0, 0, 0, 0, 0];
+  const monthlyOut = [0, 0, 0, 0, 0, 0];
+
+  for (let i = 5; i >= 0; i--) {
+    const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+    monthLabels.push('T' + (d.getMonth() + 1));
+  }
+
+  payments.forEach(p => {
+    const amt = Number(p.soTien || p.SoTien) || 0;
+    const loai = (p.loaiTT || p.LoaiThanhToan || '').toLowerCase();
+    const dateStr = p.ngayTT || p.NgayThanhToan || '';
+    
+    let mIdx = 5;
+    if (dateStr && dateStr.includes('/')) {
+      const parts = dateStr.split('/');
+      if (parts.length >= 2) {
+        const m = parseInt(parts[1], 10);
+        const curM = now.getMonth() + 1;
+        const diff = curM - m;
+        if (diff >= 0 && diff < 6) mIdx = 5 - diff;
+      }
+    }
+
+    if (loai.includes('thu') || loai.includes('pthu')) {
+      monthlyIn[mIdx] += amt;
+    } else {
+      monthlyOut[mIdx] += amt;
+    }
+  });
+
+  const hasPayments = payments.length > 0;
+  const displayIn = hasPayments ? monthlyIn : [25000000, 32000000, 28000000, 45000000, 38000000, 52000000];
+  const displayOut = hasPayments ? monthlyOut : [18000000, 22000000, 19000000, 30000000, 25000000, 34000000];
+
   destroyChart('cashflow');
   const ctxCashflow = document.getElementById('dash-chart-cashflow');
   if (ctxCashflow) {
-    const months = ['T6', 'T7', 'T8', 'T9', 'T10', 'T11'];
-    const dataIn = [25000000, 32000000, 28000000, 45000000, 38000000, 52000000];
-    const dataOut = [18000000, 22000000, 19000000, 30000000, 25000000, 34000000];
     ChartInstances.cashflow = new Chart(ctxCashflow, {
       type: 'bar',
       data: {
-        labels: months,
+        labels: monthLabels,
         datasets: [
-          { label: 'Thực Thu', data: dataIn, backgroundColor: mint, borderRadius: 6 },
-          { label: 'Thực Chi', data: dataOut, backgroundColor: amber, borderRadius: 6 }
+          { label: 'Thực Thu', data: displayIn, backgroundColor: mint, borderRadius: 6 },
+          { label: 'Thực Chi', data: displayOut, backgroundColor: amber, borderRadius: 6 }
         ]
       },
       options: {
@@ -2099,18 +2140,20 @@ function render8Charts(params) {
     });
   }
 
-  // 2. Tỷ lệ nợ phải thu / phải trả
+  // ==========================================
+  // DỮ LIỆU ĐỘNG 2: Cơ cấu Phải Thu (AR) vs Phải Trả (AP)
+  // ==========================================
   destroyChart('arApRatio');
   const ctxArAp = document.getElementById('dash-chart-ar-ap-ratio');
   if (ctxArAp) {
-    const ar = params.totalAR > 0 ? params.totalAR : 42500000;
-    const ap = params.totalAP > 0 ? params.totalAP : 25000000;
+    const ar = params.totalAR || 0;
+    const ap = params.totalAP || 0;
     ChartInstances.arApRatio = new Chart(ctxArAp, {
       type: 'doughnut',
       data: {
         labels: ['Phải Thu Khách Hàng', 'Phải Trả Nhà Cung Cấp'],
         datasets: [{
-          data: [ar, ap],
+          data: (ar === 0 && ap === 0) ? [1, 1] : [ar, ap],
           backgroundColor: [mint, amber],
           borderWidth: 0
         }]
@@ -2119,12 +2162,38 @@ function render8Charts(params) {
         responsive: true,
         maintainAspectRatio: false,
         cutout: '70%',
-        plugins: { legend: { position: 'bottom', labels: { font: { size: 11 }, boxWidth: 12 } } }
+        plugins: {
+          legend: { position: 'bottom', labels: { font: { size: 11 }, boxWidth: 12 } },
+          tooltip: {
+            callbacks: {
+              label: function(context) {
+                return context.label + ': ' + formatVND(context.raw);
+              }
+            }
+          }
+        }
       }
     });
   }
 
-  // 3. Phân tích tuổi nợ
+  // ==========================================
+  // DỮ LIỆU ĐỘNG 3: Phân tích tuổi nợ khách hàng (Aging)
+  // ==========================================
+  let age0_30 = 0;
+  let age30_60 = 0;
+  let age60_90 = 0;
+  let age90_plus = 0;
+
+  invoices.forEach(inv => {
+    const conLai = Number(inv.conLai !== undefined ? inv.conLai : (Number(inv.soTien || 0) - Number(inv.daTra || 0))) || 0;
+    if (conLai <= 0) return;
+    const days = getDaysOverdue(inv.hanThanhToan);
+    if (days <= 30) age0_30 += conLai;
+    else if (days <= 60) age30_60 += conLai;
+    else if (days <= 90) age60_90 += conLai;
+    else age90_plus += conLai;
+  });
+
   destroyChart('aging');
   const ctxAging = document.getElementById('dash-chart-aging');
   if (ctxAging) {
@@ -2134,7 +2203,7 @@ function render8Charts(params) {
         labels: ['Dưới 30 ngày', '30 - 60 ngày', '60 - 90 ngày', 'Trên 90 ngày'],
         datasets: [{
           label: 'Dư Nợ',
-          data: [27500000, 15000000, 8500000, 4000000],
+          data: [age0_30, age30_60, age60_90, age90_plus],
           backgroundColor: [mint, blue, amber, rose],
           borderRadius: 6
         }]
@@ -2151,17 +2220,41 @@ function render8Charts(params) {
     });
   }
 
-  // 4. Top 5 khách hàng nợ nhiều nhất
+  // ==========================================
+  // DỮ LIỆU ĐỘNG 4: Top 5 Khách Hàng Dư Nợ Cao Nhất
+  // ==========================================
+  const custDebts = [];
+  partners.forEach(p => {
+    const ma = p.maDT || p.MaDoiTac;
+    const loai = (p.loaiDT || p.LoaiDoiTac || '').toUpperCase();
+    if (loai.includes('NCC') || loai.includes('CUNG CẤP')) return;
+    let debt = 0;
+    invoices.forEach(inv => {
+      if ((inv.maDT || inv.MaDoiTac) === ma) {
+        const conLai = Number(inv.conLai !== undefined ? inv.conLai : (Number(inv.soTien || 0) - Number(inv.daTra || 0))) || 0;
+        debt += conLai;
+      }
+    });
+    if (debt > 0) {
+      custDebts.push({ name: p.tenDT || p.TenDoiTac || ma, debt: debt });
+    }
+  });
+
+  custDebts.sort((a, b) => b.debt - a.debt);
+  const topCust = custDebts.slice(0, 5);
+  const topCustLabels = topCust.length > 0 ? topCust.map(c => c.name) : ['Chưa có khách nợ'];
+  const topCustValues = topCust.length > 0 ? topCust.map(c => c.debt) : [0];
+
   destroyChart('topCustomers');
   const ctxTopCust = document.getElementById('dash-chart-top-customers');
   if (ctxTopCust) {
     ChartInstances.topCustomers = new Chart(ctxTopCust, {
       type: 'bar',
       data: {
-        labels: ['CP Đầu Tư Alpha', 'ĐL Minh Khang', 'Nội Thất Hoàn Mỹ', 'Cty TM Toàn Thắng', 'Decor Sài Gòn'],
+        labels: topCustLabels,
         datasets: [{
           label: 'Dư nợ (VNĐ)',
-          data: [27500000, 18000000, 12000000, 9500000, 6000000],
+          data: topCustValues,
           backgroundColor: mint,
           borderRadius: 6
         }]
@@ -2179,17 +2272,41 @@ function render8Charts(params) {
     });
   }
 
-  // 5. Top 5 nhà cung cấp cần trả
+  // ==========================================
+  // DỮ LIỆU ĐỘNG 5: Top 5 Nhà Cung Cấp Cần Trả
+  // ==========================================
+  const suppDebts = [];
+  partners.forEach(p => {
+    const ma = p.maDT || p.MaDoiTac;
+    const loai = (p.loaiDT || p.LoaiDoiTac || '').toUpperCase();
+    if (!loai.includes('NCC') && !loai.includes('CUNG CẤP')) return;
+    let debt = 0;
+    invoices.forEach(inv => {
+      if ((inv.maDT || inv.MaDoiTac) === ma) {
+        const conLai = Number(inv.conLai !== undefined ? inv.conLai : (Number(inv.soTien || 0) - Number(inv.daTra || 0))) || 0;
+        debt += conLai;
+      }
+    });
+    if (debt > 0) {
+      suppDebts.push({ name: p.tenDT || p.TenDoiTac || ma, debt: debt });
+    }
+  });
+
+  suppDebts.sort((a, b) => b.debt - a.debt);
+  const topSupp = suppDebts.slice(0, 5);
+  const topSuppLabels = topSupp.length > 0 ? topSupp.map(s => s.name) : ['Chưa có nợ NCC'];
+  const topSuppValues = topSupp.length > 0 ? topSupp.map(s => s.debt) : [0];
+
   destroyChart('topSuppliers');
   const ctxTopSupp = document.getElementById('dash-chart-top-suppliers');
   if (ctxTopSupp) {
     ChartInstances.topSuppliers = new Chart(ctxTopSupp, {
       type: 'bar',
       data: {
-        labels: ['Kho Vật Tư Nam SG', 'Bao Bì Toàn Cầu', 'Gỗ An Cường', 'Vận Tải Á Châu', 'Phụ Kiện Việt'],
+        labels: topSuppLabels,
         datasets: [{
           label: 'Phải trả (VNĐ)',
-          data: [25000000, 12000000, 8500000, 5500000, 3200000],
+          data: topSuppValues,
           backgroundColor: amber,
           borderRadius: 6
         }]
@@ -2207,16 +2324,33 @@ function render8Charts(params) {
     });
   }
 
-  // 6. Tỷ lệ thu hồi nợ đúng hạn
+  // ==========================================
+  // DỮ LIỆU ĐỘNG 6: Tỷ lệ thu hồi nợ đúng hạn
+  // ==========================================
+  let onTimeCount = 0;
+  let overdueInvCount = 0;
+  invoices.forEach(inv => {
+    const conLai = Number(inv.conLai !== undefined ? inv.conLai : (Number(inv.soTien || 0) - Number(inv.daTra || 0))) || 0;
+    if (conLai <= 0) {
+      onTimeCount++;
+    } else {
+      if (getDaysOverdue(inv.hanThanhToan) > 0) overdueInvCount++;
+      else onTimeCount++;
+    }
+  });
+  const totalInvs = onTimeCount + overdueInvCount;
+  const onTimePct = totalInvs > 0 ? Math.round((onTimeCount / totalInvs) * 100) : 100;
+  const overduePct = 100 - onTimePct;
+
   destroyChart('recoveryRate');
   const ctxRecovery = document.getElementById('dash-chart-recovery-rate');
   if (ctxRecovery) {
     ChartInstances.recoveryRate = new Chart(ctxRecovery, {
       type: 'pie',
       data: {
-        labels: ['Đúng Hạn (78%)', 'Trễ Hạn (22%)'],
+        labels: [`Đúng Hạn (${onTimePct}%)`, `Trễ Hạn (${overduePct}%)`],
         datasets: [{
-          data: [78, 22],
+          data: [onTimePct, overduePct],
           backgroundColor: [mint, rose],
           borderWidth: 0
         }]
@@ -2229,16 +2363,29 @@ function render8Charts(params) {
     });
   }
 
-  // 7. Cơ cấu phương thức thanh toán
+  // ==========================================
+  // DỮ LIỆU ĐỘNG 7: Cơ cấu phương thức thanh toán thực tế
+  // ==========================================
+  let countVietQR = 0;
+  let countCash = 0;
+  payments.forEach(p => {
+    const pt = (p.phuongThuc || p.PhuongThuc || '').toLowerCase();
+    if (pt.includes('tiền mặt') || pt.includes('tien_mat')) countCash++;
+    else countVietQR++;
+  });
+  const totalPay = countVietQR + countCash;
+  const qrPct = totalPay > 0 ? Math.round((countVietQR / totalPay) * 100) : 80;
+  const cashPct = 100 - qrPct;
+
   destroyChart('paymentMethods');
   const ctxMethod = document.getElementById('dash-chart-payment-methods');
   if (ctxMethod) {
     ChartInstances.paymentMethods = new Chart(ctxMethod, {
       type: 'doughnut',
       data: {
-        labels: ['VietQR / Banking (82%)', 'Tiền Mặt (18%)'],
+        labels: [`VietQR / Chuyển Khoản (${qrPct}%)`, `Tiền Mặt (${cashPct}%)`],
         datasets: [{
-          data: [82, 18],
+          data: [qrPct, cashPct],
           backgroundColor: [blue, slate],
           borderWidth: 0
         }]
@@ -2252,7 +2399,34 @@ function render8Charts(params) {
     });
   }
 
-  // 8. Dự báo dòng tiền 4 tuần tới
+  // ==========================================
+  // DỮ LIỆU ĐỘNG 8: Dự báo dòng tiền 4 tuần tới (Forecast)
+  // ==========================================
+  const weekIn = [0, 0, 0, 0];
+  const weekOut = [0, 0, 0, 0];
+
+  invoices.forEach(inv => {
+    const conLai = Number(inv.conLai !== undefined ? inv.conLai : (Number(inv.soTien || 0) - Number(inv.daTra || 0))) || 0;
+    if (conLai <= 0) return;
+    const loaiGD = inv.loaiGD || inv.LoaiGD || 'Bán hàng';
+    const isThu = loaiGD.includes('Bán') || loaiGD.includes('Thu') || (partnerMap[inv.maDT] && partnerMap[inv.maDT].loaiDT.includes('Khách'));
+    
+    const days = getDaysOverdue(inv.hanThanhToan);
+    let wIdx = 0;
+    if (days <= 0) {
+      const remainingDays = Math.abs(days);
+      if (remainingDays <= 7) wIdx = 0;
+      else if (remainingDays <= 14) wIdx = 1;
+      else if (remainingDays <= 21) wIdx = 2;
+      else wIdx = 3;
+    } else {
+      wIdx = 0;
+    }
+
+    if (isThu) weekIn[wIdx] += conLai;
+    else weekOut[wIdx] += conLai;
+  });
+
   destroyChart('forecast');
   const ctxForecast = document.getElementById('dash-chart-forecast');
   if (ctxForecast) {
@@ -2263,7 +2437,7 @@ function render8Charts(params) {
         datasets: [
           {
             label: 'Dự Kiến Thu',
-            data: [15000000, 22000000, 18500000, 31000000],
+            data: weekIn,
             borderColor: mint,
             backgroundColor: 'rgba(5, 150, 105, 0.08)',
             fill: true,
@@ -2272,7 +2446,7 @@ function render8Charts(params) {
           },
           {
             label: 'Dự Kiến Phải Trả',
-            data: [8000000, 14000000, 11000000, 19000000],
+            data: weekOut,
             borderColor: amber,
             backgroundColor: 'rgba(245, 158, 11, 0.08)',
             fill: true,
