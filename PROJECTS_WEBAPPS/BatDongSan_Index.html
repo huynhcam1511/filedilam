@@ -67,7 +67,11 @@
     <div class="brand-header h-14 px-4 border-b border-slate-100 flex items-center justify-between flex-shrink-0">
       <!-- Mặc định khi sidebar mở: Logo F + Text thương hiệu -->
       <div class="flex items-center gap-2.5 min-w-0">
-        <div class="w-8 h-8 rounded-lg bg-emerald-600 flex items-center justify-center text-white font-bold text-sm shadow-xs flex-shrink-0">F</div>
+        <div class="w-8 h-8 rounded-lg bg-emerald-600 flex items-center justify-center text-white shadow-xs flex-shrink-0">
+          <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
+          </svg>
+        </div>
         <div class="brand-name flex flex-col min-w-0">
           <span class="text-xs font-bold text-slate-900 tracking-wider uppercase truncate">File Đi Làm</span>
           <span class="text-[10px] text-slate-400 font-medium truncate">CRM Bất Động Sản</span>
@@ -79,8 +83,10 @@
       </button>
 
       <!-- Nút mở rộng sidebar khi đang thu gọn (chỉ hiện khi .sidebar-collapsed) -->
-      <button onclick="toggleSidebar()" title="Mở rộng menu" class="brand-logo-btn w-9 h-9 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white items-center justify-center font-bold text-sm shadow-xs transition-colors">
-        F
+      <button onclick="toggleSidebar()" title="Mở rộng menu" class="brand-logo-btn w-9 h-9 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white items-center justify-center shadow-xs transition-colors">
+        <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
+        </svg>
       </button>
     </div>
 
@@ -1480,6 +1486,29 @@
       </div>
     </div>
 
+  
+  <!-- Toast Notification System (Fintech Standard) -->
+  <div id="toastContainer" class="fixed top-5 right-5 z-50 flex flex-col gap-2 max-w-sm pointer-events-none"></div>
+
+  <!-- Custom Confirmation Modal (Zero Native Alert/Confirm Policy) -->
+  <div id="customConfirmModal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-xs z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-white rounded-xl shadow-xl border border-slate-200 max-w-md w-full p-5 space-y-4 animate-in fade-in zoom-in-95">
+      <div class="flex items-start gap-3">
+        <div class="w-9 h-9 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center flex-shrink-0" id="confirmModalIcon">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+        </div>
+        <div class="space-y-1 min-w-0">
+          <h4 class="text-sm font-bold text-slate-800" id="confirmModalTitle">Xác nhận thao tác</h4>
+          <p class="text-xs text-slate-600 leading-relaxed" id="confirmModalMessage">Bạn có chắc chắn muốn thực hiện hành động này?</p>
+        </div>
+      </div>
+      <div class="flex items-center justify-end gap-2 pt-2 border-t border-slate-100">
+        <button type="button" id="btnConfirmCancel" class="px-3.5 py-1.5 rounded-lg border border-slate-200 text-xs font-semibold text-slate-600 hover:bg-slate-50 transition">Hủy bỏ</button>
+        <button type="button" id="btnConfirmOk" class="px-4 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-xs font-semibold text-white shadow-xs transition">Đồng ý</button>
+      </div>
+    </div>
+  </div>
+
   </main>
 
   <!-- ==================== CLIENT JAVASCRIPT STATE ENGINE ==================== -->
@@ -1511,18 +1540,105 @@
     };
 
     window.addEventListener('DOMContentLoaded', () => {
-      lucide.createIcons();
-      // Render ngay lập tức dữ liệu chuẩn phễu từ state ban đầu
-      renderAllModules();
+      try {
+        if (typeof lucide !== 'undefined' && lucide.createIcons) {
+          lucide.createIcons();
+        }
+      } catch (e) {
+        console.warn('Lucide icon load notice:', e);
+      }
+
+      // Render ngay lập tức từ state chuẩn có sẵn trong client
+      try {
+        renderAllModules();
+      } catch (err) {
+        console.error('Critical renderAllModules error:', err);
+      }
       
-      // Đồng bộ bất đồng bộ từ Google Sheets nếu có
-      loadAllSystemData();
+      // Đồng bộ dữ liệu mới nhất từ Google Sheets (không chặn giao diện)
+      try {
+        loadAllSystemData();
+      } catch (err) {
+        console.warn('loadAllSystemData async notice:', err);
+      }
       
       // Set today's date for deal modal
-      const todayStr = new Date().toISOString().slice(0, 10);
-      const dealDateInput = document.getElementById('formDealDate');
-      if (dealDateInput) dealDateInput.value = todayStr;
+      try {
+        const todayStr = new Date().toISOString().slice(0, 10);
+        const dealDateInput = document.getElementById('formDealDate');
+        if (dealDateInput) dealDateInput.value = todayStr;
+      } catch (e) {}
     });
+
+    
+    // ==================== TOAST & MODAL SYSTEM (AGENTS_MASTER FINTECH) ====================
+    function showToast(message, type = 'success') {
+      const container = document.getElementById('toastContainer');
+      if (!container) return;
+      
+      const toast = document.createElement('div');
+      toast.className = 'pointer-events-auto flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl shadow-lg border text-xs font-medium transition-all duration-300 transform translate-y-2 opacity-0 ' +
+        (type === 'success' ? 'bg-slate-900 text-white border-slate-800' :
+         type === 'error' ? 'bg-rose-900 text-white border-rose-800' :
+         'bg-slate-800 text-white border-slate-700');
+      
+      const iconSvg = type === 'success' 
+        ? '<svg class="w-4 h-4 text-emerald-400 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>'
+        : type === 'error'
+        ? '<svg class="w-4 h-4 text-rose-400 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>'
+        : '<svg class="w-4 h-4 text-blue-400 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>';
+        
+      toast.innerHTML = iconSvg + '<span class="truncate">' + message + '</span>';
+      container.appendChild(toast);
+      
+      requestAnimationFrame(() => {
+        toast.classList.remove('translate-y-2', 'opacity-0');
+      });
+      
+      setTimeout(() => {
+        toast.classList.add('opacity-0', '-translate-y-1');
+        setTimeout(() => toast.remove(), 300);
+      }, 3500);
+    }
+
+    function showConfirmModal(title, message, onConfirm, isDanger = false) {
+      const modal = document.getElementById('customConfirmModal');
+      const titleEl = document.getElementById('confirmModalTitle');
+      const msgEl = document.getElementById('confirmModalMessage');
+      const btnOk = document.getElementById('btnConfirmOk');
+      const btnCancel = document.getElementById('btnConfirmCancel');
+      
+      if (!modal) {
+        if (confirm(message)) onConfirm();
+        return;
+      }
+      
+      titleEl.innerText = title;
+      msgEl.innerText = message;
+      
+      if (isDanger) {
+        btnOk.className = 'px-4 py-1.5 rounded-lg bg-rose-600 hover:bg-rose-700 text-xs font-semibold text-white shadow-xs transition';
+      } else {
+        btnOk.className = 'px-4 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-xs font-semibold text-white shadow-xs transition';
+      }
+      
+      const handleOk = () => {
+        modal.classList.add('hidden');
+        btnOk.removeEventListener('click', handleOk);
+        btnCancel.removeEventListener('click', handleCancel);
+        onConfirm();
+      };
+      
+      const handleCancel = () => {
+        modal.classList.add('hidden');
+        btnOk.removeEventListener('click', handleOk);
+        btnCancel.removeEventListener('click', handleCancel);
+      };
+      
+      btnOk.addEventListener('click', handleOk);
+      btnCancel.addEventListener('click', handleCancel);
+      modal.classList.remove('hidden');
+    }
 
     // ==================== HELPER FORMAT DATE VN (dd/mm/yyyy) ====================
     function formatDateVN(dateVal) {
@@ -1559,73 +1675,85 @@
 
     // ==================== TABS & NAVIGATION ====================
     function switchTab(tabId) {
-      state.activeTab = tabId;
+      try {
+        state.activeTab = tabId;
 
-      // Update Desktop Nav
-      ['dashboard', 'customers', 'properties', 'interactions', 'deals', 'settings', 'guide'].forEach(t => {
-        const navEl = document.getElementById('nav-' + t);
-        if (navEl) {
-          const iconEl = navEl.querySelector('i');
-          if (t === tabId) {
-            navEl.className = "nav-item-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-xs font-semibold text-emerald-800 bg-emerald-50/80 transition-colors";
-            if (iconEl) iconEl.className = "w-4 h-4 text-emerald-600 flex-shrink-0";
+        // Update Desktop Nav
+        ['dashboard', 'customers', 'properties', 'interactions', 'deals', 'settings', 'guide'].forEach(t => {
+          const navEl = document.getElementById('nav-' + t);
+          if (navEl) {
+            const iconEl = navEl.querySelector('i');
+            if (t === tabId) {
+              navEl.className = "nav-item-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-xs font-semibold text-emerald-800 bg-emerald-50/80 transition-colors";
+              if (iconEl) iconEl.className = "w-4 h-4 text-emerald-600 flex-shrink-0";
+            } else {
+              navEl.className = "nav-item-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-xs font-medium text-slate-600 hover:bg-slate-50 hover:text-slate-900 transition-colors";
+              if (iconEl) iconEl.className = "w-4 h-4 text-slate-400 flex-shrink-0";
+            }
+          }
+
+          // Update Mobile Dock
+          const dockEl = document.getElementById('dock-' + t);
+          if (dockEl) {
+            if (t === tabId) {
+              dockEl.className = "flex flex-col items-center gap-0.5 text-emerald-600 font-semibold text-[10px]";
+            } else {
+              dockEl.className = "flex flex-col items-center gap-0.5 text-slate-400 font-medium text-[10px]";
+            }
+          }
+
+          // Toggle Content Sections
+          const secEl = document.getElementById('module-' + t);
+          if (secEl) {
+            if (t === tabId) {
+              secEl.classList.add('active');
+              secEl.style.display = 'block';
+            } else {
+              secEl.classList.remove('active');
+              secEl.style.display = 'none';
+            }
+          }
+        });
+
+        // Update Toolbar Title & Actions
+        const titleEl = document.getElementById('topbarTitle');
+        const btnAction = document.getElementById('btnMainAction');
+        const btnActionText = document.getElementById('btnMainActionText');
+
+        if (titleEl) {
+          if (tabId === 'dashboard') titleEl.innerText = 'Tổng quan vận hành';
+          else if (tabId === 'customers') titleEl.innerText = 'Quản lý khách hàng (Leads)';
+          else if (tabId === 'properties') titleEl.innerText = 'Kho hàng Bất Động Sản';
+          else if (tabId === 'interactions') titleEl.innerText = 'Lịch hẹn & Nhật ký chăm sóc';
+          else if (tabId === 'deals') titleEl.innerText = 'Chốt cọc & Doanh số hoa hồng';
+          else if (tabId === 'settings') titleEl.innerText = 'Cài đặt hệ thống & Danh mục';
+          else if (tabId === 'guide') titleEl.innerText = 'Hướng dẫn sử dụng & Cẩm nang vận hành';
+        }
+
+        if (btnAction && btnActionText) {
+          if (tabId === 'customers') {
+            btnAction.classList.remove('hidden');
+            btnActionText.innerText = 'Thêm Khách Hàng';
+          } else if (tabId === 'properties') {
+            btnAction.classList.remove('hidden');
+            btnActionText.innerText = 'Thêm Căn Mới';
+          } else if (tabId === 'interactions') {
+            btnAction.classList.remove('hidden');
+            btnActionText.innerText = 'Ghi Nhật Ký';
+          } else if (tabId === 'deals') {
+            btnAction.classList.remove('hidden');
+            btnActionText.innerText = 'Chốt Cọc';
           } else {
-            navEl.className = "nav-item-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-xs font-medium text-slate-600 hover:bg-slate-50 hover:text-slate-900 transition-colors";
-            if (iconEl) iconEl.className = "w-4 h-4 text-slate-400 flex-shrink-0";
+            btnAction.classList.add('hidden');
           }
         }
 
-        // Update Mobile Dock
-        const dockEl = document.getElementById('dock-' + t);
-        if (dockEl) {
-          if (t === tabId) {
-            dockEl.className = "flex flex-col items-center gap-0.5 text-emerald-600 font-semibold text-[10px]";
-          } else {
-            dockEl.className = "flex flex-col items-center gap-0.5 text-slate-400 font-medium text-[10px]";
-          }
+        if (typeof lucide !== 'undefined' && lucide.createIcons) {
+          lucide.createIcons();
         }
-
-        // Toggle Content Sections
-        const secEl = document.getElementById('module-' + t);
-        if (secEl) {
-          if (t === tabId) secEl.classList.add('active');
-          else secEl.classList.remove('active');
-        }
-      });
-
-      // Update Toolbar Title & Actions
-      const titleEl = document.getElementById('topbarTitle');
-      const btnAction = document.getElementById('btnMainAction');
-      const btnActionText = document.getElementById('btnMainActionText');
-
-      if (tabId === 'dashboard') {
-        titleEl.innerText = 'Tổng quan vận hành';
-        btnAction.classList.add('hidden');
-      } else if (tabId === 'customers') {
-        titleEl.innerText = 'Quản lý khách hàng (Leads)';
-        btnAction.classList.remove('hidden');
-        btnActionText.innerText = 'Thêm Khách Hàng';
-      } else if (tabId === 'properties') {
-        titleEl.innerText = 'Kho hàng Bất Động Sản';
-        btnAction.classList.remove('hidden');
-        btnActionText.innerText = 'Thêm Căn Mới';
-      } else if (tabId === 'interactions') {
-        titleEl.innerText = 'Lịch hẹn & Nhật ký chăm sóc';
-        btnAction.classList.remove('hidden');
-        btnActionText.innerText = 'Ghi Nhật Ký';
-      } else if (tabId === 'deals') {
-        titleEl.innerText = 'Chốt cọc & Doanh số hoa hồng';
-        btnAction.classList.remove('hidden');
-        btnActionText.innerText = 'Chốt Cọc';
-      } else if (tabId === 'settings') {
-        titleEl.innerText = 'Cài đặt hệ thống & Danh mục';
-        btnAction.classList.add('hidden');
-      } else if (tabId === 'guide') {
-        titleEl.innerText = 'Hướng dẫn sử dụng & Cẩm nang vận hành';
-        btnAction.classList.add('hidden');
+      } catch (err) {
+        console.error('switchTab error:', err);
       }
-
-      lucide.createIcons();
     }
 
     function toggleSidebar() {
@@ -1674,13 +1802,13 @@
     }
 
     function renderAllModules() {
-      renderDashboard();
-      renderCustomers(state.data.customers);
-      renderProperties(state.data.properties);
-      renderInteractions(state.data.logs);
-      renderDeals(state.data.deals);
-      renderSettings();
-      populateDropdowns();
+      try { renderDashboard(); } catch (e) { console.error('Error renderDashboard:', e); }
+      try { renderCustomers(state.data.customers); } catch (e) { console.error('Error renderCustomers:', e); }
+      try { renderProperties(state.data.properties); } catch (e) { console.error('Error renderProperties:', e); }
+      try { renderInteractions(state.data.logs); } catch (e) { console.error('Error renderInteractions:', e); }
+      try { renderDeals(state.data.deals); } catch (e) { console.error('Error renderDeals:', e); }
+      try { renderSettings(); } catch (e) { console.error('Error renderSettings:', e); }
+      try { populateDropdowns(); } catch (e) { console.error('Error populateDropdowns:', e); }
     }
 
     // ==================== MODULE 1: DASHBOARD (SPRINT 10 EXECUTIVE ANALYTICS) ====================
@@ -1781,183 +1909,207 @@
     }
 
     function renderDemandChart(custs) {
-      const ctx = document.getElementById('chartDemandCanvas');
-      if (!ctx) return;
-      if (state.charts.demand) state.charts.demand.destroy();
-
-      const counts = {};
-      const valid = custs.filter(c => c['Trạng Thái'] !== 'Đã xóa');
-      valid.forEach(c => {
-        const src = c['Nguồn Khách'] || 'Chưa phân loại';
-        counts[src] = (counts[src] || 0) + 1;
-      });
-
-      const labels = Object.keys(counts);
-      const data = Object.values(counts);
-
-      state.charts.demand = new Chart(ctx, {
-        type: 'doughnut',
-        data: {
-          labels: labels.length > 0 ? labels : ['Chưa có dữ liệu'],
-          datasets: [{ 
-            data: data.length > 0 ? data : [1], 
-            backgroundColor: ['#10B981', '#3B82F6', '#8B5CF6', '#F59E0B', '#EC4899', '#64748B'] 
-          }]
-        },
-        options: { 
-          responsive: true, 
-          maintainAspectRatio: false, 
-          plugins: { 
-            legend: { 
-              position: 'bottom', 
-              labels: { boxWidth: 10, font: { size: 10 } } 
-            } 
-          } 
+      try {
+        const ctx = document.getElementById('chartDemandCanvas');
+        if (!ctx || typeof Chart === 'undefined') return;
+        if (state.charts.demand) {
+          try { state.charts.demand.destroy(); } catch (e) {}
         }
-      });
+
+        const counts = {};
+        const valid = (custs || []).filter(c => c['Trạng Thái'] !== 'Đã xóa');
+        valid.forEach(c => {
+          const src = c['Nguồn Khách'] || 'Chưa phân loại';
+          counts[src] = (counts[src] || 0) + 1;
+        });
+
+        const labels = Object.keys(counts);
+        const data = Object.values(counts);
+
+        state.charts.demand = new Chart(ctx, {
+          type: 'doughnut',
+          data: {
+            labels: labels.length > 0 ? labels : ['Chưa có dữ liệu'],
+            datasets: [{ 
+              data: data.length > 0 ? data : [1], 
+              backgroundColor: ['#10B981', '#3B82F6', '#8B5CF6', '#F59E0B', '#EC4899', '#64748B'] 
+            }]
+          },
+          options: { 
+            responsive: true, 
+            maintainAspectRatio: false, 
+            plugins: { 
+              legend: { 
+                position: 'bottom', 
+                labels: { boxWidth: 10, font: { size: 10 } } 
+              } 
+            } 
+          }
+        });
+      } catch (err) {
+        console.error('renderDemandChart error:', err);
+      }
     }
 
     function renderPropertyChart(props, deals) {
-      const ctx = document.getElementById('chartPropertyCanvas');
-      if (!ctx) return;
-      if (state.charts.property) state.charts.property.destroy();
+      try {
+        const ctx = document.getElementById('chartPropertyCanvas');
+        if (!ctx || typeof Chart === 'undefined') return;
+        if (state.charts.property) {
+          try { state.charts.property.destroy(); } catch (e) {}
+        }
 
-      // Tính tổng doanh thu hoa hồng thực nhận theo từng loại hình BĐS
-      const revenueByType = {};
-      (deals || []).forEach(d => {
-        const propCode = d['Mã Căn'];
-        const matchedProp = (props || []).find(p => p['Mã Căn'] === propCode);
-        const type = (matchedProp && matchedProp['Loại Hình']) || 'Khác';
-        const comm = Number(d['Hoa Hồng Thực Nhận (đ)']) || 0;
-        revenueByType[type] = (revenueByType[type] || 0) + (comm / 1000000); // Đổi sang Triệu VNĐ cho đồ thị dễ đọc
-      });
+        // Tính tổng doanh thu hoa hồng thực nhận theo từng loại hình BĐS
+        const revenueByType = {};
+        (deals || []).forEach(d => {
+          const propCode = d['Mã Căn'];
+          const matchedProp = (props || []).find(p => p['Mã Căn'] === propCode);
+          const type = (matchedProp && matchedProp['Loại Hình']) || 'Khác';
+          const comm = Number(d['Hoa Hồng Thực Nhận (đ)']) || 0;
+          revenueByType[type] = (revenueByType[type] || 0) + (comm / 1000000);
+        });
 
-      const labels = Object.keys(revenueByType);
-      const data = Object.values(revenueByType);
+        const labels = Object.keys(revenueByType);
+        const data = Object.values(revenueByType);
 
-      state.charts.property = new Chart(ctx, {
-        type: 'bar',
-        data: {
-          labels: labels.length > 0 ? labels : ['Chưa có giao dịch'],
-          datasets: [{ 
-            label: 'Hoa hồng (Triệu VNĐ)', 
-            data: data.length > 0 ? data : [0], 
-            backgroundColor: '#059669', 
-            borderRadius: 6 
-          }]
-        },
-        options: { 
-          responsive: true, 
-          maintainAspectRatio: false, 
-          plugins: { 
-            legend: { display: false } 
-          }, 
-          scales: { 
-            y: { 
-              beginAtZero: true, 
-              ticks: { 
-                callback: function(v) { return formatNumberVN(v) + ' Tr'; }
+        state.charts.property = new Chart(ctx, {
+          type: 'bar',
+          data: {
+            labels: labels.length > 0 ? labels : ['Chưa có giao dịch'],
+            datasets: [{ 
+              label: 'Hoa hồng (Triệu VNĐ)', 
+              data: data.length > 0 ? data : [0], 
+              backgroundColor: '#059669', 
+              borderRadius: 6 
+            }]
+          },
+          options: { 
+            responsive: true, 
+            maintainAspectRatio: false, 
+            plugins: { 
+              legend: { display: false } 
+            }, 
+            scales: { 
+              y: { 
+                beginAtZero: true, 
+                ticks: { 
+                  callback: function(v) { return formatNumberVN(v) + ' Tr'; }
+                } 
               } 
             } 
-          } 
-        }
-      });
+          }
+        });
+      } catch (err) {
+        console.error('renderPropertyChart error:', err);
+      }
     }
 
     function renderMonthlyCommChart(deals) {
-      const ctx = document.getElementById('chartMonthlyCommCanvas');
-      if (!ctx) return;
-      if (state.charts.monthlyComm) state.charts.monthlyComm.destroy();
-
-      // Gom doanh thu hoa hồng theo tháng (Tháng 08, 09, 10, 11/2026)
-      const monthlyData = {};
-      (deals || []).forEach(d => {
-        const dateStr = String(d['Ngày Chốt'] || '');
-        if (dateStr) {
-          const parts = dateStr.slice(0, 10).split('-');
-          let mKey = '';
-          if (parts.length === 3) {
-            mKey = 'T' + parts[1] + '/' + parts[0].slice(2);
-          } else {
-            mKey = 'Khác';
-          }
-          const comm = Number(d['Hoa Hồng Thực Nhận (đ)']) || 0;
-          monthlyData[mKey] = (monthlyData[mKey] || 0) + (comm / 1000000);
+      try {
+        const ctx = document.getElementById('chartMonthlyCommCanvas');
+        if (!ctx || typeof Chart === 'undefined') return;
+        if (state.charts.monthlyComm) {
+          try { state.charts.monthlyComm.destroy(); } catch (e) {}
         }
-      });
 
-      // Sắp xếp các tháng hoặc nếu rỗng thì tạo nhãn mặc định
-      const labels = Object.keys(monthlyData).length > 0 ? Object.keys(monthlyData) : ['T08/26', 'T09/26', 'T10/26', 'T11/26'];
-      const data = Object.keys(monthlyData).length > 0 ? Object.values(monthlyData) : [0, 0, 0, 0];
+        // Gom doanh thu hoa hồng theo tháng (Tháng 08, 09, 10, 11/2026)
+        const monthlyData = {};
+        (deals || []).forEach(d => {
+          const dateStr = String(d['Ngày Chốt'] || '');
+          if (dateStr) {
+            const parts = dateStr.slice(0, 10).split('-');
+            let mKey = '';
+            if (parts.length === 3) {
+              mKey = 'T' + parts[1] + '/' + parts[0].slice(2);
+            } else {
+              mKey = 'Khác';
+            }
+            const comm = Number(d['Hoa Hồng Thực Nhận (đ)']) || 0;
+            monthlyData[mKey] = (monthlyData[mKey] || 0) + (comm / 1000000);
+          }
+        });
 
-      state.charts.monthlyComm = new Chart(ctx, {
-        type: 'line',
-        data: {
-          labels: labels,
-          datasets: [{
-            label: 'Hoa hồng (Triệu VNĐ)',
-            data: data,
-            borderColor: '#10b981',
-            backgroundColor: 'rgba(16, 185, 129, 0.1)',
-            fill: true,
-            tension: 0.35,
-            pointBackgroundColor: '#059669',
-            pointRadius: 4,
-            pointHoverRadius: 6
-          }]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: {
-            legend: { display: false }
+        // Sắp xếp các tháng hoặc nếu rỗng thì tạo nhãn mặc định
+        const labels = Object.keys(monthlyData).length > 0 ? Object.keys(monthlyData) : ['T08/26', 'T09/26', 'T10/26', 'T11/26'];
+        const data = Object.keys(monthlyData).length > 0 ? Object.values(monthlyData) : [0, 0, 0, 0];
+
+        state.charts.monthlyComm = new Chart(ctx, {
+          type: 'line',
+          data: {
+            labels: labels,
+            datasets: [{
+              label: 'Hoa hồng (Triệu VNĐ)',
+              data: data,
+              borderColor: '#10b981',
+              backgroundColor: 'rgba(16, 185, 129, 0.1)',
+              fill: true,
+              tension: 0.35,
+              pointBackgroundColor: '#059669',
+              pointRadius: 4,
+              pointHoverRadius: 6
+            }]
           },
-          scales: {
-            y: {
-              beginAtZero: true,
-              ticks: {
-                callback: function(v) { return formatNumberVN(v) + ' Tr'; }
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: { display: false }
+            },
+            scales: {
+              y: {
+                beginAtZero: true,
+                ticks: {
+                  callback: function(v) { return formatNumberVN(v) + ' Tr'; }
+                }
               }
             }
           }
-        }
-      });
+        });
+      } catch (err) {
+        console.error('renderMonthlyCommChart error:', err);
+      }
     }
 
     function renderDealStatusChart(deals) {
-      const ctx = document.getElementById('chartDealStatusCanvas');
-      if (!ctx) return;
-      if (state.charts.dealStatus) state.charts.dealStatus.destroy();
+      try {
+        const ctx = document.getElementById('chartDealStatusCanvas');
+        if (!ctx || typeof Chart === 'undefined') return;
+        if (state.charts.dealStatus) {
+          try { state.charts.dealStatus.destroy(); } catch (e) {}
+        }
 
-      const validDeals = (deals || []).filter(d => d['Trạng Thái'] !== 'Đã hủy/Đã xóa' && d['Trạng Thái'] !== 'Đã xóa');
-      let paidCount = 0;
-      let pendingCount = 0;
+        const validDeals = (deals || []).filter(d => d['Trạng Thái'] !== 'Đã hủy/Đã xóa' && d['Trạng Thái'] !== 'Đã xóa');
+        let paidCount = 0;
+        let pendingCount = 0;
 
-      validDeals.forEach(d => {
-        if (d['Trạng Thái'] === 'Đã thu hoa hồng') paidCount++;
-        else pendingCount++;
-      });
+        validDeals.forEach(d => {
+          if (d['Trạng Thái'] === 'Đã thu hoa hồng') paidCount++;
+          else pendingCount++;
+        });
 
-      state.charts.dealStatus = new Chart(ctx, {
-        type: 'doughnut',
-        data: {
-          labels: ['Đã thu hoa hồng', 'Chờ chủ nhà thanh toán'],
-          datasets: [{
-            data: [paidCount, pendingCount],
-            backgroundColor: ['#10b981', '#f59e0b']
-          }]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: {
-            legend: {
-              position: 'bottom',
-              labels: { boxWidth: 10, font: { size: 10 } }
+        state.charts.dealStatus = new Chart(ctx, {
+          type: 'doughnut',
+          data: {
+            labels: ['Đã thu hoa hồng', 'Chờ chủ nhà thanh toán'],
+            datasets: [{
+              data: [paidCount, pendingCount],
+              backgroundColor: ['#10b981', '#f59e0b']
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: {
+                position: 'bottom',
+                labels: { boxWidth: 10, font: { size: 10 } }
+              }
             }
           }
-        }
-      });
+        });
+      } catch (err) {
+        console.error('renderDealStatusChart error:', err);
+      }
     }
 
     // ==================== MODULE 2: CUSTOMERS (SPRINT 2 ENHANCED) ====================
@@ -2635,13 +2787,13 @@
             closeTaxonomyModal();
             renderTaxonomyTable();
             populateDropdowns();
-            alert('Đã cập nhật danh mục thượng nguồn và nạp lại tất cả Dropdown thành công!');
+            showToast('Đã cập nhật danh mục thượng nguồn thành công!');
           } else {
-            alert('Lỗi: ' + res.error);
+            showToast('Lỗi: ' + res.error, 'error');
           }
         }).withFailureHandler(err => {
           btn.disabled = false;
-          alert('Lỗi lưu trữ: ' + err);
+          showToast('Lỗi lưu trữ: ' + err, 'error');
         }).saveTaxonomyItem(payload);
       } else {
         // Demo offline mode
@@ -2660,7 +2812,7 @@
           closeTaxonomyModal();
           renderTaxonomyTable();
           populateDropdowns();
-          alert('[Demo] Đã lưu mục danh mục và đồng bộ toàn bộ dropdown!');
+          showToast('Đã lưu mục danh mục thành công!');
         }, 300);
       }
     }
@@ -2668,25 +2820,25 @@
     function deleteTaxonomyItemCurrent() {
       if (!currentEditingTaxItem) return;
       const newStatus = currentEditingTaxItem.status === 'Đang dùng' ? 'Tạm ngưng' : 'Đang dùng';
-      if (!confirm(`Bạn có chắc muốn đổi trạng thái mục "${currentEditingTaxItem.name}" sang "${newStatus}"?`)) return;
-
-      if (typeof google !== 'undefined' && google.script) {
-        google.script.run.withSuccessHandler(() => {
+      showConfirmModal('Cập nhật trạng thái', `Bạn có chắc muốn đổi trạng thái mục "${currentEditingTaxItem.name}" sang "${newStatus}"?`, () => {
+        if (typeof google !== 'undefined' && google.script) {
+          google.script.run.withSuccessHandler(() => {
+            currentEditingTaxItem.status = newStatus;
+            syncTaxonomyToSettingsState();
+            closeTaxonomyModal();
+            renderTaxonomyTable();
+            populateDropdowns();
+            showToast('Đã cập nhật trạng thái mục danh mục thành công!');
+          }).toggleTaxonomyItemStatus(currentEditingTaxItem.id, newStatus);
+        } else {
           currentEditingTaxItem.status = newStatus;
           syncTaxonomyToSettingsState();
           closeTaxonomyModal();
           renderTaxonomyTable();
           populateDropdowns();
-          alert('Đã cập nhật trạng thái mục danh mục thành công!');
-        }).toggleTaxonomyItemStatus(currentEditingTaxItem.id, newStatus);
-      } else {
-        currentEditingTaxItem.status = newStatus;
-        syncTaxonomyToSettingsState();
-        closeTaxonomyModal();
-        renderTaxonomyTable();
-        populateDropdowns();
-        alert('[Demo] Đã cập nhật trạng thái mục danh mục!');
-      }
+          showToast('Đã cập nhật trạng thái mục danh mục!');
+        }
+      });
     }
 
     function syncTaxonomyToSettingsState() {
@@ -2763,11 +2915,11 @@
           if (statusEl) statusEl.innerText = 'Đã lưu lúc: ' + new Date().toLocaleTimeString('vi-VN');
           state.data.settings = payload;
           lucide.createIcons();
-          alert('Đã cập nhật hồ sơ môi giới & tài khoản VietQR thành công!');
+          showToast('Đã cập nhật hồ sơ môi giới & tài khoản VietQR!');
         }).withFailureHandler(err => {
           btn.innerHTML = 'Lưu hồ sơ & cấu hình VietQR'; btn.disabled = false;
           if (statusEl) statusEl.innerText = 'Lỗi lưu trữ!';
-          alert('Lỗi: ' + err);
+          showToast('Lỗi: ' + err, 'error');
         }).saveSettings(payload);
       } else {
         setTimeout(() => {
@@ -2776,58 +2928,58 @@
           btn.disabled = false;
           if (statusEl) statusEl.innerText = 'Đã lưu lúc: ' + new Date().toLocaleTimeString('vi-VN') + ' (Demo Mode)';
           lucide.createIcons();
-          alert('[Demo] Đã lưu cài đặt hồ sơ môi giới thành công!');
+          showToast('Đã lưu cài đặt hồ sơ môi giới!');
         }, 500);
       }
     }
 
     function generateSampleFunnelData() {
-      if (!confirm('Bạn có chắc muốn nạp bộ dữ liệu mẫu chuẩn phễu (10 BĐS, 100 Khách, 80 Lịch hẹn, 20 Hợp đồng chốt cọc tính hoa hồng)? Dữ liệu hiện có sẽ được đồng bộ bổ sung vào Google Sheets!')) return;
-      
-      const btn = event ? event.currentTarget : null;
-      if (btn) btn.disabled = true;
+      showConfirmModal('Nạp bộ dữ liệu chuẩn', 'Bạn có chắc muốn nạp bộ dữ liệu mẫu chuẩn phễu (10 BĐS, 100 Khách, 80 Lịch hẹn, 20 Hợp đồng chốt cọc tính hoa hồng)?', () => {
+        const btn = event ? event.currentTarget : null;
+        if (btn) btn.disabled = true;
 
-      if (typeof google !== 'undefined' && google.script) {
-        google.script.run
-          .withSuccessHandler(res => {
-            if (btn) btn.disabled = false;
-            if (res && res.success) {
-              if (res.data) {
-                state.data = res.data;
-                renderAllModules();
+        if (typeof google !== 'undefined' && google.script) {
+          google.script.run
+            .withSuccessHandler(res => {
+              if (btn) btn.disabled = false;
+              if (res && res.success) {
+                if (res.data) {
+                  state.data = res.data;
+                  renderAllModules();
+                } else {
+                  loadAllSystemData();
+                }
+                showToast('Đã nạp thành công 10 BĐS, 100 Khách Hàng, 80 Lịch Hẹn và 20 Hợp Đồng!');
               } else {
-                loadAllSystemData();
+                showToast('Lỗi: ' + (res ? res.error : 'Không có phản hồi'), 'error');
               }
-              alert('Đã nạp thành công 10 BĐS, 100 Khách Hàng, 80 Lịch Hẹn và 20 Hợp Đồng vào Google Sheets!');
-            } else {
-              alert('Lỗi nạp dữ liệu: ' + (res ? res.error : 'Không có phản hồi'));
-            }
-          })
-          .withFailureHandler(err => {
+            })
+            .withFailureHandler(err => {
+              if (btn) btn.disabled = false;
+              showToast('Lỗi kết nối: ' + err, 'error');
+            })
+            .seedRichFunnelData();
+        } else {
+          setTimeout(() => {
             if (btn) btn.disabled = false;
-            alert('Lỗi kết nối máy chủ: ' + err);
-          })
-          .seedRichFunnelData();
-      } else {
-        // Client demo mode
-        setTimeout(() => {
-          if (btn) btn.disabled = false;
-          alert('[Demo] Chức năng đang gọi trên Google Sheets.');
-        }, 500);
-      }
+            showToast('Chức năng đang gọi trên Google Sheets.');
+          }, 500);
+        }
+      });
     }
 
     function resetSettingsToDefault() {
-      if (!confirm('Bạn có chắc chắn muốn khôi phục toàn bộ danh mục và cài đặt gốc mặc định theo chuẩn File Đi Làm?')) return;
-      if (typeof google !== 'undefined' && google.script) {
-        google.script.run.withSuccessHandler(() => {
+      showConfirmModal('Khôi phục mặc định', 'Bạn có chắc chắn muốn khôi phục toàn bộ danh mục và cài đặt gốc mặc định theo chuẩn File Đi Làm?', () => {
+        if (typeof google !== 'undefined' && google.script) {
+          google.script.run.withSuccessHandler(() => {
+            loadAllSystemData();
+            showToast('Đã khôi phục toàn bộ danh mục và cài đặt gốc thành công!');
+          }).resetDefaultSettings();
+        } else {
           loadAllSystemData();
-          alert('Đã khôi phục toàn bộ Master Taxonomy và cài đặt gốc thành công!');
-        }).resetDefaultSettings();
-      } else {
-        loadAllSystemData();
-        alert('[Demo] Đã khôi phục toàn bộ danh mục mặc định!');
-      }
+          showToast('Đã khôi phục toàn bộ danh mục mặc định!');
+        }
+      });
     }
 
     // ==================== FORM DROPDOWNS POPULATE ====================
@@ -3306,7 +3458,7 @@
 
       if (navigator.clipboard && navigator.clipboard.writeText) {
         navigator.clipboard.writeText(text).then(() => {
-          alert('Đã sao chép thông tin căn [' + propCode + '] vào bộ nhớ tạm!\nBạn có thể dán (Paste) gửi qua Zalo / Messenger ngay.');
+          showToast('Đã sao chép thông tin căn [' + propCode + '] vào bộ nhớ tạm!');
         }).catch(() => {
           prompt('Vui lòng sao chép văn bản bên dưới:', text);
         });
@@ -3419,7 +3571,7 @@
       e.preventDefault();
       const price = Number(document.getElementById('formPropPrice').value) || 0;
       if (price <= 0) {
-        alert('Vui lòng nhập giá chào bán hợp lệ (Triệu VNĐ)!');
+        showToast('Vui lòng nhập giá chào bán hợp lệ (Triệu VNĐ)!', 'error');
         document.getElementById('formPropPrice').focus();
         return;
       }
@@ -3451,11 +3603,11 @@
             closeAddPropertyModal();
             loadAllSystemData();
           } else {
-            alert('Lỗi: ' + res.error);
+            showToast('Lỗi: ' + res.error, 'error');
           }
         }).withFailureHandler(err => {
           btn.innerText = 'Lưu vào giỏ hàng'; btn.disabled = false;
-          alert('Lỗi: ' + err);
+          showToast('Lỗi: ' + err, 'error');
         }).saveProperty(payload);
       } else {
         setTimeout(() => {
@@ -3471,7 +3623,7 @@
           btn.innerText = 'Lưu vào giỏ hàng'; btn.disabled = false;
           renderProperties(state.data.properties);
           populateDropdowns();
-          alert(propId ? '[Demo] Đã cập nhật căn BĐS!' : '[Demo] Đã thêm căn BĐS mới vào giỏ!');
+          showToast(propId ? 'Đã cập nhật căn BĐS!' : 'Đã thêm căn BĐS mới vào giỏ!');
         }, 400);
       }
     }
@@ -3479,24 +3631,24 @@
     function confirmDeleteProperty(code) {
       const p = (state.data.properties || []).find(item => item['Mã Căn'] === code);
       const addr = p ? p['Địa Chỉ'] : code;
-      if (!confirm('Bạn có chắc chắn muốn xóa căn ' + addr + ' (' + code + ') khỏi giỏ hàng?')) return;
-
-      if (typeof google !== 'undefined' && google.script) {
-        google.script.run.withSuccessHandler(res => {
-          if (res.success) {
-            alert('Đã xóa căn BĐS thành công!');
-            loadAllSystemData();
-          } else {
-            alert('Lỗi: ' + res.error);
-          }
-        }).deleteProperty(code);
-      } else {
-        const item = (state.data.properties || []).find(p => p['Mã Căn'] === code);
-        if (item) item['Trạng Thái'] = 'Đã xóa';
-        renderProperties(state.data.properties);
-        populateDropdowns();
-        alert('[Demo] Đã xóa căn BĐS!');
-      }
+      showConfirmModal('Xóa căn BĐS', 'Bạn có chắc chắn muốn xóa căn ' + addr + ' (' + code + ') khỏi giỏ hàng?', () => {
+        if (typeof google !== 'undefined' && google.script) {
+          google.script.run.withSuccessHandler(res => {
+            if (res.success) {
+              showToast('Đã xóa căn BĐS thành công!');
+              loadAllSystemData();
+            } else {
+              showToast('Lỗi: ' + res.error, 'error');
+            }
+          }).deleteProperty(code);
+        } else {
+          const item = (state.data.properties || []).find(p => p['Mã Căn'] === code);
+          if (item) item['Trạng Thái'] = 'Đã xóa';
+          renderProperties(state.data.properties);
+          populateDropdowns();
+          showToast('Đã xóa căn BĐS!');
+        }
+      }, true);
     }
 
     function deleteCurrentProperty() {
@@ -3540,21 +3692,23 @@
       document.getElementById('formLogContent').value = log['Nội Dung Trao Đổi'] || '';
     }
     function confirmDeleteInteraction(code) {
-      if (!confirm('Bạn có chắc chắn muốn xóa bản ghi tương tác/lịch hẹn [' + code + '] không?')) return;
-      if (typeof google !== 'undefined' && google.script) {
-        google.script.run.withSuccessHandler(res => {
-          if (res.success) {
-            loadAllSystemData();
-          } else {
-            alert('Lỗi: ' + res.error);
-          }
-        }).deleteInteraction(code);
-      } else {
-        const item = (state.data.logs || []).find(l => l['Mã Nhật Ký'] === code);
-        if (item) item['Trạng Thái'] = 'Đã xóa';
-        renderInteractions(state.data.logs);
-        alert('[Demo] Đã xóa lịch hẹn/nhật ký!');
-      }
+      showConfirmModal('Xóa bản ghi nhật ký', 'Bạn có chắc chắn muốn xóa bản ghi tương tác/lịch hẹn [' + code + '] không?', () => {
+        if (typeof google !== 'undefined' && google.script) {
+          google.script.run.withSuccessHandler(res => {
+            if (res.success) {
+              showToast('Đã xóa lịch hẹn/nhật ký thành công!');
+              loadAllSystemData();
+            } else {
+              showToast('Lỗi: ' + res.error, 'error');
+            }
+          }).deleteInteraction(code);
+        } else {
+          const item = (state.data.logs || []).find(l => l['Mã Nhật Ký'] === code);
+          if (item) item['Trạng Thái'] = 'Đã xóa';
+          renderInteractions(state.data.logs);
+          showToast('Đã xóa lịch hẹn/nhật ký!');
+        }
+      }, true);
     }
     function deleteCurrentInteraction() {
       const code = document.getElementById('formLogId').value;
@@ -3607,28 +3761,29 @@
       setDealCommMode('percent');
     }
     function confirmDeleteDeal(code) {
-      if (!confirm('Bạn có chắc chắn muốn xóa/hủy hợp đồng chốt cọc [' + code + '] không?\n(Trạng thái căn BĐS liên quan sẽ tự động được hoàn trả về "Đang bán" để tiếp tục khai thác).')) return;
-      if (typeof google !== 'undefined' && google.script) {
-        google.script.run.withSuccessHandler(res => {
-          if (res.success) {
-            loadAllSystemData();
-          } else {
-            alert('Lỗi: ' + res.error);
+      showConfirmModal('Xóa/Hủy hợp đồng chốt cọc', 'Bạn có chắc chắn muốn xóa/hủy hợp đồng chốt cọc [' + code + '] không?\n(Trạng thái căn BĐS liên quan sẽ tự động được hoàn trả về "Đang bán" để tiếp tục khai thác).', () => {
+        if (typeof google !== 'undefined' && google.script) {
+          google.script.run.withSuccessHandler(res => {
+            if (res.success) {
+              showToast('Đã hủy hợp đồng và cập nhật kho hàng!');
+              loadAllSystemData();
+            } else {
+              showToast('Lỗi: ' + res.error, 'error');
+            }
+          }).deleteDeal(code);
+        } else {
+          const item = (state.data.deals || []).find(d => d['Mã Hợp Đồng'] === code);
+          if (item) {
+            item['Trạng Thái'] = 'Đã hủy/Đã xóa';
+            const prop = (state.data.properties || []).find(p => p['Mã Căn'] === item['Mã Căn']);
+            if (prop) prop['Trạng Thái'] = 'Đang bán';
           }
-        }).deleteDeal(code);
-      } else {
-        const item = (state.data.deals || []).find(d => d['Mã Hợp Đồng'] === code);
-        if (item) {
-          item['Trạng Thái'] = 'Đã hủy/Đã xóa';
-          // ATOMIC DEMO ROLLBACK: Giải phóng căn BĐS về 'Đang bán'
-          const prop = (state.data.properties || []).find(p => p['Mã Căn'] === item['Mã Căn']);
-          if (prop) prop['Trạng Thái'] = 'Đang bán';
+          renderDeals(state.data.deals);
+          renderProperties(state.data.properties);
+          renderDashboard();
+          showToast('Đã hủy hợp đồng và hoàn trả căn BĐS về "Đang bán"!');
         }
-        renderDeals(state.data.deals);
-        renderProperties(state.data.properties);
-        renderDashboard();
-        alert('[Demo] Đã hủy hợp đồng và hoàn trả căn BĐS về trạng thái "Đang bán"!');
-      }
+      }, true);
     }
     function deleteCurrentDeal() {
       const code = document.getElementById('formDealId').value;
@@ -3645,7 +3800,7 @@
 
       // Validation 10 số Việt Nam
       if (!/^0(3|5|7|8|9)\d{8}$/.test(cleanPhone)) {
-        alert('Số điện thoại không hợp lệ!\nVui lòng nhập đúng 10 chữ số của các nhà mạng Việt Nam (VD: 0901234567, 0389998888).');
+        showToast('Số điện thoại không hợp lệ! Vui lòng nhập 10 chữ số.', 'error');
         document.getElementById('formCustPhone').focus();
         return;
       }
@@ -3675,11 +3830,11 @@
             closeAddCustomerModal();
             loadAllSystemData();
           } else {
-            alert('Lỗi: ' + res.error);
+            showToast('Lỗi: ' + res.error, 'error');
           }
         }).withFailureHandler(err => {
           btn.innerText = 'Lưu khách hàng'; btn.disabled = false;
-          alert('Lỗi hệ thống: ' + err);
+          showToast('Lỗi hệ thống: ' + err, 'error');
         }).saveCustomer(payload);
       } else {
         setTimeout(() => {
@@ -3695,7 +3850,7 @@
           btn.innerText = 'Lưu khách hàng'; btn.disabled = false;
           filterCustomersLocal();
           populateDropdowns();
-          alert(custId ? '[Demo] Đã cập nhật khách hàng!' : '[Demo] Đã thêm khách hàng mới!');
+          showToast(custId ? 'Đã cập nhật khách hàng!' : 'Đã thêm khách hàng mới!');
         }, 400);
       }
     }
@@ -3703,26 +3858,24 @@
     function confirmDeleteCustomer(code) {
       const cust = (state.data.customers || []).find(c => c['Mã Khách'] === code);
       const name = cust ? cust['Họ Và Tên'] : code;
-      if (!confirm('Bạn có chắc chắn muốn xóa khách hàng ' + name + ' (' + code + ')?\nThao tác này sẽ chuyển khách vào trạng thái "Đã xóa" và bảo toàn lịch sử giao dịch.')) {
-        return;
-      }
-
-      if (typeof google !== 'undefined' && google.script) {
-        google.script.run.withSuccessHandler(res => {
-          if (res.success) {
-            alert('Đã xóa khách hàng thành công!');
-            loadAllSystemData();
-          } else {
-            alert('Lỗi: ' + res.error);
-          }
-        }).deleteCustomer(code);
-      } else {
-        const item = (state.data.customers || []).find(c => c['Mã Khách'] === code);
-        if (item) item['Trạng Thái'] = 'Đã xóa';
-        filterCustomersLocal();
-        populateDropdowns();
-        alert('[Demo] Đã xóa khách hàng!');
-      }
+      showConfirmModal('Xóa khách hàng', 'Bạn có chắc chắn muốn xóa khách hàng ' + name + ' (' + code + ')?\nThao tác này sẽ chuyển khách vào trạng thái "Đã xóa" và bảo toàn lịch sử giao dịch.', () => {
+        if (typeof google !== 'undefined' && google.script) {
+          google.script.run.withSuccessHandler(res => {
+            if (res.success) {
+              showToast('Đã xóa khách hàng thành công!');
+              loadAllSystemData();
+            } else {
+              showToast('Lỗi: ' + res.error, 'error');
+            }
+          }).deleteCustomer(code);
+        } else {
+          const item = (state.data.customers || []).find(c => c['Mã Khách'] === code);
+          if (item) item['Trạng Thái'] = 'Đã xóa';
+          filterCustomersLocal();
+          populateDropdowns();
+          showToast('Đã xóa khách hàng!');
+        }
+      }, true);
     }
 
     function deleteCurrentCustomer() {
@@ -3790,7 +3943,7 @@
           closeAddInteractionModal();
           btn.innerText = 'Lưu nhật ký chăm sóc'; btn.disabled = false;
           if (res && res.error) {
-            alert('Lỗi: ' + res.error);
+            showToast('Lỗi: ' + res.error, 'error');
           } else {
             loadAllSystemData();
           }
@@ -3861,7 +4014,7 @@
           closeAddDealModal();
           btn.innerText = 'Xác nhận chốt deal'; btn.disabled = false;
           if (res && res.error) {
-            alert('Lỗi: ' + res.error);
+            showToast('Lỗi: ' + res.error, 'error');
           } else {
             loadAllSystemData();
           }
@@ -3905,7 +4058,7 @@
           renderProperties(state.data.properties);
           renderCustomers(state.data.customers);
           renderDashboard();
-          alert(payload.id ? '[Demo] Đã cập nhật hợp đồng và đồng bộ trạng thái kho hàng!' : '[Demo] Khớp lệnh chốt cọc thành công! Trạng thái căn đã chuyển sang "Đã cọc/Đã bán".');
+          showToast(payload.id ? 'Đã cập nhật hợp đồng và kho hàng!' : 'Khớp lệnh chốt cọc thành công!');
         }, 500);
       }
     }
