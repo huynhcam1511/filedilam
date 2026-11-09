@@ -1646,15 +1646,28 @@
         google.script.run
           .withSuccessHandler(res => {
             if (res && res.success && res.data) {
-              // Chỉ cập nhật nếu trên server đã có dữ liệu thực tế
-              if ((res.data.customers && res.data.customers.length > 0) || 
-                  (res.data.properties && res.data.properties.length > 0)) {
-                state.data = res.data;
+              // Lọc các bản ghi hợp lệ thực sự có Mã định danh
+              const validCusts = (res.data.customers || []).filter(c => c['Mã Khách'] && String(c['Mã Khách']).trim());
+              const validProps = (res.data.properties || []).filter(p => p['Mã Căn'] && String(p['Mã Căn']).trim());
+              const validLogs = (res.data.logs || []).filter(l => l['Mã Nhật Ký'] && String(l['Mã Nhật Ký']).trim());
+              const validDeals = (res.data.deals || []).filter(d => d['Mã Hợp Đồng'] && String(d['Mã Hợp Đồng']).trim());
+
+              // Nếu trên Google Sheets đã có dữ liệu thực tế, cập nhật state và render lại
+              if (validCusts.length > 0 || validProps.length > 0) {
+                state.data.customers = validCusts;
+                state.data.properties = validProps;
+                state.data.logs = validLogs;
+                state.data.deals = validDeals;
+                if (res.data.settings) state.data.settings = res.data.settings;
+                if (res.data.taxonomy && res.data.taxonomy.length > 0) state.data.taxonomy = res.data.taxonomy;
                 renderAllModules();
               }
             } else {
               console.error(res ? res.error : 'Không có phản hồi');
             }
+          })
+          .withFailureHandler(err => {
+            console.error('Lỗi nạp dữ liệu từ server:', err);
           })
           .getInitialData();
       }
@@ -3495,10 +3508,10 @@
     }
     function openAddInteractionModal(isEdit = false) {
       document.getElementById('modalAddInteraction').classList.remove('hidden');
-      const title = document.getElementById('modalInteractionTitle');
-      const btn = document.getElementById('btnSubmitLog');
-      const btnDel = document.getElementById('btnDeleteLog');
-      if (title) title.innerText = isEdit ? 'Chỉnh sửa nhật ký & Lịch hẹn' : 'Ghi nhận trao đổi & Lên lịch hẹn';
+      const title = document.getElementById('modalLogTitle');
+      const btn = document.getElementById('btnSubmitLogText');
+      const btnDel = document.getElementById('btnDeleteLogModal');
+      if (title) title.innerText = isEdit ? 'Chỉnh Sửa Nhật Ký & Lịch Hẹn' : 'Ghi Nhật Ký & Lịch Hẹn Mới';
       if (btn) btn.innerText = isEdit ? 'Cập nhật nhật ký' : 'Lưu nhật ký chăm sóc';
       if (btnDel) {
         if (isEdit) btnDel.classList.remove('hidden');
@@ -3506,13 +3519,15 @@
       }
       if (!isEdit) {
         document.getElementById('formLogId').value = '';
-        document.getElementById('formInteraction').reset();
+        document.getElementById('formLogContent').value = '';
+        document.getElementById('formLogFollowUp').value = '';
       }
     }
     function closeAddInteractionModal() { 
       document.getElementById('modalAddInteraction').classList.add('hidden'); 
       document.getElementById('formLogId').value = '';
-      document.getElementById('formInteraction').reset();
+      document.getElementById('formLogContent').value = '';
+      document.getElementById('formLogFollowUp').value = '';
     }
     function editInteraction(logCode) {
       const log = (state.data.logs || []).find(l => l['Mã Nhật Ký'] === logCode);
@@ -3752,7 +3767,7 @@
       }
     }
 
-    function submitNewInteraction(e) {
+    function submitInteractionForm(e) {
       e.preventDefault();
       const btn = document.getElementById('btnSubmitLog');
       const logId = document.getElementById('formLogId').value;

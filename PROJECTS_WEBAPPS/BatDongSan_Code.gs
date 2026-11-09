@@ -831,13 +831,18 @@ function readSheetData_(ss, sheetName) {
   const rows = [];
   for (let i = 1; i < data.length; i++) {
     const rowObj = {};
-    let hasData = false;
+    let hasValidData = false;
     for (let j = 0; j < headers.length; j++) {
       const val = data[i][j];
       rowObj[headers[j]] = val;
-      if (val !== '' && val !== null && val !== undefined) hasData = true;
     }
-    if (hasData) rows.push(rowObj);
+    // Dòng hợp lệ phải có mã ID ở cột 1 hoặc có dữ liệu cốt lõi (không phải dòng trống vô nghĩa)
+    const firstColVal = String(data[i][0] || '').trim();
+    const secondColVal = String(data[i][1] || '').trim();
+    if (firstColVal || secondColVal) {
+      hasValidData = true;
+    }
+    if (hasValidData) rows.push(rowObj);
   }
   return rows;
 }
