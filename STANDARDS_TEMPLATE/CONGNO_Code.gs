@@ -490,6 +490,39 @@ function getInitialData() {
       };
     });
 
+    // Chuẩn hóa Danh Mục: hỗ trợ đầy đủ tiếng Việt và camelCase
+    var danhMucList = rawDanhMuc.map(function(item) {
+      var nhom = item['Nhóm'] || item['Nhom'] || item['nhom'] || item['loai'] || item['LoaiDanhMuc'] || 'Chung';
+      var ma = item['Mã'] || item['Ma'] || item['ma'] || item['maDanhMuc'] || '';
+      var ten = item['Tên'] || item['Ten'] || item['ten'] || item['giaTri'] || item['TenDanhMuc'] || '';
+      var ghiChu = item['Ghi Chú'] || item['GhiChu'] || item['ghiChu'] || '';
+
+      var loaiAlias = nhom;
+      if (nhom === 'HinhThucThanhToan') loaiAlias = 'HINH_THUC_TT';
+      else if (nhom === 'LoaiDoiTac') loaiAlias = 'LOAI_DOI_TAC';
+      else if (nhom === 'TrangThaiNo') loaiAlias = 'TRANG_THAI_NO';
+
+      return {
+        nhom: nhom,
+        Nhom: nhom,
+        'Nhóm': nhom,
+        ma: ma,
+        Ma: ma,
+        'Mã': ma,
+        maDanhMuc: ma,
+        ten: ten,
+        Ten: ten,
+        'Tên': ten,
+        giaTri: ten,
+        TenDanhMuc: ten,
+        ghiChu: ghiChu,
+        GhiChu: ghiChu,
+        'Ghi Chú': ghiChu,
+        loai: loaiAlias,
+        LoaiDanhMuc: loaiAlias
+      };
+    });
+
     // Chuẩn hóa cài đặt thành key-value object
     var caiDatObj = {};
     for (var i = 0; i < rawCaiDatList.length; i++) {
@@ -517,7 +550,7 @@ function getInitialData() {
         doiTac: doiTacList,
         phatSinhNo: phatSinhList,
         thanhToan: thanhToanList,
-        danhMuc: rawDanhMuc,
+        danhMuc: danhMucList,
         caiDat: caiDatObj
       }
     };

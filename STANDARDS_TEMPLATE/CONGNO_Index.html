@@ -3499,15 +3499,16 @@ function renderCategories() {
   const list = data.danhMuc || [];
 
   const filtered = list.filter(item => {
-    const loai = (item.loai || item.LoaiDanhMuc || item.Nhom || '').toUpperCase();
-    if (currentCatFilter === 'HINH_THUC_TT' && !loai.includes('HINH_THUC') && !loai.includes('THANH_TOAN')) return false;
-    if (currentCatFilter === 'LOAI_DOI_TAC' && !loai.includes('DOI_TAC')) return false;
-    if (currentCatFilter === 'TRANG_THAI_NO' && !loai.includes('TRANG_THAI')) return false;
+    const nhomRaw = (item.Nhom || item.nhom || item['Nhóm'] || item.loai || item.LoaiDanhMuc || '').toString();
+    const loai = nhomRaw.toUpperCase();
+    if (currentCatFilter === 'HINH_THUC_TT' && !loai.includes('HINH_THUC') && !loai.includes('HINHTHUC') && !loai.includes('THANH_TOAN') && !loai.includes('THANHTOAN')) return false;
+    if (currentCatFilter === 'LOAI_DOI_TAC' && !loai.includes('DOI_TAC') && !loai.includes('DOITAC')) return false;
+    if (currentCatFilter === 'TRANG_THAI_NO' && !loai.includes('TRANG_THAI') && !loai.includes('TRANGTHAI')) return false;
 
     if (currentCatKeyword) {
-      const ten = (item.Ten || item.giaTri || item.TenDanhMuc || '').toLowerCase();
-      const ma = (item.Ma || item.maDanhMuc || '').toLowerCase();
-      const ghiChu = (item.GhiChu || item.ghiChu || '').toLowerCase();
+      const ten = (item.Ten || item.ten || item['Tên'] || item.giaTri || item.TenDanhMuc || '').toLowerCase();
+      const ma = (item.Ma || item.ma || item['Mã'] || item.maDanhMuc || '').toLowerCase();
+      const ghiChu = (item.GhiChu || item.ghiChu || item['Ghi Chú'] || '').toLowerCase();
       const match = ten.includes(currentCatKeyword) || ma.includes(currentCatKeyword) || ghiChu.includes(currentCatKeyword);
       if (!match) return false;
     }
@@ -3529,10 +3530,10 @@ function renderCategories() {
   if (emptyState) emptyState.classList.add('hidden');
 
   tbody.innerHTML = filtered.map(item => {
-    const ma = item.Ma || item.maDanhMuc || '';
-    const ten = item.Ten || item.giaTri || item.TenDanhMuc || '';
-    const nhom = item.Nhom || item.loai || item.LoaiDanhMuc || 'Chung';
-    const ghiChu = item.GhiChu || item.ghiChu || '—';
+    const ma = item.Ma || item.ma || item['Mã'] || item.maDanhMuc || '';
+    const ten = item.Ten || item.ten || item['Tên'] || item.giaTri || item.TenDanhMuc || '';
+    const nhom = item.Nhom || item.nhom || item['Nhóm'] || item.loai || item.LoaiDanhMuc || 'Chung';
+    const ghiChu = item.GhiChu || item.ghiChu || item['Ghi Chú'] || '—';
 
     return `
       <tr class="hover:bg-slate-50 transition">
@@ -3555,9 +3556,9 @@ function renderCategories() {
   }).join('');
 
   cardsList.innerHTML = filtered.map(item => {
-    const ma = item.Ma || item.maDanhMuc || '';
-    const ten = item.Ten || item.giaTri || item.TenDanhMuc || '';
-    const nhom = item.Nhom || item.loai || item.LoaiDanhMuc || 'Chung';
+    const ma = item.Ma || item.ma || item['Mã'] || item.maDanhMuc || '';
+    const ten = item.Ten || item.ten || item['Tên'] || item.giaTri || item.TenDanhMuc || '';
+    const nhom = item.Nhom || item.nhom || item['Nhóm'] || item.loai || item.LoaiDanhMuc || 'Chung';
     return `
       <div class="p-3 bg-white rounded-xl border border-slate-100 mb-2 flex items-center justify-between gap-3">
         <div>
