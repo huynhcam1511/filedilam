@@ -551,11 +551,11 @@ function setupDatabaseSheet_(ss, sep) {
     dbSheet.getRange(r, 2).setValue(cfg.name);
 
     if (cfg.chkCol) {
-      // Range.setFormula() bắt buộc dùng dấu phẩy ',' chuẩn quốc tế (Google Sheets tự dịch sang ';' trên giao diện vi_VN)
-      dbSheet.getRange(r, 4).setFormula(`=COUNTIF('${SHEET_MAIN}'!${cfg.chkCol}12:${cfg.chkCol}23, TRUE)`);
+      // Bắt buộc dùng ';' cho locale vi_VN để tránh lỗi Formula Parse Error #ERROR!
+      dbSheet.getRange(r, 4).setFormula(`=COUNTIF('${SHEET_MAIN}'!${cfg.chkCol}12:${cfg.chkCol}23; TRUE)`);
       dbSheet.getRange(r, 6).setFormula(`=COUNTA('${SHEET_MAIN}'!${cfg.taskCol}12:${cfg.taskCol}23)`);
       dbSheet.getRange(r, 5).setFormula(`=F${r} - D${r}`);
-      dbSheet.getRange(r, 3).setFormula(`=IFERROR(D${r} / F${r}, 0)`).setNumberFormat('0%');
+      dbSheet.getRange(r, 3).setFormula(`=IFERROR(D${r} / F${r}; 0)`).setNumberFormat('0%');
     } else {
       dbSheet.getRange(r, 3).setValue(i === 5 ? 0.75 : 0.60).setNumberFormat('0%');
       dbSheet.getRange(r, 4).setValue(i === 5 ? 9 : 6);
@@ -578,7 +578,7 @@ function setupDatabaseSheet_(ss, sep) {
     dbSheet.getRange(blockStart + 1, 11).setFormula(`=D${srcRow}`).setNumberFormat('0');
     
     dbSheet.getRange(blockStart + 2, 10).setValue('Chưa xong');
-    dbSheet.getRange(blockStart + 2, 11).setFormula(`=MAX(0, E${srcRow})`).setNumberFormat('0');
+    dbSheet.getRange(blockStart + 2, 11).setFormula(`=MAX(0; E${srcRow})`).setNumberFormat('0');
   }
 
   // Giữ tab DB_PLANNER hiển thị bình thường để triệt tiêu vĩnh viễn lỗi ẩn dữ liệu!
@@ -613,9 +613,6 @@ function rebuildCharts() {
     .setOption('backgroundColor', '#FFFFFF')
     .setOption('colors', ['#4E9F8E']) // Xanh ngọc Mint đồng bộ giao diện
     .setOption('legend', { position: 'none' })
-    .setOption('hAxis', { textStyle: { fontSize: 8, color: '#64748B' } })
-    .setOption('vAxis', { minValue: 0, maxValue: 1, textStyle: { fontSize: 8, color: '#64748B' } })
-    .setOption('chartArea', { left: 35, top: 30, width: '85%', height: '65%' })
     .build();
 
   sheet.insertChart(barChart);
