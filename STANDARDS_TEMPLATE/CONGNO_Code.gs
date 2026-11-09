@@ -1,12 +1,12 @@
 /**
- * SỔ QUẢN LÝ CÔNG NỢ KHÁCH HÀNG & NCC v1.0 — FILE ĐI LÀM
+ * QUẢN LÝ CÔNG NỢ KHÁCH HÀNG & NCC — WEB APP v1.0 — FILE ĐI LÀM
  * Backend Engine & Google Sheets RPC Handlers
  * Chuẩn tuân thủ: AGENTS_MASTER.md V2.4 & FILE ĐI LÀM SYSTEM CONSTITUTION
  */
 
 // 1. HẰNG SỐ CẤU HÌNH HỆ THỐNG
 var WEB_APP_URL = "https://script.google.com/macros/s/AKfycbz_REPLACE_WITH_YOUR_DEPLOYMENT_ID/exec";
-var APP_TITLE = "SỔ QUẢN LÝ CÔNG NỢ KHÁCH HÀNG & NCC — FILE ĐI LÀM";
+var APP_TITLE = "QUẢN LÝ CÔNG NỢ KHÁCH HÀNG & NCC — WEB APP v1.0 — FILE ĐI LÀM";
 
 // Tên các tab Database chuẩn
 var SHEETS = {
