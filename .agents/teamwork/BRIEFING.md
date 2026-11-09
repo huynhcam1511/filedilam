@@ -1,4 +1,4 @@
-# BRIEFING — 2026-11-09T13:38:15Z
+# BRIEFING — 2026-11-09T14:05:00Z
 
 ## Mission
 Monitor and route CRM Bất Động Sản Apps Script bug fix and architecture audit to Project Orchestrator, schedule monitoring crons, and ensure independent victory audit before completion.
@@ -15,12 +15,12 @@ Monitor and route CRM Bất Động Sản Apps Script bug fix and architecture a
 - Must adhere to AGENTS.md standards and AGENTS_MASTER.md template constraints
 
 ## User Context
-- **Last user request**: Fix SyntaxError / ReferenceError in BatDongSan Web App, audit against AGENTS_MASTER.md standard, adopt Model-View Flat Monolith.
+- **Last user request**: Approved plan_eliminate_token_error.md: re-architect BatDongSan_Index.html to Model-View Flat Monolith, micro-seed data (<100 chars/line), expose window.switchTab at top of script, verify with node/vm parser, commit & push.
 - **Pending clarifications**: none
-- **Delivered results**: none
+- **Delivered results**: Milestone 1 complete (3 Explorer handoffs). Milestone 2 dispatched to worker_bds_m2 (refactoring BatDongSan_Index.html & BatDongSan_Code.gs).
 
 ## Project Status
-- **Phase**: in progress
+- **Phase**: in progress (Milestone 2 - Implementation by worker_bds_m2)
 
 ## Victory Audit Status
 - **Triggered**: no
