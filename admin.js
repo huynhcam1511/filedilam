@@ -304,6 +304,82 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   let currentProducts = [];
+  // Helper sinh mã SKU theo chuẩn AGENTS.md Điều 6: PRD-XXXXXX (6 chữ số ngẫu nhiên)
+  function generateUniqueProductId(existingProducts) {
+    const existingIds = new Set((existingProducts || currentProducts || []).map(p => p.id));
+    let candidate = '';
+    let attempts = 0;
+    do {
+      const digits = Math.floor(100000 + Math.random() * 900000);
+      candidate = 'PRD-' + digits;
+      attempts++;
+    } while (existingIds.has(candidate) && attempts < 200);
+    return candidate;
+  }
+
+  function isValidProductSku(id) {
+    return /^PRD-\d{6}$/.test(String(id || ''));
+  }
+
+  async function normalizeProductSku(oldId) {
+    const product = (currentProducts || []).find(p => p.id === oldId);
+    if (!product) return;
+    const newSku = generateUniqueProductId(currentProducts);
+    const confirmMsg = 'Chuẩn hóa mã sản phẩm "' + product.name + '" sang định dạng chuẩn:\n\n' +
+      '• Mã hiện tại (lỗi định dạng): ' + oldId + '\n' +
+      '• Mã chuẩn mới: ' + newSku + '\n\n' +
+      'Toàn bộ dữ liệu, link file, ảnh bìa, giá bán, mô tả, nội dung module sẽ được bảo toàn 100%. Bạn có muốn thực hiện không?';
+    if (!confirm(confirmMsg)) return;
+
+    try {
+      showToast('Đang chuẩn hóa mã SKU sản phẩm...');
+      const oldDocRef = db.collection('products').doc(oldId);
+      const oldSnap = await oldDocRef.get();
+      if (!oldSnap.exists) {
+        showToast('Không tìm thấy sản phẩm trên Firestore', true);
+        return;
+      }
+
+      const productData = oldSnap.data();
+      productData.id = newSku;
+      productData.updatedAt = firebase.firestore.FieldValue.serverTimestamp();
+
+      // Lưu document mới với mã SKU chuẩn PRD-XXXXXX
+      await db.collection('products').doc(newSku).set(productData);
+
+      // Cập nhật các bản ghi liên kết nếu có (social_posts, ads_campaigns)
+      try {
+        const postsSnap = await db.collection('social_posts').where('product_id', '==', oldId).get();
+        if (!postsSnap.empty) {
+          const batch = db.batch();
+          postsSnap.forEach(doc => {
+            batch.update(doc.ref, { product_id: newSku });
+          });
+          await batch.commit();
+        }
+        const adsSnap = await db.collection('ads_campaigns').where('product_id', '==', oldId).get();
+        if (!adsSnap.empty) {
+          const batchAds = db.batch();
+          adsSnap.forEach(doc => {
+            batchAds.update(doc.ref, { product_id: newSku });
+          });
+          await batchAds.commit();
+        }
+      } catch (subErr) {
+        console.warn('Lỗi cập nhật liên kết phụ khi đổi SKU:', subErr);
+      }
+
+      // Xóa document cũ với ID lem nhem
+      await oldDocRef.delete();
+
+      showToast('Đã chuẩn hóa mã thành công: ' + newSku);
+      await loadProducts();
+    } catch (err) {
+      console.error('Lỗi chuẩn hóa mã SKU:', err);
+      showToast('Lỗi khi chuẩn hóa: ' + err.message, true);
+    }
+  }
+
 
   async function loadProducts() {
     try {
@@ -418,7 +494,12 @@ document.addEventListener('DOMContentLoaded', () => {
           <td>
             <div style="font-weight: 600; color: #0f172a; font-size: 0.9rem;">${escapeHtml(p.name)}</div>
             <div style="display: flex; align-items: center; gap: 8px; margin-top: 4px; flex-wrap: wrap;">
-              <span style="font-size: 0.75rem; color: #64748b; font-family: monospace;">${escapeHtml(p.id)}</span>
+              <span style="font-size: 0.75rem; color: ${isValidProductSku(p.id) ? '#64748b' : '#dc2626'}; font-family: monospace; font-weight: ${isValidProductSku(p.id) ? '500' : '700'};">${escapeHtml(p.id)}</span>
+              ${!isValidProductSku(p.id) ? `
+                <button type="button" class="btn-normalize-sku-quick" data-id="${p.id}" style="font-size: 0.70rem; color: #b45309; background: #fef3c7; border: 1px solid #fde68a; border-radius: 4px; padding: 1px 6px; cursor: pointer; display: inline-flex; align-items: center; gap: 3px;" title="Chuẩn hóa sang mã PRD-XXXXXX chuẩn theo AGENTS.md">
+                  <svg width="10" height="10" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+                  <span>Cần chuẩn hóa SKU</span>
+                </button>` : ''}
               ${fileLink ? `
                 <a href="${escapeHtml(fileLink)}" target="_blank" rel="noopener" style="font-size: 0.74rem; font-weight: 600; color: #059669; text-decoration: none; display: inline-flex; align-items: center; gap: 3px; padding: 2px 7px; background: #ecfdf5; border: 1px solid #a7f3d0; border-radius: 4px;" title="Mở file Google Sheets / Drive">
                   <svg width="11" height="11" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
@@ -446,6 +527,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 <svg width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="1.5"></circle><circle cx="12" cy="5" r="1.5"></circle><circle cx="12" cy="19" r="1.5"></circle></svg>
               </button>
               <div class="action-dropdown-popover" id="popover-product-${p.id}">
+                ${!isValidProductSku(p.id) ? `
+                <button type="button" class="action-dropdown-item btn-normalize-sku" data-id="${p.id}" style="color: #059669; font-weight: 600;">
+                  <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+                  <span>Chuẩn hóa SKU (PRD-XXXXXX)</span>
+                </button>` : ''}
                 <button type="button" class="action-dropdown-item btn-edit" data-id="${p.id}">
                   <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
                   <span>Chỉnh sửa</span>
@@ -482,6 +568,16 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!isShown && popover) {
           popover.classList.add('show');
           btn.classList.add('active');
+        }
+      });
+    });
+
+    document.querySelectorAll('.btn-normalize-sku, .btn-normalize-sku-quick').forEach(btn => {
+      btn.addEventListener('click', async (e) => {
+        e.stopPropagation();
+        const id = e.currentTarget.dataset.id;
+        if (id) {
+          await normalizeProductSku(id);
         }
       });
     });
@@ -912,7 +1008,8 @@ document.addEventListener('DOMContentLoaded', () => {
     if (topSubmitText) topSubmitText.textContent = 'Đang lưu...';
 
     try {
-      const id = editingId || (name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '') + '-' + Date.now());
+      // Chuẩn hóa định danh SKU sản phẩm theo Điều 6 AGENTS.md: PRD-XXXXXX (6 chữ số ngẫu nhiên)
+      const id = editingId || generateUniqueProductId(currentProducts);
 
       let updateData = {
         name,
