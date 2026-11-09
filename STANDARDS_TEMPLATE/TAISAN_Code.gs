@@ -43,6 +43,17 @@ function lockAndHideDatabaseSheets() {
 }
 
 function onOpen() {
+  // Tự động đồng bộ tên File Google Sheet theo hằng số APP_TITLE
+  try {
+    var ss = SpreadsheetApp.getActiveSpreadsheet();
+    var currentName = ss.getName();
+    if (currentName !== APP_TITLE && !currentName.startsWith('Bản sao của')) {
+      ss.rename(APP_TITLE);
+    }
+  } catch (e) {
+    // Bỏ qua nếu không đủ quyền đổi tên
+  }
+
   SpreadsheetApp.getUi()
     .createMenu('File Đi Làm')
     .addItem('Mở Ứng Dụng Quản Lý', 'openWebApp')

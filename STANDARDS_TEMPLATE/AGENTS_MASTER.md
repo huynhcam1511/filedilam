@@ -15,6 +15,16 @@
    - CẤM xóa dữ liệu thật, giao dịch đã ghi sổ hoặc hóa đơn/phiếu đã phát hành.
 
 2. **Quy chuẩn đặt tên File Google Sheet & File Code Local**:
+   - **Tự động đồng bộ tên File Google Sheet qua Apps Script (`ss.rename()`)**:
+     - Trong Google Apps Script hoàn toàn có hàm `SpreadsheetApp.getActiveSpreadsheet().rename(APP_TITLE)`.
+     - **Quy tắc**: Mỗi khi nâng cấp Version trong code (VD: từ `v1.0` lên `v1.1`, `v2.0`...), lập trình viên chỉ cần đổi hằng số `APP_TITLE` ở đầu file `.gs`. Khi người dùng hoặc admin chạy hàm `setupDatabaseSheets()` hoặc mở Sheet (`onOpen()`), hệ thống sẽ **tự động đổi tên file Google Sheet** khớp 100% với phiên bản mới mà không cần phải vào Drive đổi thủ công!
+     ```javascript
+     // Tự động kiểm tra và cập nhật tên Sheet khớp với phiên bản hệ thống
+     var currentName = ss.getName();
+     if (currentName !== APP_TITLE && !currentName.startsWith('Bản sao của')) {
+       ss.rename(APP_TITLE);
+     }
+     ```
    - **Tên File Google Sheet (Hiển thị cho khách)**:
      - **Dòng sản phẩm có tích hợp Web App (Mô hình Single Visible Tab)**:
        `[TÊN SẢN PHẨM IN HOA CÓ DẤU] — WEB APP v[X.X] — FILE ĐI LÀM`
@@ -24,7 +34,7 @@
        - `HỆ THỐNG QUẢN LÝ KHÁCH HÀNG & GIỎ HÀNG BẤT ĐỘNG SẢN — WEB APP v1.0 — FILE ĐI LÀM`
        - `BẢNG TÍNH GIÁ VỐN & ĐỊNH GIÁ SẢN PHẨM (COSTING) — WEB APP v1.0 — FILE ĐI LÀM`
        - `QUẢN LÝ TÀI SẢN & THIẾT BỊ DOANH NGHIỆP — WEB APP v1.0 — FILE ĐI LÀM`
-       - `SỔ QUẢN LÝ CÔNG NỢ KHÁCH HÀNG & NCC — WEB APP v1.0 — FILE ĐI LÀM`
+       - `QUẢN LÝ CÔNG NỢ KHÁCH HÀNG & NCC — WEB APP v1.0 — FILE ĐI LÀM`
      - **Dòng sản phẩm Workbook thuần túy (Excel / Google Sheets Template, không có Web App)**:
        `[TÊN SẢN PHẨM IN HOA CÓ DẤU] v[X.X] — FILE ĐI LÀM`
        *Ví dụ*:
