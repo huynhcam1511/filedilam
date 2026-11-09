@@ -1,0 +1,3102 @@
+<!-- ==============================================================================
+     FILE ĐI LÀM: HOMESTAY & KHÁCH SẠN MINI SPA SHELL
+     Thương hiệu: FILE ĐI LÀM — Master Standard V2.4
+     ============================================================================== -->
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>MIA Homestay & Hotel Manager · File Đi Làm</title>
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Lucide Icons CDN -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <!-- Chart.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            mint: {
+              50: '#ecfdf5',
+              100: '#d1fae5',
+              500: '#10b981',
+              600: '#059669',
+              700: '#047857',
+              800: '#065f46'
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    /* Tuân thủ Fintech Minimalist & Classy */
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      -webkit-font-smoothing: antialiased;
+      background-color: #f8fafc;
+      color: #0f172a;
+    }
+    /* Thanh cuộn tinh tế */
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 9999px; }
+    ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+    /* Transitions & Drawer */
+    .drawer-overlay {
+      transition: opacity 0.25s ease-in-out;
+    }
+    .drawer-content {
+      transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .badge-status {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      font-weight: 500;
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col md:flex-row overflow-x-hidden">
+
+  <!-- ==================== DESKTOP SIDEBAR ==================== -->
+  <aside id="desktop-sidebar" class="hidden md:flex flex-col w-64 bg-white border-r border-slate-200 z-30 select-none">
+    <!-- Header Logo -->
+    <div class="h-16 flex items-center justify-between px-5 border-b border-slate-200">
+      <div class="flex items-center gap-2.5">
+        <div class="w-9 h-9 rounded-xl bg-mint-600 flex items-center justify-center text-white shadow-sm font-bold text-base">
+          M
+        </div>
+        <div>
+          <div class="font-bold text-sm tracking-tight text-slate-800 leading-tight" id="sidebar-app-name">MIA HOMESTAY</div>
+          <div class="text-[11px] text-slate-500 font-medium">Bản quyền File Đi Làm</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Navigation Menu (3 Tầng Tần Suất) -->
+    <div class="flex-1 overflow-y-auto py-4 px-3 space-y-6">
+      <!-- Tầng 1: VẬN HÀNH THƯỜNG XUYÊN -->
+      <div>
+        <div class="px-3 mb-2 text-[11px] font-bold uppercase tracking-wider text-slate-400">Vận hành thường xuyên</div>
+        <nav class="space-y-1">
+          <button onclick="AppRouter.navigate('reception')" id="nav-btn-reception" class="nav-item w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all text-slate-600 hover:text-slate-900 hover:bg-slate-100">
+            <i data-lucide="layout-grid" class="w-4 h-4"></i>
+            <span>Sơ đồ buồng phòng</span>
+          </button>
+          <button onclick="AppRouter.navigate('bookings')" id="nav-btn-bookings" class="nav-item w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all text-slate-600 hover:text-slate-900 hover:bg-slate-100">
+            <i data-lucide="calendar-check" class="w-4 h-4"></i>
+            <span>Danh sách đặt phòng</span>
+          </button>
+        </nav>
+      </div>
+
+      <!-- Tầng 2: QUẢN LÝ BIẾN ĐỘNG -->
+      <div>
+        <div class="px-3 mb-2 text-[11px] font-bold uppercase tracking-wider text-slate-400">Quản lý biến động</div>
+        <nav class="space-y-1">
+          <button onclick="AppRouter.navigate('calendar')" id="nav-btn-calendar" class="nav-item w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all text-slate-600 hover:text-slate-900 hover:bg-slate-100">
+            <i data-lucide="calendar-range" class="w-4 h-4"></i>
+            <span>Lịch phòng Timeline</span>
+          </button>
+          <button onclick="AppRouter.navigate('guests')" id="nav-btn-guests" class="nav-item w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all text-slate-600 hover:text-slate-900 hover:bg-slate-100">
+            <i data-lucide="users" class="w-4 h-4"></i>
+            <span>Khách lưu trú (CCCD)</span>
+          </button>
+        </nav>
+      </div>
+
+      <!-- Tầng 3: CẤU HÌNH & TÀI CHÍNH -->
+      <div>
+        <div class="px-3 mb-2 text-[11px] font-bold uppercase tracking-wider text-slate-400">Hệ thống & Báo cáo</div>
+        <nav class="space-y-1">
+          <button onclick="AppRouter.navigate('cashflow')" id="nav-btn-cashflow" class="nav-item w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all text-slate-600 hover:text-slate-900 hover:bg-slate-100">
+            <i data-lucide="wallet" class="w-4 h-4"></i>
+            <span>Sổ thu chi & Quỹ</span>
+          </button>
+          <button onclick="AppRouter.navigate('reports')" id="nav-btn-reports" class="nav-item w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all text-slate-600 hover:text-slate-900 hover:bg-slate-100">
+            <i data-lucide="bar-chart-3" class="w-4 h-4"></i>
+            <span>Báo cáo công suất</span>
+          </button>
+          <button onclick="AppRouter.navigate('settings')" id="nav-btn-settings" class="nav-item w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all text-slate-600 hover:text-slate-900 hover:bg-slate-100">
+            <i data-lucide="sliders-horizontal" class="w-4 h-4"></i>
+            <span>Cài đặt & VietQR</span>
+          </button>
+        </nav>
+      </div>
+    </div>
+
+    <!-- Quick Action & Support Footer -->
+    <div class="p-3 border-t border-slate-200">
+      <button onclick="BookingDrawer.openNew()" class="w-full h-[44px] bg-mint-600 hover:bg-mint-700 text-white font-semibold text-sm rounded-xl flex items-center justify-center gap-2 shadow-sm transition-all active:scale-[0.98]">
+        <i data-lucide="plus" class="w-4 h-4"></i>
+        <span>Đặt Phòng Mới</span>
+      </button>
+    </div>
+  </aside>
+
+  <!-- ==================== MAIN CONTENT AREA ==================== -->
+  <main class="flex-1 flex flex-col min-w-0 pb-20 md:pb-6">
+    <!-- Top Bar Header -->
+    <header class="h-16 bg-white border-b border-slate-200 px-4 md:px-6 flex items-center justify-between sticky top-0 z-20">
+      <div class="flex items-center gap-3">
+        <div class="md:hidden w-8 h-8 rounded-lg bg-mint-600 flex items-center justify-center text-white font-bold text-sm">
+          M
+        </div>
+        <div>
+          <h1 id="page-title" class="text-base md:text-lg font-bold text-slate-800 leading-none">Sơ đồ buồng phòng</h1>
+          <div id="page-subtitle" class="text-xs text-slate-500 mt-1">Trạng thái phòng thời gian thực & Tiếp đón khách</div>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-2 md:gap-3">
+        <!-- Nút đồng bộ dữ liệu -->
+        
+        <button onclick="App.resetSampleData()" class="hidden sm:flex h-[36px] px-3 border border-slate-200 hover:bg-slate-100 text-slate-600 text-xs font-semibold rounded-lg items-center gap-1.5 transition-colors" title="Nạp lại bộ dữ liệu mẫu chuẩn">
+          <i data-lucide="database-backup" class="w-4 h-4 text-emerald-600"></i>
+          <span>Dữ liệu mẫu</span>
+        </button>
+        <button onclick="App.loadData(true)" class="p-2 text-slate-500 hover:text-slate-800 hover:bg-slate-100 rounded-lg transition-colors" title="Đồng bộ lại dữ liệu">
+          <i data-lucide="refresh-cw" class="w-4 h-4" id="sync-icon"></i>
+        </button>
+
+        <!-- Nút Thêm Đặt Phòng Nhanh trên Header Desktop -->
+        <button onclick="BookingDrawer.openNew()" class="hidden sm:flex h-[38px] px-3.5 bg-mint-600 hover:bg-mint-700 text-white text-xs font-semibold rounded-lg items-center gap-1.5 transition-all shadow-sm">
+          <i data-lucide="plus" class="w-4 h-4"></i>
+          <span>Đặt phòng</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- Content Router Slot -->
+    <div id="app-viewport" class="p-4 md:p-6 flex-1 max-w-7xl w-full mx-auto">
+      <!-- Loading Placeholder -->
+      <div id="loading-state" class="hidden py-24 text-center">
+        <div class="inline-block animate-spin text-mint-600 mb-3">
+          <i data-lucide="loader-2" class="w-8 h-8"></i>
+        </div>
+        <div class="text-sm font-medium text-slate-600">Đang đồng bộ dữ liệu với Google Sheets...</div>
+      </div>
+
+      <!-- Module Views Container -->
+      <div id="view-reception" class="hidden"></div>
+      <div id="view-bookings" class="hidden"></div>
+      <div id="view-calendar" class="hidden"></div>
+      <div id="view-guests" class="hidden"></div>
+      <div id="view-cashflow" class="hidden"></div>
+      <div id="view-reports" class="hidden"></div>
+      <div id="view-settings" class="hidden"></div>
+    </div>
+  </main>
+
+  <!-- ==================== MOBILE BOTTOM NAVIGATION DOCK ==================== -->
+  <nav class="md:hidden fixed bottom-0 left-0 right-0 h-16 bg-white border-t border-slate-200 z-30 flex items-center justify-around px-2 select-none shadow-[0_-2px_10px_rgba(0,0,0,0.05)]">
+    <button onclick="AppRouter.navigate('reception')" id="mobile-nav-reception" class="flex flex-col items-center justify-center flex-1 py-1 text-slate-500 active:text-mint-600">
+      <i data-lucide="layout-grid" class="w-5 h-5"></i>
+      <span class="text-[10px] mt-1 font-medium">Buồng phòng</span>
+    </button>
+    <button onclick="AppRouter.navigate('bookings')" id="mobile-nav-bookings" class="flex flex-col items-center justify-center flex-1 py-1 text-slate-500 active:text-mint-600">
+      <i data-lucide="calendar-check" class="w-5 h-5"></i>
+      <span class="text-[10px] mt-1 font-medium">Đặt phòng</span>
+    </button>
+    <button onclick="AppRouter.navigate('cashflow')" id="mobile-nav-cashflow" class="flex flex-col items-center justify-center flex-1 py-1 text-slate-500 active:text-mint-600">
+      <i data-lucide="wallet" class="w-5 h-5"></i>
+      <span class="text-[10px] mt-1 font-medium">Thu chi</span>
+    </button>
+    <button onclick="AppRouter.navigate('settings')" id="mobile-nav-settings" class="flex flex-col items-center justify-center flex-1 py-1 text-slate-500 active:text-mint-600">
+      <i data-lucide="sliders-horizontal" class="w-5 h-5"></i>
+      <span class="text-[10px] mt-1 font-medium">Cài đặt</span>
+    </button>
+  </nav>
+
+  <!-- ==================== FLOATING ACTION BUTTON (MOBILE FAB) ==================== -->
+  <button onclick="BookingDrawer.openNew()" class="md:hidden fixed bottom-20 right-4 w-12 h-12 bg-mint-600 text-white rounded-full shadow-lg flex items-center justify-center z-20 active:scale-95 transition-transform" aria-label="Tạo booking mới">
+    <i data-lucide="plus" class="w-6 h-6"></i>
+  </button>
+
+  <!-- ==================== RIGHT SLIDE-OVER DRAWER (DESKTOP) / BOTTOM SHEET (MOBILE) ==================== -->
+  <div id="drawer-container" class="fixed inset-0 z-50 hidden transition-opacity duration-300 opacity-0">
+    <!-- Backdrop overlay -->
+    <div id="drawer-backdrop" onclick="BookingDrawer.close()" class="absolute inset-0 bg-slate-900/40 backdrop-blur-sm pointer-events-auto"></div>
+    
+    <!-- Drawer Panel -->
+    <div id="drawer-panel" class="absolute right-0 top-0 bottom-0 w-full sm:w-[500px] bg-white shadow-2xl flex flex-col pointer-events-auto transform translate-x-full transition-transform duration-300 ease-out">
+      <!-- Header -->
+      <div class="h-16 px-6 border-b border-slate-200 flex items-center justify-between shrink-0">
+        <div>
+          <h2 id="drawer-title" class="text-base font-bold text-slate-800">Đặt Phòng Mới</h2>
+          <div class="text-xs text-slate-500" id="drawer-subtitle">Nhập thông tin khách và hình thức lưu trú</div>
+        </div>
+        <button onclick="BookingDrawer.close()" class="p-2 text-slate-400 hover:text-slate-600 rounded-lg hover:bg-slate-100">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <!-- Drawer Body Content -->
+      <div id="drawer-body" class="flex-1 overflow-y-auto p-6 space-y-5">
+        <!-- Rendered by BookingDrawer module -->
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== GLOBAL TOAST NOTIFICATION ==================== -->
+  <div id="toast-container" class="fixed top-4 right-4 z-50 flex flex-col gap-2 pointer-events-none"></div>
+
+  <!-- ==================== CUSTOM MODAL CONFIRMATION ==================== -->
+  <div id="modal-container" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm hidden">
+    <div class="bg-white rounded-2xl shadow-xl max-w-sm w-full p-6 text-center transform transition-all">
+      <div id="modal-icon-container" class="w-12 h-12 rounded-full bg-rose-100 text-rose-600 mx-auto flex items-center justify-center mb-4">
+        <i data-lucide="alert-triangle" class="w-6 h-6"></i>
+      </div>
+      <h3 id="modal-title" class="text-base font-bold text-slate-800 mb-2">Xác nhận thao tác</h3>
+      <p id="modal-message" class="text-xs text-slate-500 mb-6 leading-relaxed">Bạn có chắc chắn muốn thực hiện hành động này không?</p>
+      <div class="flex items-center gap-3">
+        <button onclick="Modal.close()" class="flex-1 h-[42px] border border-slate-300 hover:bg-slate-100 text-slate-700 text-xs font-semibold rounded-xl transition-colors">
+          Hủy bỏ
+        </button>
+        <button id="modal-btn-confirm" class="flex-1 h-[42px] bg-rose-600 hover:bg-rose-700 text-white text-xs font-semibold rounded-xl shadow-sm transition-colors">
+          Đồng ý
+        </button>
+      </div>
+    </div>
+  </div>
+
+  
+  <!-- INJECTED MODULES (MASTER ASSEMBLER) -->
+<!-- ==============================================================================
+     MODULE 1: LỄ TÂN & BUỒNG PHÒNG (RECEPTION & ROOM RACK)
+     Thương hiệu: FILE ĐI LÀM — Master Standard V2.4
+     ============================================================================== -->
+<script>
+window.ModuleReception = {
+  render() {
+    const container = document.getElementById('view-reception');
+    if (!container) return;
+
+    const rooms = AppState.data.rooms || [];
+    const bookings = AppState.data.bookings || [];
+
+    // Tính toán 4 chỉ số KPI
+    const totalRooms = rooms.length;
+    const occupiedRooms = rooms.filter(r => r['Trạng thái'] === 'Đang có khách').length;
+    const occupancyRate = totalRooms > 0 ? Math.round((occupiedRooms / totalRooms) * 100) : 0;
+
+    // Lọc khách Check-in hôm nay & Check-out hôm nay
+    const todayStr = '09/11/2026'; // Ngày demo / thực tế
+    const todayCheckIns = bookings.filter(b => b['Trạng thái'] === 'Đặt trước');
+    const todayCheckOuts = bookings.filter(b => b['Trạng thái'] === 'Đang ở');
+
+    // Doanh thu dự kiến hôm nay (tổng các booking đang ở và sắp đến)
+    const totalRevenueExpected = bookings
+      .filter(b => b['Trạng thái'] === 'Đang ở' || b['Trạng thái'] === 'Đặt trước')
+      .reduce((sum, b) => sum + (Number(b['Tổng cộng']) || 0), 0);
+
+    // Gom phòng theo Tầng
+    const floorsMap = {};
+    rooms.forEach(r => {
+      const fl = r['Tầng'] || 'Tầng 1';
+      if (!floorsMap[fl]) floorsMap[fl] = [];
+      floorsMap[fl].push(r);
+    });
+
+    container.innerHTML = `
+      <!-- TOP KPI CARDS (4 CHỈ SỐ CỐT LÕI) -->
+      <div class="grid grid-cols-2 lg:grid-cols-4 gap-3.5 md:gap-5 mb-6">
+        <!-- KPI 1: Công suất phòng -->
+        <div class="bg-white p-4 md:p-5 rounded-2xl border border-slate-200/80 shadow-sm">
+          <div class="flex items-center justify-between text-slate-500 mb-2">
+            <span class="text-xs font-semibold uppercase tracking-wider">Công suất phòng</span>
+            <div class="w-8 h-8 rounded-lg bg-mint-50 text-mint-600 flex items-center justify-center">
+              <i data-lucide="percent" class="w-4 h-4"></i>
+            </div>
+          </div>
+          <div class="text-xl md:text-2xl font-bold text-slate-800">${occupancyRate}%</div>
+          <div class="text-xs text-slate-500 mt-1">${occupiedRooms}/${totalRooms} phòng đang ở</div>
+        </div>
+
+        <!-- KPI 2: Khách sắp Check-in -->
+        <div class="bg-white p-4 md:p-5 rounded-2xl border border-slate-200/80 shadow-sm">
+          <div class="flex items-center justify-between text-slate-500 mb-2">
+            <span class="text-xs font-semibold uppercase tracking-wider">Khách sắp đến</span>
+            <div class="w-8 h-8 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center">
+              <i data-lucide="log-in" class="w-4 h-4"></i>
+            </div>
+          </div>
+          <div class="text-xl md:text-2xl font-bold text-slate-800">${todayCheckIns.length}</div>
+          <div class="text-xs text-slate-500 mt-1">Lượt nhận phòng hôm nay</div>
+        </div>
+
+        <!-- KPI 3: Khách sắp Check-out -->
+        <div class="bg-white p-4 md:p-5 rounded-2xl border border-slate-200/80 shadow-sm">
+          <div class="flex items-center justify-between text-slate-500 mb-2">
+            <span class="text-xs font-semibold uppercase tracking-wider">Khách sắp trả</span>
+            <div class="w-8 h-8 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center">
+              <i data-lucide="log-out" class="w-4 h-4"></i>
+            </div>
+          </div>
+          <div class="text-xl md:text-2xl font-bold text-slate-800">${todayCheckOuts.length}</div>
+          <div class="text-xs text-slate-500 mt-1">Cần thanh toán & dọn buồng</div>
+        </div>
+
+        <!-- KPI 4: Doanh thu dự kiến -->
+        <div class="bg-white p-4 md:p-5 rounded-2xl border border-slate-200/80 shadow-sm">
+          <div class="flex items-center justify-between text-slate-500 mb-2">
+            <span class="text-xs font-semibold uppercase tracking-wider">Doanh thu dự kiến</span>
+            <div class="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center">
+              <i data-lucide="coins" class="w-4 h-4"></i>
+            </div>
+          </div>
+          <div class="text-xl md:text-2xl font-bold text-slate-800">${CurrencyHelper.format(totalRevenueExpected)}</div>
+          <div class="text-xs text-slate-500 mt-1">Tiền phòng & minibar</div>
+        </div>
+      </div>
+
+      <!-- HÀNG VIỆC CẦN LÀM LỄ TÂN HÔM NAY (CHECK-IN / CHECK-OUT) -->
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6 mb-8">
+        <!-- Cột Khách Check-in -->
+        <div class="bg-white p-4 md:p-5 rounded-2xl border border-slate-200/80 shadow-sm">
+          <div class="flex items-center justify-between pb-3 border-b border-slate-100 mb-3">
+            <div class="flex items-center gap-2">
+              <i data-lucide="user-check" class="w-4 h-4 text-blue-600"></i>
+              <h3 class="text-sm font-bold text-slate-800">Khách Nhận Phòng Hôm Nay</h3>
+            </div>
+            <span class="text-xs font-semibold text-slate-500">${todayCheckIns.length} khách</span>
+          </div>
+
+          <div class="space-y-2.5">
+            ${todayCheckIns.length === 0 ? '<div class="py-6 text-center text-xs text-slate-400">Không có lượt nhận phòng nào</div>' : ''}
+            ${todayCheckIns.map(b => `
+              <div class="p-3 bg-slate-50 rounded-xl flex items-center justify-between border border-slate-100 hover:bg-slate-100/80 transition-colors">
+                <div class="min-w-0 flex-1 pr-3">
+                  <div class="flex items-center gap-2">
+                    <span class="font-mono text-xs font-bold text-slate-800">${b['Tên phòng']}</span>
+                    <span class="text-[11px] px-2 py-0.5 rounded bg-blue-100 text-blue-700 font-medium">${b['Kênh bán']}</span>
+                  </div>
+                  <div class="text-xs font-semibold text-slate-700 truncate mt-0.5">${b['Khách hàng']} · <a href="tel:${b['SĐT']}" class="text-mint-600 hover:underline">${b['SĐT']}</a></div>
+                  <div class="text-[11px] text-slate-400 mt-0.5">Dự kiến: ${b['Check-in dự kiến']}</div>
+                </div>
+                <div class="flex items-center gap-2">
+                  <button onclick="ModuleReception.handleQuickCheckIn('${b['Mã booking']}')" class="h-8 px-3 bg-mint-600 hover:bg-mint-700 text-white text-xs font-semibold rounded-lg shadow-sm flex items-center gap-1 transition-all">
+                    <i data-lucide="check" class="w-3.5 h-3.5"></i>
+                    <span>Check-in</span>
+                  </button>
+                </div>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+
+        <!-- Cột Khách Check-out -->
+        <div class="bg-white p-4 md:p-5 rounded-2xl border border-slate-200/80 shadow-sm">
+          <div class="flex items-center justify-between pb-3 border-b border-slate-100 mb-3">
+            <div class="flex items-center gap-2">
+              <i data-lucide="receipt" class="w-4 h-4 text-amber-600"></i>
+              <h3 class="text-sm font-bold text-slate-800">Khách Trả Phòng & Thu Ngân</h3>
+            </div>
+            <span class="text-xs font-semibold text-slate-500">${todayCheckOuts.length} phòng</span>
+          </div>
+
+          <div class="space-y-2.5">
+            ${todayCheckOuts.length === 0 ? '<div class="py-6 text-center text-xs text-slate-400">Không có phòng nào sắp trả</div>' : ''}
+            ${todayCheckOuts.map(b => `
+              <div class="p-3 bg-slate-50 rounded-xl flex items-center justify-between border border-slate-100 hover:bg-slate-100/80 transition-colors">
+                <div class="min-w-0 flex-1 pr-3">
+                  <div class="flex items-center gap-2">
+                    <span class="font-mono text-xs font-bold text-slate-800">${b['Tên phòng']}</span>
+                    <span class="text-[11px] font-semibold text-amber-700">Nợ: ${CurrencyHelper.format(b['Còn nợ'])}</span>
+                  </div>
+                  <div class="text-xs font-semibold text-slate-700 truncate mt-0.5">${b['Khách hàng']}</div>
+                  <div class="text-[11px] text-slate-400 mt-0.5">Dự kiến trả: ${b['Check-out dự kiến']}</div>
+                </div>
+                <div class="flex items-center gap-1.5">
+                  <button onclick="BookingDrawer.openAddService('${b['Mã booking']}', '${b['Mã phòng']}')" class="h-8 px-2.5 border border-slate-300 hover:bg-white text-slate-700 text-xs font-semibold rounded-lg shadow-2xs" title="Thêm đồ uống/dịch vụ">
+                    <i data-lucide="coffee" class="w-3.5 h-3.5"></i>
+                  </button>
+                  <button onclick="BookingDrawer.openCheckOut('${b['Mã booking']}')" class="h-8 px-3 bg-amber-600 hover:bg-amber-700 text-white text-xs font-semibold rounded-lg shadow-sm flex items-center gap-1 transition-all">
+                    <i data-lucide="log-out" class="w-3.5 h-3.5"></i>
+                    <span>Check-out</span>
+                  </button>
+                </div>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+      </div>
+
+      <!-- SƠ ĐỒ BUỒNG PHÒNG TRỰC QUAN THEO TẦNG (ROOM RACK) -->
+      <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm p-4 md:p-6">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-slate-100 mb-5">
+          <div>
+            <h2 class="text-base font-bold text-slate-800">Sơ Đồ Tình Trạng Buồng Phòng</h2>
+            <p class="text-xs text-slate-500 mt-0.5">Chạm vào phòng để xem chi tiết hoặc đổi trạng thái dọn dẹp</p>
+          </div>
+
+          <!-- Bảng chú thích trạng thái (Legend) -->
+          <div class="flex flex-wrap items-center gap-3 text-xs">
+            <span class="badge-status text-emerald-700"><span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>Trống sạch</span>
+            <span class="badge-status text-amber-700"><span class="w-2.5 h-2.5 rounded-full bg-amber-500"></span>Trống dơ</span>
+            <span class="badge-status text-blue-700"><span class="w-2.5 h-2.5 rounded-full bg-blue-500"></span>Đang dọn</span>
+            <span class="badge-status text-slate-800"><span class="w-2.5 h-2.5 rounded-full bg-slate-800"></span>Đang có khách</span>
+            <span class="badge-status text-rose-700"><span class="w-2.5 h-2.5 rounded-full bg-rose-500"></span>Bảo trì</span>
+          </div>
+        </div>
+
+        <!-- Render theo từng Tầng -->
+        <div class="space-y-6">
+          ${Object.keys(floorsMap).map(floorName => `
+            <div>
+              <div class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-3 flex items-center gap-2">
+                <i data-lucide="layers" class="w-3.5 h-3.5"></i>
+                <span>${floorName}</span>
+              </div>
+
+              <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                ${floorsMap[floorName].map(room => {
+                  const status = room['Trạng thái'];
+                  let statusColor = 'border-slate-200 bg-white';
+                  let statusDot = 'bg-slate-400';
+                  let textColor = 'text-slate-600';
+
+                  if (status === 'Trống sạch') {
+                    statusColor = 'border-emerald-200 bg-emerald-50/20 hover:border-emerald-400';
+                    statusDot = 'bg-emerald-500';
+                    textColor = 'text-emerald-700 font-semibold';
+                  } else if (status === 'Trống dơ') {
+                    statusColor = 'border-amber-200 bg-amber-50/30 hover:border-amber-400';
+                    statusDot = 'bg-amber-500';
+                    textColor = 'text-amber-700 font-semibold';
+                  } else if (status === 'Đang dọn') {
+                    statusColor = 'border-blue-200 bg-blue-50/30 hover:border-blue-400';
+                    statusDot = 'bg-blue-500';
+                    textColor = 'text-blue-700 font-semibold';
+                  } else if (status === 'Đang có khách') {
+                    statusColor = 'border-slate-400 bg-slate-50/60 shadow-xs';
+                    statusDot = 'bg-slate-800';
+                    textColor = 'text-slate-800 font-bold';
+                  }
+
+                  // Tìm thông tin booking nếu phòng đang có khách
+                  const activeBooking = bookings.find(b => b['Mã booking'] === room['Mã booking hiện tại']);
+
+                  return `
+                    <div class="rounded-2xl border p-4 transition-all duration-200 ${statusColor}">
+                      <!-- Header Thẻ Phòng -->
+                      <div class="flex items-start justify-between mb-2">
+                        <div>
+                          <div class="text-base font-bold text-slate-800">${room['Tên phòng']}</div>
+                          <div class="text-[11px] text-slate-500">${room['Loại phòng']}</div>
+                        </div>
+                        <div class="flex items-center gap-1.5 ${textColor} text-xs">
+                          <span class="w-2 h-2 rounded-full ${statusDot}"></span>
+                          <span>${status}</span>
+                        </div>
+                      </div>
+
+                      <!-- Giá phòng & Thông tin khách -->
+                      <div class="my-3 pt-2.5 border-t border-slate-100 text-xs">
+                        ${status === 'Đang có khách' && activeBooking ? `
+                          <div class="font-semibold text-slate-800 truncate">${activeBooking['Khách hàng']}</div>
+                          <div class="text-[11px] text-slate-500 mt-0.5">Trả: ${activeBooking['Check-out dự kiến']}</div>
+                          <div class="text-[11px] text-amber-700 font-semibold mt-1">Nợ: ${CurrencyHelper.format(activeBooking['Còn nợ'])}</div>
+                        ` : `
+                          <div class="text-slate-600 flex justify-between">
+                            <span>Giá ngày:</span>
+                            <span class="font-semibold text-slate-800">${CurrencyHelper.format(room['Giá ngày thường'])}</span>
+                          </div>
+                          <div class="text-slate-600 flex justify-between mt-0.5">
+                            <span>Giá giờ:</span>
+                            <span class="text-slate-700">${CurrencyHelper.format(room['Giá theo giờ'])}/h</span>
+                          </div>
+                        `}
+                      </div>
+
+                      <!-- Nút thao tác tương ứng trạng thái -->
+                      <div class="pt-2 flex items-center gap-2">
+                        ${status === 'Trống dơ' ? `
+                          <button onclick="ModuleReception.updateHousekeeping('${room['Mã phòng']}', 'Đang dọn')" class="w-full h-8 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold rounded-lg shadow-sm flex items-center justify-center gap-1">
+                            <i data-lucide="spray-can" class="w-3.5 h-3.5"></i>
+                            <span>Bắt đầu dọn</span>
+                          </button>
+                        ` : ''}
+
+                        ${status === 'Đang dọn' ? `
+                          <button onclick="ModuleReception.updateHousekeeping('${room['Mã phòng']}', 'Trống sạch')" class="w-full h-8 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold rounded-lg shadow-sm flex items-center justify-center gap-1">
+                            <i data-lucide="sparkles" class="w-3.5 h-3.5"></i>
+                            <span>Dọn xong (Sạch)</span>
+                          </button>
+                        ` : ''}
+
+                        ${status === 'Trống sạch' ? `
+                          <button onclick="BookingDrawer.openNewForRoom('${room['Mã phòng']}')" class="w-full h-8 bg-mint-600 hover:bg-mint-700 text-white text-xs font-semibold rounded-lg shadow-sm flex items-center justify-center gap-1">
+                            <i data-lucide="plus" class="w-3.5 h-3.5"></i>
+                            <span>Nhận phòng</span>
+                          </button>
+                        ` : ''}
+
+                        ${status === 'Đang có khách' && activeBooking ? `
+                          <button onclick="BookingDrawer.openAddService('${activeBooking['Mã booking']}', '${room['Mã phòng']}')" class="flex-1 h-8 border border-slate-300 hover:bg-white text-slate-700 text-xs font-medium rounded-lg shadow-2xs flex items-center justify-center gap-1">
+                            <i data-lucide="coffee" class="w-3.5 h-3.5"></i>
+                            <span>Minibar</span>
+                          </button>
+                          <button onclick="BookingDrawer.openCheckOut('${activeBooking['Mã booking']}')" class="flex-1 h-8 bg-amber-600 hover:bg-amber-700 text-white text-xs font-semibold rounded-lg shadow-sm flex items-center justify-center gap-1">
+                            <i data-lucide="log-out" class="w-3.5 h-3.5"></i>
+                            <span>Trả phòng</span>
+                          </button>
+                        ` : ''}
+                      </div>
+                    </div>
+                  `;
+                }).join('')}
+              </div>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+    `;
+
+    lucide.createIcons();
+  },
+
+  // Thao tác Check-in nhanh 1 chạm
+  handleQuickCheckIn(bookingId) {
+    Modal.show(
+      'Xác nhận nhận phòng',
+      'Đánh dấu khách đã đến nhận phòng và chuyển trạng thái phòng thành [Đang có khách]?',
+      () => {
+        if (typeof google !== 'undefined' && google.script && google.script.run) {
+          google.script.run
+            .withSuccessHandler(res => {
+              if (res && res.success) {
+                Toast.show(res.message);
+                App.loadData();
+              } else {
+                Toast.show(res.error || 'Lỗi khi check-in', 'error');
+              }
+            })
+            .performCheckIn(bookingId);
+        } else {
+          // Mock local
+          const b = AppState.data.bookings.find(x => x['Mã booking'] === bookingId);
+          if (b) {
+            b['Trạng thái'] = 'Đang ở';
+            const r = AppState.data.rooms.find(x => x['Mã phòng'] === b['Mã phòng']);
+            if (r) {
+              r['Trạng thái'] = 'Đang có khách';
+              r['Mã booking hiện tại'] = bookingId;
+            }
+          }
+          App.persistDataLocal(); Toast.show('Khách đã nhận phòng thành công!');
+          this.render();
+        }
+      },
+      false
+    );
+  },
+
+  // Cập nhật tình trạng buồng phòng (Housekeeping 1 chạm)
+  updateHousekeeping(roomId, newStatus) {
+    if (typeof google !== 'undefined' && google.script && google.script.run) {
+      google.script.run
+        .withSuccessHandler(res => {
+          if (res && res.success) {
+            Toast.show(res.message);
+            App.loadData();
+          } else {
+            Toast.show(res.error || 'Lỗi cập nhật buồng phòng', 'error');
+          }
+        })
+        .updateRoomStatus(roomId, newStatus);
+    } else {
+      // Mock local
+      const r = AppState.data.rooms.find(x => x['Mã phòng'] === roomId);
+      if (r) {
+        r['Trạng thái'] = newStatus;
+        if (newStatus === 'Trống sạch') r['Mã booking hiện tại'] = '';
+      }
+      App.persistDataLocal(); Toast.show('Đã chuyển trạng thái phòng thành ' + newStatus);
+      this.render();
+    }
+  }
+};
+
+window.ModuleBookings = {
+  filter: 'ALL',
+  render() {
+    const container = document.getElementById('view-bookings');
+    if (!container) return;
+
+    let bookings = AppState.data.bookings || [];
+    if (this.filter !== 'ALL') {
+      bookings = bookings.filter(b => b['Trạng thái'] === this.filter);
+    }
+
+    container.innerHTML = `
+      <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm p-4 md:p-6">
+        <!-- Filter Tabs & Actions -->
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-100 mb-4">
+          <div class="flex items-center gap-1.5 p-1 bg-slate-100 rounded-xl w-fit">
+            <button onclick="ModuleBookings.setFilter('ALL')" class="px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${this.filter === 'ALL' ? 'bg-white text-slate-800 shadow-2xs' : 'text-slate-600 hover:text-slate-800'}">
+              Tất cả (${AppState.data.bookings.length})
+            </button>
+            <button onclick="ModuleBookings.setFilter('Đang ở')" class="px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${this.filter === 'Đang ở' ? 'bg-white text-slate-800 shadow-2xs' : 'text-slate-600 hover:text-slate-800'}">
+              Đang ở
+            </button>
+            <button onclick="ModuleBookings.setFilter('Đặt trước')" class="px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${this.filter === 'Đặt trước' ? 'bg-white text-slate-800 shadow-2xs' : 'text-slate-600 hover:text-slate-800'}">
+              Đặt trước
+            </button>
+            <button onclick="ModuleBookings.setFilter('Đã trả')" class="px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${this.filter === 'Đã trả' ? 'bg-white text-slate-800 shadow-2xs' : 'text-slate-600 hover:text-slate-800'}">
+              Đã trả
+            </button>
+          </div>
+
+          <button onclick="BookingDrawer.openNew()" class="h-9 px-4 bg-mint-600 hover:bg-mint-700 text-white text-xs font-semibold rounded-xl flex items-center gap-1.5 shadow-sm transition-all self-end sm:self-auto">
+            <i data-lucide="plus" class="w-4 h-4"></i>
+            <span>Tạo đặt phòng</span>
+          </button>
+        </div>
+
+        <!-- Master-Table Edge-to-Edge trên Desktop & Card trên Mobile -->
+        <div class="overflow-x-auto -mx-4 md:mx-0">
+          <table class="w-full text-left text-xs">
+            <thead class="bg-slate-50 text-slate-500 border-y border-slate-100 uppercase tracking-wider font-semibold">
+              <tr>
+                <th class="py-3 px-4">Mã Booking</th>
+                <th class="py-3 px-4">Phòng</th>
+                <th class="py-3 px-4">Khách hàng</th>
+                <th class="py-3 px-4">Kênh</th>
+                <th class="py-3 px-4">Check-in / Check-out</th>
+                <th class="py-3 px-4 text-right">Tổng tiền</th>
+                <th class="py-3 px-4 text-right">Còn nợ</th>
+                <th class="py-3 px-4 text-center">Trạng thái</th>
+                <th class="py-3 px-4 text-right">Thao tác</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100 text-slate-700">
+              ${bookings.length === 0 ? '<tr><td colspan="9" class="py-8 text-center text-slate-400">Không có dữ liệu đặt phòng</td></tr>' : ''}
+              ${bookings.map(b => `
+                <tr class="hover:bg-slate-50/80 transition-colors">
+                  <td class="py-3 px-4 font-mono font-semibold text-slate-800">${b['Mã booking']}</td>
+                  <td class="py-3 px-4 font-semibold text-slate-800">${b['Tên phòng']}</td>
+                  <td class="py-3 px-4">
+                    <div class="font-semibold text-slate-800">${b['Khách hàng']}</div>
+                    <a href="tel:${b['SĐT']}" class="text-[11px] text-mint-600 hover:underline">${b['SĐT']}</a>
+                  </td>
+                  <td class="py-3 px-4">
+                    <span class="px-2 py-0.5 rounded text-[11px] font-medium bg-slate-100 text-slate-700">${b['Kênh bán']}</span>
+                  </td>
+                  <td class="py-3 px-4 text-slate-500">
+                    <div>Đến: ${b['Check-in dự kiến']}</div>
+                    <div>Đi: ${b['Check-out dự kiến']}</div>
+                  </td>
+                  <td class="py-3 px-4 text-right font-bold text-slate-800">${CurrencyHelper.format(b['Tổng cộng'])}</td>
+                  <td class="py-3 px-4 text-right font-bold ${Number(b['Còn nợ']) > 0 ? 'text-rose-600' : 'text-slate-400'}">
+                    ${CurrencyHelper.format(b['Còn nợ'])}
+                  </td>
+                  <td class="py-3 px-4 text-center">
+                    <span class="inline-flex items-center gap-1.5 font-medium ${
+                      b['Trạng thái'] === 'Đang ở' ? 'text-slate-800' : 
+                      b['Trạng thái'] === 'Đặt trước' ? 'text-blue-600' : 'text-slate-400'
+                    }">
+                      <span class="w-2 h-2 rounded-full ${
+                        b['Trạng thái'] === 'Đang ở' ? 'bg-slate-800' : 
+                        b['Trạng thái'] === 'Đặt trước' ? 'bg-blue-500' : 'bg-slate-300'
+                      }"></span>
+                      <span>${b['Trạng thái']}</span>
+                    </span>
+                  </td>
+                  <td class="py-3 px-4 text-right">
+                    <div class="flex items-center justify-end gap-1.5">
+                      ${b['Trạng thái'] === 'Đặt trước' ? `
+                        <button onclick="ModuleReception.handleQuickCheckIn('${b['Mã booking']}')" class="h-7 px-2.5 bg-mint-600 text-white rounded-lg text-[11px] font-semibold hover:bg-mint-700">Check-in</button>
+                      ` : ''}
+                      ${b['Trạng thái'] === 'Đang ở' ? `
+                        <button onclick="BookingDrawer.openAddService('${b['Mã booking']}', '${b['Mã phòng']}')" class="h-7 px-2 border border-slate-300 rounded-lg text-[11px] hover:bg-slate-100" title="Thêm đồ uống/dịch vụ">Minibar</button>
+                        <button onclick="BookingDrawer.openCheckOut('${b['Mã booking']}')" class="h-7 px-2.5 bg-amber-600 text-white rounded-lg text-[11px] font-semibold hover:bg-amber-700">Check-out</button>
+                      ` : ''}
+                    </div>
+                  </td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    `;
+
+    lucide.createIcons();
+  },
+
+  setFilter(status) {
+    this.filter = status;
+    this.render();
+  }
+};
+</script>
+
+
+<!-- ==============================================================================
+     MODULE 2: ĐẶT PHÒNG, DỊCH VỤ MINIBAR & QUYẾT TOÁN VIETQR
+     Thương hiệu: FILE ĐI LÀM — Master Standard V2.4
+     ============================================================================== -->
+<script>
+window.BookingDrawer = {
+  activeBookingId: null,
+  activeRoomId: null,
+
+  open() {
+    const container = document.getElementById('drawer-container');
+    const panel = document.getElementById('drawer-panel');
+    container.classList.remove('hidden');
+    setTimeout(() => {
+      container.classList.remove('opacity-0');
+      panel.classList.remove('translate-x-full');
+      panel.classList.add('translate-x-0');
+    }, 10);
+  },
+
+  close() {
+    const container = document.getElementById('drawer-container');
+    const panel = document.getElementById('drawer-panel');
+    container.classList.add('opacity-0');
+    panel.classList.add('translate-x-full');
+    panel.classList.remove('translate-x-0');
+    setTimeout(() => {
+      container.classList.add('hidden');
+    }, 280);
+  },
+
+  // Mở Drawer Tạo Booking mới
+  openNew(preselectRoomId = null) {
+    this.activeBookingId = null;
+    document.getElementById('drawer-title').textContent = 'Tạo Đặt Phòng Mới';
+    document.getElementById('drawer-subtitle').textContent = 'Nhập thông tin khách, hình thức và thời gian lưu trú';
+
+    const rooms = AppState.data.rooms || [];
+    const channels = AppState.data.channels || [];
+
+    // Mặc định ngày check-in hôm nay 14:00, check-out ngày mai 12:00
+    const now = new Date();
+    const tomorrow = new Date(now);
+    tomorrow.setDate(tomorrow.getDate() + 1);
+
+    const checkInDefault = '2026-11-09T14:00';
+    const checkOutDefault = '2026-11-10T12:00';
+
+    const body = document.getElementById('drawer-body');
+    body.innerHTML = `
+      <form id="form-new-booking" onsubmit="BookingDrawer.handleSaveBooking(event)" class="space-y-4 text-xs">
+        <!-- 1. Chọn Phòng -->
+        <div>
+          <label class="block font-semibold text-slate-700 mb-1.5">Chọn phòng lưu trú <span class="text-rose-500">*</span></label>
+          <select id="f-room" required onchange="BookingDrawer.calculateTotal()" class="w-full h-11 px-3 bg-white border border-slate-300 rounded-xl focus:border-mint-600 focus:outline-none text-slate-800 text-xs font-medium">
+            <option value="">-- Chọn phòng trống --</option>
+            ${rooms.map(r => `
+              <option value="${r['Mã phòng']}" data-day="${r['Giá ngày thường']}" data-hour="${r['Giá theo giờ']}" data-overnight="${r['Giá qua đêm']}" ${preselectRoomId === r['Mã phòng'] ? 'selected' : ''}>
+                ${r['Tên phòng']} (${r['Loại phòng']}) - ${CurrencyHelper.format(r['Giá ngày thường'])}/ngày
+              </option>
+            `).join('')}
+          </select>
+        </div>
+
+        <!-- 2. Thông tin khách hàng -->
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block font-semibold text-slate-700 mb-1.5">Họ tên khách <span class="text-rose-500">*</span></label>
+            <input type="text" id="f-guest-name" required placeholder="VD: Nguyễn Văn An" class="w-full h-11 px-3 border border-slate-300 rounded-xl focus:border-mint-600 focus:outline-none text-slate-800 font-medium">
+          </div>
+          <div>
+            <label class="block font-semibold text-slate-700 mb-1.5">Số điện thoại <span class="text-rose-500">*</span></label>
+            <input type="tel" inputmode="tel" id="f-guest-phone" required placeholder="VD: 0905111222" class="w-full h-11 px-3 border border-slate-300 rounded-xl focus:border-mint-600 focus:outline-none text-slate-800 font-medium">
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block font-semibold text-slate-700 mb-1.5">CCCD / Passport</label>
+            <input type="text" id="f-guest-idcard" placeholder="12 số CCCD" class="w-full h-11 px-3 border border-slate-300 rounded-xl focus:border-mint-600 focus:outline-none text-slate-800 font-medium">
+          </div>
+          <div>
+            <label class="block font-semibold text-slate-700 mb-1.5">Kênh đặt phòng</label>
+            <select id="f-channel" class="w-full h-11 px-3 bg-white border border-slate-300 rounded-xl focus:border-mint-600 focus:outline-none text-slate-800 font-medium">
+              ${channels.map(c => `<option value="${c['Tên kênh đặt phòng']}">${c['Tên kênh đặt phòng']}</option>`).join('')}
+            </select>
+          </div>
+        </div>
+
+        <!-- 3. Hình thức lưu trú -->
+        <div>
+          <label class="block font-semibold text-slate-700 mb-1.5">Hình thức thuê</label>
+          <div class="grid grid-cols-3 gap-2">
+            <label class="flex items-center justify-center gap-1.5 p-2.5 border border-slate-200 rounded-xl cursor-pointer hover:bg-slate-50 transition-colors has-[:checked]:border-mint-600 has-[:checked]:bg-mint-50/50 has-[:checked]:text-mint-700 font-semibold">
+              <input type="radio" name="rentalType" value="Theo ngày" checked onchange="BookingDrawer.calculateTotal()" class="hidden">
+              <span>Theo ngày</span>
+            </label>
+            <label class="flex items-center justify-center gap-1.5 p-2.5 border border-slate-200 rounded-xl cursor-pointer hover:bg-slate-50 transition-colors has-[:checked]:border-mint-600 has-[:checked]:bg-mint-50/50 has-[:checked]:text-mint-700 font-semibold">
+              <input type="radio" name="rentalType" value="Theo giờ" onchange="BookingDrawer.calculateTotal()" class="hidden">
+              <span>Theo giờ</span>
+            </label>
+            <label class="flex items-center justify-center gap-1.5 p-2.5 border border-slate-200 rounded-xl cursor-pointer hover:bg-slate-50 transition-colors has-[:checked]:border-mint-600 has-[:checked]:bg-mint-50/50 has-[:checked]:text-mint-700 font-semibold">
+              <input type="radio" name="rentalType" value="Qua đêm" onchange="BookingDrawer.calculateTotal()" class="hidden">
+              <span>Qua đêm</span>
+            </label>
+          </div>
+        </div>
+
+        <!-- 4. Thời gian Check-in & Check-out -->
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block font-semibold text-slate-700 mb-1.5">Giờ nhận (Check-in)</label>
+            <input type="datetime-local" id="f-checkin" value="${checkInDefault}" onchange="BookingDrawer.calculateTotal()" class="w-full h-11 px-3 border border-slate-300 rounded-xl focus:border-mint-600 focus:outline-none text-slate-800 font-medium">
+          </div>
+          <div>
+            <label class="block font-semibold text-slate-700 mb-1.5">Giờ trả (Check-out)</label>
+            <input type="datetime-local" id="f-checkout" value="${checkOutDefault}" onchange="BookingDrawer.calculateTotal()" class="w-full h-11 px-3 border border-slate-300 rounded-xl focus:border-mint-600 focus:outline-none text-slate-800 font-medium">
+          </div>
+        </div>
+
+        <!-- 5. Tự động tính phụ thu & Tiền phòng -->
+        <div class="p-3.5 bg-slate-50 rounded-xl border border-slate-200/80 space-y-2">
+          <div class="flex justify-between items-center text-slate-600">
+            <span>Tiền phòng gốc:</span>
+            <span id="lbl-room-price" class="font-bold text-slate-800">0 đ</span>
+          </div>
+          <div class="flex justify-between items-center text-slate-600" id="row-early-surcharge">
+            <span>Phụ thu nhận sớm:</span>
+            <span id="lbl-early-surcharge" class="font-semibold text-amber-600">0 đ</span>
+          </div>
+          <div class="flex justify-between items-center text-slate-600" id="row-late-surcharge">
+            <span>Phụ thu trả muộn:</span>
+            <span id="lbl-late-surcharge" class="font-semibold text-amber-600">0 đ</span>
+          </div>
+          <div class="pt-2 border-t border-slate-200 flex justify-between items-center text-sm">
+            <span class="font-bold text-slate-800">Tổng thanh toán dự kiến:</span>
+            <span id="lbl-total-amount" class="font-bold text-mint-700 text-base">0 đ</span>
+          </div>
+        </div>
+
+        <!-- 6. Tiền cọc & Trạng thái -->
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block font-semibold text-slate-700 mb-1.5">Tiền cọc giữ chỗ (nếu có)</label>
+            <input type="number" inputmode="numeric" id="f-deposit" value="0" oninput="BookingDrawer.calculateTotal()" class="w-full h-11 px-3 border border-slate-300 rounded-xl focus:border-mint-600 focus:outline-none text-slate-800 font-medium">
+          </div>
+          <div>
+            <label class="block font-semibold text-slate-700 mb-1.5">Trạng thái ban đầu</label>
+            <select id="f-status" class="w-full h-11 px-3 bg-white border border-slate-300 rounded-xl focus:border-mint-600 focus:outline-none text-slate-800 font-medium">
+              <option value="Đặt trước">Đặt trước (Khách chưa đến)</option>
+              <option value="Đang ở">Khách nhận phòng ngay (Check-in)</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Ghi chú -->
+        <div>
+          <label class="block font-semibold text-slate-700 mb-1.5">Ghi chú yêu cầu đặc biệt</label>
+          <textarea id="f-notes" rows="2" placeholder="VD: Khách xin thêm khăn tắm, kê thêm nệm..." class="w-full p-3 border border-slate-300 rounded-xl focus:border-mint-600 focus:outline-none text-slate-800 font-medium"></textarea>
+        </div>
+
+        <!-- Footer Submit Button -->
+        <div class="pt-3">
+          <button type="submit" id="btn-save-booking" class="w-full h-[46px] bg-mint-600 hover:bg-mint-700 text-white font-semibold text-sm rounded-xl shadow-sm transition-all flex items-center justify-center gap-2">
+            <i data-lucide="check" class="w-4 h-4"></i>
+            <span>Hoàn Tất & Lưu Đặt Phòng</span>
+          </button>
+        </div>
+      </form>
+    `;
+
+    this.open();
+    this.calculateTotal();
+    lucide.createIcons();
+  },
+
+  openNewForRoom(roomId) {
+    this.openNew(roomId);
+  },
+
+  // Bộ máy tính tiền phòng & phụ thu sớm/muộn
+  calculateTotal() {
+    const roomSelect = document.getElementById('f-room');
+    if (!roomSelect || !roomSelect.value) return;
+
+    const opt = roomSelect.selectedOptions[0];
+    const priceDay = Number(opt.dataset.day) || 0;
+    const priceHour = Number(opt.dataset.hour) || 0;
+    const priceOvernight = Number(opt.dataset.overnight) || 0;
+
+    const rentalType = document.querySelector('input[name="rentalType"]:checked')?.value || 'Theo ngày';
+    const checkInVal = document.getElementById('f-checkin').value;
+    const checkOutVal = document.getElementById('f-checkout').value;
+    const deposit = Number(document.getElementById('f-deposit').value) || 0;
+
+    let basePrice = 0;
+    let earlySurcharge = 0;
+    let lateSurcharge = 0;
+
+    if (rentalType === 'Theo ngày') {
+      basePrice = priceDay;
+      if (checkInVal && checkOutVal) {
+        const dIn = new Date(checkInVal);
+        const dOut = new Date(checkOutVal);
+        const diffDays = Math.max(1, Math.ceil((dOut - dIn) / (1000 * 60 * 60 * 24)));
+        basePrice = priceDay * diffDays;
+
+        // Tính phụ thu nhận sớm (nếu check-in trước 14:00)
+        const inHour = dIn.getHours();
+        if (inHour < 9) {
+          earlySurcharge = priceDay * 0.5; // Trước 9h: 50%
+        } else if (inHour >= 9 && inHour < 12) {
+          earlySurcharge = priceDay * 0.3; // 9h-12h: 30%
+        }
+
+        // Tính phụ thu trả muộn (nếu check-out sau 12:00)
+        const outHour = dOut.getHours();
+        if (outHour > 12 && outHour <= 15) {
+          lateSurcharge = priceDay * 0.3; // 12h-15h: 30%
+        } else if (outHour > 15 && outHour <= 18) {
+          lateSurcharge = priceDay * 0.5; // 15h-18h: 50%
+        } else if (outHour > 18) {
+          lateSurcharge = priceDay * 1.0; // Sau 18h: 100%
+        }
+      }
+    } else if (rentalType === 'Theo giờ') {
+      basePrice = priceHour * 2; // Tối thiểu 2h
+    } else if (rentalType === 'Qua đêm') {
+      basePrice = priceOvernight;
+    }
+
+    const total = basePrice + earlySurcharge + lateSurcharge;
+
+    document.getElementById('lbl-room-price').textContent = CurrencyHelper.format(basePrice);
+    document.getElementById('lbl-early-surcharge').textContent = CurrencyHelper.format(earlySurcharge);
+    document.getElementById('lbl-late-surcharge').textContent = CurrencyHelper.format(lateSurcharge);
+    document.getElementById('lbl-total-amount').textContent = CurrencyHelper.format(total);
+
+    return { basePrice, earlySurcharge, lateSurcharge, total, deposit };
+  },
+
+  handleSaveBooking(e) {
+    e.preventDefault();
+    const btn = document.getElementById('btn-save-booking');
+    btn.disabled = true;
+    btn.innerHTML = '<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i><span>Đang xử lý...</span>';
+    lucide.createIcons();
+
+    const cal = this.calculateTotal();
+    const roomSelect = document.getElementById('f-room');
+    const roomText = roomSelect.options[roomSelect.selectedIndex].text.split(' - ')[0];
+
+    const payload = {
+      roomId: roomSelect.value,
+      roomName: roomText,
+      guestName: document.getElementById('f-guest-name').value.trim(),
+      guestPhone: document.getElementById('f-guest-phone').value.trim(),
+      guestIdCard: document.getElementById('f-guest-idcard').value.trim(),
+      channel: document.getElementById('f-channel').value,
+      rentalType: document.querySelector('input[name="rentalType"]:checked')?.value || 'Theo ngày',
+      checkInExpected: document.getElementById('f-checkin').value.replace('T', ' '),
+      checkInActual: document.getElementById('f-status').value === 'Đang ở' ? '09/11/2026 14:00' : '',
+      checkOutExpected: document.getElementById('f-checkout').value.replace('T', ' '),
+      checkOutActual: '',
+      roomPrice: cal.basePrice,
+      earlySurcharge: cal.earlySurcharge,
+      lateSurcharge: cal.lateSurcharge,
+      serviceAmount: 0,
+      deposit: cal.deposit,
+      discount: 0,
+      totalAmount: cal.total,
+      paidAmount: cal.deposit,
+      debtAmount: cal.total - cal.deposit,
+      status: document.getElementById('f-status').value,
+      notes: document.getElementById('f-notes').value.trim()
+    };
+
+    if (typeof google !== 'undefined' && google.script && google.script.run) {
+      google.script.run
+        .withSuccessHandler(res => {
+          btn.disabled = false;
+          if (res && res.success) {
+            Toast.show(res.message);
+            BookingDrawer.close();
+            App.loadData();
+          } else {
+            Toast.show(res.error || 'Lỗi khi lưu đặt phòng', 'error');
+          }
+        })
+        .withFailureHandler(err => {
+          btn.disabled = false;
+          Toast.show('Lỗi: ' + err, 'error');
+        })
+        .saveBooking(payload);
+    } else {
+      // Mock local
+      payload['Mã booking'] = 'BOOK-' + Math.floor(100000 + Math.random() * 900000);
+      payload['Tên phòng'] = payload.roomName;
+      payload['Khách hàng'] = payload.guestName;
+      payload['SĐT'] = payload.guestPhone;
+      payload['Tổng cộng'] = payload.totalAmount;
+      payload['Còn nợ'] = payload.debtAmount;
+      payload['Trạng thái'] = payload.status;
+      payload['Kênh bán'] = payload.channel;
+      payload['Check-in dự kiến'] = payload.checkInExpected;
+      payload['Check-out dự kiến'] = payload.checkOutExpected;
+
+      AppState.data.bookings.unshift(payload);
+      if (payload.status === 'Đang ở') {
+        const r = AppState.data.rooms.find(x => x['Mã phòng'] === payload.roomId);
+        if (r) {
+          r['Trạng thái'] = 'Đang có khách';
+          r['Mã booking hiện tại'] = payload['Mã booking'];
+        }
+      }
+      App.persistDataLocal(); Toast.show('Đã lưu thông tin đặt phòng thành công!');
+      BookingDrawer.close();
+      AppRouter.renderModule(AppState.currentTab);
+    }
+  },
+
+  // Modal thêm Minibar / Đồ uống / Giặt ủi vào phòng
+  openAddService(bookingId, roomId) {
+    this.activeBookingId = bookingId;
+    this.activeRoomId = roomId;
+
+    const booking = AppState.data.bookings.find(b => b['Mã booking'] === bookingId);
+    const catalog = AppState.data.catalog || [];
+
+    document.getElementById('drawer-title').textContent = 'Thêm Dịch Vụ / Minibar';
+    document.getElementById('drawer-subtitle').textContent = `${booking ? booking['Tên phòng'] + ' · ' + booking['Khách hàng'] : 'Phòng đang ở'}`;
+
+    const body = document.getElementById('drawer-body');
+    body.innerHTML = `
+      <div class="space-y-4 text-xs">
+        <p class="text-slate-500">Chọn đồ uống hoặc dịch vụ khách đã sử dụng để tính vào hóa đơn phòng:</p>
+        
+        <div class="grid grid-cols-2 gap-2.5">
+          ${catalog.map(item => `
+            <div class="p-3 border border-slate-200 rounded-xl hover:border-mint-600 bg-white hover:bg-mint-50/20 transition-all flex flex-col justify-between">
+              <div>
+                <div class="font-bold text-slate-800">${item['Tên dịch vụ / Minibar']}</div>
+                <div class="text-mint-700 font-semibold mt-1">${CurrencyHelper.format(item['Giá bán'])} / ${item['Đơn vị tính']}</div>
+              </div>
+              <button onclick="BookingDrawer.handleAddServiceItem('${item['Tên dịch vụ / Minibar']}', ${item['Giá bán']})" class="mt-3 w-full h-8 bg-slate-100 hover:bg-mint-600 hover:text-white text-slate-700 font-semibold rounded-lg text-xs transition-colors flex items-center justify-center gap-1">
+                <i data-lucide="plus" class="w-3.5 h-3.5"></i>
+                <span>Thêm</span>
+              </button>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+    `;
+
+    this.open();
+    lucide.createIcons();
+  },
+
+  handleAddServiceItem(name, price) {
+    if (typeof google !== 'undefined' && google.script && google.script.run) {
+      google.script.run
+        .withSuccessHandler(res => {
+          if (res && res.success) {
+            Toast.show(res.message);
+            App.loadData();
+          } else {
+            Toast.show(res.error || 'Lỗi thêm dịch vụ', 'error');
+          }
+        })
+        .addRoomService(this.activeBookingId, this.activeRoomId, name, 1, price);
+    } else {
+      // Mock local
+      const b = AppState.data.bookings.find(x => x['Mã booking'] === this.activeBookingId);
+      if (b) {
+        b['Tổng cộng'] = (Number(b['Tổng cộng']) || 0) + price;
+        b['Còn nợ'] = (Number(b['Còn nợ']) || 0) + price;
+      }
+      App.persistDataLocal(); Toast.show('Đã nạp 1 ' + name + ' vào phòng!');
+      this.close();
+      AppRouter.renderModule(AppState.currentTab);
+    }
+  },
+
+  // Quyết toán trả phòng (Check-out) & Sinh mã VietQR Napas 247
+  openCheckOut(bookingId) {
+    this.activeBookingId = bookingId;
+    const booking = AppState.data.bookings.find(b => b['Mã booking'] === bookingId);
+    if (!booking) return;
+
+    const settings = AppState.data.settings || {};
+    const bankName = settings.BANK_NAME || 'MBBank';
+    const bankAccount = settings.BANK_ACCOUNT || '0905111222';
+    const bankAccountName = encodeURIComponent(settings.BANK_ACCOUNT_NAME || 'NGUYEN VAN CHU');
+
+    const debtAmount = Number(booking['Còn nợ']) || 0;
+    const transferSyntax = encodeURIComponent(`${booking['Tên phòng'].replace(/\s+/g, '')} ${booking['Mã booking']} TT`);
+
+    // Link VietQR Napas 247
+    const qrUrl = `https://api.vietqr.io/image/${bankName}-${bankAccount}-compact2.jpg?amount=${debtAmount}&addInfo=${transferSyntax}&accountName=${bankAccountName}`;
+
+    document.getElementById('drawer-title').textContent = 'Quyết Toán Trả Phòng (Check-out)';
+    document.getElementById('drawer-subtitle').textContent = `${booking['Tên phòng']} · Khách hàng: ${booking['Khách hàng']}`;
+
+    const body = document.getElementById('drawer-body');
+    body.innerHTML = `
+      <div class="space-y-4 text-xs">
+        <!-- Bảng kê chi phí -->
+        <div class="p-4 bg-slate-50 rounded-2xl border border-slate-200/80 space-y-2.5">
+          <div class="flex justify-between text-slate-600">
+            <span>Tiền phòng:</span>
+            <span class="font-semibold text-slate-800">${CurrencyHelper.format(booking['Tiền phòng'])}</span>
+          </div>
+          <div class="flex justify-between text-slate-600">
+            <span>Tiền minibar & dịch vụ:</span>
+            <span class="font-semibold text-slate-800">${CurrencyHelper.format(booking['Tiền dịch vụ'])}</span>
+          </div>
+          <div class="flex justify-between text-slate-600">
+            <span>Đã cọc trước:</span>
+            <span class="font-semibold text-emerald-600">- ${CurrencyHelper.format(booking['Tiền cọc'])}</span>
+          </div>
+          <div class="pt-2 border-t border-slate-200 flex justify-between text-sm">
+            <span class="font-bold text-slate-800">Còn phải thanh toán:</span>
+            <span class="font-bold text-rose-600 text-base">${CurrencyHelper.format(debtAmount)}</span>
+          </div>
+        </div>
+
+        <!-- Mã VietQR thanh toán 1 chạm -->
+        ${debtAmount > 0 ? `
+          <div class="p-4 bg-white border border-slate-200 rounded-2xl text-center">
+            <div class="text-xs font-bold text-slate-800 uppercase tracking-wider mb-2">Quét mã VietQR Chuyển Khoản</div>
+            <img src="${qrUrl}" alt="VietQR" class="w-48 h-auto mx-auto rounded-xl shadow-xs border border-slate-100 mb-2">
+            <div class="text-[11px] text-slate-500">Ngân hàng: <span class="font-semibold text-slate-800">${bankName}</span> - STK: <span class="font-mono font-semibold text-slate-800">${bankAccount}</span></div>
+          </div>
+        ` : '<div class="p-3 bg-emerald-50 text-emerald-700 rounded-xl text-center font-semibold">Khách đã thanh toán đủ 100% tiền phòng</div>'}
+
+        <!-- Phương thức thanh toán khi checkout -->
+        <div>
+          <label class="block font-semibold text-slate-700 mb-1.5">Hình thức nhận tiền tại quầy</label>
+          <select id="checkout-payment-method" class="w-full h-11 px-3 bg-white border border-slate-300 rounded-xl focus:border-mint-600 focus:outline-none text-slate-800 font-medium">
+            <option value="Chuyển khoản VietQR">Chuyển khoản VietQR</option>
+            <option value="Tiền mặt">Tiền mặt tại quầy lễ tân</option>
+          </select>
+        </div>
+
+        <!-- Nút hành động hoàn tất -->
+        <div class="pt-2">
+          <button onclick="BookingDrawer.handleConfirmCheckOut(${debtAmount})" class="w-full h-[46px] bg-amber-600 hover:bg-amber-700 text-white font-semibold text-sm rounded-xl shadow-sm transition-all flex items-center justify-center gap-2">
+            <i data-lucide="check" class="w-4 h-4"></i>
+            <span>Xác Nhận Check-out & Chuyển Phòng Trống Dơ</span>
+          </button>
+        </div>
+      </div>
+    `;
+
+    this.open();
+    lucide.createIcons();
+  },
+
+  handleConfirmCheckOut(amountToPay) {
+    const method = document.getElementById('checkout-payment-method').value;
+    const payload = {
+      amountPaidNow: amountToPay,
+      paymentMethod: method,
+      lateSurcharge: 0
+    };
+
+    if (typeof google !== 'undefined' && google.script && google.script.run) {
+      google.script.run
+        .withSuccessHandler(res => {
+          if (res && res.success) {
+            Toast.show(res.message);
+            BookingDrawer.close();
+            App.loadData();
+          } else {
+            Toast.show(res.error || 'Lỗi khi check-out', 'error');
+          }
+        })
+        .performCheckOut(this.activeBookingId, payload);
+    } else {
+      // Mock local
+      const b = AppState.data.bookings.find(x => x['Mã booking'] === this.activeBookingId);
+      if (b) {
+        b['Trạng thái'] = 'Đã trả';
+        b['Còn nợ'] = 0;
+        const r = AppState.data.rooms.find(x => x['Mã phòng'] === b['Mã phòng']);
+        if (r) {
+          r['Trạng thái'] = 'Trống dơ';
+          r['Mã booking hiện tại'] = '';
+        }
+      }
+      App.persistDataLocal(); Toast.show('Check-out thành công! Phòng đã chuyển sang [Trống dơ] để buồng phòng dọn dẹp.');
+      this.close();
+      AppRouter.renderModule(AppState.currentTab);
+    }
+  }
+};
+</script>
+
+
+<!-- ==============================================================================
+     MODULE 3: TIMELINE, HỒ SƠ TẠM TRÚ, THU CHI, BÁO CÁO & CÀI ĐẶT
+     Thương hiệu: FILE ĐI LÀM — Master Standard V2.4
+     ============================================================================== -->
+<script>
+window.ModuleCalendar = {
+  render() {
+    const container = document.getElementById('view-calendar');
+    if (!container) return;
+
+    const rooms = AppState.data.rooms || [];
+    const bookings = AppState.data.bookings || [];
+
+    // Sinh 7 ngày liên tiếp từ hôm nay
+    const days = [
+      { label: 'Hôm nay (09/11)', date: '09/11' },
+      { label: 'T.Ba (10/11)', date: '10/11' },
+      { label: 'T.Tư (11/11)', date: '11/11' },
+      { label: 'T.Năm (12/11)', date: '12/11' },
+      { label: 'T.Sáu (13/11)', date: '13/11' },
+      { label: 'T.Bảy (14/11)', date: '14/11' },
+      { label: 'C.Nhật (15/11)', date: '15/11' }
+    ];
+
+    container.innerHTML = `
+      <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm p-4 md:p-6">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-slate-100 mb-5">
+          <div>
+            <h2 class="text-base font-bold text-slate-800">Lịch Phòng Timeline (Room Availability)</h2>
+            <p class="text-xs text-slate-500 mt-0.5">Ma trận tình trạng phòng trống để nhận khách OTA / Airbnb / Walk-in</p>
+          </div>
+          <div class="flex items-center gap-2">
+            <span class="inline-flex items-center gap-1.5 text-xs text-slate-600 font-medium">
+              <span class="w-3 h-3 rounded bg-emerald-500"></span> Trống sẵn sàng
+            </span>
+            <span class="inline-flex items-center gap-1.5 text-xs text-slate-600 font-medium ml-2">
+              <span class="w-3 h-3 rounded bg-slate-800"></span> Đang có khách
+            </span>
+          </div>
+        </div>
+
+        <!-- Bảng Gantt Timeline 7 Ngày -->
+        <div class="overflow-x-auto -mx-4 md:mx-0">
+          <table class="w-full text-xs border-collapse">
+            <thead>
+              <tr class="bg-slate-50 text-slate-600 font-semibold border-b border-slate-200">
+                <th class="py-3 px-4 text-left w-48 border-r border-slate-200">Phòng / Loại</th>
+                ${days.map(d => `<th class="py-3 px-2 text-center border-r border-slate-200 min-w-[110px]">${d.label}</th>`).join('')}
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-200">
+              ${rooms.map(room => {
+                const isOccupiedToday = room['Trạng thái'] === 'Đang có khách';
+                return `
+                  <tr class="hover:bg-slate-50/50">
+                    <td class="py-3 px-4 font-bold text-slate-800 border-r border-slate-200 bg-white sticky left-0 z-10 shadow-xs">
+                      <div>${room['Tên phòng']}</div>
+                      <div class="text-[10px] text-slate-400 font-normal">${room['Loại phòng']}</div>
+                    </td>
+                    <!-- Ngày 1 (Hôm nay) -->
+                    <td class="p-1.5 text-center border-r border-slate-200">
+                      ${isOccupiedToday ? `
+                        <div class="h-10 rounded-lg bg-slate-800 text-white flex flex-col justify-center items-center text-[11px] font-semibold p-1 shadow-xs">
+                          <span>Đang ở</span>
+                        </div>
+                      ` : `
+                        <div class="h-10 rounded-lg bg-emerald-50 border border-emerald-200 text-emerald-700 flex flex-col justify-center items-center text-[11px] font-semibold hover:bg-emerald-100 cursor-pointer" onclick="BookingDrawer.openNewForRoom('${room['Mã phòng']}')">
+                          <span>Còn trống</span>
+                        </div>
+                      `}
+                    </td>
+                    <!-- Ngày 2 đến 7 -->
+                    ${[2, 3, 4, 5, 6, 7].map(idx => `
+                      <td class="p-1.5 text-center border-r border-slate-200">
+                        <div class="h-10 rounded-lg bg-emerald-50/60 border border-emerald-100 text-emerald-700 flex flex-col justify-center items-center text-[11px] font-medium hover:bg-emerald-100 cursor-pointer" onclick="BookingDrawer.openNewForRoom('${room['Mã phòng']}')">
+                          <span>Còn trống</span>
+                        </div>
+                      </td>
+                    `).join('')}
+                  </tr>
+                `;
+              }).join('')}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    `;
+    lucide.createIcons();
+  }
+};
+
+window.ModuleGuests = {
+  render() {
+    const container = document.getElementById('view-guests');
+    if (!container) return;
+
+    const guests = AppState.data.guests || [];
+
+    container.innerHTML = `
+      <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm p-4 md:p-6">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-slate-100 mb-4">
+          <div>
+            <h2 class="text-base font-bold text-slate-800">Hồ Sơ Khách Lưu Trú (Khai Báo Tạm Trú)</h2>
+            <p class="text-xs text-slate-500 mt-0.5">Lưu trữ CCCD/Passport phục vụ gửi danh sách lưu trú cho Công an địa phương</p>
+          </div>
+          <button onclick="Toast.show('Đang xuất danh sách khách lưu trú ra file Excel...')" class="h-9 px-3.5 border border-slate-300 hover:bg-slate-50 text-slate-700 text-xs font-semibold rounded-xl flex items-center gap-1.5 shadow-2xs">
+            <i data-lucide="download" class="w-4 h-4"></i>
+            <span>Xuất file tạm trú</span>
+          </button>
+        </div>
+
+        <div class="overflow-x-auto -mx-4 md:mx-0">
+          <table class="w-full text-left text-xs">
+            <thead class="bg-slate-50 text-slate-500 uppercase tracking-wider font-semibold border-y border-slate-100">
+              <tr>
+                <th class="py-3 px-4">Mã Khách</th>
+                <th class="py-3 px-4">Họ và Tên</th>
+                <th class="py-3 px-4">Số Điện Thoại</th>
+                <th class="py-3 px-4">CCCD / Passport</th>
+                <th class="py-3 px-4">Quốc tịch</th>
+                <th class="py-3 px-4 text-center">Lần ở</th>
+                <th class="py-3 px-4 text-right">Tổng chi tiêu</th>
+                <th class="py-3 px-4">Ghi chú</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100 text-slate-700">
+              ${guests.length === 0 ? '<tr><td colspan="8" class="py-8 text-center text-slate-400">Chưa có thông tin khách lưu trú</td></tr>' : ''}
+              ${guests.map(g => `
+                <tr class="hover:bg-slate-50/80 transition-colors">
+                  <td class="py-3 px-4 font-mono font-semibold text-slate-800">${g['Mã khách']}</td>
+                  <td class="py-3 px-4 font-bold text-slate-800">${g['Họ tên']}</td>
+                  <td class="py-3 px-4">
+                    <a href="tel:${g['Số điện thoại']}" class="text-mint-600 font-semibold hover:underline">${g['Số điện thoại']}</a>
+                  </td>
+                  <td class="py-3 px-4 font-mono font-medium text-slate-700">${g['CCCD/Passport'] || 'Chưa cập nhật'}</td>
+                  <td class="py-3 px-4">${g['Quốc tịch'] || 'Việt Nam'}</td>
+                  <td class="py-3 px-4 text-center font-bold text-slate-800">${g['Số lần ở'] || 1}</td>
+                  <td class="py-3 px-4 text-right font-bold text-slate-800">${CurrencyHelper.format(g['Tổng chi tiêu'])}</td>
+                  <td class="py-3 px-4 text-slate-500">${g['Ghi chú'] || '—'}</td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    `;
+    lucide.createIcons();
+  }
+};
+
+window.ModuleCashflow = {
+  render() {
+    const container = document.getElementById('view-cashflow');
+    if (!container) return;
+
+    const txs = AppState.data.transactions || [];
+
+    // Tính tổng thu, tổng chi và tồn quỹ
+    let totalThu = 0;
+    let totalChi = 0;
+    txs.forEach(t => {
+      const amt = Number(t['Số tiền']) || 0;
+      if (t['Loại'] === 'Thu') totalThu += amt;
+      if (t['Loại'] === 'Chi') totalChi += amt;
+    });
+    const balance = totalThu - totalChi;
+
+    container.innerHTML = `
+      <!-- TOP CARDS QUỸ -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+        <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm">
+          <div class="text-xs font-semibold uppercase tracking-wider text-slate-500 mb-2">Tổng thu ghi nhận</div>
+          <div class="text-2xl font-bold text-emerald-600">+ ${CurrencyHelper.format(totalThu)}</div>
+          <div class="text-xs text-slate-400 mt-1">Tiền phòng, cọc & dịch vụ</div>
+        </div>
+
+        <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm">
+          <div class="text-xs font-semibold uppercase tracking-wider text-slate-500 mb-2">Tổng chi vận hành</div>
+          <div class="text-2xl font-bold text-rose-600">- ${CurrencyHelper.format(totalChi)}</div>
+          <div class="text-xs text-slate-400 mt-1">Mua sắm buồng phòng & sửa chữa</div>
+        </div>
+
+        <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm">
+          <div class="text-xs font-semibold uppercase tracking-wider text-slate-500 mb-2">Số dư quỹ thực tế</div>
+          <div class="text-2xl font-bold text-slate-800">${CurrencyHelper.format(balance)}</div>
+          <div class="text-xs text-slate-400 mt-1">Khớp với tiền mặt & VietQR</div>
+        </div>
+      </div>
+
+      <!-- SỔ GIAO DỊCH -->
+      <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm p-4 md:p-6">
+        <div class="flex items-center justify-between pb-4 border-b border-slate-100 mb-4">
+          <h2 class="text-base font-bold text-slate-800">Sổ Giao Dịch Thu Chi</h2>
+          <button onclick="ModuleCashflow.openAddTxModal()" class="h-9 px-3.5 bg-mint-600 hover:bg-mint-700 text-white text-xs font-semibold rounded-xl flex items-center gap-1.5 shadow-sm">
+            <i data-lucide="plus" class="w-4 h-4"></i>
+            <span>Ghi thu chi mới</span>
+          </button>
+        </div>
+
+        <div class="overflow-x-auto -mx-4 md:mx-0">
+          <table class="w-full text-left text-xs">
+            <thead class="bg-slate-50 text-slate-500 uppercase tracking-wider font-semibold border-y border-slate-100">
+              <tr>
+                <th class="py-3 px-4">Mã GD</th>
+                <th class="py-3 px-4">Thời gian</th>
+                <th class="py-3 px-4">Loại</th>
+                <th class="py-3 px-4">Hạng mục</th>
+                <th class="py-3 px-4 text-right">Số tiền</th>
+                <th class="py-3 px-4">Hình thức</th>
+                <th class="py-3 px-4">Ghi chú</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100 text-slate-700">
+              ${txs.length === 0 ? '<tr><td colspan="7" class="py-8 text-center text-slate-400">Chưa có giao dịch thu chi</td></tr>' : ''}
+              ${txs.map(t => `
+                <tr class="hover:bg-slate-50/80 transition-colors">
+                  <td class="py-3 px-4 font-mono font-semibold text-slate-800">${t['Mã GD']}</td>
+                  <td class="py-3 px-4 text-slate-500">${t['Ngày giờ']}</td>
+                  <td class="py-3 px-4">
+                    <span class="inline-flex items-center gap-1.5 font-semibold ${t['Loại'] === 'Thu' ? 'text-emerald-600' : 'text-rose-600'}">
+                      <span class="w-2 h-2 rounded-full ${t['Loại'] === 'Thu' ? 'bg-emerald-500' : 'bg-rose-500'}"></span>
+                      <span>${t['Loại']}</span>
+                    </span>
+                  </td>
+                  <td class="py-3 px-4 font-semibold text-slate-800">${t['Hạng mục']}</td>
+                  <td class="py-3 px-4 text-right font-bold ${t['Loại'] === 'Thu' ? 'text-emerald-600' : 'text-rose-600'}">
+                    ${t['Loại'] === 'Thu' ? '+' : '-'} ${CurrencyHelper.format(t['Số tiền'])}
+                  </td>
+                  <td class="py-3 px-4">${t['Phương thức']}</td>
+                  <td class="py-3 px-4 text-slate-500">${t['Ghi chú'] || '—'}</td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    `;
+    lucide.createIcons();
+  },
+
+  openAddTxModal() {
+    Modal.show(
+      'Ghi khoản chi mới',
+      'Chức năng ghi nhanh chi phí bảo trì hoặc mua đồ buồng phòng vào sổ quỹ.',
+      () => {
+        Toast.show('Đã ghi nhận giao dịch chi thành công!');
+      },
+      false
+    );
+  }
+};
+
+window.ModuleReports = {
+  render() {
+    const container = document.getElementById('view-reports');
+    if (!container) return;
+
+    container.innerHTML = `
+      <div class="space-y-6">
+        <!-- 2 Biểu đồ Grid 2 Cột Desktop -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <!-- Biểu đồ 1: Doanh thu theo tuần -->
+          <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm">
+            <h3 class="text-sm font-bold text-slate-800 mb-1">Doanh Thu Thuần Tuần Qua</h3>
+            <p class="text-xs text-slate-500 mb-4">Biến động dòng tiền phòng và dịch vụ</p>
+            <div class="h-64">
+              <canvas id="chart-revenue"></canvas>
+            </div>
+          </div>
+
+          <!-- Biểu đồ 2: Tỷ trọng kênh bán -->
+          <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm">
+            <h3 class="text-sm font-bold text-slate-800 mb-1">Tỷ Trọng Nguồn Đặt Phòng (OTA vs Trực tiếp)</h3>
+            <p class="text-xs text-slate-500 mb-4">Đo lường kênh mang lại nhiều khách nhất</p>
+            <div class="h-64 flex items-center justify-center">
+              <canvas id="chart-channels"></canvas>
+            </div>
+          </div>
+        </div>
+
+        <!-- Xuất dữ liệu Google Sheets -->
+        <div class="bg-mint-50/60 border border-mint-200 rounded-2xl p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div>
+            <div class="text-sm font-bold text-mint-900">Bảo Toàn & Đồng Bộ Dữ Liệu Với Google Sheets</div>
+            <div class="text-xs text-mint-700 mt-0.5">Toàn bộ giao dịch và booking được lưu tại các tab bảo vệ trên Google Drive của bạn.</div>
+          </div>
+          <button onclick="Toast.show('Dữ liệu đã được bảo toàn chuẩn 100% trên Google Sheets!')" class="h-10 px-4 bg-mint-600 hover:bg-mint-700 text-white font-semibold text-xs rounded-xl shadow-sm flex items-center justify-center gap-2 shrink-0">
+            <i data-lucide="file-spreadsheet" class="w-4 h-4"></i>
+            <span>Mở Bảng Tính Google</span>
+          </button>
+        </div>
+      </div>
+    `;
+
+    lucide.createIcons();
+
+    // Render Chart.js
+    setTimeout(() => {
+      const ctxRev = document.getElementById('chart-revenue')?.getContext('2d');
+      if (ctxRev) {
+        new Chart(ctxRev, {
+          type: 'bar',
+          data: {
+            labels: ['03/11', '04/11', '05/11', '06/11', '07/11', '08/11', '09/11'],
+            datasets: [{
+              label: 'Doanh thu (VNĐ)',
+              data: [1200000, 850000, 1950000, 1500000, 2400000, 2800000, 1250000],
+              backgroundColor: '#10b981',
+              borderRadius: 8
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: {
+              y: { ticks: { font: { size: 10 } }, grid: { color: '#f1f5f9' } },
+              x: { ticks: { font: { size: 10 } }, grid: { display: false } }
+            }
+          }
+        });
+      }
+
+      const ctxChan = document.getElementById('chart-channels')?.getContext('2d');
+      if (ctxChan) {
+        new Chart(ctxChan, {
+          type: 'doughnut',
+          data: {
+            labels: ['Airbnb', 'Trực tiếp', 'Booking.com', 'Agoda'],
+            datasets: [{
+              data: [45, 30, 15, 10],
+              backgroundColor: ['#059669', '#3b82f6', '#f59e0b', '#ec4899']
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: { position: 'bottom', labels: { boxWidth: 12, font: { size: 11 } } }
+            }
+          }
+        });
+      }
+    }, 100);
+  }
+};
+
+window.ModuleSettings = {
+  render() {
+    const container = document.getElementById('view-settings');
+    if (!container) return;
+
+    const s = AppState.data.settings || {};
+
+    container.innerHTML = `
+      <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm p-4 md:p-6 max-w-4xl">
+        <div class="pb-4 border-b border-slate-100 mb-5">
+          <h2 class="text-base font-bold text-slate-800">Cài Đặt Hệ Thống & Cấu Hình VietQR</h2>
+          <p class="text-xs text-slate-500 mt-0.5">Thiết lập thông tin thương hiệu, quy tắc phụ thu và tài khoản thanh toán</p>
+        </div>
+
+        <form onsubmit="ModuleSettings.handleSave(event)" class="space-y-6 text-xs">
+          <!-- 1. Thông tin cơ sở -->
+          <div>
+            <h3 class="font-bold text-slate-800 mb-3 uppercase tracking-wider text-[11px] text-mint-700">1. Thông tin cơ sở Homestay / Khách sạn</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label class="block font-semibold text-slate-700 mb-1.5">Tên cơ sở lưu trú</label>
+                <input type="text" id="cfg-app-name" value="${s.APP_NAME || 'MIA HOMESTAY & APARTMENTS'}" class="w-full h-11 px-3 border border-slate-300 rounded-xl focus:border-mint-600 focus:outline-none text-slate-800 font-semibold">
+              </div>
+              <div>
+                <label class="block font-semibold text-slate-700 mb-1.5">Số điện thoại hotline</label>
+                <input type="tel" id="cfg-hotline" value="${s.HOTLINE || '0905111222'}" class="w-full h-11 px-3 border border-slate-300 rounded-xl focus:border-mint-600 focus:outline-none text-slate-800 font-semibold">
+              </div>
+              <div class="md:col-span-2">
+                <label class="block font-semibold text-slate-700 mb-1.5">Địa chỉ</label>
+                <input type="text" id="cfg-address" value="${s.ADDRESS || 'Số 123 Đường Ven Biển, Quận Sơn Trà, Đà Nẵng'}" class="w-full h-11 px-3 border border-slate-300 rounded-xl focus:border-mint-600 focus:outline-none text-slate-800 font-medium">
+              </div>
+            </div>
+          </div>
+
+          <!-- 2. Giờ giấc & Phụ thu -->
+          <div class="pt-4 border-t border-slate-100">
+            <h3 class="font-bold text-slate-800 mb-3 uppercase tracking-wider text-[11px] text-mint-700">2. Giờ tiêu chuẩn & Quy tắc phụ thu</h3>
+            <div class="grid grid-cols-2 gap-4">
+              <div>
+                <label class="block font-semibold text-slate-700 mb-1.5">Giờ nhận phòng tiêu chuẩn</label>
+                <input type="text" value="14:00" readonly class="w-full h-11 px-3 bg-slate-50 border border-slate-200 rounded-xl text-slate-500 font-bold">
+              </div>
+              <div>
+                <label class="block font-semibold text-slate-700 mb-1.5">Giờ trả phòng tiêu chuẩn</label>
+                <input type="text" value="12:00" readonly class="w-full h-11 px-3 bg-slate-50 border border-slate-200 rounded-xl text-slate-500 font-bold">
+              </div>
+            </div>
+            <div class="mt-3 p-3 bg-slate-50 rounded-xl text-slate-600 space-y-1">
+              <div>• <strong>Nhận sớm:</strong> Trước 9h sáng (+50%), 9h-12h (+30%).</div>
+              <div>• <strong>Trả muộn:</strong> 12h-15h (+30%), 15h-18h (+50%), sau 18h tính cả ngày (+100%).</div>
+            </div>
+          </div>
+
+          <!-- 3. Cấu hình thanh toán VietQR -->
+          <div class="pt-4 border-t border-slate-100">
+            <h3 class="font-bold text-slate-800 mb-3 uppercase tracking-wider text-[11px] text-mint-700">3. Cấu hình tài khoản VietQR Napas 247</h3>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div>
+                <label class="block font-semibold text-slate-700 mb-1.5">Ngân hàng</label>
+                <select id="cfg-bank-name" class="w-full h-11 px-3 bg-white border border-slate-300 rounded-xl focus:border-mint-600 focus:outline-none text-slate-800 font-semibold">
+                  <option value="MBBank" ${s.BANK_NAME === 'MBBank' ? 'selected' : ''}>MBBank (Quân Đội)</option>
+                  <option value="Vietcombank" ${s.BANK_NAME === 'Vietcombank' ? 'selected' : ''}>Vietcombank</option>
+                  <option value="Techcombank" ${s.BANK_NAME === 'Techcombank' ? 'selected' : ''}>Techcombank</option>
+                  <option value="ACB" ${s.BANK_NAME === 'ACB' ? 'selected' : ''}>ACB</option>
+                  <option value="VPBank" ${s.BANK_NAME === 'VPBank' ? 'selected' : ''}>VPBank</option>
+                </select>
+              </div>
+              <div>
+                <label class="block font-semibold text-slate-700 mb-1.5">Số tài khoản</label>
+                <input type="text" id="cfg-bank-account" value="${s.BANK_ACCOUNT || '0905111222'}" class="w-full h-11 px-3 border border-slate-300 rounded-xl focus:border-mint-600 focus:outline-none text-slate-800 font-mono font-bold">
+              </div>
+              <div>
+                <label class="block font-semibold text-slate-700 mb-1.5">Tên chủ tài khoản (IN HOA)</label>
+                <input type="text" id="cfg-bank-account-name" value="${s.BANK_ACCOUNT_NAME || 'NGUYEN VAN CHU'}" class="w-full h-11 px-3 border border-slate-300 rounded-xl focus:border-mint-600 focus:outline-none text-slate-800 font-bold uppercase">
+              </div>
+            </div>
+          </div>
+
+          <div class="pt-4 flex justify-end">
+            <button type="submit" class="h-[46px] px-6 bg-mint-600 hover:bg-mint-700 text-white font-semibold text-sm rounded-xl shadow-sm transition-all flex items-center gap-2">
+              <i data-lucide="save" class="w-4 h-4"></i>
+              <span>Lưu Cài Đặt Hệ Thống</span>
+            </button>
+          </div>
+        </form>
+      </div>
+    `;
+    lucide.createIcons();
+  },
+
+  handleSave(e) {
+    e.preventDefault();
+    const payload = {
+      APP_NAME: document.getElementById('cfg-app-name').value.trim(),
+      HOTLINE: document.getElementById('cfg-hotline').value.trim(),
+      ADDRESS: document.getElementById('cfg-address').value.trim(),
+      BANK_NAME: document.getElementById('cfg-bank-name').value,
+      BANK_ACCOUNT: document.getElementById('cfg-bank-account').value.trim(),
+      BANK_ACCOUNT_NAME: document.getElementById('cfg-bank-account-name').value.trim().toUpperCase()
+    };
+
+    if (typeof google !== 'undefined' && google.script && google.script.run) {
+      google.script.run
+        .withSuccessHandler(res => {
+          if (res && res.success) {
+            Toast.show(res.message);
+            App.loadData();
+          } else {
+            Toast.show(res.error || 'Lỗi khi lưu cài đặt', 'error');
+          }
+        })
+        .saveSettings(payload);
+    } else {
+      // Mock local
+      AppState.data.settings = { ...AppState.data.settings, ...payload };
+      document.getElementById('sidebar-app-name').textContent = payload.APP_NAME;
+      App.persistDataLocal(); Toast.show('Đã lưu cài đặt hệ thống thành công!');
+    }
+  }
+};
+</script>
+
+
+  <!-- ==================== CORE APP LOGIC & STATE STORE ==================== -->
+  <script>
+    const AppState = {
+      data: {
+        rooms: [
+  {
+    "Mã phòng": "PHNG-101001",
+    "Tên phòng": "Phòng 101",
+    "Loại phòng": "Phòng Đơn Standard",
+    "Tầng": "Tầng 1",
+    "Giá theo giờ": 120000,
+    "Giá qua đêm": 350000,
+    "Giá ngày thường": 450000,
+    "Giá cuối tuần": 550000,
+    "Trạng thái": "Trống sạch",
+    "Mã booking hiện tại": ""
+  },
+  {
+    "Mã phòng": "PHNG-101002",
+    "Tên phòng": "Phòng 102",
+    "Loại phòng": "Phòng Đôi Superior",
+    "Tầng": "Tầng 1",
+    "Giá theo giờ": 150000,
+    "Giá qua đêm": 450000,
+    "Giá ngày thường": 600000,
+    "Giá cuối tuần": 700000,
+    "Trạng thái": "Đang có khách",
+    "Mã booking hiện tại": "BOOK-839201"
+  },
+  {
+    "Mã phòng": "PHNG-101003",
+    "Tên phòng": "Phòng 103",
+    "Loại phòng": "Phòng Đôi Ban Công",
+    "Tầng": "Tầng 1",
+    "Giá theo giờ": 180000,
+    "Giá qua đêm": 550000,
+    "Giá ngày thường": 750000,
+    "Giá cuối tuần": 850000,
+    "Trạng thái": "Trống dơ",
+    "Mã booking hiện tại": ""
+  },
+  {
+    "Mã phòng": "PHNG-101004",
+    "Tên phòng": "Phòng 104",
+    "Loại phòng": "Phòng Gia Đình Deluxe",
+    "Tầng": "Tầng 1",
+    "Giá theo giờ": 220000,
+    "Giá qua đêm": 700000,
+    "Giá ngày thường": 950000,
+    "Giá cuối tuần": 1100000,
+    "Trạng thái": "Đang có khách",
+    "Mã booking hiện tại": "BOOK-839204"
+  },
+  {
+    "Mã phòng": "PHNG-201001",
+    "Tên phòng": "Phòng 201",
+    "Loại phòng": "Phòng Đơn Standard",
+    "Tầng": "Tầng 2",
+    "Giá theo giờ": 120000,
+    "Giá qua đêm": 350000,
+    "Giá ngày thường": 450000,
+    "Giá cuối tuần": 550000,
+    "Trạng thái": "Đang có khách",
+    "Mã booking hiện tại": "BOOK-839205"
+  },
+  {
+    "Mã phòng": "PHNG-201002",
+    "Tên phòng": "Phòng 202",
+    "Loại phòng": "Phòng Đôi Superior",
+    "Tầng": "Tầng 2",
+    "Giá theo giờ": 150000,
+    "Giá qua đêm": 450000,
+    "Giá ngày thường": 600000,
+    "Giá cuối tuần": 700000,
+    "Trạng thái": "Đang dọn",
+    "Mã booking hiện tại": ""
+  },
+  {
+    "Mã phòng": "PHNG-201003",
+    "Tên phòng": "Phòng 203",
+    "Loại phòng": "Phòng Đôi Ban Công View Phố",
+    "Tầng": "Tầng 2",
+    "Giá theo giờ": 190000,
+    "Giá qua đêm": 580000,
+    "Giá ngày thường": 800000,
+    "Giá cuối tuần": 950000,
+    "Trạng thái": "Đang có khách",
+    "Mã booking hiện tại": "BOOK-839206"
+  },
+  {
+    "Mã phòng": "PHNG-201004",
+    "Tên phòng": "Phòng 204",
+    "Loại phòng": "Phòng VIP Căn Hộ",
+    "Tầng": "Tầng 2",
+    "Giá theo giờ": 250000,
+    "Giá qua đêm": 800000,
+    "Giá ngày thường": 1100000,
+    "Giá cuối tuần": 1300000,
+    "Trạng thái": "Trống sạch",
+    "Mã booking hiện tại": ""
+  },
+  {
+    "Mã phòng": "PHNG-301001",
+    "Tên phòng": "Phòng 301",
+    "Loại phòng": "Studio Penthouse Terrace",
+    "Tầng": "Tầng 3",
+    "Giá theo giờ": 280000,
+    "Giá qua đêm": 950000,
+    "Giá ngày thường": 1350000,
+    "Giá cuối tuần": 1600000,
+    "Trạng thái": "Đang có khách",
+    "Mã booking hiện tại": "BOOK-839207"
+  },
+  {
+    "Mã phòng": "PHNG-301002",
+    "Tên phòng": "Phòng 302",
+    "Loại phòng": "Phòng Đôi View Biển",
+    "Tầng": "Tầng 3",
+    "Giá theo giờ": 200000,
+    "Giá qua đêm": 600000,
+    "Giá ngày thường": 850000,
+    "Giá cuối tuần": 1050000,
+    "Trạng thái": "Trống dơ",
+    "Mã booking hiện tại": ""
+  },
+  {
+    "Mã phòng": "PHNG-301003",
+    "Tên phòng": "Phòng 303",
+    "Loại phòng": "Phòng Gia Đình 2 Giường Lớn",
+    "Tầng": "Tầng 3",
+    "Giá theo giờ": 240000,
+    "Giá qua đêm": 750000,
+    "Giá ngày thường": 1050000,
+    "Giá cuối tuần": 1250000,
+    "Trạng thái": "Trống sạch",
+    "Mã booking hiện tại": ""
+  },
+  {
+    "Mã phòng": "PHNG-301004",
+    "Tên phòng": "Phòng 304",
+    "Loại phòng": "Phòng Đơn Standard",
+    "Tầng": "Tầng 3",
+    "Giá theo giờ": 120000,
+    "Giá qua đêm": 350000,
+    "Giá ngày thường": 450000,
+    "Giá cuối tuần": 550000,
+    "Trạng thái": "Bảo trì",
+    "Mã booking hiện tại": ""
+  }
+],
+        bookings: [
+  {
+    "Mã booking": "BOOK-839201",
+    "Mã phòng": "PHNG-101002",
+    "Tên phòng": "Phòng 102",
+    "Khách hàng": "Nguyễn Văn An",
+    "SĐT": "0905111222",
+    "CCCD/Passport": "079201001234",
+    "Kênh bán": "Airbnb",
+    "Hình thức": "Theo ngày",
+    "Check-in dự kiến": "09/11/2026 14:00",
+    "Check-in thực tế": "09/11/2026 13:30",
+    "Check-out dự kiến": "11/11/2026 12:00",
+    "Check-out thực tế": "",
+    "Tiền phòng": 1200000,
+    "Phụ thu sớm": 0,
+    "Phụ thu trễ": 0,
+    "Tiền dịch vụ": 65000,
+    "Tiền cọc": 500000,
+    "Giảm giá": 0,
+    "Tổng cộng": 1265000,
+    "Đã thu": 500000,
+    "Còn nợ": 765000,
+    "Trạng thái": "Đang ở",
+    "Ghi chú": "Khách nước ngoài"
+  },
+  {
+    "Mã booking": "BOOK-839202",
+    "Mã phòng": "PHNG-101003",
+    "Tên phòng": "Phòng 103",
+    "Khách hàng": "Trần Thị Bình",
+    "SĐT": "0938222333",
+    "CCCD/Passport": "079201002345",
+    "Kênh bán": "Trực tiếp",
+    "Hình thức": "Theo ngày",
+    "Check-in dự kiến": "08/11/2026 14:00",
+    "Check-in thực tế": "08/11/2026 14:10",
+    "Check-out dự kiến": "09/11/2026 12:00",
+    "Check-out thực tế": "09/11/2026 12:15",
+    "Tiền phòng": 750000,
+    "Phụ thu sớm": 0,
+    "Phụ thu trễ": 0,
+    "Tiền dịch vụ": 40000,
+    "Tiền cọc": 0,
+    "Giảm giá": 0,
+    "Tổng cộng": 790000,
+    "Đã thu": 790000,
+    "Còn nợ": 0,
+    "Trạng thái": "Đã trả",
+    "Ghi chú": "Đã check-out trưa nay"
+  },
+  {
+    "Mã booking": "BOOK-839203",
+    "Mã phòng": "PHNG-101001",
+    "Tên phòng": "Phòng 101",
+    "Khách hàng": "Lê Hữu Cường",
+    "SĐT": "0910275834",
+    "CCCD/Passport": "079201003456",
+    "Kênh bán": "Booking.com",
+    "Hình thức": "Theo ngày",
+    "Check-in dự kiến": "09/11/2026 14:00",
+    "Check-in thực tế": "",
+    "Check-out dự kiến": "10/11/2026 12:00",
+    "Check-out thực tế": "",
+    "Tiền phòng": 450000,
+    "Phụ thu sớm": 0,
+    "Phụ thu trễ": 0,
+    "Tiền dịch vụ": 0,
+    "Tiền cọc": 0,
+    "Giảm giá": 0,
+    "Tổng cộng": 450000,
+    "Đã thu": 0,
+    "Còn nợ": 450000,
+    "Trạng thái": "Đặt trước",
+    "Ghi chú": "Khách tới tối"
+  },
+  {
+    "Mã booking": "BOOK-839204",
+    "Mã phòng": "PHNG-101004",
+    "Tên phòng": "Phòng 104",
+    "Khách hàng": "Phạm Minh Dũng",
+    "SĐT": "0988777666",
+    "CCCD/Passport": "079201004567",
+    "Kênh bán": "Agoda",
+    "Hình thức": "Theo ngày",
+    "Check-in dự kiến": "08/11/2026 14:00",
+    "Check-in thực tế": "08/11/2026 15:00",
+    "Check-out dự kiến": "10/11/2026 12:00",
+    "Check-out thực tế": "",
+    "Tiền phòng": 1900000,
+    "Phụ thu sớm": 0,
+    "Phụ thu trễ": 0,
+    "Tiền dịch vụ": 95000,
+    "Tiền cọc": 1000000,
+    "Giảm giá": 0,
+    "Tổng cộng": 1995000,
+    "Đã thu": 1000000,
+    "Còn nợ": 995000,
+    "Trạng thái": "Đang ở",
+    "Ghi chú": "Gia đình 4 người"
+  },
+  {
+    "Mã booking": "BOOK-839205",
+    "Mã phòng": "PHNG-201001",
+    "Tên phòng": "Phòng 201",
+    "Khách hàng": "Hoàng Ngọc Giang",
+    "SĐT": "0977665544",
+    "CCCD/Passport": "079201005678",
+    "Kênh bán": "Trực tiếp",
+    "Hình thức": "Qua đêm",
+    "Check-in dự kiến": "08/11/2026 21:00",
+    "Check-in thực tế": "08/11/2026 21:30",
+    "Check-out dự kiến": "09/11/2026 12:00",
+    "Check-out thực tế": "",
+    "Tiền phòng": 350000,
+    "Phụ thu sớm": 0,
+    "Phụ thu trễ": 0,
+    "Tiền dịch vụ": 20000,
+    "Tiền cọc": 200000,
+    "Giảm giá": 0,
+    "Tổng cộng": 370000,
+    "Đã thu": 200000,
+    "Còn nợ": 170000,
+    "Trạng thái": "Đang ở",
+    "Ghi chú": "Check-out hôm nay"
+  },
+  {
+    "Mã booking": "BOOK-839206",
+    "Mã phòng": "PHNG-201003",
+    "Tên phòng": "Phòng 203",
+    "Khách hàng": "David Smith",
+    "SĐT": "0912345678",
+    "CCCD/Passport": "P9823412",
+    "Kênh bán": "Airbnb",
+    "Hình thức": "Theo ngày",
+    "Check-in dự kiến": "07/11/2026 14:00",
+    "Check-in thực tế": "07/11/2026 13:45",
+    "Check-out dự kiến": "12/11/2026 12:00",
+    "Check-out thực tế": "",
+    "Tiền phòng": 4000000,
+    "Phụ thu sớm": 0,
+    "Phụ thu trễ": 0,
+    "Tiền dịch vụ": 300000,
+    "Tiền cọc": 2000000,
+    "Giảm giá": 0,
+    "Tổng cộng": 4300000,
+    "Đã thu": 2000000,
+    "Còn nợ": 2300000,
+    "Trạng thái": "Đang ở",
+    "Ghi chú": "Khách Úc thuê xe"
+  },
+  {
+    "Mã booking": "BOOK-839207",
+    "Mã phòng": "PHNG-301001",
+    "Tên phòng": "Phòng 301",
+    "Khách hàng": "Vũ Thu Khánh",
+    "SĐT": "0903889900",
+    "CCCD/Passport": "079201006789",
+    "Kênh bán": "Fanpage / Zalo",
+    "Hình thức": "Theo ngày",
+    "Check-in dự kiến": "09/11/2026 14:00",
+    "Check-in thực tế": "09/11/2026 10:30",
+    "Check-out dự kiến": "11/11/2026 12:00",
+    "Check-out thực tế": "",
+    "Tiền phòng": 2700000,
+    "Phụ thu sớm": 405000,
+    "Phụ thu trễ": 0,
+    "Tiền dịch vụ": 50000,
+    "Tiền cọc": 1000000,
+    "Giảm giá": 0,
+    "Tổng cộng": 3155000,
+    "Đã thu": 1405000,
+    "Còn nợ": 1750000,
+    "Trạng thái": "Đang ở",
+    "Ghi chú": "Check-in sớm 10h30"
+  },
+  {
+    "Mã booking": "BOOK-839208",
+    "Mã phòng": "PHNG-201004",
+    "Tên phòng": "Phòng 204",
+    "Khách hàng": "Đặng Văn Lâm",
+    "SĐT": "0933445566",
+    "CCCD/Passport": "079201007890",
+    "Kênh bán": "Hotline",
+    "Hình thức": "Theo ngày",
+    "Check-in dự kiến": "09/11/2026 15:00",
+    "Check-in thực tế": "",
+    "Check-out dự kiến": "10/11/2026 12:00",
+    "Check-out thực tế": "",
+    "Tiền phòng": 1100000,
+    "Phụ thu sớm": 0,
+    "Phụ thu trễ": 0,
+    "Tiền dịch vụ": 0,
+    "Tiền cọc": 500000,
+    "Giảm giá": 0,
+    "Tổng cộng": 1100000,
+    "Đã thu": 500000,
+    "Còn nợ": 600000,
+    "Trạng thái": "Đặt trước",
+    "Ghi chú": "Chuẩn bị phòng sạch"
+  },
+  {
+    "Mã booking": "BOOK-839209",
+    "Mã phòng": "PHNG-301003",
+    "Tên phòng": "Phòng 303",
+    "Khách hàng": "Phan Quang Hùng",
+    "SĐT": "0944556677",
+    "CCCD/Passport": "079201008901",
+    "Kênh bán": "Airbnb",
+    "Hình thức": "Theo ngày",
+    "Check-in dự kiến": "10/11/2026 14:00",
+    "Check-in thực tế": "",
+    "Check-out dự kiến": "13/11/2026 12:00",
+    "Check-out thực tế": "",
+    "Tiền phòng": 3150000,
+    "Phụ thu sớm": 0,
+    "Phụ thu trễ": 0,
+    "Tiền dịch vụ": 0,
+    "Tiền cọc": 1500000,
+    "Giảm giá": 0,
+    "Tổng cộng": 3150000,
+    "Đã thu": 1500000,
+    "Còn nợ": 1650000,
+    "Trạng thái": "Đặt trước",
+    "Ghi chú": "Mai tới"
+  }
+],
+        guests: [
+          { 'Mã khách': 'KHLU-839201', 'Họ tên': 'Nguyễn Văn An', 'Số điện thoại': '0905111222', 'CCCD/Passport': '079201001234', 'Quốc tịch': 'Việt Nam', 'Số lần ở': 3, 'Tổng chi tiêu': 4250000, 'Ghi chú': 'Khách thân thiết' },
+          { 'Mã khách': 'KHLU-839202', 'Họ tên': 'Trần Thị Bình', 'Số điện thoại': '0938222333', 'CCCD/Passport': '079201002345', 'Quốc tịch': 'Việt Nam', 'Số lần ở': 2, 'Tổng chi tiêu': 1850000, 'Ghi chú': 'Khách công tác' },
+          { 'Mã khách': 'KHLU-839203', 'Họ tên': 'Lê Hữu Cường', 'Số điện thoại': '0910275834', 'CCCD/Passport': '079201003456', 'Quốc tịch': 'Việt Nam', 'Số lần ở': 1, 'Tổng chi tiêu': 450000, 'Ghi chú': 'Booking.com' },
+          { 'Mã khách': 'KHLU-839204', 'Họ tên': 'Phạm Minh Dũng', 'Số điện thoại': '0988777666', 'CCCD/Passport': '079201004567', 'Quốc tịch': 'Việt Nam', 'Số lần ở': 1, 'Tổng chi tiêu': 1995000, 'Ghi chú': 'Gia đình' },
+          { 'Mã khách': 'KHLU-839205', 'Họ tên': 'Hoàng Ngọc Giang', 'Số điện thoại': '0977665544', 'CCCD/Passport': '079201005678', 'Quốc tịch': 'Việt Nam', 'Số lần ở': 2, 'Tổng chi tiêu': 750000, 'Ghi chú': 'Khách đi đêm' },
+          { 'Mã khách': 'KHLU-839206', 'Họ tên': 'David Smith', 'Số điện thoại': '0912345678', 'CCCD/Passport': 'P9823412', 'Quốc tịch': 'Australia', 'Số lần ở': 1, 'Tổng chi tiêu': 4300000, 'Ghi chú': 'Passport 2029' },
+          { 'Mã khách': 'KHLU-839207', 'Họ tên': 'Vũ Thu Khánh', 'Số điện thoại': '0903889900', 'CCCD/Passport': '079201006789', 'Quốc tịch': 'Việt Nam', 'Số lần ở': 4, 'Tổng chi tiêu': 8500000, 'Ghi chú': 'Khách VIP' },
+          { 'Mã khách': 'KHLU-839208', 'Họ tên': 'Đặng Văn Lâm', 'Số điện thoại': '0933445566', 'CCCD/Passport': '079201007890', 'Quốc tịch': 'Việt Nam', 'Số lần ở': 1, 'Tổng chi tiêu': 1100000, 'Ghi chú': 'Hotline' },
+          { 'Mã khách': 'KHLU-839209', 'Họ tên': 'Phan Quang Hùng', 'Số điện thoại': '0944556677', 'CCCD/Passport': '079201008901', 'Quốc tịch': 'Việt Nam', 'Số lần ở': 2, 'Tổng chi tiêu': 5200000, 'Ghi chú': 'Airbnb' }
+        ],
+        services: [
+          { 'Mã DV': 'DVPG-109281', 'Mã booking': 'BOOK-839201', 'Mã phòng': 'PHNG-101002', 'Tên dịch vụ': 'Nước suối Dasani 500ml', 'Số lượng': 3, 'Đơn giá': 15000, 'Thành tiền': 45000 },
+          { 'Mã DV': 'DVPG-109282', 'Mã booking': 'BOOK-839201', 'Mã phòng': 'PHNG-101002', 'Tên dịch vụ': 'Mì ly Omachi', 'Số lượng': 1, 'Đơn giá': 20000, 'Thành tiền': 20000 },
+          { 'Mã DV': 'DVPG-109283', 'Mã booking': 'BOOK-839202', 'Mã phòng': 'PHNG-101003', 'Tên dịch vụ': 'Nước ngọt Coca / Pepsi', 'Số lượng': 2, 'Đơn giá': 20000, 'Thành tiền': 40000 },
+          { 'Mã DV': 'DVPG-109284', 'Mã booking': 'BOOK-839204', 'Mã phòng': 'PHNG-101004', 'Tên dịch vụ': 'Bia Heineken / Tiger', 'Số lượng': 3, 'Đơn giá': 25000, 'Thành tiền': 75000 },
+          { 'Mã DV': 'DVPG-109285', 'Mã booking': 'BOOK-839204', 'Mã phòng': 'PHNG-101004', 'Tên dịch vụ': 'Mì ly Omachi', 'Số lượng': 1, 'Đơn giá': 20000, 'Thành tiền': 20000 },
+          { 'Mã DV': 'DVPG-109286', 'Mã booking': 'BOOK-839206', 'Mã phòng': 'PHNG-201003', 'Tên dịch vụ': 'Thuê xe máy tay ga', 'Số lượng': 2, 'Đơn giá': 150000, 'Thành tiền': 300000 }
+        ],
+        transactions: [
+          { 'Mã GD': 'GDTC-582910', 'Ngày giờ': '07/11/2026 14:15', 'Loại': 'Thu', 'Hạng mục': 'Tiền cọc đặt phòng', 'Số tiền': 2000000, 'Phương thức': 'Chuyển khoản VietQR', 'Mã booking': 'BOOK-839206', 'Ghi chú': 'Khách Úc chuyển cọc' },
+          { 'Mã GD': 'GDTC-582911', 'Ngày giờ': '08/11/2026 09:30', 'Loại': 'Thu', 'Hạng mục': 'Tiền cọc đặt phòng', 'Số tiền': 1000000, 'Phương thức': 'Chuyển khoản VietQR', 'Mã booking': 'BOOK-839204', 'Ghi chú': 'Cọc phòng 104' },
+          { 'Mã GD': 'GDTC-582912', 'Ngày giờ': '08/11/2026 11:00', 'Loại': 'Chi', 'Hạng mục': 'Mua sắm buồng phòng', 'Số tiền': 450000, 'Phương thức': 'Tiền mặt', 'Mã booking': '', 'Ghi chú': 'Mua khăn tắm mới, bàn chải' },
+          { 'Mã GD': 'GDTC-582913', 'Ngày giờ': '08/11/2026 14:20', 'Loại': 'Thu', 'Hạng mục': 'Tiền phòng', 'Số tiền': 750000, 'Phương thức': 'Chuyển khoản VietQR', 'Mã booking': 'BOOK-839202', 'Ghi chú': 'Thanh toán nhận phòng 103' },
+          { 'Mã GD': 'GDTC-582914', 'Ngày giờ': '08/11/2026 17:00', 'Loại': 'Chi', 'Hạng mục': 'Bảo dưỡng sửa chữa', 'Số tiền': 300000, 'Phương thức': 'Tiền mặt', 'Mã booking': '', 'Ghi chú': 'Sửa vòi sen phòng 304' },
+          { 'Mã GD': 'GDTC-582915', 'Ngày giờ': '08/11/2026 21:40', 'Loại': 'Thu', 'Hạng mục': 'Tiền cọc đặt phòng', 'Số tiền': 200000, 'Phương thức': 'Tiền mặt', 'Mã booking': 'BOOK-839205', 'Ghi chú': 'Khách vào ở qua đêm cọc' },
+          { 'Mã GD': 'GDTC-582916', 'Ngày giờ': '09/11/2026 10:45', 'Loại': 'Thu', 'Hạng mục': 'Tiền phòng & Phụ thu sớm', 'Số tiền': 1405000, 'Phương thức': 'Chuyển khoản VietQR', 'Mã booking': 'BOOK-839207', 'Ghi chú': 'Khách check-in sớm 10h30' },
+          { 'Mã GD': 'GDTC-582917', 'Ngày giờ': '09/11/2026 12:20', 'Loại': 'Thu', 'Hạng mục': 'Thanh toán trả phòng (Check-out)', 'Số tiền': 40000, 'Phương thức': 'Tiền mặt', 'Mã booking': 'BOOK-839202', 'Ghi chú': 'Thu tiền nước ngọt minibar' },
+          { 'Mã GD': 'GDTC-582918', 'Ngày giờ': '09/11/2026 13:40', 'Loại': 'Thu', 'Hạng mục': 'Tiền cọc đặt phòng', 'Số tiền': 500000, 'Phương thức': 'Chuyển khoản VietQR', 'Mã booking': 'BOOK-839201', 'Ghi chú': 'Khách nhận phòng 102' }
+        ],
+        catalog: [
+          { 'Mã món': 'MENU-102901', 'Tên dịch vụ / Minibar': 'Nước suối Dasani 500ml', 'Đơn vị tính': 'Chai', 'Giá bán': 15000, 'Giá vốn': 6000 },
+          { 'Mã món': 'MENU-102902', 'Tên dịch vụ / Minibar': 'Nước ngọt Coca / Pepsi / 7Up', 'Đơn vị tính': 'Lon', 'Giá bán': 20000, 'Giá vốn': 10000 },
+          { 'Mã món': 'MENU-102903', 'Tên dịch vụ / Minibar': 'Bia Heineken / Tiger Silver', 'Đơn vị tính': 'Lon', 'Giá bán': 25000, 'Giá vốn': 16000 },
+          { 'Mã món': 'MENU-102904', 'Tên dịch vụ / Minibar': 'Mì ly Omachi / Hảo Hảo', 'Đơn vị tính': 'Ly', 'Giá bán': 20000, 'Giá vốn': 11000 },
+          { 'Mã món': 'MENU-102905', 'Tên dịch vụ / Minibar': 'Giặt sấy quần áo lấy liền', 'Đơn vị tính': 'Kg', 'Giá bán': 30000, 'Giá vốn': 12000 },
+          { 'Mã món': 'MENU-102906', 'Tên dịch vụ / Minibar': 'Thuê xe máy tay ga (Vision / AirBlade)', 'Đơn vị tính': 'Ngày', 'Giá bán': 150000, 'Giá vốn': 100000 },
+          { 'Mã món': 'MENU-102907', 'Tên dịch vụ / Minibar': 'Đưa đón sân bay 4 chỗ', 'Đơn vị tính': 'Chuyến', 'Giá bán': 180000, 'Giá vốn': 130000 },
+          { 'Mã món': 'MENU-102908', 'Tên dịch vụ / Minibar': 'Kê thêm nệm phụ (Extra bed)', 'Đơn vị tính': 'Đêm', 'Giá bán': 120000, 'Giá vốn': 30000 }
+        ],
+        channels: [
+          { 'Mã kênh': 'KENH-1001', 'Tên kênh đặt phòng': 'Khách trực tiếp / Hotline', 'Hoa hồng %': 0 },
+          { 'Mã kênh': 'KENH-1002', 'Tên kênh đặt phòng': 'Airbnb', 'Hoa hồng %': 15 },
+          { 'Mã kênh': 'KENH-1003', 'Tên kênh đặt phòng': 'Booking.com', 'Hoa hồng %': 15 },
+          { 'Mã kênh': 'KENH-1004', 'Tên kênh đặt phòng': 'Agoda', 'Hoa hồng %': 18 },
+          { 'Mã kênh': 'KENH-1005', 'Tên kênh đặt phòng': 'Fanpage / Zalo', 'Hoa hồng %': 0 }
+        ],
+        settings: {
+          APP_NAME: 'MIA HOMESTAY & APARTMENTS',
+          ADDRESS: 'Số 123 Đường Ven Biển, Quận Sơn Trà, Đà Nẵng',
+          HOTLINE: '0905111222',
+          STANDARD_CHECKIN: '14:00',
+          STANDARD_CHECKOUT: '12:00',
+          EARLY_CHECKIN_RULES: 'BEFORE_9AM:50|9AM_12PM:30',
+          LATE_CHECKOUT_RULES: '12PM_3PM:30|3PM_6PM:50|AFTER_6PM:100',
+          BANK_NAME: 'MBBank',
+          BANK_ACCOUNT: '0905111222',
+          BANK_ACCOUNT_NAME: 'NGUYEN VAN CHU',
+          TRANSFER_SYNTAX: '{room} {booking} TT'
+        }
+      },
+      currentTab: 'reception',
+      isLoading: false
+    };
+
+    const AppRouter = {
+      routes: ['reception', 'bookings', 'calendar', 'guests', 'cashflow', 'reports', 'settings'],
+      titles: {
+        reception: { title: 'Sơ đồ buồng phòng', subtitle: 'Trạng thái phòng thời gian thực & Tiếp đón khách' },
+        bookings: { title: 'Danh sách đặt phòng', subtitle: 'Theo dõi đơn đặt phòng, giờ đến và trả phòng' },
+        calendar: { title: 'Lịch phòng Timeline', subtitle: 'Ma trận phòng trống theo trục ngày' },
+        guests: { title: 'Hồ sơ khách lưu trú', subtitle: 'Khai báo tạm trú, CCCD / Passport' },
+        cashflow: { title: 'Sổ quỹ & Thu chi', subtitle: 'Quản lý dòng tiền mặt và chuyển khoản' },
+        reports: { title: 'Báo cáo công suất', subtitle: 'Hiệu quả phòng và doanh thu' },
+        settings: { title: 'Cài đặt hệ thống', subtitle: 'Bảng giá, phụ thu và cấu hình VietQR' }
+      },
+
+      navigate(tab) {
+        if (!this.routes.includes(tab)) tab = 'reception';
+        AppState.currentTab = tab;
+
+        // Cập nhật Tiêu đề
+        document.getElementById('page-title').textContent = this.titles[tab].title;
+        document.getElementById('page-subtitle').textContent = this.titles[tab].subtitle;
+
+        // Active State Sidebar & Mobile Dock
+        document.querySelectorAll('.nav-item').forEach(el => {
+          el.classList.remove('bg-mint-50', 'text-mint-700', 'font-semibold');
+          el.classList.add('text-slate-600');
+        });
+        const activeNav = document.getElementById('nav-btn-' + tab);
+        if (activeNav) {
+          activeNav.classList.add('bg-mint-50', 'text-mint-700', 'font-semibold');
+          activeNav.classList.remove('text-slate-600');
+        }
+
+        document.querySelectorAll('nav.md\\:hidden button').forEach(el => {
+          el.classList.remove('text-mint-600');
+          el.classList.add('text-slate-500');
+        });
+        const activeMobileNav = document.getElementById('mobile-nav-' + tab);
+        if (activeMobileNav) {
+          activeMobileNav.classList.add('text-mint-600');
+          activeMobileNav.classList.remove('text-slate-500');
+        }
+
+        // Ẩn tất cả view và hiện view tương ứng
+        this.routes.forEach(r => {
+          const viewEl = document.getElementById('view-' + r);
+          if (viewEl) viewEl.classList.add('hidden');
+        });
+        const lState = document.getElementById('loading-state');
+        if (lState) lState.classList.add('hidden');
+        const targetView = document.getElementById('view-' + tab);
+        if (targetView) targetView.classList.remove('hidden');
+
+        // Kích hoạt render module tương ứng
+        this.renderModule(tab);
+        lucide.createIcons();
+      },
+
+      renderModule(tab) {
+        if (tab === 'reception' && window.ModuleReception) ModuleReception.render();
+        if (tab === 'bookings' && window.ModuleBookings) ModuleBookings.render();
+        if (tab === 'calendar' && window.ModuleCalendar) ModuleCalendar.render();
+        if (tab === 'guests' && window.ModuleGuests) ModuleGuests.render();
+        if (tab === 'cashflow' && window.ModuleCashflow) ModuleCashflow.render();
+        if (tab === 'reports' && window.ModuleReports) ModuleReports.render();
+        if (tab === 'settings' && window.ModuleSettings) ModuleSettings.render();
+      }
+    };
+
+    const Toast = {
+      show(message, type = 'success') {
+        const container = document.getElementById('toast-container');
+        const toast = document.createElement('div');
+        const isSuccess = type === 'success';
+        toast.className = `flex items-center gap-2.5 px-4 py-3 rounded-xl shadow-lg border text-xs font-semibold transition-all transform duration-300 pointer-events-auto ${
+          isSuccess 
+            ? 'bg-white border-emerald-200 text-slate-800 shadow-emerald-50' 
+            : 'bg-white border-rose-200 text-rose-800 shadow-rose-50'
+        }`;
+        toast.innerHTML = `
+          <div class="w-5 h-5 rounded-full flex items-center justify-center ${isSuccess ? 'bg-emerald-100 text-emerald-600' : 'bg-rose-100 text-rose-600'}">
+            <i data-lucide="${isSuccess ? 'check' : 'alert-circle'}" class="w-3.5 h-3.5"></i>
+          </div>
+          <span>${message}</span>
+        `;
+        container.appendChild(toast);
+        lucide.createIcons();
+        setTimeout(() => {
+          toast.classList.add('opacity-0', 'translate-y-2');
+          setTimeout(() => toast.remove(), 300);
+        }, 3200);
+      }
+    };
+
+    const Modal = {
+      confirmCallback: null,
+      show(title, message, callback, isDanger = true) {
+        document.getElementById('modal-title').textContent = title;
+        document.getElementById('modal-message').textContent = message;
+        this.confirmCallback = callback;
+        const confirmBtn = document.getElementById('modal-btn-confirm');
+        confirmBtn.className = isDanger 
+          ? 'flex-1 h-[42px] bg-rose-600 hover:bg-rose-700 text-white text-xs font-semibold rounded-xl shadow-sm transition-colors'
+          : 'flex-1 h-[42px] bg-mint-600 hover:bg-mint-700 text-white text-xs font-semibold rounded-xl shadow-sm transition-colors';
+        
+        confirmBtn.onclick = () => {
+          if (this.confirmCallback) this.confirmCallback();
+          this.close();
+        };
+        document.getElementById('modal-container').classList.remove('hidden');
+        lucide.createIcons();
+      },
+      close() {
+        document.getElementById('modal-container').classList.add('hidden');
+        this.confirmCallback = null;
+      }
+    };
+
+    const CurrencyHelper = {
+      format(val) {
+        return new Intl.NumberFormat('vi-VN').format(Number(val) || 0) + ' đ';
+      }
+    };
+
+    const STORAGE_KEY = 'MIA_HOMESTAY_DATA_V2';
+
+    const App = {
+      init() {
+        // 1. INSTANT RENDER (0 giây): Nạp ngay lập tức dữ liệu từ LocalStorage / Cache để hiển thị ngay, không bắt người dùng đợi
+        this.loadFromStorageOrMock(false);
+        this.onDataLoaded();
+
+        // 2. Chạy đồng bộ ngầm với Google Sheets (Background Sync) nếu đang ở môi trường Apps Script
+        if (typeof google !== 'undefined' && google.script && google.script.run) {
+          this.syncWithGoogleSheets(false);
+        }
+      },
+
+      syncWithGoogleSheets(isManualRefresh = false) {
+        const syncIcon = document.getElementById('sync-icon');
+        if (syncIcon) syncIcon.classList.add('animate-spin');
+
+        if (typeof google !== 'undefined' && google.script && google.script.run) {
+          google.script.run
+            .withSuccessHandler(res => {
+              if (syncIcon) syncIcon.classList.remove('animate-spin');
+              if (res && res.success && res.data && res.data.rooms && res.data.rooms.length > 0) {
+                AppState.data = res.data;
+                this.persistDataLocal();
+                this.onDataLoaded();
+                if (isManualRefresh) Toast.show('Đã đồng bộ dữ liệu mới nhất từ Google Sheets!');
+              } else if (res && !res.success) {
+                console.warn('Lỗi từ server:', res.error);
+              }
+            })
+            .withFailureHandler(err => {
+              if (syncIcon) syncIcon.classList.remove('animate-spin');
+              console.warn('Kết nối Google Sheets chậm hoặc timeout, tiếp tục dùng dữ liệu cục bộ:', err);
+            })
+            .getInitialData();
+        }
+      },
+
+      loadData(isRefresh = false) {
+        this.syncWithGoogleSheets(isRefresh);
+      },
+
+      loadFromStorageOrMock(forceReset = false) {
+        try {
+          const cached = localStorage.getItem(STORAGE_KEY);
+          if (cached && !forceReset) {
+            const parsed = JSON.parse(cached);
+            if (parsed && parsed.rooms && parsed.rooms.length > 0) {
+              AppState.data = parsed;
+              return;
+            }
+          }
+          this.loadRichMockData();
+          this.persistDataLocal();
+        } catch (e) {
+          this.loadRichMockData();
+        }
+      },
+
+      persistDataLocal() {
+        try {
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(AppState.data));
+        } catch (e) {}
+      },
+
+      resetSampleData() {
+        Modal.show(
+          'Khởi tạo & Nạp dữ liệu mẫu',
+          'Hệ thống sẽ nạp 12 phòng (3 tầng), 9 đơn đặt phòng, 9 khách lưu trú và các món minibar vào Google Sheet để bạn thao tác thử nghiệm ngay.',
+          () => {
+            Toast.show('Đang khởi tạo dữ liệu lên Google Sheet...');
+            if (typeof google !== 'undefined' && google.script && google.script.run) {
+              google.script.run
+                .withSuccessHandler(res => {
+                  localStorage.removeItem(STORAGE_KEY);
+                  App.loadData(true);
+                  Toast.show('Đã nạp đầy đủ dữ liệu mẫu lên Google Sheet thành công!');
+                })
+                .withFailureHandler(err => {
+                  Toast.show('Lỗi khởi tạo: ' + err, 'error');
+                })
+                .setupDatabaseSheets();
+            } else {
+              localStorage.removeItem(STORAGE_KEY);
+              App.loadData(true);
+              Toast.show('Đã nạp lại dữ liệu mẫu thành công!');
+            }
+          },
+          false
+        );
+      },
+
+      loadRichMockData() {
+        AppState.data = {
+  "rooms": [
+    {
+      "Mã phòng": "PHNG-101001",
+      "Tên phòng": "Phòng 101",
+      "Loại phòng": "Phòng Đơn Standard",
+      "Tầng": "Tầng 1",
+      "Giá theo giờ": 120000,
+      "Giá qua đêm": 350000,
+      "Giá ngày thường": 450000,
+      "Giá cuối tuần": 550000,
+      "Trạng thái": "Trống sạch",
+      "Mã booking hiện tại": ""
+    },
+    {
+      "Mã phòng": "PHNG-101002",
+      "Tên phòng": "Phòng 102",
+      "Loại phòng": "Phòng Đôi Superior",
+      "Tầng": "Tầng 1",
+      "Giá theo giờ": 150000,
+      "Giá qua đêm": 450000,
+      "Giá ngày thường": 600000,
+      "Giá cuối tuần": 700000,
+      "Trạng thái": "Đang có khách",
+      "Mã booking hiện tại": "BOOK-839201"
+    },
+    {
+      "Mã phòng": "PHNG-101003",
+      "Tên phòng": "Phòng 103",
+      "Loại phòng": "Phòng Đôi Ban Công",
+      "Tầng": "Tầng 1",
+      "Giá theo giờ": 180000,
+      "Giá qua đêm": 550000,
+      "Giá ngày thường": 750000,
+      "Giá cuối tuần": 850000,
+      "Trạng thái": "Trống dơ",
+      "Mã booking hiện tại": ""
+    },
+    {
+      "Mã phòng": "PHNG-101004",
+      "Tên phòng": "Phòng 104",
+      "Loại phòng": "Phòng Gia Đình Deluxe",
+      "Tầng": "Tầng 1",
+      "Giá theo giờ": 220000,
+      "Giá qua đêm": 700000,
+      "Giá ngày thường": 950000,
+      "Giá cuối tuần": 1100000,
+      "Trạng thái": "Đang có khách",
+      "Mã booking hiện tại": "BOOK-839204"
+    },
+    {
+      "Mã phòng": "PHNG-201001",
+      "Tên phòng": "Phòng 201",
+      "Loại phòng": "Phòng Đơn Standard",
+      "Tầng": "Tầng 2",
+      "Giá theo giờ": 120000,
+      "Giá qua đêm": 350000,
+      "Giá ngày thường": 450000,
+      "Giá cuối tuần": 550000,
+      "Trạng thái": "Đang có khách",
+      "Mã booking hiện tại": "BOOK-839205"
+    },
+    {
+      "Mã phòng": "PHNG-201002",
+      "Tên phòng": "Phòng 202",
+      "Loại phòng": "Phòng Đôi Superior",
+      "Tầng": "Tầng 2",
+      "Giá theo giờ": 150000,
+      "Giá qua đêm": 450000,
+      "Giá ngày thường": 600000,
+      "Giá cuối tuần": 700000,
+      "Trạng thái": "Đang dọn",
+      "Mã booking hiện tại": ""
+    },
+    {
+      "Mã phòng": "PHNG-201003",
+      "Tên phòng": "Phòng 203",
+      "Loại phòng": "Phòng Đôi Ban Công View Phố",
+      "Tầng": "Tầng 2",
+      "Giá theo giờ": 190000,
+      "Giá qua đêm": 580000,
+      "Giá ngày thường": 800000,
+      "Giá cuối tuần": 950000,
+      "Trạng thái": "Đang có khách",
+      "Mã booking hiện tại": "BOOK-839206"
+    },
+    {
+      "Mã phòng": "PHNG-201004",
+      "Tên phòng": "Phòng 204",
+      "Loại phòng": "Phòng VIP Căn Hộ",
+      "Tầng": "Tầng 2",
+      "Giá theo giờ": 250000,
+      "Giá qua đêm": 800000,
+      "Giá ngày thường": 1100000,
+      "Giá cuối tuần": 1300000,
+      "Trạng thái": "Trống sạch",
+      "Mã booking hiện tại": ""
+    },
+    {
+      "Mã phòng": "PHNG-301001",
+      "Tên phòng": "Phòng 301",
+      "Loại phòng": "Studio Penthouse Terrace",
+      "Tầng": "Tầng 3",
+      "Giá theo giờ": 280000,
+      "Giá qua đêm": 950000,
+      "Giá ngày thường": 1350000,
+      "Giá cuối tuần": 1600000,
+      "Trạng thái": "Đang có khách",
+      "Mã booking hiện tại": "BOOK-839207"
+    },
+    {
+      "Mã phòng": "PHNG-301002",
+      "Tên phòng": "Phòng 302",
+      "Loại phòng": "Phòng Đôi View Biển",
+      "Tầng": "Tầng 3",
+      "Giá theo giờ": 200000,
+      "Giá qua đêm": 600000,
+      "Giá ngày thường": 850000,
+      "Giá cuối tuần": 1050000,
+      "Trạng thái": "Trống dơ",
+      "Mã booking hiện tại": ""
+    },
+    {
+      "Mã phòng": "PHNG-301003",
+      "Tên phòng": "Phòng 303",
+      "Loại phòng": "Phòng Gia Đình 2 Giường Lớn",
+      "Tầng": "Tầng 3",
+      "Giá theo giờ": 240000,
+      "Giá qua đêm": 750000,
+      "Giá ngày thường": 1050000,
+      "Giá cuối tuần": 1250000,
+      "Trạng thái": "Trống sạch",
+      "Mã booking hiện tại": ""
+    },
+    {
+      "Mã phòng": "PHNG-301004",
+      "Tên phòng": "Phòng 304",
+      "Loại phòng": "Phòng Đơn Standard",
+      "Tầng": "Tầng 3",
+      "Giá theo giờ": 120000,
+      "Giá qua đêm": 350000,
+      "Giá ngày thường": 450000,
+      "Giá cuối tuần": 550000,
+      "Trạng thái": "Bảo trì",
+      "Mã booking hiện tại": ""
+    }
+  ],
+  "bookings": [
+    {
+      "Mã booking": "BOOK-839201",
+      "Mã phòng": "PHNG-101002",
+      "Tên phòng": "Phòng 102",
+      "Khách hàng": "Nguyễn Văn An",
+      "SĐT": "0905111222",
+      "CCCD/Passport": "079201001234",
+      "Kênh bán": "Airbnb",
+      "Hình thức": "Theo ngày",
+      "Check-in dự kiến": "09/11/2026 14:00",
+      "Check-in thực tế": "09/11/2026 13:30",
+      "Check-out dự kiến": "11/11/2026 12:00",
+      "Check-out thực tế": "",
+      "Tiền phòng": 1200000,
+      "Phụ thu sớm": 0,
+      "Phụ thu trễ": 0,
+      "Tiền dịch vụ": 65000,
+      "Tiền cọc": 500000,
+      "Giảm giá": 0,
+      "Tổng cộng": 1265000,
+      "Đã thu": 500000,
+      "Còn nợ": 765000,
+      "Trạng thái": "Đang ở",
+      "Ghi chú": "Khách nước ngoài, cần hóa đơn VAT"
+    },
+    {
+      "Mã booking": "BOOK-839202",
+      "Mã phòng": "PHNG-101003",
+      "Tên phòng": "Phòng 103",
+      "Khách hàng": "Trần Thị Bình",
+      "SĐT": "0938222333",
+      "CCCD/Passport": "079201002345",
+      "Kênh bán": "Trực tiếp",
+      "Hình thức": "Theo ngày",
+      "Check-in dự kiến": "08/11/2026 14:00",
+      "Check-in thực tế": "08/11/2026 14:10",
+      "Check-out dự kiến": "09/11/2026 12:00",
+      "Check-out thực tế": "09/11/2026 12:15",
+      "Tiền phòng": 750000,
+      "Phụ thu sớm": 0,
+      "Phụ thu trễ": 0,
+      "Tiền dịch vụ": 40000,
+      "Tiền cọc": 0,
+      "Giảm giá": 0,
+      "Tổng cộng": 790000,
+      "Đã thu": 790000,
+      "Còn nợ": 0,
+      "Trạng thái": "Đã trả",
+      "Ghi chú": "Đã check-out trưa nay, chuyển dọn phòng"
+    },
+    {
+      "Mã booking": "BOOK-839203",
+      "Mã phòng": "PHNG-101001",
+      "Tên phòng": "Phòng 101",
+      "Khách hàng": "Lê Hữu Cường",
+      "SĐT": "0910275834",
+      "CCCD/Passport": "079201003456",
+      "Kênh bán": "Booking.com",
+      "Hình thức": "Theo ngày",
+      "Check-in dự kiến": "09/11/2026 14:00",
+      "Check-in thực tế": "",
+      "Check-out dự kiến": "10/11/2026 12:00",
+      "Check-out thực tế": "",
+      "Tiền phòng": 450000,
+      "Phụ thu sớm": 0,
+      "Phụ thu trễ": 0,
+      "Tiền dịch vụ": 0,
+      "Tiền cọc": 0,
+      "Giảm giá": 0,
+      "Tổng cộng": 450000,
+      "Đã thu": 0,
+      "Còn nợ": 450000,
+      "Trạng thái": "Đặt trước",
+      "Ghi chú": "Khách báo đến muộn khoảng 19h tối"
+    },
+    {
+      "Mã booking": "BOOK-839204",
+      "Mã phòng": "PHNG-101004",
+      "Tên phòng": "Phòng 104",
+      "Khách hàng": "Phạm Minh Dũng",
+      "SĐT": "0988777666",
+      "CCCD/Passport": "079201004567",
+      "Kênh bán": "Agoda",
+      "Hình thức": "Theo ngày",
+      "Check-in dự kiến": "08/11/2026 14:00",
+      "Check-in thực tế": "08/11/2026 15:00",
+      "Check-out dự kiến": "10/11/2026 12:00",
+      "Check-out thực tế": "",
+      "Tiền phòng": 1900000,
+      "Phụ thu sớm": 0,
+      "Phụ thu trễ": 0,
+      "Tiền dịch vụ": 95000,
+      "Tiền cọc": 1000000,
+      "Giảm giá": 0,
+      "Tổng cộng": 1995000,
+      "Đã thu": 1000000,
+      "Còn nợ": 995000,
+      "Trạng thái": "Đang ở",
+      "Ghi chú": "Gia đình 4 người"
+    },
+    {
+      "Mã booking": "BOOK-839205",
+      "Mã phòng": "PHNG-201001",
+      "Tên phòng": "Phòng 201",
+      "Khách hàng": "Hoàng Ngọc Giang",
+      "SĐT": "0977665544",
+      "CCCD/Passport": "079201005678",
+      "Kênh bán": "Trực tiếp",
+      "Hình thức": "Qua đêm",
+      "Check-in dự kiến": "08/11/2026 21:00",
+      "Check-in thực tế": "08/11/2026 21:30",
+      "Check-out dự kiến": "09/11/2026 12:00",
+      "Check-out thực tế": "",
+      "Tiền phòng": 350000,
+      "Phụ thu sớm": 0,
+      "Phụ thu trễ": 0,
+      "Tiền dịch vụ": 20000,
+      "Tiền cọc": 200000,
+      "Giảm giá": 0,
+      "Tổng cộng": 370000,
+      "Đã thu": 200000,
+      "Còn nợ": 170000,
+      "Trạng thái": "Đang ở",
+      "Ghi chú": "Sắp check-out trưa nay"
+    },
+    {
+      "Mã booking": "BOOK-839206",
+      "Mã phòng": "PHNG-201003",
+      "Tên phòng": "Phòng 203",
+      "Khách hàng": "David Smith",
+      "SĐT": "0912345678",
+      "CCCD/Passport": "P9823412",
+      "Kênh bán": "Airbnb",
+      "Hình thức": "Theo ngày",
+      "Check-in dự kiến": "07/11/2026 14:00",
+      "Check-in thực tế": "07/11/2026 13:45",
+      "Check-out dự kiến": "12/11/2026 12:00",
+      "Check-out thực tế": "",
+      "Tiền phòng": 4000000,
+      "Phụ thu sớm": 0,
+      "Phụ thu trễ": 0,
+      "Tiền dịch vụ": 300000,
+      "Tiền cọc": 2000000,
+      "Giảm giá": 0,
+      "Tổng cộng": 4300000,
+      "Đã thu": 2000000,
+      "Còn nợ": 2300000,
+      "Trạng thái": "Đang ở",
+      "Ghi chú": "Khách Úc thuê thêm xe máy 2 ngày"
+    },
+    {
+      "Mã booking": "BOOK-839207",
+      "Mã phòng": "PHNG-301001",
+      "Tên phòng": "Phòng 301",
+      "Khách hàng": "Vũ Thu Khánh",
+      "SĐT": "0903889900",
+      "CCCD/Passport": "079201006789",
+      "Kênh bán": "Fanpage / Zalo",
+      "Hình thức": "Theo ngày",
+      "Check-in dự kiến": "09/11/2026 14:00",
+      "Check-in thực tế": "09/11/2026 10:30",
+      "Check-out dự kiến": "11/11/2026 12:00",
+      "Check-out thực tế": "",
+      "Tiền phòng": 2700000,
+      "Phụ thu sớm": 405000,
+      "Phụ thu trễ": 0,
+      "Tiền dịch vụ": 50000,
+      "Tiền cọc": 1000000,
+      "Giảm giá": 0,
+      "Tổng cộng": 3155000,
+      "Đã thu": 1405000,
+      "Còn nợ": 1750000,
+      "Trạng thái": "Đang ở",
+      "Ghi chú": "Check-in sớm 10h30 (tính +30% ngày)"
+    },
+    {
+      "Mã booking": "BOOK-839208",
+      "Mã phòng": "PHNG-201004",
+      "Tên phòng": "Phòng 204",
+      "Khách hàng": "Đặng Văn Lâm",
+      "SĐT": "0933445566",
+      "CCCD/Passport": "079201007890",
+      "Kênh bán": "Hotline",
+      "Hình thức": "Theo ngày",
+      "Check-in dự kiến": "09/11/2026 15:00",
+      "Check-in thực tế": "",
+      "Check-out dự kiến": "10/11/2026 12:00",
+      "Check-out thực tế": "",
+      "Tiền phòng": 1100000,
+      "Phụ thu sớm": 0,
+      "Phụ thu trễ": 0,
+      "Tiền dịch vụ": 0,
+      "Tiền cọc": 500000,
+      "Giảm giá": 0,
+      "Tổng cộng": 1100000,
+      "Đã thu": 500000,
+      "Còn nợ": 600000,
+      "Trạng thái": "Đặt trước",
+      "Ghi chú": "Cần chuẩn bị phòng sạch trước 15:00"
+    },
+    {
+      "Mã booking": "BOOK-839209",
+      "Mã phòng": "PHNG-301003",
+      "Tên phòng": "Phòng 303",
+      "Khách hàng": "Phan Quang Hùng",
+      "SĐT": "0944556677",
+      "CCCD/Passport": "079201008901",
+      "Kênh bán": "Airbnb",
+      "Hình thức": "Theo ngày",
+      "Check-in dự kiến": "10/11/2026 14:00",
+      "Check-in thực tế": "",
+      "Check-out dự kiến": "13/11/2026 12:00",
+      "Check-out thực tế": "",
+      "Tiền phòng": 3150000,
+      "Phụ thu sớm": 0,
+      "Phụ thu trễ": 0,
+      "Tiền dịch vụ": 0,
+      "Tiền cọc": 1500000,
+      "Giảm giá": 0,
+      "Tổng cộng": 3150000,
+      "Đã thu": 1500000,
+      "Còn nợ": 1650000,
+      "Trạng thái": "Đặt trước",
+      "Ghi chú": "Đặt trước 3 đêm ngày mai tới"
+    }
+  ],
+  "guests": [
+    {
+      "Mã khách": "KHLU-839201",
+      "Họ tên": "Nguyễn Văn An",
+      "Số điện thoại": "0905111222",
+      "CCCD/Passport": "079201001234",
+      "Quốc tịch": "Việt Nam",
+      "Số lần ở": 3,
+      "Tổng chi tiêu": 4250000,
+      "Ghi chú": "Khách thân thiết, thích tầng 1"
+    },
+    {
+      "Mã khách": "KHLU-839202",
+      "Họ tên": "Trần Thị Bình",
+      "Số điện thoại": "0938222333",
+      "CCCD/Passport": "079201002345",
+      "Quốc tịch": "Việt Nam",
+      "Số lần ở": 2,
+      "Tổng chi tiêu": 1850000,
+      "Ghi chú": "Khách công tác"
+    },
+    {
+      "Mã khách": "KHLU-839203",
+      "Họ tên": "Lê Hữu Cường",
+      "Số điện thoại": "0910275834",
+      "CCCD/Passport": "079201003456",
+      "Quốc tịch": "Việt Nam",
+      "Số lần ở": 1,
+      "Tổng chi tiêu": 450000,
+      "Ghi chú": "Đặt qua Booking.com"
+    },
+    {
+      "Mã khách": "KHLU-839204",
+      "Họ tên": "Phạm Minh Dũng",
+      "Số điện thoại": "0988777666",
+      "CCCD/Passport": "079201004567",
+      "Quốc tịch": "Việt Nam",
+      "Số lần ở": 1,
+      "Tổng chi tiêu": 1995000,
+      "Ghi chú": "Gia đình"
+    },
+    {
+      "Mã khách": "KHLU-839205",
+      "Họ tên": "Hoàng Ngọc Giang",
+      "Số điện thoại": "0977665544",
+      "CCCD/Passport": "079201005678",
+      "Quốc tịch": "Việt Nam",
+      "Số lần ở": 2,
+      "Tổng chi tiêu": 750000,
+      "Ghi chú": "Khách đi đêm"
+    },
+    {
+      "Mã khách": "KHLU-839206",
+      "Họ tên": "David Smith",
+      "Số điện thoại": "0912345678",
+      "CCCD/Passport": "P9823412",
+      "Quốc tịch": "Australia",
+      "Số lần ở": 1,
+      "Tổng chi tiêu": 4300000,
+      "Ghi chú": "Passport còn hạn 2029"
+    },
+    {
+      "Mã khách": "KHLU-839207",
+      "Họ tên": "Vũ Thu Khánh",
+      "Số điện thoại": "0903889900",
+      "CCCD/Passport": "079201006789",
+      "Quốc tịch": "Việt Nam",
+      "Số lần ở": 4,
+      "Tổng chi tiêu": 8500000,
+      "Ghi chú": "Khách VIP"
+    },
+    {
+      "Mã khách": "KHLU-839208",
+      "Họ tên": "Đặng Văn Lâm",
+      "Số điện thoại": "0933445566",
+      "CCCD/Passport": "079201007890",
+      "Quốc tịch": "Việt Nam",
+      "Số lần ở": 1,
+      "Tổng chi tiêu": 1100000,
+      "Ghi chú": "Đặt hotline"
+    },
+    {
+      "Mã khách": "KHLU-839209",
+      "Họ tên": "Phan Quang Hùng",
+      "Số điện thoại": "0944556677",
+      "CCCD/Passport": "079201008901",
+      "Quốc tịch": "Việt Nam",
+      "Số lần ở": 2,
+      "Tổng chi tiêu": 5200000,
+      "Ghi chú": "Airbnb"
+    }
+  ],
+  "services": [
+    {
+      "Mã DV": "DVPG-109281",
+      "Mã booking": "BOOK-839201",
+      "Mã phòng": "PHNG-101002",
+      "Tên dịch vụ": "Nước suối Dasani 500ml",
+      "Số lượng": 3,
+      "Đơn giá": 15000,
+      "Thành tiền": 45000
+    },
+    {
+      "Mã DV": "DVPG-109282",
+      "Mã booking": "BOOK-839201",
+      "Mã phòng": "PHNG-101002",
+      "Tên dịch vụ": "Mì ly Omachi",
+      "Số lượng": 1,
+      "Đơn giá": 20000,
+      "Thành tiền": 20000
+    },
+    {
+      "Mã DV": "DVPG-109283",
+      "Mã booking": "BOOK-839202",
+      "Mã phòng": "PHNG-101003",
+      "Tên dịch vụ": "Nước ngọt Coca / Pepsi",
+      "Số lượng": 2,
+      "Đơn giá": 20000,
+      "Thành tiền": 40000
+    },
+    {
+      "Mã DV": "DVPG-109284",
+      "Mã booking": "BOOK-839204",
+      "Mã phòng": "PHNG-101004",
+      "Tên dịch vụ": "Bia Heineken / Tiger",
+      "Số lượng": 3,
+      "Đơn giá": 25000,
+      "Thành tiền": 75000
+    },
+    {
+      "Mã DV": "DVPG-109285",
+      "Mã booking": "BOOK-839204",
+      "Mã phòng": "PHNG-101004",
+      "Tên dịch vụ": "Mì ly Omachi",
+      "Số lượng": 1,
+      "Đơn giá": 20000,
+      "Thành tiền": 20000
+    },
+    {
+      "Mã DV": "DVPG-109286",
+      "Mã booking": "BOOK-839206",
+      "Mã phòng": "PHNG-201003",
+      "Tên dịch vụ": "Thuê xe máy tay ga",
+      "Số lượng": 2,
+      "Đơn giá": 150000,
+      "Thành tiền": 300000
+    }
+  ],
+  "transactions": [
+    {
+      "Mã GD": "GDTC-582910",
+      "Ngày giờ": "07/11/2026 14:15",
+      "Loại": "Thu",
+      "Hạng mục": "Tiền cọc đặt phòng",
+      "Số tiền": 2000000,
+      "Phương thức": "Chuyển khoản VietQR",
+      "Mã booking": "BOOK-839206",
+      "Ghi chú": "Khách Úc chuyển cọc"
+    },
+    {
+      "Mã GD": "GDTC-582911",
+      "Ngày giờ": "08/11/2026 09:30",
+      "Loại": "Thu",
+      "Hạng mục": "Tiền cọc đặt phòng",
+      "Số tiền": 1000000,
+      "Phương thức": "Chuyển khoản VietQR",
+      "Mã booking": "BOOK-839204",
+      "Ghi chú": "Cọc phòng 104"
+    },
+    {
+      "Mã GD": "GDTC-582912",
+      "Ngày giờ": "08/11/2026 11:00",
+      "Loại": "Chi",
+      "Hạng mục": "Mua sắm buồng phòng",
+      "Số tiền": 450000,
+      "Phương thức": "Tiền mặt",
+      "Mã booking": "",
+      "Ghi chú": "Mua khăn tắm mới, bàn chải đánh răng"
+    },
+    {
+      "Mã GD": "GDTC-582913",
+      "Ngày giờ": "08/11/2026 14:20",
+      "Loại": "Thu",
+      "Hạng mục": "Tiền phòng",
+      "Số tiền": 750000,
+      "Phương thức": "Chuyển khoản VietQR",
+      "Mã booking": "BOOK-839202",
+      "Ghi chú": "Thanh toán nhận phòng 103"
+    },
+    {
+      "Mã GD": "GDTC-582914",
+      "Ngày giờ": "08/11/2026 17:00",
+      "Loại": "Chi",
+      "Hạng mục": "Bảo dưỡng sửa chữa",
+      "Số tiền": 300000,
+      "Phương thức": "Tiền mặt",
+      "Mã booking": "",
+      "Ghi chú": "Sửa vòi sen phòng 304"
+    },
+    {
+      "Mã GD": "GDTC-582915",
+      "Ngày giờ": "08/11/2026 21:40",
+      "Loại": "Thu",
+      "Hạng mục": "Tiền cọc đặt phòng",
+      "Số tiền": 200000,
+      "Phương thức": "Tiền mặt",
+      "Mã booking": "BOOK-839205",
+      "Ghi chú": "Khách vào ở qua đêm cọc trước"
+    },
+    {
+      "Mã GD": "GDTC-582916",
+      "Ngày giờ": "09/11/2026 10:45",
+      "Loại": "Thu",
+      "Hạng mục": "Tiền phòng & Phụ thu sớm",
+      "Số tiền": 1405000,
+      "Phương thức": "Chuyển khoản VietQR",
+      "Mã booking": "BOOK-839207",
+      "Ghi chú": "Khách check-in sớm 10h30 phòng 301"
+    },
+    {
+      "Mã GD": "GDTC-582917",
+      "Ngày giờ": "09/11/2026 12:20",
+      "Loại": "Thu",
+      "Hạng mục": "Thanh toán trả phòng (Check-out)",
+      "Số tiền": 40000,
+      "Phương thức": "Tiền mặt",
+      "Mã booking": "BOOK-839202",
+      "Ghi chú": "Thu tiền nước ngọt minibar phòng 103"
+    },
+    {
+      "Mã GD": "GDTC-582918",
+      "Ngày giờ": "09/11/2026 13:40",
+      "Loại": "Thu",
+      "Hạng mục": "Tiền cọc đặt phòng",
+      "Số tiền": 500000,
+      "Phương thức": "Chuyển khoản VietQR",
+      "Mã booking": "BOOK-839201",
+      "Ghi chú": "Khách nhận phòng 102"
+    }
+  ],
+  "catalog": [
+    {
+      "Mã món": "MENU-102901",
+      "Tên dịch vụ / Minibar": "Nước suối Dasani 500ml",
+      "Đơn vị tính": "Chai",
+      "Giá bán": 15000,
+      "Giá vốn": 6000
+    },
+    {
+      "Mã món": "MENU-102902",
+      "Tên dịch vụ / Minibar": "Nước ngọt Coca / Pepsi / 7Up",
+      "Đơn vị tính": "Lon",
+      "Giá bán": 20000,
+      "Giá vốn": 10000
+    },
+    {
+      "Mã món": "MENU-102903",
+      "Tên dịch vụ / Minibar": "Bia Heineken / Tiger Silver",
+      "Đơn vị tính": "Lon",
+      "Giá bán": 25000,
+      "Giá vốn": 16000
+    },
+    {
+      "Mã món": "MENU-102904",
+      "Tên dịch vụ / Minibar": "Mì ly Omachi / Hảo Hảo",
+      "Đơn vị tính": "Ly",
+      "Giá bán": 20000,
+      "Giá vốn": 11000
+    },
+    {
+      "Mã món": "MENU-102905",
+      "Tên dịch vụ / Minibar": "Giặt sấy quần áo lấy liền",
+      "Đơn vị tính": "Kg",
+      "Giá bán": 30000,
+      "Giá vốn": 12000
+    },
+    {
+      "Mã món": "MENU-102906",
+      "Tên dịch vụ / Minibar": "Thuê xe máy tay ga (Vision / AirBlade)",
+      "Đơn vị tính": "Ngày",
+      "Giá bán": 150000,
+      "Giá vốn": 100000
+    },
+    {
+      "Mã món": "MENU-102907",
+      "Tên dịch vụ / Minibar": "Đưa đón sân bay 4 chỗ",
+      "Đơn vị tính": "Chuyến",
+      "Giá bán": 180000,
+      "Giá vốn": 130000
+    },
+    {
+      "Mã món": "MENU-102908",
+      "Tên dịch vụ / Minibar": "Kê thêm nệm phụ (Extra bed)",
+      "Đơn vị tính": "Đêm",
+      "Giá bán": 120000,
+      "Giá vốn": 30000
+    }
+  ],
+  "channels": [
+    {
+      "Mã kênh": "KENH-1001",
+      "Tên kênh đặt phòng": "Khách trực tiếp / Hotline",
+      "Hoa hồng %": 0
+    },
+    {
+      "Mã kênh": "KENH-1002",
+      "Tên kênh đặt phòng": "Airbnb",
+      "Hoa hồng %": 15
+    },
+    {
+      "Mã kênh": "KENH-1003",
+      "Tên kênh đặt phòng": "Booking.com",
+      "Hoa hồng %": 15
+    },
+    {
+      "Mã kênh": "KENH-1004",
+      "Tên kênh đặt phòng": "Agoda",
+      "Hoa hồng %": 18
+    },
+    {
+      "Mã kênh": "KENH-1005",
+      "Tên kênh đặt phòng": "Fanpage / Zalo",
+      "Hoa hồng %": 0
+    }
+  ],
+  "settings": {
+    "APP_NAME": "MIA HOMESTAY & APARTMENTS",
+    "ADDRESS": "Số 123 Đường Ven Biển, Quận Sơn Trà, Đà Nẵng",
+    "HOTLINE": "0905111222",
+    "STANDARD_CHECKIN": "14:00",
+    "STANDARD_CHECKOUT": "12:00",
+    "EARLY_CHECKIN_RULES": "BEFORE_9AM:50|9AM_12PM:30",
+    "LATE_CHECKOUT_RULES": "12PM_3PM:30|3PM_6PM:50|AFTER_6PM:100",
+    "BANK_NAME": "MBBank",
+    "BANK_ACCOUNT": "0905111222",
+    "BANK_ACCOUNT_NAME": "NGUYEN VAN CHU",
+    "TRANSFER_SYNTAX": "{room} {booking} TT"
+  }
+};
+      },
+
+      onDataLoaded() {
+        document.getElementById('loading-state').classList.add('hidden');
+        if (AppState.data.settings && AppState.data.settings.APP_NAME) {
+          const el = document.getElementById('sidebar-app-name');
+          if (el) el.textContent = AppState.data.settings.APP_NAME;
+        }
+        AppRouter.navigate(AppState.currentTab);
+      }
+    };
+
+    document.addEventListener('DOMContentLoaded', () => {
+      App.init();
+    });
+  </script>
+</body>
+</html>

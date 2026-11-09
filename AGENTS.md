@@ -46,6 +46,16 @@
 - **Quy tắc Zero Phantom Overlay (Chống màng vô hình chặn click chuột)**:
   - Trên môi trường iframe của Google Apps Script, tuyệt đối CẤM chỉ dùng `opacity-0` và `pointer-events-none` cho container phủ màn hình khi phần tử con (Backdrop) vẫn còn giữ `pointer-events-auto`.
   - Bắt buộc: Khi Drawer/Modal đóng, container ngoài cùng BẮT BUỘC phải gắn class `hidden` (`display: none`) để giải phóng 100% diện tích màn hình cho chuột thao tác.
+- **Quy tắc Instant Render & Zero-Blocking UI (Tải ngay 0s, Cấm vòng quay treo màn hình)**:
+  - Web App BẮT BUỘC nạp và hiển thị ngay lập tức giao diện và dữ liệu (từ LocalStorage hoặc Mock Cache) trong 0.05 giây ngay khi mở trang (`App.init()`), để người dùng bấm thao tác được ngay lập tức.
+  - Quá trình kết nối Google Sheets (`getInitialData`) phải chạy ngầm trong background (Background Sync).
+  - TUYỆT ĐỐI CẤM đặt các khối `loading-state` to tướng ở giữa màn hình khiến giao diện bị che khuất và quay vô tận. Chỉ báo tải duy nhất là icon xoay nhỏ tại nút Làm mới trên thanh Header.
+  - Backend RPC khi khởi tạo dữ liệu mẫu phải tối ưu tốc độ phản hồi < 1.5 giây; không lặp các lệnh `sh.protect()` gây nghẽn timeout.
+- **Quy tắc Bất Biến "Inline Embedded Realistic Mock Data By Default" (CẤM BIẾN RỖNG [])**:
+  - Tuyệt đối CẤM khai báo biến lưu trữ ban đầu là mảng rỗng (`AppState.data = { rooms: [], bookings: [], ... }`).
+  - Biến `AppState.data` trong file `Index.html` BẮT BUỘC phải được nhúng sẵn bộ dữ liệu mẫu thực chiến đầy đủ (10–15 thực thể với đủ mọi trạng thái nghiệp vụ).
+  - Web App phải hiển thị hoàn hảo ngay trong 0.001 giây khi vừa parse HTML, không phụ thuộc vào việc server phản hồi hay cache trình duyệt.
+  - Tuyệt đối không cho phép LocalStorage lưu hoặc ghi đè mảng rỗng `[]` vào bộ nhớ làm hỏng dữ liệu hiển thị.
 - **Nguyên tắc kỹ thuật script**:
   - Menu lấy ID động bằng `SpreadsheetApp.getActiveSpreadsheet().getId()`.
   - Mọi RPC mang ID bản sao tương ứng. Không hardcode Spreadsheet ID master, không fallback về master làm database.

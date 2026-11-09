@@ -63,6 +63,11 @@
    - Quá trình gọi RPC với Google Sheets (`getInitialData`) phải chạy ngầm trong background (Background Sync).
    - Chỉ báo tải chỉ được phép là biểu tượng xoay nhỏ xíu tại nút Refresh trên Header (`sync-icon`). **TUYỆT ĐỐI CẤM** đặt một khối `loading-state` lớn ở giữa màn hình khiến giao diện bị che khuất và "quay hoài" khi đường truyền Google Apps Script bị trễ.
 
+8. **Quy tắc "Inline Embedded Realistic Mock Data By Default" (Chống Trắng Trang / 0 Phòng)**:
+   - File `Index.html` bắt buộc nhúng sẵn bộ dữ liệu mẫu thực chiến (10–15 thực thể đầy đủ trạng thái) ngay trong biến khai báo ban đầu (`AppState.data`).
+   - Triệt tiêu 100% rủi ro trắng trang hoặc hiển thị 0% do RPC Google Apps Script bị trễ hay do cache LocalStorage bị rỗng.
+   - Khi đọc LocalStorage, nếu dữ liệu bị rỗng (`rooms.length === 0`), bắt buộc bỏ qua cache và dùng dữ liệu mẫu nhúng sẵn. CẤM lưu mảng rỗng đè vào LocalStorage.
+
 ---
 
 ## 2. CHUẨN THIẾT KẾ UI/UX FINTECH CAO CẤP (MINIMALIST & CLASSY)
@@ -283,7 +288,7 @@ Gom về cuối cùng của hệ thống:
 
 ---
 
-## 8. DANH MỤC KIỂM TRA TRƯỚC KHI BÀN GIAO (CHECKLIST 12 ĐIỂM)
+## 8. DANH MỤC KIỂM TRA TRƯỚC KHI BÀN GIAO (CHECKLIST 14 ĐIỂM)
 
 - [ ] 1. Tên file local đúng chuẩn: `[TENDUAN]_Code.gs` và `[TENDUAN]_Index.html`.
 - [ ] 2. Tên file Google Sheet chuẩn: `[TÊN SẢN PHẨM IN HOA CÓ DẤU] v[X.X] — FILE ĐI LÀM`.
@@ -297,3 +302,5 @@ Gom về cuối cùng của hệ thống:
 - [ ] 10. Nút gọi điện thoại trên mobile đều gắn link `tel:`; ô số tiền/SĐT có `inputmode="numeric"`.
 - [ ] 11. Backend `getInitialData()` có cơ chế Auto-Seed tự động nạp dữ liệu mẫu khi Sheet rỗng hoặc chưa setup.
 - [ ] 12. Không có bất kỳ phần tử Drawer/Modal nào mang `pointer-events-auto` che phủ màn hình khi đang đóng (chuẩn Zero Phantom Overlay).
+- [ ] 13. Giao diện tuân thủ chuẩn Instant Render (hiển thị ngay trong 0s), không chứa khối loading placeholder nào che phủ giữa màn hình.
+- [ ] 14. Biến `AppState.data` được nhúng sẵn 100% dữ liệu mẫu thực chiến ngay từ đầu, tuyệt đối không khai báo mảng rỗng `[]`.
