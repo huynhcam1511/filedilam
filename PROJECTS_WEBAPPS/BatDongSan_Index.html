@@ -1521,7 +1521,20 @@
      * ==============================================================================
      */
 
-    // 0. SAFE CDN POLYFILLS (Defense-in-depth against slow or offline CDN)
+    // 0. IMMEDIATE GLOBAL ROUTER EXPOSURE (Hoisted top-level defense)
+    if (typeof window !== 'undefined') {
+      window.switchTab = function(tabId) {
+        try {
+          if (typeof switchTab === 'function' && switchTab !== window.switchTab) {
+            return switchTab(tabId);
+          }
+        } catch (e) {
+          console.warn('Early switchTab call intercepted:', e);
+        }
+      };
+    }
+
+    // 0.1 SAFE CDN POLYFILLS (Defense-in-depth against slow or offline CDN)
     if (typeof window !== 'undefined') {
       if (typeof window.lucide === 'undefined') {
         window.lucide = { createIcons: function() {} };
@@ -2087,19 +2100,19 @@
         action: 'Thêm Căn Mới'
       },
       'interactions': {
-        title: 'Lịch hẹn & Nhật ký chăm sóc',
+        title: 'Lịch hẹn và Nhật ký chăm sóc',
         action: 'Ghi Nhật Ký'
       },
       'deals': {
-        title: 'Chốt cọc & Doanh số hoa hồng',
+        title: 'Chốt cọc và Doanh số hoa hồng',
         action: 'Chốt Cọc'
       },
       'settings': {
-        title: 'Cài đặt hệ thống & Danh mục',
+        title: 'Cài đặt hệ thống và Danh mục',
         action: null
       },
       'guide': {
-        title: 'Hướng dẫn sử dụng & Cẩm nang vận hành',
+        title: 'Hướng dẫn sử dụng và Cẩm nang vận hành',
         action: null
       }
     };
@@ -3433,14 +3446,14 @@
 
       if (typeof google !== 'undefined' && google.script) {
         google.script.run.withSuccessHandler(() => {
-          btn.innerHTML = '<i data-lucide="check" class="w-4 h-4"></i> Lưu hồ sơ & cấu hình VietQR';
+          btn.innerHTML = '<i data-lucide="check" class="w-4 h-4"></i> Lưu hồ sơ và cấu hình VietQR';
           btn.disabled = false;
           if (statusEl) statusEl.innerText = 'Đã lưu lúc: ' + new Date().toLocaleTimeString('vi-VN');
           state.data.settings = payload;
           lucide.createIcons();
-          showToast('Đã cập nhật hồ sơ môi giới & tài khoản VietQR!');
+          showToast('Đã cập nhật hồ sơ môi giới và tài khoản VietQR!');
         }).withFailureHandler(err => {
-          btn.innerHTML = 'Lưu hồ sơ & cấu hình VietQR'; btn.disabled = false;
+          btn.innerHTML = 'Lưu hồ sơ và cấu hình VietQR'; btn.disabled = false;
           if (statusEl) statusEl.innerText = 'Lỗi lưu trữ!';
           showToast('Lỗi: ' + err, 'error');
         }).saveSettings(payload);
@@ -4186,7 +4199,7 @@
       const title = document.getElementById('modalLogTitle');
       const btn = document.getElementById('btnSubmitLogText');
       const btnDel = document.getElementById('btnDeleteLogModal');
-      if (title) title.innerText = isEdit ? 'Chỉnh Sửa Nhật Ký & Lịch Hẹn' : 'Ghi Nhật Ký & Lịch Hẹn Mới';
+      if (title) title.innerText = isEdit ? 'Chỉnh Sửa Nhật Ký và Lịch Hẹn' : 'Ghi Nhật Ký và Lịch Hẹn Mới';
       if (btn) btn.innerText = isEdit ? 'Cập nhật nhật ký' : 'Lưu nhật ký chăm sóc';
       if (btnDel) {
         if (isEdit) btnDel.classList.remove('hidden');
@@ -4245,7 +4258,7 @@
       const title = document.getElementById('modalDealTitle');
       const btn = document.getElementById('btnSubmitDealText');
       const btnDel = document.getElementById('btnDeleteDealModal');
-      if (title) title.innerText = isEdit ? 'Chỉnh Sửa Hợp Đồng & Hoa Hồng' : 'Lập Hợp Đồng Chốt Cọc & Hoa Hồng';
+      if (title) title.innerText = isEdit ? 'Chỉnh Sửa Hợp Đồng và Hoa Hồng' : 'Lập Hợp Đồng Chốt Cọc và Hoa Hồng';
       if (btn) btn.innerText = isEdit ? 'Cập nhật hợp đồng' : 'Xác nhận chốt deal';
       if (btnDel) {
         if (isEdit) btnDel.classList.remove('hidden');
