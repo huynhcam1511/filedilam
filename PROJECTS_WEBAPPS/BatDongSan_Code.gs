@@ -444,7 +444,7 @@ function saveDeal(payload) {
 
     const closedPrice = Number(payload.closedPriceMillion) || 0;
     const commRate = Number(payload.commissionPercent) || 0;
-    const commAmount = closedPrice * 1000000 * (commRate / 100);
+    const commAmount = Number(payload.commissionAmount) > 0 ? Number(payload.commissionAmount) : (closedPrice * 1000000 * (commRate / 100));
     const dealDate = payload.dealDate || new Date().toISOString().slice(0, 10);
     const status = payload.status || 'Đã thu hoa hồng';
     const note = payload.note || '';

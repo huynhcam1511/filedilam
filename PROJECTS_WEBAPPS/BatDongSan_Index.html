@@ -141,9 +141,6 @@
         <button onclick="toggleSidebar()" class="md:hidden p-1.5 rounded-lg text-slate-500 hover:bg-slate-100 flex-shrink-0"><i data-lucide="menu" class="w-5 h-5"></i></button>
         <div class="flex items-center gap-2">
           <h1 id="topbarTitle" class="text-sm font-bold text-slate-900 truncate">Tổng quan vận hành</h1>
-          <button type="button" onclick="generateSampleFunnelData()" title="Nạp 10 BĐS, 100 Khách, 80 Hẹn, 20 Cọc vào Google Sheets" class="hidden sm:inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-[11px] font-semibold text-emerald-700 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 transition">
-            <i data-lucide="database" class="w-3.5 h-3.5 text-emerald-600"></i> Nạp data mẫu chuẩn phễu
-          </button>
         </div>
       </div>
 
@@ -239,21 +236,42 @@
           </div>
         </div>
 
-        <!-- 2 Chart Containers -->
+        <!-- 4 Chart Containers (Executive Dashboard) -->
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+          <!-- Chart 1: Cơ cấu nguồn khách tiếp cận -->
           <div class="bg-white border border-slate-200/90 rounded-xl p-4 sm:p-5 shadow-xs flex flex-col">
             <div class="flex items-center justify-between mb-3 border-b border-slate-100 pb-2.5">
-              <span class="text-xs font-semibold text-slate-800 uppercase tracking-wider">Cơ cấu nguồn khách tiếp cận</span>
+              <span class="text-xs font-semibold text-slate-800 uppercase tracking-wider">1. Cơ cấu nguồn khách tiếp cận</span>
               <span class="text-[10px] text-slate-400 font-mono">Nguồn chuyển đổi</span>
             </div>
             <div class="relative flex-1 flex items-center justify-center min-h-[220px]"><canvas id="chartDemandCanvas"></canvas></div>
           </div>
+
+          <!-- Chart 2: Doanh thu hoa hồng theo loại hình BĐS -->
           <div class="bg-white border border-slate-200/90 rounded-xl p-4 sm:p-5 shadow-xs flex flex-col">
             <div class="flex items-center justify-between mb-3 border-b border-slate-100 pb-2.5">
-              <span class="text-xs font-semibold text-slate-800 uppercase tracking-wider">Doanh thu hoa hồng theo loại hình BĐS</span>
+              <span class="text-xs font-semibold text-slate-800 uppercase tracking-wider">2. Doanh thu hoa hồng theo loại hình BĐS</span>
               <span class="text-[10px] text-slate-400 font-mono">Doanh thu VNĐ</span>
             </div>
             <div class="relative flex-1 flex items-center justify-center min-h-[220px]"><canvas id="chartPropertyCanvas"></canvas></div>
+          </div>
+
+          <!-- Chart 3: Xu hướng hoa hồng theo tháng -->
+          <div class="bg-white border border-slate-200/90 rounded-xl p-4 sm:p-5 shadow-xs flex flex-col">
+            <div class="flex items-center justify-between mb-3 border-b border-slate-100 pb-2.5">
+              <span class="text-xs font-semibold text-slate-800 uppercase tracking-wider">3. Xu hướng hoa hồng các tháng gần nhất</span>
+              <span class="text-[10px] text-slate-400 font-mono">Dòng tiền thực nhận</span>
+            </div>
+            <div class="relative flex-1 flex items-center justify-center min-h-[220px]"><canvas id="chartMonthlyCommCanvas"></canvas></div>
+          </div>
+
+          <!-- Chart 4: Tỷ lệ thu tiền hoa hồng -->
+          <div class="bg-white border border-slate-200/90 rounded-xl p-4 sm:p-5 shadow-xs flex flex-col">
+            <div class="flex items-center justify-between mb-3 border-b border-slate-100 pb-2.5">
+              <span class="text-xs font-semibold text-slate-800 uppercase tracking-wider">4. Tỷ lệ phân bổ trạng thái thu hoa hồng</span>
+              <span class="text-[10px] text-slate-400 font-mono">Hiệu suất thu tiền</span>
+            </div>
+            <div class="relative flex-1 flex items-center justify-center min-h-[220px]"><canvas id="chartDealStatusCanvas"></canvas></div>
           </div>
         </div>
 
@@ -489,9 +507,6 @@
             </button>
           </div>
           <div class="flex items-center gap-2 overflow-x-auto no-scrollbar w-full sm:w-auto pb-1 sm:pb-0 justify-between sm:justify-end">
-            <button type="button" onclick="generateSampleFunnelData()" class="px-3 py-1 text-[11px] font-semibold text-emerald-700 bg-emerald-50 hover:bg-emerald-100 rounded-lg border border-emerald-200 transition flex items-center gap-1 flex-shrink-0">
-              <i data-lucide="database" class="w-3.5 h-3.5"></i> Nạp data mẫu (10 BĐS, 100 Khách, 80 Hẹn, 20 Cọc)
-            </button>
             <button type="button" onclick="resetSettingsToDefault()" class="px-2.5 py-1 text-[11px] font-medium text-slate-500 hover:text-rose-600 hover:bg-rose-50 rounded border border-slate-200 transition flex-shrink-0">
               Khôi phục mặc định
             </button>
@@ -1198,18 +1213,26 @@
           </div>
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
+              <label class="block font-medium text-slate-700 mb-1">Căn BĐS quan tâm trong giỏ</label>
+              <select id="formCustInterestedIn" class="w-full h-8 px-2 border border-slate-200 rounded-lg focus:border-emerald-500 focus:outline-none">
+                <option value="">-- Chưa gắn căn cụ thể --</option>
+              </select>
+            </div>
+            <div>
               <label class="block font-medium text-slate-700 mb-1">Khu vực mong muốn</label>
               <input type="text" id="formCustArea" list="listLocations" class="w-full h-8 px-2.5 border border-slate-200 rounded-lg focus:border-emerald-500 focus:outline-none" placeholder="VD: Quận 2, Bình Thạnh">
               <datalist id="listLocations"></datalist>
             </div>
+          </div>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
               <label class="block font-medium text-slate-700 mb-1">Nguồn khách hàng</label>
               <select id="formCustSource" class="w-full h-8 px-2 border border-slate-200 rounded-lg focus:border-emerald-500 focus:outline-none"></select>
             </div>
-          </div>
-          <div>
-            <label class="block font-medium text-slate-700 mb-1">Trạng thái chăm sóc</label>
-            <select id="formCustStatus" class="w-full h-8 px-2 border border-slate-200 rounded-lg focus:border-emerald-500 focus:outline-none"></select>
+            <div>
+              <label class="block font-medium text-slate-700 mb-1">Trạng thái chăm sóc</label>
+              <select id="formCustStatus" class="w-full h-8 px-2 border border-slate-200 rounded-lg focus:border-emerald-500 focus:outline-none"></select>
+            </div>
           </div>
           <div>
             <label class="block font-medium text-slate-700 mb-1">Ghi chú khẩu vị & Yêu cầu đặc biệt</label>
@@ -1336,8 +1359,11 @@
               </select>
             </div>
             <div>
-              <label class="block font-medium text-slate-700 mb-1">Lịch hẹn tiếp theo (Follow-up)</label>
-              <input type="date" id="formLogFollowUp" class="w-full h-8 px-2 border border-slate-200 rounded-lg focus:border-emerald-500 focus:outline-none font-mono">
+              <div class="flex items-center justify-between mb-1">
+                <label class="block font-medium text-slate-700">Lịch hẹn tiếp theo (Follow-up)</label>
+                <span class="text-[10px] text-slate-400 font-mono">dd/mm/yyyy</span>
+              </div>
+              <input type="date" id="formLogFollowUp" class="w-full h-8 px-2 border border-slate-200 rounded-lg focus:border-emerald-500 focus:outline-none font-mono text-slate-800">
             </div>
           </div>
           <div>
@@ -1382,14 +1408,29 @@
             </div>
           </div>
 
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <div>
-              <label class="block font-medium text-slate-700 mb-1">Giá chốt giao dịch (Triệu VNĐ) <span class="text-rose-500">*</span></label>
-              <input type="number" id="formDealPrice" required oninput="calculateCommissionLive()" class="w-full h-8 px-2.5 border border-slate-200 rounded-lg focus:border-emerald-500 focus:outline-none font-semibold text-slate-800" placeholder="VD: 4500">
+          <!-- Commission Type Toggle & Inputs -->
+          <div class="space-y-2">
+            <div class="flex items-center justify-between">
+              <label class="block font-medium text-slate-700">Cách tính hoa hồng môi giới <span class="text-rose-500">*</span></label>
+              <div class="flex items-center gap-1 bg-slate-100 p-0.5 rounded-lg text-[11px]">
+                <button type="button" id="btnCommModePercent" onclick="setDealCommMode('percent')" class="px-2.5 py-1 rounded-md font-semibold bg-white text-emerald-700 shadow-xs transition">Theo tỷ lệ %</button>
+                <button type="button" id="btnCommModeCash" onclick="setDealCommMode('cash')" class="px-2.5 py-1 rounded-md font-medium text-slate-500 hover:text-slate-800 transition">Số tiền mặt VNĐ</button>
+              </div>
             </div>
-            <div>
-              <label class="block font-medium text-slate-700 mb-1">Tỷ lệ hoa hồng (%) <span class="text-rose-500">*</span></label>
-              <input type="number" id="formDealCommRate" required step="0.1" value="1.5" oninput="calculateCommissionLive()" class="w-full h-8 px-2.5 border border-slate-200 rounded-lg focus:border-emerald-500 focus:outline-none font-semibold text-slate-800">
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <label class="block font-medium text-slate-700 mb-1">Giá chốt giao dịch (Triệu VNĐ) <span class="text-rose-500">*</span></label>
+                <input type="number" id="formDealPrice" required oninput="calculateCommissionLive()" class="w-full h-8 px-2.5 border border-slate-200 rounded-lg focus:border-emerald-500 focus:outline-none font-semibold text-slate-800" placeholder="VD: 4500">
+              </div>
+              <div id="wrapperDealCommRate">
+                <label class="block font-medium text-slate-700 mb-1">Tỷ lệ hoa hồng (%) <span class="text-rose-500">*</span></label>
+                <input type="number" id="formDealCommRate" step="0.1" value="1.5" oninput="calculateCommissionLive('percent')" class="w-full h-8 px-2.5 border border-slate-200 rounded-lg focus:border-emerald-500 focus:outline-none font-semibold text-slate-800" placeholder="VD: 1.5">
+              </div>
+              <div id="wrapperDealCommCash" class="hidden">
+                <label class="block font-medium text-slate-700 mb-1">Số tiền hoa hồng cố định (VNĐ) <span class="text-rose-500">*</span></label>
+                <input type="number" id="formDealCommCash" step="100000" oninput="calculateCommissionLive('cash')" class="w-full h-8 px-2.5 border border-slate-200 rounded-lg focus:border-emerald-500 focus:outline-none font-semibold text-emerald-700 font-mono" placeholder="VD: 50000000">
+              </div>
             </div>
           </div>
 
@@ -1404,8 +1445,11 @@
 
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <label class="block font-medium text-slate-700 mb-1">Ngày chốt giao dịch</label>
-              <input type="date" id="formDealDate" class="w-full h-8 px-2 border border-slate-200 rounded-lg focus:border-emerald-500 focus:outline-none">
+              <div class="flex items-center justify-between mb-1">
+                <label class="block font-medium text-slate-700">Ngày chốt giao dịch</label>
+                <span class="text-[10px] text-slate-400 font-mono">dd/mm/yyyy</span>
+              </div>
+              <input type="date" id="formDealDate" class="w-full h-8 px-2 border border-slate-200 rounded-lg focus:border-emerald-500 focus:outline-none font-mono text-slate-800">
             </div>
             <div>
               <label class="block font-medium text-slate-700 mb-1">Trạng thái thu tiền</label>
@@ -1683,9 +1727,11 @@
         `).join('');
       }
 
-      // 4. BIỂU ĐỒ EXECUTIVE (CHART.JS)
+      // 4. BIỂU ĐỒ EXECUTIVE (CHART.JS - 4 BIỂU ĐỒ CHUYÊN SÂU)
       renderDemandChart(custs);
       renderPropertyChart(props, activeDeals);
+      renderMonthlyCommChart(activeDeals);
+      renderDealStatusChart(deals);
     }
 
     function renderSalesFunnel(custs) {
@@ -1797,10 +1843,106 @@
             y: { 
               beginAtZero: true, 
               ticks: { 
-                callback: function(v) { return v + ' Tr'; }
+                callback: function(v) { return formatNumberVN(v) + ' Tr'; }
               } 
             } 
           } 
+        }
+      });
+    }
+
+    function renderMonthlyCommChart(deals) {
+      const ctx = document.getElementById('chartMonthlyCommCanvas');
+      if (!ctx) return;
+      if (state.charts.monthlyComm) state.charts.monthlyComm.destroy();
+
+      // Gom doanh thu hoa hồng theo tháng (Tháng 08, 09, 10, 11/2026)
+      const monthlyData = {};
+      (deals || []).forEach(d => {
+        const dateStr = String(d['Ngày Chốt'] || '');
+        if (dateStr) {
+          const parts = dateStr.slice(0, 10).split('-');
+          let mKey = '';
+          if (parts.length === 3) {
+            mKey = 'T' + parts[1] + '/' + parts[0].slice(2);
+          } else {
+            mKey = 'Khác';
+          }
+          const comm = Number(d['Hoa Hồng Thực Nhận (đ)']) || 0;
+          monthlyData[mKey] = (monthlyData[mKey] || 0) + (comm / 1000000);
+        }
+      });
+
+      // Sắp xếp các tháng hoặc nếu rỗng thì tạo nhãn mặc định
+      const labels = Object.keys(monthlyData).length > 0 ? Object.keys(monthlyData) : ['T08/26', 'T09/26', 'T10/26', 'T11/26'];
+      const data = Object.keys(monthlyData).length > 0 ? Object.values(monthlyData) : [0, 0, 0, 0];
+
+      state.charts.monthlyComm = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: labels,
+          datasets: [{
+            label: 'Hoa hồng (Triệu VNĐ)',
+            data: data,
+            borderColor: '#10b981',
+            backgroundColor: 'rgba(16, 185, 129, 0.1)',
+            fill: true,
+            tension: 0.35,
+            pointBackgroundColor: '#059669',
+            pointRadius: 4,
+            pointHoverRadius: 6
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false }
+          },
+          scales: {
+            y: {
+              beginAtZero: true,
+              ticks: {
+                callback: function(v) { return formatNumberVN(v) + ' Tr'; }
+              }
+            }
+          }
+        }
+      });
+    }
+
+    function renderDealStatusChart(deals) {
+      const ctx = document.getElementById('chartDealStatusCanvas');
+      if (!ctx) return;
+      if (state.charts.dealStatus) state.charts.dealStatus.destroy();
+
+      const validDeals = (deals || []).filter(d => d['Trạng Thái'] !== 'Đã hủy/Đã xóa' && d['Trạng Thái'] !== 'Đã xóa');
+      let paidCount = 0;
+      let pendingCount = 0;
+
+      validDeals.forEach(d => {
+        if (d['Trạng Thái'] === 'Đã thu hoa hồng') paidCount++;
+        else pendingCount++;
+      });
+
+      state.charts.dealStatus = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+          labels: ['Đã thu hoa hồng', 'Chờ chủ nhà thanh toán'],
+          datasets: [{
+            data: [paidCount, pendingCount],
+            backgroundColor: ['#10b981', '#f59e0b']
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              position: 'bottom',
+              labels: { boxWidth: 10, font: { size: 10 } }
+            }
+          }
         }
       });
     }
@@ -2751,7 +2893,16 @@
         formLogTypeSel.innerHTML = interactTypes.map(it => `<option value="${it}">${it}</option>`).join('');
       }
 
-      // 7. Populate Dropdowns in Deal & Log Modal
+      // 9. Populate Căn BĐS quan tâm trong Modal Khách Hàng
+      const custInterestSel = document.getElementById('formCustInterestedIn');
+      if (custInterestSel) {
+        const activeProps = (state.data.properties || []).filter(p => p['Trạng Thái'] !== 'Đã xóa');
+        custInterestSel.innerHTML = '<option value="">-- Chưa gắn căn cụ thể --</option>' + activeProps.map(p => `
+          <option value="${p['Mã Căn']} - ${p['Địa Chỉ']}">${p['Địa Chỉ']} (${p['Mã Căn']}) - ${formatNumberVN(p['Giá Chào (Triệu)'])} Tr</option>
+        `).join('');
+      }
+
+      // 10. Populate Dropdowns in Deal & Log Modal
       const dealCustSel = document.getElementById('formDealCustomer');
       const logCustSel = document.getElementById('formLogCustomer');
       const custOpts = (state.data.customers || []).filter(c => c['Trạng Thái'] !== 'Đã xóa').map(c => `<option value="${c['Mã Khách']}">${c['Họ Và Tên']} (${c['Mã Khách']})</option>`).join('');
@@ -2767,6 +2918,29 @@
     }
 
     // ==================== MICRO AUTO-CALCULATION FOR DEALS ====================
+    let currentDealCommMode = 'percent';
+
+    function setDealCommMode(mode) {
+      currentDealCommMode = mode;
+      const btnPercent = document.getElementById('btnCommModePercent');
+      const btnCash = document.getElementById('btnCommModeCash');
+      const wrapRate = document.getElementById('wrapperDealCommRate');
+      const wrapCash = document.getElementById('wrapperDealCommCash');
+
+      if (mode === 'percent') {
+        btnPercent.className = 'px-2.5 py-1 rounded-md font-semibold bg-white text-emerald-700 shadow-xs transition';
+        btnCash.className = 'px-2.5 py-1 rounded-md font-medium text-slate-500 hover:text-slate-800 transition';
+        wrapRate.classList.remove('hidden');
+        wrapCash.classList.add('hidden');
+      } else {
+        btnCash.className = 'px-2.5 py-1 rounded-md font-semibold bg-white text-emerald-700 shadow-xs transition';
+        btnPercent.className = 'px-2.5 py-1 rounded-md font-medium text-slate-500 hover:text-slate-800 transition';
+        wrapCash.classList.remove('hidden');
+        wrapRate.classList.add('hidden');
+      }
+      calculateCommissionLive(mode);
+    }
+
     function handleSelectPropertyForDeal(propId) {
       const sel = document.getElementById('formDealProperty');
       const opt = sel.options[sel.selectedIndex];
@@ -2777,11 +2951,26 @@
       }
     }
 
-    function calculateCommissionLive() {
+    function calculateCommissionLive(changedField = 'percent') {
       const priceMillion = Number(document.getElementById('formDealPrice').value) || 0;
-      const rate = Number(document.getElementById('formDealCommRate').value) || 0;
-      const totalVND = priceMillion * 1000000 * (rate / 100);
-      document.getElementById('formDealEstimatedComm').innerText = totalVND.toLocaleString('vi-VN') + ' VNĐ';
+      const rateInput = document.getElementById('formDealCommRate');
+      const cashInput = document.getElementById('formDealCommCash');
+      let totalVND = 0;
+
+      if (currentDealCommMode === 'percent') {
+        const rate = Number(rateInput.value) || 0;
+        totalVND = priceMillion * 1000000 * (rate / 100);
+        if (cashInput && changedField !== 'cash') cashInput.value = Math.round(totalVND);
+      } else {
+        const cash = Number(cashInput.value) || 0;
+        totalVND = cash;
+        if (priceMillion > 0 && rateInput && changedField !== 'percent') {
+          const calcRate = Math.round((cash / (priceMillion * 1000000)) * 1000) / 10;
+          rateInput.value = calcRate;
+        }
+      }
+
+      document.getElementById('formDealEstimatedComm').innerText = formatNumberVN(totalVND) + ' VNĐ';
     }
 
     // ==================== PROPERTY DRAWER CONTROLLERS (SPRINT 5) ====================
@@ -3140,6 +3329,7 @@
       document.getElementById('formCustPhone').value = '';
       document.getElementById('formCustPrice').value = '';
       document.getElementById('formCustArea').value = '';
+      document.getElementById('formCustInterestedIn').value = '';
       document.getElementById('formCustNote').value = '';
       document.getElementById('modalAddCustomer').classList.remove('hidden');
     }
@@ -3148,6 +3338,7 @@
       const cust = (state.data.customers || []).find(c => c['Mã Khách'] === code);
       if (!cust) return;
 
+      populateDropdowns();
       document.getElementById('formCustId').value = cust['Mã Khách'];
       document.getElementById('modalCustomerTitle').innerText = 'Chỉnh Sửa: ' + cust['Họ Và Tên'] + ' (' + cust['Mã Khách'] + ')';
       document.getElementById('btnSubmitCustText').innerText = 'Cập nhật thay đổi';
@@ -3158,6 +3349,7 @@
       document.getElementById('formCustDemand').value = cust['Nhu Cầu'] || '';
       document.getElementById('formCustPrice').value = cust['Khoảng Giá'] || '';
       document.getElementById('formCustArea').value = cust['Khu Vực'] || '';
+      document.getElementById('formCustInterestedIn').value = cust['Căn Quan Tâm'] || '';
       document.getElementById('formCustSource').value = cust['Nguồn Khách'] || '';
       document.getElementById('formCustStatus').value = cust['Trạng Thái'] || 'Mới tiếp cận';
       document.getElementById('formCustNote').value = cust['Ghi Chú'] || '';
@@ -3373,10 +3565,11 @@
         document.getElementById('formDealProperty').value = '';
         document.getElementById('formDealPrice').value = '';
         document.getElementById('formDealCommRate').value = (state.data.settings && state.data.settings.defaultCommRate) || 1.5;
+        document.getElementById('formDealCommCash').value = '';
         document.getElementById('formDealDate').value = new Date().toISOString().slice(0, 10);
         document.getElementById('formDealStatus').value = 'Đã thu hoa hồng';
         document.getElementById('formDealNote').value = '';
-        calculateCommissionLive();
+        setDealCommMode('percent');
       }
     }
     function closeAddDealModal() { 
@@ -3392,10 +3585,11 @@
       document.getElementById('formDealProperty').value = deal['Mã Căn'] || '';
       document.getElementById('formDealPrice').value = deal['Giá Chốt (Triệu)'] || 0;
       document.getElementById('formDealCommRate').value = deal['Tỷ Lệ Hoa Hồng (%)'] || 1.5;
+      document.getElementById('formDealCommCash').value = deal['Hoa Hồng Thực Nhận (đ)'] || '';
       document.getElementById('formDealDate').value = String(deal['Ngày Chốt'] || '').slice(0, 10);
       document.getElementById('formDealStatus').value = deal['Trạng Thái'] || 'Đã thu hoa hồng';
       document.getElementById('formDealNote').value = deal['Ghi Chú'] || '';
-      calculateCommissionLive();
+      setDealCommMode('percent');
     }
     function confirmDeleteDeal(code) {
       if (!confirm('Bạn có chắc chắn muốn xóa/hủy hợp đồng chốt cọc [' + code + '] không?\n(Trạng thái căn BĐS liên quan sẽ tự động được hoàn trả về "Đang bán" để tiếp tục khai thác).')) return;
@@ -3452,6 +3646,7 @@
         demand: document.getElementById('formCustDemand').value,
         priceRange: document.getElementById('formCustPrice').value.trim(),
         area: document.getElementById('formCustArea').value.trim(),
+        interestedIn: document.getElementById('formCustInterestedIn') ? document.getElementById('formCustInterestedIn').value : '',
         source: document.getElementById('formCustSource').value,
         status: document.getElementById('formCustStatus').value,
         note: document.getElementById('formCustNote').value.trim()
@@ -3476,10 +3671,10 @@
           if (custId) {
             const idx = state.data.customers.findIndex(c => c['Mã Khách'] === custId);
             if (idx !== -1) {
-              state.data.customers[idx] = { ...state.data.customers[idx], 'Họ Và Tên': payload.name, 'Số Điện Thoại': payload.phone, 'Nhu Cầu': payload.demand, 'Khoảng Giá': payload.priceRange, 'Khu Vực': payload.area, 'Nguồn Khách': payload.source, 'Trạng Thái': payload.status, 'Ghi Chú': payload.note };
+              state.data.customers[idx] = { ...state.data.customers[idx], 'Họ Và Tên': payload.name, 'Số Điện Thoại': payload.phone, 'Nhu Cầu': payload.demand, 'Khoảng Giá': payload.priceRange, 'Khu Vực': payload.area, 'Căn Quan Tâm': payload.interestedIn, 'Nguồn Khách': payload.source, 'Trạng Thái': payload.status, 'Ghi Chú': payload.note };
             }
           } else {
-            state.data.customers.push({ 'Mã Khách': 'KHNG-' + Math.floor(100000+Math.random()*900000), 'Họ Và Tên': payload.name, 'Số Điện Thoại': payload.phone, 'Nhu Cầu': payload.demand, 'Khoảng Giá': payload.priceRange, 'Khu Vực': payload.area, 'Nguồn Khách': payload.source, 'Trạng Thái': payload.status, 'Ghi Chú': payload.note });
+            state.data.customers.push({ 'Mã Khách': 'KHNG-' + Math.floor(100000+Math.random()*900000), 'Họ Và Tên': payload.name, 'Số Điện Thoại': payload.phone, 'Nhu Cầu': payload.demand, 'Khoảng Giá': payload.priceRange, 'Khu Vực': payload.area, 'Căn Quan Tâm': payload.interestedIn, 'Nguồn Khách': payload.source, 'Trạng Thái': payload.status, 'Ghi Chú': payload.note });
           }
           closeAddCustomerModal();
           btn.innerText = 'Lưu khách hàng'; btn.disabled = false;
@@ -3620,8 +3815,17 @@
       const prop = (state.data.properties || []).find(p => p['Mã Căn'] === propCode);
 
       const priceMillion = Number(document.getElementById('formDealPrice').value) || 0;
-      const commRate = Number(document.getElementById('formDealCommRate').value) || 0;
-      const commVND = priceMillion * 1000000 * (commRate / 100);
+      let commRate = Number(document.getElementById('formDealCommRate').value) || 0;
+      let commVND = 0;
+
+      if (currentDealCommMode === 'percent') {
+        commVND = priceMillion * 1000000 * (commRate / 100);
+      } else {
+        commVND = Number(document.getElementById('formDealCommCash').value) || 0;
+        if (priceMillion > 0) {
+          commRate = Math.round((commVND / (priceMillion * 1000000)) * 1000) / 10;
+        }
+      }
 
       const payload = {
         id: dealId || null,
@@ -3631,6 +3835,7 @@
         propertyAddress: prop ? prop['Địa Chỉ'] : '',
         closedPriceMillion: priceMillion,
         commissionPercent: commRate,
+        commissionAmount: commVND,
         dealDate: document.getElementById('formDealDate').value,
         status: document.getElementById('formDealStatus').value,
         note: document.getElementById('formDealNote').value
