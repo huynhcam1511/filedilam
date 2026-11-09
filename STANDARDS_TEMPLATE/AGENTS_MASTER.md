@@ -1,6 +1,6 @@
 # MASTER AGENTS — HIẾN PHÁP & TIÊU CHUẨN PHÁT TRIỂN WEB APP GOOGLE APPS SCRIPT
 > **Thương hiệu:** FILE ĐI LÀM (Workbook & Apps Script Web App Architecture)  
-> **Phiên bản:** Master Standard V2.3 (Quy tắc Single Visible Tab — Khóa & Ẩn toàn bộ tab DB_)  
+> **Phiên bản:** Master Standard V2.4 (Quy chuẩn Siêu Tốc: Parallel Subagents & Master Assembler Pipeline)  
 > **Mục đích:** Quy chuẩn bất biến áp dụng cho TẤT CẢ các giải pháp Google Sheets + Google Apps Script Web App (Quản lý nhà trọ, CRM Bất động sản, Quản lý công nợ, Bán hàng, Quản lý kho, Quản lý tài sản, v.v.).
 
 ---
@@ -169,40 +169,39 @@ Gom về cuối cùng của hệ thống:
 
 ---
 
-## 6. QUY CHUẨN SPRINT MODULE HÓA ĐỘC LẬP (MODULE-BY-MODULE SPRINTS)
+## 6. QUY TRÌNH PHÁT TRIỂN SIÊU TỐC: PARALLEL SUBAGENTS & MASTER ASSEMBLER (MAP-REDUCE PIPELINE)
 
-Để triệt tiêu hoàn toàn lỗi tràn token của AI và cho phép kiểm thử độc lập cuốn chiếu, dự án Web App Monolithic bắt buộc tuân theo **Lộ trình Sprint từng Module**:
+Để tối ưu hóa tốc độ làm việc (rút ngắn thời gian từ hàng chục phút xuống còn **3 – 5 phút**) mà vẫn triệt tiêu hoàn toàn lỗi tràn token hoặc code vắn tắt, hệ thống áp dụng **Mô hình Chạy song song hàng loạt Subagents (Fan-Out) $\rightarrow$ Subagent cuối gom vào 2 file vật lý (Fan-In / Assembler)**:
 
 ```
 ┌────────────────────────────────────────────────────────────────────────┐
-│ SPRINT 0: KHUNG XƯƠNG NỀN TẢNG (CORE ENGINE & SHELL)                   │
-│ • [TENDUAN]_Code.gs: Toàn bộ Backend, API, LockService, Schema Sheets  │
-│ • [TENDUAN]_Index.html: Shell Layout, Sidebar Desktop, Dock Mobile,    │
-│   Router switchTab(), AppState Store, Toast & Modal.                   │
+│ BƯỚC 0: KHÓA HỢP ĐỒNG DỮ LIỆU ĐẦU TIÊN (CONTRACT-FIRST LOCKING)        │
+│ • Master Agent chốt Schema các tab DB_, danh sách hàm RPC Backend.     │
+│ • Chốt cấu trúc Store: AppState = { data: {...}, currentTab: ... }    │
 ├────────────────────────────────────────────────────────────────────────┤
-│ SPRINT 1: HOÀN THIỆN MODULE 1 (TỔNG QUAN & LỊCH HÔM NAY)               │
-│ • Viết ruột Module 1: 4–5 Thẻ KPI + 6–8 Biểu đồ Chart.js trực quan     │
-│ • Lịch việc gấp hôm nay + Nút gọi tel: 1 chạm                          │
+│ BƯỚC 1: BẮN ĐỒNG THỜI HÀNG LOẠT SUBAGENTS (PARALLEL FAN-OUT)           │
+│ Các Subagents chạy song song độc lập, mỗi agent xuất ra 1 file tạm:    │
+│ 1. Subagent Backend    → Xuất: _part_backend.gs                        │
+│ 2. Subagent Shell      → Xuất: _part_shell.html (Layout, Dock, Router) │
+│ 3. Subagent Module 1   → Xuất: _part_mod1.html (Dashboard 4 KPI + 6 C) │
+│ 4. Subagent Module 2   → Xuất: _part_mod2.html (Giao dịch, Drawer Form)│
+│ 5. Subagent Module 3+4 → Xuất: _part_mod3_4.html (Bảo trì, MasterTable)│
+│ 6. Subagent Module 567 → Xuất: _part_mod5_6_7.html (Danh mục, Help FAQ)│
+│                                                                        │
+│ * QUY TẮC CỐT LÕI TRÁNH XUNG ĐỘT KHI CHẠY SONG SONG:                   │
+│ • Mỗi module đóng gói trong 1 Object: const ModuleXYZ = { render()... }│
+│ • Mọi ID DOM bắt buộc có tiền tố module: #dash-..., #tx-..., #core-... │
 ├────────────────────────────────────────────────────────────────────────┤
-│ SPRINT 2: HOÀN THIỆN MODULE 2 (GIAO DỊCH / CẤP PHÁT / THU - TRẢ)       │
-│ • Viết ruột Module 2: Lập phiếu, Right Drawer/Bottom Sheet, bàn phím số│
-│ • Tự động cấn trừ trạng thái thiết bị / công nợ 2 chiều                │
+│ BƯỚC 2: SUBAGENT CUỐI GOM VÀ ĐẤU NỐI (THE MASTER ASSEMBLER - FAN-IN)   │
+│ • Đọc tất cả các file _part_* đã sinh ra trong workspace.              │
+│ • Ghép chuẩn xác vào đúng 2 File vật lý duy nhất:                      │
+│   1. [TENDUAN]_Code.gs  ← Ráp từ _part_backend.gs                      │
+│   2. [TENDUAN]_Index.html ← Ráp các part HTML vào đúng các Slot Marker │
+│ • Tự động dọn dẹp (xóa) các file tạm _part_*.                          │
 ├────────────────────────────────────────────────────────────────────────┤
-│ SPRINT 3: HOÀN THIỆN MODULE 3 (SỔ BẢO TRÌ & CHỨNG TỪ)                  │
-│ • Viết ruột Module 3: Nhật ký sửa chữa, chi phí, xuất biên bản in A4   │
-├────────────────────────────────────────────────────────────────────────┤
-│ SPRINT 4: HOÀN THIỆN MODULE 4 (HỒ SƠ THỰC THỂ: TÀI SẢN / NHÂN SỰ)      │
-│ • Viết ruột Module 4: Master-Table tràn viền Desktop & Thẻ gọn Mobile  │
-│ • Bộ lọc nhanh trạng thái, tìm kiếm tức thì theo mã/tên/serial         │
-├────────────────────────────────────────────────────────────────────────┤
-│ SPRINT 5: HOÀN THIỆN MODULE 5, 6, 7 (HỆ THỐNG: CẤU HÌNH & TRỢ GIÚP)   │
-│ • Module 5: Danh mục phân nhóm tại DB_DanhMuc                          │
-│ • Module 6: Cài đặt thông tin cơ sở & in biên bản A4                   │
-│ • Module 7: Hướng dẫn sử dụng 3 bước Onboarding, FAQ, Zalo FILE ĐI LÀM │
-├────────────────────────────────────────────────────────────────────────┤
-│ SPRINT 6: TỔNG ĐẤU NỐI (INTEGRATION TEST) & BÀN GIAO TRIỂN KHAI        │
-│ • Kiểm tra toàn bộ luồng dữ liệu 7 module ăn khớp với AppState         │
-│ • Rà soát Checklist 10 điểm, hướng dẫn deploy và cấp link /copy        │
+│ BƯỚC 3: KIỂM THỬ TỔNG THỂ & BÀN GIAO (INTEGRATION TEST)                │
+│ • Kiểm tra tính toàn vẹn sự kiện JS, không lỗi Console.                │
+│ • Rà soát Checklist 10 điểm và cấp link triển khai /copy.              │
 └────────────────────────────────────────────────────────────────────────┘
 ```
 
@@ -222,7 +221,7 @@ Gom về cuối cùng của hệ thống:
 - [ ] 2. Tên file Google Sheet chuẩn: `[TÊN SẢN PHẨM IN HOA CÓ DẤU] v[X.X] — FILE ĐI LÀM`.
 - [ ] 3. Chuẩn **Single Visible Tab**: Chỉ hiển thị duy nhất tab `HDSD` (kèm nút Mint ô `B2:D3` và Menu `File Đi Làm`), toàn bộ tab `DB_...` đã được KHÓA và ẨN đi.
 - [ ] 4. Không chứa bất kỳ emoji trẻ con nào trên giao diện hoặc thông báo.
-- [ ] 5. Cấu trúc chuẩn **3 Tầng tần suất (7 Hạng mục)** và thực hiện chuẩn theo **Lộ trình Sprint từng Module**.
+- [ ] 5. Cấu trúc chuẩn **3 Tầng tần suất (7 Hạng mục)** và thực hiện chuẩn theo **Mô hình Parallel Subagents & Master Assembler**.
 - [ ] 6. Dashboard chuẩn: **4–5 thẻ KPI** và **6–8 biểu đồ trực quan** (Grid 2 cột Desktop).
 - [ ] 7. Desktop hiển thị bảng tràn viền + Right Drawer; Mobile hiển thị Card + Bottom Sheet + FAB.
 - [ ] 8. Mã định danh đúng chuẩn: **Đúng 4 ký tự tiền tố + 6 số ngẫu nhiên** (`XXXX-YYYYYY`), font monospace phẳng, không bọc pill.
