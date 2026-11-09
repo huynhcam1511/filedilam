@@ -60,7 +60,21 @@ function openWebApp() {
  * Điểm vào Web App chính
  */
 function doGet(e) {
-  var template = HtmlService.createTemplateFromFile('CONGNO_Index');
+  var template;
+  try {
+    template = HtmlService.createTemplateFromFile('CONGNO_Index');
+  } catch (err) {
+    try {
+      template = HtmlService.createTemplateFromFile('Index');
+    } catch (err2) {
+      return HtmlService.createHtmlOutput(
+        '<div style="font-family:sans-serif;padding:24px;text-align:center;">' +
+        '<h3 style="color:#e11d48;">Chưa tìm thấy file giao diện HTML</h3>' +
+        '<p style="color:#475569;">Vui lòng tạo tệp HTML trong Apps Script với tên là <b>CONGNO_Index</b> hoặc <b>Index</b> và dán toàn bộ mã giao diện vào.</p>' +
+        '</div>'
+      );
+    }
+  }
   return template.evaluate()
     .setTitle(APP_TITLE)
     .addMetaTag('viewport', 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no')
