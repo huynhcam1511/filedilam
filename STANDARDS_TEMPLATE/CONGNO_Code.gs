@@ -871,6 +871,117 @@ function deletePhatSinhNo(maGD) {
 }
 
 /**
+ * API XÓA PHIẾU THANH TOÁN & KHÔI PHỤC CÔNG NỢ HÓA ĐƠN (Bọc LockService)
+ * Tìm dòng thanh toán qua maTT, lấy số tiền và mã hóa đơn liên kết (maGD)
+ * Xóa dòng thanh toán trong DB_ThanhToan
+ * Khôi phục lại Đã Thanh Toán và Còn Lại trên DB_PhatSinhNo, cập nhật Trạng Thái 'Còn nợ'
+ * Trả về getInitialData() để client cập nhật đồng bộ tức thì
+ */
+function deleteThanhToan(maTT) {
+  var lock = LockService.getScriptLock();
+  try {
+    lock.waitLock(15000);
+    var ss = SpreadsheetApp.getActiveSpreadsheet();
+    var sThanhToan = getOrCreateSheet(ss, SHEETS.THANH_TOAN);
+    var sPhatSinh = getOrCreateSheet(ss, SHEETS.PHAT_SINH_NO);
+
+    var ttData = sThanhToan.getDataRange().getValues();
+    var targetRow = -1;
+    var maGD = '';
+    var soTienTT = 0;
+
+    for (var r = 1; r < ttData.length; r++) {
+      if (ttData[r][0] === maTT) {
+        targetRow = r + 1;
+        maGD = ttData[r][1];
+        soTienTT = Number(ttData[r][5]) || 0;
+        break;
+      }
+    }
+
+    if (targetRow <= 0) {
+      return { success: false, error: 'Không tìm thấy phiếu thanh toán: ' + maTT };
+    }
+
+    // Xóa phiếu thanh toán
+    sThanhToan.deleteRow(targetRow);
+
+    // Khôi phục công nợ trên hóa đơn liên kết nếu có
+    if (maGD) {
+      var psData = sPhatSinh.getDataRange().getValues();
+      for (var p = 1; p < psData.length; p++) {
+        if (psData[p][0] === maGD) {
+          var psRowNum = p + 1;
+          var tongTienGD = Number(psData[p][4]) || 0;
+          var daThanhToanHienTai = Number(psData[p][5]) || 0;
+
+          var daThanhToanMoi = Math.max(0, daThanhToanHienTai - soTienTT);
+          var conLaiMoi = Math.max(0, tongTienGD - daThanhToanMoi);
+          var trangThaiMoi = conLaiMoi === 0 ? 'Đã tất toán' : 'Còn nợ';
+
+          // Cột 6: Đã Thanh Toán, Cột 7: Còn Lại, Cột 12: Trạng Thái
+          sPhatSinh.getRange(psRowNum, 6).setValue(daThanhToanMoi);
+          sPhatSinh.getRange(psRowNum, 7).setValue(conLaiMoi);
+          sPhatSinh.getRange(psRowNum, 12).setValue(trangThaiMoi);
+          break;
+        }
+      }
+    }
+
+    // Trả về dữ liệu mới nhất
+    return getInitialData();
+  } catch (err) {
+    return { success: false, error: err.toString() };
+  } finally {
+    lock.releaseLock();
+  }
+}
+
+/**
+ * API LƯU DANH MỤC HỆ THỐNG (Bọc LockService)
+ * [Nhóm, Mã, Tên, Ghi Chú]
+ */
+function saveDanhMuc(payload) {
+  var lock = LockService.getScriptLock();
+  try {
+    lock.waitLock(15000);
+    var ss = SpreadsheetApp.getActiveSpreadsheet();
+    var sDanhMuc = getOrCreateSheet(ss, SHEETS.DANH_MUC);
+    var data = sDanhMuc.getDataRange().getValues();
+
+    var nhom = payload.nhom || payload.Nhom || payload['Nhóm'] || 'Chung';
+    var ma = payload.ma || payload.Ma || payload['Mã'] || generateId('DMUC');
+    var ten = payload.ten || payload.Ten || payload['Tên'] || '';
+    var ghiChu = payload.ghiChu || payload.GhiChu || payload['Ghi Chú'] || '';
+
+    var targetRow = -1;
+    for (var r = 1; r < data.length; r++) {
+      if (data[r][1] === ma) {
+        targetRow = r + 1;
+        break;
+      }
+    }
+
+    var rowData = [nhom, ma, ten, ghiChu];
+    if (targetRow > 0) {
+      sDanhMuc.getRange(targetRow, 1, 1, 4).setValues([rowData]);
+    } else {
+      sDanhMuc.appendRow(rowData);
+    }
+
+    return {
+      success: true,
+      message: 'Đã lưu danh mục thành công!',
+      data: { nhom: nhom, ma: ma, ten: ten, ghiChu: ghiChu }
+    };
+  } catch (err) {
+    return { success: false, error: err.toString() };
+  } finally {
+    lock.releaseLock();
+  }
+}
+
+/**
  * CÁC HÀM TIỆN ÍCH HỖ TRỢ (HELPER FUNCTIONS)
  */
 function getOrCreateSheet(ss, sheetName) {
