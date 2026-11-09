@@ -48,10 +48,15 @@
    - **Menu thanh công cụ (`onOpen`)**: Tên menu `File Đi Làm` $\rightarrow$ Mục con duy nhất `Mở Ứng Dụng Quản Lý`.
    - **Nút bấm trực quan trên Sheet (Tab HDSD)**: Đặt tại ô `B2:D3` merge, nền xanh Mint `#059669`, chữ trắng in đậm: `MỞ ỨNG DỤNG WEB APP (BẤM VÀO ĐÂY)`.
 
-4. **Quy trình làm việc nghiêm ngặt**:
+5. **Quy trình làm việc nghiêm ngặt**:
    - `AUDIT → ROOT CAUSE → DESIGN IMPACT → IMPLEMENT TRÊN FILE LOCAL → TEST → BÀN GIAO`.
    - Tuyệt đối không báo tính năng "đã hoàn tất / đã chạy" khi chưa kiểm chứng thực tế.
    - Không fake success (không hiển thị toast thành công khi server chưa trả về kết quả hợp lệ).
+
+6. **Quy tắc "Auto-Seed On First Load" & Zero Empty State**:
+   - Tuyệt đối KHÔNG bắt người dùng phải mở Apps Script editor để bấm Run hàm `setupDatabaseSheets()`.
+   - Hàm backend `getInitialData()` BẮT BUỘC phải tự động kiểm tra: nếu các tab `DB_...` chưa tồn tại hoặc bảng dữ liệu chính rỗng, hệ thống tự động kích hoạt `setupDatabaseSheets()` để nạp bộ dữ liệu mẫu thực chiến (10–15 thực thể đầy đủ trạng thái) ngay trong lần gọi RPC đầu tiên.
+   - Luôn trang bị nút "Khởi tạo / Dữ liệu mẫu" trực quan tại Header Web App để người dùng có thể nạp lại dữ liệu chuẩn 1 chạm trực tiếp từ giao diện bất kỳ lúc nào.
 
 ---
 
@@ -130,7 +135,24 @@ Gom về cuối cùng của hệ thống:
 1. **Giao diện Desktop (Laptop / Màn hình lớn)**:
    - **Sidebar bên trái cố định (240px)** có nút Hamburger thu gọn về Icon-only (~64px). Hiển thị 3 cụm menu có tiêu đề nhỏ (`VẬN HÀNH`, `QUẢN LÝ`, `HỆ THỐNG`).
    - **Bảng Master-Table phẳng tràn viền (Edge-to-Edge Full Bleed)**: Cố định tiêu đề (`Freeze Header`), không dùng đường kẻ dọc cột Excel thô kệch, hover hàng nhẹ nhàng (`hover:bg-slate-50`), menu 3 chấm (`MoreVertical`) ở cột ngoài cùng bên phải (tiêu đề `<th>` để rỗng).
-   - **Form Nhập liệu / Chi tiết dùng Right Drawer**: Trượt êm từ cạnh phải màn hình (Right Slide-over Drawer, độ rộng 450px – 520px), phủ overlay mờ phía sau.
+   - **Form Nhập liệu / Chi tiết dùng Right Drawer (Zero Popup Policy)**: Trượt êm từ cạnh phải màn hình (Right Slide-over Drawer, độ rộng 450px – 520px), phủ overlay mờ phía sau.
+   - **Quy chuẩn kỹ thuật bắt buộc cho `<aside id="action-drawer">`**:
+     - *Triệt tiêu xung đột Tailwind*: Khi dùng chung một thẻ `<aside id="action-drawer">` cho cả Drawer Desktop và Bottom Sheet Mobile, bắt buộc phải khai báo `lg:left-auto lg:top-0 lg:bottom-0 lg:right-0 lg:w-[480px] lg:h-full lg:max-h-full lg:rounded-none lg:translate-y-0 lg:translate-x-full` để loại trừ hoàn toàn `left-0` và `translate-y-full` của Mobile.
+     - *Media Query CSS cứng*: Bắt buộc bổ sung khối CSS trong thẻ `<style>` để đảm bảo tuyệt đối không bị lệch về bên trái hay đè lên sidebar:
+       ```css
+       @media (min-width: 1024px) {
+         #action-drawer {
+           top: 0 !important;
+           bottom: 0 !important;
+           right: 0 !important;
+           left: auto !important;
+           width: 480px !important;
+           max-height: 100vh !important;
+           height: 100vh !important;
+           border-radius: 0 !important;
+         }
+       }
+       ```
 
 2. **Giao diện Mobile (Điện thoại thông minh / Hiện trường)**:
    - **Chuyển bảng thành thẻ gọn (Table-to-Card Transformation)**: Tuyệt đối CẤM bắt người dùng vuốt ngang màn hình tìm cột. Bảng tự động gom thành danh sách thẻ phẳng.
@@ -142,6 +164,10 @@ Gom về cuối cùng của hệ thống:
    - Nhãn rõ ràng kèm đánh dấu bắt buộc: `<label class="block text-xs font-semibold text-slate-700 mb-1.5">Tên trường <span class="text-rose-500">*</span></label>`.
    - Ô input cao 42px – 46px, bo góc `rounded-lg`, focus viền Mint.
    - **Tuyệt đối CẤM `alert()` / `confirm()` mặc định**: 100% dùng Toast Notification 3s và Custom Confirmation Modal màu đỏ.
+
+4. **Quy tắc "Zero Phantom Overlay" (Chống màng phủ vô hình chặn click chuột)**:
+   - **CỰC KỲ QUAN TRỌNG TRÊN GOOGLE APPS SCRIPT IFRAME**: Tuyệt đối CẤM chỉ dùng `opacity-0` và `pointer-events-none` cho container phủ màn hình khi phần tử con (như Backdrop) vẫn còn giữ `pointer-events-auto`. Lớp phủ vô hình này sẽ chiếm toàn bộ viewport ở z-index cao và chặn 100% click chuột của người dùng khiến giao diện bị tê liệt.
+   - **QUY CHUẨN BẮT BUỘC**: Khi Drawer hoặc Modal đóng, container ngoài cùng BẮT BUỘC phải gắn class `hidden` (`display: none`). Khi mở: gỡ `hidden` rồi mới kích hoạt animation trượt/mờ. Khi đóng: kích hoạt animation xong thì thêm lại `hidden`.
 
 ---
 
@@ -188,6 +214,21 @@ Gom về cuối cùng của hệ thống:
 3. **ID bảng tính luôn động**: Luôn dùng `SpreadsheetApp.getActiveSpreadsheet().getId()`.
 4. **Cơ chế khóa ghi đồng thời (`LockService`)**: Tất cả hàm thêm, sửa, xóa bắt buộc bọc trong `LockService.getScriptLock()` (waitLock 15s).
 5. **Gom dữ liệu 1 chạm (`getInitialData()`)**: Gom toàn bộ database về một Object JSON duy nhất trong 1 lần gọi RPC ban đầu.
+6. **Nguyên tắc Ánh xạ Dữ liệu 2 Lớp (Dual Header Mapping Tiếng Việt & CamelCase)**:
+   - Google Sheets luôn lưu tiêu đề tiếng Việt có dấu (`['Nhóm', 'Mã', 'Tên', 'Ghi Chú']`), trong khi Web App JS thường dùng key không dấu (`nhom`, `ma`, `ten`, `loai`). Để triệt tiêu 100% rủi ro bảng bị rỗng (Empty State) khi gọi RPC:
+     - **Backend (`Code.gs`)**: Trong `getInitialData()`, mọi hàm mapping từ `readSheetData()` bắt buộc sinh đồng thời cả key tiếng Việt có dấu và key camelCase:
+       ```javascript
+       return {
+         nhom: nhom, Nhom: nhom, 'Nhóm': nhom,
+         ma: ma, Ma: ma, 'Mã': ma, maDanhMuc: ma,
+         ten: ten, Ten: ten, 'Tên': ten, giaTri: ten, TenDanhMuc: ten,
+         ghiChu: ghiChu, GhiChu: ghiChu, 'Ghi Chú': ghiChu,
+         loai: loaiAlias, LoaiDanhMuc: loaiAlias
+       };
+       ```
+     - **Frontend (`Index.html`)**: Mọi hàm filter, search và table render bắt buộc kiểm tra fallback đa tầng:
+       `const ten = item.Ten || item.ten || item['Tên'] || item.giaTri;`
+       `const nhom = item.Nhom || item.nhom || item['Nhóm'] || item.loai;`
 
 ---
 
@@ -237,7 +278,7 @@ Gom về cuối cùng của hệ thống:
 
 ---
 
-## 8. DANH MỤC KIỂM TRA TRƯỚC KHI BÀN GIAO (CHECKLIST 10 ĐIỂM)
+## 8. DANH MỤC KIỂM TRA TRƯỚC KHI BÀN GIAO (CHECKLIST 12 ĐIỂM)
 
 - [ ] 1. Tên file local đúng chuẩn: `[TENDUAN]_Code.gs` và `[TENDUAN]_Index.html`.
 - [ ] 2. Tên file Google Sheet chuẩn: `[TÊN SẢN PHẨM IN HOA CÓ DẤU] v[X.X] — FILE ĐI LÀM`.
@@ -249,3 +290,5 @@ Gom về cuối cùng của hệ thống:
 - [ ] 8. Mã định danh đúng chuẩn: **Đúng 4 ký tự tiền tố + 6 số ngẫu nhiên** (`XXXX-YYYYYY`), font monospace phẳng, không bọc pill.
 - [ ] 9. Tất cả thao tác lưu/xóa đều bọc `LockService` trong Apps Script.
 - [ ] 10. Nút gọi điện thoại trên mobile đều gắn link `tel:`; ô số tiền/SĐT có `inputmode="numeric"`.
+- [ ] 11. Backend `getInitialData()` có cơ chế Auto-Seed tự động nạp dữ liệu mẫu khi Sheet rỗng hoặc chưa setup.
+- [ ] 12. Không có bất kỳ phần tử Drawer/Modal nào mang `pointer-events-auto` che phủ màn hình khi đang đóng (chuẩn Zero Phantom Overlay).

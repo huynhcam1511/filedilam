@@ -39,7 +39,13 @@
 ## 3. SẢN PHẨM GOOGLE SHEETS + APPS SCRIPT (BÁN BẰNG LINK /COPY)
 - **Quy trình trọn gói**: Người dùng đưa prompt nghiệp vụ; Agent tự hoàn thành Sheet, Apps Script launcher gắn sẵn, Web App và cấu hình triển khai. Bàn giao 1 link sản phẩm duy nhất.
 - **Trải nghiệm người mua**: Bấm `/copy` → Tạo bản sao vào Drive → Menu **File Đi Làm** tự xuất hiện sau khi Sheet tải xong → Mở ứng dụng → Cấp quyền Google lần đầu.
-- **Không bắt khách cấu hình**: Không yêu cầu khách mở Apps Script editor, dán mã nguồn, deploy web app, nhập Spreadsheet ID hay dán URL `/exec`.
+- **Không bắt khách cấu hình & Quy tắc Auto-Seed on First Load**:
+  - Không yêu cầu khách mở Apps Script editor, dán mã nguồn, deploy web app, nhập Spreadsheet ID hay bấm Run hàm setup thủ công.
+  - Hàm `getInitialData()` backend phải tự động kiểm tra: nếu Sheet chưa có bảng hoặc dữ liệu rỗng, tự động chạy khởi tạo và nạp dữ liệu mẫu thực chiến ngay trong lần load đầu tiên.
+  - Trên giao diện Web App luôn có nút "Dữ liệu mẫu" để nạp lại dữ liệu 1 chạm bất kỳ lúc nào.
+- **Quy tắc Zero Phantom Overlay (Chống màng vô hình chặn click chuột)**:
+  - Trên môi trường iframe của Google Apps Script, tuyệt đối CẤM chỉ dùng `opacity-0` và `pointer-events-none` cho container phủ màn hình khi phần tử con (Backdrop) vẫn còn giữ `pointer-events-auto`.
+  - Bắt buộc: Khi Drawer/Modal đóng, container ngoài cùng BẮT BUỘC phải gắn class `hidden` (`display: none`) để giải phóng 100% diện tích màn hình cho chuột thao tác.
 - **Nguyên tắc kỹ thuật script**:
   - Menu lấy ID động bằng `SpreadsheetApp.getActiveSpreadsheet().getId()`.
   - Mọi RPC mang ID bản sao tương ứng. Không hardcode Spreadsheet ID master, không fallback về master làm database.
