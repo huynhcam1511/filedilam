@@ -16,12 +16,20 @@
 
 2. **Quy chuẩn đặt tên File Google Sheet & File Code Local**:
    - **Tên File Google Sheet (Hiển thị cho khách)**:
-     - Bắt buộc cấu trúc: `[TÊN SẢN PHẨM IN HOA CÓ DẤU] v[X.X] — FILE ĐI LÀM`
-     - *Ví dụ chuẩn mẫu*:
+     - **Dòng sản phẩm có tích hợp Web App (Mô hình Single Visible Tab)**:
+       `[TÊN SẢN PHẨM IN HOA CÓ DẤU] — WEB APP v[X.X] — FILE ĐI LÀM`
+       *Ví dụ*:
+       - `QUẢN LÝ NHÀ TRỌ — THU CHI VÀ TIỀN PHÒNG — WEB APP v1.0 — FILE ĐI LÀM`
+       - `QUẢN LÝ KHO MINI — GOOGLE SHEETS SMART — WEB APP v1.0 — FILE ĐI LÀM`
+       - `HỆ THỐNG QUẢN LÝ KHÁCH HÀNG & GIỎ HÀNG BẤT ĐỘNG SẢN — WEB APP v1.0 — FILE ĐI LÀM`
+       - `BẢNG TÍNH GIÁ VỐN & ĐỊNH GIÁ SẢN PHẨM (COSTING) — WEB APP v1.0 — FILE ĐI LÀM`
+       - `QUẢN LÝ TÀI SẢN & THIẾT BỊ DOANH NGHIỆP — WEB APP v1.0 — FILE ĐI LÀM`
+       - `SỔ QUẢN LÝ CÔNG NỢ KHÁCH HÀNG & NCC — WEB APP v1.0 — FILE ĐI LÀM`
+     - **Dòng sản phẩm Workbook thuần túy (Excel / Google Sheets Template, không có Web App)**:
+       `[TÊN SẢN PHẨM IN HOA CÓ DẤU] v[X.X] — FILE ĐI LÀM`
+       *Ví dụ*:
+       - `WEEKLY PLANNER & ROUTINE DASHBOARD M37 v3.7.0 (FULL 7 NGÀY) — FILE ĐI LÀM`
        - `QUẢN LÝ BÁN HÀNG SHOP ONLINE MINI v1.4.0 — FILE ĐI LÀM`
-       - `BẢNG TÍNH GIÁ VỐN & ĐỊNH GIÁ SẢN PHẨM (COSTING) v1.0 — FILE ĐI LÀM`
-       - `QUẢN LÝ TÀI SẢN & THIẾT BỊ DOANH NGHIỆP v1.0 — FILE ĐI LÀM`
-       - `SỔ QUẢN LÝ CÔNG NỢ KHÁCH HÀNG & NCC v1.0 — FILE ĐI LÀM`
    - **Tên 2 File Code Vật Lý (Local)**:
      - `[TENDUAN]_Code.gs`: Backend logic, menu Sheet, routing `doGet()`, xử lý Sheets, bảo mật và RPC handlers.
      - `[TENDUAN]_Index.html`: File giao diện duy nhất (Monolithic SPA) tích hợp Tailwind CSS, Lucide Icons, Chart.js.
