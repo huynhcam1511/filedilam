@@ -5058,6 +5058,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   setupDatePickerPair('adsStartDateInputText', 'adsStartDateInput', true);
+  setupDatePickerPair('postDateInputText', 'postDateInput', false);
 
   function getDurationLabel(hours) {
     if (hours === 12) return '12 giờ';
@@ -6168,6 +6169,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const urlInp = document.getElementById('postUrlInput');
     const prodSelect = document.getElementById('postProductSelect');
     const dateInp = document.getElementById('postDateInput');
+    const dateTextInp = document.getElementById('postDateInputText');
     const statusSelect = document.getElementById('postStatusSelect');
     const notesInp = document.getElementById('postNotesInput');
 
@@ -6179,7 +6181,9 @@ document.addEventListener('DOMContentLoaded', () => {
       if (titleInp) titleInp.value = post.title || '';
       if (urlInp) urlInp.value = post.url || '';
       if (prodSelect) prodSelect.value = post.product_id || '';
-      if (dateInp) dateInp.value = post.posted_at || (post.created_at ? post.created_at.slice(0, 10) : '');
+      const initialDate = post.posted_at || (post.created_at ? post.created_at.slice(0, 10) : '');
+      if (dateInp) dateInp.value = initialDate;
+      if (dateTextInp) dateTextInp.value = initialDate ? formatDateVN(initialDate) : '';
       if (statusSelect) statusSelect.value = post.status || 'PUBLISHED';
       if (notesInp) notesInp.value = post.notes || '';
     } else {
@@ -6187,7 +6191,9 @@ document.addEventListener('DOMContentLoaded', () => {
       if (docIdInp) docIdInp.value = '';
       if (postForm) postForm.reset();
       if (statusSelect) statusSelect.value = 'PUBLISHED';
-      if (dateInp) dateInp.value = new Date().toISOString().slice(0, 10);
+      const todayIso = new Date().toISOString().slice(0, 10);
+      if (dateInp) dateInp.value = todayIso;
+      if (dateTextInp) dateTextInp.value = formatDateVN(todayIso);
     }
 
     postDrawerBackdrop.style.display = 'flex';
