@@ -124,7 +124,7 @@
         <div class="w-2 h-2 rounded-full bg-emerald-500"></div>
         <span class="text-[11px] text-slate-500 font-medium brand-name">Hệ thống sẵn sàng</span>
       </div>
-      <span id="appBuildVersionBadge" class="text-[10px] text-emerald-700 font-mono font-bold bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">Phiên bản 44 (Active)</span>
+      <span id="appBuildVersionBadge" class="text-[10px] text-emerald-700 font-mono font-bold bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">Phiên bản 45 (Active)</span>
     </div>
   </aside>
 
@@ -147,7 +147,7 @@
         <button onclick="toggleSidebar()" class="md:hidden p-1.5 rounded-lg text-slate-500 hover:bg-slate-100 flex-shrink-0"><i data-lucide="menu" class="w-5 h-5"></i></button>
         <div class="flex items-center gap-2">
           <h1 id="topbarTitle" class="text-sm font-bold text-slate-900 truncate">Tổng quan vận hành</h1>
-          <span class="text-[10px] text-emerald-700 font-mono font-bold bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-200 shrink-0">Bản 44</span>
+          <span class="text-[10px] text-emerald-700 font-mono font-bold bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-200 shrink-0">Bản 45</span>
         </div>
       </div>
 
@@ -956,7 +956,7 @@
 
     <!-- ==================== SLIDE-OVER DRAWER (HỒ SƠ 360° SPRINT 3 ENHANCED) ==================== -->
     <div id="drawerBackdrop" onclick="closeDrawer()" class="fixed inset-0 bg-slate-900/20 backdrop-blur-xs z-40 hidden transition-opacity"></div>
-    <div id="detailDrawer" class="fixed top-0 right-0 bottom-0 w-full sm:w-[500px] bg-white border-l border-slate-200 z-50 flex flex-col shadow-2xl transform translate-x-full transition-transform duration-200 ease-in-out">
+    <div id="detailDrawer" class="fixed top-0 right-0 bottom-0 w-full sm:w-[500px] bg-white border-l border-slate-200 z-50 flex flex-col shadow-2xl transform translate-x-full transition-transform duration-200 ease-in-out hidden">
       <!-- Drawer Header -->
       <div class="h-14 px-4 border-b border-slate-100 flex items-center justify-between flex-shrink-0 bg-white">
         <div class="flex items-center gap-2">
@@ -1061,7 +1061,7 @@
 
     <!-- ==================== PROPERTY DETAILS DRAWER (SPRINT 5) ==================== -->
     <div id="propDrawerBackdrop" onclick="closePropertyDrawer()" class="fixed inset-0 bg-slate-900/20 backdrop-blur-xs z-40 hidden transition-opacity"></div>
-    <div id="propDetailDrawer" class="fixed top-0 right-0 bottom-0 w-full sm:w-[480px] bg-white border-l border-slate-200 z-50 flex flex-col shadow-2xl transform translate-x-full transition-transform duration-200 ease-in-out">
+    <div id="propDetailDrawer" class="fixed top-0 right-0 bottom-0 w-full sm:w-[480px] bg-white border-l border-slate-200 z-50 flex flex-col shadow-2xl transform translate-x-full transition-transform duration-200 ease-in-out hidden">
       <div class="h-14 px-4 border-b border-slate-100 flex items-center justify-between flex-shrink-0 bg-white">
         <div class="flex items-center gap-2">
           <span class="text-xs font-mono font-bold text-slate-800 bg-slate-100 px-2 py-0.5 rounded" id="drawerPropCode">BDSS-000000</span>
@@ -3720,14 +3720,25 @@
       document.getElementById('drawerPropPhoneLink').href = 'tel:' + phoneDigits;
       document.getElementById('drawerPropCallBottomBtn').href = 'tel:' + phoneDigits;
 
+      const propDrawer = document.getElementById('propDetailDrawer');
+      propDrawer.classList.remove('hidden');
+      requestAnimationFrame(() => {
+        propDrawer.classList.remove('translate-x-full');
+      });
       document.getElementById('propDrawerBackdrop').classList.remove('hidden');
-      document.getElementById('propDetailDrawer').classList.remove('translate-x-full');
       lucide.createIcons();
     }
 
     function closePropertyDrawer() {
-      document.getElementById('propDrawerBackdrop').classList.add('hidden');
-      document.getElementById('propDetailDrawer').classList.add('translate-x-full');
+      const propDrawer = document.getElementById('propDetailDrawer');
+      const backdrop = document.getElementById('propDrawerBackdrop');
+      if (backdrop) backdrop.classList.add('hidden');
+      if (propDrawer) {
+        propDrawer.classList.add('translate-x-full');
+        setTimeout(() => {
+          propDrawer.classList.add('hidden');
+        }, 220);
+      }
     }
 
     function editPropertyFromDrawer() {
@@ -3943,8 +3954,12 @@
       // Mặc định mở tab Overview
       switchDrawerTab('overview');
 
+      const custDrawer = document.getElementById('detailDrawer');
+      custDrawer.classList.remove('hidden');
+      requestAnimationFrame(() => {
+        custDrawer.classList.remove('translate-x-full');
+      });
       document.getElementById('drawerBackdrop').classList.remove('hidden');
-      document.getElementById('detailDrawer').classList.remove('translate-x-full');
       lucide.createIcons();
     }
 
@@ -4015,8 +4030,15 @@
     }
 
     function closeDrawer() {
-      document.getElementById('drawerBackdrop').classList.add('hidden');
-      document.getElementById('detailDrawer').classList.add('translate-x-full');
+      const custDrawer = document.getElementById('detailDrawer');
+      const backdrop = document.getElementById('drawerBackdrop');
+      if (backdrop) backdrop.classList.add('hidden');
+      if (custDrawer) {
+        custDrawer.classList.add('translate-x-full');
+        setTimeout(() => {
+          custDrawer.classList.add('hidden');
+        }, 220);
+      }
     }
 
     function quickAddLogFromDrawer() {
