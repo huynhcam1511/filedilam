@@ -333,49 +333,78 @@ document.addEventListener('DOMContentLoaded', () => {
 
     try {
       showToast('Đang chuẩn hóa mã SKU sản phẩm...');
-      const oldDocRef = db.collection('products').doc(oldId);
-      const oldSnap = await oldDocRef.get();
-      if (!oldSnap.exists) {
-        showToast('Không tìm thấy sản phẩm trên Firestore', true);
-        return;
-      }
-
-      const productData = oldSnap.data();
-      productData.id = newSku;
-      productData.updatedAt = firebase.firestore.FieldValue.serverTimestamp();
-
-      // Lưu document mới với mã SKU chuẩn PRD-XXXXXX
-      await db.collection('products').doc(newSku).set(productData);
-
-      // Cập nhật các bản ghi liên kết nếu có (social_posts, ads_campaigns)
-      try {
-        const postsSnap = await db.collection('social_posts').where('product_id', '==', oldId).get();
-        if (!postsSnap.empty) {
-          const batch = db.batch();
-          postsSnap.forEach(doc => {
-            batch.update(doc.ref, { product_id: newSku });
-          });
-          await batch.commit();
-        }
-        const adsSnap = await db.collection('ads_campaigns').where('product_id', '==', oldId).get();
-        if (!adsSnap.empty) {
-          const batchAds = db.batch();
-          adsSnap.forEach(doc => {
-            batchAds.update(doc.ref, { product_id: newSku });
-          });
-          await batchAds.commit();
-        }
-      } catch (subErr) {
-        console.warn('Lỗi cập nhật liên kết phụ khi đổi SKU:', subErr);
-      }
-
-      // Xóa document cũ với ID lem nhem
-      await oldDocRef.delete();
-
+      await migrateSingleProductSku(oldId, newSku);
       showToast('Đã chuẩn hóa mã thành công: ' + newSku);
       await loadProducts();
     } catch (err) {
       console.error('Lỗi chuẩn hóa mã SKU:', err);
+      showToast('Lỗi khi chuẩn hóa: ' + err.message, true);
+    }
+  }
+
+  async function migrateSingleProductSku(oldId, newSku) {
+    const oldDocRef = db.collection('products').doc(oldId);
+    const oldSnap = await oldDocRef.get();
+    if (!oldSnap.exists) {
+      throw new Error('Không tìm thấy sản phẩm ' + oldId + ' trên Firestore');
+    }
+
+    const productData = oldSnap.data();
+    productData.id = newSku;
+    productData.updatedAt = firebase.firestore.FieldValue.serverTimestamp();
+
+    // Lưu document mới với mã SKU chuẩn PRD-XXXXXX
+    await db.collection('products').doc(newSku).set(productData);
+
+    // Cập nhật các bản ghi liên kết nếu có (social_posts, ads_campaigns, coupons)
+    try {
+      const postsSnap = await db.collection('social_posts').where('product_id', '==', oldId).get();
+      if (!postsSnap.empty) {
+        const batch = db.batch();
+        postsSnap.forEach(doc => {
+          batch.update(doc.ref, { product_id: newSku });
+        });
+        await batch.commit();
+      }
+      const adsSnap = await db.collection('ads_campaigns').where('product_id', '==', oldId).get();
+      if (!adsSnap.empty) {
+        const batchAds = db.batch();
+        adsSnap.forEach(doc => {
+          batchAds.update(doc.ref, { product_id: newSku });
+        });
+        await batchAds.commit();
+      }
+    } catch (subErr) {
+      console.warn('Lỗi cập nhật liên kết phụ khi đổi SKU:', subErr);
+    }
+
+    // Xóa document cũ với ID lem nhem
+    await oldDocRef.delete();
+  }
+
+  async function normalizeAllNonStandardSkus() {
+    const nonStandardList = (currentProducts || []).filter(p => !isValidProductSku(p.id));
+    if (!nonStandardList.length) {
+      showToast('Tất cả sản phẩm đã mang mã PRD chuẩn!');
+      return;
+    }
+
+    const confirmMsg = 'Bạn có muốn tự động chuẩn hóa ' + nonStandardList.length + ' sản phẩm sang mã PRD-XXXXXX chuẩn AGENTS.md không?\n\n' +
+      nonStandardList.map(p => '• ' + p.name + ' (' + p.id + ')').join('\n') +
+      '\n\nToàn bộ dữ liệu, giá bán, link file Google Sheets và bài đăng liên quan đều được bảo toàn nguyên vẹn 100%.';
+    if (!confirm(confirmMsg)) return;
+
+    try {
+      showToast('Đang tiến hành chuẩn hóa ' + nonStandardList.length + ' sản phẩm...');
+      for (const p of nonStandardList) {
+        const newSku = generateUniqueProductId(currentProducts);
+        await migrateSingleProductSku(p.id, newSku);
+        p.id = newSku; // cập nhật bộ nhớ tạm
+      }
+      showToast('Đã chuẩn hóa thành công tất cả mã sản phẩm!');
+      await loadProducts();
+    } catch (err) {
+      console.error('Lỗi chuẩn hóa hàng loạt:', err);
       showToast('Lỗi khi chuẩn hóa: ' + err.message, true);
     }
   }
@@ -396,6 +425,18 @@ document.addEventListener('DOMContentLoaded', () => {
       const sidebarBadge = document.getElementById('sidebarProductCount');
       if (countEl) countEl.textContent = totalNum;
       if (sidebarBadge) sidebarBadge.textContent = totalNum;
+
+      // Nút chuẩn hóa toàn bộ mã PRD nếu còn mã chưa chuẩn
+      const btnNormalizeAll = document.getElementById('btnNormalizeAllSkus');
+      if (btnNormalizeAll) {
+        const nonStandardList = (currentProducts || []).filter(p => !isValidProductSku(p.id));
+        if (nonStandardList.length > 0) {
+          btnNormalizeAll.style.display = 'inline-flex';
+          btnNormalizeAll.querySelector('span').textContent = 'Chuẩn hóa ' + nonStandardList.length + ' mã PRD';
+        } else {
+          btnNormalizeAll.style.display = 'none';
+        }
+      }
 
       renderFilteredProducts();
       try { populatePostProductDropdowns(); } catch (e) {}
@@ -581,6 +622,13 @@ document.addEventListener('DOMContentLoaded', () => {
         }
       });
     });
+
+    const btnNormalizeAll = document.getElementById('btnNormalizeAllSkus');
+    if (btnNormalizeAll) {
+      btnNormalizeAll.onclick = async () => {
+        await normalizeAllNonStandardSkus();
+      };
+    }
 
     document.querySelectorAll('.btn-delete').forEach(btn => {
       btn.addEventListener('click', async (e) => {

@@ -2076,6 +2076,10 @@
             <div class="status-counter-text" id="productCountCounter">
               Đã kết nối Firestore • <b id="productTotalNum">3</b> sản phẩm
             </div>
+            <button type="button" class="btn-create-pill" id="btnNormalizeAllSkus" style="display: none; background: #fef3c7; color: #92400e; border: 1px solid #fde68a;" title="Tự động chuẩn hóa toàn bộ mã lỗi sang PRD-XXXXXX chuẩn AGENTS.md">
+              <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+              <span>Chuẩn hóa tất cả mã PRD</span>
+            </button>
             <button type="button" class="btn-create-pill" id="goAddProductBtn" title="Thêm file hoặc gói sản phẩm mới">
               <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"></path></svg>
               Thêm mới
@@ -2896,7 +2900,7 @@
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-storage-compat.js"></script>
   <script src="/__/firebase/init.js"></script>
   
-  <script src="./admin.js?v=305"></script>
+  <script src="./admin.js?v=306"></script>
   <!-- Agentation: Visual Feedback & Annotation for AI agents -->
   <script src="./agentation-vanilla.js"></script>
 
