@@ -1789,8 +1789,8 @@ function escapeHtml(value) {
                 '</div>' +
               '<div class="product-card-footer">' +
                 socialProofHtml +
-                '<button class="btn-card-cart-pill" type="button" data-cart-id="' + escapeHtml(product.id) + '">' +
-                  '<span>Thêm vào giỏ</span>' +
+                '<button class="btn-card-cart-pill" type="button" data-buy-now-id="' + escapeHtml(product.id) + '">' +
+                  '<span>Mua ngay</span>' +
                 '</button>' +
               '</div>' +
             '</div>' +
@@ -1801,7 +1801,7 @@ function escapeHtml(value) {
 
     Array.prototype.forEach.call(productGrid.querySelectorAll(".product-card"), function (card) {
       card.addEventListener("click", function (e) {
-        if (e.target.closest("[data-cart-id]")) {
+        if (e.target.closest("[data-buy-now-id]") || e.target.closest("[data-cart-id]")) {
           return;
         }
         var prodId = card.getAttribute("data-detail-id");
@@ -1809,11 +1809,19 @@ function escapeHtml(value) {
       });
     });
 
+    Array.prototype.forEach.call(productGrid.querySelectorAll("[data-buy-now-id]"), function (btn) {
+      btn.addEventListener("click", function (e) {
+        e.stopPropagation();
+        var prodId = btn.getAttribute("data-buy-now-id");
+        buyNow(prodId);
+      });
+    });
+
     Array.prototype.forEach.call(productGrid.querySelectorAll("[data-cart-id]"), function (btn) {
       btn.addEventListener("click", function (e) {
         e.stopPropagation();
         var prodId = btn.getAttribute("data-cart-id");
-        addToCart(prodId, { openDrawer: true });
+        buyNow(prodId);
       });
     });
   }
@@ -1971,6 +1979,62 @@ function escapeHtml(value) {
         );
       })
       .join("");
+
+    renderCheckoutUpsell();
+  }
+
+  function renderCheckoutUpsell() {
+    var upsellBox = document.getElementById("checkoutUpsellBox");
+    var upsellList = document.getElementById("checkoutUpsellList");
+    if (!upsellBox || !upsellList) return;
+
+    var cartProductIds = (state.cart || []).map(function(item) { return item.productId; });
+    var availableUpsells = (data.products || []).filter(function(prod) {
+      return !cartProductIds.includes(prod.id);
+    });
+
+    if (!availableUpsells.length) {
+      upsellBox.style.display = "none";
+      return;
+    }
+
+    // Chọn 2-3 sản phẩm gợi ý
+    var upsellItems = availableUpsells.slice(0, 3);
+    upsellBox.style.display = "block";
+    upsellList.innerHTML = upsellItems.map(function(prod) {
+      var thumb = prod.previewImageUrl || prod.thumbnailUrl || '';
+      return (
+        '<div class="checkout-upsell-item" style="display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 8px 10px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px;">' +
+          '<div style="display: flex; align-items: center; gap: 10px; min-width: 0; flex: 1;">' +
+            '<div style="width: 36px; height: 36px; border-radius: 6px; background-size: cover; background-position: center; border: 1px solid #cbd5e1; flex-shrink: 0; background-image: url(&quot;' + escapeHtml(thumb) + '&quot;);"></div>' +
+            '<div style="min-width: 0; flex: 1;">' +
+              '<div style="font-size: 0.82rem; font-weight: 600; color: #0f172a; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">' + escapeHtml(prod.name) + '</div>' +
+              '<div style="display: flex; align-items: baseline; gap: 6px; font-size: 0.78rem;">' +
+                '<span style="font-weight: 700; color: #059669; font-family: var(--font-mono);">' + formatCurrency(prod.price) + '</span>' +
+                (prod.originalPrice && prod.originalPrice > prod.price ? '<span style="color: #94a3b8; text-decoration: line-through; font-size: 0.72rem;">' + formatCurrency(prod.originalPrice) + '</span>' : '') +
+              '</div>' +
+            '</div>' +
+          '</div>' +
+          '<button type="button" class="btn-checkout-upsell-add" data-upsell-id="' + escapeHtml(prod.id) + '" style="background: #ffffff; border: 1px solid #059669; color: #059669; font-size: 0.75rem; font-weight: 700; padding: 4px 10px; border-radius: 6px; cursor: pointer; flex-shrink: 0; display: inline-flex; align-items: center; gap: 3px; transition: all 0.15s ease;" onmouseover="this.style.background=\'#059669\'; this.style.color=\'#fff\';" onmouseout="this.style.background=\'#fff\'; this.style.color=\'#059669\';">' +
+            '<span>+ Thêm</span>' +
+          '</button>' +
+        '</div>'
+      );
+    }).join("");
+
+    Array.prototype.forEach.call(upsellList.querySelectorAll(".btn-checkout-upsell-add"), function(btn) {
+      btn.addEventListener("click", function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        var id = btn.getAttribute("data-upsell-id");
+        if (id) {
+          addToCart(id, { openDrawer: false });
+          invalidateActiveOrderOnCartOrCouponChange("Đã thêm sản phẩm ưu đãi vào đơn hàng!");
+          renderCart();
+          showToast("Đã thêm vào đơn hàng thành công!");
+        }
+      });
+    });
   }
 
   function openDetail(productId) {
@@ -2192,9 +2256,9 @@ function escapeHtml(value) {
               originalPriceHtml +
             '</div>' +
             '<div class="detail-btn-group">' +
-              '<button class="detail-btn-cart" id="detailAddToCart" type="button">' +
-                '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"></path><line x1="3" y1="6" x2="21" y2="6"></line><path d="M16 10a4 4 0 0 1-8 0"></path></svg>' +
-                '<span>Thêm vào giỏ</span>' +
+              '<button class="detail-btn-cart" id="detailBuyNow" type="button">' +
+                '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>' +
+                '<span>Mua ngay</span>' +
               '</button>' +
             '</div>' +
           '</div>' +
@@ -2250,11 +2314,7 @@ function escapeHtml(value) {
               originalPriceHtml +
             '</div>' +
             '<div class="detail-sticky-actions">' +
-              '<button class="detail-sticky-btn-cart" id="detailStickyAddToCart" type="button" title="Thêm vào giỏ">' +
-                '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"></path><line x1="3" y1="6" x2="21" y2="6"></line><path d="M16 10a4 4 0 0 1-8 0"></path></svg>' +
-                '<span>Giỏ</span>' +
-              '</button>' +
-              '<button class="detail-sticky-btn-buy" id="detailStickyBuyNow" type="button">Mua ngay</button>' +
+              '<button class="detail-sticky-btn-buy" id="detailStickyBuyNow" type="button" style="padding: 0 28px; width: 100%;">Mua ngay</button>' +
             '</div>' +
           '</div>' +
         '</div>' +
@@ -2280,7 +2340,7 @@ function escapeHtml(value) {
                         '<span style="color:#d97706; font-weight:700;">⭐ ' + itemRating.score + '</span>' +
                         '<span style="color:#64748b; font-weight:500;">(' + itemRating.sales + ')</span>' +
                       '</div>' +
-                      '<button type="button" class="btn-item-quick-add" data-id="' + escapeHtml(item.id) + '" style="padding:6px 14px; border-radius:9999px; background:#0f172a; color:#fff; font-size:0.8rem; font-weight:600; border:none; cursor:pointer;">Thêm vào giỏ</button>' +
+                      '<button type="button" class="btn-item-quick-add" data-buy-now-id="' + escapeHtml(item.id) + '" style="padding:6px 14px; border-radius:9999px; background:#0f172a; color:#fff; font-size:0.8rem; font-weight:600; border:none; cursor:pointer;">Mua ngay</button>' +
                     '</div>' +
                   '</div>' +
                 '</div>'
@@ -2445,11 +2505,10 @@ function escapeHtml(value) {
     Array.prototype.forEach.call(detailBody.querySelectorAll(".btn-item-quick-add"), function(btn) {
       btn.addEventListener("click", function(e) {
         e.stopPropagation();
-        var id = btn.getAttribute("data-id");
+        var id = btn.getAttribute("data-buy-now-id") || btn.getAttribute("data-id");
         if (id) {
-          addToCart(id, { openDrawer: true });
-          var cB = document.getElementById("cartCountDetail");
-          if (cB) cB.textContent = getCartCount();
+          closeDetail();
+          buyNow(id);
         }
       });
     });

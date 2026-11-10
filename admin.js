@@ -2051,20 +2051,20 @@ document.addEventListener('DOMContentLoaded', () => {
       bCheckoutOpenedSub.textContent = effectiveAddToCart > 0 ? ('Tỉ lệ mở form: ' + checkoutOpenedRate + '%') : '0 lượt mở form';
     }
     if (bAddToCartSub) {
-      bAddToCartSub.textContent = effectiveAddToCart > 0 ? ('Tỉ lệ thêm giỏ: ' + addToCartRate + '%') : '0 lượt bấm giỏ thật';
+      bAddToCartSub.textContent = effectiveAddToCart > 0 ? ('Tỉ lệ click mua: ' + addToCartRate + '%') : '0 lượt bấm mua';
     }
     if (bOrdersCreated) bOrdersCreated.textContent = ordersCreatedInPeriod.toLocaleString('vi-VN') + ' đơn';
     if (bOrdersCreatedSub) {
-      const orderCreateRate = effectiveCheckoutOpened > 0 ? Math.round((ordersCreatedInPeriod / effectiveCheckoutOpened) * 100) : 0;
-      bOrdersCreatedSub.textContent = ordersCreatedInPeriod > 0 ? (orderCreateRate + '% từ mở form • Chờ QR') : 'Chưa có đơn chờ QR';
+      const orderCreateRate = effectiveAddToCart > 0 ? Math.round((ordersCreatedInPeriod / effectiveAddToCart) * 100) : 0;
+      bOrdersCreatedSub.textContent = ordersCreatedInPeriod > 0 ? ('Tỉ lệ tạo đơn: ' + orderCreateRate + '% • Chờ quét QR') : 'Chưa có đơn chờ QR';
     }
     if (bOrdersPaid) bOrdersPaid.textContent = ordersPaidInPeriod.toLocaleString('vi-VN') + ' đơn';
     if (bOrdersPaidSub) {
       const orderPayRate = ordersCreatedInPeriod > 0 ? Math.round((ordersPaidInPeriod / ordersCreatedInPeriod) * 100) : 0;
-      bOrdersPaidSub.textContent = ordersPaidInPeriod > 0 ? ('Khớp lệnh: ' + orderPayRate + '% • Thành công') : 'Chưa có đơn thanh toán';
+      bOrdersPaidSub.textContent = ordersPaidInPeriod > 0 ? ('Tỉ lệ chốt đơn: ' + orderPayRate + '% • Khớp lệnh tự động') : 'Chưa có đơn thanh toán';
     }
     if (bDropBadge) {
-      bDropBadge.textContent = 'Bỏ giỏ: ' + cartDropOffRate + '% (' + cartDropOffCount + ' giỏ)';
+      bDropBadge.textContent = 'Chưa tạo đơn: ' + cartDropOffRate + '% (' + cartDropOffCount + ' lượt)';
     }
     if (bCartDropRate) bCartDropRate.textContent = cartDropOffRate + '%';
     if (bCartDropSub) {

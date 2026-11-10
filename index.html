@@ -20,7 +20,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="./storefront.css?v=226" />
+    <link rel="stylesheet" href="./storefront.css?v=227" />
     <style>
     :root {
       --bg: #ffffff;
@@ -3396,6 +3396,12 @@
                 </div>
                 <p class="checkout-payment-guide checkout-guide-mobile">Nhấn giữ ảnh để Lưu hoặc bấm nút Tải ảnh QR, sau đó mở App ngân hàng quét ảnh.</p>
 
+                <!-- Live Auto-Confirmation Notice -->
+                <div class="qr-auto-confirm-notice" style="margin-top: 10px; padding: 10px 12px; background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 8px; display: flex; align-items: center; gap: 10px;">
+                  <div style="width: 8px; height: 8px; border-radius: 50%; background: #059669; box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.2); flex-shrink: 0;" class="live-pulse-dot"></div>
+                  <span style="font-size: 0.82rem; color: #065f46; font-weight: 500; line-height: 1.35;">Đang chờ hệ thống tự động xác nhận chuyển khoản... Khi tiền vào tài khoản, hệ thống sẽ tự động chuyển trang nhận file.</span>
+                </div>
+
                 <button id="backToInfoBtn" type="button" style="display: none;"></button>
               </div>
             </div>
@@ -3418,6 +3424,15 @@
 
                 <!-- List of items in checkout -->
                 <div class="checkout-items-list" id="checkoutItems"></div>
+
+                <!-- Grab-style Upsell Add-on Section (Gợi ý thêm 1-chạm) -->
+                <div class="checkout-upsell-box" id="checkoutUpsellBox" style="display: none; margin-top: 14px; padding-top: 14px; border-top: 1px dashed #e2e8f0;">
+                  <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
+                    <span style="font-size: 0.78rem; font-weight: 700; color: #0f172a; text-transform: uppercase; letter-spacing: 0.03em;">Gợi ý mua kèm ưu đãi</span>
+                    <span style="font-size: 0.7rem; color: #059669; font-weight: 600;">+ Thêm 1 chạm</span>
+                  </div>
+                  <div class="checkout-upsell-list" id="checkoutUpsellList" style="display: flex; flex-direction: column; gap: 8px;"></div>
+                </div>
               </div>
 
               <div class="checkout-totals">
@@ -3935,7 +3950,7 @@
     <script src="./storefront-data.js?v=22"></script>
     <script src="./storefront-products.generated.js?v=6"></script>
     <script src="assets/qrcode-generator-1.4.4.js"></script>
-    <script src="storefront.js?v=226"></script>
+    <script src="storefront.js?v=227"></script>
     <!-- Agentation: Visual Feedback & Annotation for AI agents -->
   <script src="./agentation-vanilla.js"></script>
 </body>
