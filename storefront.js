@@ -391,7 +391,13 @@ function escapeHtml(value) {
         if (c.end_date && today > c.end_date) return;
         activeCoupons.push(c);
       });
-      renderHeroCoupons(activeCoupons);
+      // Only display public welcome coupons in the hero (exclude private retention vouchers)
+      var heroCoupons = activeCoupons.filter(function(c) {
+        var code = String(c.code || c.id || "").toUpperCase();
+        return code !== "GIUCHANG10" && code !== "GIUCHAN" && code !== "TRIAN20";
+      });
+
+      renderHeroCoupons(heroCoupons);
       syncLandingCouponTicket();
     }, function(err) {
       console.warn('Coupons real-time sync error:', err);
@@ -3786,7 +3792,7 @@ function escapeHtml(value) {
       var cleanDesc = desc.replace(/\s*\(từ.*?\)/gi, '').replace(/\s*\(hạn chót.*?\)/gi, '').replace(/\s*\(áp dụng.*?\)/gi, '');
       return (
         '<div class="hero-coupon-tag" data-code="' + escapeHtml(code) + '" title="Bấm để sao chép mã">' +
-          '<span class="hero-coupon-prefix" style="color: #64748b; font-weight: 500; font-size: 0.88rem;">Quà làm quen:</span>' +
+          '<span class="hero-coupon-prefix">Quà làm quen:</span>' +
           '<span class="hero-coupon-code">' + escapeHtml(code) + '</span>' +
           '<span class="hero-coupon-sep">•</span>' +
           '<span class="hero-coupon-detail">' + escapeHtml(cleanDesc) + '</span>' +
@@ -3841,7 +3847,13 @@ function escapeHtml(value) {
         activeCoupons.push(c);
       });
 
-      renderHeroCoupons(activeCoupons);
+      // Only display public welcome coupons in the hero (exclude private retention vouchers)
+      var heroCoupons = activeCoupons.filter(function(c) {
+        var code = String(c.code || c.id || "").toUpperCase();
+        return code !== "GIUCHANG10" && code !== "GIUCHAN" && code !== "TRIAN20";
+      });
+
+      renderHeroCoupons(heroCoupons);
     } catch (err) {
       console.warn("Could not sync hero coupons:", err);
     }

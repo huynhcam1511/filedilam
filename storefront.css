@@ -4976,6 +4976,10 @@ body:not(.is-admin) #userProfile {
   display: flex;
   flex-direction: column;
   gap: 6px;
+  width: 100% !important;
+  max-width: 100% !important;
+  min-width: 0 !important;
+  box-sizing: border-box !important;
 }
 
 .hero-coupons-list {
@@ -4983,22 +4987,40 @@ body:not(.is-admin) #userProfile {
   flex-direction: column;
   gap: 6px;
   align-items: flex-start;
+  width: 100% !important;
+  max-width: 100% !important;
+  min-width: 0 !important;
+  box-sizing: border-box !important;
 }
 
 .hero-coupon-tag {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
+  display: flex !important;
+  align-items: center !important;
+  flex-wrap: nowrap !important;
+  white-space: nowrap !important;
+  gap: 6px !important;
   background: transparent !important;
   border: none !important;
   box-shadow: none !important;
   padding: 3px 0 !important;
   border-radius: 0 !important;
-  font-size: 0.84rem;
+  font-size: 0.82rem;
   color: #475569;
   cursor: pointer;
   transition: opacity 0.15s ease, transform 0.15s ease;
   user-select: none;
+  width: auto !important;
+  max-width: 100% !important;
+  min-width: 0 !important;
+  box-sizing: border-box !important;
+}
+
+.hero-coupon-prefix {
+  color: #64748b;
+  font-weight: 500;
+  font-size: 0.82rem;
+  flex-shrink: 0 !important;
+  white-space: nowrap !important;
 }
 
 .hero-coupon-tag:hover {
@@ -5025,12 +5047,15 @@ body:not(.is-admin) #userProfile {
   padding: 0 !important;
   border-radius: 0 !important;
   letter-spacing: 0.04em;
+  flex-shrink: 0 !important;
+  white-space: nowrap !important;
 }
 
 .hero-coupon-sep {
   color: #cbd5e1;
   font-size: 0.75rem;
   user-select: none;
+  flex-shrink: 0 !important;
 }
 
 .hero-coupon-detail {
@@ -5038,6 +5063,11 @@ body:not(.is-admin) #userProfile {
   font-weight: 500;
   font-size: 0.82rem;
   line-height: 1.4;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  min-width: 0 !important;
+  flex: 1 1 0px !important;
 }
 
 .hero-coupon-copy-btn {
@@ -5048,17 +5078,46 @@ body:not(.is-admin) #userProfile {
   border: 1px solid #e2e8f0;
   padding: 1px 7px;
   border-radius: 6px;
-  margin-left: 4px;
+  margin-left: 2px;
   display: inline-flex;
   align-items: center;
-  gap: 4px;
+  gap: 3px;
   transition: all 0.15s ease;
+  flex-shrink: 0 !important;
+  white-space: nowrap !important;
 }
 
 @media (max-width: 640px) {
   .hero-coupon-tag {
-    flex-wrap: wrap;
-    gap: 6px;
+    flex-wrap: nowrap !important;
+    white-space: nowrap !important;
+    gap: 4px !important;
+    font-size: 0.76rem !important;
+    max-width: 100% !important;
+  }
+  .hero-coupon-prefix {
+    font-size: 0.76rem !important;
+    flex-shrink: 0 !important;
+  }
+  .hero-coupon-code {
+    font-size: 0.78rem !important;
+    flex-shrink: 0 !important;
+  }
+  .hero-coupon-sep {
+    margin: 0 1px !important;
+  }
+  .hero-coupon-detail {
+    font-size: 0.76rem !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    min-width: 0 !important;
+    flex: 0 1 auto !important;
+  }
+  .hero-coupon-copy-btn {
+    padding: 1px 5px !important;
+    font-size: 0.68rem !important;
+    flex-shrink: 0 !important;
   }
 }
 

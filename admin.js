@@ -4491,24 +4491,14 @@ document.addEventListener('DOMContentLoaded', () => {
         });
       }
 
-      // Ensure default coupons including GIUCHANG10 exit-intent voucher exist in Firestore
-      const hasGiuchang = currentCoupons.some(c => c.code === 'GIUCHANG10' || c.id === 'GIUCHANG10');
-      if (!hasGiuchang) {
-        const giuchangCoupon = {
-          code: "GIUCHANG10",
-          type: "percent",
-          value: 10,
-          min_order: 0,
-          max_discount: 0,
-          description: "Ưu đãi giữ chân: Giảm thêm 10% đơn hàng",
-          is_active: true,
-          created_at: new Date().toISOString()
-        };
+      // Clean up legacy GIUCHANG10 coupon if found in Firestore
+      const giuchangDoc = currentCoupons.find(c => c.code === 'GIUCHANG10' || c.id === 'GIUCHANG10');
+      if (giuchangDoc) {
         try {
-          await db.collection('coupons').doc('GIUCHANG10').set(giuchangCoupon);
-          currentCoupons.push({ ...giuchangCoupon, id: 'GIUCHANG10' });
+          await db.collection('coupons').doc('GIUCHANG10').delete();
+          currentCoupons = currentCoupons.filter(c => c.code !== 'GIUCHANG10' && c.id !== 'GIUCHANG10');
         } catch (e) {
-          console.warn("Could not auto-seed GIUCHANG10 coupon:", e);
+          console.warn("Could not remove legacy GIUCHANG10:", e);
         }
       }
 
