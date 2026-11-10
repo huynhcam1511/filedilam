@@ -1961,16 +1961,25 @@ function escapeHtml(value) {
     const giftCoupon = state.appliedCoupons.find(c => c.type === 'gift');
     const gift = giftCoupon && getProductById(giftCoupon.reward_ids[0]);
     if (gift) detailedCart = detailedCart.concat({product:{...gift, name:'Quà tặng · ' + gift.name}, quantity:1, total:0});
+    var canRemove = detailedCart.length > 1;
     checkoutItems.innerHTML = detailedCart
       .map(function (item) {
         var productImage = item.product.previewImageUrl || item.product.thumbnailUrl || "";
         var productDescription = item.product.subtitle || item.product.shortDescription || item.product.description || "File làm việc sẵn sàng sử dụng";
+        var removeBtnHtml = canRemove ? (
+          '<button type="button" class="btn-checkout-remove-item" data-remove-id="' + escapeHtml(item.product.id) + '" title="Bỏ file này khỏi đơn" style="background: none; border: none; padding: 2px 4px; color: #94a3b8; cursor: pointer; font-size: 0.75rem; display: inline-flex; align-items: center; gap: 3px; margin-top: 4px; transition: color 0.15s ease;" onmouseover="this.style.color=\'#dc2626\';" onmouseout="this.style.color=\'#94a3b8\';">' +
+            '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>' +
+            '<span>Bỏ chọn</span>' +
+          '</button>'
+        ) : '';
+
         return (
           '<div class="checkout-product-row">' +
             '<div class="checkout-product-avatar"' + (productImage ? ' style="background-image:url(&quot;' + escapeHtml(productImage) + '&quot;)"' : '') + '></div>' +
             '<div class="checkout-product-copy">' +
               '<div class="checkout-product-heading-1">' + escapeHtml(item.product.name) + '</div>' +
               '<div class="checkout-product-heading-2">' + escapeHtml(productDescription) + '</div>' +
+              removeBtnHtml +
             '</div>' +
             '<div class="checkout-product-price font-mono">' +
               formatCurrency(item.total) +
@@ -1979,6 +1988,18 @@ function escapeHtml(value) {
         );
       })
       .join("");
+
+    Array.prototype.forEach.call(checkoutItems.querySelectorAll(".btn-checkout-remove-item"), function(btn) {
+      btn.addEventListener("click", function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        var removeId = btn.getAttribute("data-remove-id");
+        if (removeId) {
+          removeFromCart(removeId);
+          invalidateActiveOrderOnCartOrCouponChange("Đã cập nhật lại đơn hàng!");
+        }
+      });
+    });
 
     renderCheckoutUpsell();
   }
@@ -2004,18 +2025,18 @@ function escapeHtml(value) {
     upsellList.innerHTML = upsellItems.map(function(prod) {
       var thumb = prod.previewImageUrl || prod.thumbnailUrl || '';
       return (
-        '<div class="checkout-upsell-item" style="display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 8px 10px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px;">' +
+        '<div class="checkout-upsell-item" style="display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 10px 0; border-bottom: 1px dashed #f1f5f9; background: transparent;">' +
           '<div style="display: flex; align-items: center; gap: 10px; min-width: 0; flex: 1;">' +
-            '<div style="width: 36px; height: 36px; border-radius: 6px; background-size: cover; background-position: center; border: 1px solid #cbd5e1; flex-shrink: 0; background-image: url(&quot;' + escapeHtml(thumb) + '&quot;);"></div>' +
+            '<div style="width: 38px; height: 38px; border-radius: 6px; background-size: cover; background-position: center; border: 1px solid #e2e8f0; flex-shrink: 0; background-image: url(&quot;' + escapeHtml(thumb) + '&quot;);"></div>' +
             '<div style="min-width: 0; flex: 1;">' +
-              '<div style="font-size: 0.82rem; font-weight: 600; color: #0f172a; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">' + escapeHtml(prod.name) + '</div>' +
-              '<div style="display: flex; align-items: baseline; gap: 6px; font-size: 0.78rem;">' +
+              '<div style="font-size: 0.84rem; font-weight: 600; color: #0f172a; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">' + escapeHtml(prod.name) + '</div>' +
+              '<div style="display: flex; align-items: baseline; gap: 6px; font-size: 0.8rem; margin-top: 2px;">' +
                 '<span style="font-weight: 700; color: #059669; font-family: var(--font-mono);">' + formatCurrency(prod.price) + '</span>' +
-                (prod.originalPrice && prod.originalPrice > prod.price ? '<span style="color: #94a3b8; text-decoration: line-through; font-size: 0.72rem;">' + formatCurrency(prod.originalPrice) + '</span>' : '') +
+                (prod.originalPrice && prod.originalPrice > prod.price ? '<span style="color: #94a3b8; text-decoration: line-through; font-size: 0.74rem;">' + formatCurrency(prod.originalPrice) + '</span>' : '') +
               '</div>' +
             '</div>' +
           '</div>' +
-          '<button type="button" class="btn-checkout-upsell-add" data-upsell-id="' + escapeHtml(prod.id) + '" style="background: #ffffff; border: 1px solid #059669; color: #059669; font-size: 0.75rem; font-weight: 700; padding: 4px 10px; border-radius: 6px; cursor: pointer; flex-shrink: 0; display: inline-flex; align-items: center; gap: 3px; transition: all 0.15s ease;" onmouseover="this.style.background=\'#059669\'; this.style.color=\'#fff\';" onmouseout="this.style.background=\'#fff\'; this.style.color=\'#059669\';">' +
+          '<button type="button" class="btn-checkout-upsell-add" data-upsell-id="' + escapeHtml(prod.id) + '" style="background: transparent; border: 1px solid #059669; color: #059669; font-size: 0.75rem; font-weight: 700; padding: 4px 10px; border-radius: 6px; cursor: pointer; flex-shrink: 0; display: inline-flex; align-items: center; gap: 3px; transition: all 0.15s ease;" onmouseover="this.style.background=\'#059669\'; this.style.color=\'#fff\';" onmouseout="this.style.background=\'transparent\'; this.style.color=\'#059669\';">' +
             '<span>+ Thêm</span>' +
           '</button>' +
         '</div>'
