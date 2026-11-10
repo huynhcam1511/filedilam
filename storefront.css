@@ -4273,6 +4273,10 @@ body:not(.is-admin) #userProfile {
 .detail-modal-body {
   padding: 0 !important;
   overflow-y: auto !important;
+  overflow-x: hidden !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  box-sizing: border-box !important;
   -webkit-overflow-scrolling: touch !important;
   flex: 1 1 auto !important;
   background: #ffffff !important;
@@ -4765,9 +4769,28 @@ body:not(.is-admin) #userProfile {
   }
 
   .detail-fullpage-layout {
-    grid-template-columns: 1fr;
-    gap: 16px;
-    padding: 4px 14px 80px; /* Thêm padding-bottom để tránh bị che bởi sticky bar đáy */
+    grid-template-columns: minmax(0, 1fr) !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+    gap: 16px !important;
+    padding: 4px 14px 80px !important; /* Thêm padding-bottom để tránh bị che bởi sticky bar đáy */
+    overflow-x: hidden !important;
+  }
+
+  .detail-col-media,
+  .detail-col-info {
+    min-width: 0 !important;
+    max-width: 100% !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+  }
+
+  .detail-col-info * {
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+    word-break: break-word !important;
+    overflow-wrap: break-word !important;
   }
 
   .detail-col-media {
@@ -4775,6 +4798,7 @@ body:not(.is-admin) #userProfile {
     background: #ffffff !important;
     padding-bottom: 4px !important;
     gap: 10px !important;
+    overflow-x: hidden !important;
   }
 
   /* Tối ưu tỉ lệ ảnh bìa trên mobile: không để vuông chiếm trọn màn hình dọc */
@@ -4820,12 +4844,17 @@ body:not(.is-admin) #userProfile {
     align-items: center !important;
     justify-content: space-between !important;
     gap: 12px !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
   }
 
   .detail-btn-group {
     width: auto !important;
     flex: 1 !important;
+    max-width: calc(100% - 100px) !important;
     justify-content: flex-end !important;
+    box-sizing: border-box !important;
   }
 
   .detail-price-block,
@@ -4834,16 +4863,18 @@ body:not(.is-admin) #userProfile {
     flex-direction: column !important;
     align-items: flex-start !important;
     gap: 2px !important;
+    flex-shrink: 0 !important;
   }
 
   .detail-btn-cart {
     width: auto !important;
-    min-width: 130px !important;
-    max-width: 200px !important;
+    min-width: 120px !important;
+    max-width: 180px !important;
     height: 44px !important;
     font-size: 0.95rem !important;
     padding: 0 16px !important;
     white-space: nowrap !important;
+    box-sizing: border-box !important;
   }
 
   .detail-cta-group {
