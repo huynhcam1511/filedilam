@@ -5289,12 +5289,6 @@ function escapeHtml(value) {
       }
     }
   }
-if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", initStatsCounters);
-  } else {
-    setTimeout(initStatsCounters, 200);
-  }
-})();
   // --- EXIT-INTENT CART SAVER (Giữ chân khách với Voucher GIUCHANG10) ---
   var EXIT_INTENT_COUPON = {
     code: "GIUCHANG10",
@@ -5338,3 +5332,10 @@ if (document.readyState === "loading") {
     }
     openCheckout();
   }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", initStatsCounters);
+  } else {
+    setTimeout(initStatsCounters, 200);
+  }
+})();
