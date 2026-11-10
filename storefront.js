@@ -1980,7 +1980,7 @@ function escapeHtml(value) {
               '<div class="checkout-product-heading-1">' + escapeHtml(item.product.name) + '</div>' +
               '<div class="checkout-product-heading-2">' + escapeHtml(productDescription) + '</div>' +
             '</div>' +
-            '<div style="display: flex; flex-direction: column; align-items: flex-end; justify-content: flex-start;">' +
+            '<div class="checkout-product-action-col" style="display: flex; flex-direction: column; align-items: flex-end; justify-content: flex-start;">' +
               '<div class="checkout-product-price font-mono">' +
                 formatCurrency(item.total) +
               '</div>' +
