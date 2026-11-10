@@ -20,7 +20,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="./storefront.css?v=355" />
+    <link rel="stylesheet" href="./storefront.css?v=226" />
     <style>
     :root {
       --bg: #ffffff;
@@ -3012,7 +3012,13 @@
           <span>Tổng thanh toán</span>
           <strong id="cartTotal">0đ</strong>
         </div>
-        <button class="button-primary button-full" id="checkoutButton" type="button">Tiến hành thanh toán</button>
+        <button class="button-primary button-full" id="checkoutButton" type="button" style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; padding: 12px 16px;">
+          <span style="font-size: 0.95rem; font-weight: 700; display: inline-flex; align-items: center; gap: 6px;">
+            Tiến hành đặt hàng
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+          </span>
+          <span style="font-size: 0.72rem; opacity: 0.9; font-weight: 400;">Chưa trừ tiền • Điền Gmail nhận file</span>
+        </button>
       </div>
     </aside>
 
@@ -3252,30 +3258,50 @@
               </div>
 
               <form id="quickBuyForm" novalidate>
-                <!-- Field 1: Họ và tên -->
-                <div class="checkout-field" id="quickNameGroup">
-                  <label class="checkout-label" for="quickName">
-                    Họ và tên đầy đủ <span class="req">*</span>
-                  </label>
-                  <input id="quickName" type="text" placeholder="Ví dụ: Nguyễn Văn An" required class="checkout-input" />
+                <!-- Hero Action: Tiếp tục với Google 1-chạm -->
+                <button type="button" class="btn-google-flat" id="btnGoogleCheckout" style="width: 100%; margin-bottom: 12px;">
+                  <svg width="18" height="18" viewBox="0 0 24 24">
+                    <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                    <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                    <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
+                    <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
+                  </svg>
+                  <span>Tiếp tục với Google (1 chạm nhận file)</span>
+                </button>
+
+                <div class="checkout-divider" style="margin: 12px 0 14px 0; display: flex; align-items: center; text-align: center; color: #94a3b8; font-size: 0.76rem;">
+                  <span style="flex: 1; border-bottom: 1px solid #e2e8f0;"></span>
+                  <span style="padding: 0 10px; font-weight: 500;">Hoặc điền Gmail nhận file</span>
+                  <span style="flex: 1; border-bottom: 1px solid #e2e8f0;"></span>
                 </div>
 
-                <!-- Field 2: Số điện thoại / Zalo -->
-                <div class="checkout-field">
-                  <label class="checkout-label" id="quickPhoneLabel" for="quickPhone">
-                    Số điện thoại / Zalo <span class="req">*</span>
-                  </label>
-                  <input id="quickPhone" type="tel" placeholder="Ví dụ: 0912345678" required class="checkout-input" />
-                </div>
-
-                <!-- Field 3: Gmail nhận file Drive -->
+                <!-- Field 1: Gmail nhận file Drive (BẮT BUỘC DUY NHẤT) -->
                 <div class="checkout-field" id="quickEmailGroup">
                   <label class="checkout-label" for="quickEmail">
                     Gmail nhận file Google Drive <span class="req">*</span>
                   </label>
                   <input id="quickEmail" type="email" placeholder="Ví dụ: yourname@gmail.com" required class="checkout-input" />
-                  <div style="font-size: 0.76rem; color: var(--muted); margin-top: 4px; line-height: 1.35;">
-                    Link tạo bản sao Google Sheets sẽ được lưu vào tài khoản và gửi về Gmail này.
+                  <div style="font-size: 0.74rem; color: var(--muted); margin-top: 4px; line-height: 1.35;">
+                    Quyền truy cập &amp; link bản sao Google Sheets sẽ được lưu vào tài khoản và gửi về Gmail này.
+                  </div>
+                </div>
+
+                <!-- Field 2: Họ và tên (Tùy chọn) -->
+                <div class="checkout-field" id="quickNameGroup">
+                  <label class="checkout-label" for="quickName">
+                    Họ và tên <span style="font-weight: normal; color: var(--muted); font-size: 0.76rem;">(Tùy chọn)</span>
+                  </label>
+                  <input id="quickName" type="text" placeholder="Ví dụ: Nguyễn Văn An" class="checkout-input" />
+                </div>
+
+                <!-- Field 3: Số điện thoại / Zalo (Tùy chọn) -->
+                <div class="checkout-field">
+                  <label class="checkout-label" id="quickPhoneLabel" for="quickPhone">
+                    Số điện thoại / Zalo <span style="font-weight: normal; color: var(--muted); font-size: 0.76rem;">(Tùy chọn)</span>
+                  </label>
+                  <input id="quickPhone" type="tel" placeholder="Ví dụ: 0912345678" class="checkout-input" />
+                  <div style="font-size: 0.74rem; color: var(--muted); margin-top: 4px; line-height: 1.35;">
+                    Dùng khi bạn cần chuyên viên hỗ trợ ráp dữ liệu qua Zalo (không gọi làm phiền).
                   </div>
                 </div>
 
@@ -3296,7 +3322,6 @@
               <div id="quickPassGroup" style="display:none !important;"><input type="password" id="quickPassword" value="" /></div>
               <div id="tabNewBuyer" style="display:none !important;"></div>
               <div id="tabReturningBuyer" style="display:none !important;"></div>
-              <div id="btnGoogleCheckout" style="display:none !important;"></div>
 
               <!-- Hidden bridge elements for backward compatibility -->
               <span id="quickToggleText" style="display:none;"></span>
@@ -3868,6 +3893,38 @@
       <button type="button" id="btnResumeOrder" style="background: var(--mint-strong, #059669); color: #fff; border: none; padding: 5px 14px; border-radius: 20px; font-weight: 600; font-size: 0.82rem; cursor: pointer;">Tiếp tục</button>
     </div>
 
+    <!-- Exit-Intent Cart Saver Modal (Giữ chân khách hàng với voucher 10%) -->
+    <div class="modal-backdrop exit-intent-backdrop hidden" id="exitIntentModal" aria-hidden="true" style="display: none; z-index: 2000000 !important; background: rgba(15, 23, 42, 0.65); backdrop-filter: blur(4px);">
+      <div class="modal-card" style="max-width: 380px; width: 90%; margin: auto; background: #ffffff; border-radius: 18px; padding: 24px; box-shadow: 0 20px 40px -10px rgba(0,0,0,0.25); text-align: center; position: relative;">
+        <button type="button" class="icon-button" id="closeExitIntentBtn" style="position: absolute; top: 14px; right: 14px; border: none; background: #f1f5f9; width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; color: #64748b;" aria-label="Đóng">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+        </button>
+
+        <div style="width: 52px; height: 52px; border-radius: 50%; background: #ecfdf5; border: 1.5px solid #a7f3d0; margin: 0 auto 12px; display: flex; align-items: center; justify-content: center; color: #059669;">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M20 12V8H6a2 2 0 0 1-2-2c0-1.1.9-2 2-2h12v4"></path>
+            <path d="M4 6v12c0 1.1.9 2 2 2h14v-4"></path>
+            <path d="M18 12a2 2 0 0 0-2 2c0 1.1.9 2 2 2h4v-4h-4z"></path>
+          </svg>
+        </div>
+
+        <h3 style="font-size: 1.15rem; font-weight: 700; color: #0f172a; margin: 0 0 6px 0;">Khoan đã! Tặng bạn ưu đãi 10%</h3>
+        <p style="font-size: 0.84rem; color: #64748b; line-height: 1.45; margin: 0 0 18px 0;">
+          Dành riêng cho bạn lúc này: Nhận ngay mã giảm thêm <strong style="color: #059669; font-family: monospace; background: #f0fdf4; padding: 2px 6px; border-radius: 4px; border: 1px dashed #059669;">GIUCHANG10</strong> để sở hữu file ngay hôm nay!
+        </p>
+
+        <div style="display: flex; flex-direction: column; gap: 8px;">
+          <button type="button" class="button-primary button-full" id="btnApplyExitIntentCoupon" style="height: 46px; font-weight: 700; font-size: 0.95rem; border-radius: 10px; background: #059669; color: #ffffff; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+            <span>Áp mã giảm 10% &amp; Lấy QR ngay</span>
+          </button>
+          <button type="button" id="btnDismissExitIntent" style="background: none; border: none; font-size: 0.8rem; color: #94a3b8; cursor: pointer; padding: 6px;">
+            Bỏ qua ưu đãi này
+          </button>
+        </div>
+      </div>
+    </div>
+
     <div class="toast" id="toast"></div>
     <!-- Firebase SDK (CDN with local fallback) -->
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
@@ -3878,7 +3935,7 @@
     <script src="./storefront-data.js?v=22"></script>
     <script src="./storefront-products.generated.js?v=6"></script>
     <script src="assets/qrcode-generator-1.4.4.js"></script>
-    <script src="storefront.js?v=221"></script>
+    <script src="storefront.js?v=226"></script>
     <!-- Agentation: Visual Feedback & Annotation for AI agents -->
   <script src="./agentation-vanilla.js"></script>
 </body>

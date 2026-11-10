@@ -1463,14 +1463,15 @@
       border-radius: 12px;
       padding: 12px 18px;
       display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 14px;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 12px;
       align-items: center;
       box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02);
     }
-    @media (max-width: 1024px) {
+    @media (max-width: 1280px) {
       .saas-web-behavior-bar {
-        grid-template-columns: repeat(2, 1fr);
+        grid-template-columns: repeat(3, 1fr);
+        gap: 14px;
       }
     }
     @media (max-width: 640px) {
@@ -2473,59 +2474,93 @@
             </div>
           </div>
 
-          <!-- SECTION 2.5: WEB TRAFFIC & CART BEHAVIOR BAR -->
+          <!-- SECTION 2.5: FULL FUNNEL WEB TRAFFIC & ORDERS BAR (6 STEPS) -->
           <div class="saas-web-behavior-bar">
             <div style="grid-column: 1 / -1; display: flex; justify-content: space-between; align-items: center; padding-bottom: 6px; border-bottom: 1px dashed #f1f5f9; margin-bottom: 4px;">
               <div style="display: flex; align-items: center; gap: 8px;">
-                <span style="font-size: 0.72rem; font-weight: 700; color: #334155; text-transform: uppercase; letter-spacing: 0.03em;">Hành vi khách hàng trên Web & Giỏ hàng</span>
+                <span style="font-size: 0.72rem; font-weight: 700; color: #334155; text-transform: uppercase; letter-spacing: 0.03em;">Hành vi khách hàng & Phễu chuyển đổi</span>
                 <button type="button" id="btnResetTracking" style="background: #ffffff; border: 1px solid #cbd5e1; border-radius: 4px; padding: 2px 7px; font-size: 0.65rem; font-weight: 600; color: #64748b; cursor: pointer;" title="Đặt lại bộ đếm hôm nay về 0 để kiểm tra lại">Reset về 0</button>
               </div>
-              <span style="font-size: 0.68rem; color: #059669; font-weight: 600; display: inline-flex; align-items: center; gap: 4px; background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 12px; padding: 2px 8px;">
-                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
-                Đã tự động loại trừ lượt truy cập của Admin
-              </span>
-            </div>
-            <div style="display: flex; align-items: center; gap: 12px; border-right: 1px solid #f1f5f9; padding-right: 10px;">
-              <div style="width: 36px; height: 36px; border-radius: 6px; background: #f0fdf4; color: #059669; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
-                <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5M7.188 2.239l.777 2.897M5.136 7.965l-2.898-.777M13.95 4.05l-2.122 2.122m-5.657 5.656l-2.12 2.122"></path></svg>
+              <div style="display: flex; align-items: center; gap: 8px;">
+                <span id="behaviorDropBadge" style="font-size: 0.68rem; color: #dc2626; font-weight: 600; display: inline-flex; align-items: center; gap: 4px; background: #fef2f2; border: 1px solid #fee2e2; border-radius: 12px; padding: 2px 8px;">
+                  Bỏ giỏ: 0%
+                </span>
+                <span style="font-size: 0.68rem; color: #059669; font-weight: 600; display: inline-flex; align-items: center; gap: 4px; background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 12px; padding: 2px 8px;">
+                  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                  Đã loại trừ Admin
+                </span>
               </div>
-              <div>
-                <div style="font-size: 0.70rem; font-weight: 600; color: #64748b; text-transform: uppercase; letter-spacing: 0.03em;">Lượt mở link (Web)</div>
+            </div>
+
+            <!-- BƯỚC 1: LƯỢT MỞ WEB -->
+            <div style="display: flex; align-items: center; gap: 10px; border-right: 1px solid #f1f5f9; padding-right: 8px;">
+              <div style="width: 34px; height: 34px; border-radius: 6px; background: #f0fdf4; color: #059669; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                <svg width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5M7.188 2.239l.777 2.897M5.136 7.965l-2.898-.777M13.95 4.05l-2.122 2.122m-5.657 5.656l-2.12 2.122"></path></svg>
+              </div>
+              <div style="min-width: 0;">
+                <div style="font-size: 0.68rem; font-weight: 600; color: #64748b; text-transform: uppercase; letter-spacing: 0.02em; white-space: nowrap;">Lượt mở Web</div>
                 <div style="font-size: 1.15rem; font-weight: 700; color: #0f172a; font-family: monospace;" id="behaviorWebSessions">0 lượt</div>
-                <div style="font-size: 0.70rem; color: #64748b;" id="behaviorWebSessionsSub">Lượt vào web từ TikTok/Bio</div>
+                <div style="font-size: 0.68rem; color: #64748b; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" id="behaviorWebSessionsSub">Lượt vào từ TikTok/Bio</div>
               </div>
             </div>
 
-            <div style="display: flex; align-items: center; gap: 12px; border-right: 1px solid #f1f5f9; padding-right: 10px;">
-              <div style="width: 36px; height: 36px; border-radius: 6px; background: #eff6ff; color: #2563eb; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
-                <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+            <!-- BƯỚC 2: THỜI GIAN Ở LẠI TB -->
+            <div style="display: flex; align-items: center; gap: 10px; border-right: 1px solid #f1f5f9; padding-right: 8px;">
+              <div style="width: 34px; height: 34px; border-radius: 6px; background: #eff6ff; color: #2563eb; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                <svg width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
               </div>
-              <div>
-                <div style="font-size: 0.70rem; font-weight: 600; color: #64748b; text-transform: uppercase; letter-spacing: 0.03em;">Thời gian ở lại TB</div>
+              <div style="min-width: 0;">
+                <div style="font-size: 0.68rem; font-weight: 600; color: #64748b; text-transform: uppercase; letter-spacing: 0.02em; white-space: nowrap;">Thời gian ở lại TB</div>
                 <div style="font-size: 1.15rem; font-weight: 700; color: #0f172a; font-family: monospace;" id="behaviorAvgDwell">0s</div>
-                <div style="font-size: 0.70rem; color: #64748b;" id="behaviorAvgDwellSub">Đo thời gian xem thực tế</div>
+                <div style="font-size: 0.68rem; color: #64748b; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" id="behaviorAvgDwellSub">Đo thời gian xem thực tế</div>
               </div>
             </div>
 
-            <div style="display: flex; align-items: center; gap: 12px; border-right: 1px solid #f1f5f9; padding-right: 10px;">
-              <div style="width: 36px; height: 36px; border-radius: 6px; background: #ecfdf5; color: #10b981; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
-                <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
+            <!-- BƯỚC 3: THÊM VÀO GIỎ -->
+            <div style="display: flex; align-items: center; gap: 10px; border-right: 1px solid #f1f5f9; padding-right: 8px;">
+              <div style="width: 34px; height: 34px; border-radius: 6px; background: #ecfdf5; color: #10b981; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                <svg width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
               </div>
-              <div>
-                <div style="font-size: 0.70rem; font-weight: 600; color: #64748b; text-transform: uppercase; letter-spacing: 0.03em;">Lượt thêm vào giỏ</div>
+              <div style="min-width: 0;">
+                <div style="font-size: 0.68rem; font-weight: 600; color: #64748b; text-transform: uppercase; letter-spacing: 0.02em; white-space: nowrap;">Lượt thêm vào giỏ</div>
                 <div style="font-size: 1.15rem; font-weight: 700; color: #059669; font-family: monospace;" id="behaviorAddToCart">0 lượt</div>
-                <div style="font-size: 0.70rem; color: #64748b;" id="behaviorAddToCartSub">Tỉ lệ thêm giỏ: 0%</div>
+                <div style="font-size: 0.68rem; color: #64748b; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" id="behaviorAddToCartSub">Tỉ lệ thêm giỏ: 0%</div>
               </div>
             </div>
 
-            <div style="display: flex; align-items: center; gap: 12px;">
-              <div style="width: 36px; height: 36px; border-radius: 6px; background: #fef2f2; color: #ef4444; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
-                <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"></path></svg>
+            <!-- BƯỚC 4: MỞ FORM ĐẶT HÀNG -->
+            <div style="display: flex; align-items: center; gap: 10px; border-right: 1px solid #f1f5f9; padding-right: 8px;">
+              <div style="width: 34px; height: 34px; border-radius: 6px; background: #f0fdfa; color: #0d9488; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                <svg width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
               </div>
-              <div>
-                <div style="font-size: 0.70rem; font-weight: 600; color: #64748b; text-transform: uppercase; letter-spacing: 0.03em;">Bỏ giỏ chưa xác nhận</div>
-                <div style="font-size: 1.15rem; font-weight: 700; color: #dc2626; font-family: monospace;" id="behaviorCartDropRate">0%</div>
-                <div style="font-size: 0.70rem; color: #64748b;" id="behaviorCartDropSub">Thêm giỏ nhưng chưa tạo đơn</div>
+              <div style="min-width: 0;">
+                <div style="font-size: 0.68rem; font-weight: 600; color: #64748b; text-transform: uppercase; letter-spacing: 0.02em; white-space: nowrap;">Mở Form đặt hàng</div>
+                <div style="font-size: 1.15rem; font-weight: 700; color: #0d9488; font-family: monospace;" id="behaviorCheckoutOpened">0 lượt</div>
+                <div style="font-size: 0.68rem; color: #64748b; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" id="behaviorCheckoutOpenedSub">Tỉ lệ mở form: 0%</div>
+              </div>
+            </div>
+
+            <!-- BƯỚC 5: KHỞI TẠO ĐƠN (MÃ QR - PENDING) -->
+            <div style="display: flex; align-items: center; gap: 10px; border-right: 1px solid #f1f5f9; padding-right: 8px;">
+              <div style="width: 34px; height: 34px; border-radius: 6px; background: #fffbeb; color: #d97706; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                <svg width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+              </div>
+              <div style="min-width: 0;">
+                <div style="font-size: 0.68rem; font-weight: 600; color: #64748b; text-transform: uppercase; letter-spacing: 0.02em; white-space: nowrap;">Khởi tạo đơn (QR)</div>
+                <div style="font-size: 1.15rem; font-weight: 700; color: #d97706; font-family: monospace;" id="behaviorOrdersCreated">0 đơn</div>
+                <div style="font-size: 0.68rem; color: #64748b; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" id="behaviorOrdersCreatedSub">Chờ quét mã VietQR</div>
+              </div>
+            </div>
+
+            <!-- BƯỚC 6: ĐÃ THANH TOÁN (PAID) -->
+            <div style="display: flex; align-items: center; gap: 10px;">
+              <div style="width: 34px; height: 34px; border-radius: 6px; background: #ecfdf5; color: #059669; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                <svg width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+              </div>
+              <div style="min-width: 0;">
+                <div style="font-size: 0.68rem; font-weight: 600; color: #64748b; text-transform: uppercase; letter-spacing: 0.02em; white-space: nowrap;">Đã thanh toán (PAID)</div>
+                <div style="font-size: 1.15rem; font-weight: 700; color: #059669; font-family: monospace;" id="behaviorOrdersPaid">0 đơn</div>
+                <div style="font-size: 0.68rem; color: #64748b; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" id="behaviorOrdersPaidSub">Khớp lệnh thành công</div>
               </div>
             </div>
           </div>
@@ -2916,7 +2951,7 @@
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-storage-compat.js"></script>
   <script src="/__/firebase/init.js"></script>
   
-  <script src="./admin.js?v=295"></script>
+  <script src="./admin.js?v=299"></script>
   <!-- Agentation: Visual Feedback & Annotation for AI agents -->
   <script src="./agentation-vanilla.js"></script>
 

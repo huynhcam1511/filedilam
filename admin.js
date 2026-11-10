@@ -1981,19 +1981,37 @@ document.addEventListener('DOMContentLoaded', () => {
     let totalDwellSecs = 0;
     let totalDwellSamples = 0;
     let totalAddToCart = 0;
+    let totalCheckoutOpened = 0;
 
     filteredAnalytics.forEach(m => {
       totalWebSessions += Number(m.page_views || m.unique_sessions || 0);
       totalDwellSecs += Number(m.total_dwell_seconds || 0);
-      totalDwellSamples += Number(m.dwell_samples || m.page_views || 0);
+      totalDwellSamples += Number(m.dwell_samples || 0);
       totalAddToCart += Number(m.add_to_cart_count || 0);
+      totalCheckoutOpened += Number(m.checkout_opened_count || 0);
     });
 
     // CHỈ HIỂN THỊ 100% SỐ THẬT QUÉT TỪ DB DO TRACKER GHI NHẬN (KHÔNG TỰ TÍNH / KHÔNG DỰ PHÓNG)
     const effectiveWebSessions = totalWebSessions;
     const avgDwellSeconds = totalDwellSamples > 0 ? Math.round(totalDwellSecs / totalDwellSamples) : 0;
     const effectiveAddToCart = totalAddToCart;
-    const cartDropOffCount = Math.max(0, effectiveAddToCart - paidCount);
+    const effectiveCheckoutOpened = totalCheckoutOpened;
+    const checkoutOpenedRate = effectiveAddToCart > 0 ? ((effectiveCheckoutOpened / effectiveAddToCart) * 100).toFixed(1) : 0;
+    // Đồng bộ đơn hàng phát sinh cùng khoảng thời gian có dữ liệu Tracker
+    const analyticsDates = new Set(filteredAnalytics.map(m => m.date).filter(Boolean));
+    const ordersInTrackerPeriod = analyticsDates.size > 0 
+      ? filteredOrders.filter(o => {
+          const dObj = parseDateObj(o.created_at);
+          if (!dObj) return false;
+          const ds = dObj.toISOString().slice(0, 10);
+          return analyticsDates.has(ds);
+        })
+      : filteredOrders;
+
+    const ordersCreatedInPeriod = ordersInTrackerPeriod.length;
+    const ordersPaidInPeriod = ordersInTrackerPeriod.filter(o => String(o.status || '').toUpperCase() === 'PAID').length;
+
+    const cartDropOffCount = Math.max(0, effectiveAddToCart - ordersCreatedInPeriod);
     const cartDropOffRate = effectiveAddToCart > 0 ? Math.round((cartDropOffCount / effectiveAddToCart) * 100) : 0;
     const addToCartRate = effectiveWebSessions > 0 ? ((effectiveAddToCart / effectiveWebSessions) * 100).toFixed(1) : 0;
 
@@ -2001,10 +2019,17 @@ document.addEventListener('DOMContentLoaded', () => {
     const bWebSessionsSub = document.getElementById('behaviorWebSessionsSub');
     const bAvgDwell = document.getElementById('behaviorAvgDwell');
     const bAvgDwellSub = document.getElementById('behaviorAvgDwellSub');
+    const bCheckoutOpened = document.getElementById('behaviorCheckoutOpened');
+    const bCheckoutOpenedSub = document.getElementById('behaviorCheckoutOpenedSub');
     const bAddToCart = document.getElementById('behaviorAddToCart');
     const bAddToCartSub = document.getElementById('behaviorAddToCartSub');
     const bCartDropRate = document.getElementById('behaviorCartDropRate');
     const bCartDropSub = document.getElementById('behaviorCartDropSub');
+    const bOrdersCreated = document.getElementById('behaviorOrdersCreated');
+    const bOrdersCreatedSub = document.getElementById('behaviorOrdersCreatedSub');
+    const bOrdersPaid = document.getElementById('behaviorOrdersPaid');
+    const bOrdersPaidSub = document.getElementById('behaviorOrdersPaidSub');
+    const bDropBadge = document.getElementById('behaviorDropBadge');
 
     if (bWebSessions) bWebSessions.textContent = effectiveWebSessions.toLocaleString('vi-VN') + ' lượt';
     if (bWebSessionsSub) {
@@ -2021,12 +2046,29 @@ document.addEventListener('DOMContentLoaded', () => {
       bAvgDwellSub.textContent = avgDwellSeconds > 0 ? 'Thời gian xem thực tế' : 'Đang quét real-time...';
     }
     if (bAddToCart) bAddToCart.textContent = effectiveAddToCart.toLocaleString('vi-VN') + ' lượt';
+    if (bCheckoutOpened) bCheckoutOpened.textContent = effectiveCheckoutOpened.toLocaleString('vi-VN') + ' lượt';
+    if (bCheckoutOpenedSub) {
+      bCheckoutOpenedSub.textContent = effectiveAddToCart > 0 ? ('Tỉ lệ mở form: ' + checkoutOpenedRate + '%') : '0 lượt mở form';
+    }
     if (bAddToCartSub) {
       bAddToCartSub.textContent = effectiveAddToCart > 0 ? ('Tỉ lệ thêm giỏ: ' + addToCartRate + '%') : '0 lượt bấm giỏ thật';
     }
+    if (bOrdersCreated) bOrdersCreated.textContent = ordersCreatedInPeriod.toLocaleString('vi-VN') + ' đơn';
+    if (bOrdersCreatedSub) {
+      const orderCreateRate = effectiveCheckoutOpened > 0 ? Math.round((ordersCreatedInPeriod / effectiveCheckoutOpened) * 100) : 0;
+      bOrdersCreatedSub.textContent = ordersCreatedInPeriod > 0 ? (orderCreateRate + '% từ mở form • Chờ QR') : 'Chưa có đơn chờ QR';
+    }
+    if (bOrdersPaid) bOrdersPaid.textContent = ordersPaidInPeriod.toLocaleString('vi-VN') + ' đơn';
+    if (bOrdersPaidSub) {
+      const orderPayRate = ordersCreatedInPeriod > 0 ? Math.round((ordersPaidInPeriod / ordersCreatedInPeriod) * 100) : 0;
+      bOrdersPaidSub.textContent = ordersPaidInPeriod > 0 ? ('Khớp lệnh: ' + orderPayRate + '% • Thành công') : 'Chưa có đơn thanh toán';
+    }
+    if (bDropBadge) {
+      bDropBadge.textContent = 'Bỏ giỏ: ' + cartDropOffRate + '% (' + cartDropOffCount + ' giỏ)';
+    }
     if (bCartDropRate) bCartDropRate.textContent = cartDropOffRate + '%';
     if (bCartDropSub) {
-      bCartDropSub.textContent = cartDropOffCount > 0 ? (cartDropOffCount + ' giỏ chưa xác nhận') : 'Chưa có giỏ bỏ rơi';
+      bCartDropSub.textContent = cartDropOffCount > 0 ? (cartDropOffCount + ' giỏ chưa bấm tạo đơn') : 'Chưa có giỏ bỏ rơi';
     }
 
     // Tính toán số liệu Tốc độ chốt đơn (Payment Latency & Time-to-Pay)
@@ -2324,8 +2366,8 @@ document.addEventListener('DOMContentLoaded', () => {
         const fClicks = Math.max(totalIntentClicks, 865);
         const fWebOpen = effectiveWebSessions;
         const fCart = effectiveAddToCart;
-        const fOrdersCreated = totalOrdersInFilter > 0 ? totalOrdersInFilter : 52;
-        const fOrdersPaid = paidCount > 0 ? paidCount : 13;
+        const fOrdersCreated = (typeof ordersCreatedInPeriod !== 'undefined' && ordersInTrackerPeriod && ordersInTrackerPeriod.length > 0) ? ordersCreatedInPeriod : (totalOrdersInFilter > 0 ? totalOrdersInFilter : 0);
+        const fOrdersPaid = (typeof ordersPaidInPeriod !== 'undefined' && ordersInTrackerPeriod && ordersInTrackerPeriod.length > 0) ? ordersPaidInPeriod : (paidCount > 0 ? paidCount : 0);
 
         const pEngaged = Math.round((fEngaged / fViews) * 100);
         const pClicks = fEngaged > 0 ? ((fClicks / fEngaged) * 100).toFixed(1) : 0;

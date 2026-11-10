@@ -634,6 +634,21 @@ function escapeHtml(value) {
 
     // Unified Checkout events
     if (btnGoogleCheckout) btnGoogleCheckout.addEventListener("click", signInWithGoogleCheckout);
+    // Exit-Intent button listeners
+    var closeExitBtn = document.getElementById("closeExitIntentBtn");
+    if (closeExitBtn) closeExitBtn.addEventListener("click", closeExitIntentModal);
+    var dismissExitBtn = document.getElementById("btnDismissExitIntent");
+    if (dismissExitBtn) dismissExitBtn.addEventListener("click", closeExitIntentModal);
+    var applyExitBtn = document.getElementById("btnApplyExitIntentCoupon");
+    if (applyExitBtn) applyExitBtn.addEventListener("click", applyExitIntentDiscount);
+
+    // Desktop mouseleave trigger
+    document.addEventListener("mouseleave", function(e) {
+      if (e.clientY <= 5 && state.cart && state.cart.length > 0 && !sessionStorage.getItem("filedilam_exit_intent_shown")) {
+        showExitIntentModal();
+      }
+    });
+
     if (quickBuyForm) {
       quickBuyForm.addEventListener("submit", handleQuickBuySubmit);
     }
@@ -1201,35 +1216,38 @@ function escapeHtml(value) {
           path: window.location.pathname
         });
 
-        telemetryLastActiveTime = Date.now();
-        function flushDwell() {
-          if (document.visibilityState === "visible") {
-            var now = Date.now();
-            var elapsedSec = Math.round((now - telemetryLastActiveTime) / 1000);
-            if (elapsedSec > 0 && elapsedSec <= 300) {
-              sendTelemetry({
-                type: "dwell_time",
-                session_id: telemetrySessionId,
-                seconds: elapsedSec,
-                source: telemetrySource
-              });
-            }
-            telemetryLastActiveTime = now;
+        var telemetrySessionStart = Date.now();
+        var telemetryDwellSent = false;
+
+        function recordDwellTelemetry() {
+          if (telemetryDwellSent) return;
+          var elapsedSec = Math.round((Date.now() - telemetrySessionStart) / 1000);
+          if (elapsedSec >= 2 && elapsedSec <= 1800) {
+            telemetryDwellSent = true;
+            sendTelemetry({
+              type: "dwell_time",
+              session_id: telemetrySessionId,
+              seconds: elapsedSec,
+              source: telemetrySource
+            });
           }
         }
 
-        telemetryDwellTimer = window.setInterval(flushDwell, 25000);
-
         document.addEventListener("visibilitychange", function() {
           if (document.visibilityState === "hidden") {
-            flushDwell();
-          } else {
-            telemetryLastActiveTime = Date.now();
+            recordDwellTelemetry();
+          } else if (document.visibilityState === "visible") {
+            telemetryDwellSent = false;
+            telemetrySessionStart = Date.now();
           }
         });
 
         window.addEventListener("pagehide", function() {
-          flushDwell();
+          recordDwellTelemetry();
+        });
+
+        window.addEventListener("beforeunload", function() {
+          recordDwellTelemetry();
         });
       }
 
@@ -1260,16 +1278,16 @@ function escapeHtml(value) {
       if (isAdminVisitor()) return; // Khong gui tracking tu may Admin
       var endpoint = apiUrl("/track");
       var bodyStr = JSON.stringify(payload);
-      if (navigator.sendBeacon && (payload.type === "dwell_time" || document.visibilityState === "hidden")) {
-        var blob = new Blob([bodyStr], { type: "application/json" });
-        navigator.sendBeacon(endpoint, blob);
-      } else {
+      if (typeof window.fetch === "function") {
         fetch(endpoint, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: bodyStr,
           keepalive: true
         }).catch(function() {});
+      } else if (navigator.sendBeacon) {
+        var blob = new Blob([bodyStr], { type: "application/json" });
+        navigator.sendBeacon(endpoint, blob);
       }
     } catch (e) {}
   }
@@ -2450,6 +2468,18 @@ function escapeHtml(value) {
     detailModal.classList.add("is-open");
     detailModal.setAttribute("aria-hidden", "false");
     document.body.classList.add("drawer-open");
+
+    // Đảm bảo sau khi modal mở thì cuộn lên đỉnh 0s mượt mà trên Mobile Safari / Chrome
+    detailBody.scrollTop = 0;
+    detailModal.scrollTop = 0;
+    requestAnimationFrame(function() {
+      if (detailBody) detailBody.scrollTop = 0;
+      if (detailModal) detailModal.scrollTop = 0;
+    });
+    setTimeout(function() {
+      if (detailBody) detailBody.scrollTop = 0;
+      if (detailModal) detailModal.scrollTop = 0;
+    }, 60);
     } catch (err) {
       console.error('Error opening detail modal:', err);
       showToast('Không thể mở chi tiết sản phẩm. Vui lòng thử lại.');
@@ -2946,55 +2976,56 @@ function escapeHtml(value) {
   function handleQuickBuySubmit(e) {
     if (e && e.preventDefault) e.preventDefault();
 
-    var fullName = quickName ? quickName.value.trim() : "";
-    if (!fullName) {
-      showToast("Vui lòng nhập họ và tên của bạn.");
-      if (quickName) quickName.focus();
-      return;
-    }
-
-    var phoneInput = quickPhone ? quickPhone.value.trim() : "";
-    var phone = normalizePhone(phoneInput);
-    if (!isValidPhone(phone)) {
-      showToast("Vui lòng nhập đúng số điện thoại/Zalo (9–11 số).");
-      if (quickPhone) quickPhone.focus();
-      return;
-    }
-
-    var emailInput = quickEmail ? quickEmail.value.trim().toLowerCase() : "";
-    if (!emailInput || !emailInput.includes("@") || !emailInput.includes(".")) {
-      showToast("Vui lòng nhập đúng địa chỉ Gmail (ví dụ: yourname@gmail.com).");
+    var emailInput = quickEmail ? quickEmail.value.trim().toLowerCase() : '';
+    if (!emailInput || !emailInput.includes('@') || !emailInput.includes('.')) {
+      showToast('Vui lòng nhập đúng địa chỉ Gmail để nhận file.');
       if (quickEmail) quickEmail.focus();
       return;
     }
     if (!isValidEmail(emailInput)) {
-      showToast("Địa chỉ email chưa chính xác. Vui lòng kiểm tra lại phần trước và sau @.");
+      showToast('Địa chỉ email chưa chính xác. Vui lòng kiểm tra lại phần trước và sau @.');
       if (quickEmail) quickEmail.focus();
       return;
     }
 
+    var fullName = quickName ? quickName.value.trim() : '';
+    if (!fullName) {
+      fullName = 'Khách hàng';
+    }
+
+    var phoneInput = quickPhone ? quickPhone.value.trim() : '';
+    var phone = '';
+    if (phoneInput) {
+      phone = normalizePhone(phoneInput);
+      if (!isValidPhone(phone)) {
+        showToast('Số điện thoại/Zalo chưa đúng (9–11 số). Bạn có thể để trống nếu không muốn điền.');
+        if (quickPhone) quickPhone.focus();
+        return;
+      }
+    }
+
     if (typeof firebase === 'undefined' || !firebase.auth) {
-      showToast("Hệ thống đang tải dữ liệu. Vui lòng thử lại sau giây lát.");
+      showToast('Hệ thống đang tải dữ liệu. Vui lòng thử lại sau giây lát.');
       return;
     }
 
     var auth = firebase.auth();
     if (btnQuickSubmit) {
       btnQuickSubmit.disabled = true;
-      if (btnQuickSubmitText) btnQuickSubmitText.textContent = "Đang xử lý...";
+      if (btnQuickSubmitText) btnQuickSubmitText.textContent = 'Đang xử lý...';
     }
 
-    // Safety timeout: Never keep the button stuck disabled on Safari if network/auth hangs
     var submitSafetyTimer = setTimeout(function() {
       if (btnQuickSubmit && btnQuickSubmit.disabled) {
         btnQuickSubmit.disabled = false;
-        if (btnQuickSubmitText) btnQuickSubmitText.textContent = "Xác nhận thông tin & tạo đơn";
+        if (btnQuickSubmitText) btnQuickSubmitText.textContent = 'Xác nhận thông tin & tạo đơn';
       }
     }, 8000);
 
     var customerEmail = emailInput;
-    var authEmail = phone + "@khachhang.filedilam.vn";
-    var autoPassword = "FDL@" + phone + "#2026";
+    var safePrefix = (phone ? phone : emailInput.split('@')[0].replace(/[^a-zA-Z0-9]/g, '')).slice(0, 20);
+    var authEmail = safePrefix + '@khachhang.filedilam.vn';
+    var autoPassword = 'FDL@' + safePrefix + '#2026';
 
     showToast("Đang tạo thông tin đơn hàng...");
 
@@ -3083,42 +3114,32 @@ function escapeHtml(value) {
       firebase.auth().signInWithPopup(provider)
         .then(function(result) {
           state.user = result.user;
-          return loadProfile();
-        })
-        .then(function(profile) {
-          if (profile && isValidPhone(profile.phone)) {
-            createOrderAndRenderQr({ customer_phone: profile.phone, customer_email: state.user.email });
-          } else {
-            // Điền sẵn email Google, ẩn mật khẩu, yêu cầu điền SĐT
-            if (quickEmail) {
-              quickEmail.value = state.user.email || "";
-              quickEmail.readOnly = true;
-            }
-            if (quickPassGroup) quickPassGroup.style.display = "none";
-            if (quickPhoneLabel) {
-              quickPhoneLabel.innerHTML = '<span>Số điện thoại / Zalo nhận file <strong style="color:#ef4444;">*</strong></span>';
-            }
-            if (btnQuickSubmitText) {
-              btnQuickSubmitText.textContent = "Xác nhận SĐT & Nhận mã QR";
-            }
-            if (quickPhone) quickPhone.focus();
-            showToast("Đã liên kết Google. Vui lòng nhập SĐT/Zalo để nhận file.");
+          if (quickEmail) {
+            quickEmail.value = state.user.email || '';
           }
+          if (quickName && state.user.displayName && !quickName.value) {
+            quickName.value = state.user.displayName;
+          }
+          showToast('Đã liên kết Google: ' + (state.user.email || ''));
+          var phoneVal = (quickPhone ? quickPhone.value.trim() : '') || '';
+          createOrderAndRenderQr({
+            customer_name: state.user.displayName || (quickName ? quickName.value.trim() : '') || 'Khách hàng',
+            customer_email: state.user.email,
+            customer_phone: phoneVal
+          });
         })
         .catch(function(error) {
-          console.error("Google Checkout signIn error:", error);
+          console.error('Google Checkout signIn error:', error);
           if (error.code === 'auth/popup-blocked') {
-            showToast("Trình duyệt đang chặn cửa sổ đăng nhập. Vui lòng cho phép popup.");
+            showToast('Trình duyệt chặn popup. Bạn có thể nhập Gmail trực tiếp bên dưới.');
           } else if (error.code === 'auth/cancelled-popup-request' || error.code === 'auth/popup-closed-by-user') {
-            // Người dùng chủ động đóng popup
-          } else if (error.code === 'auth/unauthorized-domain') {
-            showToast("Tên miền chưa được cấp phép trong Firebase Auth (Authorized domains).");
+            // User closed popup
           } else {
-            showToast("Đăng nhập Google thất bại: " + (error.message || error.code));
+            showToast('Không thể đăng nhập Google. Bạn có thể nhập Gmail bên dưới.');
           }
         });
     } else {
-      showToast("Đang tải dữ liệu. Vui lòng thử lại sau.");
+      showToast('Đang tải dữ liệu. Vui lòng thử lại sau.');
     }
   }
 
@@ -3452,8 +3473,8 @@ function escapeHtml(value) {
     var tabs = document.querySelector(".checkout-segmented-tabs");
     if (tabs) tabs.style.display = "none";
     var divider = document.querySelector(".checkout-divider");
-    if (divider) divider.style.display = "none";
-    if (btnGoogleCheckout) btnGoogleCheckout.style.display = "none";
+    if (divider) divider.style.display = "flex";
+    if (btnGoogleCheckout) btnGoogleCheckout.style.display = "flex";
     if (quickPassGroup) quickPassGroup.style.display = "none";
 
     // Luôn hiển thị cả 3 trường: Họ tên, SĐT, Gmail
@@ -3487,11 +3508,12 @@ function escapeHtml(value) {
     if (btnQuickSubmitText) btnQuickSubmitText.textContent = "Xác nhận thông tin & tạo đơn";
     if (checkoutAuthStep) checkoutAuthStep.style.display = "grid";
     if (checkoutPaymentStep) checkoutPaymentStep.style.display = "none";
-    if (quickName && !quickName.value) {
-      setTimeout(function() { quickName.focus(); }, 100);
-    } else if (quickPhone && !quickPhone.value) {
-      setTimeout(function() { quickPhone.focus(); }, 100);
-    }
+    if (checkoutModal) checkoutModal.scrollTop = 0;
+    window.scrollTo(0, 0);
+    setTimeout(function() {
+      if (checkoutModal) checkoutModal.scrollTop = 0;
+      window.scrollTo(0, 0);
+    }, 60);
   }
 
   function closeCheckout(fromHistory) {
@@ -5214,3 +5236,46 @@ if (document.readyState === "loading") {
     setTimeout(initStatsCounters, 200);
   }
 })();
+  // --- EXIT-INTENT CART SAVER (Giữ chân khách với Voucher GIUCHANG10) ---
+  var EXIT_INTENT_COUPON = {
+    code: "GIUCHANG10",
+    type: "percent",
+    value: 10,
+    min_order: 0,
+    description: "Ưu đãi giữ chân: Giảm thêm 10% đơn hàng",
+    is_active: true
+  };
+
+  function showExitIntentModal() {
+    var modal = document.getElementById("exitIntentModal");
+    if (!modal) return;
+    if (sessionStorage.getItem("filedilam_exit_intent_shown")) return;
+    if (!state.cart || !state.cart.length) return;
+    if (state.appliedCoupons.some(function(c) { return c.code === "GIUCHANG10"; })) return;
+
+    modal.classList.remove("hidden");
+    modal.style.display = "flex";
+    modal.style.zIndex = "2000000";
+    sessionStorage.setItem("filedilam_exit_intent_shown", "1");
+  }
+
+  function closeExitIntentModal() {
+    var modal = document.getElementById("exitIntentModal");
+    if (modal) {
+      modal.classList.add("hidden");
+      modal.style.display = "none";
+    }
+  }
+
+  function applyExitIntentDiscount() {
+    closeExitIntentModal();
+    if (!state.appliedCoupons.some(function(c) { return c.code === "GIUCHANG10"; })) {
+      state.appliedCoupons.push(EXIT_INTENT_COUPON);
+      state.appliedCoupon = state.appliedCoupons[0];
+      invalidateActiveOrderOnCartOrCouponChange("Đã áp dụng mã ưu đãi 10%!");
+      renderCart();
+      updateCheckoutCouponSelection();
+      showToast("Đã áp dụng mã GIUCHANG10: Giảm thêm 10%!");
+    }
+    openCheckout();
+  }
