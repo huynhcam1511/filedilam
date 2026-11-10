@@ -3265,8 +3265,8 @@ body.checkout-page-open {
   margin: 0 auto !important;
   padding: 18px 24px 32px !important;
   display: grid !important;
-  grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr) !important;
-  column-gap: 64px !important;
+  grid-template-columns: minmax(0, 1.25fr) minmax(0, 0.95fr) !important;
+  column-gap: 52px !important;
   row-gap: 28px !important;
   align-items: start !important;
   background: #ffffff !important;
@@ -3393,9 +3393,9 @@ body.checkout-page-open {
 
 .checkout-product-heading-1 {
   color: #0f172a;
-  font-size: 0.94rem;
+  font-size: 0.98rem;
   font-weight: 700;
-  line-height: 1.35;
+  line-height: 1.4;
   display: -webkit-box;
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 2;
@@ -3405,8 +3405,8 @@ body.checkout-page-open {
 .checkout-product-heading-2 {
   margin-top: 5px;
   color: #64748b;
-  font-size: 0.78rem;
-  line-height: 1.45;
+  font-size: 0.82rem;
+  line-height: 1.48;
   display: -webkit-box;
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 2;
