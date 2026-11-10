@@ -5830,6 +5830,23 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
+  // Helper sinh mã bài đăng chuẩn AGENTS.md: POST-XXXXXX (6 chữ số ngẫu nhiên)
+  function generateUniquePostId(existingPosts) {
+    const existingIds = new Set((existingPosts || currentSocialPosts || []).map(p => p.id));
+    let candidate = '';
+    let attempts = 0;
+    do {
+      const digits = Math.floor(100000 + Math.random() * 900000);
+      candidate = 'POST-' + digits;
+      attempts++;
+    } while (existingIds.has(candidate) && attempts < 200);
+    return candidate;
+  }
+
+  function isValidPostId(id) {
+    return /^POST-\d{6}$/.test(String(id || ''));
+  }
+
   function populateAdsPostDropdown() {
     const adsPostSelect = document.getElementById('adsPostSelect');
     if (!adsPostSelect) return;
@@ -5933,6 +5950,29 @@ document.addEventListener('DOMContentLoaded', () => {
             try {
               db.collection('social_posts').doc(existing.id).update({ title: bp.title });
             } catch (eUp) {}
+          }
+        }
+      }
+
+      // Tự động chuẩn hóa các bài đăng có mã Firestore ngẫu nhiên (không phải POST-XXXXXX)
+      for (const p of [...currentSocialPosts]) {
+        if (!isValidPostId(p.id) && !p.id.startsWith('post_auto_')) {
+          const newPostId = generateUniquePostId(currentSocialPosts);
+          try {
+            const oldId = p.id;
+            const postData = { ...p, id: newPostId, updated_at: new Date().toISOString() };
+            await db.collection('social_posts').doc(newPostId).set(postData);
+            // Cập nhật các chiến dịch Ads liên kết tới post cũ
+            const adsSnap = await db.collection('ads_campaigns').where('post_id', '==', oldId).get();
+            if (!adsSnap.empty) {
+              const bAds = db.batch();
+              adsSnap.forEach(d => bAds.update(d.ref, { post_id: newPostId }));
+              await bAds.commit();
+            }
+            await db.collection('social_posts').doc(oldId).delete();
+            p.id = newPostId;
+          } catch (eNorm) {
+            console.warn('Lỗi tự động chuẩn hóa mã bài đăng:', eNorm);
           }
         }
       }
@@ -6235,8 +6275,10 @@ document.addEventListener('DOMContentLoaded', () => {
           showToast('Đã cập nhật bài đăng MXH thành công.');
         } else {
           payload.created_at = new Date().toISOString();
-          await db.collection('social_posts').add(payload);
-          showToast('Đã thêm bài đăng MXH mới thành công.');
+          const newPostId = generateUniquePostId(currentSocialPosts);
+          payload.id = newPostId;
+          await db.collection('social_posts').doc(newPostId).set(payload);
+          showToast('Đã thêm bài đăng MXH mới: ' + newPostId);
         }
 
         closePostModal();
