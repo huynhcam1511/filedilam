@@ -6207,11 +6207,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
       try {
         const docId = document.getElementById('postDocId')?.value;
+        const rawTitle = document.getElementById('postTitleInput')?.value.trim() || '';
+        const rawUrl = document.getElementById('postUrlInput')?.value.trim() || '';
+        const targetProd = (currentProducts || []).find(p => p.id === document.getElementById('postProductSelect')?.value);
+        const autoTitle = rawTitle || (targetProd ? ('Video: ' + targetProd.name) : (rawUrl ? ('Bài đăng ' + rawUrl.slice(0, 30)) : 'Bài đăng MXH'));
+
         const payload = {
           platform: document.getElementById('postPlatformSelect')?.value || 'tiktok',
           type: document.getElementById('postTypeSelect')?.value || 'video',
-          title: document.getElementById('postTitleInput')?.value.trim() || '',
-          url: document.getElementById('postUrlInput')?.value.trim() || '',
+          title: autoTitle,
+          url: rawUrl,
           product_id: document.getElementById('postProductSelect')?.value || '',
           posted_at: document.getElementById('postDateInput')?.value || '',
           status: document.getElementById('postStatusSelect')?.value || 'PUBLISHED',
