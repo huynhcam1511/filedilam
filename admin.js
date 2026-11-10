@@ -1963,15 +1963,25 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // --- XỬ LÝ SỐ LIỆU HÀNH VI WEB & GIỎ HÀNG (TELEMETRY) ---
+    // Chuẩn hóa ngày bắt đầu theo bộ lọc (statsFilterPeriod hoặc statsFilterMonth)
+    let behaviorCutoffDateStr = null;
+    if (statsFilterMonth === 'ALL' && periodDays) {
+      const cDate = new Date(now.getTime() - (periodDays - 1) * 24 * 60 * 60 * 1000);
+      behaviorCutoffDateStr = cDate.toISOString().slice(0, 10);
+    }
+
     const filteredAnalytics = (cachedAnalytics || []).filter(item => {
       if (!item.date) return false;
-      const dObj = parseDateObj(item.date);
-      if (!dObj) return false;
-      if (statsFilterMonth === 'ALL' && cutoffTime && dObj.getTime() < cutoffTime) {
-        return false;
+      const dateStr = String(item.date).trim().slice(0, 10);
+
+      // Lọc theo số ngày (7, 14, 30 ngày)
+      if (statsFilterMonth === 'ALL' && behaviorCutoffDateStr) {
+        if (dateStr < behaviorCutoffDateStr || dateStr > todayStr) return false;
       }
+
+      // Lọc theo tháng (VD: 2026-11)
       if (statsFilterMonth !== 'ALL') {
-        const yyyymm = String(item.date).slice(0, 7);
+        const yyyymm = dateStr.slice(0, 7);
         if (yyyymm !== statsFilterMonth) return false;
       }
       return true;
