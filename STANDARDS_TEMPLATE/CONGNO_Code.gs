@@ -232,7 +232,7 @@ function setupDatabaseSheets() {
     formatHeaderRow(sCaiDat);
     sCaiDat.appendRow(['TEN_DON_VI', 'CÔNG TY TNHH FILE ĐI LÀM VIỆT NAM', 'Tên doanh nghiệp / Đơn vị kinh doanh']);
     sCaiDat.appendRow(['DIA_CHI', 'Tòa nhà Innovation Hub, Quận 1, TP.HCM', 'Địa chỉ trụ sở chính']);
-    sCaiDat.appendRow(['SO_DIEN_THOAI', '0901234567', 'Hotline liên hệ']);
+    sCaiDat.appendRow(['SO_DIEN_THOAI', '0938134576', 'Hotline liên hệ']);
     sCaiDat.appendRow(['EMAIL', 'contact@filedilam.com', 'Hòm thư điện tử liên hệ']);
     sCaiDat.appendRow(['NGAN_HANG', 'Vietcombank', 'Ngân hàng nhận thanh toán']);
     sCaiDat.appendRow(['STK', '9901234567', 'Số tài khoản nhận chuyển khoản']);
