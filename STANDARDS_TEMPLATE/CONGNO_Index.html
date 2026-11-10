@@ -2057,15 +2057,19 @@ function renderDashboard() {
     }
   }
 
-  // 4. RENDER 8 BIỂU ĐỒ CHART.JS
-  render8Charts({
-    totalAR: totalAR,
-    totalAP: totalAP,
-    partners: partners,
-    invoices: invoices,
-    payments: payments,
-    partnerMap: partnerMap
-  });
+  // 4. RENDER 8 BIỂU ĐỒ CHART.JS (Bọc Safe Try/Catch để đảm bảo độc lập tuyệt đối)
+  try {
+    render8Charts({
+      totalAR: totalAR,
+      totalAP: totalAP,
+      partners: partners,
+      invoices: invoices,
+      payments: payments,
+      partnerMap: partnerMap
+    });
+  } catch (errChart) {
+    console.warn('Lưu ý render biểu đồ:', errChart);
+  }
 
   if (window.lucide && typeof window.lucide.createIcons === 'function') {
     lucide.createIcons();
@@ -2135,18 +2139,19 @@ function fallbackCopy(text) {
 }
 
 function render8Charts(params) {
-  if (typeof Chart === 'undefined') return;
+  try {
+    if (typeof Chart === 'undefined') return;
 
-  const mint = '#059669';
-  const amber = '#f59e0b';
-  const rose = '#f43f5e';
-  const blue = '#0284c7';
-  const slate = '#64748b';
+    const mint = '#059669';
+    const amber = '#f59e0b';
+    const rose = '#f43f5e';
+    const blue = '#0284c7';
+    const slate = '#64748b';
 
-  const invoices = params.invoices || [];
-  const payments = params.payments || [];
-  const partners = params.partners || [];
-  const partnerMap = params.partnerMap || {};
+    const invoices = params.invoices || [];
+    const payments = params.payments || [];
+    const partners = params.partners || [];
+    const partnerMap = params.partnerMap || {};
 
   // ==========================================
   // DỮ LIỆU ĐỘNG 1: Dòng tiền thu - chi 6 tháng gần nhất từ DB_ThanhToan
@@ -2537,6 +2542,9 @@ function render8Charts(params) {
         }
       }
     });
+  }
+  } catch (err) {
+    console.warn('Lỗi khi vẽ biểu đồ:', err);
   }
 }
 
