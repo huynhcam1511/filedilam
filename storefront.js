@@ -1908,6 +1908,7 @@ function escapeHtml(value) {
     var checkoutSummaryPrice = document.getElementById("checkoutSummaryPrice");
     if (checkoutSummaryPrice) checkoutSummaryPrice.textContent = formatCurrency(getCartTotal());
     renderCheckoutSummary(detailedCart);
+    updateCheckoutCouponSelection();
 
     if (cartItems) {
       Array.prototype.forEach.call(cartItems.querySelectorAll("[data-remove-id]"), function (button) {
@@ -3474,6 +3475,7 @@ function escapeHtml(value) {
       return p ? { product: p, quantity: entry.quantity, total: p.price * entry.quantity } : null;
     }).filter(Boolean);
     renderCheckoutSummary(detailedCart);
+    updateCheckoutCouponSelection();
     var originalTotal = state.cart.reduce(function(acc, item) {
       var p = getProductById(item.productId);
       return acc + (p && p.originalPrice && p.originalPrice > p.price ? p.originalPrice * item.quantity : (p ? p.price * item.quantity : 0));
@@ -5076,8 +5078,9 @@ function escapeHtml(value) {
   function updateCheckoutCouponSelection() {
     if (!checkoutCouponList) return;
     checkoutCouponList.querySelectorAll("[data-coupon-code]").forEach(function(button) {
+      var code = button.getAttribute("data-coupon-code");
       var selected = state.appliedCoupons.some(function(coupon) {
-        return coupon.code === button.getAttribute("data-coupon-code");
+        return coupon.code === code;
       });
       button.classList.toggle("is-selected", selected);
       button.setAttribute("aria-pressed", String(selected));
@@ -5123,9 +5126,24 @@ function escapeHtml(value) {
       return;
     }
 
+    var targetBtn = checkoutCouponList ? checkoutCouponList.querySelector('[data-coupon-code="' + rawCode + '"]') : null;
+    var isDomSelected = targetBtn && (
+      targetBtn.classList.contains("is-selected") ||
+      (targetBtn.querySelector(".checkout-coupon-option-selected") &&
+       targetBtn.querySelector(".checkout-coupon-option-selected").textContent.trim() === "Bỏ chọn")
+    );
     var alreadySelected = state.appliedCoupons.some(function(coupon) { return coupon.code === rawCode; });
-    if (alreadySelected) {
+
+    // Khi người dùng bấm Bỏ chọn (hoặc mã đang hiển thị là đã chọn), hủy áp mã ngay lập tức mà không xét điều kiện lỗi
+    if (alreadySelected || isDomSelected) {
       state.appliedCoupons = state.appliedCoupons.filter(function(coupon) { return coupon.code !== rawCode; });
+      state.appliedCoupon = state.appliedCoupons[0] || null;
+      if (targetBtn) {
+        targetBtn.classList.remove("is-selected");
+        targetBtn.setAttribute("aria-pressed", "false");
+        var actEl = targetBtn.querySelector(".checkout-coupon-option-selected");
+        if (actEl) actEl.textContent = "Chọn mã";
+      }
       clearCouponMessage();
       invalidateActiveOrderOnCartOrCouponChange("Đơn hàng đã thay đổi. Vui lòng xác nhận lại để tạo mã QR mới.");
       renderCart();
