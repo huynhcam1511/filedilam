@@ -6363,9 +6363,10 @@ document.addEventListener('DOMContentLoaded', () => {
       adsTitle.value = 'Ads: ' + (post.title || 'Video MXH');
     }
 
+    // Không tự động điền link video vào ô Link Báo cáo/Chi tiết đơn Ads (chỉ để người dùng dán link tiktok promote thật)
     const adsManagerUrl = document.getElementById('adsManagerUrlInput');
-    if (adsManagerUrl && post.url && !adsManagerUrl.value) {
-      adsManagerUrl.value = post.url;
+    if (adsManagerUrl) {
+      adsManagerUrl.value = '';
     }
 
     showToast('Đã chọn bài: ' + (post.title || 'Video MXH') + '. Hãy nhập số tiền và lịch chạy Ads.');
