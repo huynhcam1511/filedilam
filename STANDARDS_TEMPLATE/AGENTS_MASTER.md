@@ -67,6 +67,14 @@
    - File `Index.html` bắt buộc nhúng sẵn bộ dữ liệu mẫu thực chiến (10–15 thực thể đầy đủ trạng thái) ngay trong biến khai báo ban đầu (`AppState.data`).
    - Triệt tiêu 100% rủi ro trắng trang hoặc hiển thị 0% do RPC Google Apps Script bị trễ hay do cache LocalStorage bị rỗng.
    - Khi đọc LocalStorage, nếu dữ liệu bị rỗng (`rooms.length === 0`), bắt buộc bỏ qua cache và dùng dữ liệu mẫu nhúng sẵn. CẤM lưu mảng rỗng đè vào LocalStorage.
+9. **Quy tắc "Visual Deployment Version Stamping" (Minh bạch phiên bản triển khai, chống kẹt cache bản cũ)**:
+   - Trong môi trường Google Apps Script Web App (chạy qua link `/exec`), trình duyệt rất dễ lưu cache hoặc người dùng không biết bản deploy trên Google có thực sự là bản mới nhất hay không.
+   - **Bắt buộc**:
+     1. Mọi bản nâng cấp trong file `Index.html` **BẮT BUỘC phải dập nổi Huy hiệu phiên bản (Visual Version Badge)** tại 2 vị trí trực quan:
+        - Trên thanh Header Topbar cạnh tiêu đề chính: `<span class="text-[10px] text-emerald-700 font-mono font-bold bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-200 shrink-0">Bản XX</span>`.
+        - Dưới chân Sidebar đáy màn hình: `<span id="appBuildVersionBadge" class="text-[10px] text-emerald-700 font-mono font-bold bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">Phiên bản XX (Active)</span>`.
+     2. Số phiên bản `Bản XX` phải tăng lũy tiến đồng bộ với số phiên bản của Google Apps Script Deployment (VD: Deploy bản 44 thì code đóng dấu `Bản 44`).
+     3. Nhờ đó, người dùng và lập trình viên chỉ cần nhìn lướt qua màn hình Web App trong 0.1 giây là biết ngay link đang chạy đúng bản mới hay bị kẹt cache bản cũ.
 
 ---
 
@@ -288,7 +296,7 @@ Gom về cuối cùng của hệ thống:
 
 ---
 
-## 8. DANH MỤC KIỂM TRA TRƯỚC KHI BÀN GIAO (CHECKLIST 14 ĐIỂM)
+## 8. DANH MỤC KIỂM TRA TRƯỚC KHI BÀN GIAO (CHECKLIST 15 ĐIỂM)
 
 - [ ] 1. Tên file local đúng chuẩn: `[TENDUAN]_Code.gs` và `[TENDUAN]_Index.html`.
 - [ ] 2. Tên file Google Sheet chuẩn: `[TÊN SẢN PHẨM IN HOA CÓ DẤU] v[X.X] — FILE ĐI LÀM`.
@@ -304,3 +312,4 @@ Gom về cuối cùng của hệ thống:
 - [ ] 12. Không có bất kỳ phần tử Drawer/Modal nào mang `pointer-events-auto` che phủ màn hình khi đang đóng (chuẩn Zero Phantom Overlay).
 - [ ] 13. Giao diện tuân thủ chuẩn Instant Render (hiển thị ngay trong 0s), không chứa khối loading placeholder nào che phủ giữa màn hình.
 - [ ] 14. Biến `AppState.data` được nhúng sẵn 100% dữ liệu mẫu thực chiến ngay từ đầu, tuyệt đối không khai báo mảng rỗng `[]`.
+- [ ] 15. Giao diện có gắn huy hiệu phiên bản trực quan (Visual Version Badge `Bản XX`) tại Topbar và Footer để đối soát phiên bản triển khai tức thì.
