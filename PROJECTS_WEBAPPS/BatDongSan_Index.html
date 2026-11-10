@@ -27,7 +27,7 @@
 
   <!-- Lucide Icons & Chart.js -->
   <script src="https://unpkg.com/lucide@latest"></script>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <!-- Chart.js Removed: Chuyen sang Pure CSS Native Fintech Metrics sieu nhe 0s -->
 
   <style>
     .no-scrollbar::-webkit-scrollbar { display: none; }
@@ -124,7 +124,7 @@
         <div class="w-2 h-2 rounded-full bg-emerald-500"></div>
         <span class="text-[11px] text-slate-500 font-medium brand-name">Hệ thống sẵn sàng</span>
       </div>
-      <span id="appBuildVersionBadge" class="text-[10px] text-emerald-700 font-mono font-bold bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">Phiên bản 45 (Active)</span>
+      <span id="appBuildVersionBadge" class="text-[10px] text-emerald-700 font-mono font-bold bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">Phiên bản 46 (Active)</span>
     </div>
   </aside>
 
@@ -147,7 +147,7 @@
         <button onclick="toggleSidebar()" class="md:hidden p-1.5 rounded-lg text-slate-500 hover:bg-slate-100 flex-shrink-0"><i data-lucide="menu" class="w-5 h-5"></i></button>
         <div class="flex items-center gap-2">
           <h1 id="topbarTitle" class="text-sm font-bold text-slate-900 truncate">Tổng quan vận hành</h1>
-          <span class="text-[10px] text-emerald-700 font-mono font-bold bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-200 shrink-0">Bản 45</span>
+          <span class="text-[10px] text-emerald-700 font-mono font-bold bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-200 shrink-0">Bản 46</span>
         </div>
       </div>
 
@@ -243,42 +243,50 @@
           </div>
         </div>
 
-        <!-- 4 Chart Containers (Executive Dashboard) -->
+        <!-- 4 Khung Thống Kê Dễ Coi: Pure CSS Fintech Metrics (Tải ngay 0s, không lo lỗi mạng hay lỗi thư viện) -->
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
-          <!-- Chart 1: Cơ cấu nguồn khách tiếp cận -->
-          <div class="bg-white border border-slate-200/90 rounded-xl p-4 sm:p-5 shadow-xs flex flex-col">
+          <!-- Card 1: Cơ cấu nguồn khách tiếp cận -->
+          <div class="bg-white border border-slate-200/90 rounded-xl p-4 sm:p-5 shadow-xs flex flex-col justify-between">
             <div class="flex items-center justify-between mb-3 border-b border-slate-100 pb-2.5">
-              <span class="text-xs font-semibold text-slate-800 uppercase tracking-wider">1. Cơ cấu nguồn khách tiếp cận</span>
+              <span class="text-xs font-bold text-slate-800 uppercase tracking-wider">1. Cơ cấu nguồn khách tiếp cận</span>
               <span class="text-[10px] text-slate-400 font-mono">Nguồn chuyển đổi</span>
             </div>
-            <div class="relative flex-1 flex items-center justify-center min-h-[220px]"><canvas id="chartDemandCanvas"></canvas></div>
+            <div id="statLeadSources" class="space-y-3 py-1 flex-1">
+              <!-- Render tự động các thanh tiến độ nguồn khách -->
+            </div>
           </div>
 
-          <!-- Chart 2: Doanh thu hoa hồng theo loại hình BĐS -->
-          <div class="bg-white border border-slate-200/90 rounded-xl p-4 sm:p-5 shadow-xs flex flex-col">
+          <!-- Card 2: Doanh thu hoa hồng theo loại hình BĐS -->
+          <div class="bg-white border border-slate-200/90 rounded-xl p-4 sm:p-5 shadow-xs flex flex-col justify-between">
             <div class="flex items-center justify-between mb-3 border-b border-slate-100 pb-2.5">
-              <span class="text-xs font-semibold text-slate-800 uppercase tracking-wider">2. Doanh thu hoa hồng theo loại hình BĐS</span>
+              <span class="text-xs font-bold text-slate-800 uppercase tracking-wider">2. Doanh thu hoa hồng theo loại hình BĐS</span>
               <span class="text-[10px] text-slate-400 font-mono">Doanh thu VNĐ</span>
             </div>
-            <div class="relative flex-1 flex items-center justify-center min-h-[220px]"><canvas id="chartPropertyCanvas"></canvas></div>
+            <div id="statPropertyRevenue" class="space-y-3 py-1 flex-1">
+              <!-- Render tự động các thanh doanh thu theo loại hình -->
+            </div>
           </div>
 
-          <!-- Chart 3: Xu hướng hoa hồng theo tháng -->
-          <div class="bg-white border border-slate-200/90 rounded-xl p-4 sm:p-5 shadow-xs flex flex-col">
+          <!-- Card 3: Xu hướng hoa hồng các tháng gần nhất -->
+          <div class="bg-white border border-slate-200/90 rounded-xl p-4 sm:p-5 shadow-xs flex flex-col justify-between">
             <div class="flex items-center justify-between mb-3 border-b border-slate-100 pb-2.5">
-              <span class="text-xs font-semibold text-slate-800 uppercase tracking-wider">3. Xu hướng hoa hồng các tháng gần nhất</span>
+              <span class="text-xs font-bold text-slate-800 uppercase tracking-wider">3. Xu hướng hoa hồng các tháng gần nhất</span>
               <span class="text-[10px] text-slate-400 font-mono">Dòng tiền thực nhận</span>
             </div>
-            <div class="relative flex-1 flex items-center justify-center min-h-[220px]"><canvas id="chartMonthlyCommCanvas"></canvas></div>
+            <div id="statMonthlyComm" class="space-y-2.5 py-1 flex-1">
+              <!-- Render tự động danh sách các tháng -->
+            </div>
           </div>
 
-          <!-- Chart 4: Tỷ lệ thu tiền hoa hồng -->
-          <div class="bg-white border border-slate-200/90 rounded-xl p-4 sm:p-5 shadow-xs flex flex-col">
+          <!-- Card 4: Tỷ lệ phân bổ trạng thái thu hoa hồng -->
+          <div class="bg-white border border-slate-200/90 rounded-xl p-4 sm:p-5 shadow-xs flex flex-col justify-between">
             <div class="flex items-center justify-between mb-3 border-b border-slate-100 pb-2.5">
-              <span class="text-xs font-semibold text-slate-800 uppercase tracking-wider">4. Tỷ lệ phân bổ trạng thái thu hoa hồng</span>
+              <span class="text-xs font-bold text-slate-800 uppercase tracking-wider">4. Tỷ lệ phân bổ trạng thái thu hoa hồng</span>
               <span class="text-[10px] text-slate-400 font-mono">Hiệu suất thu tiền</span>
             </div>
-            <div class="relative flex-1 flex items-center justify-center min-h-[220px]"><canvas id="chartDealStatusCanvas"></canvas></div>
+            <div id="statDealStatus" class="space-y-3 py-1 flex-1">
+              <!-- Render tự động tiến độ thu tiền hoa hồng -->
+            </div>
           </div>
         </div>
 
@@ -2455,44 +2463,42 @@
       }).join('');
     }
 
+    // ==================== CÁC KHUNG THỐNG KÊ THUẦN HTML/CSS (SIÊU NHẸ, DỄ COI, KHÔNG PHỤ THUỘC CDN) ====================
     function renderDemandChart(custs) {
       try {
-        const ctx = document.getElementById('chartDemandCanvas') || document.getElementById('demandChart');
-        if (!ctx || typeof Chart === 'undefined') return;
-        if (state.charts.demand) {
-          try { state.charts.demand.destroy(); } catch (e) {}
-        }
-
-        const counts = {};
+        const container = document.getElementById('statLeadSources');
+        if (!container) return;
         const valid = (custs || []).filter(c => c['Trạng Thái'] !== 'Đã xóa');
+        const total = valid.length || 1;
+        const counts = {};
         valid.forEach(c => {
           const src = c['Nguồn Khách'] || 'Chưa phân loại';
           counts[src] = (counts[src] || 0) + 1;
         });
 
-        const labels = Object.keys(counts);
-        const data = Object.values(counts);
+        const sortedSources = Object.keys(counts).sort((a,b) => counts[b] - counts[a]);
+        if (sortedSources.length === 0) {
+          container.innerHTML = '<div class="text-xs text-slate-400 text-center py-4">Chưa có dữ liệu nguồn khách</div>';
+          return;
+        }
 
-        state.charts.demand = new Chart(ctx, {
-          type: 'doughnut',
-          data: {
-            labels: labels.length > 0 ? labels : ['Chưa có dữ liệu'],
-            datasets: [{ 
-              data: data.length > 0 ? data : [1], 
-              backgroundColor: ['#10B981', '#3B82F6', '#8B5CF6', '#F59E0B', '#EC4899', '#64748B'] 
-            }]
-          },
-          options: { 
-            responsive: true, 
-            maintainAspectRatio: false, 
-            plugins: { 
-              legend: { 
-                position: 'bottom', 
-                labels: { boxWidth: 10, font: { size: 10 } } 
-              } 
-            } 
-          }
-        });
+        const colors = ['bg-emerald-500', 'bg-blue-500', 'bg-purple-500', 'bg-amber-500', 'bg-rose-500', 'bg-slate-500'];
+        container.innerHTML = sortedSources.slice(0, 5).map((src, idx) => {
+          const count = counts[src];
+          const pct = Math.round((count / total) * 100);
+          const color = colors[idx % colors.length];
+          return `
+            <div>
+              <div class="flex justify-between items-center text-xs mb-1">
+                <span class="font-medium text-slate-700 truncate">${src}</span>
+                <span class="font-mono text-slate-500 text-[11px] font-semibold">${count} khách (${pct}%)</span>
+              </div>
+              <div class="w-full bg-slate-100 rounded-full h-2 overflow-hidden">
+                <div class="${color} h-2 rounded-full transition-all duration-300" style="width: ${pct}%"></div>
+              </div>
+            </div>
+          `;
+        }).join('');
       } catch (err) {
         console.error('renderDemandChart error:', err);
       }
@@ -2500,52 +2506,41 @@
 
     function renderPropertyChart(props, deals) {
       try {
-        const ctx = document.getElementById('chartPropertyCanvas') || document.getElementById('propertyChart');
-        if (!ctx || typeof Chart === 'undefined') return;
-        if (state.charts.property) {
-          try { state.charts.property.destroy(); } catch (e) {}
-        }
-
-        // Tính tổng doanh thu hoa hồng thực nhận theo từng loại hình BĐS
+        const container = document.getElementById('statPropertyRevenue');
+        if (!container) return;
         const revenueByType = {};
+        let totalRevenue = 0;
+
         (deals || []).forEach(d => {
           const propCode = d['Mã Căn'];
           const matchedProp = (props || []).find(p => p['Mã Căn'] === propCode);
           const type = (matchedProp && matchedProp['Loại Hình']) || 'Khác';
           const comm = Number(d['Hoa Hồng Thực Nhận (đ)']) || 0;
-          revenueByType[type] = (revenueByType[type] || 0) + (comm / 1000000);
+          revenueByType[type] = (revenueByType[type] || 0) + comm;
+          totalRevenue += comm;
         });
 
-        const labels = Object.keys(revenueByType);
-        const data = Object.values(revenueByType);
+        const types = Object.keys(revenueByType).sort((a,b) => revenueByType[b] - revenueByType[a]);
+        if (types.length === 0 || totalRevenue === 0) {
+          container.innerHTML = '<div class="text-xs text-slate-400 text-center py-4">Chưa ghi nhận hoa hồng theo loại hình</div>';
+          return;
+        }
 
-        state.charts.property = new Chart(ctx, {
-          type: 'bar',
-          data: {
-            labels: labels.length > 0 ? labels : ['Chưa có giao dịch'],
-            datasets: [{ 
-              label: 'Hoa hồng (Triệu VNĐ)', 
-              data: data.length > 0 ? data : [0], 
-              backgroundColor: '#059669', 
-              borderRadius: 6 
-            }]
-          },
-          options: { 
-            responsive: true, 
-            maintainAspectRatio: false, 
-            plugins: { 
-              legend: { display: false } 
-            }, 
-            scales: { 
-              y: { 
-                beginAtZero: true, 
-                ticks: { 
-                  callback: function(v) { return formatNumberVN(v) + ' Tr'; }
-                } 
-              } 
-            } 
-          }
-        });
+        container.innerHTML = types.slice(0, 5).map(type => {
+          const rev = revenueByType[type];
+          const pct = totalRevenue > 0 ? Math.round((rev / totalRevenue) * 100) : 0;
+          return `
+            <div>
+              <div class="flex justify-between items-center text-xs mb-1">
+                <span class="font-medium text-slate-700 truncate">${type}</span>
+                <span class="font-mono text-emerald-700 font-bold text-[11px]">${formatNumberVN(rev)} đ (${pct}%)</span>
+              </div>
+              <div class="w-full bg-slate-100 rounded-full h-2 overflow-hidden">
+                <div class="bg-emerald-500 h-2 rounded-full transition-all duration-300" style="width: ${pct}%"></div>
+              </div>
+            </div>
+          `;
+        }).join('');
       } catch (err) {
         console.error('renderPropertyChart error:', err);
       }
@@ -2553,65 +2548,37 @@
 
     function renderMonthlyCommChart(deals) {
       try {
-        const ctx = document.getElementById('chartMonthlyCommCanvas') || document.getElementById('monthlyCommChart');
-        if (!ctx || typeof Chart === 'undefined') return;
-        if (state.charts.monthlyComm) {
-          try { state.charts.monthlyComm.destroy(); } catch (e) {}
-        }
-
-        // Gom doanh thu hoa hồng theo tháng (Tháng 08, 09, 10, 11/2026)
+        const container = document.getElementById('statMonthlyComm');
+        if (!container) return;
         const monthlyData = {};
         (deals || []).forEach(d => {
           const dateStr = String(d['Ngày Chốt'] || '');
           if (dateStr) {
             const parts = dateStr.slice(0, 10).split('-');
-            let mKey = '';
-            if (parts.length === 3) {
-              mKey = 'T' + parts[1] + '/' + parts[0].slice(2);
-            } else {
-              mKey = 'Khác';
-            }
+            const mKey = parts.length === 3 ? 'Tháng ' + parts[1] + '/' + parts[0] : 'Khác';
             const comm = Number(d['Hoa Hồng Thực Nhận (đ)']) || 0;
-            monthlyData[mKey] = (monthlyData[mKey] || 0) + (comm / 1000000);
+            monthlyData[mKey] = (monthlyData[mKey] || 0) + comm;
           }
         });
 
-        // Sắp xếp các tháng hoặc nếu rỗng thì tạo nhãn mặc định
-        const labels = Object.keys(monthlyData).length > 0 ? Object.keys(monthlyData) : ['T08/26', 'T09/26', 'T10/26', 'T11/26'];
-        const data = Object.keys(monthlyData).length > 0 ? Object.values(monthlyData) : [0, 0, 0, 0];
+        const months = Object.keys(monthlyData);
+        if (months.length === 0) {
+          container.innerHTML = '<div class="text-xs text-slate-400 text-center py-4">Chưa có dữ liệu hoa hồng theo tháng</div>';
+          return;
+        }
 
-        state.charts.monthlyComm = new Chart(ctx, {
-          type: 'line',
-          data: {
-            labels: labels,
-            datasets: [{
-              label: 'Hoa hồng (Triệu VNĐ)',
-              data: data,
-              borderColor: '#10b981',
-              backgroundColor: 'rgba(16, 185, 129, 0.1)',
-              fill: true,
-              tension: 0.35,
-              pointBackgroundColor: '#059669',
-              pointRadius: 4,
-              pointHoverRadius: 6
-            }]
-          },
-          options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-              legend: { display: false }
-            },
-            scales: {
-              y: {
-                beginAtZero: true,
-                ticks: {
-                  callback: function(v) { return formatNumberVN(v) + ' Tr'; }
-                }
-              }
-            }
-          }
-        });
+        container.innerHTML = months.map(m => {
+          const comm = monthlyData[m];
+          return `
+            <div class="flex items-center justify-between p-2 rounded-lg bg-slate-50 border border-slate-100">
+              <div class="flex items-center gap-2">
+                <div class="w-2 h-2 rounded-full bg-emerald-500"></div>
+                <span class="text-xs font-semibold text-slate-800">${m}</span>
+              </div>
+              <span class="text-xs font-mono font-bold text-emerald-700">${formatNumberVN(comm)} đ</span>
+            </div>
+          `;
+        }).join('');
       } catch (err) {
         console.error('renderMonthlyCommChart error:', err);
       }
@@ -2619,41 +2586,57 @@
 
     function renderDealStatusChart(deals) {
       try {
-        const ctx = document.getElementById('chartDealStatusCanvas') || document.getElementById('dealStatusChart');
-        if (!ctx || typeof Chart === 'undefined') return;
-        if (state.charts.dealStatus) {
-          try { state.charts.dealStatus.destroy(); } catch (e) {}
-        }
-
+        const container = document.getElementById('statDealStatus');
+        if (!container) return;
         const validDeals = (deals || []).filter(d => d['Trạng Thái'] !== 'Đã hủy/Đã xóa' && d['Trạng Thái'] !== 'Đã xóa');
+        let paidAmount = 0;
+        let pendingAmount = 0;
         let paidCount = 0;
         let pendingCount = 0;
 
         validDeals.forEach(d => {
-          if (d['Trạng Thái'] === 'Đã thu hoa hồng') paidCount++;
-          else pendingCount++;
-        });
-
-        state.charts.dealStatus = new Chart(ctx, {
-          type: 'doughnut',
-          data: {
-            labels: ['Đã thu hoa hồng', 'Chờ chủ nhà thanh toán'],
-            datasets: [{
-              data: [paidCount, pendingCount],
-              backgroundColor: ['#10b981', '#f59e0b']
-            }]
-          },
-          options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-              legend: {
-                position: 'bottom',
-                labels: { boxWidth: 10, font: { size: 10 } }
-              }
-            }
+          const val = Number(d['Hoa Hồng Thực Nhận (đ)']) || 0;
+          if (d['Trạng Thái'] === 'Đã thu hoa hồng') {
+            paidAmount += val;
+            paidCount++;
+          } else {
+            pendingAmount += val;
+            pendingCount++;
           }
         });
+
+        const totalAmount = paidAmount + pendingAmount;
+        const paidPct = totalAmount > 0 ? Math.round((paidAmount / totalAmount) * 100) : 100;
+        const pendingPct = 100 - paidPct;
+
+        container.innerHTML = `
+          <div class="space-y-3">
+            <div>
+              <div class="flex justify-between items-center text-xs mb-1">
+                <span class="font-medium text-emerald-800 flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-emerald-500"></span>Đã thực thu về ví</span>
+                <span class="font-mono font-bold text-emerald-700 text-xs">${formatNumberVN(paidAmount)} đ (${paidCount} deal)</span>
+              </div>
+              <div class="w-full bg-slate-100 rounded-full h-2 overflow-hidden">
+                <div class="bg-emerald-500 h-2 rounded-full" style="width: ${paidPct}%"></div>
+              </div>
+            </div>
+
+            <div>
+              <div class="flex justify-between items-center text-xs mb-1">
+                <span class="font-medium text-amber-800 flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-amber-500"></span>Chờ chủ nhà thanh toán</span>
+                <span class="font-mono font-bold text-amber-700 text-xs">${formatNumberVN(pendingAmount)} đ (${pendingCount} deal)</span>
+              </div>
+              <div class="w-full bg-slate-100 rounded-full h-2 overflow-hidden">
+                <div class="bg-amber-500 h-2 rounded-full" style="width: ${pendingPct}%"></div>
+              </div>
+            </div>
+
+            <div class="pt-2 border-t border-slate-100 flex items-center justify-between text-[11px] text-slate-500">
+              <span>Hiệu suất thu tiền:</span>
+              <span class="font-bold font-mono text-emerald-700">${paidPct}% tổng hoa hồng</span>
+            </div>
+          </div>
+        `;
       } catch (err) {
         console.error('renderDealStatusChart error:', err);
       }
