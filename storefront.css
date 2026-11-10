@@ -3459,7 +3459,10 @@ body.checkout-page-open {
 
 /* Coupon Box */
 .checkout-coupon-box {
+  margin-top: 14px;
   margin-bottom: 4px;
+  padding-top: 14px;
+  border-top: 1px dashed #e2e8f0;
 }
 
 .checkout-coupon-option:last-child {

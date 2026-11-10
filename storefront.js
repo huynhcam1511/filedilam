@@ -1967,8 +1967,8 @@ function escapeHtml(value) {
         var productImage = item.product.previewImageUrl || item.product.thumbnailUrl || "";
         var productDescription = item.product.subtitle || item.product.shortDescription || item.product.description || "File làm việc sẵn sàng sử dụng";
         var removeBtnHtml = canRemove ? (
-          '<button type="button" class="btn-checkout-remove-item" data-remove-id="' + escapeHtml(item.product.id) + '" title="Bỏ file này khỏi đơn" style="background: none; border: none; padding: 2px 4px; color: #94a3b8; cursor: pointer; font-size: 0.75rem; display: inline-flex; align-items: center; gap: 3px; margin-top: 4px; transition: color 0.15s ease;" onmouseover="this.style.color=\'#dc2626\';" onmouseout="this.style.color=\'#94a3b8\';">' +
-            '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>' +
+          '<button type="button" class="btn-checkout-remove-item" data-remove-id="' + escapeHtml(item.product.id) + '" title="Bỏ file này khỏi đơn" style="background: none; border: none; padding: 0; color: #94a3b8; cursor: pointer; font-size: 0.75rem; display: inline-flex; align-items: center; gap: 3px; margin-top: 4px; transition: color 0.15s ease;" onmouseover="this.style.color=\'#dc2626\';" onmouseout="this.style.color=\'#94a3b8\';">' +
+            '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>' +
             '<span>Bỏ chọn</span>' +
           '</button>'
         ) : '';
@@ -1979,10 +1979,12 @@ function escapeHtml(value) {
             '<div class="checkout-product-copy">' +
               '<div class="checkout-product-heading-1">' + escapeHtml(item.product.name) + '</div>' +
               '<div class="checkout-product-heading-2">' + escapeHtml(productDescription) + '</div>' +
-              removeBtnHtml +
             '</div>' +
-            '<div class="checkout-product-price font-mono">' +
-              formatCurrency(item.total) +
+            '<div style="display: flex; flex-direction: column; align-items: flex-end; justify-content: flex-start;">' +
+              '<div class="checkout-product-price font-mono">' +
+                formatCurrency(item.total) +
+              '</div>' +
+              removeBtnHtml +
             '</div>' +
           '</div>'
         );
