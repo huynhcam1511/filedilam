@@ -5010,15 +5010,41 @@ document.addEventListener('DOMContentLoaded', () => {
   const adsDateInput = document.getElementById('adsDateInput');
   const adsDateInputText = document.getElementById('adsDateInputText');
 
-  // Format currency for adsSpentInput
+  // Format currency for adsSpentInput (Hỗ trợ tốt bàn phím gõ tiếng Việt Unikey/EVKey & paste)
   if (adsSpentInput) {
-    adsSpentInput.addEventListener('input', (e) => {
-      let val = e.target.value.replace(/\D/g, '');
-      if (val) {
-        e.target.value = new Intl.NumberFormat('vi-VN').format(parseInt(val, 10));
-      } else {
-        e.target.value = '';
+    let isComposing = false;
+    adsSpentInput.addEventListener('compositionstart', () => { isComposing = true; });
+    adsSpentInput.addEventListener('compositionend', () => {
+      isComposing = false;
+      formatInputCurrency(adsSpentInput);
+    });
+
+    function formatInputCurrency(input) {
+      if (!input || isComposing) return;
+      const rawVal = input.value;
+      const digitsOnly = rawVal.replace(/\D/g, '');
+      if (!digitsOnly) {
+        input.value = '';
+        return;
       }
+      const num = parseInt(digitsOnly, 10);
+      if (isNaN(num)) {
+        input.value = '';
+        return;
+      }
+      const formatted = new Intl.NumberFormat('vi-VN').format(num);
+      if (input.value !== formatted) {
+        input.value = formatted;
+      }
+    }
+
+    adsSpentInput.addEventListener('input', (e) => {
+      if (isComposing) return;
+      formatInputCurrency(e.target);
+    });
+
+    adsSpentInput.addEventListener('blur', (e) => {
+      formatInputCurrency(e.target);
     });
   }
 
