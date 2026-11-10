@@ -4816,6 +4816,11 @@ body:not(.is-admin) #userProfile {
   .detail-thumbnails-row {
     gap: 8px !important;
     padding: 2px 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    box-sizing: border-box !important;
   }
 
   .detail-thumb-btn {
