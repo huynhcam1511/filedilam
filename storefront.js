@@ -5123,6 +5123,9 @@ function escapeHtml(value) {
 
     try {
       var coupon = null;
+      if (rawCode === "TRIAN20" || rawCode === "TRIAN") {
+        coupon = RETENTION_COUPON;
+      }
 
       // 1. Fetch from Firestore collection 'coupons'
       if (typeof db !== 'undefined' && db.collection) {
@@ -5308,13 +5311,13 @@ function escapeHtml(value) {
       }
     }
   }
-  // --- EXIT-INTENT / RETENTION POPUP (Giữ chân khách với Voucher GIUCHANG10) ---
-  var EXIT_INTENT_COUPON = {
-    code: "GIUCHANG10",
+  // --- RETENTION POPUP (Mã Tri Ân Khách Hàng TRIAN20 - Giảm 20%) ---
+  var RETENTION_COUPON = {
+    code: "TRIAN20",
     type: "percent",
-    value: 10,
+    value: 20,
     min_order: 0,
-    description: "Ưu đãi giữ chân: Giảm thêm 10% đơn hàng",
+    description: "Mã tri ân: Giảm 20% cho đơn hàng",
     is_active: true
   };
 
@@ -5323,7 +5326,7 @@ function escapeHtml(value) {
     if (!modal) return;
     if (sessionStorage.getItem("filedilam_exit_intent_shown")) return;
     if (state.activeOrder && state.activeOrder.payment_status === "completed") return;
-    if (state.appliedCoupons.some(function(c) { return c.code === "GIUCHANG10"; })) return;
+    if (state.appliedCoupons.some(function(c) { return c.code === "TRIAN20"; })) return;
 
     modal.classList.remove("hidden");
     modal.classList.add("is-open");
@@ -5352,13 +5355,13 @@ function escapeHtml(value) {
         addToCart(prodId, { openDrawer: false });
       }
     }
-    if (!state.appliedCoupons.some(function(c) { return c.code === "GIUCHANG10"; })) {
-      state.appliedCoupons.push(EXIT_INTENT_COUPON);
+    if (!state.appliedCoupons.some(function(c) { return c.code === "TRIAN20"; })) {
+      state.appliedCoupons = [RETENTION_COUPON];
       state.appliedCoupon = state.appliedCoupons[0];
-      invalidateActiveOrderOnCartOrCouponChange("Đã áp dụng mã ưu đãi 10%!");
+      invalidateActiveOrderOnCartOrCouponChange("Đã áp dụng mã tri ân 20%!");
       renderCart();
       updateCheckoutCouponSelection();
-      showToast("Đã áp dụng mã GIUCHANG10: Giảm thêm 10%!");
+      showToast("Đã áp dụng mã TRIAN20: Giảm 20%!");
     }
     openCheckout();
   }
