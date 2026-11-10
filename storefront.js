@@ -642,12 +642,8 @@ function escapeHtml(value) {
     var applyExitBtn = document.getElementById("btnApplyExitIntentCoupon");
     if (applyExitBtn) applyExitBtn.addEventListener("click", applyExitIntentDiscount);
 
-    // Desktop mouseleave trigger
-    document.addEventListener("mouseleave", function(e) {
-      if (e.clientY <= 5 && state.cart && state.cart.length > 0 && !sessionStorage.getItem("filedilam_exit_intent_shown")) {
-        showExitIntentModal();
-      }
-    });
+    // Initialize Exit-Intent / Mobile Return Retention triggers
+    initExitIntentTriggers();
 
     if (quickBuyForm) {
       quickBuyForm.addEventListener("submit", handleQuickBuySubmit);
@@ -5312,7 +5308,7 @@ function escapeHtml(value) {
       }
     }
   }
-  // --- EXIT-INTENT CART SAVER (Giữ chân khách với Voucher GIUCHANG10) ---
+  // --- EXIT-INTENT / RETENTION POPUP (Giữ chân khách với Voucher GIUCHANG10) ---
   var EXIT_INTENT_COUPON = {
     code: "GIUCHANG10",
     type: "percent",
@@ -5326,12 +5322,14 @@ function escapeHtml(value) {
     var modal = document.getElementById("exitIntentModal");
     if (!modal) return;
     if (sessionStorage.getItem("filedilam_exit_intent_shown")) return;
-    if (!state.cart || !state.cart.length) return;
+    if (state.activeOrder && state.activeOrder.payment_status === "completed") return;
     if (state.appliedCoupons.some(function(c) { return c.code === "GIUCHANG10"; })) return;
 
     modal.classList.remove("hidden");
-    modal.style.display = "flex";
-    modal.style.zIndex = "2000000";
+    modal.classList.add("is-open");
+    modal.style.setProperty("display", "flex", "important");
+    modal.style.setProperty("z-index", "2000000", "important");
+    modal.setAttribute("aria-hidden", "false");
     sessionStorage.setItem("filedilam_exit_intent_shown", "1");
   }
 
@@ -5339,12 +5337,21 @@ function escapeHtml(value) {
     var modal = document.getElementById("exitIntentModal");
     if (modal) {
       modal.classList.add("hidden");
-      modal.style.display = "none";
+      modal.classList.remove("is-open");
+      modal.style.setProperty("display", "none", "important");
+      modal.setAttribute("aria-hidden", "true");
     }
   }
 
   function applyExitIntentDiscount() {
     closeExitIntentModal();
+    // If cart is empty, auto-select product from detail view or first product
+    if (!state.cart || !state.cart.length) {
+      var prodId = state.selectedProductId || (state.products && state.products[0] ? state.products[0].id : null);
+      if (prodId) {
+        addToCart(prodId, { openDrawer: false });
+      }
+    }
     if (!state.appliedCoupons.some(function(c) { return c.code === "GIUCHANG10"; })) {
       state.appliedCoupons.push(EXIT_INTENT_COUPON);
       state.appliedCoupon = state.appliedCoupons[0];
@@ -5354,6 +5361,69 @@ function escapeHtml(value) {
       showToast("Đã áp dụng mã GIUCHANG10: Giảm thêm 10%!");
     }
     openCheckout();
+  }
+
+  function initExitIntentTriggers() {
+    // 1. Desktop mouseleave (moving cursor to top address bar / tabs)
+    document.addEventListener("mouseleave", function(e) {
+      if (e.clientY <= 5 && !sessionStorage.getItem("filedilam_exit_intent_shown")) {
+        showExitIntentModal();
+      }
+    });
+
+    // 2. Mobile & Desktop: User switches app/tab (e.g. to TikTok) and returns ("quay lại")
+    var lastHiddenTime = 0;
+    document.addEventListener("visibilitychange", function() {
+      if (document.visibilityState === "hidden") {
+        lastHiddenTime = Date.now();
+      } else if (document.visibilityState === "visible") {
+        var timeAway = lastHiddenTime > 0 ? (Date.now() - lastHiddenTime) : 0;
+        // User was away for at least 1 second (switched to TikTok/another app and returned)
+        if (timeAway >= 1000 || window.__openedTikTokDemo) {
+          if (!sessionStorage.getItem("filedilam_exit_intent_shown")) {
+            setTimeout(function() {
+              showExitIntentModal();
+            }, 400);
+          }
+        }
+      }
+    });
+
+    // 3. User taps "Xem video demo trên TikTok"
+    document.addEventListener("click", function(e) {
+      var tiktokLink = e.target.closest("a[href*='tiktok.com']");
+      if (tiktokLink) {
+        window.__openedTikTokDemo = true;
+        // Reset flag so when returning to web, retention voucher is guaranteed to show
+        sessionStorage.removeItem("filedilam_exit_intent_shown");
+      }
+    });
+
+    // 4. Mobile Back Button (Popstate interception)
+    try {
+      setTimeout(function() {
+        if (!sessionStorage.getItem("filedilam_exit_intent_shown") && window.history && window.history.pushState) {
+          window.history.pushState({ filedilam_trap: true }, "");
+          window.addEventListener("popstate", function(event) {
+            var modal = document.getElementById("exitIntentModal");
+            var isModalOpen = modal && modal.classList.contains("is-open");
+            if (!sessionStorage.getItem("filedilam_exit_intent_shown") && !isModalOpen) {
+              showExitIntentModal();
+            }
+          });
+        }
+      }, 1500);
+    } catch(err) {}
+
+    // 5. Click outside backdrop to close
+    var exitModal = document.getElementById("exitIntentModal");
+    if (exitModal) {
+      exitModal.addEventListener("click", function(e) {
+        if (e.target === exitModal) {
+          closeExitIntentModal();
+        }
+      });
+    }
   }
 
   if (document.readyState === "loading") {
