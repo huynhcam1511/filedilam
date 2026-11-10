@@ -1517,7 +1517,7 @@
      * ==============================================================================
      * CRM BẤT ĐỘNG SẢN PRO — WEB APP v2.4 — FILE ĐI LÀM
      * MONOLITHIC FLAT SPA SCRIPT ENGINE
-     * Architecture: Model-View Flat Monolith (Matching TAISAN và CONGNO Golden Standards)
+     * Architecture: Model-View Flat Monolith (Matching TAISAN & CONGNO Golden Standards)
      * ==============================================================================
      */
 
@@ -1542,7 +1542,7 @@
     }
     var lucide = (typeof window !== 'undefined' && window.lucide) ? window.lucide : { createIcons: function() {} };
 
-    // 1. GLOBAL STAT và ERIFIED MICRO-SEED (Format safe < 100 chars/line)
+    // 1. GLOBAL STATE & VERIFIED MICRO-SEED (Format safe < 100 chars/line)
     window.AppState = {
       activeTab: 'dashboard',
       selectedCustomerId: null,
@@ -2085,7 +2085,7 @@
     };
     var state = window.AppState;
 
-    // 2. CENTRAL ROUTE và AVIGATION (Exposed to window immediately)
+    // 2. CENTRAL ROUTER & NAVIGATION (Exposed to window immediately)
     const TabMeta = {
       'dashboard': {
         title: 'Tổng quan vận hành',
@@ -2313,7 +2313,7 @@
       });
     }
 
-    // 4. DATA LOADE và PC ENGINE
+    // 4. DATA LOADER & RPC ENGINE
     function loadAllSystemData() {
       if (typeof google !== 'undefined' && google.script) {
         google.script.run
@@ -2749,7 +2749,7 @@
       renderCustomers(list);
     }
 
-    // ==================== MODULE 3: PROPERTIES (SPRINT  và  ENHANCED) ====================
+    // ==================== MODULE 3: PROPERTIES (SPRINT 4 & 5 ENHANCED) ====================
     function renderProperties(list) {
       const activeList = (list || []).filter(p => p['Trạng Thái'] !== 'Đã xóa');
       const countEl = document.getElementById('countFilteredProp');
@@ -3096,7 +3096,7 @@
       renderDeals(list);
     }
 
-    // ==================== MODULE 6: MASTER TAXONOM và ETTINGS ENGINE ====================
+    // ==================== MODULE 6: MASTER TAXONOMY & SETTINGS ENGINE ====================
     const taxonomyMeta = {
       prop_types: { title: 'Loại hình BĐS', col1: 'Tên loại hình', addBtn: 'Thêm loại hình', defaultList: ['Chung cư', 'Nhà phố', 'Đất nền', 'Biệt thự / Shophouse', 'Cho thuê'] },
       locations: { title: 'Khu vực địa bàn', col1: 'Tên khu vực', addBtn: 'Thêm khu vực', defaultList: ['Quận 1', 'Quận 2 (TP. Thủ Đức)', 'Quận 7', 'Bình Thạnh', 'Thảo Điền', 'Phú Mỹ Hưng', 'Thủ Đức'] },
@@ -3470,7 +3470,7 @@
       } else {
         setTimeout(() => {
           state.data.settings = payload;
-          btn.innerHTML = '<i data-lucide="check" class="w-4 h-4"></i> Lưu hồ sơ và cấu hình VietQR';
+          btn.innerHTML = '<i data-lucide="check" class="w-4 h-4"></i> Lưu hồ sơ & cấu hình VietQR';
           btn.disabled = false;
           if (statusEl) statusEl.innerText = 'Đã lưu lúc: ' + new Date().toLocaleTimeString('vi-VN') + ' (Demo Mode)';
           lucide.createIcons();
@@ -3552,7 +3552,7 @@
       const propStatuses = getActiveCategoryNames('prop_statuses', s.propertyStatuses && s.propertyStatuses.length ? s.propertyStatuses : ['Đang bán', 'Đã cọc/Đã bán', 'Tạm ngưng']);
       const interactTypes = getActiveCategoryNames('interaction_types', s.interactionTypes && s.interactionTypes.length ? s.interactionTypes : ['Cuộc gọi', 'Nhắn tin Zalo', 'Gặp cafe tư vấn', 'Dẫn đi xem nhà', 'Đặt cọc / Ký HĐ']);
 
-      // 1. Populate Cust Deman và rop Type
+      // 1. Populate Cust Demand & Prop Type
       const custDemandSel = document.getElementById('formCustDemand');
       const propTypeSel = document.getElementById('formPropType');
       if (custDemandSel) custDemandSel.innerHTML = types.map(t => `<option value="${t}">${t}</option>`).join('');
@@ -3613,7 +3613,7 @@
         `).join('');
       }
 
-      // 10. Populate Dropdowns in Dea và og Modal
+      // 10. Populate Dropdowns in Deal & Log Modal
       const dealCustSel = document.getElementById('formDealCustomer');
       const logCustSel = document.getElementById('formLogCustomer');
       const custOpts = (state.data.customers || []).filter(c => c['Trạng Thái'] !== 'Đã xóa').map(c => `<option value="${c['Mã Khách']}">${c['Họ Và Tên']} (${c['Mã Khách']})</option>`).join('');
@@ -3798,7 +3798,7 @@
         `).join('');
       }
 
-      // SPRINT 8 MATCHING ENGINE: Thuật toán so khớp đa tiêu ch và iểm tương thích
+      // SPRINT 8 MATCHING ENGINE: Thuật toán so khớp đa tiêu chí & Điểm tương thích
       const matchingPropsWithScore = (state.data.properties || [])
         .filter(p => p['Trạng Thái'] === 'Đang bán')
         .map(p => {
@@ -4029,7 +4029,7 @@
       document.getElementById('formDealCustomer').value = state.selectedCustomerId;
     }
 
-    // ==================== MODAL HELPER và ORM SUBMIT (SPRINT 2 CRUD) ====================
+    // ==================== MODAL HELPERS & FORM SUBMIT (SPRINT 2 CRUD) ====================
     function openAddCustomerModal() {
       populateDropdowns();
       document.getElementById('formCustId').value = '';
@@ -4636,7 +4636,7 @@
     }
 
     // ==================== GLOBAL WINDOW EXPOSURES (AGENTS_MASTER MONOLITH) ====================
-    // 1. Navigatio và ore System
+    // 1. Navigation & Core System
     window.switchTab = switchTab;
     window.toggleSidebar = toggleSidebar;
     window.handleMainAction = handleMainAction;
@@ -4647,7 +4647,7 @@
     window.formatDateVN = formatDateVN;
     window.formatNumberVN = formatNumberVN;
 
-    // 2. Searc và ilter Handlers
+    // 2. Search & Filter Handlers
     window.handleSearchInput = handleSearchInput;
     window.clearSearchInput = clearSearchInput;
     window.filterCustomersLocal = filterCustomersLocal;
@@ -4689,7 +4689,7 @@
     window.copyPropertyShareInfo = copyPropertyShareInfo;
     window.quickDealForPropertyFromDrawer = quickDealForPropertyFromDrawer;
 
-    // 6. Module 4: Interaction và ogs
+    // 6. Module 4: Interactions & Logs
     window.renderInteractions = renderInteractions;
     window.openAddInteractionModal = openAddInteractionModal;
     window.closeAddInteractionModal = closeAddInteractionModal;
@@ -4698,7 +4698,7 @@
     window.confirmDeleteInteraction = confirmDeleteInteraction;
     window.deleteCurrentInteraction = deleteCurrentInteraction;
 
-    // 7. Module 5: Deal và ommission
+    // 7. Module 5: Deals & Commission
     window.renderDeals = renderDeals;
     window.openAddDealModal = openAddDealModal;
     window.closeAddDealModal = closeAddDealModal;
@@ -4709,7 +4709,7 @@
     window.calculateCommissionLive = calculateCommissionLive;
     window.handleSelectPropertyForDeal = handleSelectPropertyForDeal;
 
-    // 8. Module 6: Setting và axonomy
+    // 8. Module 6: Settings & Taxonomy
     window.renderSettings = renderSettings;
     window.switchSettingsSubTab = switchSettingsSubTab;
     window.selectTaxonomyCategory = selectTaxonomyCategory;
@@ -4732,7 +4732,7 @@
         console.warn('Lucide icon load notice:', e);
       }
 
-      // 1. Render ngay lập tức từ state chuẩn có sẵn trong client (Zero-Lag UI - Hiến pháp AGENTS_MASTER Rule  và )
+      // 1. Render ngay lập tức từ state chuẩn có sẵn trong client (Zero-Lag UI - Hiến pháp AGENTS_MASTER Rule 7 & 8)
       try {
         renderAllModules();
       } catch (err) {
