@@ -4748,17 +4748,22 @@ body:not(.is-admin) #userProfile {
     justify-content: flex-end !important;
   }
 
+  .detail-price-block,
+  .detail-price-box {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 2px !important;
+  }
+
   .detail-btn-cart {
-    width: 100% !important;
+    width: auto !important;
+    min-width: 130px !important;
     max-width: 200px !important;
     height: 44px !important;
     font-size: 0.95rem !important;
     padding: 0 16px !important;
-  }
-
-  .detail-price-box {
-    flex-direction: column;
-    align-items: flex-start;
+    white-space: nowrap !important;
   }
 
   .detail-cta-group {
