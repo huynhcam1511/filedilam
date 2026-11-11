@@ -1,106 +1,315 @@
-# AGENTS — TIÊU CHUẨN PHÁT TRIỂN & QUY TẮC BẮT BUỘC
-
-> Bản hiến pháp phát triển sản phẩm (Workbook, Google Sheets Apps Script & Storefront Web App) của hệ thống **FILE ĐI LÀM**.
-
----
-
-## 1. NGUYÊN TẮC QUẢN TRỊ & BẢO TOÀN DỮ LIỆU
-- **Chủ quyền sản phẩm & giá thuộc về ADMIN**: Admin (`huynhkiencam151102@gmail.com`) trực tiếp quản lý giá, danh mục, file và combo trên `/admin.html`. Cloud Firestore là nguồn sự thật duy nhất (Single Source of Truth).
-- **CẤM reset/ghi đè Firestore**: Không bao giờ tự ý xóa collection `products` hoặc hardcode danh mục để thay thế dữ liệu thật. Mọi sản phẩm đã tạo phải được bảo toàn đầy đủ.
+# MASTER AGENTS — HIẾN PHÁP & TIÊU CHUẨN PHÁT TRIỂN WEB APP GOOGLE APPS SCRIPT
+> **Thương hiệu:** FILE ĐI LÀM (Workbook & Apps Script Web App Architecture)  
+> **Phiên bản:** Master Standard V2.4 (Quy chuẩn Siêu Tốc: Parallel Subagents & Master Assembler Pipeline)  
+> **Mục đích:** Quy chuẩn bất biến áp dụng cho TẤT CẢ các giải pháp Google Sheets + Google Apps Script Web App (Quản lý nhà trọ, CRM Bất động sản, Quản lý công nợ, Bán hàng, Quản lý kho, Quản lý tài sản, v.v.).
 
 ---
 
-## 2. CHUẨN THIẾT KẾ UI/UX & GIAO DIỆN HỆ THỐNG
-1. **Thẩm mỹ Fintech cao cấp (Minimalist & Classy)**:
-   - Màu chủ đạo: Xanh ngọc Mint (`#059669` / `#10b981`), nền trắng/xám slate thanh lịch, trung tính (`#f8fafc`, `#e2e8f0`).
-   - Tối ưu trải nghiệm mobile-first (khách vào từ TikTok/Facebook bio-link hoặc môi giới/chủ quán thao tác ngoài hiện trường).
-2. **CẤM emoji & icon trẻ con**: Không gắn emoji (⚡, ✨, 🔑, 🟢, ⏳, ⚠️, ➔) vào nút bấm, tab chuyển đổi, tiêu đề popup hay thông báo. Sử dụng SVG icon đồng bộ, văn phong nhã nhặn.
-3. **Chống lạm dụng thẻ container & pill ("LẬM CARD, LẬM PILL")**:
-   - Không bọc thông tin hiển nhiên vào các khối card màu mè chiếm diện tích.
-   - Tránh lạm dụng khung pill bo tròn (badge/viên thuốc) tràn lan cho các trường dữ liệu bình thường (như Mã SKU, Mã đơn, text trạng thái...). Hãy hiển thị văn bản phẳng, sạch, dùng font chữ monospace (`font-mono text-xs font-semibold text-slate-700`) hoặc màu chữ thanh lịch thay vì bọc border/background pill dày đặc. Trạng thái chỉ dùng chấm tròn nhỏ (`•`) tinh tế.
-4. **Phân định 2 trải nghiệm độc lập: Mobile View vs Desktop View**:
-   - **Giao diện Desktop (Màn hình lớn / Laptop)**:
-     - Sidebar cố định có nút Hamburger thu gọn về dạng Icon-only (~64px).
-     - Bảng Master-Table phẳng tràn viền (Edge-to-Edge Full Bleed), cố định tiêu đề (`Freeze Panes`), không dùng đường kẻ dọc cột Excel, menu 3 chấm (`MoreVertical`) ở cột ngoài cùng bên phải (tiêu đề `<th>` để rỗng).
-     - Màn hình chi tiết ưu tiên Drawer trượt từ bên phải hoặc Flat Canvas toàn màn hình (Zero Popup Policy).
-   - **Giao diện Mobile (Điện thoại thông minh / Hiện trường)**:
-     - **Chuyển bảng thành thẻ gọn (Table-to-Card Transformation)**: Tuyệt đối CẤM bắt người dùng vuốt ngang màn hình tìm cột. Bảng tự động gom thành danh sách các khối thẻ phẳng: Hàng 1 (Mã ID mono + chấm trạng thái), Hàng 2 (Tiêu đề/Tên đậm), Hàng 3 (SĐT có link gọi 1 chạm `tel:` + Giá trị), Nút 3 chấm mở menu thao tác.
-     - **Thanh điều hướng đáy (Bottom Navigation Dock)**: Ẩn hẳn Sidebar, ghim thanh dock 4 icon chính ở đáy màn hình trong tầm với ngón tay cái.
-     - **Nút hành động nổi (Floating Action Button - FAB)**: Nút `+ Thêm Mới` trên desktop tự chuyển thành nút tròn nổi màu Mint xanh ở góc dưới bên phải (`fixed bottom-20 right-4`) để thao tác 1 chạm bằng 1 tay.
-     - **Form nhập liệu Bottom Sheet**: Trượt êm từ đáy màn hình lên, tự bật bàn phím số (`inputmode="numeric"`) khi chạm vào ô SĐT hay Tiền tệ.
-5. **Tính đồng nhất form 100%**: Tất cả modal/form nhập liệu phải dùng chung cấu trúc: Segmented Control Tabs, trường `.checkout-field`, nhãn `.checkout-label` kèm `<span class="req">*</span>`, nút toggle mắt mật khẩu, nút chính cao 46px nền Mint, nút Google phẳng.
-6. **Quy chuẩn mã sản phẩm & định danh (SKU/ID)**:
-   - Bắt buộc dạng tiền tố nghiệp vụ kèm đúng 6 chữ số ngẫu nhiên: `PRD-XXXXXX`, `KH-XXXXXX`, `BDS-XXXXXX`.
-   - CẤM sinh slug tiếng Việt cắt dấu lem nhem kèm timestamp miligiây.
-   - Mã ID là bất biến và hiển thị dạng text mono phẳng, không bọc pill.
+## 1. NGUYÊN TẮC QUẢN TRỊ & MÔ HÌNH 2 FILE VẬT LÝ (HARD LOCKS)
+
+1. **Google Sheets là Database nền & Quy tắc "Chỉ 1 Tab Hiển Thị" (Single Visible Tab Policy)**:
+   - **Chỉ hiển thị duy nhất 1 tab `HDSD`**: Khi người dùng mở Google Sheet, màn hình chỉ hiển thị duy nhất tab hướng dẫn sử dụng kèm nút bấm Mint mở Web App tại ô `B2:D3`.
+   - **Khóa & Ẩn toàn bộ các tab Database (`DB_...`)**: Tất cả các tab chứa dữ liệu nguồn (`DB_TaiSan`, `DB_GiaoDich`, `DB_DanhMuc`, `DB_DoiTac`...) bắt buộc phải được **Khóa bảo vệ (Protect Sheet)** và **Ẩn đi (Hide Sheet)** tự động qua Apps Script.
+   - **Định hướng người dùng thao tác 100% trên Web App**: Người mua tuyệt đối không thao tác gõ tay trực tiếp trên các dòng Excel/Sheets để tránh làm xáo trộn công thức hay sai lệch cấu trúc dữ liệu. Mọi hành vi Nhập liệu, Tra cứu, Sửa chữa, Xóa đều phải thông qua giao diện Web App.
+   - Tuyệt đối CẤM hardcode dữ liệu nghiệp vụ trong code JS hay HTML.
+   - CẤM xóa dữ liệu thật, giao dịch đã ghi sổ hoặc hóa đơn/phiếu đã phát hành.
+
+2. **Quy chuẩn đặt tên File Google Sheet & File Code Local**:
+   - **Tự động đồng bộ tên File Google Sheet qua Apps Script (`ss.rename()`)**:
+     - Trong Google Apps Script hoàn toàn có hàm `SpreadsheetApp.getActiveSpreadsheet().rename(APP_TITLE)`.
+     - **Quy tắc**: Mỗi khi nâng cấp Version trong code (VD: từ `v1.0` lên `v1.1`, `v2.0`...), lập trình viên chỉ cần đổi hằng số `APP_TITLE` ở đầu file `.gs`. Khi người dùng hoặc admin chạy hàm `setupDatabaseSheets()` hoặc mở Sheet (`onOpen()`), hệ thống sẽ **tự động đổi tên file Google Sheet** khớp 100% với phiên bản mới mà không cần phải vào Drive đổi thủ công!
+     ```javascript
+     // Tự động kiểm tra và cập nhật tên Sheet khớp với phiên bản hệ thống
+     var currentName = ss.getName();
+     if (currentName !== APP_TITLE && !currentName.startsWith('Bản sao của')) {
+       ss.rename(APP_TITLE);
+     }
+     ```
+   - **Tên File Google Sheet (Hiển thị cho khách)**:
+     - **Dòng sản phẩm có tích hợp Web App (Mô hình Single Visible Tab)**:
+       `[TÊN SẢN PHẨM IN HOA CÓ DẤU] — WEB APP v[X.X] — FILE ĐI LÀM`
+       *Ví dụ*:
+       - `QUẢN LÝ NHÀ TRỌ — THU CHI VÀ TIỀN PHÒNG — WEB APP v1.0 — FILE ĐI LÀM`
+       - `QUẢN LÝ KHO MINI — GOOGLE SHEETS SMART — WEB APP v1.0 — FILE ĐI LÀM`
+       - `HỆ THỐNG QUẢN LÝ KHÁCH HÀNG & GIỎ HÀNG BẤT ĐỘNG SẢN — WEB APP v1.0 — FILE ĐI LÀM`
+       - `BẢNG TÍNH GIÁ VỐN & ĐỊNH GIÁ SẢN PHẨM (COSTING) — WEB APP v1.0 — FILE ĐI LÀM`
+       - `QUẢN LÝ TÀI SẢN & THIẾT BỊ DOANH NGHIỆP — WEB APP v1.0 — FILE ĐI LÀM`
+       - `QUẢN LÝ CÔNG NỢ KHÁCH HÀNG & NCC — WEB APP v1.0 — FILE ĐI LÀM`
+     - **Dòng sản phẩm Workbook thuần túy (Excel / Google Sheets Template, không có Web App)**:
+       `[TÊN SẢN PHẨM IN HOA CÓ DẤU] v[X.X] — FILE ĐI LÀM`
+       *Ví dụ*:
+       - `WEEKLY PLANNER & ROUTINE DASHBOARD M37 v3.7.0 (FULL 7 NGÀY) — FILE ĐI LÀM`
+       - `QUẢN LÝ BÁN HÀNG SHOP ONLINE MINI v1.4.0 — FILE ĐI LÀM`
+   - **Tên 2 File Code Vật Lý (Local)**:
+     - `[TENDUAN]_Code.gs`: Backend logic, menu Sheet, routing `doGet()`, xử lý Sheets, bảo mật và RPC handlers.
+     - `[TENDUAN]_Index.html`: File giao diện duy nhất (Monolithic SPA) tích hợp Tailwind CSS, Lucide Icons, Chart.js.
+
+3. **Quy chuẩn Nút Launcher kích hoạt trên Google Sheet**:
+   - **Menu thanh công cụ (`onOpen`)**: Tên menu `File Đi Làm` $\rightarrow$ Mục con duy nhất `Mở Ứng Dụng Quản Lý`.
+   - **Nút bấm trực quan trên Sheet (Tab HDSD)**: Đặt tại ô `B2:D3` merge, nền xanh Mint `#059669`, chữ trắng in đậm: `MỞ ỨNG DỤNG WEB APP (BẤM VÀO ĐÂY)`.
+
+5. **Quy trình làm việc nghiêm ngặt**:
+   - `AUDIT → ROOT CAUSE → DESIGN IMPACT → IMPLEMENT TRÊN FILE LOCAL → TEST → BÀN GIAO`.
+   - Tuyệt đối không báo tính năng "đã hoàn tất / đã chạy" khi chưa kiểm chứng thực tế.
+   - Không fake success (không hiển thị toast thành công khi server chưa trả về kết quả hợp lệ).
+
+6. **Quy tắc "Auto-Seed On First Load" & Zero Empty State**:
+   - Tuyệt đối KHÔNG bắt người dùng phải mở Apps Script editor để bấm Run hàm `setupDatabaseSheets()`.
+   - Hàm backend `getInitialData()` BẮT BUỘC phải tự động kiểm tra: nếu các tab `DB_...` chưa tồn tại hoặc bảng dữ liệu chính rỗng, hệ thống tự động kích hoạt `setupDatabaseSheets()` để nạp bộ dữ liệu mẫu thực chiến (10–15 thực thể đầy đủ trạng thái) ngay trong lần gọi RPC đầu tiên. Hàm setup phải tối ưu tốc độ (< 1.5s), không gọi các hàm `protect()` lặp gây timeout RPC.
+   - Luôn trang bị nút "Khởi tạo / Dữ liệu mẫu" trực quan tại Header Web App để người dùng có thể nạp lại dữ liệu chuẩn 1 chạm trực tiếp từ giao diện bất kỳ lúc nào.
+
+7. **Quy tắc "Instant Render & Zero-Blocking UI" (Tải Ngay 0s, Tuyệt Đối Cấm Vòng Quay Treo Màn Hình)**:
+   - Web App BẮT BUỘC phải áp dụng triết lý **Instant Render (Nạp trước, Đồng bộ ngầm sau)**: Ngay khi trang HTML tải xong (`App.init()`), hệ thống phải hiển thị ngay lập tức dữ liệu từ LocalStorage / Mock Data trong 0.05 giây để người dùng bấm thao tác được ngay.
+   - Quá trình gọi RPC với Google Sheets (`getInitialData`) phải chạy ngầm trong background (Background Sync).
+   - Chỉ báo tải chỉ được phép là biểu tượng xoay nhỏ xíu tại nút Refresh trên Header (`sync-icon`). **TUYỆT ĐỐI CẤM** đặt một khối `loading-state` lớn ở giữa màn hình khiến giao diện bị che khuất và "quay hoài" khi đường truyền Google Apps Script bị trễ.
+
+8. **Quy tắc "Inline Embedded Realistic Mock Data By Default" (Chống Trắng Trang / 0 Phòng)**:
+   - File `Index.html` bắt buộc nhúng sẵn bộ dữ liệu mẫu thực chiến (10–15 thực thể đầy đủ trạng thái) ngay trong biến khai báo ban đầu (`AppState.data`).
+   - Triệt tiêu 100% rủi ro trắng trang hoặc hiển thị 0% do RPC Google Apps Script bị trễ hay do cache LocalStorage bị rỗng.
+   - Khi đọc LocalStorage, nếu dữ liệu bị rỗng (`rooms.length === 0`), bắt buộc bỏ qua cache và dùng dữ liệu mẫu nhúng sẵn. CẤM lưu mảng rỗng đè vào LocalStorage.
+9. **Quy tắc "Visual Deployment Version Stamping" (Minh bạch phiên bản triển khai, chống kẹt cache bản cũ)**:
+   - Trong môi trường Google Apps Script Web App (chạy qua link `/exec`), trình duyệt rất dễ lưu cache hoặc người dùng không biết bản deploy trên Google có thực sự là bản mới nhất hay không.
+   - **Bắt buộc**:
+     1. Mọi bản nâng cấp trong file `Index.html` **BẮT BUỘC phải dập nổi Huy hiệu phiên bản (Visual Version Badge)** tại 2 vị trí trực quan:
+        - Trên thanh Header Topbar cạnh tiêu đề chính: `<span class="text-[10px] text-emerald-700 font-mono font-bold bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-200 shrink-0">Bản XX</span>`.
+        - Dưới chân Sidebar đáy màn hình: `<span id="appBuildVersionBadge" class="text-[10px] text-emerald-700 font-mono font-bold bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">Phiên bản XX (Active)</span>`.
+     2. Số phiên bản `Bản XX` phải tăng lũy tiến đồng bộ với số phiên bản của Google Apps Script Deployment (VD: Deploy bản 44 thì code đóng dấu `Bản 44`).
+     3. Nhờ đó, người dùng và lập trình viên chỉ cần nhìn lướt qua màn hình Web App trong 0.1 giây là biết ngay link đang chạy đúng bản mới hay bị kẹt cache bản cũ.
 
 ---
 
-## 3. SẢN PHẨM GOOGLE SHEETS + APPS SCRIPT (BÁN BẰNG LINK /COPY)
-- **Quy trình trọn gói**: Người dùng đưa prompt nghiệp vụ; Agent tự hoàn thành Sheet, Apps Script launcher gắn sẵn, Web App và cấu hình triển khai. Bàn giao 1 link sản phẩm duy nhất.
-- **Trải nghiệm người mua**: Bấm `/copy` → Tạo bản sao vào Drive → Menu **File Đi Làm** tự xuất hiện sau khi Sheet tải xong → Mở ứng dụng → Cấp quyền Google lần đầu.
-- **Không bắt khách cấu hình & Quy tắc Auto-Seed on First Load**:
-  - Không yêu cầu khách mở Apps Script editor, dán mã nguồn, deploy web app, nhập Spreadsheet ID hay bấm Run hàm setup thủ công.
-  - Hàm `getInitialData()` backend phải tự động kiểm tra: nếu Sheet chưa có bảng hoặc dữ liệu rỗng, tự động chạy khởi tạo và nạp dữ liệu mẫu thực chiến ngay trong lần load đầu tiên.
-  - Trên giao diện Web App luôn có nút "Dữ liệu mẫu" để nạp lại dữ liệu 1 chạm bất kỳ lúc nào.
-- **Quy tắc Zero Phantom Overlay (Chống màng vô hình chặn click chuột)**:
-  - Trên môi trường iframe của Google Apps Script, tuyệt đối CẤM chỉ dùng `opacity-0` và `pointer-events-none` cho container phủ màn hình khi phần tử con (Backdrop) vẫn còn giữ `pointer-events-auto`.
-  - Bắt buộc: Khi Drawer/Modal đóng, container ngoài cùng BẮT BUỘC phải gắn class `hidden` (`display: none`) để giải phóng 100% diện tích màn hình cho chuột thao tác.
-- **Quy tắc Instant Render & Zero-Blocking UI (Tải ngay 0s, Cấm vòng quay treo màn hình)**:
-  - Web App BẮT BUỘC nạp và hiển thị ngay lập tức giao diện và dữ liệu (từ LocalStorage hoặc Mock Cache) trong 0.05 giây ngay khi mở trang (`App.init()`), để người dùng bấm thao tác được ngay lập tức.
-  - Quá trình kết nối Google Sheets (`getInitialData`) phải chạy ngầm trong background (Background Sync).
-  - TUYỆT ĐỐI CẤM đặt các khối `loading-state` to tướng ở giữa màn hình khiến giao diện bị che khuất và quay vô tận. Chỉ báo tải duy nhất là icon xoay nhỏ tại nút Làm mới trên thanh Header.
-  - Backend RPC khi khởi tạo dữ liệu mẫu phải tối ưu tốc độ phản hồi < 1.5 giây; không lặp các lệnh `sh.protect()` gây nghẽn timeout.
-- **Quy tắc Bất Biến "Inline Embedded Realistic Mock Data By Default" (CẤM BIẾN RỖNG [])**:
-  - Tuyệt đối CẤM khai báo biến lưu trữ ban đầu là mảng rỗng (`AppState.data = { rooms: [], bookings: [], ... }`).
-  - Biến `AppState.data` trong file `Index.html` BẮT BUỘC phải được nhúng sẵn bộ dữ liệu mẫu thực chiến đầy đủ (10–15 thực thể với đủ mọi trạng thái nghiệp vụ).
-  - Web App phải hiển thị hoàn hảo ngay trong 0.001 giây khi vừa parse HTML, không phụ thuộc vào việc server phản hồi hay cache trình duyệt.
-  - Tuyệt đối không cho phép LocalStorage lưu hoặc ghi đè mảng rỗng `[]` vào bộ nhớ làm hỏng dữ liệu hiển thị.
-- **Nguyên tắc kỹ thuật script**:
-  - Menu lấy ID động bằng `SpreadsheetApp.getActiveSpreadsheet().getId()`.
-  - Mọi RPC mang ID bản sao tương ứng. Không hardcode Spreadsheet ID master, không fallback về master làm database.
-  - Web App chạy dưới quyền người truy cập (`USER_ACCESSING`) hoặc cấu hình máy chủ độc lập phù hợp (`EXECUTE_AS_ME` + `ANYONE`) để bảo mật dữ liệu.
-- **Quy chuẩn Deploy Web App & Quản lý phiên bản (Tránh bẫy treo URL của Google)**:
-  - *Cấm phụ thuộc `ScriptApp.getService().getUrl()` khi đang dev nhiều version*: Google bị treo URL ở deployment đầu tiên trong lịch sử dự án.
-  - *Quy trình chuẩn*:
-    1. Kiểm tra và thao tác trực tiếp trên URL của bản deploy mới nhất cho tới khi giao diện và API mượt mà, không lỗi console.
-    2. Dọn sạch (Archive/Delete) các bản deploy rác trong *Quản lý các bản triển khai*, chỉ giữ 1 bản Active duy nhất.
-    3. Ghim URL chính thức đã test thành công vào hằng số `WEB_APP_URL` ở đầu script để menu `onOpen()` và nút Sheet mở chuẩn xác 100%.
-    4. Cẩn trọng tuyệt đối với ký tự Case-Sensitive (như chữ `O` hoa vs số `0`) khi xử lý URL Google Apps Script.
-- **Quy chuẩn Kiến trúc Modular HTML (Component-Based Architecture)**:
-  - Khi Web App mở rộng từ 3 module trở lên, tuyệt đối KHÔNG nhồi toàn bộ CSS, HTML và JS vào một file `Index.html` duy nhất (tránh lỗi token truncation, khó quản lý và dễ ghi đè lỗi).
-  - Bắt buộc áp dụng cơ chế `include()` của Apps Script:
-    - `Mã.gs`: Định nghĩa hàm `include(filename)` helper.
-    - `Index.html`: Giữ vai trò Main Shell / Layout chung nạp các partials.
-    - Phân tách thành các file thành phần độc lập: `Style.html`, `Module_Dashboard.html`, `Module_Customers.html`, `Module_Properties.html`, `Script.html`.
-  - Quy trình nâng cấp theo từng Sprint: Mỗi phiên chat hoàn thiện sâu duy nhất 1 component file tương ứng, không làm ảnh hưởng các phần khác.
+## 2. CHUẨN THIẾT KẾ UI/UX FINTECH CAO CẤP (MINIMALIST & CLASSY)
+
+1. **Bảng màu chủ đạo**:
+   - Primary: Xanh ngọc Mint Emerald (`#059669` / `#10b981`), Mint nhạt nền hover (`#ecfdf5`).
+   - Nền & Khung: Slate thanh lịch (`#f8fafc`, `#f1f5f9`, `#e2e8f0`), chữ đen xám sâu (`#0f172a`, `#334155`).
+   - Nút chính (CTA): Nền Mint `#059669`, chữ trắng, bo góc `rounded-xl`, chiều cao chuẩn **46px** (`h-[46px]`), hover mượt mà.
+
+2. **CẤM Emoji trẻ con & Iconography đồng bộ**:
+   - Tuyệt đối không gắn emoji (⚡, ✨, 🔑, 🏠, 📞, ⏳, ⚠️, 🟢) vào nút bấm, tab, tiêu đề hay thông báo toast.
+   - 100% sử dụng hệ thống vector icon **Lucide Icons** qua CDN (`lucide.createIcons()`), nét mảnh tinh tế (`stroke-width="1.75"` hoặc `2`).
+
+3. **Triệt tiêu lậm Card & lậm Pill ("Anti-Pill & Anti-Card Overload")**:
+   - Không bọc thông tin hiển nhiên vào các khối card nổi viền dày chiếm diện tích.
+   - CẤM lạm dụng khung pill bo tròn (badge viên thuốc) cho các trường dữ liệu bình thường.
+   - Trạng thái chỉ dùng chấm tròn nhỏ tinh tế (`•` bullet) kèm chữ phẳng màu tương ứng (VD: `<span class="text-emerald-600 font-medium text-xs">● Đang hoạt động</span>`).
+
+4. **Quy chuẩn mã sản phẩm & định danh nghiệp vụ (ID / SKU)**:
+   - Bắt buộc chuẩn: **Đúng 4 ký tự tiền tố nghiệp vụ + dấu gạch nối `-` + đúng 6 chữ số ngẫu nhiên**: `XXXX-YYYYYY`.
+   - Ví dụ chuẩn mẫu cho các giải pháp:
+     - Tài sản: `TSAN-839201`
+     - Nhân sự: `NHAN-109284`
+     - Phiếu bàn giao: `BGIA-582910`
+     - Phiếu thu hồi: `THOI-394821`
+     - Phiếu bảo trì: `BTRI-749102`
+     - Khách hàng: `KHNG-839201`
+     - Nhà cung cấp: `NCCP-109284`
+     - Hóa đơn / Đơn nợ: `HOAD-582910`
+   - CẤM sinh slug tiếng Việt cắt dấu lem nhem kèm timestamp miligiây dài dòng.
+   - Mã ID là bất biến và hiển thị dạng text **Monospace** phẳng (`font-mono text-xs font-semibold text-slate-700`), không bọc khung pill.
+
+5. **Quy chuẩn định dạng số liệu & thời gian**:
+   - Ngày tháng thống nhất định dạng: `dd/mm/yyyy`.
+   - Tiền tệ Việt Nam thống nhất phân cách hàng nghìn: `Intl.NumberFormat('vi-VN')` kèm đơn vị `đ` hoặc `VND`.
 
 ---
 
-## 4. CHUẨN WORKBOOK & DASHBOARD BÁO CÁO
-- **Kế thừa thiết kế mẫu Shop Online Mini v1.4.0**:
-  - Palette pastel dịu: Nền kem `#FFFDFB`, hồng chủ đạo `#C88FA1`, lavender `#CFC5E9`, mint `#B9E1D6`. Ô nhập liệu `#FFF3F7`, ô tính toán tự động `#EEF7FC`, ô ghi chú hướng dẫn `#FFF8DB`.
-  - Font chữ hỗ trợ tiếng Việt đầy đủ, phân cấp tiêu đề, khoảng thở và header bảng rõ ràng.
-- **Cấu trúc trải nghiệm**:
-  - Bố trí theo nhu cầu khách: chỉ cần điền 1–2 trang nghiệp vụ là hoàn thành một luồng và ra kết quả ngay.
-  - Cột nhập liệu đặt bên trái, cột kết quả tự tính đặt cạnh bên/bên phải trong cùng tầm nhìn.
-- **Chuẩn Dashboard TỔNG QUAN**:
-  - Giữ chuẩn **4 thẻ KPI + 6 biểu đồ trực quan** bố trí 2 cột / 3 hàng.
-  - Dữ liệu biểu đồ liên kết công thức động; ngày tháng thống nhất `dd/mm/yyyy`; số tiền có phân cách hàng nghìn.
+## 3. CẤU TRÚC PHÂN TẦNG THEO TẦN SUẤT SỬ DỤNG (FREQUENCY-BASED ARCHITECTURE)
+
+Triệt tiêu tư duy "đẻ tab" tràn lan hoặc trùng lặp (Dashboard đã có sẵn KPI và biểu đồ thì KHÔNG tạo thêm tab Báo cáo riêng biệt). Mọi Web App phải được phân cấp theo **3 tầng chu kỳ sử dụng thực tế** gồm đúng **7 hạng mục chức năng**:
+
+### 🟢 TẦNG 1: VẬN HÀNH THƯỜNG XUYÊN (HẰNG NGÀY / TUẦN / THÁNG — Tần suất 80%)
+Đặt ở vị trí cao nhất trên thanh điều hướng:
+1. **TỔNG QUAN & VIỆC HÔM NAY (Dashboard & Daily Actions)**:
+   - **4 – 5 Thẻ KPI Cốt Lõi**: Tổng nguyên giá / Phải Thu / Phải Trả / Dòng tiền thuần / Cảnh báo đỏ.
+   - **6 – 8 Biểu Đồ Trực Quan (Chart.js CDN)**: Lưới Desktop 2 cột (`grid grid-cols-1 lg:grid-cols-2 gap-6`).
+   - **Khối Việc Cần Xử Lý Ngay (Daily Action Center)**: Nút gọi `tel:`, nút copy tin nhắn nhắc nợ kèm mã VietQR / hạn bảo dưỡng.
+2. **GIAO DỊCH THƯỜNG XUYÊN (Transactions / Cấp Phát / Thu-Trả)**:
+   - Nghiệp vụ diễn ra liên tục: Bàn giao (`BGIA`), Thu hồi (`THOI`), Thu tiền (`PTHU`), Trả nợ (`PTRA`).
+   - Tự động cấn trừ trạng thái thiết bị / công nợ tức thì.
+
+### 🟡 TẦNG 2: QUẢN LÝ BIẾN ĐỘNG ĐỊNH KỲ (LÂU LÂU MỚI LÀM KHI CÓ PHÁT SINH — Tần suất 15%)
+Đặt ở phần giữa giao diện:
+3. **SỔ THEO DÕI BẢO TRÌ & CHỨNG TỪ (Maintenance / Debt Records)**:
+   - Quản lý phiếu bảo trì (`BTRI-XXXXXX`) hoặc hóa đơn nợ (`HOAD-XXXXXX`), trích xuất biên bản in chuẩn A4.
+4. **DANH SÁCH THỰC THỂ / ĐỐI TÁC (Core Entities / Staff / Partners)**:
+   - Quản lý Tài sản (`TSAN-XXXXXX`), Nhân sự (`NHAN-XXXXXX`), Khách hàng (`KHNG-XXXXXX`), NCC (`NCCP-XXXXXX`).
+   - Master-Table tràn viền trên Desktop và Thẻ phẳng gọn trên Mobile (Table-to-Card).
+
+### ⚪ TẦNG 3: CẤU HÌNH & HỖ TRỢ (SETUP 1-2 LẦN BAN ĐẦU / HIẾM KHI SỬA — Tần suất 5%)
+Gom về cuối cùng của hệ thống:
+5. **DANH MỤC & BẢNG GIÁ (Master Catalogs & Pricing)**:
+   - Setup ban đầu: Nhóm tài sản, phòng ban, nhóm đối tác lưu tại tab `DB_DanhMuc`.
+6. **CÀI ĐẶT HỆ THỐNG & CƠ SỞ (System Settings)**:
+   - Tên cơ sở/doanh nghiệp, Hotline liên hệ, mẫu in biên bản bàn giao A4.
+7. **HƯỚNG DẪN SỬ DỤNG & TRỢ GIÚP (User Guide & Onboarding)**:
+   - **Quy trình 3 bước Onboarding**: Bước 1 Khai báo danh mục/nhân sự $\rightarrow$ Bước 2 Nhập kho thiết bị $\rightarrow$ Bước 3 Bàn giao theo dõi.
+   - Accordion FAQ + Kênh hỗ trợ Zalo 1 chạm của FILE ĐI LÀM.
 
 ---
 
-## 5. BẢN ĐỒ TÀI NGUYÊN & MÃ NGUỒN CỐT LÕI
-- `index.html` / `storefront.js` / `storefront.css`: Storefront mua hàng, giỏ hàng, xác thực khách, thanh toán VietQR và kích hoạt đơn tự động.
-- `admin.html` / `admin.js`: Trang quản trị đăng bán, quản lý danh sách sản phẩm, quản lý đơn hàng và báo cáo doanh thu.
-- `functions/main.py`: Firebase Cloud Functions tiếp nhận webhook ngân hàng (SePay), API đơn hàng và đối soát.
-- `system_filedilam.md`: Kiến trúc hệ thống, chức năng chi tiết và luồng dữ liệu khách hàng.
-- `project-brain/` & `brain.json`: Lưu trữ quyết định kiến trúc, bài học và bằng chứng kiểm thử thực tế.
+## 4. PHÂN ĐỊNH 2 TRẢI NGHIỆM ĐỘC LẬP: DESKTOP VS MOBILE VIEW
+
+1. **Giao diện Desktop (Laptop / Màn hình lớn)**:
+   - **Sidebar bên trái cố định (240px)** có nút Hamburger thu gọn về Icon-only (~64px). Hiển thị 3 cụm menu có tiêu đề nhỏ (`VẬN HÀNH`, `QUẢN LÝ`, `HỆ THỐNG`).
+   - **Bảng Master-Table phẳng tràn viền (Edge-to-Edge Full Bleed)**: Cố định tiêu đề (`Freeze Header`), không dùng đường kẻ dọc cột Excel thô kệch, hover hàng nhẹ nhàng (`hover:bg-slate-50`), menu 3 chấm (`MoreVertical`) ở cột ngoài cùng bên phải (tiêu đề `<th>` để rỗng).
+   - **Form Nhập liệu / Chi tiết dùng Right Drawer (Zero Popup Policy)**: Trượt êm từ cạnh phải màn hình (Right Slide-over Drawer, độ rộng 450px – 520px), phủ overlay mờ phía sau.
+   - **Quy chuẩn kỹ thuật bắt buộc cho `<aside id="action-drawer">`**:
+     - *Triệt tiêu xung đột Tailwind*: Khi dùng chung một thẻ `<aside id="action-drawer">` cho cả Drawer Desktop và Bottom Sheet Mobile, bắt buộc phải khai báo `lg:left-auto lg:top-0 lg:bottom-0 lg:right-0 lg:w-[480px] lg:h-full lg:max-h-full lg:rounded-none lg:translate-y-0 lg:translate-x-full` để loại trừ hoàn toàn `left-0` và `translate-y-full` của Mobile.
+     - *Media Query CSS cứng*: Bắt buộc bổ sung khối CSS trong thẻ `<style>` để đảm bảo tuyệt đối không bị lệch về bên trái hay đè lên sidebar:
+       ```css
+       @media (min-width: 1024px) {
+         #action-drawer {
+           top: 0 !important;
+           bottom: 0 !important;
+           right: 0 !important;
+           left: auto !important;
+           width: 480px !important;
+           max-height: 100vh !important;
+           height: 100vh !important;
+           border-radius: 0 !important;
+         }
+       }
+       ```
+
+2. **Giao diện Mobile (Điện thoại thông minh / Hiện trường)**:
+   - **Chuyển bảng thành thẻ gọn (Table-to-Card Transformation)**: Tuyệt đối CẤM bắt người dùng vuốt ngang màn hình tìm cột. Bảng tự động gom thành danh sách thẻ phẳng.
+   - **Thanh điều hướng đáy (Bottom Navigation Dock)**: Ghim thanh dock đúng **4 icon chính** (Tổng quan, Giao dịch/Cấp phát, Quản lý/Tài sản, Hệ thống).
+   - **Nút hành động nổi (Floating Action Button - FAB)**: Nút `+ Thêm Mới` tròn nổi màu Mint xanh ở góc dưới bên phải (`fixed bottom-20 right-4 w-14 h-14 rounded-full shadow-lg`) để thao tác 1 chạm bằng 1 tay.
+   - **Form nhập liệu Bottom Sheet**: Trượt êm từ đáy màn hình lên, phủ nửa hoặc 85% màn hình. Tự bật bàn phím số (`inputmode="numeric"` hoặc `inputmode="tel"`).
+
+3. **Tính đồng nhất Form & Thông báo**:
+   - Nhãn rõ ràng kèm đánh dấu bắt buộc: `<label class="block text-xs font-semibold text-slate-700 mb-1.5">Tên trường <span class="text-rose-500">*</span></label>`.
+   - Ô input cao 42px – 46px, bo góc `rounded-lg`, focus viền Mint.
+   - **Tuyệt đối CẤM `alert()` / `confirm()` mặc định**: 100% dùng Toast Notification 3s và Custom Confirmation Modal màu đỏ.
+
+4. **Quy tắc "Zero Phantom Overlay" (Chống màng phủ vô hình chặn click chuột)**:
+   - **CỰC KỲ QUAN TRỌNG TRÊN GOOGLE APPS SCRIPT IFRAME**: Tuyệt đối CẤM chỉ dùng `opacity-0` và `pointer-events-none` cho container phủ màn hình khi phần tử con (như Backdrop) vẫn còn giữ `pointer-events-auto`. Lớp phủ vô hình này sẽ chiếm toàn bộ viewport ở z-index cao và chặn 100% click chuột của người dùng khiến giao diện bị tê liệt.
+   - **QUY CHUẨN BẮT BUỘC**: Khi Drawer hoặc Modal đóng, container ngoài cùng BẮT BUỘC phải gắn class `hidden` (`display: none`). Khi mở: gỡ `hidden` rồi mới kích hoạt animation trượt/mờ. Khi đóng: kích hoạt animation xong thì thêm lại `hidden`.
 
 ---
 
-## 6. QUY TRÌNH KIỂM THỬ VÀ BÀN GIAO
-1. **Kiểm tra cú pháp & toàn vẹn**: Xác minh modal, form và các event listener hoạt động chuẩn xác, không có lỗi console.
-2. **Cập nhật Cache Buster**: Luôn tăng tham số version (VD: `admin.js?v=XX`, `storefront.js?v=XX`, `storefront.css?v=XX`) khi chỉnh sửa CSS/JS.
-3. **Chỉ commit đúng phạm vi**: Không gom thay đổi ngoài luồng; ghi rõ nội dung thay đổi theo chuẩn conventional commits.
-4. **Minh bạch bằng chứng**: Phân định rõ giữa trạng thái dự kiến, đã code và đã thử nghiệm thực tế trước khi tuyên bố hoàn tất.
+## 5. QUY CHUẨN GOOGLE APPS SCRIPT & TRẢI NGHIỆM LINK /COPY
+
+1. **Khởi tạo Menu Sheet tự động**:
+   ```javascript
+   function onOpen() {
+     SpreadsheetApp.getUi()
+       .createMenu('File Đi Làm')
+       .addItem('Mở Ứng Dụng Quản Lý', 'openWebApp')
+       .addSeparator()
+       .addItem('Khóa & Ẩn Database (Bảo vệ dữ liệu)', 'lockAndHideDatabaseSheets')
+       .addToUi();
+   }
+   
+   function openWebApp() {
+     var html = HtmlService.createHtmlOutput(
+       '<script>window.open("' + WEB_APP_URL + '", "_blank");google.script.host.close();</script>'
+     ).setWidth(300).setHeight(80);
+     SpreadsheetApp.getUi().showModalDialog(html, 'Đang mở ứng dụng...');
+   }
+
+   /**
+    * QUY TẮC SINGLE VISIBLE TAB: Khóa và Ẩn toàn bộ tab DB_, chỉ để lại tab HDSD hiển thị
+    */
+   function lockAndHideDatabaseSheets() {
+     var ss = SpreadsheetApp.getActiveSpreadsheet();
+     var sheets = ss.getSheets();
+     sheets.forEach(function(sh) {
+       var name = sh.getName();
+       if (name.indexOf('DB_') === 0) {
+         sh.hideSheet(); // Ẩn tab DB_
+         var protection = sh.protect().setDescription('Khóa bảo vệ Database FILE ĐI LÀM');
+         protection.setWarningOnly(true);
+       } else if (name === 'HDSD') {
+         sh.showSheet(); // Luôn hiển thị duy nhất tab HDSD
+         ss.setActiveSheet(sh);
+       }
+     });
+   }
+   ```
+2. **Ghim hằng số `WEB_APP_URL`**: Cố định URL Web App đã deploy ở đầu file script.
+3. **ID bảng tính luôn động**: Luôn dùng `SpreadsheetApp.getActiveSpreadsheet().getId()`.
+4. **Cơ chế khóa ghi đồng thời (`LockService`)**: Tất cả hàm thêm, sửa, xóa bắt buộc bọc trong `LockService.getScriptLock()` (waitLock 15s).
+5. **Gom dữ liệu 1 chạm (`getInitialData()`)**: Gom toàn bộ database về một Object JSON duy nhất trong 1 lần gọi RPC ban đầu.
+6. **Nguyên tắc Ánh xạ Dữ liệu 2 Lớp (Dual Header Mapping Tiếng Việt & CamelCase)**:
+   - Google Sheets luôn lưu tiêu đề tiếng Việt có dấu (`['Nhóm', 'Mã', 'Tên', 'Ghi Chú']`), trong khi Web App JS thường dùng key không dấu (`nhom`, `ma`, `ten`, `loai`). Để triệt tiêu 100% rủi ro bảng bị rỗng (Empty State) khi gọi RPC:
+     - **Backend (`Code.gs`)**: Trong `getInitialData()`, mọi hàm mapping từ `readSheetData()` bắt buộc sinh đồng thời cả key tiếng Việt có dấu và key camelCase:
+       ```javascript
+       return {
+         nhom: nhom, Nhom: nhom, 'Nhóm': nhom,
+         ma: ma, Ma: ma, 'Mã': ma, maDanhMuc: ma,
+         ten: ten, Ten: ten, 'Tên': ten, giaTri: ten, TenDanhMuc: ten,
+         ghiChu: ghiChu, GhiChu: ghiChu, 'Ghi Chú': ghiChu,
+         loai: loaiAlias, LoaiDanhMuc: loaiAlias
+       };
+       ```
+     - **Frontend (`Index.html`)**: Mọi hàm filter, search và table render bắt buộc kiểm tra fallback đa tầng:
+       `const ten = item.Ten || item.ten || item['Tên'] || item.giaTri;`
+       `const nhom = item.Nhom || item.nhom || item['Nhóm'] || item.loai;`
+
+---
+
+## 6. QUY TRÌNH PHÁT TRIỂN SIÊU TỐC: PARALLEL SUBAGENTS & MASTER ASSEMBLER (MAP-REDUCE PIPELINE)
+
+Để tối ưu hóa tốc độ làm việc (rút ngắn thời gian từ hàng chục phút xuống còn **3 – 5 phút**) mà vẫn triệt tiêu hoàn toàn lỗi tràn token hoặc code vắn tắt, hệ thống áp dụng **Mô hình Chạy song song hàng loạt Subagents (Fan-Out) $\rightarrow$ Subagent cuối gom vào 2 file vật lý (Fan-In / Assembler)**:
+
+```
+┌────────────────────────────────────────────────────────────────────────┐
+│ BƯỚC 0: KHÓA HỢP ĐỒNG DỮ LIỆU ĐẦU TIÊN (CONTRACT-FIRST LOCKING)        │
+│ • Master Agent chốt Schema các tab DB_, danh sách hàm RPC Backend.     │
+│ • Chốt cấu trúc Store: AppState = { data: {...}, currentTab: ... }    │
+├────────────────────────────────────────────────────────────────────────┤
+│ BƯỚC 1: BẮN ĐỒNG THỜI HÀNG LOẠT SUBAGENTS (PARALLEL FAN-OUT)           │
+│ Các Subagents chạy song song độc lập, mỗi agent xuất ra 1 file tạm:    │
+│ 1. Subagent Backend    → Xuất: _part_backend.gs                        │
+│ 2. Subagent Shell      → Xuất: _part_shell.html (Layout, Dock, Router) │
+│ 3. Subagent Module 1   → Xuất: _part_mod1.html (Dashboard 4 KPI + 6 C) │
+│ 4. Subagent Module 2   → Xuất: _part_mod2.html (Giao dịch, Drawer Form)│
+│ 5. Subagent Module 3+4 → Xuất: _part_mod3_4.html (Bảo trì, MasterTable)│
+│ 6. Subagent Module 567 → Xuất: _part_mod5_6_7.html (Danh mục, Help FAQ)│
+│                                                                        │
+│ * QUY TẮC CỐT LÕI TRÁNH XUNG ĐỘT KHI CHẠY SONG SONG:                   │
+│ • Mỗi module đóng gói trong 1 Object: const ModuleXYZ = { render()... }│
+│ • Mọi ID DOM bắt buộc có tiền tố module: #dash-..., #tx-..., #core-... │
+├────────────────────────────────────────────────────────────────────────┤
+│ BƯỚC 2: SUBAGENT CUỐI GOM VÀ ĐẤU NỐI (THE MASTER ASSEMBLER - FAN-IN)   │
+│ • Đọc tất cả các file _part_* đã sinh ra trong workspace.              │
+│ • Ghép chuẩn xác vào đúng 2 File vật lý duy nhất:                      │
+│   1. [TENDUAN]_Code.gs  ← Ráp từ _part_backend.gs                      │
+│   2. [TENDUAN]_Index.html ← Ráp các part HTML vào đúng các Slot Marker │
+│ • Tự động dọn dẹp (xóa) các file tạm _part_*.                          │
+├────────────────────────────────────────────────────────────────────────┤
+│ BƯỚC 3: KIỂM THỬ TỔNG THỂ & BÀN GIAO (INTEGRATION TEST)                │
+│ • Kiểm tra tính toàn vẹn sự kiện JS, không lỗi Console.                │
+│ • Rà soát Checklist 10 điểm và cấp link triển khai /copy.              │
+└────────────────────────────────────────────────────────────────────────┘
+```
+
+---
+
+## 7. BỘ THƯ VIỆN CDN CHUẨN TRONG `[TENDUAN]_Index.html`
+
+1. **Tailwind CSS CDN**: `<script src="https://cdn.tailwindcss.com"></script>`
+2. **Lucide Icons CDN**: `<script src="https://unpkg.com/lucide@latest"></script>`
+3. **Chart.js CDN**: `<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>`
+
+---
+
+## 8. DANH MỤC KIỂM TRA TRƯỚC KHI BÀN GIAO (CHECKLIST 15 ĐIỂM)
+
+- [ ] 1. Tên file local đúng chuẩn: `[TENDUAN]_Code.gs` và `[TENDUAN]_Index.html`.
+- [ ] 2. Tên file Google Sheet chuẩn: `[TÊN SẢN PHẨM IN HOA CÓ DẤU] v[X.X] — FILE ĐI LÀM`.
+- [ ] 3. Chuẩn **Single Visible Tab**: Chỉ hiển thị duy nhất tab `HDSD` (kèm nút Mint ô `B2:D3` và Menu `File Đi Làm`), toàn bộ tab `DB_...` đã được KHÓA và ẨN đi.
+- [ ] 4. Không chứa bất kỳ emoji trẻ con nào trên giao diện hoặc thông báo.
+- [ ] 5. Cấu trúc chuẩn **3 Tầng tần suất (7 Hạng mục)** và thực hiện chuẩn theo **Mô hình Parallel Subagents & Master Assembler**.
+- [ ] 6. Dashboard chuẩn: **4–5 thẻ KPI** và **6–8 biểu đồ trực quan** (Grid 2 cột Desktop).
+- [ ] 7. Desktop hiển thị bảng tràn viền + Right Drawer; Mobile hiển thị Card + Bottom Sheet + FAB.
+- [ ] 8. Mã định danh đúng chuẩn: **Đúng 4 ký tự tiền tố + 6 số ngẫu nhiên** (`XXXX-YYYYYY`), font monospace phẳng, không bọc pill.
+- [ ] 9. Tất cả thao tác lưu/xóa đều bọc `LockService` trong Apps Script.
+- [ ] 10. Nút gọi điện thoại trên mobile đều gắn link `tel:`; ô số tiền/SĐT có `inputmode="numeric"`.
+- [ ] 11. Backend `getInitialData()` có cơ chế Auto-Seed tự động nạp dữ liệu mẫu khi Sheet rỗng hoặc chưa setup.
+- [ ] 12. Không có bất kỳ phần tử Drawer/Modal nào mang `pointer-events-auto` che phủ màn hình khi đang đóng (chuẩn Zero Phantom Overlay).
+- [ ] 13. Giao diện tuân thủ chuẩn Instant Render (hiển thị ngay trong 0s), không chứa khối loading placeholder nào che phủ giữa màn hình.
+- [ ] 14. Biến `AppState.data` được nhúng sẵn 100% dữ liệu mẫu thực chiến ngay từ đầu, tuyệt đối không khai báo mảng rỗng `[]`.
+- [ ] 15. Giao diện có gắn huy hiệu phiên bản trực quan (Visual Version Badge `Bản XX`) tại Topbar và Footer để đối soát phiên bản triển khai tức thì.
