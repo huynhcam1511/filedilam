@@ -3582,8 +3582,8 @@ function escapeHtml(value) {
     if (quickPassGroup) quickPassGroup.style.display = "none";
 
     // Luôn hiển thị cả 3 trường: Họ tên, SĐT, Gmail
-    if (quickNameGroup) quickNameGroup.style.display = "block";
-    if (quickEmailGroup) quickEmailGroup.style.display = "block";
+    if (quickNameGroup) quickNameGroup.style.display = "flex";
+    if (quickEmailGroup) quickEmailGroup.style.display = "flex";
 
     // Tự động điền dữ liệu nếu đã có thông tin từ trước
     if (state.profile) {

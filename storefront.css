@@ -3448,6 +3448,7 @@ body.checkout-page-open {
   font-variant-numeric: tabular-nums;
 }
 
+.checkout-subtotal-row,
 #checkoutDiscountRow {
   color: #64748b;
   font-size: 13px;
@@ -3795,43 +3796,25 @@ body.checkout-page-open {
 .checkout-optional-tag {
   font-weight: 400;
   color: var(--muted);
-  font-size: 0.76rem;
+  font-size: 0.74rem;
 }
 
-.checkout-optional-details {
-  margin: 2px 0 6px;
+.checkout-optional-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 10px;
 }
 
-.checkout-optional-summary {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 4px 0;
-  font-size: 0.82rem;
-  font-weight: 600;
-  color: #047857;
-  cursor: pointer;
-  list-style: none;
-  user-select: none;
+.checkout-optional-row .checkout-field {
+  display: flex !important;
+  flex-direction: column;
+  gap: 5px;
+  margin-bottom: 4px;
 }
 
-.checkout-optional-summary::-webkit-details-marker {
-  display: none;
-}
-
-.checkout-optional-summary::before {
-  content: "+";
-  font-size: 0.95rem;
-  font-weight: 700;
-  line-height: 1;
-}
-
-.checkout-optional-details[open] .checkout-optional-summary::before {
-  content: "−";
-}
-
-.checkout-optional-body {
-  padding-top: 10px;
+.checkout-optional-row .checkout-label {
+  font-size: 0.8rem;
+  white-space: nowrap;
 }
 
 .checkout-upsell-box {

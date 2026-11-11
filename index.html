@@ -20,7 +20,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="./storefront.css?v=243" />
+    <link rel="stylesheet" href="./storefront.css?v=244" />
     <style>
     :root {
       --bg: #ffffff;
@@ -3299,6 +3299,23 @@
                   <input id="quickEmail" type="email" placeholder="Ví dụ: yourname@gmail.com" required class="checkout-input" />
                 </div>
 
+                <!-- Field 2 & 3: Họ tên + SĐT / Zalo (Tùy chọn) đặt gọn 2 cột -->
+                <div class="checkout-optional-row">
+                  <div class="checkout-field" id="quickNameGroup">
+                    <label class="checkout-label" for="quickName">
+                      Họ và tên <span class="checkout-optional-tag">(Tùy chọn)</span>
+                    </label>
+                    <input id="quickName" type="text" placeholder="Nguyễn Văn An" class="checkout-input" />
+                  </div>
+
+                  <div class="checkout-field">
+                    <label class="checkout-label" id="quickPhoneLabel" for="quickPhone">
+                      SĐT / Zalo <span class="checkout-optional-tag">(Tùy chọn)</span>
+                    </label>
+                    <input id="quickPhone" type="tel" inputmode="numeric" placeholder="0912345678" class="checkout-input" />
+                  </div>
+                </div>
+
                 <!-- Submit Button -->
                 <button class="button-primary button-full btn-place-order" id="btnQuickSubmit" type="submit" style="margin-top: 14px;">
                   <span id="btnQuickSubmitText">Xác nhận thông tin &amp; tạo đơn</span>
@@ -3424,7 +3441,7 @@
                   </div>
                 </div>
 
-                <div class="checkout-calc-row">
+                <div class="checkout-calc-row checkout-subtotal-row">
                   <span>Tổng số tiền</span>
                   <span id="checkoutSubTotal">0 đ</span>
                 </div>
@@ -3936,7 +3953,7 @@
     <script src="./storefront-data.js?v=22"></script>
     <script src="./storefront-products.generated.js?v=6"></script>
     <script src="assets/qrcode-generator-1.4.4.js"></script>
-    <script src="storefront.js?v=246"></script>
+    <script src="storefront.js?v=247"></script>
     <!-- Agentation: Visual Feedback & Annotation for AI agents -->
   <script src="./agentation-vanilla.js"></script>
 </body>
