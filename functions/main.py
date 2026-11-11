@@ -18,6 +18,7 @@ import base64
 
 SMTP_USER = "kiencam.work@gmail.com"
 SMTP_PASS = "eohmiuavreukunhk"
+ADMIN_NOTIFICATION_EMAIL = "huynhkiencam151102@gmail.com"
 
 def ensure_copy_link(url):
     raw = str(url or "").strip()
@@ -344,6 +345,123 @@ File Đi Làm - https://filedilam.web.app
         return True
     except Exception as e:
         print(f"[Email] Lỗi gửi email cho đơn {order_id} ({customer_email}): {e}")
+        return False
+
+def send_admin_new_order_notification(order_id, order_data):
+    """
+    Gửi thông báo có đơn hàng mới từ kiencam.work@gmail.com đến huynhkiencam151102@gmail.com
+    giúp Admin nắm bắt ngay đơn hàng mới tạo trên hệ thống.
+    """
+    try:
+        cust_name = order_data.get("customer_name") or "Khách hàng"
+        cust_email = order_data.get("customer_email") or "Chưa cung cấp"
+        cust_phone = order_data.get("customer_phone") or "Chưa cung cấp"
+        amount = int(order_data.get("amount") or 0)
+        amount_fmt = f"{amount:,}".replace(",", ".") + " đ"
+        product_name = order_data.get("product_name") or "Sản phẩm File Đi Làm"
+        package_name = order_data.get("package_name") or "Bản Tự Dùng"
+        status = order_data.get("status") or "PENDING"
+        status_label = "Đã thanh toán (PAID)" if status == "PAID" else "Chờ thanh toán (PENDING)"
+
+        items = order_data.get("items") or []
+        items_detail = ""
+        if isinstance(items, list) and len(items) > 0:
+            item_rows = []
+            for idx, it in enumerate(items, 1):
+                i_name = escape(str(it.get("product_name") or it.get("name") or "File"))
+                i_price = f"{int(it.get('price') or 0):,}".replace(",", ".") + " đ"
+                item_rows.append(f"<tr><td style='padding:6px 10px; border-bottom:1px solid #f1f5f9; font-size:13px; color:#334155;'>{idx}. {i_name}</td><td style='padding:6px 10px; border-bottom:1px solid #f1f5f9; font-size:13px; text-align:right; font-weight:600; color:#0f172a;'>{i_price}</td></tr>")
+            items_detail = f"""
+            <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-top:10px; background:#f8fafc; border-radius:8px; border:1px solid #e2e8f0;">
+              <tr><th align="left" style="padding:8px 10px; font-size:12px; color:#64748b; font-weight:600; border-bottom:1px solid #e2e8f0;">Chi tiết sản phẩm</th><th align="right" style="padding:8px 10px; font-size:12px; color:#64748b; font-weight:600; border-bottom:1px solid #e2e8f0;">Giá</th></tr>
+              {''.join(item_rows)}
+            </table>
+            """
+
+        html_content = f"""<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Đơn hàng mới #{order_id}</title>
+</head>
+<body style="margin: 0; padding: 16px 8px; background-color: #f1f5f9; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; color: #0f172a; line-height: 1.5;">
+  <div style="max-width: 520px; margin: 0 auto; background-color: #ffffff; border-radius: 12px; overflow: hidden; border: 1px solid #e2e8f0;">
+    <div style="height: 4px; background: #059669;"></div>
+    <div style="padding: 24px;">
+      <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px;">
+        <span style="font-size: 13px; font-weight: 700; color: #059669; text-transform: uppercase; letter-spacing: 0.5px;">File Đi Làm &bull; Thông báo đơn hàng</span>
+        <span style="font-size: 12px; color: #64748b; font-family: monospace;">#{order_id}</span>
+      </div>
+      <h2 style="margin: 0 0 16px 0; font-size: 18px; font-weight: 700; color: #0f172a;">Có đơn hàng mới #{order_id}</h2>
+      
+      <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom: 16px; border: 1px solid #e2e8f0; border-radius: 8px;">
+        <tr>
+          <td style="padding: 8px 12px; font-size: 13px; color: #64748b; width: 120px; border-bottom: 1px solid #f1f5f9;">Trạng thái:</td>
+          <td style="padding: 8px 12px; font-size: 13px; font-weight: 600; color: {'#059669' if status == 'PAID' else '#d97706'}; border-bottom: 1px solid #f1f5f9;">{status_label}</td>
+        </tr>
+        <tr>
+          <td style="padding: 8px 12px; font-size: 13px; color: #64748b; border-bottom: 1px solid #f1f5f9;">Tổng tiền:</td>
+          <td style="padding: 8px 12px; font-size: 14px; font-weight: 700; color: #059669; font-family: monospace; border-bottom: 1px solid #f1f5f9;">{amount_fmt}</td>
+        </tr>
+        <tr>
+          <td style="padding: 8px 12px; font-size: 13px; color: #64748b; border-bottom: 1px solid #f1f5f9;">Khách hàng:</td>
+          <td style="padding: 8px 12px; font-size: 13px; font-weight: 600; color: #0f172a; border-bottom: 1px solid #f1f5f9;">{escape(cust_name)}</td>
+        </tr>
+        <tr>
+          <td style="padding: 8px 12px; font-size: 13px; color: #64748b; border-bottom: 1px solid #f1f5f9;">Email:</td>
+          <td style="padding: 8px 12px; font-size: 13px; color: #0f172a; font-family: monospace; border-bottom: 1px solid #f1f5f9;">{escape(cust_email)}</td>
+        </tr>
+        <tr>
+          <td style="padding: 8px 12px; font-size: 13px; color: #64748b; border-bottom: 1px solid #f1f5f9;">Số điện thoại:</td>
+          <td style="padding: 8px 12px; font-size: 13px; font-weight: 600; color: #0f172a; font-family: monospace; border-bottom: 1px solid #f1f5f9;"><a href="tel:{escape(cust_phone)}" style="color:#059669; text-decoration:none;">{escape(cust_phone)}</a></td>
+        </tr>
+        <tr>
+          <td style="padding: 8px 12px; font-size: 13px; color: #64748b;">Sản phẩm:</td>
+          <td style="padding: 8px 12px; font-size: 13px; color: #0f172a;">{escape(product_name)} ({escape(package_name)})</td>
+        </tr>
+      </table>
+
+      {items_detail}
+
+      <div style="margin-top: 20px; text-align: center;">
+        <a href="https://filedilam.web.app/admin.html" target="_blank" style="display: inline-block; background-color: #059669; color: #ffffff; text-decoration: none; font-size: 13px; font-weight: 600; padding: 10px 20px; border-radius: 8px;">Mở Admin Dashboard</a>
+      </div>
+    </div>
+  </div>
+</body>
+</html>"""
+
+        plain_text = f"""[File Đi Làm] Có đơn hàng mới #{order_id}
+
+- Trạng thái: {status_label}
+- Tổng tiền: {amount_fmt}
+- Khách hàng: {cust_name}
+- Email: {cust_email}
+- SĐT: {cust_phone}
+- Sản phẩm: {product_name} ({package_name})
+
+Xem chi tiết tại: https://filedilam.web.app/admin.html
+"""
+
+        msg = MIMEMultipart("alternative")
+        msg["Subject"] = f"[Đơn Mới #{order_id}] {amount_fmt} - {cust_name} ({product_name[:30]})"
+        msg["From"] = f'"File Đi Làm" <{SMTP_USER}>'
+        msg["To"] = ADMIN_NOTIFICATION_EMAIL
+        msg["Reply-To"] = cust_email if ("@" in cust_email and not cust_email.endswith("@khachhang.filedilam.vn")) else SMTP_USER
+        msg["Date"] = email.utils.formatdate(localtime=True)
+        msg["Message-ID"] = email.utils.make_msgid(domain="gmail.com")
+        msg.attach(MIMEText(plain_text, "plain", "utf-8"))
+        msg.attach(MIMEText(html_content, "html", "utf-8"))
+
+        server = smtplib.SMTP_SSL("smtp.gmail.com", 465, timeout=15)
+        server.login(SMTP_USER, SMTP_PASS)
+        server.sendmail(SMTP_USER, [ADMIN_NOTIFICATION_EMAIL], msg.as_string())
+        server.quit()
+        print(f"[Admin Email] Đã gửi thông báo đơn hàng mới #{order_id} đến {ADMIN_NOTIFICATION_EMAIL}")
+        return True
+    except Exception as e:
+        print(f"[Admin Email] Lỗi gửi thông báo đơn hàng mới #{order_id} đến Admin: {e}")
         return False
 
 def generate_vietqr_emvco(amount, order_id, account="59215112002"):
@@ -974,6 +1092,12 @@ def api(req: https_fn.Request) -> https_fn.Response:
             order_doc_data["items"] = items
 
         doc_ref.set(order_doc_data)
+
+        # Gửi thông báo đến Admin (huynhkiencam151102@gmail.com) khi có đơn hàng mới phát sinh
+        try:
+            send_admin_new_order_notification(order_id, order_doc_data)
+        except Exception as notify_err:
+            print(f"[Admin Notify] Lỗi khi kích hoạt thông báo đơn mới: {notify_err}")
         
         return json_response({
             "order_id": order_id,
