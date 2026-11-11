@@ -1947,7 +1947,7 @@ function escapeHtml(value) {
       if (discount > 0 && state.appliedCoupons.length) {
         discountRow.style.display = "flex";
         if (discountVal) discountVal.textContent = "-" + formatCurrency(discount);
-        if (discountLabel) discountLabel.textContent = "Giảm giá";
+        if (discountLabel) discountLabel.textContent = "Giảm giá (" + state.appliedCoupons[0].code + ")";
       } else {
         discountRow.style.display = "none";
         if (discountVal) discountVal.textContent = "0 đ";
@@ -3422,6 +3422,8 @@ function escapeHtml(value) {
       showToast("Giỏ hàng đang trống.");
       return;
     }
+    window.__lastCheckoutTransitionTime = Date.now();
+    closeExitIntentModal();
     trackCartEvent("checkout_opened");
 
     closeCart();
@@ -4867,13 +4869,15 @@ function escapeHtml(value) {
   function getCartTotal() {
     var subtotal = getCartSubtotal();
     var discount = 0;
-    state.appliedCoupons = state.appliedCoupons.filter(coupon => {
-      const result = evaluateCoupon(coupon, subtotal);
-      const today = getLocalDateKey();
-      if (result.error || (coupon.start_date && today < coupon.start_date) || (coupon.end_date && today > coupon.end_date)) return false;
-      discount += result.amount;
-      return true;
+    var validCoupons = state.appliedCoupons.filter(function(coupon) {
+      var result = evaluateCoupon(coupon, subtotal);
+      var today = getLocalDateKey();
+      return !(result.error || (coupon.start_date && today < coupon.start_date) || (coupon.end_date && today > coupon.end_date));
     });
+    state.appliedCoupons = validCoupons.length ? [validCoupons[0]] : [];
+    if (state.appliedCoupons.length) {
+      discount = evaluateCoupon(state.appliedCoupons[0], subtotal).amount;
+    }
     discount = Math.min(subtotal, discount);
     state.appliedCoupon = state.appliedCoupons[0] || null;
     state.discountAmount = discount;
@@ -5217,16 +5221,19 @@ function escapeHtml(value) {
       }
       const result = evaluateCoupon(coupon, getCartSubtotal());
       if (result.error) return showCouponMessage(result.error, true);
-      if (state.appliedCoupons.some(c => c.code === rawCode)) return;
-      if (state.appliedCoupons.length && (advancedCoupon(coupon) || state.appliedCoupons.some(advancedCoupon))) {
-        return showCouponMessage('Chương trình này áp dụng riêng. Vui lòng bỏ mã đang chọn trước.', true);
-      }
-      state.appliedCoupons.push(coupon);
+      if (state.appliedCoupons.some(function(c) { return c.code === rawCode; })) return;
+      var replacedCode = state.appliedCoupons.length ? state.appliedCoupons[0].code : null;
+      state.appliedCoupons = [coupon];
+      state.appliedCoupon = coupon;
 
       // Hủy mã QR cũ ngay lập tức nếu khách đã tạo đơn trước đó
       invalidateActiveOrderOnCartOrCouponChange("Đã áp dụng mã giảm giá mới! Vui lòng bấm Xác nhận thông tin để tạo lại mã QR.");
 
-      clearCouponMessage();
+      if (replacedCode && replacedCode !== rawCode) {
+        showCouponMessage("Đã đổi từ " + replacedCode + " sang " + rawCode + " (mỗi đơn chỉ áp dụng tối đa 1 mã).", false);
+      } else {
+        clearCouponMessage();
+      }
       renderCart();
       updateCheckoutCouponSelection();
     } catch (err) {
@@ -5360,12 +5367,24 @@ function escapeHtml(value) {
     is_active: true
   };
 
+  function isExitIntentSuppressed() {
+    if (cartDrawer && cartDrawer.classList.contains("is-open")) return true;
+    if (checkoutModal && checkoutModal.classList.contains("is-open")) return true;
+    if (authModal && authModal.classList.contains("is-open")) return true;
+    if (bankPickerModal && bankPickerModal.classList.contains("is-open")) return true;
+    if (document.body.classList.contains("checkout-page-open")) return true;
+    if (document.body.classList.contains("cart-drawer-open")) return true;
+    if (window.__lastCheckoutTransitionTime && (Date.now() - window.__lastCheckoutTransitionTime < 3000)) return true;
+    if (state.appliedCoupons && state.appliedCoupons.length > 0) return true;
+    return false;
+  }
+
   function showExitIntentModal() {
     var modal = document.getElementById("exitIntentModal");
     if (!modal) return;
+    if (isExitIntentSuppressed()) return;
     if (sessionStorage.getItem("filedilam_exit_intent_shown")) return;
     if (state.activeOrder && state.activeOrder.payment_status === "completed") return;
-    if (state.appliedCoupons.some(function(c) { return c.code === "TRIAN20"; })) return;
 
     modal.classList.remove("hidden");
     modal.classList.add("is-open");
@@ -5408,7 +5427,7 @@ function escapeHtml(value) {
   function initExitIntentTriggers() {
     // 1. Desktop mouseleave (moving cursor to top address bar / tabs)
     document.addEventListener("mouseleave", function(e) {
-      if (e.clientY <= 5 && !sessionStorage.getItem("filedilam_exit_intent_shown")) {
+      if (e.clientY <= 5 && !isExitIntentSuppressed() && !sessionStorage.getItem("filedilam_exit_intent_shown")) {
         showExitIntentModal();
       }
     });
@@ -5420,11 +5439,15 @@ function escapeHtml(value) {
         lastHiddenTime = Date.now();
       } else if (document.visibilityState === "visible") {
         var timeAway = lastHiddenTime > 0 ? (Date.now() - lastHiddenTime) : 0;
+        var fromTikTok = !!window.__openedTikTokDemo;
+        window.__openedTikTokDemo = false;
         // User was away for at least 1 second (switched to TikTok/another app and returned)
-        if (timeAway >= 1000 || window.__openedTikTokDemo) {
+        if ((timeAway >= 1000 || fromTikTok) && !isExitIntentSuppressed()) {
           if (!sessionStorage.getItem("filedilam_exit_intent_shown")) {
             setTimeout(function() {
-              showExitIntentModal();
+              if (!isExitIntentSuppressed()) {
+                showExitIntentModal();
+              }
             }, 400);
           }
         }
@@ -5449,7 +5472,7 @@ function escapeHtml(value) {
           window.addEventListener("popstate", function(event) {
             var modal = document.getElementById("exitIntentModal");
             var isModalOpen = modal && modal.classList.contains("is-open");
-            if (!sessionStorage.getItem("filedilam_exit_intent_shown") && !isModalOpen) {
+            if (!isExitIntentSuppressed() && !sessionStorage.getItem("filedilam_exit_intent_shown") && !isModalOpen) {
               showExitIntentModal();
             }
           });

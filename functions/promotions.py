@@ -84,6 +84,8 @@ def build_promotion_order(db, data, codes, today, user_id, now):
     if data.get("package_type") == "coaching" and first.get("hasCoaching"):
         subtotal += max(0, (first.get("coachingPrice") or 0) - first["price"])
     discount = 0
+    if len(codes) > 1:
+        raise ValueError("Mỗi đơn hàng chỉ áp dụng tối đa 1 mã giảm giá.")
     if len(set(codes)) != len(codes):
         raise ValueError("Mã giảm giá bị trùng.")
     for code in codes:
