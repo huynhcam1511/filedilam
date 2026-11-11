@@ -3364,7 +3364,7 @@ body.checkout-page-open {
   display: flex;
   flex-direction: column;
   gap: 0;
-  margin-bottom: 14px;
+  margin-bottom: 0;
 }
 
 .checkout-summary-col {
@@ -3392,6 +3392,8 @@ body.checkout-page-open {
 
 .checkout-product-row:last-child {
   margin-bottom: 0;
+  padding-bottom: 0 !important;
+  border-bottom: none !important;
 }
 
 .checkout-product-avatar {
@@ -3474,10 +3476,10 @@ body.checkout-page-open {
 
 /* Coupon Box */
 .checkout-coupon-box {
-  margin-top: 14px;
+  margin-top: 12px;
   margin-bottom: 4px;
-  padding-top: 14px;
-  border-top: 1px dashed #e2e8f0;
+  padding-top: 12px;
+  border-top: 1px solid #f1f5f9;
 }
 
 .checkout-coupon-option:last-child {
@@ -3855,6 +3857,11 @@ body.checkout-page-open {
   flex-direction: column;
 }
 
+.checkout-upsell-item:last-child {
+  border-bottom: none !important;
+  padding-bottom: 0 !important;
+}
+
 /* Responsive on Mobile (< 768px) */
 @media (max-width: 768px) {
   #checkoutModal.checkout-page {
@@ -3922,7 +3929,7 @@ body.checkout-page-open {
   }
 
   .checkout-items-list {
-    margin-bottom: 10px !important;
+    margin-bottom: 0 !important;
   }
 
   .checkout-product-row {
@@ -3935,6 +3942,12 @@ body.checkout-page-open {
     box-sizing: border-box !important;
     padding: 0 0 12px 0 !important;
     margin-bottom: 10px !important;
+  }
+
+  .checkout-product-row:last-child {
+    padding-bottom: 0 !important;
+    margin-bottom: 0 !important;
+    border-bottom: none !important;
   }
 
   .checkout-product-avatar {
