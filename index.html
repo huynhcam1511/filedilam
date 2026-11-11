@@ -20,7 +20,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="./storefront.css?v=241" />
+    <link rel="stylesheet" href="./storefront.css?v=242" />
     <style>
     :root {
       --bg: #ffffff;
@@ -3297,29 +3297,32 @@
                     Gmail nhận file Google Drive <span class="req">*</span>
                   </label>
                   <input id="quickEmail" type="email" placeholder="Ví dụ: yourname@gmail.com" required class="checkout-input" />
-                  <div style="font-size: 0.74rem; color: var(--muted); margin-top: 4px; line-height: 1.35;">
-                    Quyền truy cập &amp; link bản sao Google Sheets sẽ được lưu vào tài khoản và gửi về Gmail này.
+                  <div class="checkout-field-hint">
+                    Link bản sao Google Sheets sẽ gửi tự động về Gmail này.
                   </div>
                 </div>
 
-                <!-- Field 2: Họ và tên (Tùy chọn) -->
-                <div class="checkout-field" id="quickNameGroup">
-                  <label class="checkout-label" for="quickName">
-                    Họ và tên <span style="font-weight: normal; color: var(--muted); font-size: 0.76rem;">(Tùy chọn)</span>
-                  </label>
-                  <input id="quickName" type="text" placeholder="Ví dụ: Nguyễn Văn An" class="checkout-input" />
-                </div>
+                <!-- Optional fields collapsed cleanly on mobile & desktop unless prefilled -->
+                <details class="checkout-optional-details" id="checkoutOptionalFields">
+                  <summary class="checkout-optional-summary">Thêm Họ tên / SĐT hỗ trợ Zalo (tùy chọn)</summary>
+                  <div class="checkout-optional-body">
+                    <!-- Field 2: Họ và tên (Tùy chọn) -->
+                    <div class="checkout-field" id="quickNameGroup">
+                      <label class="checkout-label" for="quickName">
+                        Họ và tên <span class="checkout-optional-tag">(Tùy chọn)</span>
+                      </label>
+                      <input id="quickName" type="text" placeholder="Ví dụ: Nguyễn Văn An" class="checkout-input" />
+                    </div>
 
-                <!-- Field 3: Số điện thoại / Zalo (Tùy chọn) -->
-                <div class="checkout-field">
-                  <label class="checkout-label" id="quickPhoneLabel" for="quickPhone">
-                    Số điện thoại / Zalo <span style="font-weight: normal; color: var(--muted); font-size: 0.76rem;">(Tùy chọn)</span>
-                  </label>
-                  <input id="quickPhone" type="tel" placeholder="Ví dụ: 0912345678" class="checkout-input" />
-                  <div style="font-size: 0.74rem; color: var(--muted); margin-top: 4px; line-height: 1.35;">
-                    Dùng khi bạn cần chuyên viên hỗ trợ ráp dữ liệu qua Zalo (không gọi làm phiền).
+                    <!-- Field 3: Số điện thoại / Zalo (Tùy chọn) -->
+                    <div class="checkout-field">
+                      <label class="checkout-label" id="quickPhoneLabel" for="quickPhone">
+                        Số điện thoại / Zalo <span class="checkout-optional-tag">(Tùy chọn)</span>
+                      </label>
+                      <input id="quickPhone" type="tel" inputmode="numeric" placeholder="Ví dụ: 0912345678" class="checkout-input" />
+                    </div>
                   </div>
-                </div>
+                </details>
 
                 <!-- Submit Button -->
                 <button class="button-primary button-full btn-place-order" id="btnQuickSubmit" type="submit" style="margin-top: 14px;">
@@ -3328,10 +3331,9 @@
                 <div class="checkout-submit-help">Sau bước này, mã QR thanh toán sẽ được tạo và có hiệu lực trong 10 phút.</div>
               </form>
 
-              <!-- Helpful Note (Optimate Inspired) -->
+              <!-- Helpful Note (Concise) -->
               <div class="checkout-help-note">
-                <p><strong>Lưu ý:</strong> Hãy nhập chính xác địa chỉ Gmail của bạn vì email này sẽ được dùng để nhận bản sao file khi bạn thanh toán thành công. Nếu bạn có thắc mắc gì trong quá trình mua hàng / thanh toán xin liên hệ SĐT/Zalo: <strong>0938 134 576</strong>.</p>
-                <div class="checkout-terms-note">Khi tạo đơn, bạn đồng ý với <a href="/chinh-sach.html#dieu-khoan-su-dung" target="_blank">Điều khoản</a>, <a href="/chinh-sach.html#doi-tra-va-hoan-tien" target="_blank">Đổi trả</a> và <a href="/chinh-sach.html#bao-mat-thong-tin" target="_blank">Bảo mật</a>.</div>
+                <div class="checkout-terms-note">Hỗ trợ Zalo: <strong>0938 134 576</strong> · Khi tạo đơn, bạn đồng ý với <a href="/chinh-sach.html#dieu-khoan-su-dung" target="_blank">Điều khoản</a>, <a href="/chinh-sach.html#doi-tra-va-hoan-tien" target="_blank">Đổi trả</a> và <a href="/chinh-sach.html#bao-mat-thong-tin" target="_blank">Bảo mật</a>.</div>
               </div>
 
               <!-- Hidden elements for backward compatibility -->
@@ -3434,14 +3436,6 @@
 
                 <!-- List of items in checkout -->
                 <div class="checkout-items-list" id="checkoutItems"></div>
-
-                <!-- Grab-style Upsell Add-on Section (Gợi ý thêm 1-chạm) -->
-                <div class="checkout-upsell-box" id="checkoutUpsellBox" style="display: none; margin-top: 14px;">
-                  <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
-                    <span style="font-size: 0.76rem; font-weight: 700; color: #0f172a; text-transform: uppercase; letter-spacing: 0.03em;">Gợi ý mua kèm ưu đãi</span>
-                  </div>
-                  <div class="checkout-upsell-list" id="checkoutUpsellList" style="display: flex; flex-direction: column;"></div>
-                </div>
               </div>
 
               <div class="checkout-totals">
@@ -3472,6 +3466,14 @@
               </div>
               <div class="checkout-payment-notes">
                 <div id="qrCountdownContainer" aria-live="polite"><span>Mã có hiệu lực trong <strong id="qrTimerDisplay">10:00</strong></span></div>
+              </div>
+
+              <!-- Grab-style Upsell Add-on Section (Placed below totals so it doesn't interrupt items -> price) -->
+              <div class="checkout-upsell-box" id="checkoutUpsellBox" style="display: none;">
+                <div class="checkout-upsell-header">
+                  <span>Gợi ý mua kèm ưu đãi</span>
+                </div>
+                <div class="checkout-upsell-list" id="checkoutUpsellList"></div>
               </div>
             </div>
 
@@ -3959,7 +3961,7 @@
     <script src="./storefront-data.js?v=22"></script>
     <script src="./storefront-products.generated.js?v=6"></script>
     <script src="assets/qrcode-generator-1.4.4.js"></script>
-    <script src="storefront.js?v=244"></script>
+    <script src="storefront.js?v=245"></script>
     <!-- Agentation: Visual Feedback & Annotation for AI agents -->
   <script src="./agentation-vanilla.js"></script>
 </body>

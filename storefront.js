@@ -2024,8 +2024,8 @@ function escapeHtml(value) {
       return;
     }
 
-    // Chọn 2-3 sản phẩm gợi ý
-    var upsellItems = availableUpsells.slice(0, 3);
+    // Chọn tối đa 2 sản phẩm gợi ý để tránh rối danh sách đơn hàng
+    var upsellItems = availableUpsells.slice(0, 2);
     upsellBox.style.display = "block";
     upsellList.innerHTML = upsellItems.map(function(prod) {
       var thumb = prod.previewImageUrl || prod.thumbnailUrl || '';
@@ -3600,6 +3600,10 @@ function escapeHtml(value) {
       if (userMail.indexOf("@khachhang.filedilam.vn") === -1) {
         quickEmail.value = userMail;
       }
+    }
+    var optDetails = document.getElementById("checkoutOptionalFields");
+    if (optDetails) {
+      optDetails.open = !!((quickName && quickName.value.trim()) || (quickPhone && quickPhone.value.trim()));
     }
     if (existingActiveOrder) {
       setCheckoutCustomerConfirmed(true, {
