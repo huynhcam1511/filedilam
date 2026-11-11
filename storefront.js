@@ -2626,6 +2626,9 @@ function escapeHtml(value) {
 
   function openCart() {
     renderCart();
+    if (cartDrawer) {
+      cartDrawer.scrollTop = 0;
+    }
     if (cartItems) {
       cartItems.scrollTop = 0;
     }
@@ -2637,7 +2640,13 @@ function escapeHtml(value) {
     cartDrawer.setAttribute("aria-hidden", "false");
     document.body.classList.add("drawer-open");
     document.body.classList.add("cart-drawer-open");
+    requestAnimationFrame(function () {
+      if (cartDrawer) cartDrawer.scrollTop = 0;
+      if (cartItems) cartItems.scrollTop = 0;
+      if (cartDrawerBody) cartDrawerBody.scrollTop = 0;
+    });
     setTimeout(function () {
+      if (cartDrawer) cartDrawer.scrollTop = 0;
       if (cartItems) cartItems.scrollTop = 0;
       if (cartDrawerBody) cartDrawerBody.scrollTop = 0;
     }, 40);

@@ -20,7 +20,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="./storefront.css?v=240" />
+    <link rel="stylesheet" href="./storefront.css?v=241" />
     <style>
     :root {
       --bg: #ffffff;
@@ -49,8 +49,14 @@
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    html, body {
-      overflow-x: hidden !important;
+    html {
+      overflow-x: clip !important;
+      max-width: 100vw !important;
+      width: 100% !important;
+      box-sizing: border-box !important;
+    }
+    body {
+      overflow-x: clip !important;
       max-width: 100vw !important;
       width: 100% !important;
       position: relative !important;
@@ -3959,7 +3965,7 @@
     <script src="./storefront-data.js?v=22"></script>
     <script src="./storefront-products.generated.js?v=6"></script>
     <script src="assets/qrcode-generator-1.4.4.js"></script>
-    <script src="storefront.js?v=241"></script>
+    <script src="storefront.js?v=242"></script>
     <!-- Agentation: Visual Feedback & Annotation for AI agents -->
   <script src="./agentation-vanilla.js"></script>
 </body>
