@@ -3601,10 +3601,6 @@ function escapeHtml(value) {
         quickEmail.value = userMail;
       }
     }
-    var optDetails = document.getElementById("checkoutOptionalFields");
-    if (optDetails) {
-      optDetails.open = !!((quickName && quickName.value.trim()) || (quickPhone && quickPhone.value.trim()));
-    }
     if (existingActiveOrder) {
       setCheckoutCustomerConfirmed(true, {
         name: quickName ? quickName.value.trim() : "",
