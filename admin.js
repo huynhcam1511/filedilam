@@ -2126,7 +2126,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     if (bCartDropRate) bCartDropRate.textContent = cartDropOffRate + '%';
     if (bCartDropSub) {
-      bCartDropSub.textContent = cartDropOffCount > 0 ? (cartDropOffCount + ' giỏ chưa bấm tạo đơn') : 'Chưa có giỏ bỏ rơi';
+      bCartDropSub.textContent = cartDropOffCount > 0 ? (cartDropOffCount + ' lượt bấm mua chưa hoàn tất tạo đơn') : 'Chưa có lượt bấm mua bị rơi';
     }
 
     // Tính toán số liệu Tốc độ chốt đơn (Payment Latency & Time-to-Pay)
@@ -2413,7 +2413,7 @@ document.addEventListener('DOMContentLoaded', () => {
           '</div>'
         );
       } else if (statsActiveChartView === 'funnel') {
-        // VIEW: PHỄU CHUYỂN ĐỔI 7 TẦNG (TIKTOK ADS → MỞ LINK WEB → THÊM GIỎ → THANH TOÁN)
+        // VIEW: PHỄU CHUYỂN ĐỔI 7 TẦNG (TIKTOK ADS → MỞ LINK WEB → BẤM MUA NGAY → TẠO ĐƠN QR → THANH TOÁN)
         const avgCPM = totalAdsViews > 0 ? Math.round((totalAdsSpent / totalAdsViews) * 1000) : 0;
         const totalEngagedViews = filteredAds.reduce((sum, a) => sum + (Number(a.focused_views || a.view_2s || 0) || Math.round((Number(a.views) || 0) * 0.414)), 0);
         const totalIntentClicks = totalAdsClicks + totalAdsBio;
@@ -2439,19 +2439,19 @@ document.addEventListener('DOMContentLoaded', () => {
           { name: '1. Tiếp cận TikTok', count: fViews.toLocaleString('vi-VN') + ' views', sub: 'CPM: ' + (avgCPM > 0 ? formatCurrency(avgCPM) : '4.232 đ'), width: '100%', bg: '#a7f3d0', color: '#065f46', stepRate: pEngaged + '% xem >2s' },
           { name: '2. Xem sâu (>2s)', count: fEngaged.toLocaleString('vi-VN') + ' lượt', sub: pEngaged + '% giữ chân', width: '85%', bg: '#6ee7b7', color: '#065f46', stepRate: pClicks + '% nhấp link' },
           { name: '3. Nhấp link (Clicks)', count: fClicks.toLocaleString('vi-VN') + ' click', sub: 'CPC: ' + (avgCPC > 0 ? formatCurrency(avgCPC) : '37 đ'), width: '72%', bg: '#34d399', color: '#064e3b', stepRate: fWebOpen > 0 ? (pWebOpen + '% mở web') : null },
-          { name: '4. Mở link Web', count: fWebOpen > 0 ? (fWebOpen.toLocaleString('vi-VN') + ' lượt') : 'Đang quét thật...', sub: fWebOpen > 0 ? ('TB ở lại ' + avgDwellSeconds + 's') : 'Mới kích hoạt hôm nay', width: '60%', bg: '#10b981', color: '#ffffff', stepRate: fCart > 0 ? (pCart + '% thêm giỏ') : null },
-          { name: '5. Thêm vào giỏ', count: fCart > 0 ? (fCart.toLocaleString('vi-VN') + ' giỏ') : 'Đang quét thật...', sub: fCart > 0 ? (cartDropOffRate + '% bỏ giỏ') : 'Mới kích hoạt hôm nay', width: '46%', bg: '#059669', color: '#ffffff', stepRate: pCreated + '% tạo đơn' },
+          { name: '4. Mở link Web', count: fWebOpen > 0 ? (fWebOpen.toLocaleString('vi-VN') + ' lượt') : 'Đang quét thật...', sub: fWebOpen > 0 ? ('TB ở lại ' + avgDwellSeconds + 's') : 'Mới kích hoạt hôm nay', width: '60%', bg: '#10b981', color: '#ffffff', stepRate: fCart > 0 ? (pCart + '% bấm mua') : null },
+          { name: '5. Bấm Mua ngay', count: fCart > 0 ? (fCart.toLocaleString('vi-VN') + ' lượt') : 'Đang quét thật...', sub: fCart > 0 ? (cartDropOffRate + '% chưa tạo đơn') : 'Mới kích hoạt hôm nay', width: '46%', bg: '#059669', color: '#ffffff', stepRate: pCreated + '% tạo đơn' },
           { name: '6. Khởi tạo đơn (QR)', count: fOrdersCreated + ' đơn tạo', sub: (totalRevenue > 0 ? formatCurrency(grossRevenue) : 'Tạo mã QR'), width: '34%', bg: '#047857', color: '#ffffff', stepRate: pPaid + '% hoàn tất' },
           { name: '7. Đã thanh toán', count: fOrdersPaid + ' đơn chốt', sub: pPaid + '% hoàn tất (' + formatCurrency(totalRevenue) + ')', width: '24%', bg: '#064e3b', color: '#ffffff', stepRate: null }
         ];
 
         let diagnosisText = 'Tỷ lệ thanh toán đạt ' + pPaid + '%. Tỷ lệ hoàn tất tốt, nên tiếp tục duy trì và tối ưu tốc độ tải trang thanh toán.';
         if (cartDropOffRate > 50) {
-          diagnosisText = 'Tỷ lệ bỏ giỏ hàng cao (' + cartDropOffRate + '% khách thêm giỏ nhưng chưa bấm tạo đơn) → Điểm nghẽn nằm ở khâu chốt giỏ: Cần bổ sung popup ưu đãi voucher khi khách sắp thoát trang hoặc giảm bớt trường thông tin ở bước thanh toán.';
+          diagnosisText = 'Tỷ lệ rơi sau khi bấm Mua ngay khá cao (' + cartDropOffRate + '% khách bấm Mua nhưng chưa hoàn tất gửi form tạo đơn) → Điểm nghẽn nằm ở form đặt hàng: Cần tinh gọn các trường thông tin (chỉ giữ Email + SĐT) hoặc bổ sung ưu đãi kích thích chốt đơn ngay.';
         } else if (pPaid < 30) {
-          diagnosisText = 'Tỷ lệ thanh toán thấp dưới 30% → Điểm nghẽn ở Giỏ hàng hoặc thời gian chờ quét VietQR. Cần bổ sung hướng dẫn quét mã 1 chạm.';
+          diagnosisText = 'Tỷ lệ thanh toán thấp dưới 30% → Điểm nghẽn ở bước quét VietQR. Cần bổ sung hướng dẫn quét mã 1 chạm hoặc hiển thị nút sao chép số tài khoản rõ ràng hơn.';
         } else if (pEngaged < 15) {
-          diagnosisText = 'Tỷ lệ xem sâu dưới 15% → Điểm nghẽn ở 3 giây đầu video. Cần thay đổi đoạn mở đầu (Hook) để giữ chân khách.';
+          diagnosisText = 'Tỷ lệ xem sâu dưới 15% → Điểm nghẽn ở 3 giây đầu video TikTok. Cần thay đổi đoạn mở đầu (Hook) để giữ chân khách.';
         }
 
         const stagesHtml = stages.map((st, idx) => {
@@ -2496,7 +2496,7 @@ document.addEventListener('DOMContentLoaded', () => {
         revenueChartContainer.innerHTML = (
           '<div style="width: 100%; height: 100%; display: flex; flex-direction: column; justify-content: space-between; padding: 4px 6px;">' +
             '<div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.72rem; color: #64748b; margin-bottom: 6px;">' +
-              '<span style="font-weight: 600; color: #1e293b;">Phễu Chuyển Đổi 7 Tầng (TikTok Ads → Mở Web → Thêm Giỏ → Tạo Đơn → Quét VietQR)</span>' +
+              '<span style="font-weight: 600; color: #1e293b;">Phễu Chuyển Đổi 7 Tầng (TikTok Ads → Mở Web → Bấm Mua Ngay → Tạo Đơn → Quét VietQR)</span>' +
               '<span>Tỷ lệ hoàn tất phễu: <b style="color: #059669; font-family: monospace;">' + pPaid + '%</b></span>' +
             '</div>' +
             '<div style="display: flex; flex-direction: column; justify-content: center; flex: 1; padding: 2px 0;">' +
