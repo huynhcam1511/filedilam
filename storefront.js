@@ -3301,6 +3301,9 @@ function escapeHtml(value) {
       startQrCountdown(cachedOrder.time);
       pollOrderStatus(cachedOrder.order_id);
     } else {
+      currentQrImageUrl = "";
+      var qrBtns = document.getElementById("qrActionButtons");
+      if (qrBtns) qrBtns.style.display = "none";
       if (bankTransferNote) bankTransferNote.textContent = "Đang tạo mã...";
       if (qrBox) qrBox.innerHTML = '<div class="empty-state" style="padding:40px 0;"><div style="font-weight:600; font-size: 0.95rem; color: var(--muted); margin-bottom: 4px;">Đang tạo mã VietQR...</div><div style="font-size: 0.8rem; color: var(--muted);">Vui lòng chờ trong giây lát</div></div>';
     }
@@ -3386,12 +3389,16 @@ function escapeHtml(value) {
     })
     .catch(function(err) {
       console.error("Order creation error:", err);
-      showToast("Chưa thể tạo đơn hàng. Vui lòng bấm Thử lại.");
+      currentQrImageUrl = "";
+      var qrBtns = document.getElementById("qrActionButtons");
+      if (qrBtns) qrBtns.style.display = "none";
+      var errMsg = (err && err.message) ? String(err.message) : "Vui lòng kiểm tra mạng và thử lại.";
+      showToast(errMsg || "Chưa thể tạo đơn hàng. Vui lòng bấm Thử lại.");
       if (qrBox) {
         qrBox.innerHTML = 
           '<div class="empty-state" style="color:#ef4444; padding:24px 16px;">' +
             '<div style="font-weight:600;margin-bottom:6px;">Chưa tạo được đơn hàng</div>' +
-            '<div style="font-size:0.85rem;color:var(--muted);margin-bottom:16px;">Vui lòng kiểm tra mạng và thử lại.</div>' +
+            '<div style="font-size:0.85rem;color:var(--muted);margin-bottom:16px;">' + escapeHtml(errMsg) + '</div>' +
             '<button type="button" class="button-primary" id="retryOrderBtn" style="padding:8px 24px;font-size:0.95rem;margin:0 auto;">Thử lại ngay</button>' +
           '</div>';
         var retryBtn = document.getElementById("retryOrderBtn");
@@ -4268,6 +4275,8 @@ function escapeHtml(value) {
       img.alt = "VietQR thanh toán đơn hàng " + order.order_id;
       img.src = currentQrImageUrl;
       qrBox.replaceChildren(img);
+      var qrBtnsOnload = document.getElementById("qrActionButtons");
+      if (qrBtnsOnload) qrBtnsOnload.style.display = "flex";
     };
     template.onerror = function () {
       if (renderToken !== qrRenderToken) return;
@@ -4277,6 +4286,8 @@ function escapeHtml(value) {
       img.alt = "VietQR thanh toán đơn hàng " + order.order_id;
       img.src = currentQrImageUrl;
       qrBox.replaceChildren(img);
+      var qrBtnsOnerr = document.getElementById("qrActionButtons");
+      if (qrBtnsOnerr) qrBtnsOnerr.style.display = "flex";
     };
     template.src = "./assets/vietqr-tpb-compact2.png";
   }
@@ -4321,8 +4332,7 @@ function escapeHtml(value) {
         if (navigator.canShare({ files: [file] })) {
           navigator.share({
             files: [file],
-            title: "Mã VietQR thanh toán",
-            text: "Lưu ảnh vào máy để quét trên App ngân hàng"
+            title: "Mã VietQR thanh toán"
           })
           .then(function() {
             onQrDownloaded();
@@ -4331,7 +4341,8 @@ function escapeHtml(value) {
             if (err && err.name === "AbortError") {
               resetQrActions();
             } else {
-              directDownload(blob, filename);
+              showToast("Nhấn giữ ảnh QR ở trên rồi chọn Lưu vào Ảnh.");
+              resetQrActions();
             }
           });
           return;
@@ -5357,15 +5368,57 @@ function escapeHtml(value) {
       }
     }
   }
-  // --- RETENTION POPUP (Mã Tri Ân Khách Hàng TRIAN20 - Giảm 20%) ---
-  var RETENTION_COUPON = {
-    code: "TRIAN20",
-    type: "percent",
-    value: 20,
-    min_order: 0,
-    description: "Mã tri ân: Giảm 20% cho đơn hàng",
-    is_active: true
-  };
+  // --- RETENTION POPUP (Đồng bộ trực tiếp từ Firestore coupons/TRIAN20) ---
+  var RETENTION_COUPON = null;
+  var retentionCouponPromise = null;
+
+  function fetchRetentionCoupon(forceRefresh) {
+    if (RETENTION_COUPON && !forceRefresh) return Promise.resolve(RETENTION_COUPON);
+    if (retentionCouponPromise && !forceRefresh) return retentionCouponPromise;
+    retentionCouponPromise = (async function() {
+      try {
+        var c = null;
+        if (typeof db !== "undefined" && db.collection) {
+          var docSnap = await db.collection("coupons").doc("TRIAN20").get();
+          if (docSnap.exists) {
+            c = docSnap.data();
+            c.id = docSnap.id;
+            c.code = String(c.code || docSnap.id).toUpperCase();
+          } else {
+            var qSnap = await db.collection("coupons").where("code", "==", "TRIAN20").limit(1).get();
+            if (!qSnap.empty) {
+              var fDoc = qSnap.docs[0];
+              c = fDoc.data();
+              c.id = fDoc.id;
+              c.code = String(c.code || fDoc.id).toUpperCase();
+            }
+          }
+        }
+        if (c) {
+          RETENTION_COUPON = c;
+          return c;
+        }
+      } catch (err) {
+        console.warn("Could not fetch TRIAN20 from Firestore:", err);
+      }
+      return RETENTION_COUPON;
+    })();
+    return retentionCouponPromise;
+  }
+
+  function formatRetentionLabel(coupon) {
+    if (!coupon) return "";
+    if (coupon.type === "fixed") return formatCurrency(coupon.value || 0);
+    return String(Number(coupon.value || 0)) + "%";
+  }
+
+  function isRetentionCouponCurrentlyValid(coupon) {
+    if (!coupon || coupon.is_active === false) return false;
+    var today = getLocalDateKey();
+    if (coupon.start_date && today < coupon.start_date) return false;
+    if (coupon.end_date && today > coupon.end_date) return false;
+    return true;
+  }
 
   function isExitIntentSuppressed() {
     if (cartDrawer && cartDrawer.classList.contains("is-open")) return true;
@@ -5379,12 +5432,27 @@ function escapeHtml(value) {
     return false;
   }
 
-  function showExitIntentModal() {
+  async function showExitIntentModal() {
     var modal = document.getElementById("exitIntentModal");
     if (!modal) return;
     if (isExitIntentSuppressed()) return;
     if (sessionStorage.getItem("filedilam_exit_intent_shown")) return;
     if (state.activeOrder && state.activeOrder.payment_status === "completed") return;
+
+    var coupon = await fetchRetentionCoupon();
+    if (!isRetentionCouponCurrentlyValid(coupon) || isExitIntentSuppressed() || sessionStorage.getItem("filedilam_exit_intent_shown")) {
+      return;
+    }
+
+    var label = formatRetentionLabel(coupon);
+    var titleEl = document.getElementById("exitIntentTitle");
+    var descEl = document.getElementById("exitIntentDesc");
+    var applyTextEl = document.getElementById("exitIntentApplyText");
+    if (titleEl) titleEl.textContent = "Món quà tri ân: Giảm ngay " + label;
+    if (descEl) {
+      descEl.innerHTML = 'Dành riêng cho bạn lúc này: Nhận ngay mã tri ân <strong style="color: #059669; font-family: monospace; background: #f0fdf4; padding: 2px 6px; border-radius: 4px; border: 1px dashed #059669;">' + escapeHtml(coupon.code || "TRIAN20") + '</strong> giảm ' + escapeHtml(label) + ' để sở hữu file ngay hôm nay!';
+    }
+    if (applyTextEl) applyTextEl.textContent = "Áp mã tri ân " + label + " & Lấy QR ngay";
 
     modal.classList.remove("hidden");
     modal.classList.add("is-open");
@@ -5404,7 +5472,7 @@ function escapeHtml(value) {
     }
   }
 
-  function applyExitIntentDiscount() {
+  async function applyExitIntentDiscount() {
     closeExitIntentModal();
     // If cart is empty, auto-select product from detail view or first product
     if (!state.cart || !state.cart.length) {
@@ -5413,13 +5481,19 @@ function escapeHtml(value) {
         addToCart(prodId, { openDrawer: false });
       }
     }
-    if (!state.appliedCoupons.some(function(c) { return c.code === "TRIAN20"; })) {
-      state.appliedCoupons = [RETENTION_COUPON];
-      state.appliedCoupon = state.appliedCoupons[0];
-      invalidateActiveOrderOnCartOrCouponChange("Đã áp dụng mã tri ân 20%!");
-      renderCart();
-      updateCheckoutCouponSelection();
-      showToast("Đã áp dụng mã TRIAN20: Giảm 20%!");
+    var coupon = await fetchRetentionCoupon(true);
+    if (isRetentionCouponCurrentlyValid(coupon)) {
+      var res = evaluateCoupon(coupon, getCartSubtotal());
+      if (!res.error) {
+        state.appliedCoupons = [coupon];
+        state.appliedCoupon = coupon;
+        invalidateActiveOrderOnCartOrCouponChange("Đã áp dụng mã " + coupon.code + "!");
+        renderCart();
+        updateCheckoutCouponSelection();
+        showToast("Đã áp dụng mã " + coupon.code + ": Giảm " + formatRetentionLabel(coupon) + "!");
+      } else {
+        showToast(res.error);
+      }
     }
     openCheckout();
   }
