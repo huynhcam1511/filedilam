@@ -2035,9 +2035,9 @@ function escapeHtml(value) {
             '<div style="width: 38px; height: 38px; border-radius: 6px; background-size: cover; background-position: center; border: 1px solid #e2e8f0; flex-shrink: 0; background-image: url(&quot;' + escapeHtml(thumb) + '&quot;);"></div>' +
             '<div style="min-width: 0; flex: 1;">' +
               '<div style="font-size: 0.84rem; font-weight: 600; color: #0f172a; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">' + escapeHtml(prod.name) + '</div>' +
-              '<div style="display: flex; align-items: baseline; gap: 6px; font-size: 0.8rem; margin-top: 2px;">' +
-                '<span style="font-weight: 700; color: #059669; font-family: var(--font-mono);">' + formatCurrency(prod.price) + '</span>' +
-                (prod.originalPrice && prod.originalPrice > prod.price ? '<span style="color: #94a3b8; text-decoration: line-through; font-size: 0.74rem;">' + formatCurrency(prod.originalPrice) + '</span>' : '') +
+              '<div style="display: flex; align-items: baseline; gap: 6px; font-size: 0.82rem; margin-top: 2px;">' +
+                '<span style="font-weight: 600; color: #0f172a;">' + formatCurrency(prod.price) + '</span>' +
+                (prod.originalPrice && prod.originalPrice > prod.price ? '<span style="color: #94a3b8; text-decoration: line-through; font-size: 0.75rem;">' + formatCurrency(prod.originalPrice) + '</span>' : '') +
               '</div>' +
             '</div>' +
           '</div>' +
