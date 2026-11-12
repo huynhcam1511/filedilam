@@ -1,7 +1,7 @@
-# BRIEFING — 2026-11-09T12:49:00Z
+# BRIEFING — 2026-11-12T13:42:00Z
 
 ## Mission
-Investigate and synthesize technical blueprint for refactoring CONGNO_Code.gs and CONGNO_Index.html based on golden reference TAISAN_Index.html.
+Investigate Edge-to-Edge Canvas (100% full width without restrictive max-width / margins) and Calendar Sync Button UX in Sidebar for `PROJECTS_WEBAPPS/QuanLyCongViecTeam_Index.html`.
 
 ## 🔒 My Identity
 - Archetype: explorer
@@ -9,35 +9,35 @@ Investigate and synthesize technical blueprint for refactoring CONGNO_Code.gs an
 - Working directory: c:\Users\zit\OneDrive\Tài liệu\ANTIGRAVITY\FILE_DI_LAM_MVP\.agents\teamwork\explorer_1
 - Original parent: 5762d32b-3f13-408e-a713-64266374f48b
 - Milestone: Milestone 1: Exploration & Technical Alignment
+- Updated parent: 013619e0-3ed3-491c-9953-d4b3fc27933e
+- Updated milestone: Refinement of QuanLyCongViecTeam_Index.html (Edge-to-Edge Canvas & Calendar Sync UX)
 
 ## 🔒 Key Constraints
 - Read-only investigation — do NOT implement
 - Base analysis strictly on verified code from TAISAN_Index.html, CONGNO_Index.html, CONGNO_Code.gs, plan_refactor_congno.md
 - Adhere to AGENTS.md fintech/mint UI/UX rules
+- Read-only investigation on PROJECTS_WEBAPPS/QuanLyCongViecTeam_Index.html — do NOT modify any source code files
+- Preserve 100% backend contract in PROJECTS_WEBAPPS/QuanLyCongViecTeam_Code.gs
 
 ## Current Parent
-- Conversation ID: 5762d32b-3f13-408e-a713-64266374f48b
-- Updated: 2026-11-09T12:40:55Z
+- Conversation ID: 013619e0-3ed3-491c-9953-d4b3fc27933e
+- Updated: 2026-11-12T13:25:42Z
 
 ## Investigation State
 - **Explored paths**:
-  - `STANDARDS_TEMPLATE/TAISAN_Index.html` (Monolithic Flat SPA pattern, ChartInstances, seed data)
-  - `STANDARDS_TEMPLATE/CONGNO_Index.html` (Scope collisions, unassigned window.ModuleInvoices/Partners, unattached AppState, template dependency, leaking drawer)
-  - `STANDARDS_TEMPLATE/CONGNO_Code.gs` (Single Visible Tab, setupDatabaseSheets, missing deleteThanhToan & saveDanhMuc)
-  - `plan_refactor_congno.md` & `AGENTS_MASTER.md`
+  - `ORIGINAL_REQUEST.md`, `SCOPE.md`, `AGENTS.md`, `AGENTS_MASTER.md`
+  - `PROJECTS_WEBAPPS/QuanLyCongViecTeam_Index.html` (lines 1 to 8577)
+  - `PROJECTS_WEBAPPS/QuanLyCongViecTeam_Code.gs` (syncDeadlinesToGoogleCalendar contract)
 - **Key findings**:
-  - Direct simulation proof: `window.AppState`, `window.ModuleInvoices`, `window.ModulePartners` were undefined.
-  - Missing template `tpl-mod-dashboard`.
-  - Drawer leaking caused by lack of `hidden` class in closed state.
-  - Backend missing `deleteThanhToan(maTT)` and `saveDanhMuc(payload)`.
-- **Unexplored areas**: None, exploration phase is complete.
+  - Task 1 (Edge-to-Edge Canvas): The single layout bottleneck is line 312 (`<div id="main-content" class="p-4 lg:p-8 flex-1 max-w-7xl w-full mx-auto pb-24 lg:pb-12">`). All child tab tables, Gantt matrix, and Chart grids naturally co-stretch to `w-full`. Changing line 312 to `w-full px-4 lg:px-8 py-6 flex-1 pb-24 lg:pb-12` unlocks 100% full-width view aligned with Topbar Header (`px-4 lg:px-8`).
+  - Task 2 (Calendar Sync Button UX): Currently button sits inside `<nav>` under "Hệ Thống" directly above `nav-help`, mimicking a nav tab. The icon is `calendar` (which wobbles unpleasantly when spinning). Designed a dedicated Action Block between `<nav>` and Footer with Mint styling, `refresh-cw` icon, disabled state during sync, and `syncCalendar()` alias in `App`.
+- **Unexplored areas**: None, all investigation tasks are complete.
 
 ## Key Decisions Made
-- Fully specified Monolithic Flat SPA blueprint with 7 flat renderers and integrated default seed data in `analysis.md` and `handoff.md`.
+- Fully specified before/after code snippets and architectural blueprint in `handoff.md`.
 
 ## Artifact Index
-- DISPATCH.md — record of initial dispatch and heartbeat instructions
-- progress.md — liveness heartbeat and subtask progress
-- analysis.md — detailed technical comparison and worker blueprint
-- handoff.md — self-contained 5-component handoff report
-- test_simulation.js — Node.js script verifying scope and module assignment bugs
+- DISPATCH.md — record of dispatches
+- progress.md — liveness heartbeat
+- BRIEFING.md — situational awareness
+- handoff.md — comprehensive 5-component technical handoff report

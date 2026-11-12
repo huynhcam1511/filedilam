@@ -1,27 +1,41 @@
-## 2026-11-09T13:20:09Z
-You are teamwork_reviewer assigned to review the refactoring of CONGNO_Index.html and CONGNO_Code.gs.
+# Task Assignment: Reviewer 1 (Visual Flat Canvas & Master Standard V2.4 Compliance)
 
-Working Directory: c:\Users\zit\OneDrive\Tài liệu\ANTIGRAVITY\FILE_DI_LAM_MVP\.agents\teamwork\reviewer_m3_1\
-Parent Conversation ID: 5762d32b-3f13-408e-a713-64266374f48b
+## Context & Objectives
+You are Reviewer 1 on the Flat Canvas Refactor team.
+Target files:
+- `c:\Users\zit\OneDrive\Tài liệu\ANTIGRAVITY\FILE_DI_LAM_MVP\PROJECTS_WEBAPPS\QuanLyCongViecTeam_Index.html`
+- `c:\Users\zit\OneDrive\Tài liệu\ANTIGRAVITY\FILE_DI_LAM_MVP\PROJECTS_WEBAPPS\QuanLyCongViecTeam_Code.gs`
 
-MANDATORY READING:
-1. Original Request: c:\Users\zit\OneDrive\Tài liệu\ANTIGRAVITY\FILE_DI_LAM_MVP\.agents\teamwork\ORIGINAL_REQUEST.md
-2. Approved Refactoring Plan: c:\Users\zit\.gemini\antigravity\brain\19e35396-a37b-4779-88ee-3209f29e65c2\plan_refactor_congno.md
-3. Worker Handoff: c:\Users\zit\OneDrive\Tài liệu\ANTIGRAVITY\FILE_DI_LAM_MVP\.agents\teamwork\worker_m2\handoff.md
-4. Test Suite: c:\Users\zit\OneDrive\Tài liệu\ANTIGRAVITY\FILE_DI_LAM_MVP\.agents\teamwork\worker_m2\test_dom_simulation.js
-5. Target Files:
-   - c:\Users\zit\OneDrive\Tài liệu\ANTIGRAVITY\FILE_DI_LAM_MVP\STANDARDS_TEMPLATE\CONGNO_Index.html
-   - c:\Users\zit\OneDrive\Tài liệu\ANTIGRAVITY\FILE_DI_LAM_MVP\STANDARDS_TEMPLATE\CONGNO_Code.gs
+MANDATORY FIRST STEP: Read ORIGINAL_REQUEST.md at:
+`c:\Users\zit\OneDrive\Tài liệu\ANTIGRAVITY\FILE_DI_LAM_MVP\.agents\teamwork\ORIGINAL_REQUEST.md`
 
-REVIEW CRITERIA:
-1. Title check: Must match exactly "QUẢN LÝ CÔNG NỢ KHÁCH HÀNG & NCC — WEB APP v1.0 — FILE ĐI LÀM".
-2. Monolithic Flat SPA: Verify 7 flat renderers (renderDashboard, renderTransactions, renderInvoices, renderPartners, renderCategories, renderSettings, renderHelp) and router switchTab(tabId).
-3. Zero blank screen: Verify comprehensive seed data in window.AppState.
-4. Drawer fix: Verify action-drawer has hidden class and proper toggle behavior.
-5. Chart.js lifecycle: Verify ChartInstances safe destroy before creation.
-6. CONGNO_Code.gs: Verify deleteThanhToan(maTT) and saveDanhMuc(payload), and Single Visible Tab rule (hide/protect DB_* sheets, HDSD with Mint button B2:D3).
-7. Execute test suite: Run the test suite via run_command (`node .agents/teamwork/worker_m2/test_dom_simulation.js`) and check syntax.
+Read:
+- `C:\Users\zit\.gemini\antigravity\brain\a6c9a7f7-5965-4d62-b431-f34a04801348\PLAN_FLAT_CANVAS_REFACTOR.md`
+- `c:\Users\zit\OneDrive\Tài liệu\ANTIGRAVITY\FILE_DI_LAM_MVP\AGENTS.md`
+- Worker handoff report: `c:\Users\zit\OneDrive\Tài liệu\ANTIGRAVITY\FILE_DI_LAM_MVP\.agents\teamwork\worker_m2_1\handoff.md`
 
-VERDICT:
-Your handoff report MUST conclude with an explicit verdict: APPROVE or REQUEST_CHANGES.
-Write handoff.md in your working directory and notify parent via send_message.
+## Review Scope
+1. **Anti-Card & Anti-Pill Overload**: Verify that chunky card containers in Dashboard, Daily Actions, Tasks, Routines, Team, and Projects have been eliminated. Verify that `rounded-full` pill badges are removed and replaced by subtle bullet dots `●` and monospace text.
+2. **Seamless Gantt Matrix (Ảnh 1 TikTok)**: Check that the 6 sticky columns on the left (`w-[788px]`) and the timeline days on the right are aligned on the exact same row `min-h-[46px] border-b border-slate-100`.
+3. **Master-Tables Edge-to-Edge**: Verify the 9-column Team Members table and 8-column Projects table.
+4. **Visual Version Stamping**: Verify `Bản 3.2` at Topbar, `Phiên bản 3.2 (Active)` at Sidebar footer, and `APP_VERSION = 'v3.2'` in `Code.gs`.
+5. **Run Verification Commands**:
+   - `node .agents/teamwork/explorer_m1_3/verify_test_suite.js`
+   - `node .agents/teamwork/explorer_m1_3/sandbox_test.js`
+
+Write your verdict (`APPROVE` or `REQUEST_CHANGES`) with full evidence in `handoff.md`.
+
+
+## 2026-11-11T20:55:55Z
+From: parent (06736747-3acd-4e88-9834-2ed353e89875)
+Content:
+You are Reviewer 1. Your working directory is:
+`c:\Users\zit\OneDrive\Tài liệu\ANTIGRAVITY\FILE_DI_LAM_MVP\.agents\teamwork\reviewer_m3_1`
+
+MANDATORY FIRST STEP: Read ORIGINAL_REQUEST.md at:
+`c:\Users\zit\OneDrive\Tài liệu\ANTIGRAVITY\FILE_DI_LAM_MVP\.agents\teamwork\ORIGINAL_REQUEST.md`
+
+Read your dispatch instructions at:
+`c:\Users\zit\OneDrive\Tài liệu\ANTIGRAVITY\FILE_DI_LAM_MVP\.agents\teamwork\reviewer_m3_1\DISPATCH.md`
+
+Review `PROJECTS_WEBAPPS/QuanLyCongViecTeam_Index.html` and `PROJECTS_WEBAPPS/QuanLyCongViecTeam_Code.gs` against `PLAN_FLAT_CANVAS_REFACTOR.md` and `AGENTS.md`. Focus on visual Flat Canvas compliance, Anti-Card/Anti-Pill overload, Gantt Matrix 1-row table, and Master-Tables edge-to-edge. Run tests and document your verdict (`APPROVE` or `REQUEST_CHANGES`) in `handoff.md`. Send a completion message when done.

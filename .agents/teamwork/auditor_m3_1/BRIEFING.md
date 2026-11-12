@@ -1,14 +1,14 @@
-# BRIEFING — 2026-11-09T13:29:00Z
+# BRIEFING — 2026-11-12T03:59:00Z
 
 ## Mission
-Conduct a strict Forensic Integrity Audit on refactored CONGNO_Index.html and CONGNO_Code.gs against original requirements, refactoring plan, and AGENTS rules.
+Conduct a rigorous Forensic Integrity Audit on refactored `PROJECTS_WEBAPPS/QuanLyCongViecTeam_Index.html` and `PROJECTS_WEBAPPS/QuanLyCongViecTeam_Code.gs` for Milestone 3 against ORIGINAL_REQUEST.md, PLAN_FLAT_CANVAS_REFACTOR.md, and AGENTS.md.
 
 ## 🔒 My Identity
 - Archetype: forensic_auditor
 - Roles: critic, specialist, auditor
 - Working directory: c:\Users\zit\OneDrive\Tài liệu\ANTIGRAVITY\FILE_DI_LAM_MVP\.agents\teamwork\auditor_m3_1
-- Original parent: 5762d32b-3f13-408e-a713-64266374f48b
-- Target: Milestone 3 - Forensic Integrity Audit of Refactored CONGNO System
+- Original parent: 06736747-3acd-4e88-9834-2ed353e89875
+- Target: Milestone 3 - Forensic Integrity Audit of Flat Canvas Refactor (QuanLyCongViecTeam v3.2)
 
 ## 🔒 Key Constraints
 - Audit-only — do NOT modify implementation code
@@ -18,51 +18,42 @@ Conduct a strict Forensic Integrity Audit on refactored CONGNO_Index.html and CO
 - Ground-truth constraints in ORIGINAL_REQUEST.md take absolute precedence
 
 ## Current Parent
-- Conversation ID: 5762d32b-3f13-408e-a713-64266374f48b
-- Updated: not yet
+- Conversation ID: 06736747-3acd-4e88-9834-2ed353e89875
+- Updated: 2026-11-12T03:59:00Z
 
 ## Audit Scope
 - **Work product**:
-  - `STANDARDS_TEMPLATE/CONGNO_Index.html`
-  - `STANDARDS_TEMPLATE/CONGNO_Code.gs`
+  - `PROJECTS_WEBAPPS/QuanLyCongViecTeam_Index.html`
+  - `PROJECTS_WEBAPPS/QuanLyCongViecTeam_Code.gs`
 - **Profile loaded**: General Project (Forensic Integrity)
 - **Audit type**: forensic integrity check & adversarial review
 
 ## Audit Progress
-- **Phase**: reporting
-- **Checks completed**:
-  - Static Code Standards & Title Exact Match (PASSED)
-  - Single Visible Tab & HDSD Mint Button (PASSED)
-  - Drawer Leak Fix & Hidden Class (PASSED)
-  - Phantom Template & Scope Elimination (PASSED)
-  - Genuine Backend RPC `deleteThanhToan` Recalculation (PASSED)
-  - Dynamic Client-Side Computation Adversarial Test (PASSED)
-  - Automated DOM Simulation Test Suite (57/57 PASSED)
-  - Edge Cases & Malformed Input Handling (PASSED)
-- **Checks remaining**: []
-- **Findings so far**: CLEAN — 0 integrity violations detected across all 4 checks.
+- **Phase**: investigating
+- **Checks completed**: []
+- **Checks remaining**:
+  1. File existence, syntax, and version stamping (APP_VERSION = 'v3.2' / Bản 3.2)
+  2. Prohibited patterns scan (hardcoded test flags, dummy facades, fabricated verification outputs)
+  3. Authenticity of UI rendering (Flat Metric Bar, Daily Actions, Gantt Matrix 1-row table, Routines, Master-Tables bound to AppState)
+  4. Zero Phantom Overlay verification (hidden attribute & classes on all drawer/modal containers)
+  5. Backend contract & CalendarApp sync integrity in Code.gs
+  6. Independent test execution (`verify_test_suite.js`, `sandbox_test.js`, and concurrency tests)
+  7. Adversarial stress-testing (State mutation, dynamic recalculation, empty/malformed data edge cases)
+- **Findings so far**: Under investigation
 
 ## Key Decisions Made
-- Executed both automated test suite (`worker_m2/test_dom_simulation.js`) and independent adversarial suite (`auditor_m3_1/adversarial_test.js`).
-- Verified dynamic recalculation by injecting runtime adversarial data into AppState.
-- Tested `deleteThanhToan` under simulated Google Apps Script LockService & SpreadsheetApp environment.
+- Independent audit will write test logs and verification scripts strictly inside `auditor_m3_1` folder without touching production code.
 
 ## Artifact Index
 - `.agents/teamwork/auditor_m3_1/DISPATCH.md` — Dispatch message
 - `.agents/teamwork/auditor_m3_1/BRIEFING.md` — Situational awareness
 - `.agents/teamwork/auditor_m3_1/progress.md` — Liveness heartbeat
-- `.agents/teamwork/auditor_m3_1/adversarial_test.js` — Independent forensic audit script
 - `.agents/teamwork/auditor_m3_1/handoff.md` — Final audit handoff report
 
 ## Attack Surface
-- **Hypotheses tested**:
-  - H1: Are KPI cards hardcoded strings? -> REFUTED. Injected +150M invoice dynamically changed rendered AR from 27.5M to 177.5M.
-  - H2: Does partner debt warning fail on overrun? -> REFUTED. Dynamically computed debt exceeded 50M limit and triggered overrun badge.
-  - H3: Is deleteThanhToan a dummy facade? -> REFUTED. Deletes row and accurately reverses invoice daTra, conLai, and trangThai with LockService.
-  - H4: Does action-drawer leak on mobile? -> REFUTED. Both backdrop and drawer have hidden class and translate-y-full transitions.
-  - H5: Are phantom templates queried? -> REFUTED. No template# references remain.
-- **Vulnerabilities found**: None.
-- **Untested angles**: Live Google Cloud Apps Script deployment execution (tested via V8 GAS environment simulation).
+- **Hypotheses tested**: [TBD]
+- **Vulnerabilities found**: [TBD]
+- **Untested angles**: [TBD]
 
 ## Loaded Skills
 - None requested in dispatch.

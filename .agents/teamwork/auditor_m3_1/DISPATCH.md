@@ -1,33 +1,50 @@
-## 2026-11-09T13:21:20Z
-You are teamwork_auditor assigned to conduct a strict Forensic Integrity Audit on the refactored files:
-- STANDARDS_TEMPLATE/CONGNO_Index.html
-- STANDARDS_TEMPLATE/CONGNO_Code.gs
+# Task Assignment: Forensic Auditor (Integrity Forensics & Attestation)
 
-Working Directory: c:\Users\zit\OneDrive\Tài liệu\ANTIGRAVITY\FILE_DI_LAM_MVP\.agents\teamwork\auditor_m3_1\
-Parent Conversation ID: 5762d32b-3f13-408e-a713-64266374f48b
+## Context & Objectives
+You are the Forensic Auditor (`teamwork_auditor`) on the Flat Canvas Refactor team.
+Target files:
+- `c:\Users\zit\OneDrive\Tài liệu\ANTIGRAVITY\FILE_DI_LAM_MVP\PROJECTS_WEBAPPS\QuanLyCongViecTeam_Index.html`
+- `c:\Users\zit\OneDrive\Tài liệu\ANTIGRAVITY\FILE_DI_LAM_MVP\PROJECTS_WEBAPPS\QuanLyCongViecTeam_Code.gs`
 
-MANDATORY READING:
-1. Original Request: c:\Users\zit\OneDrive\Tài liệu\ANTIGRAVITY\FILE_DI_LAM_MVP\.agents\teamwork\ORIGINAL_REQUEST.md
-2. Approved Refactoring Plan: c:\Users\zit\.gemini\antigravity\brain\19e35396-a37b-4779-88ee-3209f29e65c2\plan_refactor_congno.md
-3. Worker Handoff: c:\Users\zit\OneDrive\Tài liệu\ANTIGRAVITY\FILE_DI_LAM_MVP\.agents\teamwork\worker_m2\handoff.md
-4. Test Suite: c:\Users\zit\OneDrive\Tài liệu\ANTIGRAVITY\FILE_DI_LAM_MVP\.agents\teamwork\worker_m2\test_dom_simulation.js
-5. Target Files:
-   - c:\Users\zit\OneDrive\Tài liệu\ANTIGRAVITY\FILE_DI_LAM_MVP\STANDARDS_TEMPLATE\CONGNO_Index.html
-   - c:\Users\zit\OneDrive\Tài liệu\ANTIGRAVITY\FILE_DI_LAM_MVP\STANDARDS_TEMPLATE\CONGNO_Code.gs
+MANDATORY FIRST STEP: Read ORIGINAL_REQUEST.md at:
+`c:\Users\zit\OneDrive\Tài liệu\ANTIGRAVITY\FILE_DI_LAM_MVP\.agents\teamwork\ORIGINAL_REQUEST.md`
 
-AUDIT CHECKS:
-1. Anti-Cheat & Authenticity:
-   - Check if the implementation is genuine or contains dummy/facade mockups just to fool tests.
-   - Verify that test results and calculations in renderDashboard(), renderTransactions(), renderInvoices(), renderPartners(), renderCategories(), renderSettings() are computed from genuine data and not hardcoded strings.
-   - Verify that deleteThanhToan(maTT) in CONGNO_Code.gs genuinely manipulates spreadsheet data and recalculates invoice balances.
-2. Code Standards Compliance:
-   - Check Title: exact match with "QUẢN LÝ CÔNG NỢ KHÁCH HÀNG & NCC — WEB APP v1.0 — FILE ĐI LÀM".
-   - Check Single Visible Tab compliance in CONGNO_Code.gs: lockAndHideDatabaseSheets() hides DB_* and keeps HDSD visible with Mint button at B2:D3.
-   - Check Drawer leak fix: action-drawer has hidden class and proper toggle behavior.
-   - Check that no phantom templates or broken scope variables remain.
-3. Automated verification execution:
-   - Run the test suite via run_command (`node .agents/teamwork/worker_m2/test_dom_simulation.js`) and inspect results directly.
+Read:
+- `C:\Users\zit\.gemini\antigravity\brain\a6c9a7f7-5965-4d62-b431-f34a04801348\PLAN_FLAT_CANVAS_REFACTOR.md`
+- `c:\Users\zit\OneDrive\Tài liệu\ANTIGRAVITY\FILE_DI_LAM_MVP\AGENTS.md`
+- Worker handoff report: `c:\Users\zit\OneDrive\Tài liệu\ANTIGRAVITY\FILE_DI_LAM_MVP\.agents\teamwork\worker_m2_1\handoff.md`
 
-VERDICT:
-Your report MUST conclude with an explicit binary verdict: CLEAN or INTEGRITY VIOLATION.
-Write handoff.md in your working directory and notify parent via send_message.
+## Audit Mission
+Perform rigorous integrity forensics:
+1. **Authenticity Check**: Verify that the refactored code contains genuine functional HTML and JavaScript, and does not hardcode test pass flags or mock facades.
+2. **Implementation Verification**:
+   - Verify that `APP_VERSION = 'v3.2'` in `Code.gs` and `Bản 3.2` badges in `Index.html` are genuine.
+   - Verify that the Flat Metric Bar, Daily Actions flat list, Gantt Matrix 1-row table, Routines checklist, and Master-Tables are authentically rendered by JavaScript and not static stub strings.
+   - Verify that all DOM elements and event handlers connect to real state in `AppState`.
+3. **Execution Validation**:
+   - Independently execute:
+     `node .agents/teamwork/explorer_m1_3/verify_test_suite.js`
+     `node .agents/teamwork/explorer_m1_3/sandbox_test.js`
+   - Confirm outputs and exit codes.
+4. **Binary Verdict**:
+   Provide your explicit verdict: `CLEAN` or `INTEGRITY VIOLATION`.
+   Document all evidence in `handoff.md`.
+
+
+## 2026-11-11T20:57:01Z
+You are the Forensic Auditor. Your working directory is:
+`c:\Users\zit\OneDrive\Tài liệu\ANTIGRAVITY\FILE_DI_LAM_MVP\.agents\teamwork\auditor_m3_1`
+
+MANDATORY FIRST STEP: Read ORIGINAL_REQUEST.md at:
+`c:\Users\zit\OneDrive\Tài liệu\ANTIGRAVITY\FILE_DI_LAM_MVP\.agents\teamwork\ORIGINAL_REQUEST.md`
+
+Read your dispatch instructions at:
+`c:\Users\zit\OneDrive\Tài liệu\ANTIGRAVITY\FILE_DI_LAM_MVP\.agents\teamwork\auditor_m3_1\DISPATCH.md`
+
+Perform rigorous integrity forensics on `PROJECTS_WEBAPPS/QuanLyCongViecTeam_Index.html` and `PROJECTS_WEBAPPS/QuanLyCongViecTeam_Code.gs`.
+Verify authenticity of implementation: ensure no hardcoded test stubs, fake success flags, or dummy facade implementations.
+Verify that `APP_VERSION = 'v3.2'`, Flat Metric Bar, Daily Actions, Gantt Matrix 1-row table, Routines, and Master-Tables are genuinely rendered and bound to real state.
+Independently execute:
+- `node .agents/teamwork/explorer_m1_3/verify_test_suite.js`
+- `node .agents/teamwork/explorer_m1_3/sandbox_test.js`
+Provide your binary verdict (`CLEAN` or `INTEGRITY VIOLATION`) with evidence in `handoff.md`. Send a completion message when done.

@@ -1,74 +1,68 @@
-# BRIEFING — 2026-11-09T13:28:00Z
+# BRIEFING — 2026-11-11T21:05:00Z
 
 ## Mission
-Review and adversarially stress-test the refactored CONGNO_Index.html and CONGNO_Code.gs against criteria, standards, and plan.
+Review and adversarially stress-test `PROJECTS_WEBAPPS/QuanLyCongViecTeam_Index.html` and `PROJECTS_WEBAPPS/QuanLyCongViecTeam_Code.gs` against `PLAN_FLAT_CANVAS_REFACTOR.md` and `AGENTS.md` (Master Standard V2.4). Focus on visual Flat Canvas compliance, Anti-Card/Anti-Pill overload, Gantt Matrix 1-row table, and Master-Tables edge-to-edge.
 
 ## 🔒 My Identity
 - Archetype: reviewer_critic
 - Roles: reviewer, critic
 - Working directory: c:\Users\zit\OneDrive\Tài liệu\ANTIGRAVITY\FILE_DI_LAM_MVP\.agents\teamwork\reviewer_m3_1\
-- Original parent: 5762d32b-3f13-408e-a713-64266374f48b
-- Milestone: M3 (Review & Stress Test)
+- Original parent: 06736747-3acd-4e88-9834-2ed353e89875
+- Milestone: M3 (Review & Adversarial Stress Testing)
 - Instance: 1 of 1
 
 ## 🔒 Key Constraints
 - Review-only — do NOT modify implementation code
-- Actively check for integrity violations (hardcoded test outputs, dummy facade implementations, shortcuts, fabricated logs)
-- Check compliance with AGENTS.md, CONGNO plan, and project conventions
+- Actively check for integrity violations: hardcoded test outputs, dummy facade implementations, shortcuts, fabricated logs, self-certifying work
+- Check compliance with AGENTS.md (Master Standard V2.4) and PLAN_FLAT_CANVAS_REFACTOR.md
 - Self-contained handoff with 5 sections: Observation, Logic Chain, Caveats, Conclusion, Verification Method
 - Issue explicit verdict: APPROVE or REQUEST_CHANGES
 
 ## Current Parent
-- Conversation ID: 5762d32b-3f13-408e-a713-64266374f48b
-- Updated: 2026-11-09T13:28:00Z
+- Conversation ID: 06736747-3acd-4e88-9834-2ed353e89875
+- Updated: 2026-11-11T20:55:55Z
 
 ## Review Scope
 - **Files to review**:
-  - `c:\Users\zit\OneDrive\Tài liệu\ANTIGRAVITY\FILE_DI_LAM_MVP\STANDARDS_TEMPLATE\CONGNO_Index.html`
-  - `c:\Users\zit\OneDrive\Tài liệu\ANTIGRAVITY\FILE_DI_LAM_MVP\STANDARDS_TEMPLATE\CONGNO_Code.gs`
+  - `c:\Users\zit\OneDrive\Tài liệu\ANTIGRAVITY\FILE_DI_LAM_MVP\PROJECTS_WEBAPPS\QuanLyCongViecTeam_Index.html`
+  - `c:\Users\zit\OneDrive\Tài liệu\ANTIGRAVITY\FILE_DI_LAM_MVP\PROJECTS_WEBAPPS\QuanLyCongViecTeam_Code.gs`
 - **Interface contracts**:
   - `c:\Users\zit\OneDrive\Tài liệu\ANTIGRAVITY\FILE_DI_LAM_MVP\.agents\teamwork\ORIGINAL_REQUEST.md`
-  - `c:\Users\zit\.gemini\antigravity\brain\19e35396-a37b-4779-88ee-3209f29e65c2\plan_refactor_congno.md`
-  - `c:\Users\zit\OneDrive\Tài liệu\ANTIGRAVITY\FILE_DI_LAM_MVP\.agents\teamwork\worker_m2\handoff.md`
-  - `c:\Users\zit\OneDrive\Tài liệu\ANTIGRAVITY\FILE_DI_LAM_MVP\.agents\teamwork\worker_m2\test_dom_simulation.js`
+  - `C:\Users\zit\.gemini\antigravity\brain\a6c9a7f7-5965-4d62-b431-f34a04801348\PLAN_FLAT_CANVAS_REFACTOR.md`
+  - `c:\Users\zit\OneDrive\Tài liệu\ANTIGRAVITY\FILE_DI_LAM_MVP\AGENTS.md`
+  - `c:\Users\zit\OneDrive\Tài liệu\ANTIGRAVITY\FILE_DI_LAM_MVP\.agents\teamwork\worker_m2_1\handoff.md`
 - **Review criteria**:
-  1. Title check: Exact match "QUẢN LÝ CÔNG NỢ KHÁCH HÀNG & NCC — WEB APP v1.0 — FILE ĐI LÀM". [PASS]
-  2. Monolithic Flat SPA: 7 flat renderers and router switchTab(tabId). [PASS]
-  3. Zero blank screen: Comprehensive seed data in window.AppState. [PASS]
-  4. Drawer fix: action-drawer has hidden class and proper toggle behavior. [PASS]
-  5. Chart.js lifecycle: ChartInstances safe destroy before creation. [PASS]
-  6. CONGNO_Code.gs: deleteThanhToan(maTT), saveDanhMuc(payload), Single Visible Tab rule (hide/protect DB_* sheets, HDSD with Mint button B2:D3). [PASS]
-  7. Automated test suite execution & syntax verification. [PASS]
+  1. Anti-Card Overload: Elimination of heavy card containers in Dashboard, Daily Actions, Tasks, Routines, Team, and Projects.
+  2. Anti-Pill Overload: Replacement of `rounded-full` pill badges by subtle bullet dots `●` and flat monospace text.
+  3. Seamless Gantt Matrix: Unification of the 6 sticky columns and timeline grid on the exact same row `min-h-[46px] border-b border-slate-100`.
+  4. Master-Tables Edge-to-Edge: 9-column Team Members table and 8-column Projects table.
+  5. Visual Version Stamping: `Bản 3.2` at Topbar, `Phiên bản 3.2 (Active)` at Sidebar footer, and `APP_VERSION = 'v3.2'` in `Code.gs`.
+  6. Backend logic preservation: `LockService` concurrency, `CalendarApp` sync, `getInitialData()`, Zero Phantom Overlay.
+  7. Automated test verification.
 
 ## Key Decisions Made
-- Executed both worker test suite (57 passed) and authored independent adversarial stress test suite (`adversarial_test.js`, 6 passed).
-- Scanned entire codebases for prohibited emojis and AGENTS.md compliance: 0 prohibited emojis found, styling is Mint #059669 with clean flat tables and mobile cards.
-- Verified absence of integrity violations: real implementations in all RPCs, genuine DOM simulation tests, robust error handling.
-- Verdict: APPROVE.
+- [In Progress] Investigating target files and test suites.
 
 ## Artifact Index
 - `DISPATCH.md` — Inbound instructions log
 - `BRIEFING.md` — Working memory and status
 - `progress.md` — Liveness heartbeat and milestone tracker
-- `adversarial_test.js` — Independent adversarial stress testing script
 - `handoff.md` — Final review report and verdict
 
 ## Review Checklist
 - **Items reviewed**:
-  - `STANDARDS_TEMPLATE/CONGNO_Index.html` (3889 lines)
-  - `STANDARDS_TEMPLATE/CONGNO_Code.gs` (1023 lines)
-  - `worker_m2/test_dom_simulation.js` (408 lines)
-  - `worker_m2/handoff.md`
-- **Verdict**: APPROVE
-- **Unverified claims**: none remaining; all claims independently verified.
+  - `ORIGINAL_REQUEST.md` [Reviewed]
+  - `PLAN_FLAT_CANVAS_REFACTOR.md` [Reviewed]
+  - `worker_m2_1/handoff.md` [Reviewed]
+  - `PROJECTS_WEBAPPS/QuanLyCongViecTeam_Index.html` [Pending]
+  - `PROJECTS_WEBAPPS/QuanLyCongViecTeam_Code.gs` [Pending]
+- **Verdict**: PENDING
+- **Unverified claims**: Worker claims 21/21 in verify_test_suite.js, VM sandbox pass, and 97/97 in concurrency resiliency.
 
 ## Attack Surface
 - **Hypotheses tested**:
-  - Empty data arrays -> Graceful empty state, no crashes.
-  - Corrupted, NaN, and null records -> Safe fallback handling, no crashes.
-  - Rapid repeated switchTab calls (fuzzing) -> Clean routing, no crashes.
-  - Drawer rapid open/close cycling -> Safe transitions, no bottom leak, no state desync.
-  - Statement modal generation -> Correct DOIS-XXXXXX ID, proper data binding, clean teardown.
-  - V8 script syntax -> Valid syntax on both frontend and backend.
-- **Vulnerabilities found**: 0 blocking issues.
-- **Untested angles**: Live Google Sheets network execution (verified locally with comprehensive mocks & RPC signatures matching GAS specs).
+  - [Pending] Verification of real vs hardcoded logic.
+  - [Pending] Stress testing of DOM rendering, tab switching, and empty states.
+  - [Pending] Scan for prohibited emojis, lingering pill badges, and layout bugs.
+- **Vulnerabilities found**: None yet.
+- **Untested angles**: Code inspection, test execution, adversarial edge cases.

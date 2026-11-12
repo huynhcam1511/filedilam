@@ -1,0 +1,516 @@
+{
+  "timestamp": "2026-11-12T15:17:01.607Z",
+  "verdict": "APPROVE",
+  "results": {
+    "total": 97,
+    "passed": 97,
+    "failed": 0,
+    "suites": [
+      {
+        "name": "Concurrency & LockService",
+        "tests": [
+          {
+            "testName": "Function apiSaveTask exists in Code.gs",
+            "passed": true,
+            "details": ""
+          },
+          {
+            "testName": "apiSaveTask calls LockService.getScriptLock()",
+            "passed": true,
+            "details": "Missing LockService.getScriptLock()"
+          },
+          {
+            "testName": "apiSaveTask calls lock.waitLock(>=10000) [observed: 15000ms]",
+            "passed": true,
+            "details": "Timeout is 15000"
+          },
+          {
+            "testName": "apiSaveTask has try...finally block releasing lock",
+            "passed": true,
+            "details": "Missing finally { lock.releaseLock(); }"
+          },
+          {
+            "testName": "apiSaveTask avoids premature releaseLock in try before catch",
+            "passed": true,
+            "details": "lock.releaseLock() found inside try block before catch"
+          },
+          {
+            "testName": "Function apiQuickToggleTask exists in Code.gs",
+            "passed": true,
+            "details": ""
+          },
+          {
+            "testName": "apiQuickToggleTask calls LockService.getScriptLock()",
+            "passed": true,
+            "details": "Missing LockService.getScriptLock()"
+          },
+          {
+            "testName": "apiQuickToggleTask calls lock.waitLock(>=10000) [observed: 15000ms]",
+            "passed": true,
+            "details": "Timeout is 15000"
+          },
+          {
+            "testName": "apiQuickToggleTask has try...finally block releasing lock",
+            "passed": true,
+            "details": "Missing finally { lock.releaseLock(); }"
+          },
+          {
+            "testName": "apiQuickToggleTask avoids premature releaseLock in try before catch",
+            "passed": true,
+            "details": "lock.releaseLock() found inside try block before catch"
+          },
+          {
+            "testName": "Function apiSaveProject exists in Code.gs",
+            "passed": true,
+            "details": ""
+          },
+          {
+            "testName": "apiSaveProject calls LockService.getScriptLock()",
+            "passed": true,
+            "details": "Missing LockService.getScriptLock()"
+          },
+          {
+            "testName": "apiSaveProject calls lock.waitLock(>=10000) [observed: 15000ms]",
+            "passed": true,
+            "details": "Timeout is 15000"
+          },
+          {
+            "testName": "apiSaveProject has try...finally block releasing lock",
+            "passed": true,
+            "details": "Missing finally { lock.releaseLock(); }"
+          },
+          {
+            "testName": "apiSaveProject avoids premature releaseLock in try before catch",
+            "passed": true,
+            "details": "lock.releaseLock() found inside try block before catch"
+          },
+          {
+            "testName": "Function apiSaveStaff exists in Code.gs",
+            "passed": true,
+            "details": ""
+          },
+          {
+            "testName": "apiSaveStaff calls LockService.getScriptLock()",
+            "passed": true,
+            "details": "Missing LockService.getScriptLock()"
+          },
+          {
+            "testName": "apiSaveStaff calls lock.waitLock(>=10000) [observed: 15000ms]",
+            "passed": true,
+            "details": "Timeout is 15000"
+          },
+          {
+            "testName": "apiSaveStaff has try...finally block releasing lock",
+            "passed": true,
+            "details": "Missing finally { lock.releaseLock(); }"
+          },
+          {
+            "testName": "apiSaveStaff avoids premature releaseLock in try before catch",
+            "passed": true,
+            "details": "lock.releaseLock() found inside try block before catch"
+          },
+          {
+            "testName": "Function apiUpdateChecklistCell exists in Code.gs",
+            "passed": true,
+            "details": ""
+          },
+          {
+            "testName": "apiUpdateChecklistCell calls LockService.getScriptLock()",
+            "passed": true,
+            "details": "Missing LockService.getScriptLock()"
+          },
+          {
+            "testName": "apiUpdateChecklistCell calls lock.waitLock(>=10000) [observed: 15000ms]",
+            "passed": true,
+            "details": "Timeout is 15000"
+          },
+          {
+            "testName": "apiUpdateChecklistCell has try...finally block releasing lock",
+            "passed": true,
+            "details": "Missing finally { lock.releaseLock(); }"
+          },
+          {
+            "testName": "apiUpdateChecklistCell avoids premature releaseLock in try before catch",
+            "passed": true,
+            "details": "lock.releaseLock() found inside try block before catch"
+          },
+          {
+            "testName": "Function apiDeleteTask exists in Code.gs",
+            "passed": true,
+            "details": ""
+          },
+          {
+            "testName": "apiDeleteTask calls LockService.getScriptLock()",
+            "passed": true,
+            "details": "Missing LockService.getScriptLock()"
+          },
+          {
+            "testName": "apiDeleteTask calls lock.waitLock(>=10000) [observed: 15000ms]",
+            "passed": true,
+            "details": "Timeout is 15000"
+          },
+          {
+            "testName": "apiDeleteTask has try...finally block releasing lock",
+            "passed": true,
+            "details": "Missing finally { lock.releaseLock(); }"
+          },
+          {
+            "testName": "apiDeleteTask avoids premature releaseLock in try before catch",
+            "passed": true,
+            "details": "lock.releaseLock() found inside try block before catch"
+          },
+          {
+            "testName": "Function apiDeleteProject exists in Code.gs",
+            "passed": true,
+            "details": ""
+          },
+          {
+            "testName": "apiDeleteProject calls LockService.getScriptLock()",
+            "passed": true,
+            "details": "Missing LockService.getScriptLock()"
+          },
+          {
+            "testName": "apiDeleteProject calls lock.waitLock(>=10000) [observed: 15000ms]",
+            "passed": true,
+            "details": "Timeout is 15000"
+          },
+          {
+            "testName": "apiDeleteProject has try...finally block releasing lock",
+            "passed": true,
+            "details": "Missing finally { lock.releaseLock(); }"
+          },
+          {
+            "testName": "apiDeleteProject avoids premature releaseLock in try before catch",
+            "passed": true,
+            "details": "lock.releaseLock() found inside try block before catch"
+          },
+          {
+            "testName": "Function apiDeleteStaff exists in Code.gs",
+            "passed": true,
+            "details": ""
+          },
+          {
+            "testName": "apiDeleteStaff calls LockService.getScriptLock()",
+            "passed": true,
+            "details": "Missing LockService.getScriptLock()"
+          },
+          {
+            "testName": "apiDeleteStaff calls lock.waitLock(>=10000) [observed: 15000ms]",
+            "passed": true,
+            "details": "Timeout is 15000"
+          },
+          {
+            "testName": "apiDeleteStaff has try...finally block releasing lock",
+            "passed": true,
+            "details": "Missing finally { lock.releaseLock(); }"
+          },
+          {
+            "testName": "apiDeleteStaff avoids premature releaseLock in try before catch",
+            "passed": true,
+            "details": "lock.releaseLock() found inside try block before catch"
+          },
+          {
+            "testName": "apiSaveTask handles injected runtime error gracefully",
+            "passed": true,
+            "details": ""
+          },
+          {
+            "testName": "apiSaveTask guarantees lock.releaseLock() executed on fatal exception",
+            "passed": true,
+            "details": "Lock was leaked when exception occurred!"
+          }
+        ]
+      },
+      {
+        "name": "Dual-Header Mapping Resilience",
+        "tests": [
+          {
+            "testName": "mapTaskRow produces Vietnamese key \"Mã Task\"",
+            "passed": true,
+            "details": ""
+          },
+          {
+            "testName": "mapTaskRow produces camelCase key \"maTask\"",
+            "passed": true,
+            "details": ""
+          },
+          {
+            "testName": "mapTaskRow produces alias key \"id\"",
+            "passed": true,
+            "details": ""
+          },
+          {
+            "testName": "mapTaskRow produces Vietnamese key \"Tên Nhiệm Vụ\"",
+            "passed": true,
+            "details": ""
+          },
+          {
+            "testName": "mapTaskRow produces camelCase key \"tenNhiemVu\"",
+            "passed": true,
+            "details": ""
+          },
+          {
+            "testName": "mapTaskRow produces alias key \"name\"",
+            "passed": true,
+            "details": ""
+          },
+          {
+            "testName": "mapTaskRow produces Vietnamese key \"Trạng Thái\"",
+            "passed": true,
+            "details": ""
+          },
+          {
+            "testName": "mapTaskRow produces camelCase key \"trangThai\"",
+            "passed": true,
+            "details": ""
+          },
+          {
+            "testName": "mapTaskRow produces alias key \"status\"",
+            "passed": true,
+            "details": ""
+          },
+          {
+            "testName": "mapTaskRow produces numeric progress in both \"tienDo\" and \"Tiến Độ %\"",
+            "passed": true,
+            "details": ""
+          },
+          {
+            "testName": "mapProjectRow produces both VN and camelCase for maDuAn",
+            "passed": true,
+            "details": ""
+          },
+          {
+            "testName": "mapProjectRow produces both VN and camelCase for tenDuAn",
+            "passed": true,
+            "details": ""
+          },
+          {
+            "testName": "mapProjectRow produces numeric budget for nganSach and Ngân Sách",
+            "passed": true,
+            "details": ""
+          },
+          {
+            "testName": "mapStaffRow produces both VN and camelCase for maNhanSu",
+            "passed": true,
+            "details": ""
+          },
+          {
+            "testName": "mapStaffRow produces both VN and camelCase for hoTen",
+            "passed": true,
+            "details": ""
+          },
+          {
+            "testName": "mapStaffRow produces numeric discipline metric onTimeRate",
+            "passed": true,
+            "details": ""
+          },
+          {
+            "testName": "mapChecklistRow produces both VN and camelCase for all days",
+            "passed": true,
+            "details": ""
+          },
+          {
+            "testName": "apiSaveTask parses 100% Vietnamese accented payload without data drops",
+            "passed": true,
+            "details": ""
+          },
+          {
+            "testName": "apiSaveTask parses 100% camelCase payload without data drops",
+            "passed": true,
+            "details": ""
+          },
+          {
+            "testName": "apiSaveTask parses 100% English alias payload without data drops",
+            "passed": true,
+            "details": ""
+          }
+        ]
+      },
+      {
+        "name": "Zero Phantom Overlay Guarantee",
+        "tests": [
+          {
+            "testName": "Container #confirm-modal-container has initial \"hidden\" class in HTML",
+            "passed": true,
+            "details": "Tag found: <div id=\"confirm-modal-container\" class=\"fixed inset-0 z-50 flex items-center justify-center p-4 bg-..."
+          },
+          {
+            "testName": "Container #action-drawer-container has initial \"hidden\" class in HTML",
+            "passed": true,
+            "details": "Tag found: <div id=\"action-drawer-container\" class=\"fixed inset-0 z-50 hidden\">..."
+          },
+          {
+            "testName": "Container #rout-drawer-backdrop has initial \"hidden\" class in HTML",
+            "passed": true,
+            "details": "Tag found: <div id=\"rout-drawer-backdrop\" class=\"fixed inset-0 bg-slate-900/40 backdrop-blur-xs z-40 hidden tra..."
+          },
+          {
+            "testName": "Container #rout-drawer has initial \"hidden\" class in HTML",
+            "passed": true,
+            "details": "Tag found: <aside id=\"rout-drawer\" class=\"fixed inset-y-0 right-0 z-50 w-full sm:w-[480px] bg-white shadow-2xl ..."
+          },
+          {
+            "testName": "Container #matrix-modal-backdrop has initial \"hidden\" class in HTML",
+            "passed": true,
+            "details": "Tag found: <div id=\"matrix-modal-backdrop\" class=\"fixed inset-0 bg-slate-900/40 backdrop-blur-xs z-50 hidden tr..."
+          },
+          {
+            "testName": "Container #rout-delete-modal-backdrop has initial \"hidden\" class in HTML",
+            "passed": true,
+            "details": "Tag found: <div id=\"rout-delete-modal-backdrop\" class=\"fixed inset-0 bg-slate-900/40 backdrop-blur-xs z-50 hidd..."
+          },
+          {
+            "testName": "Container #team-proj-drawer-container has initial \"hidden\" class in HTML",
+            "passed": true,
+            "details": "Tag found: <div id=\"team-proj-drawer-container\" class=\"fixed inset-0 z-50 hidden\">..."
+          },
+          {
+            "testName": "Container #gantt-task-popover has initial \"hidden\" class in HTML",
+            "passed": true,
+            "details": "Tag found: <div id=\"gantt-task-popover\" class=\"fixed z-50 bg-white rounded-xl shadow-xl border border-slate-100..."
+          },
+          {
+            "testName": "CSS @media (min-width: 1024px) overrides #action-drawer top: 0 !important",
+            "passed": true,
+            "details": ""
+          },
+          {
+            "testName": "CSS @media (min-width: 1024px) overrides #action-drawer right: 0 !important",
+            "passed": true,
+            "details": ""
+          },
+          {
+            "testName": "CSS @media (min-width: 1024px) overrides #action-drawer left: auto !important",
+            "passed": true,
+            "details": ""
+          },
+          {
+            "testName": "CSS @media (min-width: 1024px) overrides #action-drawer width: 480px !important",
+            "passed": true,
+            "details": ""
+          },
+          {
+            "testName": "CSS @media (min-width: 1024px) overrides #action-drawer height: 100vh !important",
+            "passed": true,
+            "details": ""
+          },
+          {
+            "testName": "CSS @media (min-width: 1024px) overrides #rout-drawer right: 0 !important",
+            "passed": true,
+            "details": ""
+          },
+          {
+            "testName": "CSS @media (min-width: 1024px) overrides #rout-drawer width: 480px !important",
+            "passed": true,
+            "details": ""
+          },
+          {
+            "testName": "App.closeDrawer() explicitly adds \"hidden\" class to container",
+            "passed": true,
+            "details": ""
+          },
+          {
+            "testName": "ModuleTeamProjects.closeDrawer() explicitly adds \"hidden\" class to container",
+            "passed": true,
+            "details": ""
+          },
+          {
+            "testName": "ModuleRoutinesMatrix.closeRoutineDrawer() explicitly adds \"hidden\" class",
+            "passed": true,
+            "details": ""
+          },
+          {
+            "testName": "ModuleRoutinesMatrix.closeAddChecklistModal() explicitly adds \"hidden\" class",
+            "passed": true,
+            "details": ""
+          },
+          {
+            "testName": "ModuleRoutinesMatrix.closeDeleteModal() explicitly adds \"hidden\" class",
+            "passed": true,
+            "details": ""
+          },
+          {
+            "testName": "ModuleTasksGantt.closeGanttPopover() explicitly adds \"hidden\" class",
+            "passed": true,
+            "details": ""
+          }
+        ]
+      },
+      {
+        "name": "Zero Empty State Boot & Resilience",
+        "tests": [
+          {
+            "testName": "Embedded mock tasks count >= 10 [observed: 12]",
+            "passed": true,
+            "details": ""
+          },
+          {
+            "testName": "Embedded mock projects count >= 3 [observed: 4]",
+            "passed": true,
+            "details": ""
+          },
+          {
+            "testName": "Embedded mock staff count >= 6 [observed: 6]",
+            "passed": true,
+            "details": ""
+          },
+          {
+            "testName": "Embedded mock routines count >= 4 [observed: 5]",
+            "passed": true,
+            "details": ""
+          },
+          {
+            "testName": "Embedded mock checklist count >= 6 [observed: 8]",
+            "passed": true,
+            "details": ""
+          },
+          {
+            "testName": "All embedded tasks have valid ID format TASK-XXXXXX",
+            "passed": true,
+            "details": ""
+          },
+          {
+            "testName": "All embedded projects have valid ID format DUAN-XXXXXX",
+            "passed": true,
+            "details": ""
+          },
+          {
+            "testName": "All embedded staff have valid ID format NHAN-XXXXXX",
+            "passed": true,
+            "details": ""
+          },
+          {
+            "testName": "Scenario A: First-time boot (localStorage = null) preserves 12 embedded mock tasks",
+            "passed": true,
+            "details": ""
+          },
+          {
+            "testName": "Scenario B: Boot with empty string preserves 12 embedded mock tasks",
+            "passed": true,
+            "details": ""
+          },
+          {
+            "testName": "Scenario C: Boot with empty object {} preserves 12 embedded mock tasks",
+            "passed": true,
+            "details": ""
+          },
+          {
+            "testName": "Scenario D (Rule 8 Anti-Zero): Stale cache {\"tasks\": []} is ignored, preserving 12 embedded mock tasks",
+            "passed": true,
+            "details": ""
+          },
+          {
+            "testName": "Scenario E: Corrupted JSON does not crash and preserves 12 embedded mock tasks",
+            "passed": true,
+            "details": ""
+          },
+          {
+            "testName": "Scenario F: Valid rich cache correctly loads 15 tasks",
+            "passed": true,
+            "details": ""
+          }
+        ]
+      }
+    ]
+  }
+}
