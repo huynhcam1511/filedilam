@@ -3015,8 +3015,8 @@ window.ModuleTasksGantt = (function() {
 
       var isDone = trangThai === 'Hoàn thành' || tienDo >= 100;
       var checkBtn = isDone
-        ? '<button onclick="ModuleTasksGantt.quickToggleTask(\'' + escapeHtml(maTask) + '\')" type="button" class="w-5 h-5 rounded bg-emerald-500 text-white flex items-center justify-center transition hover:bg-emerald-600" title="Đánh dấu chưa xong"><i data-lucide="check" class="w-3.5 h-3.5 stroke-[2.5]"></i></button>'
-        : '<button onclick="ModuleTasksGantt.quickToggleTask(\'' + escapeHtml(maTask) + '\')" type="button" class="w-5 h-5 rounded border border-slate-300 hover:border-emerald-500 bg-white flex items-center justify-center transition" title="Đánh dấu hoàn thành"></button>';
+        ? '<button onclick="ModuleTasksGantt.quickToggleTask(\'' + escapeHtml(maTask) + '\', false)" type="button" class="w-5 h-5 rounded bg-emerald-500 text-white flex items-center justify-center transition hover:bg-emerald-600 cursor-pointer" title="Đánh dấu chưa xong"><i data-lucide="check" class="w-3.5 h-3.5 stroke-[2.5]"></i></button>'
+        : '<button onclick="ModuleTasksGantt.quickToggleTask(\'' + escapeHtml(maTask) + '\', true)" type="button" class="w-5 h-5 rounded border border-slate-300 hover:border-emerald-500 bg-white flex items-center justify-center transition cursor-pointer" title="Đánh dấu hoàn thành"></button>';
 
       var tenDuAn = task.tenDuAn || task['Tên Dự Án'] || '';
       if (!tenDuAn && task.maDuAn && window.AppState && window.AppState.data && window.AppState.data.projects) {
@@ -3499,6 +3499,12 @@ window.ModuleTasksGantt = (function() {
       }
     }
     if (!target) return;
+    if (typeof isDone === 'undefined') {
+      var currentStatus = target.trangThai || target['Trạng Thái'] || target.status || '';
+      var currentProg = Number(target.tienDo || target['Tiến Độ %'] || target.progress || 0);
+      var currentDone = currentStatus === 'Hoàn thành' || currentProg >= 100;
+      isDone = !currentDone;
+    }
 
     var newStatus = isDone ? 'Hoàn thành' : 'Đang tiến hành';
     var newProgress = isDone ? 100 : 50;
