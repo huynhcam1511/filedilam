@@ -1,6 +1,6 @@
 /**
  * =========================================================================================
- * DỰ ÁN: QUẢN LÝ CÔNG VIỆC TEAM & TIẾN ĐỘ DỰ ÁN 3.1 — WEB APP — FILE ĐI LÀM
+ * DỰ ÁN: QUẢN LÝ CÔNG VIỆC TEAM & TIẾN ĐỘ DỰ ÁN 3.2 — WEB APP — FILE ĐI LÀM
  * =========================================================================================
  * Phiên bản: Master Standard V2.4 (Map-Reduce Pipeline & Single Visible Tab Policy)
  * Thương hiệu: FILE ĐI LÀM (Workbook & Apps Script Web App Architecture)
@@ -9,8 +9,8 @@
  */
 
 // --- CẤU HÌNH HỆ THỐNG & CONSTANTS TOÀN CỤC ---
-var APP_TITLE = 'QUẢN LÝ CÔNG VIỆC TEAM & TIẾN ĐỘ DỰ ÁN 3.1 — WEB APP — FILE ĐI LÀM';
-var APP_VERSION = 'Bản 3.1';
+var APP_TITLE = 'QUẢN LÝ CÔNG VIỆC TEAM & TIẾN ĐỘ DỰ ÁN 3.2 — WEB APP — FILE ĐI LÀM';
+var APP_VERSION = 'Bản 3.2';
 var WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbyexample/exec';
 
 // Tên các Tab Database chuẩn theo Master Contract
