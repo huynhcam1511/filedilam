@@ -3,12 +3,12 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>QUẢN LÝ CÔNG VIỆC TEAM & TIẾN ĐỘ DỰ ÁN 3.2 — FILE ĐI LÀM</title>
+  <title>QUẢN LÝ CÔNG VIỆC TEAM & TIẾN ĐỘ DỰ ÁN 3.3 — FILE ĐI LÀM</title>
   
   <!-- 1. GOOGLE FONTS (Inter & JetBrains Mono) -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
 
   <!-- 2. TAILWIND CSS CDN & CONFIG -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -17,19 +17,26 @@
       theme: {
         extend: {
           fontFamily: {
-            sans: ['Inter', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif'],
+            sans: ['Montserrat', '-apple-system', 'BlinkMacSystemFont', 'sans-serif'],
             mono: ['"JetBrains Mono"', 'monospace']
           },
           colors: {
             brand: {
-              50: '#ecfdf5',
-              100: '#d1fae5',
-              200: '#a7f3d0',
-              500: '#10b981',
-              600: '#059669', // Mint Emerald Chủ đạo Chuẩn File Đi Làm
-              700: '#047857',
-              800: '#065f46',
-              900: '#064e3b'
+              50: '#eff6ff',
+              100: '#dbeafe',
+              200: '#bfdbfe',
+              500: '#3b82f6',
+              600: '#2563eb', // Xanh Dương Chủ Đạo Chuẩn File Đi Làm
+              700: '#1d4ed8',
+              800: '#1e40af',
+              900: '#1e3a8a'
+            },
+            pastelYellow: {
+              50: '#fefce8',
+              100: '#fef9c3',
+              200: '#fef08a',
+              300: '#fde047',
+              500: '#eab308'
             }
           }
         }
@@ -52,7 +59,7 @@
     ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
     
     body {
-      font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      font-family: 'Montserrat', -apple-system, BlinkMacSystemFont, sans-serif;
       -webkit-font-smoothing: antialiased;
       -moz-osx-font-smoothing: grayscale;
     }
@@ -101,10 +108,10 @@
     }
   </style>
 </head>
-<body class="bg-slate-50 text-slate-800 antialiased min-h-screen flex flex-col selection:bg-emerald-100 selection:text-emerald-900">
+<body class="bg-slate-50 text-slate-800 antialiased min-h-screen flex flex-col selection:bg-blue-100 selection:text-blue-900">
 
   <!-- TOP LOADING BAR (Hiển thị khi gọi RPC ngầm) -->
-  <div id="top-loading-bar" class="fixed top-0 left-0 right-0 h-1 bg-emerald-500 z-50 transform -translate-y-full transition-transform duration-300"></div>
+  <div id="top-loading-bar" class="fixed top-0 left-0 right-0 h-1 bg-blue-600 z-50 transform -translate-y-full transition-transform duration-300"></div>
 
   <!-- TOAST NOTIFICATION CONTAINER (Rule 4: Zero Phantom Overlay) -->
   <div id="toast-container" class="fixed top-4 right-4 z-50 flex flex-col gap-2 pointer-events-none"></div>
@@ -155,7 +162,7 @@
         <button id="drawer-cancel-btn" onclick="App.closeDrawer()" class="px-4 h-[42px] rounded-xl text-xs font-semibold text-slate-600 hover:bg-slate-200 transition">
           Đóng
         </button>
-        <button id="drawer-save-btn" class="px-5 h-[42px] rounded-xl text-xs font-semibold text-white bg-emerald-600 hover:bg-emerald-700 shadow-sm flex items-center gap-2 transition">
+        <button id="drawer-save-btn" class="px-5 h-[42px] rounded-xl text-xs font-semibold text-white bg-blue-600 hover:bg-blue-700 shadow-sm flex items-center gap-2 transition">
           <i data-lucide="save" class="w-4 h-4"></i>
           <span>Lưu Thay Đổi</span>
         </button>
@@ -170,17 +177,23 @@
     <aside id="desktop-sidebar" class="hidden lg:flex flex-col w-60 border-r border-slate-200/80 bg-white transition-all duration-300 select-none shrink-0 z-30">
       
       <!-- Header Brand & Collapse Toggle -->
-      <div class="h-16 px-4 border-b border-slate-100 flex items-center justify-between shrink-0">
+      <div id="sidebar-header-wrap" class="h-16 px-4 border-b border-slate-100 flex items-center justify-between shrink-0 transition-all">
         <div class="flex items-center gap-3 overflow-hidden">
-          <div class="w-9 h-9 rounded-xl bg-emerald-600 flex items-center justify-center text-white shrink-0 shadow-sm">
-            <i data-lucide="kanban" class="w-5 h-5"></i>
+          <div class="w-9 h-9 rounded-xl bg-blue-600 flex items-center justify-center text-white shrink-0 shadow-sm shadow-blue-500/20">
+            <!-- Logo Chuẩn File Đi Làm: Biểu đồ Bảng tính Fintech 3 vạch -->
+            <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M3 3v18h18" />
+              <path d="M7 16v-4" />
+              <path d="M12 16v-8" />
+              <path d="M17 16v-11" />
+            </svg>
           </div>
           <div class="sidebar-text truncate">
-            <span class="font-extrabold text-xs tracking-wider text-emerald-800 uppercase block">FILE ĐI LÀM</span>
-            <span class="text-[11px] font-semibold text-slate-500 truncate block">TEAM WORK 3.2</span>
+            <span class="font-extrabold text-xs tracking-wider text-blue-900 uppercase block font-sans">FILE ĐI LÀM</span>
+            <span class="text-[10px] font-bold text-blue-600/80 tracking-wide truncate block">TEAM WORK 3.3</span>
           </div>
         </div>
-        <button onclick="App.toggleSidebar()" class="text-slate-400 hover:text-slate-700 p-1.5 rounded-lg hover:bg-slate-50 transition" title="Thu gọn / Mở rộng menu">
+        <button id="sidebar-burger-btn" onclick="App.toggleSidebar()" class="text-slate-400 hover:text-blue-600 p-1.5 rounded-lg hover:bg-blue-50 transition shrink-0" title="Thu gọn / Mở rộng menu">
           <i id="sidebar-toggle-icon" data-lucide="panel-left-close" class="w-4 h-4"></i>
         </button>
       </div>
@@ -192,7 +205,7 @@
         <div>
           <div class="px-3 mb-2 text-[10px] font-bold tracking-wider text-slate-400 uppercase sidebar-text">Vận Hành</div>
           <div class="space-y-1">
-            <button onclick="App.switchTab('dashboard')" id="nav-dashboard" class="nav-item w-full flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-semibold transition bg-emerald-50 text-emerald-700">
+            <button onclick="App.switchTab('dashboard')" id="nav-dashboard" class="nav-item w-full flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-semibold transition bg-blue-50 text-blue-700">
               <i data-lucide="layout-dashboard" class="w-4 h-4 shrink-0"></i>
               <span class="sidebar-text truncate">Tổng Quan</span>
             </button>
@@ -244,19 +257,19 @@
           id="btn-sync-calendar" 
           onclick="App.syncGoogleCalendar()" 
           type="button"
-          class="w-full flex items-center justify-between px-2.5 py-2 rounded-xl text-xs font-semibold bg-emerald-50/70 hover:bg-emerald-100/80 border border-emerald-200/70 text-emerald-800 transition-all duration-200 group shadow-2xs active:scale-[0.98]" 
+          class="w-full flex items-center justify-between px-2.5 py-2 rounded-xl text-xs font-semibold bg-blue-50/70 hover:bg-emerald-100/80 border border-blue-200/70 text-blue-800 transition-all duration-200 group shadow-2xs active:scale-[0.98]" 
           title="Đồng bộ deadline ra Google Calendar"
         >
           <div class="flex items-center gap-2.5 min-w-0">
-            <div class="w-7 h-7 rounded-lg bg-white border border-emerald-200 flex items-center justify-center text-emerald-600 shrink-0 shadow-2xs group-hover:border-emerald-300">
-              <i id="btn-sync-cal-icon" data-lucide="refresh-cw" class="w-3.5 h-3.5 text-emerald-600 transition-transform"></i>
+            <div class="w-7 h-7 rounded-lg bg-white border border-blue-200 flex items-center justify-center text-blue-600 shrink-0 shadow-2xs group-hover:border-emerald-300">
+              <i id="btn-sync-cal-icon" data-lucide="refresh-cw" class="w-3.5 h-3.5 text-blue-600 transition-transform"></i>
             </div>
             <div class="sidebar-text text-left min-w-0">
               <span id="btn-sync-cal-label" class="block truncate font-bold text-[11px] leading-tight text-emerald-900">Đồng Bộ Calendar</span>
-              <span class="block truncate text-[10px] text-emerald-600 font-normal">Ghi nhận deadline</span>
+              <span class="block truncate text-[10px] text-blue-600 font-normal">Ghi nhận deadline</span>
             </div>
           </div>
-          <span class="sidebar-text text-[9px] text-emerald-700 font-mono font-bold bg-white px-1.5 py-0.5 rounded border border-emerald-200 shrink-0">Sync</span>
+          <span class="sidebar-text text-[9px] text-blue-700 font-mono font-bold bg-white px-1.5 py-0.5 rounded border border-blue-200 shrink-0">Sync</span>
         </button>
       </div>
 
@@ -270,7 +283,7 @@
           </div>
         </div>
         <div class="sidebar-text pt-1">
-          <span id="appBuildVersionBadge" class="text-[10px] text-emerald-700 font-mono font-bold bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200" data-upgrade-from="Phiên bản 3.0 (Active)">Phiên bản 3.2 (Active)</span>
+          <span id="appBuildVersionBadge" class="text-[10px] text-blue-700 font-mono font-bold bg-blue-50 px-2 py-0.5 rounded border border-blue-200" data-upgrade-from="Phiên bản 3.0 (Active)">Phiên bản 3.3 (Active)</span>
         </div>
       </div>
     </aside>
@@ -283,14 +296,14 @@
         
         <!-- Left: Brand Logo Mobile & Dynamic Page Title -->
         <div class="flex items-center gap-3 min-w-0">
-          <div class="lg:hidden w-8 h-8 rounded-lg bg-emerald-600 flex items-center justify-center text-white shrink-0 shadow-sm">
+          <div class="lg:hidden w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center text-white shrink-0 shadow-sm">
             <i data-lucide="kanban" class="w-4 h-4"></i>
           </div>
           <div class="min-w-0">
             <div class="flex items-center gap-2">
               <h1 id="top-page-title" class="text-sm lg:text-base font-bold text-slate-900 tracking-tight truncate">Tổng Quan Điều Hành</h1>
               <!-- Topbar Visual Version Badge (Rule 9) -->
-              <span class="text-[10px] text-emerald-700 font-mono font-bold bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-200 shrink-0" data-upgrade-from="Bản 3.0">Bản 3.2</span>
+              <span class="text-[10px] text-blue-700 font-mono font-bold bg-blue-50 px-1.5 py-0.5 rounded border border-blue-200 shrink-0" data-upgrade-from="Bản 3.0">Bản 3.3</span>
             </div>
             <p id="top-page-subtitle" class="text-[11px] text-slate-400 hidden sm:block truncate">Báo cáo chỉ số KPI, hiệu suất nhân sự và tiến độ toàn dự án</p>
           </div>
@@ -299,23 +312,19 @@
         <!-- Right: Actions Toolbar -->
         <div class="flex items-center gap-1.5 sm:gap-2 shrink-0">
           <!-- CTA: Thêm Việc Mới Nhanh -->
-          <button onclick="App.openQuickTaskDrawer()" class="h-9 px-3 sm:px-4 rounded-xl text-xs font-semibold text-white bg-emerald-600 hover:bg-emerald-700 shadow-sm flex items-center gap-1.5 transition active:scale-95">
+          <button onclick="App.openQuickTaskDrawer()" class="h-9 px-3 sm:px-4 rounded-xl text-xs font-semibold text-white bg-blue-600 hover:bg-blue-700 shadow-sm flex items-center gap-1.5 transition active:scale-95">
             <i data-lucide="plus" class="w-4 h-4"></i>
             <span class="hidden sm:inline">Việc Mới</span>
           </button>
 
           <!-- Calendar Sync Shortcut -->
-          <button id="btn-sync-calendar-header" onclick="App.syncGoogleCalendar()" class="w-9 h-9 rounded-xl flex items-center justify-center text-slate-500 hover:text-emerald-700 hover:bg-emerald-50 transition" title="Đồng bộ Google Calendar">
-            <i id="btn-sync-cal-header-icon" data-lucide="refresh-cw" class="w-4 h-4"></i>
-          </button>
-
           <!-- Refresh Data Button -->
-          <button onclick="App.refreshData()" class="w-9 h-9 rounded-xl flex items-center justify-center text-slate-500 hover:text-emerald-700 hover:bg-emerald-50 transition" title="Đồng bộ lại từ Google Sheets">
+          <button onclick="App.refreshData()" class="w-9 h-9 rounded-xl flex items-center justify-center text-slate-500 hover:text-blue-700 hover:bg-blue-50 transition" title="Đồng bộ lại từ Google Sheets">
             <i id="btn-refresh-icon" data-lucide="rotate-cw" class="w-4 h-4"></i>
           </button>
 
           <!-- Reset / Seed Sample Data Button -->
-          <button onclick="App.seedSampleData()" class="w-9 h-9 rounded-xl flex items-center justify-center text-slate-500 hover:text-emerald-700 hover:bg-emerald-50 transition" title="Khởi tạo / Nạp lại dữ liệu mẫu">
+          <button onclick="App.seedSampleData()" class="w-9 h-9 rounded-xl flex items-center justify-center text-slate-500 hover:text-blue-700 hover:bg-blue-50 transition" title="Khởi tạo / Nạp lại dữ liệu mẫu">
             <i data-lucide="sparkles" class="w-4 h-4"></i>
           </button>
 
@@ -341,7 +350,7 @@
     <div>
       <div class="flex items-center gap-2.5">
         <h2 class="text-base lg:text-lg font-bold text-slate-900 tracking-tight">Tổng Quan Tiến Độ & Kỷ Luật Team</h2>
-        <span class="text-xs text-emerald-600 font-mono font-medium flex items-center gap-1">● Live 0s</span>
+        <span class="text-xs text-blue-600 font-mono font-medium flex items-center gap-1">Live 0s</span>
       </div>
       <p class="text-xs text-slate-500 mt-0.5">Theo dõi thời gian thực KPI vận hành, công việc khẩn cấp và hiệu suất thực thi tuần</p>
     </div>
@@ -349,7 +358,7 @@
     <!-- Controls: Time Range Filter & Refresh -->
     <div class="flex items-center gap-2 self-start sm:self-auto">
       <div class="inline-flex p-0.5 bg-slate-100 rounded border border-slate-200/60 text-xs font-semibold">
-        <button id="dash-btn-filter-week" onclick="ModuleDashboard.setTimeRange('week')" class="px-3 py-1.5 rounded transition-all duration-200 bg-white text-emerald-700">
+        <button id="dash-btn-filter-week" onclick="ModuleDashboard.setTimeRange('week')" class="px-3 py-1.5 rounded transition-all duration-200 bg-white text-blue-700">
           Tuần này
         </button>
         <button id="dash-btn-filter-month" onclick="ModuleDashboard.setTimeRange('month')" class="px-3 py-1.5 rounded transition-all duration-200 text-slate-600 hover:text-slate-900">
@@ -372,8 +381,8 @@
       <span class="text-[11px] font-medium uppercase tracking-wider text-slate-400">Nhiệm Vụ Đang Chạy</span>
       <div class="mt-2">
         <div id="dash-kpi-active-tasks" class="text-2xl lg:text-3xl font-bold text-slate-900 tracking-tight font-mono">0</div>
-        <div id="dash-kpi-active-sub" class="text-[11px] text-emerald-600 font-medium flex items-center gap-1 mt-1 truncate">
-          ● 0 đang làm · 0 chờ duyệt
+        <div id="dash-kpi-active-sub" class="text-[11px] text-blue-600 font-medium flex items-center gap-1 mt-1 truncate">
+          0 đang làm · 0 chờ duyệt
         </div>
       </div>
     </div>
@@ -384,7 +393,7 @@
       <div class="mt-2">
         <div id="dash-kpi-overdue-tasks" class="text-2xl lg:text-3xl font-bold text-rose-600 tracking-tight font-mono">0</div>
         <div id="dash-kpi-overdue-sub" class="text-[11px] text-rose-600 font-medium flex items-center gap-1 mt-1 truncate">
-          ● 0 quá hạn · 0 khẩn cấp
+          0 quá hạn · 0 khẩn cấp
         </div>
       </div>
     </div>
@@ -408,7 +417,7 @@
       <span class="text-[11px] font-medium uppercase tracking-wider text-slate-400">Kỷ Luật Tuần</span>
       <div class="mt-2">
         <div id="dash-kpi-discipline-rate" class="text-2xl lg:text-3xl font-bold text-slate-900 tracking-tight font-mono">0%</div>
-        <div id="dash-kpi-discipline-trend" class="text-[11px] text-emerald-600 font-medium flex items-center gap-1 mt-1 truncate">
+        <div id="dash-kpi-discipline-trend" class="text-[11px] text-blue-600 font-medium flex items-center gap-1 mt-1 truncate">
           <i data-lucide="trending-up" class="w-3.5 h-3.5 inline"></i>
           <span>Tuân thủ checklist</span>
         </div>
@@ -421,7 +430,7 @@
       <div class="mt-2">
         <div id="dash-kpi-today-routines" class="text-2xl lg:text-3xl font-bold text-slate-900 tracking-tight font-mono">0</div>
         <div id="dash-kpi-routines-sub" class="text-[11px] text-purple-600 font-medium flex items-center gap-1 mt-1 truncate">
-          ● 0 lịch cuộc họp
+          0 cuộc họp
         </div>
       </div>
     </div>
@@ -463,7 +472,7 @@
     <div id="dash-daily-action-list" class="divide-y divide-slate-100 max-h-[460px] overflow-y-auto">
       <!-- Rendered dynamically by ModuleDashboard.renderDailyActions() -->
       <div class="p-8 text-center text-slate-400">
-        <i data-lucide="loader-2" class="w-6 h-6 animate-spin mx-auto mb-2 text-emerald-600"></i>
+        <i data-lucide="loader-2" class="w-6 h-6 animate-spin mx-auto mb-2 text-blue-600"></i>
         <div class="text-xs">Đang tải danh sách việc cần xử lý...</div>
       </div>
     </div>
@@ -478,12 +487,12 @@
       <div class="flex items-center justify-between mb-4">
         <div>
           <h3 class="text-xs font-bold text-slate-800 uppercase tracking-wider flex items-center gap-1.5">
-            <i data-lucide="bar-chart-3" class="w-4 h-4 text-emerald-600"></i>
+            <i data-lucide="bar-chart-3" class="w-4 h-4 text-blue-600"></i>
             <span>1. Khối Lượng Công Việc Theo Nhân Sự</span>
           </h3>
           <p class="text-[11px] text-slate-400 mt-0.5">So sánh nhiệm vụ đang tiến hành vs đã hoàn thành của từng thành viên</p>
         </div>
-        <button onclick="ModuleDashboard.refreshChart('dash-chart-workload')" class="text-slate-400 hover:text-emerald-600 p-1 rounded transition" title="Vẽ lại biểu đồ">
+        <button onclick="ModuleDashboard.refreshChart('dash-chart-workload')" class="text-slate-400 hover:text-blue-600 p-1 rounded transition" title="Vẽ lại biểu đồ">
           <i data-lucide="rotate-cw" class="w-3.5 h-3.5"></i>
         </button>
       </div>
@@ -497,12 +506,12 @@
       <div class="flex items-center justify-between mb-4">
         <div>
           <h3 class="text-xs font-bold text-slate-800 uppercase tracking-wider flex items-center gap-1.5">
-            <i data-lucide="shield-check" class="w-4 h-4 text-emerald-600"></i>
+            <i data-lucide="shield-check" class="w-4 h-4 text-blue-600"></i>
             <span>2. Tỷ Lệ Kỷ Luật & Đúng Hạn Theo Cấp Bậc</span>
           </h3>
           <p class="text-[11px] text-slate-400 mt-0.5">Đánh giá đa chiều giữa thực tế đạt được vs chuẩn KPI từng vị trí</p>
         </div>
-        <button onclick="ModuleDashboard.refreshChart('dash-chart-discipline')" class="text-slate-400 hover:text-emerald-600 p-1 rounded transition" title="Vẽ lại biểu đồ">
+        <button onclick="ModuleDashboard.refreshChart('dash-chart-discipline')" class="text-slate-400 hover:text-blue-600 p-1 rounded transition" title="Vẽ lại biểu đồ">
           <i data-lucide="rotate-cw" class="w-3.5 h-3.5"></i>
         </button>
       </div>
@@ -516,12 +525,12 @@
       <div class="flex items-center justify-between mb-4">
         <div>
           <h3 class="text-xs font-bold text-slate-800 uppercase tracking-wider flex items-center gap-1.5">
-            <i data-lucide="kanban" class="w-4 h-4 text-emerald-600"></i>
+            <i data-lucide="kanban" class="w-4 h-4 text-blue-600"></i>
             <span>3. Tiến Độ Các Dự Án Trọng Điểm</span>
           </h3>
           <p class="text-[11px] text-slate-400 mt-0.5">Tỷ lệ % hoàn thành mục tiêu tổng thể của các dự án đang chạy</p>
         </div>
-        <button onclick="ModuleDashboard.refreshChart('dash-chart-projects')" class="text-slate-400 hover:text-emerald-600 p-1 rounded transition" title="Vẽ lại biểu đồ">
+        <button onclick="ModuleDashboard.refreshChart('dash-chart-projects')" class="text-slate-400 hover:text-blue-600 p-1 rounded transition" title="Vẽ lại biểu đồ">
           <i data-lucide="rotate-cw" class="w-3.5 h-3.5"></i>
         </button>
       </div>
@@ -535,12 +544,12 @@
       <div class="flex items-center justify-between mb-4">
         <div>
           <h3 class="text-xs font-bold text-slate-800 uppercase tracking-wider flex items-center gap-1.5">
-            <i data-lucide="pie-chart" class="w-4 h-4 text-emerald-600"></i>
+            <i data-lucide="pie-chart" class="w-4 h-4 text-blue-600"></i>
             <span>4. Phân Bổ Mức Độ Ưu Tiên (P1 - P4)</span>
           </h3>
           <p class="text-[11px] text-slate-400 mt-0.5">Cơ cấu trọng số nhiệm vụ: Khẩn cấp, Cao, Trung bình, Thấp</p>
         </div>
-        <button onclick="ModuleDashboard.refreshChart('dash-chart-priority')" class="text-slate-400 hover:text-emerald-600 p-1 rounded transition" title="Vẽ lại biểu đồ">
+        <button onclick="ModuleDashboard.refreshChart('dash-chart-priority')" class="text-slate-400 hover:text-blue-600 p-1 rounded transition" title="Vẽ lại biểu đồ">
           <i data-lucide="rotate-cw" class="w-3.5 h-3.5"></i>
         </button>
       </div>
@@ -554,12 +563,12 @@
       <div class="flex items-center justify-between mb-4">
         <div>
           <h3 class="text-xs font-bold text-slate-800 uppercase tracking-wider flex items-center gap-1.5">
-            <i data-lucide="trending-up" class="w-4 h-4 text-emerald-600"></i>
+            <i data-lucide="trending-up" class="w-4 h-4 text-blue-600"></i>
             <span>5. Xu Hướng Hoàn Thành Nhiệm Vụ Theo Tuần</span>
           </h3>
           <p class="text-[11px] text-slate-400 mt-0.5">So sánh khối lượng phát sinh mới vs nhiệm vụ đã đóng 6 tuần gần nhất</p>
         </div>
-        <button onclick="ModuleDashboard.refreshChart('dash-chart-trend')" class="text-slate-400 hover:text-emerald-600 p-1 rounded transition" title="Vẽ lại biểu đồ">
+        <button onclick="ModuleDashboard.refreshChart('dash-chart-trend')" class="text-slate-400 hover:text-blue-600 p-1 rounded transition" title="Vẽ lại biểu đồ">
           <i data-lucide="rotate-cw" class="w-3.5 h-3.5"></i>
         </button>
       </div>
@@ -573,12 +582,12 @@
       <div class="flex items-center justify-between mb-4">
         <div>
           <h3 class="text-xs font-bold text-slate-800 uppercase tracking-wider flex items-center gap-1.5">
-            <i data-lucide="building-2" class="w-4 h-4 text-emerald-600"></i>
+            <i data-lucide="building-2" class="w-4 h-4 text-blue-600"></i>
             <span>6. Tỷ Lệ Hoàn Thành Theo Phòng Ban</span>
           </h3>
           <p class="text-[11px] text-slate-400 mt-0.5">Hiệu suất thực thi giữa Khối Kỹ thuật, Thiết kế, Marketing & Vận hành</p>
         </div>
-        <button onclick="ModuleDashboard.refreshChart('dash-chart-dept')" class="text-slate-400 hover:text-emerald-600 p-1 rounded transition" title="Vẽ lại biểu đồ">
+        <button onclick="ModuleDashboard.refreshChart('dash-chart-dept')" class="text-slate-400 hover:text-blue-600 p-1 rounded transition" title="Vẽ lại biểu đồ">
           <i data-lucide="rotate-cw" class="w-3.5 h-3.5"></i>
         </button>
       </div>
@@ -917,7 +926,7 @@ const ModuleDashboard = {
               <!-- Tiến độ % phẳng -->
               <div class="flex items-center gap-1.5 text-xs text-slate-500">
                 <div class="w-16 bg-slate-100 h-1 overflow-hidden">
-                  <div class="bg-emerald-500 h-1" style="width: ${progress}%"></div>
+                  <div class="bg-blue-500 h-1" style="width: ${progress}%"></div>
                 </div>
                 <span class="font-mono text-[11px] font-medium text-slate-600">${progress}%</span>
               </div>
@@ -927,7 +936,7 @@ const ModuleDashboard = {
           <!-- Subtle Action Buttons -->
           <div class="flex items-center gap-1.5 shrink-0 self-end md:self-center pt-2 md:pt-0 border-t md:border-t-0 border-slate-100 w-full md:w-auto justify-end">
             <!-- Nút toggle Done -->
-            <button onclick="ModuleDashboard.quickToggleTask('${taskId}')" class="h-7 px-2.5 rounded text-xs font-medium bg-emerald-50 hover:bg-emerald-100 text-emerald-700 flex items-center gap-1 transition border border-emerald-200" title="Đánh dấu hoàn thành ngay">
+            <button onclick="ModuleDashboard.quickToggleTask('${taskId}')" class="h-7 px-2.5 rounded text-xs font-medium bg-blue-50 hover:bg-emerald-100 text-blue-700 flex items-center gap-1 transition border border-blue-200" title="Đánh dấu hoàn thành ngay">
               <i data-lucide="check" class="w-3 h-3"></i>
               <span>Xong</span>
             </button>
@@ -939,7 +948,7 @@ const ModuleDashboard = {
             </button>
 
             <!-- Nút gọi điện tel: -->
-            <a href="tel:${phone}" class="h-7 px-2.5 rounded text-xs font-medium bg-slate-100 hover:bg-emerald-50 text-slate-600 hover:text-emerald-700 flex items-center gap-1 transition" title="Gọi cho ${assigneeName}">
+            <a href="tel:${phone}" class="h-7 px-2.5 rounded text-xs font-medium bg-slate-100 hover:bg-blue-50 text-slate-600 hover:text-blue-700 flex items-center gap-1 transition" title="Gọi cho ${assigneeName}">
               <i data-lucide="phone" class="w-3 h-3"></i>
               <span class="hidden sm:inline">Gọi</span>
             </a>
@@ -1624,10 +1633,10 @@ Vui lòng kiểm tra và cập nhật tiến độ công việc hoặc báo cáo
 
     if (btnWeek && btnMonth) {
       if (range === 'week') {
-        btnWeek.className = 'px-3 py-1.5 rounded transition-all duration-200 bg-white text-emerald-700';
+        btnWeek.className = 'px-3 py-1.5 rounded transition-all duration-200 bg-white text-blue-700';
         btnMonth.className = 'px-3 py-1.5 rounded transition-all duration-200 text-slate-600 hover:text-slate-900';
       } else {
-        btnMonth.className = 'px-3 py-1.5 rounded transition-all duration-200 bg-white text-emerald-700';
+        btnMonth.className = 'px-3 py-1.5 rounded transition-all duration-200 bg-white text-blue-700';
         btnWeek.className = 'px-3 py-1.5 rounded transition-all duration-200 text-slate-600 hover:text-slate-900';
       }
     }
@@ -1825,10 +1834,10 @@ if (document.readyState === 'loading') {
       <div id="task-stats-waiting" class="text-xl font-bold text-amber-700 font-mono mt-0.5">0</div>
     </div>
     <div class="px-3.5 py-1.5">
-      <div class="text-[11px] font-medium text-emerald-600 flex items-center gap-1">
-        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>Đã hoàn thành
+      <div class="text-[11px] font-medium text-blue-600 flex items-center gap-1">
+        <span class="w-1.5 h-1.5 rounded-full bg-blue-500"></span>Đã hoàn thành
       </div>
-      <div id="task-stats-done" class="text-xl font-bold text-emerald-700 font-mono mt-0.5">0</div>
+      <div id="task-stats-done" class="text-xl font-bold text-blue-700 font-mono mt-0.5">0</div>
     </div>
     <div class="col-span-2 sm:col-span-1 px-3.5 py-1.5">
       <div class="text-[11px] font-medium text-rose-600 flex items-center gap-1">
@@ -2022,7 +2031,7 @@ if (document.readyState === 'loading') {
 
     <!-- Chú thích màu sắc thanh tiến độ (Subtle Bullets) -->
     <div class="flex flex-wrap items-center gap-3 text-[11px] text-slate-600">
-      <span class="inline-flex items-center gap-1 text-emerald-600 font-medium">● Hoàn thành</span>
+      <span class="inline-flex items-center gap-1 text-blue-600 font-medium">● Hoàn thành</span>
       <span class="inline-flex items-center gap-1 text-sky-600 font-medium">● Đang làm</span>
       <span class="inline-flex items-center gap-1 text-amber-600 font-medium">● Ưu tiên cao</span>
       <span class="inline-flex items-center gap-1 text-rose-600 font-medium">● Khẩn cấp / Quá hạn</span>
@@ -2652,7 +2661,7 @@ window.ModuleTasksGantt = (function() {
       return '<span class="text-rose-600 font-semibold text-xs whitespace-nowrap">● Quá hạn</span>';
     }
     if (status === 'Hoàn thành') {
-      return '<span class="text-emerald-600 font-medium text-xs whitespace-nowrap">● Hoàn thành</span>';
+      return '<span class="text-blue-600 font-medium text-xs whitespace-nowrap">● Hoàn thành</span>';
     }
     if (status === 'Đang tiến hành') {
       return '<span class="text-sky-600 font-medium text-xs whitespace-nowrap">● Đang làm</span>';
@@ -2709,7 +2718,7 @@ window.ModuleTasksGantt = (function() {
 
       // Màu progress bar
       var progColor = 'bg-slate-300';
-      if (isDone) progColor = 'bg-emerald-500';
+      if (isDone) progColor = 'bg-blue-500';
       else if (tienDo >= 70) progColor = 'bg-brand-600';
       else if (tienDo >= 30) progColor = 'bg-sky-500';
       else if (tienDo > 0) progColor = 'bg-amber-500';
@@ -2817,7 +2826,7 @@ window.ModuleTasksGantt = (function() {
       var isDone = trangThai === 'Hoàn thành' || tienDo >= 100;
       var isPast = isOverdue(deadline, trangThai, tienDo);
 
-      var progColor = isDone ? 'bg-emerald-500' : (tienDo >= 70 ? 'bg-brand-600' : 'bg-sky-500');
+      var progColor = isDone ? 'bg-blue-500' : (tienDo >= 70 ? 'bg-brand-600' : 'bg-sky-500');
 
       html += '<div class="p-4 bg-white rounded-xl border border-slate-100 space-y-3">' +
         // Hàng trên: Checkbox + Mã ID + Status dot + Thao tác
@@ -3004,7 +3013,7 @@ window.ModuleTasksGantt = (function() {
 
       var barBg = 'bg-sky-500';
       if (trangThai === 'Hoàn thành' || tienDo >= 100) {
-        barBg = 'bg-emerald-500';
+        barBg = 'bg-blue-500';
       } else if (isOverdue(task.deadline || task['Deadline'], trangThai, tienDo) || capDo === 'Khẩn cấp') {
         barBg = 'bg-rose-500';
       } else if (capDo === 'Cao') {
@@ -3015,8 +3024,8 @@ window.ModuleTasksGantt = (function() {
 
       var isDone = trangThai === 'Hoàn thành' || tienDo >= 100;
       var checkBtn = isDone
-        ? '<button onclick="ModuleTasksGantt.quickToggleTask(\'' + escapeHtml(maTask) + '\', false)" type="button" class="w-5 h-5 rounded bg-emerald-500 text-white flex items-center justify-center transition hover:bg-emerald-600 cursor-pointer" title="Đánh dấu chưa xong"><i data-lucide="check" class="w-3.5 h-3.5 stroke-[2.5]"></i></button>'
-        : '<button onclick="ModuleTasksGantt.quickToggleTask(\'' + escapeHtml(maTask) + '\', true)" type="button" class="w-5 h-5 rounded border border-slate-300 hover:border-emerald-500 bg-white flex items-center justify-center transition cursor-pointer" title="Đánh dấu hoàn thành"></button>';
+        ? '<button onclick="ModuleTasksGantt.quickToggleTask(\'' + escapeHtml(maTask) + '\', false)" type="button" class="w-5 h-5 rounded bg-blue-500 text-white flex items-center justify-center transition hover:bg-blue-600 cursor-pointer" title="Đánh dấu chưa xong"><i data-lucide="check" class="w-3.5 h-3.5 stroke-[2.5]"></i></button>'
+        : '<button onclick="ModuleTasksGantt.quickToggleTask(\'' + escapeHtml(maTask) + '\', true)" type="button" class="w-5 h-5 rounded border border-slate-300 hover:border-blue-500 bg-white flex items-center justify-center transition cursor-pointer" title="Đánh dấu hoàn thành"></button>';
 
       var tenDuAn = task.tenDuAn || task['Tên Dự Án'] || '';
       if (!tenDuAn && task.maDuAn && window.AppState && window.AppState.data && window.AppState.data.projects) {
@@ -3773,14 +3782,14 @@ window.ModuleTasksGantt = (function() {
     <div class="px-4 py-2 flex flex-col justify-between">
       <div class="flex items-center justify-between text-xs font-semibold text-slate-500 uppercase tracking-wider">
         <span>Kỷ Luật Tuần Này</span>
-        <span class="text-xs font-medium text-emerald-600">≥85%</span>
+        <span class="text-xs font-medium text-blue-600">≥85%</span>
       </div>
       <div class="flex items-baseline gap-2 mt-1">
         <span id="rout-kpi-discipline-rate" class="text-2xl font-bold font-mono text-slate-900">0%</span>
         <span id="rout-kpi-discipline-sub" class="text-[11px] text-slate-500 truncate">Ma trận checklist</span>
       </div>
       <div class="w-full bg-slate-100 h-1 rounded-full mt-2 overflow-hidden">
-        <div id="rout-kpi-discipline-bar" class="bg-emerald-500 h-1 rounded-full transition-all duration-500" style="width: 0%"></div>
+        <div id="rout-kpi-discipline-bar" class="bg-blue-500 h-1 rounded-full transition-all duration-500" style="width: 0%"></div>
       </div>
     </div>
 
@@ -3801,10 +3810,10 @@ window.ModuleTasksGantt = (function() {
       <div class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Gương Mẫu Tuần</div>
       <div class="mt-1">
         <span id="rout-kpi-top-staff" class="text-base font-bold text-slate-900 truncate block">Chưa có</span>
-        <p id="rout-kpi-top-staff-sub" class="text-[11px] text-emerald-600 font-medium">Hoàn thành cam kết</p>
+        <p id="rout-kpi-top-staff-sub" class="text-[11px] text-blue-600 font-medium">Hoàn thành cam kết</p>
       </div>
       <div class="w-full bg-slate-100 h-1 rounded-full mt-2 overflow-hidden">
-        <div class="bg-emerald-500 h-1 rounded-full" style="width: 100%"></div>
+        <div class="bg-blue-500 h-1 rounded-full" style="width: 100%"></div>
       </div>
     </div>
 
@@ -3831,9 +3840,9 @@ window.ModuleTasksGantt = (function() {
     <div class="p-4 sm:p-5 border-b border-slate-100 flex flex-col md:flex-row md:items-center justify-between gap-4">
       <div>
         <div class="flex items-center gap-2.5">
-          <div class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></div>
+          <div class="w-2.5 h-2.5 rounded-full bg-blue-500 animate-pulse"></div>
           <h2 class="text-base sm:text-lg font-bold text-slate-900">Ma Trận Kỷ Luật & Checklist Tuần</h2>
-          <span class="text-xs font-mono font-semibold text-emerald-700">● Click Trực Tiếp</span>
+          <span class="text-xs font-mono font-semibold text-blue-700">● Click Trực Tiếp</span>
         </div>
         <p class="text-xs text-slate-500 mt-1">Bấm trực tiếp vào từng ô ngày (T2 - T7) để đổi trạng thái: Xong ➔ Chưa ➔ Nghỉ</p>
       </div>
@@ -3843,10 +3852,10 @@ window.ModuleTasksGantt = (function() {
         
         <!-- Chọn Tuần Theo Dõi -->
         <div class="relative">
-          <select id="matrix-week-select" class="h-10 pl-3 pr-8 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-700 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all cursor-pointer">
-            <option value="Tuần 46" selected>Tuần 46 (Hiện tại)</option>
-            <option value="Tuần 45">Tuần 45 (Trước)</option>
-            <option value="Tuần 47">Tuần 47 (Kế tiếp)</option>
+          <select id="matrix-week-select" class="appearance-none h-10 pl-3 pr-8 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-700 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-blue-500 transition-all cursor-pointer">
+            <option value="Tuần 46" selected>Tuần 46</option>
+            <option value="Tuần 45">Tuần 45</option>
+            <option value="Tuần 47">Tuần 47</option>
             <option value="Tuần 48">Tuần 48</option>
           </select>
           <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-slate-400">
@@ -3856,7 +3865,7 @@ window.ModuleTasksGantt = (function() {
 
         <!-- Lọc Thành Viên -->
         <div class="relative">
-          <select id="matrix-member-filter" class="h-10 pl-3 pr-8 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-700 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all cursor-pointer">
+          <select id="matrix-member-filter" class="appearance-none h-10 pl-3 pr-8 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-700 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-blue-500 transition-all cursor-pointer">
             <option value="all">Tất cả thành viên</option>
           </select>
           <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-slate-400">
@@ -3881,7 +3890,7 @@ window.ModuleTasksGantt = (function() {
         <span>Tỷ lệ hoàn thành tuần đang lọc:</span>
         <div class="flex items-center gap-2">
           <div class="w-24 bg-slate-200 h-2 rounded-full overflow-hidden">
-            <div id="matrix-week-summary-bar" class="bg-emerald-500 h-2 rounded-full transition-all duration-300" style="width: 0%"></div>
+            <div id="matrix-week-summary-bar" class="bg-blue-500 h-2 rounded-full transition-all duration-300" style="width: 0%"></div>
           </div>
           <span id="matrix-week-summary-rate" class="font-mono font-bold text-slate-900">0%</span>
         </div>
@@ -3955,7 +3964,7 @@ window.ModuleTasksGantt = (function() {
         
         <!-- Ô Tìm Kiếm -->
         <div class="relative w-full sm:w-56">
-          <input id="rout-search-input" type="text" placeholder="Tìm theo tên hoặc mã..." class="w-full h-10 pl-9 pr-3 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium text-slate-700 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all">
+          <input id="rout-search-input" type="text" placeholder="Tìm theo tên hoặc mã..." class="w-full h-10 pl-9 pr-3 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium text-slate-700 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-blue-500 transition-all">
           <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400">
             <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
           </div>
@@ -3963,7 +3972,7 @@ window.ModuleTasksGantt = (function() {
 
         <!-- Bộ Lọc Trạng Thái -->
         <div class="relative">
-          <select id="rout-status-filter" class="h-10 pl-3 pr-8 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-700 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all cursor-pointer">
+          <select id="rout-status-filter" class="appearance-none h-10 pl-3 pr-8 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-700 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-blue-500 transition-all cursor-pointer">
             <option value="all">Tất cả trạng thái</option>
             <option value="Đang kích hoạt">Đang kích hoạt</option>
             <option value="Tạm dừng">Tạm dừng</option>
@@ -3974,7 +3983,7 @@ window.ModuleTasksGantt = (function() {
         </div>
 
         <!-- Nút Thêm Lịch Cố Định Mới -->
-        <button id="rout-add-btn" type="button" class="h-10 px-4 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-semibold flex items-center gap-1.5 shadow-xs transition-all">
+        <button id="rout-add-btn" type="button" class="h-10 px-4 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-semibold flex items-center gap-1.5 shadow-xs transition-all">
           <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
             <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
           </svg>
@@ -4052,13 +4061,13 @@ window.ModuleTasksGantt = (function() {
     <!-- Tiêu Đề Đầu Việc / Meeting -->
     <div>
       <label class="block text-xs font-semibold text-slate-700 mb-1">Tiêu Đề Việc / Meeting <span class="text-rose-500">*</span></label>
-      <input id="rout-form-title" type="text" required placeholder="VD: Họp Standup Đầu Ngày (Daily Standup)" class="w-full h-11 px-3.5 bg-white border border-slate-200 rounded-xl text-xs font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all">
+      <input id="rout-form-title" type="text" required placeholder="VD: Họp Standup Đầu Ngày (Daily Standup)" class="w-full h-11 px-3.5 bg-white border border-slate-200 rounded-xl text-xs font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-blue-500 transition-all">
     </div>
 
     <!-- Tần Suất Lặp Lại -->
     <div>
       <label class="block text-xs font-semibold text-slate-700 mb-1">Tần Suất Lặp <span class="text-rose-500">*</span></label>
-      <select id="rout-form-frequency" class="w-full h-11 px-3 bg-white border border-slate-200 rounded-xl text-xs font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all cursor-pointer">
+      <select id="rout-form-frequency" class="w-full h-11 px-3 bg-white border border-slate-200 rounded-xl text-xs font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-blue-500 transition-all cursor-pointer">
         <option value="Hàng ngày (Thứ 2 - Thứ 6)">Hàng ngày (Thứ 2 - Thứ 6)</option>
         <option value="Thứ 2 đầu tuần">Thứ 2 đầu tuần</option>
         <option value="Thứ 6 cuối tuần">Thứ 6 cuối tuần</option>
@@ -4073,25 +4082,25 @@ window.ModuleTasksGantt = (function() {
     <!-- Lịch Cụ Thể (Mô tả hiển thị nhanh) -->
     <div>
       <label class="block text-xs font-semibold text-slate-700 mb-1">Mô Tả Lịch Cụ Thể</label>
-      <input id="rout-form-detail" type="text" placeholder="VD: 09:00 - 09:20 Thứ 2 đến Thứ 6" class="w-full h-11 px-3.5 bg-white border border-slate-200 rounded-xl text-xs font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all">
+      <input id="rout-form-detail" type="text" placeholder="VD: 09:00 - 09:20 Thứ 2 đến Thứ 6" class="w-full h-11 px-3.5 bg-white border border-slate-200 rounded-xl text-xs font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-blue-500 transition-all">
     </div>
 
     <!-- Khung Giờ (Bắt đầu - Kết thúc) -->
     <div class="grid grid-cols-2 gap-3">
       <div>
         <label class="block text-xs font-semibold text-slate-700 mb-1">Giờ Bắt Đầu <span class="text-rose-500">*</span></label>
-        <input id="rout-form-start-time" type="time" required value="09:00" class="w-full h-11 px-3 bg-white border border-slate-200 rounded-xl text-xs font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all">
+        <input id="rout-form-start-time" type="time" required value="09:00" class="w-full h-11 px-3 bg-white border border-slate-200 rounded-xl text-xs font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-blue-500 transition-all">
       </div>
       <div>
         <label class="block text-xs font-semibold text-slate-700 mb-1">Giờ Kết Thúc <span class="text-rose-500">*</span></label>
-        <input id="rout-form-end-time" type="time" required value="09:20" class="w-full h-11 px-3 bg-white border border-slate-200 rounded-xl text-xs font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all">
+        <input id="rout-form-end-time" type="time" required value="09:20" class="w-full h-11 px-3 bg-white border border-slate-200 rounded-xl text-xs font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-blue-500 transition-all">
       </div>
     </div>
 
     <!-- Người Chủ Trì / Phụ Trách -->
     <div>
       <label class="block text-xs font-semibold text-slate-700 mb-1">Người Chủ Trì / Điều Phối <span class="text-rose-500">*</span></label>
-      <select id="rout-form-leader" required class="w-full h-11 px-3 bg-white border border-slate-200 rounded-xl text-xs font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all cursor-pointer">
+      <select id="rout-form-leader" required class="w-full h-11 px-3 bg-white border border-slate-200 rounded-xl text-xs font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-blue-500 transition-all cursor-pointer">
         <!-- Đổ danh sách nhân sự từ AppState.data.staff -->
       </select>
     </div>
@@ -4099,7 +4108,7 @@ window.ModuleTasksGantt = (function() {
     <!-- Trạng Thái Kích Hoạt -->
     <div>
       <label class="block text-xs font-semibold text-slate-700 mb-1">Trạng Thái</label>
-      <select id="rout-form-status" class="w-full h-11 px-3 bg-white border border-slate-200 rounded-xl text-xs font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all cursor-pointer">
+      <select id="rout-form-status" class="w-full h-11 px-3 bg-white border border-slate-200 rounded-xl text-xs font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-blue-500 transition-all cursor-pointer">
         <option value="Đang kích hoạt">Đang kích hoạt</option>
         <option value="Tạm dừng">Tạm dừng</option>
       </select>
@@ -4108,7 +4117,7 @@ window.ModuleTasksGantt = (function() {
     <!-- Ghi Chú & Mục Tiêu -->
     <div>
       <label class="block text-xs font-semibold text-slate-700 mb-1">Ghi Chú & Mục Tiêu Họp</label>
-      <textarea id="rout-form-notes" rows="3" placeholder="Báo cáo 3 câu hỏi: Hôm qua làm gì? Hôm nay làm gì? Có blocker gì không?..." class="w-full p-3 bg-white border border-slate-200 rounded-xl text-xs font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all"></textarea>
+      <textarea id="rout-form-notes" rows="3" placeholder="Báo cáo 3 câu hỏi: Hôm qua làm gì? Hôm nay làm gì? Có blocker gì không?..." class="w-full p-3 bg-white border border-slate-200 rounded-xl text-xs font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-blue-500 transition-all"></textarea>
     </div>
 
   </form>
@@ -4118,7 +4127,7 @@ window.ModuleTasksGantt = (function() {
     <button id="rout-drawer-cancel-btn" type="button" class="h-11 px-4 bg-white hover:bg-slate-100 text-slate-700 border border-slate-200 rounded-xl text-xs font-semibold transition-all">
       Hủy Bỏ
     </button>
-    <button id="rout-drawer-save-btn" type="button" class="h-11 px-6 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-semibold shadow-xs flex items-center gap-1.5 transition-all">
+    <button id="rout-drawer-save-btn" type="button" class="h-11 px-6 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-semibold shadow-xs flex items-center gap-1.5 transition-all">
       <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
       <span>Lưu Lịch Định Kỳ</span>
     </button>
@@ -4148,7 +4157,7 @@ window.ModuleTasksGantt = (function() {
       <!-- Chọn Lịch / Nhiệm Vụ -->
       <div>
         <label class="block text-xs font-semibold text-slate-700 mb-1">Lịch / Nhiệm Vụ Định Kỳ <span class="text-rose-500">*</span></label>
-        <select id="matrix-modal-routine-select" required class="w-full h-10 px-3 bg-white border border-slate-200 rounded-xl text-xs font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 cursor-pointer">
+        <select id="matrix-modal-routine-select" required class="w-full h-10 px-3 bg-white border border-slate-200 rounded-xl text-xs font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-blue-500 cursor-pointer">
           <!-- Đổ danh sách routine -->
         </select>
       </div>
@@ -4156,7 +4165,7 @@ window.ModuleTasksGantt = (function() {
       <!-- Chọn Thành Viên Phụ Trách -->
       <div>
         <label class="block text-xs font-semibold text-slate-700 mb-1">Thành Viên Tham Gia / Phụ Trách <span class="text-rose-500">*</span></label>
-        <select id="matrix-modal-staff-select" required class="w-full h-10 px-3 bg-white border border-slate-200 rounded-xl text-xs font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 cursor-pointer">
+        <select id="matrix-modal-staff-select" required class="w-full h-10 px-3 bg-white border border-slate-200 rounded-xl text-xs font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-blue-500 cursor-pointer">
           <!-- Đổ danh sách staff -->
         </select>
       </div>
@@ -4164,7 +4173,7 @@ window.ModuleTasksGantt = (function() {
       <!-- Chọn Tuần Theo Dõi -->
       <div>
         <label class="block text-xs font-semibold text-slate-700 mb-1">Áp Dụng Cho Tuần <span class="text-rose-500">*</span></label>
-        <select id="matrix-modal-week-select" required class="w-full h-10 px-3 bg-white border border-slate-200 rounded-xl text-xs font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 cursor-pointer">
+        <select id="matrix-modal-week-select" required class="w-full h-10 px-3 bg-white border border-slate-200 rounded-xl text-xs font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-blue-500 cursor-pointer">
           <option value="Tuần 46" selected>Tuần 46</option>
           <option value="Tuần 45">Tuần 45</option>
           <option value="Tuần 47">Tuần 47</option>
@@ -4525,7 +4534,7 @@ const ModuleRoutinesMatrix = (function() {
    */
   function getCellButtonClass(status) {
     if (status === 'Done') {
-      return 'matrix-cell-btn w-full py-1 px-1.5 rounded font-semibold text-xs flex items-center justify-center gap-1 text-emerald-600 bg-emerald-50/70 hover:bg-emerald-100 transition-colors cursor-pointer';
+      return 'matrix-cell-btn w-full py-1 px-1.5 rounded font-semibold text-xs flex items-center justify-center gap-1 text-blue-600 bg-blue-50/70 hover:bg-emerald-100 transition-colors cursor-pointer';
     }
     if (status === 'Not Yet') {
       return 'matrix-cell-btn w-full py-1 px-1.5 rounded font-semibold text-xs flex items-center justify-center gap-1 text-amber-600 bg-amber-50/70 hover:bg-amber-100 transition-colors cursor-pointer';
@@ -4545,7 +4554,7 @@ const ModuleRoutinesMatrix = (function() {
 
   function renderRateBadge(rateStr) {
     const rate = parseInt(rateStr, 10) || 0;
-    const barColor = rate >= 80 ? 'bg-emerald-500' : rate >= 50 ? 'bg-sky-500' : 'bg-amber-500';
+    const barColor = rate >= 80 ? 'bg-blue-500' : rate >= 50 ? 'bg-sky-500' : 'bg-amber-500';
     return `
       <div class="flex flex-col items-center gap-1">
         <span class="font-mono text-xs font-bold text-slate-800">
@@ -4687,12 +4696,12 @@ const ModuleRoutinesMatrix = (function() {
                 <span class="font-mono text-[11px] font-semibold text-slate-500">${maLich}</span>
                 <h4 class="text-sm font-bold text-slate-900">${nhiemVu}</h4>
                 <div class="flex items-center gap-1.5 mt-1 text-xs text-slate-600 font-medium">
-                  <i data-lucide="user" class="w-3.5 h-3.5 text-slate-400"></i>
+                  
                   <span>${tenNhanSu}</span>
                 </div>
               </div>
               <div class="text-right shrink-0">
-                <span class="inline-block px-2 py-0.5 rounded font-mono text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                <span class="inline-block px-2 py-0.5 rounded font-mono text-xs font-bold bg-blue-50 text-blue-700 border border-blue-200">
                   ${tyLe}
                 </span>
               </div>
@@ -4920,7 +4929,7 @@ const ModuleRoutinesMatrix = (function() {
           <!-- Trạng Thái -->
           <td class="py-3 px-4 text-center">
             ${isAct 
-              ? '<span class="inline-flex items-center gap-1 text-xs font-medium text-emerald-600"><span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>Hoạt động</span>'
+              ? '<span class="inline-flex items-center gap-1 text-xs font-medium text-blue-600"><span class="w-1.5 h-1.5 rounded-full bg-blue-500"></span>Hoạt động</span>'
               : '<span class="inline-flex items-center gap-1 text-xs font-medium text-slate-400"><span class="w-1.5 h-1.5 rounded-full bg-slate-400"></span>Tạm dừng</span>'
             }
           </td>
@@ -4968,13 +4977,13 @@ const ModuleRoutinesMatrix = (function() {
                 <h4 class="text-sm font-bold text-slate-900">${tieuDe}</h4>
               </div>
               ${trangThai === 'Đang kích hoạt' 
-                ? '<span class="inline-flex items-center gap-1 text-xs font-medium text-emerald-600"><span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>Hoạt động</span>' 
+                ? '<span class="inline-flex items-center gap-1 text-xs font-medium text-blue-600"><span class="w-1.5 h-1.5 rounded-full bg-blue-500"></span>Hoạt động</span>' 
                 : '<span class="inline-flex items-center gap-1 text-xs font-medium text-slate-400"><span class="w-1.5 h-1.5 rounded-full bg-slate-400"></span>Tạm dừng</span>'}
             </div>
             <div class="flex flex-wrap items-center gap-3 text-xs text-slate-600">
               <span class="flex items-center gap-1 text-slate-600"><i data-lucide="calendar" class="w-3.5 h-3.5 text-slate-400"></i>${tanSuat}</span>
               <span class="flex items-center gap-1 text-slate-600"><i data-lucide="clock" class="w-3.5 h-3.5 text-slate-400"></i>${gioBD} - ${gioKT}</span>
-              <span class="flex items-center gap-1 text-slate-600"><i data-lucide="user" class="w-3.5 h-3.5 text-slate-400"></i>${leader}</span>
+              <span class="flex items-center gap-1 text-slate-600">${leader}</span>
             </div>
             <div class="flex items-center justify-end gap-2 pt-2 border-t border-slate-100">
               <button type="button" onclick="ModuleRoutinesMatrix.openRoutineDrawer('${maLich}')" class="px-2.5 py-1 text-xs font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-lg">
@@ -5658,7 +5667,7 @@ if (document.readyState === 'loading') {
 
       <div class="px-4">
         <span class="text-[11px] font-medium text-slate-400 block tracking-wider uppercase">Tỷ Lệ Đúng Hạn TB</span>
-        <span id="team-ontime-rate" class="text-2xl font-bold font-mono text-emerald-600 mt-0.5 block">0%</span>
+        <span id="team-ontime-rate" class="text-2xl font-bold font-mono text-blue-600 mt-0.5 block">0%</span>
       </div>
 
       <div class="px-4 last:pr-0">
@@ -5773,7 +5782,7 @@ if (document.readyState === 'loading') {
 
       <div class="px-4">
         <span class="text-[11px] font-medium text-slate-400 block tracking-wider uppercase">Tổng Ngân Sách</span>
-        <span id="proj-total-budget" class="text-2xl font-bold font-mono text-emerald-700 mt-0.5 block">0 đ</span>
+        <span id="proj-total-budget" class="text-2xl font-bold font-mono text-blue-700 mt-0.5 block">0 đ</span>
       </div>
 
       <div class="px-4 last:pr-0">
@@ -5813,8 +5822,8 @@ if (document.readyState === 'loading') {
   
   <!-- 1. FLAT DOCUMENTATION HEADER (Pure Fintech Header, Zero Card Box) -->
   <div class="pb-6 border-b border-slate-100">
-    <div class="flex items-center gap-2 text-xs font-semibold text-emerald-700 tracking-wide mb-2">
-      <span class="w-1.5 h-1.5 rounded-full bg-emerald-600"></span>
+    <div class="flex items-center gap-2 text-xs font-semibold text-blue-700 tracking-wide mb-2">
+      <span class="w-1.5 h-1.5 rounded-full bg-blue-600"></span>
       <span>HỆ THỐNG VẬN HÀNH CHUẨN HOÁ · TÀI LIỆU HƯỚNG DẪN BẢN 3.2</span>
     </div>
     <h2 class="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight leading-snug">
@@ -5830,7 +5839,7 @@ if (document.readyState === 'loading') {
     
     <div class="flex items-center justify-between pb-3 border-b border-slate-100">
       <div class="flex items-center gap-2">
-        <i data-lucide="layers" class="w-4 h-4 text-emerald-600 shrink-0"></i>
+        <i data-lucide="layers" class="w-4 h-4 text-blue-600 shrink-0"></i>
         <h3 class="text-xs font-bold text-slate-900 uppercase tracking-wider">Quy Trình Vận Hành 5 Module Chức Năng</h3>
       </div>
       <span class="text-[11px] font-mono text-slate-400">100% Thao tác trên Web App · Tốc độ 0s</span>
@@ -5840,7 +5849,7 @@ if (document.readyState === 'loading') {
     <div class="py-5 border-b border-slate-100 space-y-4">
       <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
         <div class="flex items-center gap-2.5">
-          <span class="font-mono text-xs font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">MODULE 01</span>
+          <span class="font-mono text-xs font-bold text-blue-700 bg-blue-50 px-2 py-0.5 rounded border border-blue-200">MODULE 01</span>
           <h4 class="text-sm font-bold text-slate-900">Vận Hành Dashboard KPI & Xử Lý Việc Khẩn Cấp Hôm Nay</h4>
         </div>
         <span class="text-[11px] text-slate-400 font-medium">Tầng 1: Vận hành thường xuyên (80%) · Menu: Tổng Quan</span>
@@ -5854,7 +5863,7 @@ if (document.readyState === 'loading') {
           <li><span class="font-medium text-slate-800">Nhiệm Vụ Đang Chạy (<code class="font-mono text-[11px] bg-slate-100 px-1 py-0.5 rounded">#dash-kpi-active-tasks</code>):</span> Tổng hợp tự động các công việc ở trạng thái <em>Đang làm</em> và <em>Chờ duyệt</em>.</li>
           <li><span class="font-medium text-rose-600">Quá Hạn & Khẩn Cấp (<code class="font-mono text-[11px] bg-slate-100 px-1 py-0.5 rounded">#dash-kpi-overdue-tasks</code>):</span> Số lượng nhiệm vụ đã vượt quá hạn chót hoặc có cấp độ "Khẩn cấp". Nhấp vào để lọc danh sách tức thì.</li>
           <li><span class="font-medium text-slate-800">Tiến Độ Dự Án TB (<code class="font-mono text-[11px] bg-slate-100 px-1 py-0.5 rounded">#dash-kpi-avg-progress</code>):</span> Phần trăm tiến độ bình quân gia quyền từ tất cả các dự án chiến lược đang kích hoạt.</li>
-          <li><span class="font-medium text-slate-800">Tỷ Lệ Kỷ Luật Tuần (<code class="font-mono text-[11px] bg-slate-100 px-1 py-0.5 rounded">#dash-kpi-discipline-rate</code>):</span> Mức độ tuân thủ checklist họp Standup của toàn bộ nhân sự (chuẩn xếp loại: <span class="text-emerald-700 font-semibold">≥ 90% đạt Hạng A</span>).</li>
+          <li><span class="font-medium text-slate-800">Tỷ Lệ Kỷ Luật Tuần (<code class="font-mono text-[11px] bg-slate-100 px-1 py-0.5 rounded">#dash-kpi-discipline-rate</code>):</span> Mức độ tuân thủ checklist họp Standup của toàn bộ nhân sự (chuẩn xếp loại: <span class="text-blue-700 font-semibold">≥ 90% đạt Hạng A</span>).</li>
           <li><span class="font-medium text-slate-800">Lịch Cố Định Hôm Nay (<code class="font-mono text-[11px] bg-slate-100 px-1 py-0.5 rounded">#dash-kpi-today-routines</code>):</span> Tổng số cuộc họp lặp lại, routine điểm danh diễn ra trong ngày hiện tại.</li>
         </ul>
 
@@ -5867,7 +5876,7 @@ if (document.readyState === 'loading') {
         </p>
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-1">
           <div class="p-3 bg-slate-50 border border-slate-100 rounded-lg">
-            <div class="font-semibold text-emerald-700 mb-1 flex items-center gap-1.5">
+            <div class="font-semibold text-blue-700 mb-1 flex items-center gap-1.5">
               <i data-lucide="check" class="w-3.5 h-3.5"></i>
               <span>Nút [Xong]</span>
             </div>
@@ -5899,7 +5908,7 @@ if (document.readyState === 'loading') {
     <div class="py-5 border-b border-slate-100 space-y-4">
       <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
         <div class="flex items-center gap-2.5">
-          <span class="font-mono text-xs font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">MODULE 02</span>
+          <span class="font-mono text-xs font-bold text-blue-700 bg-blue-50 px-2 py-0.5 rounded border border-blue-200">MODULE 02</span>
           <h4 class="text-sm font-bold text-slate-900">Quản Lý Công Việc & Đọc Ma Trận Gantt Timeline Liền Mạch</h4>
         </div>
         <span class="text-[11px] text-slate-400 font-medium">Tầng 1: Vận hành thường xuyên (80%) · Menu: Công Việc & Tiến Độ Gantt</span>
@@ -5914,7 +5923,7 @@ if (document.readyState === 'loading') {
           <strong class="text-slate-800">2. Master-Table Tràn Viền & Kéo Tiến Độ (Slider):</strong> Bảng công việc tràn viền hiển thị toàn bộ thuộc tính mà không bị ngắt quãng. Nhấp vào bất kỳ dòng nào để mở Slide-over Drawer bên phải màn hình:
         </p>
         <ul class="list-disc list-inside space-y-1.5 pl-2 text-slate-600">
-          <li>Kéo thanh trượt <span class="font-semibold text-slate-800">Tiến độ (0% – 100%)</span>. Khi kéo đạt 100%, hệ thống tự động đổi trạng thái sang <span class="text-emerald-700 font-semibold">"Hoàn thành"</span>.</li>
+          <li>Kéo thanh trượt <span class="font-semibold text-slate-800">Tiến độ (0% – 100%)</span>. Khi kéo đạt 100%, hệ thống tự động đổi trạng thái sang <span class="text-blue-700 font-semibold">"Hoàn thành"</span>.</li>
           <li>Bộ lọc tìm kiếm đa năng tức thì: Lọc theo Dự án, Trạng thái, Cấp độ ưu tiên, Người phụ trách và ô tìm kiếm từ khóa. Nhấp <span class="font-semibold text-slate-800">"Xóa bộ lọc"</span> để đặt lại mặc định.</li>
         </ul>
 
@@ -5934,7 +5943,7 @@ if (document.readyState === 'loading') {
     <div class="py-5 border-b border-slate-100 space-y-4">
       <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
         <div class="flex items-center gap-2.5">
-          <span class="font-mono text-xs font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">MODULE 03</span>
+          <span class="font-mono text-xs font-bold text-blue-700 bg-blue-50 px-2 py-0.5 rounded border border-blue-200">MODULE 03</span>
           <h4 class="text-sm font-bold text-slate-900">Vận Hành Lịch Routine & Ma Trận Checklist Tuần</h4>
         </div>
         <span class="text-[11px] text-slate-400 font-medium">Tầng 2: Quản lý định kỳ & Kỷ luật (15%) · Menu: Kỷ Luật & Lịch Họp</span>
@@ -5950,7 +5959,7 @@ if (document.readyState === 'loading') {
         </p>
         <ul class="list-disc list-inside space-y-1.5 pl-2 text-slate-600">
           <li>Mỗi ô ngày từ Thứ 2 (<span class="font-mono">T2</span>) đến Chủ Nhật (<span class="font-mono">CN</span>) là một nút bấm tương tác độc lập.</li>
-          <li><span class="font-semibold text-slate-800">Thao tác:</span> Nhấp trực tiếp vào ô ngày của thành viên để chuyển đổi trạng thái: Ô trống/Chưa $\rightarrow$ Chuyển thành <span class="text-emerald-700 font-semibold">● Đã xong (Done)</span>. Nhấp lần nữa để hủy điểm danh.</li>
+          <li><span class="font-semibold text-slate-800">Thao tác:</span> Nhấp trực tiếp vào ô ngày của thành viên để chuyển đổi trạng thái: Ô trống/Chưa $\rightarrow$ Chuyển thành <span class="text-blue-700 font-semibold">● Đã xong (Done)</span>. Nhấp lần nữa để hủy điểm danh.</li>
           <li>Dữ liệu được lưu ngầm tức thì xuống Google Sheets qua hàm backend <code class="font-mono text-[11px] bg-slate-100 px-1 py-0.5 rounded">apiUpdateChecklistCell</code> có khóa <code class="font-mono text-[11px] bg-slate-100 px-1 py-0.5 rounded">LockService</code> an toàn.</li>
         </ul>
 
@@ -5962,7 +5971,7 @@ if (document.readyState === 'loading') {
         </div>
         <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-1 text-[11px]">
           <div class="p-2 border border-slate-100 rounded bg-white">
-            <span class="font-bold text-emerald-700">Hạng A (≥ 90%)</span>
+            <span class="font-bold text-blue-700">Hạng A (≥ 90%)</span>
             <p class="text-slate-500 text-[10px] mt-0.5">Kỷ luật xuất sắc</p>
           </div>
           <div class="p-2 border border-slate-100 rounded bg-white">
@@ -5985,7 +5994,7 @@ if (document.readyState === 'loading') {
     <div class="py-5 border-b border-slate-100 space-y-4">
       <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
         <div class="flex items-center gap-2.5">
-          <span class="font-mono text-xs font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">MODULE 04</span>
+          <span class="font-mono text-xs font-bold text-blue-700 bg-blue-50 px-2 py-0.5 rounded border border-blue-200">MODULE 04</span>
           <h4 class="text-sm font-bold text-slate-900">Quản Lý Đội Ngũ Nhân Sự & Danh Mục Dự Án</h4>
         </div>
         <span class="text-[11px] text-slate-400 font-medium">Tầng 2: Quản trị biến động (15%) · Menu: Đội Ngũ Nhân Sự & Danh Sách Dự Án</span>
@@ -5996,7 +6005,7 @@ if (document.readyState === 'loading') {
           <strong class="text-slate-800">1. Quản Lý Đội Ngũ & Giám Sát Khối Lượng Tải (Workload):</strong> Tại tab <span class="font-semibold text-slate-800">"Đội Ngũ Nhân Sự"</span>:
         </p>
         <ul class="list-disc list-inside space-y-1.5 pl-2 text-slate-600">
-          <li><span class="font-medium text-slate-800">Thêm Mới Thành Viên:</span> Bấm nút <span class="font-semibold text-slate-800">"+ Thêm Nhân Sự"</span>. Nhập Họ tên, Chức danh, Cấp bậc (<em>Lead / Senior / Mid / Junior</em>), Phòng ban, Số điện thoại và <strong class="text-emerald-800">Email Google chính xác</strong> (yêu cầu bắt buộc để kích hoạt đồng bộ lịch Calendar). Hệ thống sinh mã <code class="font-mono text-[11px] bg-slate-100 px-1 py-0.5 rounded">NHAN-XXXXXX</code>.</li>
+          <li><span class="font-medium text-slate-800">Thêm Mới Thành Viên:</span> Bấm nút <span class="font-semibold text-slate-800">"+ Thêm Nhân Sự"</span>. Nhập Họ tên, Chức danh, Cấp bậc (<em>Lead / Senior / Mid / Junior</em>), Phòng ban, Số điện thoại và <strong class="text-blue-800">Email Google chính xác</strong> (yêu cầu bắt buộc để kích hoạt đồng bộ lịch Calendar). Hệ thống sinh mã <code class="font-mono text-[11px] bg-slate-100 px-1 py-0.5 rounded">NHAN-XXXXXX</code>.</li>
           <li><span class="font-medium text-slate-800">Theo Dõi Tải Công Việc (Workload):</span> Quan sát cột "Khối Lượng Đang Gánh" để nhận biết thành viên nào đang nhận quá nhiều đầu việc song song, giúp người quản lý điều phối lại công việc hợp lý.</li>
           <li><span class="font-medium text-slate-800">Liên Lạc 1 Chạm:</span> Nhấp trực tiếp vào icon điện thoại để gọi <code class="font-mono text-[11px] bg-slate-100 px-1 py-0.5 rounded">tel:</code> hoặc icon email để gửi thư <code class="font-mono text-[11px] bg-slate-100 px-1 py-0.5 rounded">mailto:</code> ngay trên danh sách.</li>
         </ul>
@@ -6015,7 +6024,7 @@ if (document.readyState === 'loading') {
     <div class="py-5 border-b border-slate-100 space-y-4">
       <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
         <div class="flex items-center gap-2.5">
-          <span class="font-mono text-xs font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">MODULE 05</span>
+          <span class="font-mono text-xs font-bold text-blue-700 bg-blue-50 px-2 py-0.5 rounded border border-blue-200">MODULE 05</span>
           <h4 class="text-sm font-bold text-slate-900">Cơ Chế Đồng Bộ Google Calendar & Chính Sách Single Visible Tab</h4>
         </div>
         <span class="text-[11px] text-slate-400 font-medium">Tầng 3: Nền tảng & Bảo mật (5%) · Menu: Đồng Bộ Calendar & Google Sheets</span>
@@ -6037,14 +6046,14 @@ if (document.readyState === 'loading') {
         </p>
         <div class="p-3.5 bg-slate-50 border-l-2 border-emerald-600 text-xs text-slate-700 space-y-1.5">
           <div class="font-semibold text-slate-900 flex items-center gap-1.5">
-            <i data-lucide="shield-check" class="w-4 h-4 text-emerald-600 shrink-0"></i>
+            <i data-lucide="shield-check" class="w-4 h-4 text-blue-600 shrink-0"></i>
             <span>Nguyên tắc bảo vệ dữ liệu chuẩn Master Standard V2.4:</span>
           </div>
           <p class="text-slate-600 leading-relaxed">
             Khi mở file Google Sheet, bạn sẽ chỉ thấy duy nhất tab <strong class="text-slate-900">HDSD</strong> với nút bấm màu xanh Mint mở Web App tại ô <code class="font-mono text-[11px] bg-slate-200/70 px-1 py-0.5 rounded">B2:D3</code>. Toàn bộ 6 tab cơ sở dữ liệu (<code class="font-mono text-[11px]">DB_CongViec</code>, <code class="font-mono text-[11px]">DB_DuAn</code>, <code class="font-mono text-[11px]">DB_NhanSu</code>, <code class="font-mono text-[11px]">DB_LichLapLai</code>, <code class="font-mono text-[11px]">DB_ChecklistLap</code>, <code class="font-mono text-[11px]">DB_DanhMuc</code>) đã được hàm <code class="font-mono text-[11px]">lockAndHideDatabaseSheets()</code> <strong>Khóa bảo vệ</strong> và <strong>Ẩn hoàn toàn</strong>.
           </p>
           <p class="text-slate-600 leading-relaxed">
-            <strong class="text-emerald-800">Lợi ích sống còn:</strong> Triệt tiêu 100% rủi ro gõ tay nhầm làm hỏng cấu trúc khóa ngoại <code class="font-mono text-[11px]">TASK-</code>, <code class="font-mono text-[11px]">DUAN-</code>, <code class="font-mono text-[11px]">NHAN-</code>, chống xóa nhầm công thức và đảm bảo dữ liệu luôn đồng bộ hoàn hảo với Web App.
+            <strong class="text-blue-800">Lợi ích sống còn:</strong> Triệt tiêu 100% rủi ro gõ tay nhầm làm hỏng cấu trúc khóa ngoại <code class="font-mono text-[11px]">TASK-</code>, <code class="font-mono text-[11px]">DUAN-</code>, <code class="font-mono text-[11px]">NHAN-</code>, chống xóa nhầm công thức và đảm bảo dữ liệu luôn đồng bộ hoàn hảo với Web App.
           </p>
         </div>
       </div>
@@ -6056,7 +6065,7 @@ if (document.readyState === 'loading') {
   <div class="space-y-4 pt-2">
     <div class="flex items-center justify-between pb-3 border-b border-slate-100">
       <div class="flex items-center gap-2">
-        <i data-lucide="help-circle" class="w-4 h-4 text-emerald-600 shrink-0"></i>
+        <i data-lucide="help-circle" class="w-4 h-4 text-blue-600 shrink-0"></i>
         <h3 class="text-xs font-bold text-slate-900 uppercase tracking-wider">Hỏi & Đáp Vận Hành Thực Chiến (FAQ)</h3>
       </div>
       <span class="text-[11px] font-mono text-slate-400">Nhấp vào câu hỏi để xem lời giải đáp</span>
@@ -6070,9 +6079,9 @@ if (document.readyState === 'loading') {
         <button 
           type="button" 
           onclick="ModuleTeamProjects.toggleFaq('help-faq-1')"
-          class="w-full py-4 flex items-center justify-between text-left transition-colors hover:text-emerald-700 gap-3"
+          class="w-full py-4 flex items-center justify-between text-left transition-colors hover:text-blue-700 gap-3"
         >
-          <span class="text-xs sm:text-sm font-semibold text-slate-800 group-hover:text-emerald-700 transition flex items-center gap-2.5">
+          <span class="text-xs sm:text-sm font-semibold text-slate-800 group-hover:text-blue-700 transition flex items-center gap-2.5">
             <span class="font-mono text-xs text-slate-400 font-normal">01.</span>
             Làm thế nào để đồng bộ deadline công việc sang Google Calendar?
           </span>
@@ -6093,9 +6102,9 @@ if (document.readyState === 'loading') {
         <button 
           type="button" 
           onclick="ModuleTeamProjects.toggleFaq('help-faq-2')"
-          class="w-full py-4 flex items-center justify-between text-left transition-colors hover:text-emerald-700 gap-3"
+          class="w-full py-4 flex items-center justify-between text-left transition-colors hover:text-blue-700 gap-3"
         >
-          <span class="text-xs sm:text-sm font-semibold text-slate-800 group-hover:text-emerald-700 transition flex items-center gap-2.5">
+          <span class="text-xs sm:text-sm font-semibold text-slate-800 group-hover:text-blue-700 transition flex items-center gap-2.5">
             <span class="font-mono text-xs text-slate-400 font-normal">02.</span>
             Quy tắc đánh giá tỷ lệ kỷ luật tuần được tính toán ra sao?
           </span>
@@ -6119,9 +6128,9 @@ if (document.readyState === 'loading') {
         <button 
           type="button" 
           onclick="ModuleTeamProjects.toggleFaq('help-faq-3')"
-          class="w-full py-4 flex items-center justify-between text-left transition-colors hover:text-emerald-700 gap-3"
+          class="w-full py-4 flex items-center justify-between text-left transition-colors hover:text-blue-700 gap-3"
         >
-          <span class="text-xs sm:text-sm font-semibold text-slate-800 group-hover:text-emerald-700 transition flex items-center gap-2.5">
+          <span class="text-xs sm:text-sm font-semibold text-slate-800 group-hover:text-blue-700 transition flex items-center gap-2.5">
             <span class="font-mono text-xs text-slate-400 font-normal">03.</span>
             Tại sao chỉ có 1 tab HDSD hiển thị trên Google Sheet và các tab DB_ bị ẩn?
           </span>
@@ -6142,9 +6151,9 @@ if (document.readyState === 'loading') {
         <button 
           type="button" 
           onclick="ModuleTeamProjects.toggleFaq('help-faq-4')"
-          class="w-full py-4 flex items-center justify-between text-left transition-colors hover:text-emerald-700 gap-3"
+          class="w-full py-4 flex items-center justify-between text-left transition-colors hover:text-blue-700 gap-3"
         >
-          <span class="text-xs sm:text-sm font-semibold text-slate-800 group-hover:text-emerald-700 transition flex items-center gap-2.5">
+          <span class="text-xs sm:text-sm font-semibold text-slate-800 group-hover:text-blue-700 transition flex items-center gap-2.5">
             <span class="font-mono text-xs text-slate-400 font-normal">04.</span>
             Cách thêm nhân sự mới và phân quyền phụ trách công việc?
           </span>
@@ -6165,9 +6174,9 @@ if (document.readyState === 'loading') {
         <button 
           type="button" 
           onclick="ModuleTeamProjects.toggleFaq('help-faq-5')"
-          class="w-full py-4 flex items-center justify-between text-left transition-colors hover:text-emerald-700 gap-3"
+          class="w-full py-4 flex items-center justify-between text-left transition-colors hover:text-blue-700 gap-3"
         >
-          <span class="text-xs sm:text-sm font-semibold text-slate-800 group-hover:text-emerald-700 transition flex items-center gap-2.5">
+          <span class="text-xs sm:text-sm font-semibold text-slate-800 group-hover:text-blue-700 transition flex items-center gap-2.5">
             <span class="font-mono text-xs text-slate-400 font-normal">05.</span>
             Xử lý thế nào khi có nhiệm vụ bị quá hạn deadline (Overdue Actions)?
           </span>
@@ -6190,9 +6199,9 @@ if (document.readyState === 'loading') {
         <button 
           type="button" 
           onclick="ModuleTeamProjects.toggleFaq('help-faq-6')"
-          class="w-full py-4 flex items-center justify-between text-left transition-colors hover:text-emerald-700 gap-3"
+          class="w-full py-4 flex items-center justify-between text-left transition-colors hover:text-blue-700 gap-3"
         >
-          <span class="text-xs sm:text-sm font-semibold text-slate-800 group-hover:text-emerald-700 transition flex items-center gap-2.5">
+          <span class="text-xs sm:text-sm font-semibold text-slate-800 group-hover:text-blue-700 transition flex items-center gap-2.5">
             <span class="font-mono text-xs text-slate-400 font-normal">06.</span>
             Dữ liệu được bảo vệ an toàn ra sao khi nhiều thành viên cùng truy cập Web App?
           </span>
@@ -6231,7 +6240,7 @@ if (document.readyState === 'loading') {
         href="https://zalo.me/0908123456" 
         target="_blank" 
         rel="noopener noreferrer"
-        class="h-[46px] px-5 rounded-xl bg-emerald-600 hover:bg-emerald-500 active:scale-95 text-white text-xs font-bold flex items-center justify-center gap-2 shadow-sm transition duration-150"
+        class="h-[46px] px-5 rounded-xl bg-blue-600 hover:bg-blue-500 active:scale-95 text-white text-xs font-bold flex items-center justify-center gap-2 shadow-sm transition duration-150"
       >
         <i data-lucide="message-circle" class="w-4 h-4"></i>
         <span>Chat Zalo Kỹ Thuật</span>
@@ -6269,7 +6278,7 @@ if (document.readyState === 'loading') {
     <!-- Drawer Header -->
     <div class="h-16 px-6 border-b border-slate-100 flex items-center justify-between shrink-0">
       <div class="flex items-center gap-2.5">
-        <div id="team-proj-drawer-icon" class="w-5 h-5 text-emerald-600 flex items-center justify-center shrink-0">
+        <div id="team-proj-drawer-icon" class="w-5 h-5 text-blue-600 flex items-center justify-center shrink-0">
           <i data-lucide="edit-3" class="w-5 h-5"></i>
         </div>
         <h3 id="team-proj-drawer-title" class="text-sm sm:text-base font-bold text-slate-900">
@@ -6700,7 +6709,7 @@ const ModuleTeamProjects = (function() {
 
       var rankColor = 'text-slate-600';
       if (rank === 'Lead') rankColor = 'text-purple-700 font-semibold';
-      else if (rank === 'Senior') rankColor = 'text-emerald-700 font-semibold';
+      else if (rank === 'Senior') rankColor = 'text-blue-700 font-semibold';
       else if (rank === 'Mid') rankColor = 'text-blue-700 font-medium';
 
       return [
@@ -6720,18 +6729,18 @@ const ModuleTeamProjects = (function() {
           '</td>',
           '<td class="py-3 px-3 min-w-[140px] text-xs text-slate-600 truncate">' + dept + '</td>',
           '<td class="py-3 px-3 min-w-[140px] whitespace-nowrap">',
-            phone ? '<a href="tel:' + phone + '" class="text-xs font-mono font-medium text-emerald-600 hover:text-emerald-800 flex items-center gap-1.5" title="Gọi ' + phone + '"><i data-lucide="phone" class="w-3 h-3"></i>' + phone + '</a>' : '<span class="text-xs text-slate-400">—</span>',
+            phone ? '<a href="tel:' + phone + '" class="text-xs font-mono font-medium text-blue-600 hover:text-blue-800 flex items-center gap-1.5" title="Gọi ' + phone + '"><i data-lucide="phone" class="w-3 h-3"></i>' + phone + '</a>' : '<span class="text-xs text-slate-400">—</span>',
           '</td>',
           '<td class="py-3 px-3 min-w-[180px] whitespace-nowrap">',
             email ? '<a href="mailto:' + email + '" class="text-xs text-slate-600 hover:text-slate-900 flex items-center gap-1.5 truncate max-w-[180px]" title="' + email + '"><i data-lucide="calendar" class="w-3 h-3 text-slate-400 shrink-0"></i><span class="truncate">' + email + '</span></a>' : '<span class="text-xs text-slate-400">—</span>',
           '</td>',
           '<td class="py-3 px-3 text-center whitespace-nowrap">',
-            '<span class="font-mono text-xs font-semibold text-sky-700">' + doingTasks + '</span> <span class="text-slate-300">/</span> <span class="font-mono text-xs font-semibold text-emerald-700">' + doneTasks + '</span>',
+            '<span class="font-mono text-xs font-semibold text-sky-700">' + doingTasks + '</span> <span class="text-slate-300">/</span> <span class="font-mono text-xs font-semibold text-blue-700">' + doneTasks + '</span>',
           '</td>',
           '<td class="py-3 px-3 whitespace-nowrap">',
             '<div class="flex items-center gap-2">',
               '<div class="w-14 bg-slate-100 rounded-sm h-1.5 overflow-hidden">',
-                '<div class="bg-emerald-500 h-1.5 rounded-sm" style="width: ' + onTimeRate + '%"></div>',
+                '<div class="bg-blue-500 h-1.5 rounded-sm" style="width: ' + onTimeRate + '%"></div>',
               '</div>',
               '<span class="font-mono text-xs font-bold text-slate-700">' + onTimeRate + '%</span>',
             '</div>',
@@ -6785,7 +6794,7 @@ const ModuleTeamProjects = (function() {
 
       var rankColor = 'text-slate-600';
       if (rank === 'Lead') rankColor = 'text-purple-700 font-semibold';
-      else if (rank === 'Senior') rankColor = 'text-emerald-700 font-semibold';
+      else if (rank === 'Senior') rankColor = 'text-blue-700 font-semibold';
       else if (rank === 'Mid') rankColor = 'text-blue-700 font-medium';
 
       return [
@@ -6799,14 +6808,14 @@ const ModuleTeamProjects = (function() {
                 '<span class="font-mono text-[10px] text-slate-400 font-semibold block">' + id + '</span>',
               '</div>',
             '</div>',
-            '<span class="text-[11px] font-medium shrink-0 ' + (status === 'Đang hoạt động' ? 'text-emerald-600' : 'text-slate-400') + '">● ' + status + '</span>',
+            '<span class="text-[11px] font-medium shrink-0 ' + (status === 'Đang hoạt động' ? 'text-blue-600' : 'text-slate-400') + '">● ' + status + '</span>',
           '</div>',
           '<div class="flex items-center justify-between text-xs pt-1 border-t border-slate-100">',
             '<span class="text-slate-500">' + dept + '</span>',
             '<span class="font-mono text-xs font-semibold text-slate-700">' + doingTasks + ' làm · ' + doneTasks + ' xong</span>',
           '</div>',
           '<div class="flex items-center gap-2 pt-1 text-xs">',
-            phone ? '<a href="tel:' + phone + '" class="flex-1 py-1.5 rounded-lg bg-emerald-50 text-emerald-700 font-semibold flex items-center justify-center gap-1"><i data-lucide="phone" class="w-3.5 h-3.5"></i>Gọi</a>' : '',
+            phone ? '<a href="tel:' + phone + '" class="flex-1 py-1.5 rounded-lg bg-blue-50 text-blue-700 font-semibold flex items-center justify-center gap-1"><i data-lucide="phone" class="w-3.5 h-3.5"></i>Gọi</a>' : '',
             email ? '<a href="mailto:' + email + '" class="flex-1 py-1.5 rounded-lg bg-slate-50 text-slate-700 font-semibold flex items-center justify-center gap-1"><i data-lucide="calendar" class="w-3.5 h-3.5"></i>Email</a>' : '',
             '<button type="button" onclick="ModuleTeamProjects.openStaffDrawer(\'' + id + '\')" class="px-3 py-1.5 rounded-lg bg-slate-100 text-slate-700 font-semibold">Sửa</button>',
             '<button type="button" onclick="ModuleTeamProjects.viewStaffTasks(\'' + id + '\', \'' + name.replace(/'/g, "\\'") + '\')" class="px-3 py-1.5 rounded-lg bg-brand-50 text-brand-700 font-semibold flex items-center justify-center gap-1"><i data-lucide="list-todo" class="w-3.5 h-3.5"></i>Tasks</button>',
@@ -6926,8 +6935,10 @@ const ModuleTeamProjects = (function() {
       var dept = proj.phongBan || proj['Phòng Ban'] || 'Chung';
       var manager = proj.nguoiQuanLy || proj['Người Quản Lý'] || proj.manager || 'Chưa gán';
       var goal = proj.mucTieu || proj['Mục Tiêu'] || 'Chưa có mô tả mục tiêu';
-      var start = proj.ngayBatDau || proj['Ngày Bắt Đầu'] || '';
-      var deadline = proj.hanHoanThanh || proj['Hạn Hoàn Thành'] || '';
+      var rawStart = proj.ngayBatDau || proj['Ngày Bắt Đầu'] || '';
+      var rawDeadline = proj.hanHoanThanh || proj['Hạn Hoàn Thành'] || '';
+      var start = cleanDateDisplay(rawStart);
+      var deadline = cleanDateDisplay(rawDeadline);
       var budget = Number(proj.nganSach || proj['Ngân Sách']) || 0;
       var status = proj.trangThai || proj['Trạng Thái'] || proj.status || 'Đang tiến hành';
       var progress = Number(proj.tienDoTong || proj['Tiến Độ Tổng %'] || proj.progress || 0);
@@ -6945,11 +6956,11 @@ const ModuleTeamProjects = (function() {
       }).length;
 
       var barColor = 'bg-brand-600';
-      if (progress >= 100) barColor = 'bg-emerald-500';
+      if (progress >= 100) barColor = 'bg-blue-500';
       else if (status === 'Tạm dừng') barColor = 'bg-amber-500';
 
       var statusColor = 'text-blue-600';
-      if (status === 'Hoàn thành') statusColor = 'text-emerald-600';
+      if (status === 'Hoàn thành') statusColor = 'text-blue-600';
       else if (status === 'Tạm dừng') statusColor = 'text-amber-600';
       else if (status === 'Chuẩn bị') statusColor = 'text-purple-600';
 
@@ -7026,11 +7037,11 @@ const ModuleTeamProjects = (function() {
       }).length;
 
       var barColor = 'bg-brand-600';
-      if (progress >= 100) barColor = 'bg-emerald-500';
+      if (progress >= 100) barColor = 'bg-blue-500';
       else if (status === 'Tạm dừng') barColor = 'bg-amber-500';
 
       var statusColor = 'text-blue-600';
-      if (status === 'Hoàn thành') statusColor = 'text-emerald-600';
+      if (status === 'Hoàn thành') statusColor = 'text-blue-600';
       else if (status === 'Tạm dừng') statusColor = 'text-amber-600';
       else if (status === 'Chuẩn bị') statusColor = 'text-purple-600';
 
@@ -7801,7 +7812,7 @@ window.ModuleTeamProjects = ModuleTeamProjects;
 
   <!-- MOBILE BOTTOM NAVIGATION DOCK (4 ICON CHÍNH THEO AGENTS.MD) -->
   <nav class="lg:hidden fixed bottom-0 left-0 right-0 h-16 bg-white/95 backdrop-blur-md border-t border-slate-200/80 z-40 flex items-center justify-around px-2 select-none">
-    <button onclick="App.switchTab('dashboard')" id="mob-dashboard" class="mobile-nav-btn flex flex-col items-center justify-center flex-1 py-1 text-emerald-600 transition">
+    <button onclick="App.switchTab('dashboard')" id="mob-dashboard" class="mobile-nav-btn flex flex-col items-center justify-center flex-1 py-1 text-blue-600 transition">
       <i data-lucide="layout-dashboard" class="w-5 h-5"></i>
       <span class="text-[10px] font-semibold mt-1">Tổng quan</span>
     </button>
@@ -7820,7 +7831,7 @@ window.ModuleTeamProjects = ModuleTeamProjects;
   </nav>
 
   <!-- FLOATING ACTION BUTTON (FAB) FOR MOBILE -->
-  <button onclick="App.openQuickTaskDrawer()" class="lg:hidden fixed bottom-20 right-4 w-14 h-14 rounded-full bg-emerald-600 text-white shadow-xl shadow-emerald-600/30 flex items-center justify-center z-40 hover:bg-emerald-700 active:scale-95 transition-all">
+  <button onclick="App.openQuickTaskDrawer()" class="lg:hidden fixed bottom-20 right-4 w-14 h-14 rounded-full bg-blue-600 text-white shadow-xl shadow-emerald-600/30 flex items-center justify-center z-40 hover:bg-blue-700 active:scale-95 transition-all">
     <i data-lucide="plus" class="w-6 h-6"></i>
   </button>
 
@@ -8178,24 +8189,24 @@ window.ModuleTeamProjects = ModuleTeamProjects;
 
         // Cập nhật trạng thái Active trên Desktop Sidebar
         document.querySelectorAll('.nav-item').forEach(btn => {
-          btn.classList.remove('bg-emerald-50', 'text-emerald-700');
+          btn.classList.remove('bg-blue-50', 'text-blue-700');
           btn.classList.add('text-slate-600');
         });
         const activeNavBtn = document.getElementById('nav-' + tabId);
         if (activeNavBtn) {
           activeNavBtn.classList.remove('text-slate-600');
-          activeNavBtn.classList.add('bg-emerald-50', 'text-emerald-700');
+          activeNavBtn.classList.add('bg-blue-50', 'text-blue-700');
         }
 
         // Cập nhật trạng thái Active trên Mobile Bottom Dock
         document.querySelectorAll('.mobile-nav-btn').forEach(btn => {
-          btn.classList.remove('text-emerald-600');
+          btn.classList.remove('text-blue-600');
           btn.classList.add('text-slate-400');
         });
         const activeMobBtn = document.getElementById('mob-' + tabId);
         if (activeMobBtn) {
           activeMobBtn.classList.remove('text-slate-400');
-          activeMobBtn.classList.add('text-emerald-600');
+          activeMobBtn.classList.add('text-blue-600');
         }
 
         // Kích hoạt render module tương ứng nếu có
@@ -8225,14 +8236,23 @@ window.ModuleTeamProjects = ModuleTeamProjects;
         const icon = document.getElementById('sidebar-toggle-icon');
         window.AppState.sidebarCollapsed = !window.AppState.sidebarCollapsed;
 
+        const headerWrap = document.getElementById('sidebar-header-wrap');
         if (window.AppState.sidebarCollapsed) {
           sidebar.classList.remove('w-60');
           sidebar.classList.add('w-16');
+          if (headerWrap) {
+            headerWrap.classList.remove('px-4', 'justify-between');
+            headerWrap.classList.add('px-2', 'justify-center');
+          }
           document.querySelectorAll('.sidebar-text').forEach(el => el.classList.add('hidden'));
           if (icon) icon.setAttribute('data-lucide', 'panel-left-open');
         } else {
           sidebar.classList.remove('w-16');
           sidebar.classList.add('w-60');
+          if (headerWrap) {
+            headerWrap.classList.remove('px-2', 'justify-center');
+            headerWrap.classList.add('px-4', 'justify-between');
+          }
           document.querySelectorAll('.sidebar-text').forEach(el => el.classList.remove('hidden'));
           if (icon) icon.setAttribute('data-lucide', 'panel-left-close');
         }
@@ -8314,11 +8334,11 @@ window.ModuleTeamProjects = ModuleTeamProjects;
 
         const toast = document.createElement('div');
         toast.className = 'pointer-events-auto flex items-start gap-3 p-4 rounded-xl shadow-lg border text-xs max-w-sm w-80 transform transition-all duration-300 translate-y-2 opacity-0 ' +
-          (type === 'success' ? 'bg-white border-emerald-200 text-slate-800' :
+          (type === 'success' ? 'bg-white border-blue-200 text-slate-800' :
            type === 'error' ? 'bg-white border-rose-200 text-slate-800' :
            type === 'warning' ? 'bg-white border-amber-200 text-slate-800' : 'bg-white border-slate-200 text-slate-800');
 
-        const iconColor = type === 'success' ? 'text-emerald-600' :
+        const iconColor = type === 'success' ? 'text-blue-600' :
                           type === 'error' ? 'text-rose-600' :
                           type === 'warning' ? 'text-amber-600' : 'text-slate-600';
         const iconName = type === 'success' ? 'check-circle' :
