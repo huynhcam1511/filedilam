@@ -1,38 +1,31 @@
-# BRIEFING — 2026-11-12T15:26:00Z
+# BRIEFING — 2026-11-13T19:10:00Z
 
 ## Mission
-Refinement of PROJECTS_WEBAPPS/QuanLyCongViecTeam_Index.html to resolve all 5 identified issues. VICTORY CONFIRMED by Independent Victory Auditor.
+Coordinate interview and lifecycle management for the automation flow request.
 
 ## 🔒 My Identity
 - Archetype: sentinel
 - Working directory: c:\Users\zit\OneDrive\Tài liệu\ANTIGRAVITY\FILE_DI_LAM_MVP\.agents\teamwork
-- Orchestrator: 013619e0-3ed3-491c-9953-d4b3fc27933e
-- Victory Auditor: 362b5ae6-9e73-4bcb-a854-a4c633201cb5
+- Orchestrator: TBD
+- Victory Auditor: to be spawned on victory claim
+- Interviewer: 187a65f1-a70f-4ab2-abd1-04d1bb301955
 
 ## 🔒 Key Constraints
 - No technical decisions — relay only
 - Victory Audit is MANDATORY before reporting completion
-- Must adhere to AGENTS.md standards and AGENTS_MASTER.md template constraints
-- Refactor target: PROJECTS_WEBAPPS/QuanLyCongViecTeam_Index.html
-- Preserve 100% backend contract and logic in QuanLyCongViecTeam_Code.gs
-- Version stamp to Bản 3.2 at Topbar Header and Sidebar Footer
 
 ## User Context
-- **Last user request**: Complete refinement of PROJECTS_WEBAPPS/QuanLyCongViecTeam_Index.html across 5 key areas.
-- **Pending clarifications**: none
-- **Delivered results**: Refinement complete, verified, and audited with VICTORY CONFIRMED.
+- **Last user request**: Thiết kế và triển khai luồng Tự Động Hóa 100% cho hệ thống File Đi Làm
+- **Pending clarifications**: Task interview in progress
+- **Delivered results**: None
 
 ## Project Status
-- **Phase**: complete
+- **Phase**: not started
 
 ## Victory Audit Status
-- **Triggered**: yes
-- **Verdict**: VICTORY CONFIRMED
+- **Triggered**: no
+- **Verdict**: pending
 - **Retry count**: 0
 
 ## Artifact Index
-- c:\Users\zit\OneDrive\Tài liệu\ANTIGRAVITY\FILE_DI_LAM_MVP\.agents\teamwork\ORIGINAL_REQUEST.md — Authoritative user request
-- PROJECTS_WEBAPPS/QuanLyCongViecTeam_Index.html — Refined deliverable
-- PROJECTS_WEBAPPS/QuanLyCongViecTeam_Code.gs — Preserved backend source
-- .agents/teamwork/sentinel/handoff.md — Sentinel handoff report
-- .agents/teamwork/victory_auditor_refine/handoff.md — Victory auditor handoff report
+- None
