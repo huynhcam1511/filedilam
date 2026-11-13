@@ -75,16 +75,21 @@ def send_order_success_email(customer_email, customer_name, order_id, order_data
                 "url": file_url
             })
 
-        # Danh sách nút / link nhận file chuẩn Fintech phẳng, sạch, không bọc pill rườm rà
+        # Danh sách nút / link nhận file chuẩn Fintech - Đặt ở cuối email sau khi đã đọc hướng dẫn
         if len(resolved_files) == 1:
             single = resolved_files[0]
+            btn_title = f"Đã đọc kỹ hướng dẫn &rarr; Bắt đầu Bước 1: Khởi động & Tạo bản sao ({single['name']})" if has_appscript else f"Đã đọc kỹ hướng dẫn &rarr; Bắt đầu: Tạo bản sao Google Sheets ({single['name']})"
             files_html = f"""
-            <div style="margin: 28px 0 20px 0;">
-              <a href="{single['url']}" target="_blank" rel="noopener noreferrer" style="display: block; text-align: center; background-color: #059669; color: #ffffff; text-decoration: none; font-size: 15px; font-weight: 600; padding: 14px 24px; border-radius: 8px; letter-spacing: 0.2px;">
-                {"Khởi động & Tạo bản sao Ứng dụng" if has_appscript else "Tạo bản sao Google Sheets"} ({single['name']})
+            <div style="margin: 24px 0 20px 0; padding: 22px 20px; background-color: #f0fdf4; border: 2px dashed #059669; border-radius: 10px; text-align: center;">
+              <div style="font-size: 13px; font-weight: 700; color: #065f46; margin-bottom: 12px; text-transform: uppercase; letter-spacing: 0.3px;">
+                {"Link khởi động & Cấp quyền Web App (Mở trên máy tính):" if has_appscript else "Link tạo bản sao Google Sheets:"}
+              </div>
+              <a href="{single['url']}" target="_blank" rel="noopener noreferrer" style="display: block; text-align: center; background-color: #059669; color: #ffffff; text-decoration: none; font-size: 15px; font-weight: 700; padding: 15px 24px; border-radius: 8px; letter-spacing: 0.2px; box-shadow: 0 4px 6px -1px rgba(5, 150, 105, 0.25);">
+                {btn_title}
               </a>
-              <div style="margin-top: 10px; font-size: 12.5px; color: #64748b; text-align: center; line-height: 1.5;">
-                Link dự phòng: <a href="{single['url']}" target="_blank" style="color: #059669; text-decoration: underline; word-break: break-all;">{single['url']}</a>
+              <div style="margin-top: 12px; font-size: 12px; color: #64748b; line-height: 1.5;">
+                Link dự phòng (Copy dán vào trình duyệt máy tính):<br>
+                <a href="{single['url']}" target="_blank" style="color: #059669; text-decoration: underline; word-break: break-all;">{single['url']}</a>
               </div>
             </div>
             """
@@ -92,10 +97,10 @@ def send_order_success_email(customer_email, customer_name, order_id, order_data
             items_list = ""
             for idx, f in enumerate(resolved_files, 1):
                 items_list += f"""
-                <div style="padding: 14px 0; border-bottom: 1px solid #f1f5f9;">
+                <div style="padding: 14px 0; border-bottom: 1px solid #e2e8f0;">
                   <div style="font-size: 14.5px; font-weight: 600; color: #0f172a; margin-bottom: 8px;">{idx}. {f['name']}</div>
-                  <a href="{f['url']}" target="_blank" rel="noopener noreferrer" style="display: inline-block; background-color: #059669; color: #ffffff; text-decoration: none; font-size: 13.5px; font-weight: 600; padding: 9px 18px; border-radius: 6px;">
-                    Tạo bản sao /copy
+                  <a href="{f['url']}" target="_blank" rel="noopener noreferrer" style="display: inline-block; background-color: #059669; color: #ffffff; text-decoration: none; font-size: 13.5px; font-weight: 600; padding: 10px 20px; border-radius: 6px;">
+                    Đã đọc hướng dẫn &rarr; Bắt đầu Tạo bản sao /copy
                   </a>
                   <div style="margin-top: 6px; font-size: 12px; color: #64748b;">
                     Link trực tiếp: <a href="{f['url']}" target="_blank" style="color: #059669; text-decoration: underline;">{f['url']}</a>
@@ -103,7 +108,10 @@ def send_order_success_email(customer_email, customer_name, order_id, order_data
                 </div>
                 """
             files_html = f"""
-            <div style="margin: 20px 0 16px 0; border-top: 1px solid #f1f5f9;">
+            <div style="margin: 20px 0 16px 0; padding: 18px; background-color: #f0fdf4; border: 2px dashed #059669; border-radius: 10px;">
+              <div style="font-size: 13px; font-weight: 700; color: #065f46; margin-bottom: 12px; text-transform: uppercase;">
+                Danh sách link nhận file (Mở bằng máy tính):
+              </div>
               {items_list}
             </div>
             """
@@ -112,9 +120,21 @@ def send_order_success_email(customer_email, customer_name, order_id, order_data
 
         if has_appscript:
             guide_section_html = """<!-- Hướng dẫn sử dụng & Khởi động Web App Apps Script chuẩn xác từng bước -->
-      <div style="margin-top: 28px; padding-top: 22px; border-top: 1px solid #e2e8f0;">
-        <div style="font-size: 15px; font-weight: 700; color: #0f172a; margin-bottom: 12px; letter-spacing: -0.2px;">
-          Hướng dẫn kích hoạt và mở ứng dụng (Thực hiện trên máy tính):
+      <!-- Hộp lưu ý quan trọng bắt buộc đọc trước khi làm (Dành cho bản Web App / Apps Script) -->
+      <div style="margin-top: 24px; margin-bottom: 24px; padding: 16px 18px; background-color: #fef2f2; border: 1.5px solid #fecaca; border-left: 5px solid #ef4444; border-radius: 8px;">
+        <div style="font-size: 14.5px; font-weight: 700; color: #b91c1c; margin-bottom: 8px;">
+          LƯU Ý CỰC KỲ QUAN TRỌNG TRƯỚC KHI BẮT ĐẦU:
+        </div>
+        <div style="font-size: 13.5px; color: #7f1d1d; line-height: 1.6;">
+          • <strong>Hãy đọc kỹ toàn bộ 6 bước hướng dẫn bên dưới trước khi thao tác:</strong> Đường link mở file được đặt ở <strong>cuối email này</strong> để bạn nắm rõ các bước xác nhận trước khi bấm.<br>
+          • <strong>BẮT BUỘC KÍCH HOẠT LẦN ĐẦU BẰNG MÁY TÍNH (PC / LAPTOP):</strong> Tuyệt đối không bấm kích hoạt lần đầu bằng điện thoại vì trình duyệt di động sẽ chặn pop-up uỷ quyền tài khoản Google.<br>
+          • <strong>Sử dụng trên Điện thoại / iPad:</strong> Sau khi hoàn thành xong <strong>Bước 6</strong> trên máy tính, bạn xem hướng dẫn ngay dưới Bước 6 để lấy link mở trên điện thoại / iPad dùng như ứng dụng thật.
+        </div>
+      </div>
+
+      <div style="padding-top: 10px; border-top: 1px solid #e2e8f0;">
+        <div style="font-size: 15px; font-weight: 700; color: #0f172a; margin-bottom: 14px; letter-spacing: -0.2px;">
+          Quy trình 6 bước kích hoạt lần đầu (Thực hiện trên máy tính):
         </div>
 
         <!-- Video hướng dẫn thao tác thực tế -->
@@ -135,7 +155,7 @@ def send_order_success_email(customer_email, customer_name, order_id, order_data
           <!-- Bước 1 -->
           <div style="margin-bottom: 24px;">
             <div style="margin-bottom: 8px;">
-              <strong style="color: #0f172a;">Bước 1. Mở link bằng máy tính &rarr; Bấm "Tạo một bản sao" (Make a copy):</strong><br>
+              <strong style="color: #0f172a;">Bước 1. Bấm nút nhận link ở cuối email này &rarr; Bấm "Tạo một bản sao" (Make a copy):</strong><br>
               <span style="color: #64748b; font-size: 13px;">File sẽ được tự động nhân bản và lưu trữ riêng tư vào Google Drive cá nhân của bạn.</span>
             </div>
             <div style="border: 1px solid #e2e8f0; border-radius: 8px; overflow: hidden; max-width: 520px;">
@@ -147,7 +167,7 @@ def send_order_success_email(customer_email, customer_name, order_id, order_data
           <div style="margin-bottom: 24px;">
             <div style="margin-bottom: 8px;">
               <strong style="color: #0f172a;">Bước 2. Bấm vào Menu ứng dụng trên thanh công cụ trang tính:</strong><br>
-              <span style="color: #64748b; font-size: 13px;">Khi tạo bản sao xong, đợi khoảng <strong>10–20 giây</strong> là bên phải mục <strong>Trợ giúp (Help)</strong> trên thanh menu sẽ xuất hiện nút ứng dụng (VD: <strong>File Đi Làm Cost &rarr; Mở ứng dụng tính cost</strong>).</span><br>
+              <span style="color: #64748b; font-size: 13px;">Khi tạo bản sao xong, đợi khoảng <strong>10–20 giây</strong> là bên phải mục <strong>Trợ giúp (Help)</strong> trên thanh menu sẽ xuất hiện nút ứng dụng (VD: <strong>File Đi Làm &rarr; Mở Ứng Dụng Quản Lý</strong>).</span><br>
               <span style="color: #b45309; font-size: 12.5px; font-weight: 600; display: inline-block; margin-top: 5px; background: #fef3c7; padding: 4px 10px; border-radius: 4px; border: 1px solid #fde68a; line-height: 1.45;">Lưu ý: Nếu đợi 10–20 giây chưa thấy nút menu xuất hiện, bạn chỉ cần tải lại trang (F5 hoặc reload trình duyệt).</span>
             </div>
             <div style="border: 1px solid #e2e8f0; border-radius: 8px; overflow: hidden; max-width: 520px;">
@@ -201,14 +221,14 @@ def send_order_success_email(customer_email, customer_name, order_id, order_data
           </div>
 
           <!-- Bước 7: Mở trên điện thoại & Safari Home screen -->
-          <div style="margin-bottom: 12px; padding: 16px 18px; background-color: #f8fafc; border: 1px solid #e2e8f0; border-left: 4px solid #059669; border-radius: 8px;">
+          <div style="margin-bottom: 20px; padding: 16px 18px; background-color: #f8fafc; border: 1px solid #e2e8f0; border-left: 4px solid #059669; border-radius: 8px;">
             <div style="font-size: 14px; font-weight: 700; color: #0f172a; margin-bottom: 8px;">
-              Cách mở trên Điện thoại hoặc Laptop sau khi cấp quyền:
+              Cách mở trên Điện thoại hoặc iPad / Laptop sau khi hoàn thành Bước 6:
             </div>
             <div style="font-size: 13px; color: #334155; line-height: 1.6;">
-              Sau khi ứng dụng Web App mở ra, bạn chỉ cần <strong>copy đường link trình duyệt của ứng dụng</strong> để mở trực tiếp trên điện thoại hoặc laptop bất kỳ lúc nào mà không cần mở lại file Sheet.<br><br>
-              <strong style="color: #0f172a;">Mẹo tạo biểu tượng App ra màn hình chính:</strong><br>
-              • <strong>Riêng trên iPhone (Safari):</strong> Bấm biểu tượng <strong>Chia sẻ (Share)</strong> ở thanh dưới cùng &rarr; Chọn <strong>Thêm vào MH chính (Add to Home Screen)</strong> để tạo icon mở 1 chạm như App thật.<br>
+              Sau khi đã hoàn thành cấp quyền xong ở <strong>Bước 6</strong> trên máy tính, giao diện Web App sẽ hiển thị ra. Bạn chỉ cần <strong>copy đường link trình duyệt của ứng dụng Web App</strong> đó để gửi qua Zalo / Tin nhắn và mở trực tiếp trên điện thoại, iPad hoặc laptop khác bất kỳ lúc nào mà không cần mở lại file Sheet.<br><br>
+              <strong style="color: #0f172a;">Mẹo tạo biểu tượng App ra màn hình chính (Dùng như ứng dụng thật):</strong><br>
+              • <strong>Trên iPhone / iPad (Safari):</strong> Bấm biểu tượng <strong>Chia sẻ (Share)</strong> &rarr; Chọn <strong>Thêm vào MH chính (Add to Home Screen)</strong>.<br>
               • <strong>Trên Android (Chrome):</strong> Bấm dấu 3 chấm góc phải trên &rarr; Chọn <strong>Cài đặt ứng dụng / Thêm vào màn hình chính</strong>.
             </div>
           </div>
@@ -217,20 +237,20 @@ def send_order_success_email(customer_email, customer_name, order_id, order_data
       </div>"""
         else:
             guide_section_html = """      <!-- Hướng dẫn sử dụng file Google Sheets thông thường -->
-      <div style="margin-top: 28px; padding-top: 22px; border-top: 1px solid #e2e8f0;">
+      <div style="margin-top: 24px; padding-top: 20px; border-top: 1px solid #e2e8f0;">
         <div style="font-size: 15px; font-weight: 700; color: #0f172a; margin-bottom: 14px; letter-spacing: -0.2px;">
           Hướng dẫn nhận và sử dụng file Google Sheets:
         </div>
         <div style="font-size: 13.5px; color: #334155; line-height: 1.65;">
           <div style="margin-bottom: 12px;">
-            <strong style="color: #0f172a;">1. Bấm vào nút Tạo bản sao ở trên:</strong><br>
+            <strong style="color: #0f172a;">1. Bấm nút nhận file ở cuối email này:</strong><br>
             Hệ thống Google Drive sẽ mở trang nhân bản &rarr; Bạn bấm <strong>Tạo một bản sao (Make a copy)</strong>.
           </div>
           <div style="margin-bottom: 12px;">
             <strong style="color: #0f172a;">2. File được lưu vĩnh viễn trên Drive cá nhân:</strong><br>
-            Bản sao này hoàn toàn thuộc quyền sở hữu của riêng bạn. Bạn có thể chỉnh sửa dữ liệu, thêm dòng cột hoặc chia sẻ cho nhân sự / cộng sự tùy ý. (Khi tạo bản sao đợi khoảng 10–20 giây là bên phải Trợ giúp sẽ có nút menu, nếu chưa thấy thì tải lại trang).
+            Bản sao này hoàn toàn thuộc quyền sở hữu của riêng bạn. Bạn có thể chỉnh sửa dữ liệu, thêm dòng cột hoặc chia sẻ cho nhân sự / cộng sự tùy ý.
           </div>
-          <div style="margin-bottom: 8px;">
+          <div style="margin-bottom: 16px;">
             <strong style="color: #0f172a;">3. Tương thích mọi thiết bị:</strong><br>
             Bạn có thể mở chỉnh sửa trên máy tính hoặc tải ứng dụng <strong>Google Trang tính (Google Sheets)</strong> trên điện thoại (App Store / CH Play) để theo dõi và nhập liệu mọi lúc mọi nơi.
           </div>
@@ -292,12 +312,11 @@ def send_order_success_email(customer_email, customer_name, order_id, order_data
         </tbody>
       </table>
 
-      <!-- Danh sách nút nhận file -->
-      <div style="font-size: 14px; font-weight: 600; color: #0f172a; margin-top: 8px;">{"Liên kết khởi động Ứng dụng Web App:" if has_appscript else "Liên kết nhận file Google Sheets:"}</div>
+{guide_section_html}
+
+      <!-- Danh sách nút nhận file (Chỉ bấm sau khi đã đọc hướng dẫn) -->
       {files_html}
       {"".join(return_offers)}
-
-{guide_section_html}
       <!-- Hỗ trợ kỹ thuật -->
       <div style="margin-top: 24px; padding-top: 18px; border-top: 1px solid #f1f5f9; font-size: 13px; color: #64748b; line-height: 1.5;">
         Nếu cần hỗ trợ kỹ thuật hoặc có bất kỳ câu hỏi nào trong quá trình thao tác, bạn vui lòng liên hệ Zalo/Hotline: <strong style="color: #0f172a;">0938 134 576</strong> (hoặc phản hồi trực tiếp email này). Đội ngũ kỹ thuật hỗ trợ cả Thứ 7 và Chủ Nhật.
