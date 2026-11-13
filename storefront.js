@@ -2266,6 +2266,17 @@ function escapeHtml(value) {
       '</div>'
     ) : '';
 
+    var deviceGuideHtml = isAppsScript ? (
+      '<div style="background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 12px; padding: 14px 16px; margin: 16px 0; font-size: 0.88rem; color: #14532d; line-height: 1.55;">' +
+        '<div style="font-weight: 700; color: #166534; margin-bottom: 6px; display: flex; align-items: center; gap: 6px;">' +
+          '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect><line x1="12" y1="18" x2="12.01" y2="18"></line></svg>' +
+          '<span>Lưu ý về thiết bị sử dụng:</span>' +
+        '</div>' +
+        '<div style="margin-bottom: 4px;">• <strong>Vận hành hằng ngày:</strong> 100% trên <strong>Điện thoại, iPad/Tablet và Máy tính</strong> (Giao diện Web App chuyên biệt cho di động, lưu icon ra màn hình chính bấm là vào).</div>' +
+        '<div>• <strong>Kích hoạt lần đầu (chỉ 1 – 2 phút):</strong> Cần thao tác 1 lần duy nhất trên trình duyệt <strong>Máy tính / Laptop</strong> để Google hiển thị hộp thoại cấp quyền liên kết dữ liệu vào Gmail chính chủ của bạn. Sau khi kích hoạt xong, bạn chỉ cần mở link Web App trên điện thoại dùng vĩnh viễn mà không cần mở lại máy tính nữa.</div>' +
+      '</div>'
+    ) : '';
+
     var infoHtml =
       '<div class="detail-col-info">' +
         '<div class="detail-header-group">' +
@@ -2312,6 +2323,8 @@ function escapeHtml(value) {
         '<div class="detail-desc-content">' +
           '<p style="margin:0;">' + formattedDesc + '</p>' +
         '</div>' +
+
+        deviceGuideHtml +
 
         '<div class="detail-spec-grid">' +
           suitableHtml +
