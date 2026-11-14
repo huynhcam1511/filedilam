@@ -1788,12 +1788,9 @@ function escapeHtml(value) {
               '<div class="product-price-row">' +
                 '<span class="product-current-val">' + formatCurrency(product.price) + '</span>' +
                 (hasDiscount ? '<span class="product-original-val">' + formatCurrency(originalPrice) + '</span>' : '') +
-                '</div>' +
+              '</div>' +
               '<div class="product-card-footer">' +
                 socialProofHtml +
-                '<button class="btn-card-cart-pill" type="button" data-buy-now-id="' + escapeHtml(product.id) + '">' +
-                  '<span>Mua ngay</span>' +
-                '</button>' +
               '</div>' +
             '</div>' +
           '</div>'
@@ -2293,6 +2290,10 @@ function escapeHtml(value) {
               originalPriceHtml +
             '</div>' +
             '<div class="detail-btn-group">' +
+              '<button class="detail-btn-add-cart" id="detailAddToCart" type="button" title="Thêm vào giỏ">' +
+                '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg>' +
+                '<span>Thêm vào giỏ</span>' +
+              '</button>' +
               '<button class="detail-btn-cart" id="detailBuyNow" type="button">' +
                 '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>' +
                 '<span>Mua ngay</span>' +
@@ -2319,41 +2320,57 @@ function escapeHtml(value) {
         '</div>' +
 
         coachingOptionHtml +
-
-        '<div class="detail-desc-content">' +
-          '<p style="margin:0;">' + formattedDesc + '</p>' +
-        '</div>' +
-
-        deviceGuideHtml +
-
-        '<div class="detail-spec-grid">' +
-          suitableHtml +
-          deliveryHtml +
-        '</div>' +
-
-        (product.usageGuide ? '<div style="background:#f1f5f9; padding:12px 16px; border-radius:10px; font-size:0.92rem; color:#334155;"><strong>Cách dùng nhanh:</strong> ' + escapeHtml(product.usageGuide) + '</div>' : '') +
-        formatProductRichContent(product.featuresDetail, product.highlights) +
-        (product.sheets && product.sheets.length ? '<div style="font-size:0.92rem; color:#475569;"><strong>Bao gồm các Sheet:</strong> ' + escapeHtml(product.sheets.join(', ')) + '</div>' : '') +
-        versionsHtml +
-        reviewsHtml +
-        howItWorksHtml +
       '</div>';
 
-    // RELATED PRODUCTS BUILDER (Optimate style)
+    // MERGED FULL-WIDTH DESCRIPTION & SPECS (2 DƯỚI MERGE LẠI FULL WIDTH)
+    var mergedDescHtml =
+      '<div class="detail-fullwidth-desc-section">' +
+        '<div class="detail-desc-box" id="detailDescBox">' +
+          '<div class="detail-desc-content-inner" id="detailDescContentInner">' +
+            '<div class="detail-desc-content">' +
+              '<p style="margin:0;">' + formattedDesc + '</p>' +
+            '</div>' +
+            deviceGuideHtml +
+            '<div class="detail-spec-grid">' +
+              suitableHtml +
+              deliveryHtml +
+            '</div>' +
+            (product.usageGuide ? '<div style="background:#f1f5f9; padding:12px 16px; border-radius:10px; font-size:0.92rem; color:#334155;"><strong>Cách dùng nhanh:</strong> ' + escapeHtml(product.usageGuide) + '</div>' : '') +
+            formatProductRichContent(product.featuresDetail, product.highlights) +
+            (product.sheets && product.sheets.length ? '<div style="font-size:0.92rem; color:#475569;"><strong>Bao gồm các Sheet:</strong> ' + escapeHtml(product.sheets.join(', ')) + '</div>' : '') +
+            versionsHtml +
+            reviewsHtml +
+            howItWorksHtml +
+          '</div>' +
+          '<div class="detail-desc-fade" id="detailDescFade"></div>' +
+          '<div class="detail-desc-toggle-wrapper">' +
+            '<button type="button" class="btn-toggle-desc" id="btnToggleDesc">' +
+              '<span class="btn-toggle-text">Xem chi tiết</span>' +
+              '<svg class="btn-toggle-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">' +
+                '<polyline points="6 9 12 15 18 9"></polyline>' +
+              '</svg>' +
+            '</button>' +
+          '</div>' +
+        '</div>' +
+      '</div>';
+
+    // RELATED PRODUCTS BUILDER (Optimate style, clean card without button)
     var otherProducts = (data.products || []).filter(function(p) { return p.id !== product.id; });
-    var relatedItems = otherProducts.slice(0, 3);
+    var relatedItems = otherProducts.slice(0, 4);
     var relatedHtml = '';
     if (relatedItems.length > 0) {
       relatedHtml =
-        '<!-- Sticky Bottom Bar on Mobile/Tablet when scrolled -->' +
+        '<!-- Sticky Bottom Bar on Mobile/Tablet -->' +
         '<div class="detail-sticky-bar" id="detailStickyBar">' +
           '<div class="detail-sticky-bar-inner">' +
-            '<div class="detail-sticky-price">' +
-              '<span class="detail-sticky-price-current">' + priceFormatted + '</span>' +
-              originalPriceHtml +
-            '</div>' +
             '<div class="detail-sticky-actions">' +
-              '<button class="detail-sticky-btn-buy" id="detailStickyBuyNow" type="button" style="padding: 0 28px; width: 100%;">Mua ngay</button>' +
+              '<button class="detail-sticky-btn-cart" id="detailStickyAddToCart" type="button">' +
+                '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg>' +
+                '<span>Thêm giỏ</span>' +
+              '</button>' +
+              '<button class="detail-sticky-btn-buy" id="detailStickyBuyNow" type="button">' +
+                '<span>Mua ngay</span>' +
+              '</button>' +
             '</div>' +
           '</div>' +
         '</div>' +
@@ -2364,7 +2381,7 @@ function escapeHtml(value) {
               var itemImg = item.thumbnailUrl || item.previewImageUrl || '';
               var itemRating = getProductRatingDisplay(item);
               return (
-                '<div class="product-card" data-product-id="' + escapeHtml(item.id) + '">' +
+                '<div class="product-card" data-detail-id="' + escapeHtml(item.id) + '">' +
                   '<div class="product-thumb" style="aspect-ratio:1/1; background-image:url(&quot;' + escapeHtml(itemImg) + '&quot;); background-size:cover; background-position:center; border-radius:12px; border:1px solid #e2e8f0; position:relative;">' +
                     '<span class="product-type-badge">' + (item.type === 'google_sheets' ? 'Sheets' : 'Web App') + '</span>' +
                   '</div>' +
@@ -2374,12 +2391,11 @@ function escapeHtml(value) {
                       '<span style="font-size:1.05rem; font-weight:700; color:#059669; font-family:var(--font-mono);">' + formatCurrency(item.price) + '</span>' +
                       (item.originalPrice ? '<span style="font-size:0.8rem; color:#94a3b8; text-decoration:line-through;">' + formatCurrency(item.originalPrice) + '</span>' : '') +
                     '</div>' +
-                    '<div style="display:flex; align-items:center; justify-content:space-between; margin-top:6px;">' +
+                    '<div class="product-card-footer">' +
                       '<div style="display:inline-flex; align-items:center; gap:4px; font-size:0.8rem;">' +
                         '<span style="color:#d97706; font-weight:700;">⭐ ' + itemRating.score + '</span>' +
                         '<span style="color:#64748b; font-weight:500;">(' + itemRating.sales + ')</span>' +
                       '</div>' +
-                      '<button type="button" class="btn-item-quick-add" data-buy-now-id="' + escapeHtml(item.id) + '" style="padding:6px 14px; border-radius:9999px; background:#0f172a; color:#fff; font-size:0.8rem; font-weight:600; border:none; cursor:pointer;">Mua ngay</button>' +
                     '</div>' +
                   '</div>' +
                 '</div>'
@@ -2416,12 +2432,15 @@ function escapeHtml(value) {
         '</div>' +
       '</footer>';
 
-    // Mount into detailBody as Back Bar + 2-column layout + Related + Footer
+    // Mount into detailBody: Back Bar + Hero Top (Trái 1, Phải 1) + Merged Full-Width Desc (Dưới 2) + Related + Footer
     detailBody.innerHTML =
       backBarHtml +
       '<div class="detail-fullpage-layout">' +
-        mediaHtml +
-        infoHtml +
+        '<div class="detail-hero-grid">' +
+          mediaHtml +
+          infoHtml +
+        '</div>' +
+        mergedDescHtml +
       '</div>' +
       relatedHtml +
       detailFooterHtml;
@@ -2540,21 +2559,31 @@ function escapeHtml(value) {
       detailModal.addEventListener("scroll", onDetailScroll, { passive: true });
     }
 
-    // Attach related product clicks
-    Array.prototype.forEach.call(detailBody.querySelectorAll(".btn-item-quick-add"), function(btn) {
-      btn.addEventListener("click", function(e) {
-        e.stopPropagation();
-        var id = btn.getAttribute("data-buy-now-id") || btn.getAttribute("data-id");
-        if (id) {
-          closeDetail();
-          buyNow(id);
+    // Attach Description Accordion Toggle
+    var btnToggleDesc = document.getElementById("btnToggleDesc");
+    var descBox = document.getElementById("detailDescBox");
+    if (btnToggleDesc && descBox) {
+      btnToggleDesc.addEventListener("click", function() {
+        var isExpanded = descBox.classList.contains("is-expanded");
+        if (isExpanded) {
+          descBox.classList.remove("is-expanded");
+          btnToggleDesc.querySelector(".btn-toggle-text").textContent = "Xem chi tiết";
+          // Scroll smoothly back to description top if user scrolled down far
+          var boxTop = descBox.getBoundingClientRect().top + detailModal.scrollTop - 80;
+          if (detailModal.scrollTop > boxTop) {
+            detailModal.scrollTo({ top: boxTop, behavior: 'smooth' });
+          }
+        } else {
+          descBox.classList.add("is-expanded");
+          btnToggleDesc.querySelector(".btn-toggle-text").textContent = "Thu gọn";
         }
       });
-    });
+    }
 
+    // Attach related product clicks
     Array.prototype.forEach.call(detailBody.querySelectorAll(".detail-related-grid .product-card"), function(card) {
       card.addEventListener("click", function() {
-        var id = card.getAttribute("data-product-id");
+        var id = card.getAttribute("data-detail-id") || card.getAttribute("data-product-id");
         if (id) {
           openDetail(id);
         }

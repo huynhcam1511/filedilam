@@ -1,5 +1,31 @@
 const ADMIN_EMAIL = 'huynhkiencam151102@gmail.com';
 
+/**
+ * Chuẩn hóa số điện thoại Việt Nam về định dạng 10 chữ số bắt đầu bằng 0 (dùng cho Zalo me)
+ * Hỗ trợ: +84, 84, 0084, khoảng trắng, gạch nối, dấu chấm, 9 chữ số thiếu 0.
+ * @param {string|number} rawPhone
+ * @returns {string} Số điện thoại chuẩn 10 chữ số (VD: "0912345678") hoặc "" nếu không hợp lệ
+ */
+function normalizePhoneNumber(rawPhone) {
+  if (!rawPhone) return '';
+  let digits = String(rawPhone).replace(/\D/g, '');
+  if (!digits) return '';
+  if (digits.startsWith('0084')) {
+    digits = digits.slice(4);
+  } else if (digits.startsWith('084') && digits.length === 12) {
+    digits = digits.slice(3);
+  } else if (digits.startsWith('84') && (digits.length === 11 || digits.length === 12)) {
+    digits = digits.slice(2);
+  }
+  if (digits.length === 9) {
+    digits = '0' + digits;
+  }
+  if (digits.length === 10 && digits.startsWith('0')) {
+    return digits;
+  }
+  return '';
+}
+
 document.addEventListener('DOMContentLoaded', () => {
   try {
     localStorage.setItem('filedilam_is_admin_device', 'true');
@@ -3934,7 +3960,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const isPaid = (order.status || '').toUpperCase() === 'PAID';
     const amountVal = order.amount || 0;
     const orderId = order.order_id || '';
-    const cleanPhone = String(order.customer_phone || '').replace(/\D/g, '');
+    const cleanPhone = normalizePhoneNumber(order.customer_phone);
     const transferNote = orderId;
     const qrImgUrl = `https://img.vietqr.io/image/TPB-59215112002-compact.png?amount=${amountVal}&addInfo=${encodeURIComponent(transferNote)}&accountName=${encodeURIComponent("HUYNH KIEN CAM")}`;
     const createdTimeObj = formatDateTime(order.created_at);
@@ -3994,9 +4020,17 @@ document.addEventListener('DOMContentLoaded', () => {
           <span class="inspector-label">Họ tên</span>
           <span class="inspector-val" style="font-weight: 600; color: #0f172a; font-size: 0.82rem;">${escapeHtml(order.customer_name)}</span>
         </div>` : ''}
-        <div class="inspector-row">
+        <div class="inspector-row" style="align-items: center;">
           <span class="inspector-label">Số điện thoại</span>
-          <span class="inspector-val" style="font-weight: 600; color: #0f172a; font-family: ui-monospace, SFMono-Regular, Menlo, monospace;">${escapeHtml(order.customer_phone || 'Khách vãng lai')}</span>
+          <div class="inspector-val" style="display: flex; align-items: center; justify-content: flex-end; gap: 6px;">
+            <span style="font-weight: 600; color: #0f172a; font-family: ui-monospace, SFMono-Regular, Menlo, monospace;">${escapeHtml(order.customer_phone || 'Khách vãng lai')}</span>
+            ${cleanPhone ? `
+              <a href="https://zalo.me/${cleanPhone}" target="_blank" rel="noopener noreferrer" class="btn-zalo-badge" title="Mở Zalo ${cleanPhone}">
+                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path></svg>
+                <span>Zalo 1 chạm</span>
+              </a>
+            ` : ''}
+          </div>
         </div>
         ${order.customer_email ? `
         <div class="inspector-row">
@@ -4059,7 +4093,7 @@ document.addEventListener('DOMContentLoaded', () => {
               <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
               <span>Copy link nhận file cho khách</span>
             </button>
-            ${cleanPhone ? `<a href="https://zalo.me/${cleanPhone}" target="_blank" class="btn-inspector-action btn-inspector-zalo">
+            ${cleanPhone ? `<a href="https://zalo.me/${cleanPhone}" target="_blank" rel="noopener noreferrer" class="btn-inspector-action btn-inspector-zalo">
               <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path></svg>
               <span>Chat Zalo với khách (${escapeHtml(cleanPhone)})</span>
             </a>` : ''}
@@ -4074,7 +4108,7 @@ document.addEventListener('DOMContentLoaded', () => {
               <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"></path></svg>
               <span>Copy tin nhắn nhắc thanh toán</span>
             </button>
-            ${cleanPhone ? `<a href="${zaloChatUrl}" target="_blank" class="btn-inspector-action btn-inspector-zalo">
+            ${cleanPhone ? `<a href="${zaloChatUrl}" target="_blank" rel="noopener noreferrer" class="btn-inspector-action btn-inspector-zalo">
               <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path></svg>
               <span>Chat Zalo gửi QR (${escapeHtml(cleanPhone)})</span>
             </a>` : ''}
@@ -4206,10 +4240,11 @@ document.addEventListener('DOMContentLoaded', () => {
       if (!searchVal) return true;
       const oId = String(order.order_id || '').toLowerCase();
       const phone = String(order.customer_phone || '').toLowerCase();
+      const cleanPhone = normalizePhoneNumber(order.customer_phone);
       const name = String(order.customer_name || '').toLowerCase();
       const email = String(order.customer_email || '').toLowerCase();
       const pName = String(order.product_name || '').toLowerCase();
-      return oId.includes(searchVal) || name.includes(searchVal) || phone.includes(searchVal) || email.includes(searchVal) || pName.includes(searchVal);
+      return oId.includes(searchVal) || name.includes(searchVal) || phone.includes(searchVal) || (cleanPhone && cleanPhone.includes(searchVal)) || email.includes(searchVal) || pName.includes(searchVal);
     });
 
     if (!filtered.length) {
@@ -4243,14 +4278,30 @@ document.addEventListener('DOMContentLoaded', () => {
       const isVirtualEmail = rawEmail.endsWith('@khachhang.filedilam.vn');
       const cleanEmail = isVirtualEmail ? '' : rawEmail;
       const customerName = order.customer_name || '';
+      const cleanPhone = normalizePhoneNumber(order.customer_phone);
       const phoneDisplay = order.customer_phone || (order.user_id ? order.user_id.slice(0, 8) + '...' : 'Khách vãng lai');
-      
+
+      const zaloBtnHtml = cleanPhone
+        ? `<a href="https://zalo.me/${cleanPhone}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation();" class="btn-zalo-inline" title="Nhắn Zalo cho khách (${cleanPhone})">
+             <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path></svg>
+             <span>Zalo</span>
+           </a>`
+        : '';
+
+      const phoneWeight = customerName ? 'font-weight: 500; color: #64748b; font-size: 0.74rem;' : 'font-weight: 600; color: #0f172a; font-size: 0.79rem;';
+      const phoneLineHtml = `
+        <div style="display: flex; align-items: center; gap: 6px; margin-top: 1px;">
+          <span style="${phoneWeight} font-family: ui-monospace, SFMono-Regular, Menlo, monospace;">${escapeHtml(phoneDisplay)}</span>
+          ${zaloBtnHtml}
+        </div>
+      `;
+
       let customerHtml = '';
       if (customerName) {
         customerHtml += `<div style="font-weight: 600; color: #0f172a; font-size: 0.79rem; line-height: 1.3;">${escapeHtml(customerName)}</div>`;
-        customerHtml += `<div style="font-weight: 500; color: #64748b; font-size: 0.74rem; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; margin-top: 1px;">${escapeHtml(phoneDisplay)}</div>`;
+        customerHtml += phoneLineHtml;
       } else {
-        customerHtml += `<div style="font-weight: 600; color: #0f172a; font-size: 0.79rem; font-family: ui-monospace, SFMono-Regular, Menlo, monospace;">${escapeHtml(phoneDisplay)}</div>`;
+        customerHtml += phoneLineHtml;
       }
       if (cleanEmail) {
         customerHtml += `<div style="font-size: 0.70rem; color: #94a3b8; margin-top: 1px; max-width: 195px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${escapeHtml(cleanEmail)}">${escapeHtml(cleanEmail)}</div>`;

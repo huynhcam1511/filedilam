@@ -1041,6 +1041,48 @@
       background: #0369a1;
     }
 
+    /* 1-Tap Zalo Buttons (Fintech Clean & Minimalist) */
+    .btn-zalo-inline {
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+      padding: 1px 6px;
+      background: #e0f2fe;
+      color: #0284c7;
+      border: 1px solid #bae6fd;
+      border-radius: 4px;
+      font-size: 0.68rem;
+      font-weight: 700;
+      text-decoration: none;
+      line-height: 1.3;
+      transition: all 0.15s ease;
+      vertical-align: middle;
+      cursor: pointer;
+    }
+    .btn-zalo-inline:hover {
+      background: #0284c7;
+      color: #ffffff;
+      border-color: #0284c7;
+    }
+    .btn-zalo-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 2px 8px;
+      background: #0284c7;
+      color: #ffffff;
+      border-radius: 4px;
+      font-size: 0.72rem;
+      font-weight: 600;
+      text-decoration: none;
+      line-height: 1.4;
+      transition: background 0.15s ease;
+      cursor: pointer;
+    }
+    .btn-zalo-badge:hover {
+      background: #0369a1;
+    }
+
     /* ==========================================================================
        FULL-BLEED FLAT CANVAS 2-COLUMN FORM (PRODUCT ADD & EDIT)
        ========================================================================== */
@@ -1448,12 +1490,53 @@
       box-sizing: border-box;
     }
 
-    /* SECTION 2: SIX KPI CARDS (Full Width 12-Col, 6 Equal Columns on Desktop) */
-    .saas-kpi-container {
+    /* SECTION 2: SIX KPI BAR & BEHAVIOR BAR (Unified Flat Card Strip) */
+    .saas-kpi-bar {
       grid-column: span 12;
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      padding: 14px 20px;
       display: grid;
       grid-template-columns: repeat(6, 1fr);
       gap: 14px;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02);
+    }
+    .saas-kpi-item {
+      min-width: 0;
+      border-right: 1px solid #f1f5f9;
+      padding-right: 12px;
+    }
+    .saas-kpi-item:last-child {
+      border-right: none;
+      padding-right: 0;
+    }
+    @media (max-width: 1024px) {
+      .saas-kpi-bar {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 12px;
+      }
+      .saas-kpi-item:nth-child(3) {
+        border-right: none;
+      }
+    }
+    @media (max-width: 640px) {
+      .saas-kpi-bar {
+        grid-template-columns: 1fr;
+        padding: 12px 14px;
+      }
+      .saas-kpi-item {
+        border-right: none;
+        border-bottom: 1px solid #f1f5f9;
+        padding-bottom: 10px;
+        padding-right: 0;
+        margin-bottom: 10px;
+      }
+      .saas-kpi-item:last-child {
+        border-bottom: none;
+        margin-bottom: 0;
+        padding-bottom: 0;
+      }
     }
 
     .saas-web-behavior-bar {
@@ -2434,15 +2517,17 @@
         <!-- SAAS ANALYTICS 12-COLUMN DASHBOARD GRID -->
         <div class="saas-dashboard-grid">
           
-          <!-- SECTION 2: SIX KPI CARDS (Full Width 12-Col, 6 Equal Columns on Desktop) -->
-          <div class="saas-kpi-container">
-            <div class="saas-kpi-card">
+          <!-- SECTION 2: SIX KPI BAR (Unified Flat Card Strip giống Phễu chuyển đổi) -->
+          <div class="saas-kpi-bar">
+            <!-- KPI 1: DOANH THU THUẦN -->
+            <div class="saas-kpi-item">
               <div class="saas-kpi-header">Doanh thu thuần</div>
               <div class="saas-kpi-value" id="kpiTotalRevenue">0 đ</div>
               <div class="saas-kpi-sub" id="kpiTotalRevenueSub">Đang cập nhật...</div>
             </div>
 
-            <div class="saas-kpi-card">
+            <!-- KPI 2: CHI PHÍ ADS -->
+            <div class="saas-kpi-item">
               <div class="saas-kpi-header">Chi phí Ads (Marketing)</div>
               <div class="saas-kpi-value" id="kpiAdsSpent" style="color: #0f172a;">0 đ</div>
               <div class="saas-kpi-sub" id="kpiAdsSpentSub">Chi phí TikTok/Meta Ads</div>
@@ -2450,25 +2535,29 @@
               <span id="kpiMonthRevenueSub" style="display:none;"></span>
             </div>
 
-            <div class="saas-kpi-card">
+            <!-- KPI 3: LỢI NHUẬN SAU ADS -->
+            <div class="saas-kpi-item">
               <div class="saas-kpi-header">Lợi nhuận sau Ads</div>
               <div class="saas-kpi-value" id="kpiNetProfit" style="color: #059669;">0 đ</div>
               <div class="saas-kpi-sub" id="kpiNetProfitSub">ROAS: 0x • MER: 0%</div>
             </div>
 
-            <div class="saas-kpi-card">
+            <!-- KPI 4: ĐƠN THÀNH CÔNG -->
+            <div class="saas-kpi-item">
               <div class="saas-kpi-header">Đơn thành công</div>
               <div class="saas-kpi-value" id="kpiPaidOrders">0 đơn</div>
               <div class="saas-kpi-sub" id="kpiPaidOrdersSub">CPA: 0 đ/đơn</div>
             </div>
 
-            <div class="saas-kpi-card">
+            <!-- KPI 5: TỈ LỆ THANH TOÁN -->
+            <div class="saas-kpi-item">
               <div class="saas-kpi-header">Tỉ lệ thanh toán</div>
               <div class="saas-kpi-value" id="kpiConversionRate">0%</div>
               <div class="saas-kpi-sub" id="kpiConversionRateSub">Đơn thành công / tạo</div>
             </div>
 
-            <div class="saas-kpi-card">
+            <!-- KPI 6: KHÁCH ĐỘC LẬP & LTV -->
+            <div class="saas-kpi-item">
               <div class="saas-kpi-header">Khách độc lập & LTV</div>
               <div class="saas-kpi-value" id="kpiCustomers">0 khách</div>
               <div class="saas-kpi-sub" id="kpiCustomersSub">0% khách mua lần 2+</div>
@@ -2900,7 +2989,7 @@
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-storage-compat.js"></script>
   <script src="/__/firebase/init.js"></script>
   
-  <script src="./admin.js?v=312"></script>
+  <script src="./admin.js?v=313"></script>
   <!-- Agentation: Visual Feedback & Annotation for AI agents -->
   <script src="./agentation-vanilla.js"></script>
 

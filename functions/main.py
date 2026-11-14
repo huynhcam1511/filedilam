@@ -1,4 +1,4 @@
-from firebase_functions import https_fn, options
+from firebase_functions import https_fn, options, scheduler_fn
 from firebase_admin import initialize_app, get_app, firestore, auth
 import random
 import string
@@ -19,6 +19,43 @@ import base64
 SMTP_USER = "kiencam.work@gmail.com"
 SMTP_PASS = "eohmiuavreukunhk"
 ADMIN_NOTIFICATION_EMAIL = "huynhkiencam151102@gmail.com"
+
+def normalize_vietnam_phone(phone_str: str) -> str:
+    """
+    Chuẩn hóa số điện thoại Việt Nam về định dạng 10 số bắt đầu bằng '0'.
+    Xử lý tiền tố +84, 0084, 84, hoặc 9 số không có 0 đầu.
+    """
+    if not phone_str:
+        return ""
+    digits = re.sub(r"\D", "", str(phone_str))
+    if not digits:
+        return ""
+    if digits.startswith("0084"):
+        digits = digits[4:]
+        if not digits.startswith("0"):
+            digits = "0" + digits
+    elif digits.startswith("84") and len(digits) >= 11:
+        digits = digits[2:]
+        if not digits.startswith("0"):
+            digits = "0" + digits
+    elif not digits.startswith("0") and len(digits) == 9:
+        digits = "0" + digits
+
+    if len(digits) == 10 and digits.startswith("0"):
+        return digits
+    return ""
+
+def get_zalo_link(phone_str: str) -> str:
+    """Sinh đường link Zalo 1 chạm https://zalo.me/<SĐT_chuẩn_hóa> hoặc chuỗi rỗng."""
+    clean = normalize_vietnam_phone(phone_str)
+    if clean:
+        return f"https://zalo.me/{clean}"
+    return ""
+
+# Tương thích ngược với các tên gọi khác nếu có
+normalize_phone_vn = normalize_vietnam_phone
+get_zalo_chat_url = get_zalo_link
+
 
 def ensure_copy_link(url):
     raw = str(url or "").strip()
@@ -369,12 +406,14 @@ File Đi Làm - https://filedilam.web.app
 def send_admin_new_order_notification(order_id, order_data):
     """
     Gửi thông báo có đơn hàng mới từ kiencam.work@gmail.com đến huynhkiencam151102@gmail.com
-    giúp Admin nắm bắt ngay đơn hàng mới tạo trên hệ thống.
+    giúp Admin nắm bắt ngay đơn hàng mới tạo trên hệ thống, kèm link Zalo 1 chạm.
     """
     try:
         cust_name = order_data.get("customer_name") or "Khách hàng"
         cust_email = order_data.get("customer_email") or "Chưa cung cấp"
         cust_phone = order_data.get("customer_phone") or "Chưa cung cấp"
+        clean_phone = normalize_vietnam_phone(cust_phone)
+        zalo_link = get_zalo_link(cust_phone)
         amount = int(order_data.get("amount") or 0)
         amount_fmt = f"{amount:,}".replace(",", ".") + " đ"
         product_name = order_data.get("product_name") or "Sản phẩm File Đi Làm"
@@ -395,6 +434,20 @@ def send_admin_new_order_notification(order_id, order_data):
               <tr><th align="left" style="padding:8px 10px; font-size:12px; color:#64748b; font-weight:600; border-bottom:1px solid #e2e8f0;">Chi tiết sản phẩm</th><th align="right" style="padding:8px 10px; font-size:12px; color:#64748b; font-weight:600; border-bottom:1px solid #e2e8f0;">Giá</th></tr>
               {''.join(item_rows)}
             </table>
+            """
+
+        phone_cell_html = f'<a href="tel:{escape(cust_phone)}" style="color:#059669; text-decoration:none;">{escape(cust_phone)}</a>'
+        if zalo_link:
+            phone_cell_html += f' <a href="{zalo_link}" target="_blank" rel="noopener noreferrer" style="margin-left: 8px; display: inline-block; background-color: #0068ff; color: #ffffff; text-decoration: none; font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 4px; vertical-align: middle;">Chat Zalo</a>'
+
+        zalo_cta_html = ""
+        if zalo_link:
+            zalo_cta_html = f"""
+            <div style="margin: 18px 0; text-align: center;">
+              <a href="{zalo_link}" target="_blank" rel="noopener noreferrer" style="display: inline-block; background-color: #0068ff; color: #ffffff; text-decoration: none; font-size: 13px; font-weight: 700; padding: 10px 20px; border-radius: 8px; box-shadow: 0 4px 6px -1px rgba(0, 104, 255, 0.3);">
+                Mở Chat Zalo Với Khách ({cust_phone})
+              </a>
+            </div>
             """
 
         html_content = f"""<!DOCTYPE html>
@@ -433,7 +486,7 @@ def send_admin_new_order_notification(order_id, order_data):
         </tr>
         <tr>
           <td style="padding: 8px 12px; font-size: 13px; color: #64748b; border-bottom: 1px solid #f1f5f9;">Số điện thoại:</td>
-          <td style="padding: 8px 12px; font-size: 13px; font-weight: 600; color: #0f172a; font-family: monospace; border-bottom: 1px solid #f1f5f9;"><a href="tel:{escape(cust_phone)}" style="color:#059669; text-decoration:none;">{escape(cust_phone)}</a></td>
+          <td style="padding: 8px 12px; font-size: 13px; font-weight: 600; color: #0f172a; font-family: monospace; border-bottom: 1px solid #f1f5f9;">{phone_cell_html}</td>
         </tr>
         <tr>
           <td style="padding: 8px 12px; font-size: 13px; color: #64748b;">Sản phẩm:</td>
@@ -443,6 +496,8 @@ def send_admin_new_order_notification(order_id, order_data):
 
       {items_detail}
 
+      {zalo_cta_html}
+
       <div style="margin-top: 20px; text-align: center;">
         <a href="https://filedilam.web.app/admin.html" target="_blank" style="display: inline-block; background-color: #059669; color: #ffffff; text-decoration: none; font-size: 13px; font-weight: 600; padding: 10px 20px; border-radius: 8px;">Mở Admin Dashboard</a>
       </div>
@@ -451,14 +506,16 @@ def send_admin_new_order_notification(order_id, order_data):
 </body>
 </html>"""
 
+        zalo_plain = f" (Zalo: {zalo_link})" if zalo_link else ""
         plain_text = f"""[File Đi Làm] Có đơn hàng mới #{order_id}
 
 - Trạng thái: {status_label}
 - Tổng tiền: {amount_fmt}
 - Khách hàng: {cust_name}
 - Email: {cust_email}
-- SĐT: {cust_phone}
+- SĐT: {cust_phone}{zalo_plain}
 - Sản phẩm: {product_name} ({package_name})
+- Link Zalo 1 chạm: {zalo_link or 'Chưa có'}
 
 Xem chi tiết tại: https://filedilam.web.app/admin.html
 """
@@ -482,6 +539,323 @@ Xem chi tiết tại: https://filedilam.web.app/admin.html
     except Exception as e:
         print(f"[Admin Email] Lỗi gửi thông báo đơn hàng mới #{order_id} đến Admin: {e}")
         return False
+
+def send_admin_payment_success_notification(order_id, order_data, payment_details=None):
+    """
+    Gửi thông báo 'Nổ tiền' tức thì từ kiencam.work@gmail.com đến huynhkiencam151102@gmail.com
+    khi đơn hàng được thanh toán thành công qua SePay Webhook.
+    Tiêu đề: [ĐÃ THANH TOÁN THÀNH CÔNG] +<Số_tiền>đ - Đơn #<Mã_đơn> - <Tên_khách_hàng>
+    """
+    try:
+        amount = int(order_data.get("amount") or 0)
+        if not amount and payment_details:
+            try:
+                amount = int(float(payment_details.get("transferAmount") or 0))
+            except (ValueError, TypeError):
+                amount = 0
+        amount_str = f"{amount:,}".replace(",", ".")
+        amount_badge = f"+{amount_str}đ"
+        
+        cust_name = order_data.get("customer_name") or "Khách hàng"
+        cust_email = order_data.get("customer_email") or "Chưa cung cấp"
+        cust_phone = order_data.get("customer_phone") or "Chưa cung cấp"
+        clean_phone = normalize_vietnam_phone(cust_phone)
+        zalo_link = get_zalo_link(cust_phone)
+        
+        product_name = order_data.get("product_name") or "Sản phẩm File Đi Làm"
+        package_name = order_data.get("package_name") or "Bản Tự Dùng"
+        
+        sepay_payload = payment_details or {}
+        gateway = sepay_payload.get("gateway") or "SePay / Ngân hàng (TPBank)"
+        sepay_id = str(sepay_payload.get("id") or order_data.get("sepay_transaction_id") or "Tự động")
+        ref_code = str(sepay_payload.get("referenceCode") or order_data.get("reference_code") or "N/A")
+        transfer_content = str(sepay_payload.get("content") or sepay_payload.get("description") or f"DH{order_id}")
+        
+        vn_now_str = datetime.now(timezone(timedelta(hours=7))).strftime("%H:%M:%S %d/%m/%Y")
+        
+        items = order_data.get("items") or []
+        items_detail = ""
+        if isinstance(items, list) and len(items) > 0:
+            item_rows = []
+            for idx, it in enumerate(items, 1):
+                i_name = escape(str(it.get("product_name") or it.get("name") or "File"))
+                i_price = f"{int(it.get('price') or 0):,}".replace(",", ".") + " đ"
+                item_rows.append(f"<tr><td style='padding:6px 10px; border-bottom:1px solid #f1f5f9; font-size:13px; color:#334155;'>{idx}. {i_name}</td><td style='padding:6px 10px; border-bottom:1px solid #f1f5f9; font-size:13px; text-align:right; font-weight:600; color:#0f172a;'>{i_price}</td></tr>")
+            items_detail = f"""
+            <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-top:12px; background:#f8fafc; border-radius:8px; border:1px solid #e2e8f0;">
+              <tr><th align="left" style="padding:8px 10px; font-size:12px; color:#64748b; font-weight:600; border-bottom:1px solid #e2e8f0;">Chi tiết sản phẩm / Combo</th><th align="right" style="padding:8px 10px; font-size:12px; color:#64748b; font-weight:600; border-bottom:1px solid #e2e8f0;">Giá</th></tr>
+              {''.join(item_rows)}
+            </table>
+            """
+
+        phone_cell_html = f'<a href="tel:{escape(cust_phone)}" style="color:#059669; text-decoration:none;">{escape(cust_phone)}</a>'
+        if zalo_link:
+            phone_cell_html += f' <a href="{zalo_link}" target="_blank" rel="noopener noreferrer" style="margin-left: 8px; display: inline-block; background-color: #0068ff; color: #ffffff; text-decoration: none; font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 4px; vertical-align: middle;">Chat Zalo</a>'
+
+        zalo_btn_html = ""
+        if zalo_link:
+            zalo_btn_html = f"""
+            <div style="margin: 20px 0 16px 0; text-align: center;">
+              <a href="{zalo_link}" target="_blank" rel="noopener noreferrer" style="display: inline-block; background-color: #0068ff; color: #ffffff; text-decoration: none; font-size: 14px; font-weight: 700; padding: 12px 24px; border-radius: 8px; box-shadow: 0 4px 6px -1px rgba(0, 104, 255, 0.3);">
+                Mở Zalo nhắn tin chăm sóc khách ngay ({cust_phone})
+              </a>
+            </div>
+            """
+
+        html_content = f"""<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Đã thanh toán #{order_id}</title>
+</head>
+<body style="margin: 0; padding: 16px 8px; background-color: #f1f5f9; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; color: #0f172a; line-height: 1.5;">
+  <div style="max-width: 540px; margin: 0 auto; background-color: #ffffff; border-radius: 12px; overflow: hidden; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);">
+    <div style="height: 5px; background: #059669;"></div>
+    <div style="padding: 24px;">
+      <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px;">
+        <span style="font-size: 13px; font-weight: 700; color: #059669; text-transform: uppercase; letter-spacing: 0.5px;">File Đi Làm &bull; THÔNG BÁO NỔ TIỀN</span>
+        <span style="font-size: 12px; color: #64748b; font-family: monospace; font-weight: 600;">#{order_id}</span>
+      </div>
+
+      <!-- Hero Banner Số tiền -->
+      <div style="background: linear-gradient(135deg, #ecfdf5 0%, #f0fdf4 100%); border: 1px solid #a7f3d0; border-radius: 10px; padding: 20px; text-align: center; margin-bottom: 20px;">
+        <div style="font-size: 12.5px; font-weight: 600; color: #065f46; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 4px;">Thanh toán thành công qua SePay</div>
+        <div style="font-size: 28px; font-weight: 800; color: #059669; font-family: ui-monospace, SFMono-Regular, Menlo, monospace;">{amount_badge}</div>
+        <div style="font-size: 12px; color: #047857; margin-top: 4px;">Thời gian ghi nhận: {vn_now_str} (GMT+7)</div>
+      </div>
+
+      <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom: 16px; border: 1px solid #e2e8f0; border-radius: 8px;">
+        <tr>
+          <td style="padding: 9px 12px; font-size: 13px; color: #64748b; width: 130px; border-bottom: 1px solid #f1f5f9;">Mã đơn hàng:</td>
+          <td style="padding: 9px 12px; font-size: 13px; font-weight: 700; color: #0f172a; font-family: monospace; border-bottom: 1px solid #f1f5f9;">#{order_id}</td>
+        </tr>
+        <tr>
+          <td style="padding: 9px 12px; font-size: 13px; color: #64748b; border-bottom: 1px solid #f1f5f9;">Trạng thái:</td>
+          <td style="padding: 9px 12px; font-size: 13px; font-weight: 700; color: #059669; border-bottom: 1px solid #f1f5f9;">ĐÃ THANH TOÁN (PAID)</td>
+        </tr>
+        <tr>
+          <td style="padding: 9px 12px; font-size: 13px; color: #64748b; border-bottom: 1px solid #f1f5f9;">Cổng thanh toán:</td>
+          <td style="padding: 9px 12px; font-size: 13px; font-weight: 600; color: #0f172a; border-bottom: 1px solid #f1f5f9;">{escape(gateway)}</td>
+        </tr>
+        <tr>
+          <td style="padding: 9px 12px; font-size: 13px; color: #64748b; border-bottom: 1px solid #f1f5f9;">Mã GD SePay:</td>
+          <td style="padding: 9px 12px; font-size: 13px; color: #0f172a; font-family: monospace; border-bottom: 1px solid #f1f5f9;">{escape(sepay_id)}</td>
+        </tr>
+        <tr>
+          <td style="padding: 9px 12px; font-size: 13px; color: #64748b; border-bottom: 1px solid #f1f5f9;">Mã tham chiếu:</td>
+          <td style="padding: 9px 12px; font-size: 13px; color: #0f172a; font-family: monospace; border-bottom: 1px solid #f1f5f9;">{escape(ref_code)}</td>
+        </tr>
+        <tr>
+          <td style="padding: 9px 12px; font-size: 13px; color: #64748b; border-bottom: 1px solid #f1f5f9;">Nội dung CK:</td>
+          <td style="padding: 9px 12px; font-size: 13px; color: #0f172a; font-family: monospace; border-bottom: 1px solid #f1f5f9;">{escape(transfer_content)}</td>
+        </tr>
+        <tr>
+          <td style="padding: 9px 12px; font-size: 13px; color: #64748b; border-bottom: 1px solid #f1f5f9;">Khách hàng:</td>
+          <td style="padding: 9px 12px; font-size: 13px; font-weight: 600; color: #0f172a; border-bottom: 1px solid #f1f5f9;">{escape(cust_name)}</td>
+        </tr>
+        <tr>
+          <td style="padding: 9px 12px; font-size: 13px; color: #64748b; border-bottom: 1px solid #f1f5f9;">Email nhận file:</td>
+          <td style="padding: 9px 12px; font-size: 13px; color: #0f172a; font-family: monospace; border-bottom: 1px solid #f1f5f9;">{escape(cust_email)}</td>
+        </tr>
+        <tr>
+          <td style="padding: 9px 12px; font-size: 13px; color: #64748b; border-bottom: 1px solid #f1f5f9;">Số điện thoại:</td>
+          <td style="padding: 9px 12px; font-size: 13px; font-weight: 600; color: #0f172a; font-family: monospace; border-bottom: 1px solid #f1f5f9;">{phone_cell_html}</td>
+        </tr>
+        <tr>
+          <td style="padding: 9px 12px; font-size: 13px; color: #64748b;">Sản phẩm:</td>
+          <td style="padding: 9px 12px; font-size: 13px; color: #0f172a;">{escape(product_name)} ({escape(package_name)})</td>
+        </tr>
+      </table>
+
+      {items_detail}
+
+      {zalo_btn_html}
+
+      <div style="margin-top: 20px; text-align: center;">
+        <a href="https://filedilam.web.app/admin.html" target="_blank" style="display: inline-block; background-color: #059669; color: #ffffff; text-decoration: none; font-size: 13px; font-weight: 600; padding: 10px 20px; border-radius: 8px;">Mở Admin Dashboard</a>
+      </div>
+    </div>
+  </div>
+</body>
+</html>"""
+
+        zalo_plain = f" (Zalo: {zalo_link})" if zalo_link else ""
+        plain_text = f"""[ĐÃ THANH TOÁN THÀNH CÔNG] {amount_badge} - Đơn #{order_id} - {cust_name}
+
+Thông tin giao dịch SePay:
+- Mã đơn hàng: #{order_id}
+- Số tiền: {amount_badge}
+- Trạng thái: ĐÃ THANH TOÁN (PAID)
+- Cổng thanh toán: {gateway}
+- Mã GD SePay: {sepay_id}
+- Mã tham chiếu: {ref_code}
+- Nội dung CK: {transfer_content}
+- Thời gian: {vn_now_str} (GMT+7)
+
+Thông tin khách hàng:
+- Khách hàng: {cust_name}
+- Email: {cust_email}
+- SĐT: {cust_phone}{zalo_plain}
+- Sản phẩm: {product_name} ({package_name})
+- Link Zalo 1 chạm: {zalo_link or 'Chưa có SĐT hợp lệ'}
+
+Xem chi tiết tại Admin Dashboard: https://filedilam.web.app/admin.html
+"""
+
+        subject = f"[ĐÃ THANH TOÁN THÀNH CÔNG] +{amount_str}đ - Đơn #{order_id} - {cust_name}"
+        msg = MIMEMultipart("alternative")
+        msg["Subject"] = subject
+        msg["From"] = f'"File Đi Làm" <{SMTP_USER}>'
+        msg["To"] = ADMIN_NOTIFICATION_EMAIL
+        msg["Reply-To"] = cust_email if ("@" in cust_email and not cust_email.endswith("@khachhang.filedilam.vn")) else SMTP_USER
+        msg["Date"] = email.utils.formatdate(localtime=True)
+        msg["Message-ID"] = email.utils.make_msgid(domain="gmail.com")
+        msg.attach(MIMEText(plain_text, "plain", "utf-8"))
+        msg.attach(MIMEText(html_content, "html", "utf-8"))
+
+        server = smtplib.SMTP_SSL("smtp.gmail.com", 465, timeout=15)
+        server.login(SMTP_USER, SMTP_PASS)
+        server.sendmail(SMTP_USER, [ADMIN_NOTIFICATION_EMAIL], msg.as_string())
+        server.quit()
+        print(f"[Admin Email] Đã gửi thông báo thanh toán thành công đơn #{order_id} đến {ADMIN_NOTIFICATION_EMAIL}")
+        return True
+    except Exception as e:
+        print(f"[Admin Email] Lỗi gửi thông báo thanh toán thành công đơn #{order_id} đến Admin: {e}")
+        return False
+
+# Compatibility alias
+def send_admin_payment_notification(order_id, order_data, amount_paid=None, sepay_payload=None):
+    if sepay_payload is None and isinstance(amount_paid, dict):
+        sepay_payload = amount_paid
+    return send_admin_payment_success_notification(order_id, order_data, payment_details=sepay_payload)
+
+def send_admin_payment_reminder_notification(order_id, order_data):
+    """
+    Gửi email thông báo cho Admin khi hệ thống tự động nhắc đơn hàng PENDING sau 10-15 phút.
+    Tiêu đề: [NHẮC THANH TOÁN] Đơn #<Mã_đơn> - <Tên_khách> (SĐT: <SĐT>)
+    """
+    try:
+        cust_name = order_data.get("customer_name") or "Khách hàng"
+        cust_email = order_data.get("customer_email") or "Chưa cung cấp"
+        cust_phone = order_data.get("customer_phone") or "Chưa cung cấp"
+        clean_phone = normalize_vietnam_phone(cust_phone)
+        zalo_link = get_zalo_link(cust_phone)
+        amount = int(order_data.get("amount") or 0)
+        amount_fmt = f"{amount:,}".replace(",", ".") + " đ"
+        product_name = order_data.get("product_name") or "Sản phẩm File Đi Làm"
+        package_name = order_data.get("package_name") or "Bản Tự Dùng"
+        
+        subject = f"[NHẮC THANH TOÁN] Đơn #{order_id} - {cust_name} (SĐT: {cust_phone})"
+        
+        phone_cell_html = f'<a href="tel:{escape(cust_phone)}" style="color:#059669; text-decoration:none;">{escape(cust_phone)}</a>'
+        if zalo_link:
+            phone_cell_html += f' <a href="{zalo_link}" target="_blank" rel="noopener noreferrer" style="margin-left: 8px; display: inline-block; background-color: #0068ff; color: #ffffff; text-decoration: none; font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 4px; vertical-align: middle;">Chat Zalo</a>'
+
+        zalo_btn_html = ""
+        if zalo_link:
+            zalo_btn_html = f"""
+            <div style="margin: 20px 0 16px 0; text-align: center;">
+              <a href="{zalo_link}" target="_blank" rel="noopener noreferrer" style="display: inline-block; background-color: #0068ff; color: #ffffff; text-decoration: none; font-size: 14px; font-weight: 700; padding: 12px 24px; border-radius: 8px; box-shadow: 0 4px 6px -1px rgba(0, 104, 255, 0.3);">
+                Mở Chat Zalo Với Khách Hàng ({cust_phone})
+              </a>
+            </div>
+            """
+
+        html_content = f"""<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nhắc thanh toán #{order_id}</title>
+</head>
+<body style="margin: 0; padding: 16px 8px; background-color: #f1f5f9; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; color: #0f172a; line-height: 1.5;">
+  <div style="max-width: 520px; margin: 0 auto; background-color: #ffffff; border-radius: 12px; overflow: hidden; border: 1px solid #e2e8f0;">
+    <div style="height: 4px; background: #d97706;"></div>
+    <div style="padding: 24px;">
+      <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px;">
+        <span style="font-size: 13px; font-weight: 700; color: #d97706; text-transform: uppercase; letter-spacing: 0.5px;">File Đi Làm &bull; Tự động nhắc thanh toán</span>
+        <span style="font-size: 12px; color: #64748b; font-family: monospace;">#{order_id}</span>
+      </div>
+      <h2 style="margin: 0 0 12px 0; font-size: 17px; font-weight: 700; color: #0f172a;">Đơn hàng #{order_id} sau 10 phút chưa thanh toán</h2>
+      
+      <p style="margin: 0 0 16px 0; font-size: 13.5px; color: #475569; line-height: 1.6;">
+        Đơn #{order_id} của khách <strong>{escape(cust_name)}</strong> (SĐT: {escape(cust_phone)}) sau 10 phút chưa thanh toán. Hệ thống đã tự động gửi email nhắc thanh toán kèm mã VietQR cho khách.
+      </p>
+
+      <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom: 16px; border: 1px solid #e2e8f0; border-radius: 8px;">
+        <tr>
+          <td style="padding: 8px 12px; font-size: 13px; color: #64748b; width: 120px; border-bottom: 1px solid #f1f5f9;">Trạng thái:</td>
+          <td style="padding: 8px 12px; font-size: 13px; font-weight: 600; color: #d97706; border-bottom: 1px solid #f1f5f9;">Đang chờ thanh toán (PENDING)</td>
+        </tr>
+        <tr>
+          <td style="padding: 8px 12px; font-size: 13px; color: #64748b; border-bottom: 1px solid #f1f5f9;">Số tiền:</td>
+          <td style="padding: 8px 12px; font-size: 14px; font-weight: 700; color: #059669; font-family: monospace; border-bottom: 1px solid #f1f5f9;">{amount_fmt}</td>
+        </tr>
+        <tr>
+          <td style="padding: 8px 12px; font-size: 13px; color: #64748b; border-bottom: 1px solid #f1f5f9;">Khách hàng:</td>
+          <td style="padding: 8px 12px; font-size: 13px; font-weight: 600; color: #0f172a; border-bottom: 1px solid #f1f5f9;">{escape(cust_name)}</td>
+        </tr>
+        <tr>
+          <td style="padding: 8px 12px; font-size: 13px; color: #64748b; border-bottom: 1px solid #f1f5f9;">Email:</td>
+          <td style="padding: 8px 12px; font-size: 13px; color: #0f172a; font-family: monospace; border-bottom: 1px solid #f1f5f9;">{escape(cust_email)}</td>
+        </tr>
+        <tr>
+          <td style="padding: 8px 12px; font-size: 13px; color: #64748b; border-bottom: 1px solid #f1f5f9;">Số điện thoại:</td>
+          <td style="padding: 8px 12px; font-size: 13px; font-weight: 600; color: #0f172a; font-family: monospace; border-bottom: 1px solid #f1f5f9;">{phone_cell_html}</td>
+        </tr>
+        <tr>
+          <td style="padding: 8px 12px; font-size: 13px; color: #64748b;">Sản phẩm:</td>
+          <td style="padding: 8px 12px; font-size: 13px; color: #0f172a;">{escape(product_name)} ({escape(package_name)})</td>
+        </tr>
+      </table>
+
+      {zalo_btn_html}
+
+      <div style="margin-top: 20px; text-align: center;">
+        <a href="https://filedilam.web.app/admin.html" target="_blank" style="display: inline-block; background-color: #059669; color: #ffffff; text-decoration: none; font-size: 13px; font-weight: 600; padding: 10px 20px; border-radius: 8px;">Mở Admin Dashboard</a>
+      </div>
+    </div>
+  </div>
+</body>
+</html>"""
+
+        zalo_plain = f" (Zalo: {zalo_link})" if zalo_link else ""
+        plain_text = f"""[File Đi Làm] Thông báo nhắc thanh toán đơn hàng #{order_id}
+
+Đơn #{order_id} - {cust_name} (SĐT: {cust_phone}) sau 10 phút chưa thanh toán. Hệ thống đã tự động gửi email nhắc cho khách.
+
+- Trạng thái: Chờ thanh toán (PENDING)
+- Tổng tiền: {amount_fmt}
+- Khách hàng: {cust_name}
+- Email: {cust_email}
+- SĐT: {cust_phone}{zalo_plain}
+- Sản phẩm: {product_name} ({package_name})
+- Link Zalo 1 chạm: {zalo_link or 'Chưa có SĐT hợp lệ'}
+
+Xem chi tiết tại: https://filedilam.web.app/admin.html
+"""
+
+        msg = MIMEMultipart("alternative")
+        msg["Subject"] = subject
+        msg["From"] = f'"File Đi Làm" <{SMTP_USER}>'
+        msg["To"] = ADMIN_NOTIFICATION_EMAIL
+        msg["Reply-To"] = cust_email if ("@" in cust_email and not cust_email.endswith("@khachhang.filedilam.vn")) else SMTP_USER
+        msg["Date"] = email.utils.formatdate(localtime=True)
+        msg["Message-ID"] = email.utils.make_msgid(domain="gmail.com")
+        msg.attach(MIMEText(plain_text, "plain", "utf-8"))
+        msg.attach(MIMEText(html_content, "html", "utf-8"))
+
+        server = smtplib.SMTP_SSL("smtp.gmail.com", 465, timeout=15)
+        server.login(SMTP_USER, SMTP_PASS)
+        server.sendmail(SMTP_USER, [ADMIN_NOTIFICATION_EMAIL], msg.as_string())
+        server.quit()
+        print(f"[Admin Email] Đã gửi thông báo nhắc thanh toán đơn #{order_id} đến {ADMIN_NOTIFICATION_EMAIL}")
+        return True
+    except Exception as e:
+        print(f"[Admin Email] Lỗi gửi thông báo nhắc thanh toán đơn #{order_id} đến Admin: {e}")
+        return False
+
 
 def generate_vietqr_emvco(amount, order_id, account="59215112002"):
     def field(tag, val):
@@ -606,7 +980,7 @@ def send_payment_reminder_email(customer_email, customer_name, order_id, order_d
         </p>
         
         <p style="margin: 0 0 18px 0; font-size: 13.5px; color: #475569; line-height: 1.6;">
-          Hệ thống File Đi Làm đã tiếp nhận thông tin đơn hàng của bạn. Bạn vui lòng quét mã VietQR bên dưới hoặc chuyển khoản theo thông tin để kích hoạt file:
+          Hệ thống thấy bạn đang gặp vướng mắc khi thanh toán đơn hàng #{order_id}. Bạn vui lòng quét mã VietQR bên dưới hoặc chuyển khoản theo thông tin để kích hoạt file. Nếu bạn cần hỗ trợ, hãy liên hệ Zalo: 0938 134 576.
         </p>
 
         <!-- Bảng đối chiếu thông tin (Chống co chữ, chống wraptext vô lý) -->
@@ -713,6 +1087,8 @@ def send_payment_reminder_email(customer_email, customer_name, order_id, order_d
 </html>"""
 
         plain_text = f"""Xin chào {cust_display_name},
+
+Hệ thống thấy bạn đang gặp vướng mắc khi thanh toán đơn hàng #{order_id}. Nếu bạn cần hỗ trợ, hãy liên hệ Zalo: 0938 134 576.
 
 Hệ thống File Đi Làm gửi bạn thông tin hoàn tất đơn hàng #{order_id}:
 - Họ tên khách hàng: {customer_name or 'Quý khách'}
@@ -907,6 +1283,13 @@ def api(req: https_fn.Request) -> https_fn.Response:
             return json_response({"success": True, "email": cust_email})
         else:
             return json_response({"error": "FAILED_TO_SEND_EMAIL"}, 500)
+
+    if path == "/admin/check-pending-reminders" and method == "POST":
+        user = require_user(req)
+        if not user or user.get("email") != "huynhkiencam151102@gmail.com":
+            return json_response({"error": "ADMIN_AUTH_REQUIRED"}, 403)
+        res = process_pending_order_reminders(db)
+        return json_response({"success": True, "result": res})
 
     if path == "/admin/generate-magic-link" and method == "POST":
         user = require_user(req)
@@ -1591,6 +1974,117 @@ def api(req: https_fn.Request) -> https_fn.Response:
                 cust_email = matched_order.get("customer_email")
                 cust_name = matched_order.get("customer_name") or ""
                 send_order_success_email(cust_email, cust_name, matched_order.get("id"), matched_order)
+
+                # R1: Gửi email 'Nổ tiền' tức thì cho Admin (huynhkiencam151102@gmail.com)
+                try:
+                    send_admin_payment_success_notification(
+                        order_id=matched_order.get("id"),
+                        order_data=matched_order,
+                        payment_details=payload
+                    )
+                except Exception as admin_notify_err:
+                    print(f"[Admin Notify] Lỗi khi gửi email nổ tiền cho đơn {matched_order.get('id')}: {admin_notify_err}")
         return json_response({"success": True})
 
     return json_response({"error": "NOT_FOUND"}, 404)
+
+def parse_to_utc_datetime(dt_val):
+    """Chuyển đổi linh hoạt datetime, Timestamp, số hoặc chuỗi ISO về datetime UTC."""
+    if not dt_val:
+        return None
+    if isinstance(dt_val, datetime):
+        return dt_val if dt_val.tzinfo else dt_val.replace(tzinfo=timezone.utc)
+    if hasattr(dt_val, "to_datetime"):
+        d = dt_val.to_datetime()
+        return d if d.tzinfo else d.replace(tzinfo=timezone.utc)
+    if isinstance(dt_val, (int, float)):
+        return datetime.fromtimestamp(dt_val, tz=timezone.utc)
+    if isinstance(dt_val, str):
+        cleaned = dt_val.strip().replace("Z", "+00:00")
+        try:
+            d = datetime.fromisoformat(cleaned)
+            return d if d.tzinfo else d.replace(tzinfo=timezone.utc)
+        except Exception:
+            pass
+    return None
+
+def process_pending_order_reminders(db=None, schedule_time=None) -> dict:
+    """
+    Quét các đơn hàng PENDING tạo từ 10-60 phút trước chưa được gửi nhắc (reminder_sent_at is None),
+    tự động gửi email nhắc kèm VietQR cho khách hàng, cập nhật cờ reminder_sent_at trong Firestore,
+    và gửi email thông báo tổng kết kèm link Zalo 1 chạm cho Admin.
+    """
+    if db is None:
+        db = get_db()
+
+    now = parse_to_utc_datetime(schedule_time) or datetime.now(timezone.utc)
+
+    pending_stream = db.collection("orders").where("status", "==", "PENDING").stream()
+    processed_ids = []
+
+    for doc in pending_stream:
+        order_data = doc.to_dict() if hasattr(doc, "to_dict") else {}
+        order_id = str(order_data.get("id") or getattr(doc, "id", "")).strip().upper()
+        if not order_id:
+            continue
+
+        # Bỏ qua nếu đã gửi nhắc rồi (Idempotency)
+        if order_data.get("reminder_sent_at"):
+            continue
+
+        c_at = parse_to_utc_datetime(order_data.get("created_at"))
+        if not c_at:
+            continue
+
+        age_seconds = (now - c_at).total_seconds()
+
+        # Cửa sổ thời gian: 10 phút đến 60 phút (600 <= age_seconds <= 3600)
+        if 600 <= age_seconds <= 3600:
+            # 1. Cập nhật cờ reminder_sent_at ngay lập tức trong Firestore để chống lặp
+            try:
+                doc.reference.update({"reminder_sent_at": now})
+            except Exception as ue:
+                print(f"[Reminder Scanner] Lỗi cập nhật reminder_sent_at cho đơn #{order_id}: {ue}")
+
+            cust_email = str(order_data.get("customer_email") or "").strip()
+            cust_name = order_data.get("customer_name") or ""
+
+            # 2. Gửi email nhắc thanh toán cho khách nếu email hợp lệ (không phải email ảo)
+            if cust_email and "@" in cust_email and not cust_email.endswith("@khachhang.filedilam.vn"):
+                try:
+                    send_payment_reminder_email(cust_email, cust_name, order_id, order_data)
+                except Exception as ce:
+                    print(f"[Reminder Scanner] Lỗi gửi email nhắc cho khách {cust_email}: {ce}")
+            else:
+                print(f"[Reminder Scanner] Bỏ qua gửi email khách cho đơn #{order_id} (email ảo hoặc không hợp lệ: {cust_email})")
+
+            # 3. Gửi email thông báo cho Admin kèm link Zalo 1 chạm
+            try:
+                send_admin_payment_reminder_notification(order_id, order_data)
+            except Exception as ae:
+                print(f"[Reminder Scanner] Lỗi gửi thông báo Admin cho đơn #{order_id}: {ae}")
+
+            processed_ids.append(order_id)
+
+    print(f"[Reminder Scanner] Đã xử lý {len(processed_ids)} đơn hàng PENDING: {processed_ids}")
+    return {"processed_count": len(processed_ids), "order_ids": processed_ids}
+
+# Alias
+scan_and_remind_pending_orders = process_pending_order_reminders
+
+# Cấu hình Scheduled Function định kỳ mỗi 10 phút
+try:
+    VN_TZ = scheduler_fn.Timezone("Asia/Ho_Chi_Minh")
+except Exception:
+    VN_TZ = None
+
+schedule_kwargs = {"schedule": "every 10 minutes"}
+if VN_TZ is not None:
+    schedule_kwargs["timezone"] = VN_TZ
+
+@scheduler_fn.on_schedule(**schedule_kwargs)
+def check_pending_orders_reminder(event: scheduler_fn.ScheduledEvent) -> None:
+    db = get_db()
+    schedule_time = getattr(event, "schedule_time", None)
+    process_pending_order_reminders(db, schedule_time)
+
