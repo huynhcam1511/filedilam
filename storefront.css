@@ -637,10 +637,12 @@ body.cart-drawer-open .page-layout {
 /* Cart Drawer */
 .cart-drawer {
   position: fixed;
-  top: 70px;
+  top: 0;
+  bottom: 0;
   right: 0;
   width: min(420px, 100%);
-  height: calc(100vh - 70px);
+  height: 100vh;
+  height: 100dvh;
   z-index: 10003;
   background: var(--surface);
   border-left: 1px solid var(--line);
@@ -648,8 +650,9 @@ body.cart-drawer-open .page-layout {
   transform: translateX(105%);
   visibility: hidden;
   transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), visibility 0s 0.35s;
-  display: grid;
-  grid-template-rows: auto 1fr auto;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
 }
 
 .cart-drawer.is-open {
@@ -706,6 +709,8 @@ body.cart-drawer-open .page-layout {
 }
 
 .drawer-body {
+  flex: 1 1 0%;
+  min-height: 0;
   overflow-y: auto;
   padding: 20px 24px;
   display: flex;
@@ -715,7 +720,8 @@ body.cart-drawer-open .page-layout {
 }
 
 .drawer-footer {
-  padding: 20px 24px 24px;
+  flex: 0 0 auto;
+  padding: 20px 24px calc(24px + env(safe-area-inset-bottom, 0px));
   border-top: 1px solid var(--line);
   background: var(--surface);
   display: flex;
