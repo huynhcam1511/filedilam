@@ -4052,10 +4052,14 @@ document.addEventListener('DOMContentLoaded', () => {
           <div style="font-size: 0.72rem; font-weight: 600; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.05em;">Đơn hàng</div>
           <div style="font-size: 1.05rem; font-weight: 700; color: #0f172a; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; letter-spacing: -0.01em; margin-top: 2px;">#${escapeHtml(orderId)}</div>
         </div>
-        <div>
+        <div style="display: flex; align-items: center; gap: 8px;">
           ${isPaid 
             ? '<span class="badge-status badge-status-paid"><span class="status-dot"></span>Đã thanh toán</span>'
             : '<span class="badge-status badge-status-pending"><span class="status-dot"></span>Chờ thanh toán</span>'}
+          <button type="button" class="btn-export-single-order" data-order="${escapeHtml(orderId)}" style="height: 26px; padding: 0 8px; border-radius: 4px; border: 1px solid #a7f3d0; background: #ecfdf5; color: #047857; font-size: 0.75rem; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 4px;" title="Xuất toàn bộ chi tiết đơn hàng này ra Excel">
+            <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+            <span>Xuất Excel</span>
+          </button>
         </div>
       </div>
 
@@ -4182,6 +4186,16 @@ document.addEventListener('DOMContentLoaded', () => {
         </div>
       </div>
     `;
+
+    contentBox.querySelectorAll('.btn-export-single-order').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const oId = btn.dataset.order;
+        if (oId && window.exportSingleOrderDetailToExcel) {
+          window.exportSingleOrderDetailToExcel(oId);
+        }
+      });
+    });
 
     contentBox.querySelectorAll('.btn-send-reminder-email').forEach(btn => {
       btn.addEventListener('click', async (e) => {
@@ -6585,26 +6599,129 @@ document.addEventListener('DOMContentLoaded', () => {
   function prepareOrdersTableData(ordersList) {
     return (ordersList || []).map((o, idx) => {
       const isPaid = (o.status === 'PAID' || o.paid === true);
+      const isCoaching = o.package_type === 'coaching' || parseInt(o.amount || 0, 10) >= 199000;
+      const cleanPhone = normalizePhoneNumber(o.customer_phone);
+      const rawEmail = o.customer_email || '';
+      const isVirtualEmail = rawEmail.endsWith('@khachhang.filedilam.vn');
+      const cleanEmail = isVirtualEmail ? '' : rawEmail;
+      const orderId = o.order_id || o.id || '';
+      const amountVal = Number(o.amount || o.totalAmount || o.final_amount || 0);
+
+      // Chi tiết danh sách items nếu mua nhiều file
+      let itemsDetailText = '';
+      if (Array.isArray(o.items) && o.items.length > 0) {
+        itemsDetailText = o.items.map(it => `${it.product_name || it.name || 'File'} (${new Intl.NumberFormat('vi-VN').format(it.price || 0)}đ)`).join('; ');
+      } else {
+        itemsDetailText = o.product_name || o.productTitle || '';
+      }
+
       return {
         'STT': idx + 1,
-        'Mã đơn hàng': o.order_id || o.id || '',
+        'Mã đơn hàng': orderId,
         'Thời gian lên đơn': formatDateTimeVN(o.created_at || o.createdAt),
         'Thời gian thanh toán': formatDateTimeVN(o.paid_at || o.paidAt || (isPaid ? o.updated_at || o.created_at : '')),
-        'Tên khách hàng': o.customer_name || o.buyer_name || o.customerName || '',
-        'Số điện thoại': o.customer_phone || o.phone || '',
-        'Email khách hàng': o.customer_email || o.email || '',
+        'Tên khách hàng': o.customer_name || o.buyer_name || o.customerName || 'Khách vãng lai',
+        'Số điện thoại': o.customer_phone || cleanPhone || '',
+        'Email nhận file': cleanEmail,
         'Tên sản phẩm / Gói file': o.product_name || o.productTitle || '',
+        'Chi tiết các item trong đơn': itemsDetailText,
+        'Phân loại gói': isCoaching ? 'Gói Kèm 1-1 Chuyên sâu' : 'File tự dùng',
         'Mã sản phẩm': o.product_id || '',
-        'Giá bán niêm yết (đ)': Number(o.original_price || o.originalPrice || o.amount || 0),
+        'Giá niêm yết (đ)': Number(o.original_price || o.originalPrice || o.amount || 0),
         'Mã coupon áp dụng': o.coupon_code || o.couponCode || '',
         'Số tiền giảm giá (đ)': Number(o.discount_amount || o.discountAmount || 0),
-        'Tổng tiền thực thu (đ)': Number(o.amount || o.totalAmount || o.final_amount || 0),
-        'Trạng thái đơn': isPaid ? 'ĐÃ THANH TOÁN' : 'CHỜ THANH TOÁN',
+        'Thành tiền thực thu (đ)': amountVal,
+        'Trạng thái thanh toán': isPaid ? 'ĐÃ THANH TOÁN' : 'CHỜ THANH TOÁN (Cần nhắc thu)',
+        'Số tài khoản thụ hưởng': '59215112002 (TPBank - HUYNH KIEN CAM)',
+        'Nội dung chuyển khoản (Memo)': orderId,
+        'Link mã VietQR': `https://img.vietqr.io/image/TPB-59215112002-compact.png?amount=${amountVal}&addInfo=${encodeURIComponent(orderId)}&accountName=${encodeURIComponent("HUYNH KIEN CAM")}`,
+        'Link Zalo liên hệ': cleanPhone ? `https://zalo.me/${cleanPhone}` : '',
+        'Link file sản phẩm': o.product_file_url || '',
+        'User ID khách hàng': o.user_id || '',
         'Kênh thanh toán': o.payment_method || 'VietQR Chuyển khoản',
-        'Nội dung chuyển khoản': o.order_id || o.id || '',
         'Mã giao dịch ngân hàng': o.bank_ref || o.transaction_id || ''
       };
     });
+  }
+
+  // Chuẩn bị dữ liệu chi tiết cho riêng 1 đơn hàng (Key - Value dạng bảng mẫu phiếu)
+  function prepareSingleOrderDetailData(order) {
+    if (!order) return [];
+    const isPaid = (order.status === 'PAID' || order.paid === true);
+    const isCoaching = order.package_type === 'coaching' || parseInt(order.amount || 0, 10) >= 199000;
+    const cleanPhone = normalizePhoneNumber(order.customer_phone);
+    const rawEmail = order.customer_email || '';
+    const isVirtualEmail = rawEmail.endsWith('@khachhang.filedilam.vn');
+    const cleanEmail = isVirtualEmail ? '' : rawEmail;
+    const orderId = order.order_id || order.id || '';
+    const amountVal = Number(order.amount || order.totalAmount || order.final_amount || 0);
+
+    let itemsDetailText = '';
+    if (Array.isArray(order.items) && order.items.length > 0) {
+      itemsDetailText = order.items.map((it, i) => `${i+1}. ${it.product_name || it.name || 'File'} - Giá: ${new Intl.NumberFormat('vi-VN').format(it.price || 0)}đ`).join('\n');
+    } else {
+      itemsDetailText = order.product_name || order.productTitle || '';
+    }
+
+    return [
+      { 'Mục thông tin': 'Mã đơn hàng', 'Chi tiết giá trị': '#' + orderId },
+      { 'Mục thông tin': 'Trạng thái thu', 'Chi tiết giá trị': isPaid ? 'ĐÃ THANH TOÁN THÀNH CÔNG' : 'CHƯA THANH TOÁN (Cần nhắc thu)' },
+      { 'Mục thông tin': 'Thời gian tạo đơn', 'Chi tiết giá trị': formatDateTimeVN(order.created_at || order.createdAt) },
+      { 'Mục thông tin': 'Thời gian thanh toán', 'Chi tiết giá trị': formatDateTimeVN(order.paid_at || order.paidAt || (isPaid ? order.updated_at || order.created_at : '')) || 'Chưa thanh toán' },
+      { 'Mục thông tin': 'Họ và tên khách hàng', 'Chi tiết giá trị': order.customer_name || 'Khách vãng lai' },
+      { 'Mục thông tin': 'Số điện thoại', 'Chi tiết giá trị': order.customer_phone || cleanPhone || 'Không có' },
+      { 'Mục thông tin': 'Link Zalo 1 chạm', 'Chi tiết giá trị': cleanPhone ? ('https://zalo.me/' + cleanPhone) : '' },
+      { 'Mục thông tin': 'Email nhận file', 'Chi tiết giá trị': cleanEmail || 'Không có' },
+      { 'Mục thông tin': 'Sản phẩm mua', 'Chi tiết giá trị': order.product_name || 'File' },
+      { 'Mục thông tin': 'Chi tiết các file/combo', 'Chi tiết giá trị': itemsDetailText },
+      { 'Mục thông tin': 'Phân loại đơn', 'Chi tiết giá trị': isCoaching ? 'Gói Kèm 1-1 Chuyên sâu' : 'File tự dùng' },
+      { 'Mục thông tin': 'Mã coupon ưu đãi', 'Chi tiết giá trị': order.coupon_code || 'Không dùng mã' },
+      { 'Mục thông tin': 'Số tiền giảm giá', 'Chi tiết giá trị': new Intl.NumberFormat('vi-VN').format(order.discount_amount || 0) + ' đ' },
+      { 'Mục thông tin': 'Thành tiền thực thu', 'Chi tiết giá trị': new Intl.NumberFormat('vi-VN').format(amountVal) + ' đ' },
+      { 'Mục thông tin': 'Tài khoản ngân hàng', 'Chi tiết giá trị': 'TPBank - 59215112002 - HUYNH KIEN CAM' },
+      { 'Mục thông tin': 'Cú pháp chuyển khoản', 'Chi tiết giá trị': orderId },
+      { 'Mục thông tin': 'Link mã VietQR', 'Chi tiết giá trị': `https://img.vietqr.io/image/TPB-59215112002-compact.png?amount=${amountVal}&addInfo=${encodeURIComponent(orderId)}&accountName=${encodeURIComponent("HUYNH KIEN CAM")}` },
+      { 'Mục thông tin': 'Link tải file', 'Chi tiết giá trị': order.product_file_url || '' },
+      { 'Mục thông tin': 'User ID khách hàng', 'Chi tiết giá trị': order.user_id || '' }
+    ];
+  }
+
+  // Hàm xuất chi tiết cho 1 đơn hàng cụ thể đang xem trên Drawer / Inspector
+  async function exportSingleOrderDetailToExcel(orderId) {
+    try {
+      showToast('Đang xuất chi tiết đơn hàng #' + orderId + '...');
+      await ensureXlsxLibrary();
+      const order = (cachedOrders || []).find(o => String(o.order_id) === String(orderId) || String(o.id) === String(orderId));
+      if (!order) {
+        showToast('Không tìm thấy thông tin đơn hàng #' + orderId, true);
+        return;
+      }
+      const wb = XLSX.utils.book_new();
+
+      // Sheet 1: Phiếu chi tiết đơn hàng (Key-Value)
+      const detailKvData = prepareSingleOrderDetailData(order);
+      const wsDetail = XLSX.utils.json_to_sheet(detailKvData);
+      wsDetail['!cols'] = [{ wch: 28 }, { wch: 60 }];
+      XLSX.utils.book_append_sheet(wb, wsDetail, 'Chi Tiết Đơn Hàng');
+
+      // Sheet 2: Nếu có các item con thì xuất thêm sheet danh sách item
+      if (Array.isArray(order.items) && order.items.length > 0) {
+        const itemsRows = order.items.map((it, idx) => ({
+          'STT': idx + 1,
+          'Mã sản phẩm': it.product_id || '',
+          'Tên sản phẩm': it.product_name || it.name || '',
+          'Đơn giá (đ)': Number(it.price || 0)
+        }));
+        const wsItems = XLSX.utils.json_to_sheet(itemsRows);
+        XLSX.utils.book_append_sheet(wb, wsItems, 'Sản Phẩm Trong Đơn');
+      }
+
+      const fileName = `CHI_TIET_DON_HANG_${orderId}.xlsx`;
+      triggerExcelDownload(wb, fileName);
+      showToast('Đã xuất chi tiết đơn hàng #' + orderId + ' thành công!');
+    } catch (err) {
+      showToast('Lỗi xuất chi tiết đơn: ' + err.message, true);
+    }
   }
 
   function prepareProductsTableData(productsList) {
@@ -6905,6 +7022,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Gắn ra window để có thể gọi trực tiếp từ console hoặc onclick
   window.exportAllDataToExcel = exportAllDataToExcel;
+  window.exportSingleOrderDetailToExcel = exportSingleOrderDetailToExcel;
   window.exportOrdersOnlyToExcel = exportOrdersOnlyToExcel;
   window.exportProductsOnlyToExcel = exportProductsOnlyToExcel;
   window.exportCouponsOnlyToExcel = exportCouponsOnlyToExcel;
