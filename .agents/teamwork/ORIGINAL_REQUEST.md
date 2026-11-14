@@ -1,55 +1,69 @@
 # Original User Request
 
-## Parameters
+## Initial Request — 2026-11-14T05:50:39Z
 
-[skip-interview]
-How this run was launched; not part of the task.
+Thiết kế và triển khai luồng tự động hóa 100% cho hệ thống File Đi Làm trong môi trường production (`functions/main.py` và `admin.html`/`admin.js`): gửi email tức thì cho Admin khi thanh toán thành công qua SePay, tự động kiểm tra và gửi email nhắc thanh toán kèm thông báo Admin cho đơn hàng PENDING sau 10–15 phút, và tích hợp link Zalo 1 chạm chăm sóc khách hàng trong email và giao diện Admin.
 
-## Request — 2026-11-11T18:55:00Z
+Working directory: c:\Users\zit\OneDrive\Tài liệu\ANTIGRAVITY\FILE_DI_LAM_MVP
+Integrity mode: development
 
-Execute the approved refactoring plan PLAN_FLAT_CANVAS_REFACTOR.md (C:\Users\zit\.gemini\antigravity\brain\a6c9a7f7-5965-4d62-b431-f34a04801348\PLAN_FLAT_CANVAS_REFACTOR.md).
+References:
+- Backend: `functions/main.py` (Firebase Cloud Functions Python 3.14, 2nd gen, endpoint `/webhooks/sepay`, `send_payment_reminder_email`, endpoint `/admin/send-payment-reminder`, SMTP qua `kiencam.work@gmail.com`)
+- Database: Google Cloud Firestore (`orders`, `products`)
+- Frontend: `admin.html`, `admin.js`
+- Admin recipient: `huynhkiencam151102@gmail.com`
 
-Context & Goal:
-Project: QUẢN LÝ CÔNG VIỆC TEAM & TIẾN ĐỘ DỰ ÁN 3.0 — FILE ĐI LÀM
-Target File: `PROJECTS_WEBAPPS/QuanLyCongViecTeam_Index.html` (preserve 100% backend contract and logic).
-Standards: `AGENTS.md` and `STANDARDS_TEMPLATE/AGENTS_MASTER.md`.
+## Requirements
 
-Detailed Objectives (Triệt tiêu 100% "AI Slob" - chuyển đổi sang Pure Fintech Flat Canvas chuẩn ảnh 1 TikTok):
-1. Anti-Card Overload: Xóa bỏ hoàn toàn các khối Card viền dày, bo hộp lổn nhổn ở Dashboard, Daily Actions, Nhân sự và Dự án. Chuyển sang nền phẳng sạch phân cách bằng đường kẻ mỏng nhẹ `border-b border-slate-100`.
-2. Anti-Pill Overload: Xóa bỏ 100% các badge viên thuốc tròn xoe (`rounded-full`) màu mè thừa thãi. Trạng thái chỉ dùng chấm tròn nhỏ tinh tế `●` + text phẳng font chuẩn. Mã ID chuyển thành text font Mono phẳng (`font-mono text-xs text-slate-600`) không viền hộp.
-3. Gantt Matrix Liền Mạch (Ảnh 1 TikTok): Hợp nhất bảng Task Info bên trái và dải Timeline Gantt theo ngày bên phải trên cùng một hàng ma trận phẳng, không viền hộp bao bọc rời rạc.
-4. Master-Table Tràn Viền: Chuyển đổi toàn bộ màn hình Nhân sự và Dự án từ các thẻ Card khổng lồ sang Master-Table phẳng tràn viền (Edge-to-Edge), xem trọn vẹn toàn bộ danh sách trong 1 màn hình.
-5. Bảo toàn 100% logic: Giữ nguyên `AppState`, `INITIAL_EMBEDDED_DATA`, Instant Render 0s, cơ chế gọi RPC, drawer modal Zero Phantom Overlay, CalendarApp sync.
-6. Đóng dấu huy hiệu phiên bản lên `Bản 3.2` tại Topbar Header và Sidebar Footer. Chạy kiểm thử Node.js tự động đảm bảo cú pháp sạch và runtime không lỗi trước khi bàn giao.
+### R1. Email "Nổ tiền" tức thì cho Admin khi thanh toán thành công qua SePay
+Khi nhận được webhook thanh toán thành công từ SePay (trong vòng 10–30s):
+- Gửi ngay 1 email thông báo "Nổ tiền" đến Admin (`huynhkiencam151102@gmail.com`).
+- Tiêu đề email chuẩn format: `[ĐÃ THANH TOÁN THÀNH CÔNG] +<Số_tiền>đ - Đơn #<Mã_đơn> - <Tên_khách_hàng>`.
+- Nội dung chi tiết: Thông tin đơn, số tiền, phương thức, thời gian thanh toán, thông tin khách hàng, sản phẩm đã mua.
+- Đính kèm nút/đường link 1 chạm mở Zalo khách hàng (`https://zalo.me/<SĐT_chuẩn_hóa>`).
 
+### R2. Tự động kiểm tra và nhắc thanh toán đơn hàng PENDING sau 10–15 phút
+Triển khai một Cloud Function theo lịch định kỳ (cron job qua Cloud Scheduler chạy mỗi 5–10 phút) để tự động quét các đơn hàng có trạng thái `PENDING` được tạo từ 10–15 phút trước:
+1. Tự động gửi Email nhắc thanh toán cho Khách hàng:
+   - Kèm mã VietQR và cú pháp chuyển khoản rõ ràng.
+   - Lời nhắn hỗ trợ thân thiện: "Hệ thống thấy bạn đang gặp vướng mắc khi thanh toán đơn hàng #... Nếu bạn cần hỗ trợ, hãy liên hệ Zalo..."
+   - Đánh dấu cờ `reminder_sent_at` trong Firestore để chỉ gửi đúng 1 lần, không spam.
+2. Gửi email thông báo tổng kết cho Admin (`huynhkiencam151102@gmail.com`):
+   - Nội dung thông báo: "Đơn #<Mã_đơn> - <Tên_khách> (SĐT: <SĐT>) sau 10 phút chưa thanh toán. Hệ thống đã tự động gửi email nhắc."
+   - Kèm nút/đường link Zalo 1 chạm (`https://zalo.me/<SĐT_chuẩn_hóa>`) để Admin bấm vào mở ngay khung chat với khách.
 
-## Follow-up — 2026-11-12T13:18:47Z
+### R3. Tích hợp link Zalo 1 chạm chăm sóc khách hàng
+- Viết logic chuẩn hóa số điện thoại của khách hàng (loại bỏ khoảng trắng, dấu gạch nối, ký tự đặc biệt, định dạng hợp lệ cho Zalo).
+- Tích hợp nút bấm/đường link 1 chạm `https://zalo.me/<SĐT_chuẩn_hóa>` vào:
+  - Email thông báo thanh toán thành công gửi Admin.
+  - Email thông báo nhắc thanh toán gửi Admin.
+  - Email tạo đơn mới gửi Admin (nếu có).
+  - Giao diện Admin (`admin.html` / `admin.js`): hiển thị tại bảng quản lý đơn hàng (Orders table) và trong popup/modal chi tiết đơn hàng (Order details view) ngay cạnh số điện thoại khách hàng.
 
-Execute the complete refinement of PROJECTS_WEBAPPS/QuanLyCongViecTeam_Index.html to resolve all 5 identified issues:
+### R4. Bộ kiểm thử tự động (Automated Verification Suite)
+Viết script kiểm thử tự động độc lập kiểm chứng toàn bộ luồng logic mà không cần phụ thuộc vào giao dịch ngân hàng thật hay gửi email SMTP thật trong quá trình test:
+- Mock payload SePay webhook gửi tới endpoint webhook và kiểm chứng email "Nổ tiền" cho Admin được tạo với đúng tiêu đề, nội dung và link Zalo.
+- Mock dữ liệu đơn hàng `PENDING` quá 10–15 phút trong Firestore và kích hoạt hàm kiểm tra định kỳ; kiểm chứng email nhắc gửi cho khách (kèm VietQR, cú pháp, cờ `reminder_sent_at`), email thông báo cho Admin kèm link Zalo 1 chạm, và kiểm chứng không gửi lại ở lần chạy tiếp theo.
+- Unit test logic chuẩn hóa số điện thoại cho nhiều định dạng đầu vào khác nhau (có khoảng trắng, dấu `+84`, số 0 đầu, ký tự lạ).
 
-Context & Goals:
-Project: QUẢN LÝ CÔNG VIỆC TEAM & TIẾN ĐỘ DỰ ÁN 3.0 — FILE ĐI LÀM
-File targeted: `PROJECTS_WEBAPPS/QuanLyCongViecTeam_Index.html` (preserve 100% backend contract in `QuanLyCongViecTeam_Code.gs`).
-Standards: `AGENTS.md` and `STANDARDS_TEMPLATE/AGENTS_MASTER.md`.
+## Acceptance Criteria
 
-Detailed Tasks to execute:
-1. True 100% Full Width (Edge-to-Edge Canvas):
-   - Remove `max-w-7xl mx-auto` constraints on `#main-content` and everywhere else.
-   - Let the entire viewport span 100% full width (`w-full px-4 lg:px-8 py-6`) so Master-Tables, Gantt timeline, and dashboards stretch edge-to-edge across wide screens without awkward empty side margins.
-2. Fix "Sync Calendar" Button UX in Sidebar:
-   - Make the Calendar Sync button distinct from normal navigation tabs. Place it in a dedicated Action block or polish its state with an elegant action button design (with proper Lucide icon, hover effect, and spinning animation indicator when syncing) rather than looking like an active navigation tab.
-3. Completely Overhaul Tab "Hướng Dẫn & FAQ" (Tab HDSD) to Professional Flat Documentation:
-   - Eliminate all card-box layouts (`BƯỚC 01`, `BƯỚC 02`, `BƯỚC 03` in colored boxes) and pill badges.
-   - Reconstruct it into a comprehensive, professional Flat Workflow Guide detailing exact operational steps for each module:
-     * Module 1: Vận hành Dashboard KPI & Xử lý việc khẩn cấp hôm nay (nhấp vào đâu, xem tỷ lệ kỷ luật ra sao).
-     * Module 2: Quản lý Công việc & Đọc ma trận Gantt Timeline liền mạch (cách kéo tiến độ, lọc theo tuần/tháng, xem Today Line).
-     * Module 3: Vận hành Lịch Routine & Ma trận Checklist tuần (cách click trực tiếp từng ô ngày để chấm Done/Chưa và tự tính % kỷ luật).
-     * Module 4: Quản lý Nhân sự & Dự án (thao tác gọi điện `tel:`, xem khối lượng công việc đang gánh, tạo dự án).
-     * Module 5: Cơ chế đồng bộ Google Calendar tự động qua CalendarApp và chính sách Single Visible Tab bảo vệ dữ liệu.
-   - Accordion FAQ formatted cleanly with minimalist borders (`border-b border-slate-100`), without bulky card frames.
-4. Eliminate 100% "Icon Pills" & Remaining Pill Artifacts:
-   - Remove all colored box avatar containers (`w-9 h-9 rounded-xl bg-purple-50 text-purple-700`, `bg-blue-50`, etc.).
-   - Replace with sleek flat typography or delicate Lucide icons without pill backgrounds.
-5. Verification:
-   - Ensure automated Node.js syntax checks (`node -c` or VM evaluation) pass with 0 errors.
-   - Maintain instant render 0s and all existing RPC handlers.
+### Thông báo thanh toán thành công cho Admin
+- [ ] Khi webhook SePay gửi sự kiện thanh toán thành công, hệ thống gửi email đến `huynhkiencam151102@gmail.com`.
+- [ ] Tiêu đề email khớp đúng định dạng: `[ĐÃ THANH TOÁN THÀNH CÔNG] +<Số_tiền>đ - Đơn #<Mã_đơn> - <Tên_khách_hàng>`.
+- [ ] Nội dung email hiển thị đầy đủ thông tin đơn hàng, số tiền, phương thức, thời gian thanh toán, thông tin khách hàng, sản phẩm đã mua và nút/link Zalo 1 chạm.
+
+### Tự động nhắc thanh toán đơn hàng PENDING
+- [ ] Scheduled function định kỳ tự động tìm ra các đơn hàng `PENDING` được tạo từ 10–15 phút trước chưa có `reminder_sent_at`.
+- [ ] Khách hàng nhận được email nhắc thanh toán chứa mã VietQR, cú pháp chuyển khoản và lời nhắn hỗ trợ.
+- [ ] Đơn hàng trong Firestore được cập nhật trường `reminder_sent_at` và không bị gửi lặp lại trong các chu kỳ sau.
+- [ ] Admin nhận được email thông báo nhắc thanh toán kèm thông tin đơn, SĐT và đường link Zalo 1 chạm.
+
+### Tích hợp Zalo 1 chạm
+- [ ] Logic chuẩn hóa SĐT loại bỏ hoàn toàn khoảng trắng, dấu gạch nối, ký tự đặc biệt và sinh link `https://zalo.me/<SĐT>`.
+- [ ] Đường link Zalo 1 chạm xuất hiện và hoạt động trong tất cả các mẫu email gửi Admin.
+- [ ] Trên giao diện `admin.html` / `admin.js`, link Zalo 1 chạm hiển thị tại cột khách hàng/SĐT trong bảng đơn hàng và bên trong modal xem chi tiết đơn hàng.
+
+### Kiểm thử và xác thực độc lập
+- [ ] Script kiểm thử tự động chạy thành công, mô phỏng đầy đủ webhook SePay và hàm quét định kỳ với kết quả đạt 100% assertions.
+- [ ] Không có lỗi cú pháp hoặc runtime error trong `functions/main.py` và `admin.js`.
