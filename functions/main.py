@@ -887,51 +887,11 @@ def send_payment_reminder_email(customer_email, customer_name, order_id, order_d
         amount_fmt = f"{amount:,}".replace(",", ".") + " đ"
         phone = order_data.get("customer_phone") or ""
         
-        # 1. Gọi trực tiếp API chính thức của VietQR để lấy mẫu tem chuẩn đẹp đầy đủ Logo Napas + TPBank dạng PNG
+        # 1. Tạo đường dẫn ảnh VietQR chuẩn PNG render qua QuickChart EMVCo (100% hiển thị trên Gmail App iPad/iPhone/Android và Desktop)
+        emvco_payload = generate_vietqr_emvco(amount, order_id)
+        quickchart_qr_url = f"https://quickchart.io/qr?size=320&text={urllib.parse.quote(emvco_payload)}"
+        img_src = quickchart_qr_url
         qr_bytes = None
-        img_src = ""
-        emvco = generate_vietqr_emvco(amount, order_id)
-        backup_png_url = f"https://quickchart.io/qr?size=360&text={urllib.parse.quote(emvco)}"
-        
-        try:
-            api_payload = json.dumps({
-                "accountNo": "59215112002",
-                "accountName": "HUYNH KIEN CAM",
-                "acqId": "970423",
-                "amount": amount,
-                "addInfo": order_id,
-                "format": "text",
-                "template": "compact2"
-            }).encode("utf-8")
-            
-            v_req = urllib.request.Request(
-                "https://api.vietqr.io/v2/generate",
-                data=api_payload,
-                headers={
-                    "Content-Type": "application/json",
-                    "User-Agent": "Mozilla/5.0"
-                }
-            )
-            with urllib.request.urlopen(v_req, timeout=5) as v_resp:
-                res_data = json.loads(v_resp.read().decode("utf-8"))
-                if res_data.get("code") == "00" and res_data.get("data", {}).get("qrDataURL"):
-                    raw_b64 = res_data["data"]["qrDataURL"].split(",")[1]
-                    qr_bytes = base64.b64decode(raw_b64)
-                    img_src = "cid:vietqr_code"
-        except Exception as ve:
-            print(f"[Email] VietQR official API failed, fallback to QuickChart: {ve}")
-
-        # Dự phòng nếu VietQR API bận: Tải ảnh PNG raster từ QuickChart
-        if not qr_bytes:
-            try:
-                q_req = urllib.request.Request(backup_png_url, headers={"User-Agent": "Mozilla/5.0"})
-                with urllib.request.urlopen(q_req, timeout=4) as q_resp:
-                    if q_resp.status == 200:
-                        qr_bytes = q_resp.read()
-                        img_src = "cid:vietqr_code"
-            except Exception as qe:
-                print(f"[Email] QuickChart backup failed: {qe}")
-                img_src = backup_png_url
 
         cust_display_name = customer_name if customer_name else "Quý khách"
 
