@@ -643,7 +643,7 @@ body.cart-drawer-open .page-layout {
   width: min(420px, 100%);
   height: 100vh;
   height: 100dvh;
-  z-index: 10003;
+  z-index: 1000050;
   background: var(--surface);
   border-left: 1px solid var(--line);
   box-shadow: -6px 0 24px rgba(15, 23, 42, 0.08);
@@ -1873,12 +1873,13 @@ body.cart-drawer-open .page-layout {
     right: 0 !important;
     bottom: 0 !important;
     height: 100% !important;
+    height: 100dvh !important;
     max-height: none !important;
     width: 100% !important;
     max-width: 100% !important;
     border-radius: 0 !important;
     border-left: none !important;
-    z-index: 10005 !important;
+    z-index: 1000050 !important;
     box-shadow: none !important;
     transform: translateX(100%) !important;
     visibility: hidden !important;
@@ -5748,11 +5749,13 @@ body:not(.is-admin) #userProfile {
     gap: 24px;
   }
 
+  /* Ẩn cụm nút mua trong heading/cột tóm tắt trên mobile để tránh lặp với Bottom Bar */
+  .detail-conversion-card .detail-btn-group {
+    display: none !important;
+  }
+
   .detail-btn-group {
-    width: 100%;
-    display: grid;
-    grid-template-columns: 1fr 1.3fr;
-    gap: 10px;
+    display: none !important;
   }
 
   .detail-btn-add-cart,

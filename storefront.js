@@ -454,6 +454,8 @@ function escapeHtml(value) {
     }
 
     if (openCartButton) openCartButton.addEventListener("click", openCart);
+    var elOpenCartFromDetail = document.getElementById("openCartFromDetail");
+    if (elOpenCartFromDetail) elOpenCartFromDetail.addEventListener("click", openCart);
     var elCloseCart = document.getElementById("closeCart");
     if (elCloseCart) elCloseCart.addEventListener("click", closeCart);
 
