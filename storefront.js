@@ -2319,6 +2319,11 @@ function escapeHtml(value) {
           '</div>' +
         '</div>' +
 
+        '<div class="detail-spec-grid">' +
+          suitableHtml +
+          deliveryHtml +
+        '</div>' +
+
         coachingOptionHtml +
       '</div>';
 
@@ -2331,10 +2336,6 @@ function escapeHtml(value) {
               '<p style="margin:0;">' + formattedDesc + '</p>' +
             '</div>' +
             deviceGuideHtml +
-            '<div class="detail-spec-grid">' +
-              suitableHtml +
-              deliveryHtml +
-            '</div>' +
             (product.usageGuide ? '<div style="background:#f1f5f9; padding:12px 16px; border-radius:10px; font-size:0.92rem; color:#334155;"><strong>Cách dùng nhanh:</strong> ' + escapeHtml(product.usageGuide) + '</div>' : '') +
             formatProductRichContent(product.featuresDetail, product.highlights) +
             (product.sheets && product.sheets.length ? '<div style="font-size:0.92rem; color:#475569;"><strong>Bao gồm các Sheet:</strong> ' + escapeHtml(product.sheets.join(', ')) + '</div>' : '') +
