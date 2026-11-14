@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>QUẢN LÝ CÔNG VIỆC TEAM & TIẾN ĐỘ DỰ ÁN 3.4 — FILE ĐI LÀM</title>
+  <title>QUẢN LÝ CÔNG VIỆC TEAM & TIẾN ĐỘ DỰ ÁN 3.5 — FILE ĐI LÀM</title>
   
   <!-- 1. GOOGLE FONTS (Inter & JetBrains Mono) -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -50,8 +50,33 @@
   <!-- 4. CHART.JS CDN -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-  <!-- 5. MASTER CSS STYLES & OVERRIDES -->
+  <!-- 5. FLATPICKR CDN & VIETNAMESE LOCALIZATION (R1) -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/vn.js"></script>
+
+  <!-- 6. MASTER CSS STYLES & OVERRIDES -->
   <style>
+    /* Flatpickr Fintech Overrides */
+    .flatpickr-calendar {
+      z-index: 99999 !important;
+      font-family: 'Montserrat', sans-serif !important;
+      border-radius: 1rem !important;
+      border: 1px solid #e2e8f0 !important;
+      box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.1), 0 8px 10px -6px rgba(15, 23, 42, 0.1) !important;
+    }
+    .flatpickr-day.selected, .flatpickr-day.startRange, .flatpickr-day.endRange {
+      background: #059669 !important;
+      border-color: #059669 !important;
+    }
+    .flatpickr-day.today {
+      border-color: #059669 !important;
+    }
+    .flatpickr-day.today:hover {
+      background: #ecfdf5 !important;
+      color: #065f46 !important;
+    }
+
     /* Chống giật cuộn & thanh cuộn mảnh trang nhã */
     ::-webkit-scrollbar { width: 6px; height: 6px; }
     ::-webkit-scrollbar-track { background: #f8fafc; }
@@ -190,7 +215,7 @@
           </div>
           <div class="sidebar-text truncate">
             <span class="font-extrabold text-xs tracking-wider text-blue-900 uppercase block font-sans">FILE ĐI LÀM</span>
-            <span class="text-[10px] font-bold text-blue-600/80 tracking-wide truncate block">TEAM WORK 3.4</span>
+            <span class="text-[10px] font-bold text-blue-600/80 tracking-wide truncate block">TEAM WORK 3.5</span>
           </div>
         </div>
         <button id="sidebar-burger-btn" onclick="App.toggleSidebar()" class="text-slate-400 hover:text-blue-600 p-1.5 rounded-lg hover:bg-blue-50 transition shrink-0" title="Thu gọn / Mở rộng menu">
@@ -243,6 +268,10 @@
         <div>
           <div class="px-3 mb-2 text-[10px] font-bold tracking-wider text-slate-400 uppercase sidebar-text">Hệ Thống</div>
           <div class="space-y-1">
+            <button onclick="App.switchTab('catalogs')" id="nav-catalogs" class="nav-item w-full flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-medium transition text-slate-600 hover:bg-slate-200/60 hover:text-slate-900">
+              <i data-lucide="tag" class="w-4 h-4 shrink-0"></i>
+              <span class="sidebar-text truncate">Danh Mục Hệ Thống</span>
+            </button>
             <button onclick="App.switchTab('help')" id="nav-help" class="nav-item w-full flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-medium transition text-slate-600 hover:bg-slate-200/60 hover:text-slate-900">
               <i data-lucide="help-circle" class="w-4 h-4 shrink-0"></i>
               <span class="sidebar-text truncate">Hướng Dẫn & FAQ</span>
@@ -280,11 +309,11 @@
           </div>
           <div class="sidebar-text truncate">
             <div class="text-xs font-bold text-slate-800">FILE ĐI LÀM</div>
-            <div class="text-[10px] font-medium text-slate-400">Team Work Edition · Vận Hành Thực Chiến</div>
+            <div class="text-[10px] font-medium text-slate-400">Team Work Edition · Phiên bản 3.5 (Active)</div>
           </div>
         </div>
         <div class="sidebar-text pt-0.5">
-          <span id="appBuildVersionBadge" class="text-[10px] text-blue-700 font-bold bg-white px-2 py-0.5 rounded border border-blue-200 shadow-2xs">Phiên bản 3.4 (Active)</span>
+          <span id="appBuildVersionBadge" class="text-[10px] text-emerald-700 font-mono font-bold bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200 shadow-2xs">Bản 3.5 (Active)</span>
         </div>
       </div>
     </aside>
@@ -309,6 +338,7 @@
     <div>
       <div class="flex items-center gap-2.5">
         <h2 class="text-base lg:text-lg font-bold text-slate-900 tracking-tight">Tổng Quan Tiến Độ & Kỷ Luật Team</h2>
+        <span class="text-[10px] text-emerald-700 font-mono font-bold bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-200 shrink-0">Bản 3.5 (Active)</span>
         <span class="text-xs text-blue-600 font-mono font-medium flex items-center gap-1">Live 0s</span>
       </div>
       <p class="text-xs text-slate-500 mt-0.5">Theo dõi thời gian thực KPI vận hành, công việc khẩn cấp và hiệu suất thực thi tuần</p>
@@ -3196,8 +3226,8 @@ window.ModuleTasksGantt = (function() {
     var taskCode = existing ? (existing.maTask || existing['Mã Task']) : generateTaskId();
     var drawerTitle = existing ? 'Cập Nhật Nhiệm Vụ' : 'Tạo Nhiệm Vụ Mới';
 
-    var curStart = existing ? toInputDate(existing.ngayBatDau) : toInputDate(new Date());
-    var curEnd = existing ? toInputDate(existing.deadline) : toInputDate(new Date(Date.now() + (3 * 86400000)));
+    var curStart = existing ? toDisplayDate(existing.ngayBatDau) : toDisplayDate(new Date());
+    var curEnd = existing ? toDisplayDate(existing.deadline) : toDisplayDate(new Date(Date.now() + (3 * 86400000)));
     var curTime = existing ? (existing.gioDeadline || '17:30') : '17:30';
     var curProgress = existing ? Number(existing.tienDo || existing['Tiến Độ %'] || 0) : 0;
     var curPriority = existing ? (existing.capDo || existing['Cấp Độ'] || 'Bình thường') : 'Bình thường';
@@ -3206,6 +3236,21 @@ window.ModuleTasksGantt = (function() {
     var curNotes = existing ? (existing.ghiChu || existing['Ghi Chú'] || '') : '';
     var curTitle = existing ? (existing.tenNhiemVu || existing['Tên Nhiệm Vụ'] || '') : '';
     var curEmail = existing ? (existing.emailNhanSu || existing['Email Nhân Sự'] || '') : '';
+
+    var priorityOptions = window.TaxonomyHelper
+      ? window.TaxonomyHelper.renderOptions('Mức Độ Ưu Tiên', curPriority)
+      : ('<option value="Khẩn cấp" ' + (curPriority === 'Khẩn cấp' ? 'selected' : '') + '>Khẩn cấp (P1 - Đỏ)</option>' +
+         '<option value="Cao" ' + (curPriority === 'Cao' ? 'selected' : '') + '>Cao (P2 - Cam)</option>' +
+         '<option value="Bình thường" ' + (curPriority === 'Bình thường' ? 'selected' : '') + '>Bình thường (P3)</option>' +
+         '<option value="Thấp" ' + (curPriority === 'Thấp' ? 'selected' : '') + '>Thấp (P4)</option>');
+
+    var statusOptions = window.TaxonomyHelper
+      ? window.TaxonomyHelper.renderOptions('Trạng Thái Task', curStatus)
+      : ('<option value="Chờ thực hiện" ' + (curStatus === 'Chờ thực hiện' ? 'selected' : '') + '>Chờ thực hiện</option>' +
+         '<option value="Đang tiến hành" ' + (curStatus === 'Đang tiến hành' ? 'selected' : '') + '>Đang tiến hành</option>' +
+         '<option value="Chờ duyệt" ' + (curStatus === 'Chờ duyệt' ? 'selected' : '') + '>Chờ duyệt</option>' +
+         '<option value="Hoàn thành" ' + (curStatus === 'Hoàn thành' ? 'selected' : '') + '>Đã hoàn thành</option>' +
+         '<option value="Tạm hoãn" ' + (curStatus === 'Tạm hoãn' ? 'selected' : '') + '>Tạm hoãn</option>');
 
     var formHtml = '<form id="task-form" onsubmit="ModuleTasksGantt.saveTaskFromDrawer(event)" class="space-y-4">' +
       '<input type="hidden" id="task-form-is-edit" value="' + (existing ? 'true' : 'false') + '">' +
@@ -3255,10 +3300,7 @@ window.ModuleTasksGantt = (function() {
         '<div>' +
           '<label class="block text-xs font-semibold text-slate-700 mb-1.5">Mức độ ưu tiên</label>' +
           '<select id="task-form-priority" class="w-full h-[44px] px-3 rounded-xl border border-slate-200 text-xs text-slate-800 bg-white focus:border-brand-600 outline-none">' +
-            '<option value="Khẩn cấp" ' + (curPriority === 'Khẩn cấp' ? 'selected' : '') + '>Khẩn cấp (P1 - Đỏ)</option>' +
-            '<option value="Cao" ' + (curPriority === 'Cao' ? 'selected' : '') + '>Cao (P2 - Cam)</option>' +
-            '<option value="Bình thường" ' + (curPriority === 'Bình thường' ? 'selected' : '') + '>Bình thường (P3)</option>' +
-            '<option value="Thấp" ' + (curPriority === 'Thấp' ? 'selected' : '') + '>Thấp (P4)</option>' +
+            priorityOptions +
           '</select>' +
         '</div>' +
         '<div>' +
@@ -3271,11 +3313,11 @@ window.ModuleTasksGantt = (function() {
       '<div class="grid grid-cols-3 gap-2 sm:gap-3">' +
         '<div>' +
           '<label class="block text-xs font-semibold text-slate-700 mb-1.5">Bắt đầu</label>' +
-          '<input type="date" id="task-form-start-date" value="' + curStart + '" required class="w-full h-[44px] px-2.5 rounded-xl border border-slate-200 text-xs text-slate-800 focus:border-brand-600 outline-none">' +
+          '<input type="text" id="task-form-start-date" value="' + curStart + '" placeholder="dd/mm/yyyy" maxlength="10" autocomplete="off" required class="w-full h-[44px] px-2.5 rounded-xl border border-slate-200 text-xs text-slate-800 focus:border-brand-600 outline-none">' +
         '</div>' +
         '<div>' +
           '<label class="block text-xs font-semibold text-slate-700 mb-1.5">Hạn chót <span class="text-rose-500">*</span></label>' +
-          '<input type="date" id="task-form-deadline" value="' + curEnd + '" required class="w-full h-[44px] px-2.5 rounded-xl border border-slate-200 text-xs text-slate-800 focus:border-brand-600 outline-none">' +
+          '<input type="text" id="task-form-deadline" value="' + curEnd + '" placeholder="dd/mm/yyyy" maxlength="10" autocomplete="off" required class="w-full h-[44px] px-2.5 rounded-xl border border-slate-200 text-xs text-slate-800 focus:border-brand-600 outline-none">' +
         '</div>' +
         '<div>' +
           '<label class="block text-xs font-semibold text-slate-700 mb-1.5">Giờ chót</label>' +
@@ -3296,11 +3338,7 @@ window.ModuleTasksGantt = (function() {
       '<div>' +
         '<label class="block text-xs font-semibold text-slate-700 mb-1.5">Trạng thái công việc</label>' +
         '<select id="task-form-status" class="w-full h-[44px] px-3 rounded-xl border border-slate-200 text-xs text-slate-800 bg-white focus:border-brand-600 outline-none">' +
-          '<option value="Chờ thực hiện" ' + (curStatus === 'Chờ thực hiện' ? 'selected' : '') + '>Chờ thực hiện</option>' +
-          '<option value="Đang tiến hành" ' + (curStatus === 'Đang tiến hành' ? 'selected' : '') + '>Đang tiến hành</option>' +
-          '<option value="Chờ duyệt" ' + (curStatus === 'Chờ duyệt' ? 'selected' : '') + '>Chờ duyệt</option>' +
-          '<option value="Hoàn thành" ' + (curStatus === 'Hoàn thành' ? 'selected' : '') + '>Đã hoàn thành</option>' +
-          '<option value="Tạm hoãn" ' + (curStatus === 'Tạm hoãn' ? 'selected' : '') + '>Tạm hoãn</option>' +
+          statusOptions +
         '</select>' +
       '</div>' +
 
@@ -3318,6 +3356,10 @@ window.ModuleTasksGantt = (function() {
     '</form>';
 
     safeOpenDrawer(drawerTitle, formHtml);
+    if (window.App && typeof window.App.initDatePicker === 'function') {
+      window.App.initDatePicker('#task-form-start-date', curStart);
+      window.App.initDatePicker('#task-form-deadline', curEnd);
+    }
   }
 
   function handleStaffSelectChange(selectEl) {
@@ -5768,6 +5810,127 @@ if (document.readyState === 'loading') {
 </section>
 
 <!-- ========================================================================================= -->
+<!-- TAB: QUẢN TRỊ DANH MỤC HỆ THỐNG (#tab-catalogs) — TẦNG 3 HỆ THỐNG                       -->
+<!-- ========================================================================================= -->
+<section id="tab-catalogs" class="tab-pane tab-panel hidden space-y-6">
+
+  <!-- 1. HEADER & KPI NHANH -->
+  <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-200/80">
+    <div>
+      <div class="flex items-center gap-2.5">
+        <h2 class="text-base sm:text-lg font-bold text-slate-900 flex items-center gap-2">
+          <i data-lucide="tags" class="w-5 h-5 text-emerald-600"></i>
+          <span>Danh Mục Dữ Liệu Dùng Chung</span>
+        </h2>
+        <span class="text-[10px] text-emerald-700 font-mono font-bold bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-200 shrink-0">Bản 3.5 (Active)</span>
+      </div>
+      <p class="text-xs text-slate-500 mt-0.5">Dữ liệu nguồn đồng bộ 2 chiều với tab DB_DanhMuc trên Google Sheets</p>
+    </div>
+    <div class="flex items-center gap-2.5">
+      <button onclick="ModuleCatalogs.refresh()" type="button" class="h-[42px] px-3.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 text-xs font-semibold flex items-center gap-1.5 transition shadow-2xs" title="Tải lại từ Google Sheets">
+        <i data-lucide="rotate-cw" id="cat-refresh-icon" class="w-4 h-4 text-slate-500"></i>
+        <span class="hidden sm:inline">Làm Mới</span>
+      </button>
+      <button onclick="ModuleCatalogs.openDrawer()" type="button" class="h-[46px] px-4 rounded-xl bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white text-xs font-semibold flex items-center gap-2 transition shadow-sm">
+        <i data-lucide="plus" class="w-4 h-4"></i>
+        <span>Thêm Danh Mục</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- 2. MINI METRICS DẢI CHỈ SỐ -->
+  <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+    <div class="p-3.5 bg-white border border-slate-200/80 rounded-xl">
+      <div class="text-[11px] font-medium text-slate-400 uppercase">Tổng Danh Mục</div>
+      <div id="cat-stat-total" class="text-lg font-bold font-mono text-slate-900 mt-1">0</div>
+    </div>
+    <div class="p-3.5 bg-white border border-slate-200/80 rounded-xl">
+      <div class="text-[11px] font-medium text-slate-400 uppercase">Phòng Ban</div>
+      <div id="cat-stat-depts" class="text-lg font-bold font-mono text-blue-600 mt-1">0</div>
+    </div>
+    <div class="p-3.5 bg-white border border-slate-200/80 rounded-xl">
+      <div class="text-[11px] font-medium text-slate-400 uppercase">Mức Độ Ưu Tiên</div>
+      <div id="cat-stat-priority" class="text-lg font-bold font-mono text-amber-600 mt-1">0</div>
+    </div>
+    <div class="p-3.5 bg-white border border-slate-200/80 rounded-xl">
+      <div class="text-[11px] font-medium text-slate-400 uppercase">Trạng Thái & Cấp Bậc</div>
+      <div id="cat-stat-status" class="text-lg font-bold font-mono text-emerald-600 mt-1">0</div>
+    </div>
+  </div>
+
+  <!-- 3. THANH CÔNG CỤ: SUB-TAB FILTER PILLS & SEARCH BOX -->
+  <div class="flex flex-col md:flex-row md:items-center justify-between gap-3 bg-white p-3.5 rounded-2xl border border-slate-200/80 shadow-2xs">
+    <!-- Sub-tab Category Switcher -->
+    <div class="flex items-center gap-1.5 overflow-x-auto pb-1 md:pb-0" id="cat-filter-tabs">
+      <button onclick="ModuleCatalogs.setGroupFilter('ALL')" data-cat-filter="ALL" class="cat-tab-btn px-3 py-1.5 rounded-lg text-xs font-bold transition bg-emerald-50 text-emerald-700 border border-emerald-200">
+        Tất cả (<span id="cat-cnt-all">0</span>)
+      </button>
+      <button onclick="ModuleCatalogs.setGroupFilter('PHONG_BAN')" data-cat-filter="PHONG_BAN" class="cat-tab-btn px-3 py-1.5 rounded-lg text-xs font-medium transition text-slate-600 hover:bg-slate-100">
+        Phòng Ban
+      </button>
+      <button onclick="ModuleCatalogs.setGroupFilter('UU_TIEN')" data-cat-filter="UU_TIEN" class="cat-tab-btn px-3 py-1.5 rounded-lg text-xs font-medium transition text-slate-600 hover:bg-slate-100">
+        Mức Ưu Tiên
+      </button>
+      <button onclick="ModuleCatalogs.setGroupFilter('TRANG_THAI')" data-cat-filter="TRANG_THAI" class="cat-tab-btn px-3 py-1.5 rounded-lg text-xs font-medium transition text-slate-600 hover:bg-slate-100">
+        Trạng Thái
+      </button>
+      <button onclick="ModuleCatalogs.setGroupFilter('CAP_BAC')" data-cat-filter="CAP_BAC" class="cat-tab-btn px-3 py-1.5 rounded-lg text-xs font-medium transition text-slate-600 hover:bg-slate-100">
+        Cấp Bậc
+      </button>
+    </div>
+
+    <!-- Search Input -->
+    <div class="relative w-full md:w-72 shrink-0">
+      <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2"></i>
+      <input 
+        id="cat-search-input" 
+        oninput="ModuleCatalogs.handleSearch(this.value)" 
+        type="text" 
+        placeholder="Tìm theo tên, mã danh mục..." 
+        class="w-full pl-9 pr-3.5 h-[38px] rounded-xl border border-slate-200 text-xs text-slate-800 placeholder-slate-400 bg-slate-50/70 focus:bg-white focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 outline-none transition"
+      >
+    </div>
+  </div>
+
+  <!-- 4. MASTER TABLE DESKTOP (Edge-to-Edge) -->
+  <div class="hidden md:block bg-white rounded-2xl border border-slate-200/80 shadow-xs overflow-hidden">
+    <div class="overflow-x-auto">
+      <table class="w-full text-left border-collapse">
+        <thead>
+          <tr class="border-b border-slate-100 bg-slate-50/75 text-[11px] font-bold text-slate-500 uppercase tracking-wider">
+            <th class="py-3 px-4 w-32">Mã Danh Mục</th>
+            <th class="py-3 px-4">Tên Hiển Thị Dropdown</th>
+            <th class="py-3 px-4 w-44">Phân Nhóm</th>
+            <th class="py-3 px-4 w-24 text-center">Thứ Tự</th>
+            <th class="py-3 px-4 w-36">Màu Sắc / CSS</th>
+            <th class="py-3 px-4">Mô Tả / Ghi Chú</th>
+            <th class="py-3 px-4 w-24 text-right">Thao Tác</th>
+          </tr>
+        </thead>
+        <tbody id="catalogs-table-body" class="divide-y divide-slate-100 text-xs">
+          <!-- Rendered dynamically by ModuleCatalogs.render() -->
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- 5. TABLE-TO-CARD MOBILE LIST (< md) -->
+  <div id="catalogs-mobile-list" class="md:hidden space-y-3">
+    <!-- Rendered dynamically by ModuleCatalogs.render() -->
+  </div>
+
+  <!-- Empty State -->
+  <div id="catalogs-empty-state" class="hidden py-12 text-center bg-white rounded-2xl border border-slate-100">
+    <div class="w-12 h-12 mx-auto mb-2.5 rounded-xl bg-slate-100 flex items-center justify-center text-slate-400">
+      <i data-lucide="tag" class="w-6 h-6"></i>
+    </div>
+    <div class="text-xs font-semibold text-slate-700">Không tìm thấy danh mục phù hợp</div>
+    <p class="text-[11px] text-slate-400 mt-1">Thử đổi từ khóa tìm kiếm hoặc bấm Thêm Danh Mục mới.</p>
+  </div>
+
+</section>
+
+<!-- ========================================================================================= -->
 <!-- TAB 3: USER GUIDE & FLAT WORKFLOW DOCUMENTATION (#tab-help)                               -->
 <!-- Chuẩn mực Pure Fintech Flat Canvas: Anti-Card Overload, Anti-Pill Overload, Edge-to-Edge -->
 <!-- ========================================================================================= -->
@@ -6472,15 +6635,22 @@ const ModuleTeamProjects = (function() {
   }
 
   /**
-   * Helper: Chuyển ngày YYYY-MM-DD (input date) sang DD/MM/YYYY (sheet)
+   * Helper: Chuyển ngày YYYY-MM-DD hoặc Date sang DD/MM/YYYY (sheet)
    */
-  function toDateVNDisplay(isoStr) {
-    if (!isoStr) return '';
-    var parts = String(isoStr).split('-');
-    if (parts.length === 3) {
+  function toDateVNDisplay(val) {
+    if (!val) return '';
+    if (val instanceof Date) {
+      var da = String(val.getDate()).padStart(2, '0');
+      var m = String(val.getMonth() + 1).padStart(2, '0');
+      var y = val.getFullYear();
+      return da + '/' + m + '/' + y;
+    }
+    var str = String(val).trim();
+    var parts = str.split('-');
+    if (parts.length === 3 && parts[0].length === 4) {
       return parts[2] + '/' + parts[1] + '/' + parts[0];
     }
-    return isoStr;
+    return str;
   }
 
   /**
@@ -7178,6 +7348,26 @@ const ModuleTeamProjects = (function() {
     var defaultEmail = (staffObj && (staffObj.googleEmail || staffObj['Google Email'])) || '';
     var defaultStatus = (staffObj && (staffObj.trangThai || staffObj['Trạng Thái'])) || 'Đang hoạt động';
 
+    var rankOptions = window.TaxonomyHelper 
+      ? window.TaxonomyHelper.renderOptions('Cấp Bậc Nhân Sự', defaultRank)
+      : ('<option value="Lead"' + (defaultRank === 'Lead' ? ' selected' : '') + '>Lead</option>' +
+         '<option value="Senior"' + (defaultRank === 'Senior' ? ' selected' : '') + '>Senior</option>' +
+         '<option value="Mid"' + (defaultRank === 'Mid' ? ' selected' : '') + '>Mid-level</option>' +
+         '<option value="Junior"' + (defaultRank === 'Junior' ? ' selected' : '') + '>Junior</option>');
+
+    var deptOptions = window.TaxonomyHelper
+      ? window.TaxonomyHelper.renderOptions('Phòng Ban', defaultDept)
+      : ('<option value="Kỹ thuật & Công nghệ"' + (defaultDept === 'Kỹ thuật & Công nghệ' ? ' selected' : '') + '>Kỹ thuật & Công nghệ</option>' +
+         '<option value="Thiết kế & Sản phẩm"' + (defaultDept === 'Thiết kế & Sản phẩm' ? ' selected' : '') + '>Thiết kế & Sản phẩm</option>' +
+         '<option value="Marketing & Truyền thông"' + (defaultDept === 'Marketing & Truyền thông' ? ' selected' : '') + '>Marketing & Truyền thông</option>' +
+         '<option value="Kinh doanh & Vận hành"' + (defaultDept === 'Kinh doanh & Vận hành' ? ' selected' : '') + '>Kinh doanh & Vận hành</option>' +
+         '<option value="Tài chính & Kế toán"' + (defaultDept === 'Tài chính & Kế toán' ? ' selected' : '') + '>Tài chính & Kế toán</option>');
+
+    var statusOptions = window.TaxonomyHelper
+      ? window.TaxonomyHelper.renderOptions('Trạng Thái Nhân Sự', defaultStatus)
+      : ('<option value="Đang hoạt động"' + (defaultStatus === 'Đang hoạt động' ? ' selected' : '') + '>● Đang hoạt động</option>' +
+         '<option value="Nghỉ phép / Tạm ngưng"' + (defaultStatus === 'Nghỉ phép / Tạm ngưng' ? ' selected' : '') + '>○ Nghỉ phép / Tạm ngưng</option>');
+
     var formHtml = [
       '<form id="team-staff-form" onsubmit="ModuleTeamProjects.handleSaveStaff(event)" class="space-y-4">',
         '<!-- Mã Nhân Sự (Readonly) -->',
@@ -7204,21 +7394,14 @@ const ModuleTeamProjects = (function() {
           '<div>',
             '<label class="block text-xs font-semibold text-slate-700 mb-1">Cấp Bậc</label>',
             '<select id="team-form-rank" class="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium focus:bg-white focus:border-brand-500 outline-none transition">',
-              '<option value="Lead"' + (defaultRank === 'Lead' ? ' selected' : '') + '>Lead</option>',
-              '<option value="Senior"' + (defaultRank === 'Senior' ? ' selected' : '') + '>Senior</option>',
-              '<option value="Mid"' + (defaultRank === 'Mid' ? ' selected' : '') + '>Mid-level</option>',
-              '<option value="Junior"' + (defaultRank === 'Junior' ? ' selected' : '') + '>Junior</option>',
+              rankOptions,
             '</select>',
           '</div>',
 
           '<div>',
             '<label class="block text-xs font-semibold text-slate-700 mb-1">Phòng Ban</label>',
             '<select id="team-form-dept" class="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium focus:bg-white focus:border-brand-500 outline-none transition">',
-              '<option value="Kỹ thuật & Công nghệ"' + (defaultDept === 'Kỹ thuật & Công nghệ' ? ' selected' : '') + '>Kỹ thuật & Công nghệ</option>',
-              '<option value="Thiết kế & Sản phẩm"' + (defaultDept === 'Thiết kế & Sản phẩm' ? ' selected' : '') + '>Thiết kế & Sản phẩm</option>',
-              '<option value="Marketing & Truyền thông"' + (defaultDept === 'Marketing & Truyền thông' ? ' selected' : '') + '>Marketing & Truyền thông</option>',
-              '<option value="Kinh doanh & Vận hành"' + (defaultDept === 'Kinh doanh & Vận hành' ? ' selected' : '') + '>Kinh doanh & Vận hành</option>',
-              '<option value="Tài chính & Kế toán"' + (defaultDept === 'Tài chính & Kế toán' ? ' selected' : '') + '>Tài chính & Kế toán</option>',
+              deptOptions,
             '</select>',
           '</div>',
         '</div>',
@@ -7242,8 +7425,7 @@ const ModuleTeamProjects = (function() {
         '<div>',
           '<label class="block text-xs font-semibold text-slate-700 mb-1">Trạng Thái Làm Việc</label>',
           '<select id="team-form-status" class="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium focus:bg-white focus:border-brand-500 outline-none transition">',
-            '<option value="Đang hoạt động"' + (defaultStatus === 'Đang hoạt động' ? ' selected' : '') + '>● Đang hoạt động</option>',
-            '<option value="Nghỉ phép / Tạm ngưng"' + (defaultStatus === 'Nghỉ phép / Tạm ngưng' ? ' selected' : '') + '>○ Nghỉ phép / Tạm ngưng</option>',
+            statusOptions,
           '</select>',
         '</div>',
 
@@ -7384,8 +7566,8 @@ const ModuleTeamProjects = (function() {
     var defaultDept = (projObj && (projObj.phongBan || projObj['Phòng Ban'])) || 'Kỹ thuật & Công nghệ';
     var defaultManager = (projObj && (projObj.nguoiQuanLy || projObj['Người Quản Lý'])) || '';
     var defaultGoal = (projObj && (projObj.mucTieu || projObj['Mục Tiêu'])) || '';
-    var defaultStart = toDateInputVal(projObj && (projObj.ngayBatDau || projObj['Ngày Bắt Đầu']));
-    var defaultDeadline = toDateInputVal(projObj && (projObj.hanHoanThanh || projObj['Hạn Hoàn Thành']));
+    var defaultStart = (projObj && (projObj.ngayBatDau || projObj['Ngày Bắt Đầu'])) ? toDateVNDisplay(projObj.ngayBatDau || projObj['Ngày Bắt Đầu']) : toDateVNDisplay(new Date());
+    var defaultDeadline = (projObj && (projObj.hanHoanThanh || projObj['Hạn Hoàn Thành'])) ? toDateVNDisplay(projObj.hanHoanThanh || projObj['Hạn Hoàn Thành']) : toDateVNDisplay(new Date(Date.now() + 30 * 86400000));
     var defaultBudget = (projObj && (projObj.nganSach || projObj['Ngân Sách'])) || 100000000;
     var defaultStatus = (projObj && (projObj.trangThai || projObj['Trạng Thái'])) || 'Đang tiến hành';
     var defaultProgress = (projObj && (projObj.tienDoTong || projObj['Tiến Độ Tổng %'])) || 0;
@@ -7398,6 +7580,20 @@ const ModuleTeamProjects = (function() {
       var isSelected = sName === defaultManager ? ' selected' : '';
       return '<option value="' + sName.replace(/"/g, '&quot;') + '"' + isSelected + '>' + sName + '</option>';
     }).join('');
+
+    var deptOptions = window.TaxonomyHelper 
+      ? window.TaxonomyHelper.renderOptions('Phòng Ban', defaultDept)
+      : ('<option value="Kỹ thuật & Công nghệ"' + (defaultDept === 'Kỹ thuật & Công nghệ' ? ' selected' : '') + '>Kỹ thuật & Công nghệ</option>' +
+         '<option value="Thiết kế & Sản phẩm"' + (defaultDept === 'Thiết kế & Sản phẩm' ? ' selected' : '') + '>Thiết kế & Sản phẩm</option>' +
+         '<option value="Marketing & Truyền thông"' + (defaultDept === 'Marketing & Truyền thông' ? ' selected' : '') + '>Marketing & Truyền thông</option>' +
+         '<option value="Kinh doanh & Vận hành"' + (defaultDept === 'Kinh doanh & Vận hành' ? ' selected' : '') + '>Kinh doanh & Vận hành</option>');
+
+    var statusOptions = window.TaxonomyHelper
+      ? window.TaxonomyHelper.renderOptions('Trạng Thái Dự Án', defaultStatus)
+      : ('<option value="Đang tiến hành"' + (defaultStatus === 'Đang tiến hành' ? ' selected' : '') + '>● Đang tiến hành</option>' +
+         '<option value="Hoàn thành"' + (defaultStatus === 'Hoàn thành' ? ' selected' : '') + '>● Hoàn thành</option>' +
+         '<option value="Tạm dừng"' + (defaultStatus === 'Tạm dừng' ? ' selected' : '') + '>● Tạm dừng</option>' +
+         '<option value="Chuẩn bị"' + (defaultStatus === 'Chuẩn bị' ? ' selected' : '') + '>● Chuẩn bị</option>');
 
     var formHtml = [
       '<form id="proj-form" onsubmit="ModuleTeamProjects.handleSaveProject(event)" class="space-y-4">',
@@ -7419,10 +7615,7 @@ const ModuleTeamProjects = (function() {
           '<div>',
             '<label class="block text-xs font-semibold text-slate-700 mb-1">Phòng Ban Phụ Trách</label>',
             '<select id="proj-form-dept" class="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium focus:bg-white focus:border-brand-500 outline-none transition">',
-              '<option value="Kỹ thuật & Công nghệ"' + (defaultDept === 'Kỹ thuật & Công nghệ' ? ' selected' : '') + '>Kỹ thuật & Công nghệ</option>',
-              '<option value="Thiết kế & Sản phẩm"' + (defaultDept === 'Thiết kế & Sản phẩm' ? ' selected' : '') + '>Thiết kế & Sản phẩm</option>',
-              '<option value="Marketing & Truyền thông"' + (defaultDept === 'Marketing & Truyền thông' ? ' selected' : '') + '>Marketing & Truyền thông</option>',
-              '<option value="Kinh doanh & Vận hành"' + (defaultDept === 'Kinh doanh & Vận hành' ? ' selected' : '') + '>Kinh doanh & Vận hành</option>',
+              deptOptions,
             '</select>',
           '</div>',
 
@@ -7445,12 +7638,12 @@ const ModuleTeamProjects = (function() {
         '<div class="grid grid-cols-2 gap-3">',
           '<div>',
             '<label class="block text-xs font-semibold text-slate-700 mb-1">Ngày Bắt Đầu</label>',
-            '<input type="date" id="proj-form-start" value="' + defaultStart + '" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium focus:bg-white focus:border-brand-500 outline-none transition" />',
+            '<input type="text" id="proj-form-start" value="' + defaultStart + '" placeholder="dd/mm/yyyy" maxlength="10" autocomplete="off" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium focus:bg-white focus:border-brand-500 outline-none transition" />',
           '</div>',
 
           '<div>',
             '<label class="block text-xs font-semibold text-slate-700 mb-1">Hạn Hoàn Thành <span class="text-rose-500">*</span></label>',
-            '<input type="date" id="proj-form-deadline" value="' + defaultDeadline + '" required class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium focus:bg-white focus:border-brand-500 outline-none transition" />',
+            '<input type="text" id="proj-form-deadline" value="' + defaultDeadline + '" placeholder="dd/mm/yyyy" maxlength="10" autocomplete="off" required class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium focus:bg-white focus:border-brand-500 outline-none transition" />',
           '</div>',
         '</div>',
 
@@ -7464,10 +7657,7 @@ const ModuleTeamProjects = (function() {
           '<div>',
             '<label class="block text-xs font-semibold text-slate-700 mb-1">Trạng Thái Dự Án</label>',
             '<select id="proj-form-status" class="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium focus:bg-white focus:border-brand-500 outline-none transition">',
-              '<option value="Đang tiến hành"' + (defaultStatus === 'Đang tiến hành' ? ' selected' : '') + '>● Đang tiến hành</option>',
-              '<option value="Hoàn thành"' + (defaultStatus === 'Hoàn thành' ? ' selected' : '') + '>● Hoàn thành</option>',
-              '<option value="Tạm dừng"' + (defaultStatus === 'Tạm dừng' ? ' selected' : '') + '>● Tạm dừng</option>',
-              '<option value="Chuẩn bị"' + (defaultStatus === 'Chuẩn bị' ? ' selected' : '') + '>● Chuẩn bị</option>',
+              statusOptions,
             '</select>',
           '</div>',
         '</div>',
@@ -7493,6 +7683,10 @@ const ModuleTeamProjects = (function() {
 
     var title = isEdit ? 'Chỉnh Sửa Thông Tin Dự Án' : 'Khởi Tạo Dự Án Mới';
     openCustomDrawer(title, 'folder-edit', formHtml);
+    if (window.App && typeof window.App.initDatePicker === 'function') {
+      window.App.initDatePicker('#proj-form-start', defaultStart);
+      window.App.initDatePicker('#proj-form-deadline', defaultDeadline);
+    }
   }
 
   function handleSaveProject(e) {
@@ -8041,23 +8235,42 @@ window.ModuleTeamProjects = ModuleTeamProjects;
           { maLich: 'LICH-301924', nhiemVu: 'Đánh Giá Kỷ Luật & Checklist', maNhanSu: 'NHAN-201944', tenNhanSu: 'Phạm Quỳnh Anh', thu2: '-', thu3: '-', thu4: '-', thu5: '-', thu6: 'Not Yet', thu7: '-', tyLeTuan: '0%', tuanThu: 'Tuần 46', id: 'LICH-301924_NHAN-201944' }
         ],
         taxonomy: [
-          { nhom: 'Trạng Thái Task', maDanhMuc: 'CAT-TT-01', tenDanhMuc: 'Chờ thực hiện', mauSac: '#64748b', thuTu: 1, ghiChu: 'Mới tạo chưa bắt đầu' },
-          { nhom: 'Trạng Thái Task', maDanhMuc: 'CAT-TT-02', tenDanhMuc: 'Đang tiến hành', mauSac: '#0284c7', thuTu: 2, ghiChu: 'Đang trong quá trình xử lý' },
-          { nhom: 'Trạng Thái Task', maDanhMuc: 'CAT-TT-03', tenDanhMuc: 'Chờ duyệt', mauSac: '#d97706', thuTu: 3, ghiChu: 'Đã hoàn thành, chờ nghiệm thu' },
-          { nhom: 'Trạng Thái Task', maDanhMuc: 'CAT-TT-04', tenDanhMuc: 'Hoàn thành', mauSac: '#059669', thuTu: 4, ghiChu: 'Đã nghiệm thu và đóng' },
-          { nhom: 'Trạng Thái Task', maDanhMuc: 'CAT-TT-05', tenDanhMuc: 'Tạm hoãn', mauSac: '#94a3b8', thuTu: 5, ghiChu: 'Tạm dừng do thiếu thông tin' },
-          { nhom: 'Mức Độ Ưu Tiên', maDanhMuc: 'CAT-UT-01', tenDanhMuc: 'Khẩn cấp', mauSac: '#e11d48', thuTu: 1, ghiChu: 'Xử lý ngay trong ngày (P1)' },
-          { nhom: 'Mức Độ Ưu Tiên', maDanhMuc: 'CAT-UT-02', tenDanhMuc: 'Cao', mauSac: '#ea580c', thuTu: 2, ghiChu: 'Quan trọng, cần ưu tiên (P2)' },
-          { nhom: 'Mức Độ Ưu Tiên', maDanhMuc: 'CAT-UT-03', tenDanhMuc: 'Bình thường', mauSac: '#0284c7', thuTu: 3, ghiChu: 'Theo kế hoạch (P3)' },
-          { nhom: 'Mức Độ Ưu Tiên', maDanhMuc: 'CAT-UT-04', tenDanhMuc: 'Thấp', mauSac: '#64748b', thuTu: 4, ghiChu: 'Có thể dời lại (P4)' },
-          { nhom: 'Phòng Ban', maDanhMuc: 'CAT-PB-01', tenDanhMuc: 'Kỹ thuật & Công nghệ', mauSac: '#0284c7', thuTu: 1 },
-          { nhom: 'Phòng Ban', maDanhMuc: 'CAT-PB-02', tenDanhMuc: 'Thiết kế & Sản phẩm', mauSac: '#7c3aed', thuTu: 2 },
-          { nhom: 'Phòng Ban', maDanhMuc: 'CAT-PB-03', tenDanhMuc: 'Marketing & Truyền thông', mauSac: '#db2777', thuTu: 3 },
-          { nhom: 'Phòng Ban', maDanhMuc: 'CAT-PB-04', tenDanhMuc: 'Vận hành & Nhân sự', mauSac: '#059669', thuTu: 4 },
-          { nhom: 'Cấp Bậc Nhân Sự', maDanhMuc: 'CAT-CB-01', tenDanhMuc: 'Lead', mauSac: '#dc2626', thuTu: 1 },
-          { nhom: 'Cấp Bậc Nhân Sự', maDanhMuc: 'CAT-CB-02', tenDanhMuc: 'Senior', mauSac: '#ea580c', thuTu: 2 },
-          { nhom: 'Cấp Bậc Nhân Sự', maDanhMuc: 'CAT-CB-03', tenDanhMuc: 'Mid', mauSac: '#0284c7', thuTu: 3 },
-          { nhom: 'Cấp Bậc Nhân Sự', maDanhMuc: 'CAT-CB-04', tenDanhMuc: 'Junior', mauSac: '#64748b', thuTu: 4 }
+          // 1. Phân nhóm Trạng Thái Task
+          { nhom: 'Trạng Thái Task', maDanhMuc: 'CAT-TT-01', tenDanhMuc: 'Chờ thực hiện', mauSac: '#64748b', thuTu: 1, ghiChu: 'Mới tạo chưa bắt đầu', ma: 'CAT-TT-01', ten: 'Chờ thực hiện' },
+          { nhom: 'Trạng Thái Task', maDanhMuc: 'CAT-TT-02', tenDanhMuc: 'Đang tiến hành', mauSac: '#0284c7', thuTu: 2, ghiChu: 'Đang trong quá trình xử lý', ma: 'CAT-TT-02', ten: 'Đang tiến hành' },
+          { nhom: 'Trạng Thái Task', maDanhMuc: 'CAT-TT-03', tenDanhMuc: 'Chờ duyệt', mauSac: '#d97706', thuTu: 3, ghiChu: 'Đã hoàn thành, chờ nghiệm thu', ma: 'CAT-TT-03', ten: 'Chờ duyệt' },
+          { nhom: 'Trạng Thái Task', maDanhMuc: 'CAT-TT-04', tenDanhMuc: 'Hoàn thành', mauSac: '#059669', thuTu: 4, ghiChu: 'Đã nghiệm thu và đóng', ma: 'CAT-TT-04', ten: 'Hoàn thành' },
+          { nhom: 'Trạng Thái Task', maDanhMuc: 'CAT-TT-05', tenDanhMuc: 'Tạm hoãn', mauSac: '#94a3b8', thuTu: 5, ghiChu: 'Tạm dừng do thiếu thông tin', ma: 'CAT-TT-05', ten: 'Tạm hoãn' },
+
+          // 2. Phân nhóm Mức Độ Ưu Tiên
+          { nhom: 'Mức Độ Ưu Tiên', maDanhMuc: 'CAT-UT-01', tenDanhMuc: 'Khẩn cấp', mauSac: '#e11d48', thuTu: 1, ghiChu: 'Xử lý ngay trong ngày (P1)', ma: 'CAT-UT-01', ten: 'Khẩn cấp' },
+          { nhom: 'Mức Độ Ưu Tiên', maDanhMuc: 'CAT-UT-02', tenDanhMuc: 'Cao', mauSac: '#ea580c', thuTu: 2, ghiChu: 'Quan trọng, cần ưu tiên (P2)', ma: 'CAT-UT-02', ten: 'Cao' },
+          { nhom: 'Mức Độ Ưu Tiên', maDanhMuc: 'CAT-UT-03', tenDanhMuc: 'Bình thường', mauSac: '#0284c7', thuTu: 3, ghiChu: 'Theo kế hoạch (P3)', ma: 'CAT-UT-03', ten: 'Bình thường' },
+          { nhom: 'Mức Độ Ưu Tiên', maDanhMuc: 'CAT-UT-04', tenDanhMuc: 'Thấp', mauSac: '#64748b', thuTu: 4, ghiChu: 'Có thể dời lại (P4)', ma: 'CAT-UT-04', ten: 'Thấp' },
+
+          // 3. Phân nhóm Phòng Ban
+          { nhom: 'Phòng Ban', maDanhMuc: 'CAT-PB-01', tenDanhMuc: 'Kỹ thuật & Công nghệ', mauSac: '#0284c7', thuTu: 1, ghiChu: 'Khối kỹ thuật và phát triển sản phẩm', ma: 'CAT-PB-01', ten: 'Kỹ thuật & Công nghệ' },
+          { nhom: 'Phòng Ban', maDanhMuc: 'CAT-PB-02', tenDanhMuc: 'Thiết kế & Sản phẩm', mauSac: '#7c3aed', thuTu: 2, ghiChu: 'Khối thiết kế UX/UI & Product Management', ma: 'CAT-PB-02', ten: 'Thiết kế & Sản phẩm' },
+          { nhom: 'Phòng Ban', maDanhMuc: 'CAT-PB-03', tenDanhMuc: 'Marketing & Truyền thông', mauSac: '#db2777', thuTu: 3, ghiChu: 'Khối tiếp thị & tăng trưởng', ma: 'CAT-PB-03', ten: 'Marketing & Truyền thông' },
+          { nhom: 'Phòng Ban', maDanhMuc: 'CAT-PB-04', tenDanhMuc: 'Vận hành & Nhân sự', mauSac: '#059669', thuTu: 4, ghiChu: 'Khối hành chính, nhân sự & nội bộ', ma: 'CAT-PB-04', ten: 'Vận hành & Nhân sự' },
+          { nhom: 'Phòng Ban', maDanhMuc: 'CAT-PB-05', tenDanhMuc: 'Kinh doanh & Đối tác', mauSac: '#2563eb', thuTu: 5, ghiChu: 'Khối bán hàng và phát triển đối tác', ma: 'CAT-PB-05', ten: 'Kinh doanh & Đối tác' },
+          { nhom: 'Phòng Ban', maDanhMuc: 'CAT-PB-06', tenDanhMuc: 'Tài chính & Kế toán', mauSac: '#0d9488', thuTu: 6, ghiChu: 'Khối tài chính dòng tiền & kế toán', ma: 'CAT-PB-06', ten: 'Tài chính & Kế toán' },
+
+          // 4. Phân nhóm Cấp Bậc Nhân Sự
+          { nhom: 'Cấp Bậc Nhân Sự', maDanhMuc: 'CAT-CB-01', tenDanhMuc: 'Lead', mauSac: '#dc2626', thuTu: 1, ghiChu: 'Trưởng nhóm / Quản lý khối', ma: 'CAT-CB-01', ten: 'Lead' },
+          { nhom: 'Cấp Bậc Nhân Sự', maDanhMuc: 'CAT-CB-02', tenDanhMuc: 'Senior', mauSac: '#ea580c', thuTu: 2, ghiChu: 'Chuyên viên cao cấp', ma: 'CAT-CB-02', ten: 'Senior' },
+          { nhom: 'Cấp Bậc Nhân Sự', maDanhMuc: 'CAT-CB-03', tenDanhMuc: 'Mid', mauSac: '#0284c7', thuTu: 3, ghiChu: 'Chuyên viên tiêu chuẩn', ma: 'CAT-CB-03', ten: 'Mid' },
+          { nhom: 'Cấp Bậc Nhân Sự', maDanhMuc: 'CAT-CB-04', tenDanhMuc: 'Junior', mauSac: '#64748b', thuTu: 4, ghiChu: 'Nhân viên mới / Tập sự', ma: 'CAT-CB-04', ten: 'Junior' },
+
+          // 5. Phân nhóm Trạng Thái Dự Án
+          { nhom: 'Trạng Thái Dự Án', maDanhMuc: 'CAT-DA-01', tenDanhMuc: 'Đang tiến hành', mauSac: '#0284c7', thuTu: 1, ghiChu: 'Dự án đang trong tiến độ thực hiện', ma: 'CAT-DA-01', ten: 'Đang tiến hành' },
+          { nhom: 'Trạng Thái Dự Án', maDanhMuc: 'CAT-DA-02', tenDanhMuc: 'Hoàn thành', mauSac: '#059669', thuTu: 2, ghiChu: 'Dự án đã nghiệm thu và đóng', ma: 'CAT-DA-02', ten: 'Hoàn thành' },
+          { nhom: 'Trạng Thái Dự Án', maDanhMuc: 'CAT-DA-03', tenDanhMuc: 'Tạm hoãn', mauSac: '#94a3b8', thuTu: 3, ghiChu: 'Dự án tạm ngừng triển khai', ma: 'CAT-DA-03', ten: 'Tạm hoãn' },
+          { nhom: 'Trạng Thái Dự Án', maDanhMuc: 'CAT-DA-04', tenDanhMuc: 'Đang lập kế hoạch', mauSac: '#d97706', thuTu: 4, ghiChu: 'Dự án đang xây dựng proposal', ma: 'CAT-DA-04', ten: 'Đang lập kế hoạch' },
+
+          // 6. Phân nhóm Trạng Thái Nhân Sự
+          { nhom: 'Trạng Thái Nhân Sự', maDanhMuc: 'CAT-NS-01', tenDanhMuc: 'Đang hoạt động', mauSac: '#059669', thuTu: 1, ghiChu: 'Nhân sự đang công tác bình thường', ma: 'CAT-NS-01', ten: 'Đang hoạt động' },
+          { nhom: 'Trạng Thái Nhân Sự', maDanhMuc: 'CAT-NS-02', tenDanhMuc: 'Nghỉ phép / Tạm ngưng', mauSac: '#94a3b8', thuTu: 2, ghiChu: 'Nhân sự tạm nghỉ phép hoặc thai sản', ma: 'CAT-NS-02', ten: 'Nghỉ phép / Tạm ngưng' }
         ]
       },
       currentTab: 'dashboard',
@@ -8072,6 +8285,130 @@ window.ModuleTeamProjects = ModuleTeamProjects;
       sidebarCollapsed: false,
       charts: {},
       isSyncing: false
+    };
+
+    /**
+     * TAXONOMY HELPER (RULE 5 & CONTRACT DUAL HEADER MAPPING)
+     * Động hóa dropdown từ AppState.data.taxonomy
+     */
+    window.TaxonomyHelper = {
+      getItemsByGroup: function(groupName) {
+        if (!groupName) return [];
+        var norm = String(groupName).trim().toLowerCase();
+        var all = (window.AppState && window.AppState.data && Array.isArray(window.AppState.data.taxonomy))
+          ? window.AppState.data.taxonomy
+          : [];
+        var matched = all.filter(function(it) {
+          var g = String(it.nhom || it.Nhom || it['Nhóm'] || it.loai || '').trim().toLowerCase();
+          return g === norm;
+        });
+        if (matched.length > 0) {
+          return matched.sort(function(a, b) {
+            return (Number(a.thuTu || a['Thứ Tự'] || 999) - Number(b.thuTu || b['Thứ Tự'] || 999));
+          });
+        }
+        return this.getFallbackItems(groupName);
+      },
+
+      getFallbackItems: function(groupName) {
+        var norm = String(groupName || '').trim().toLowerCase();
+        var fallbacks = {
+          'trạng thái task': [
+            { tenDanhMuc: 'Chờ thực hiện', maDanhMuc: 'CAT-TT-01', mauSac: '#64748b' },
+            { tenDanhMuc: 'Đang tiến hành', maDanhMuc: 'CAT-TT-02', mauSac: '#0284c7' },
+            { tenDanhMuc: 'Chờ duyệt', maDanhMuc: 'CAT-TT-03', mauSac: '#d97706' },
+            { tenDanhMuc: 'Hoàn thành', maDanhMuc: 'CAT-TT-04', mauSac: '#059669' },
+            { tenDanhMuc: 'Tạm hoãn', maDanhMuc: 'CAT-TT-05', mauSac: '#94a3b8' }
+          ],
+          'mức độ ưu tiên': [
+            { tenDanhMuc: 'Khẩn cấp', maDanhMuc: 'CAT-UT-01', mauSac: '#e11d48' },
+            { tenDanhMuc: 'Cao', maDanhMuc: 'CAT-UT-02', mauSac: '#ea580c' },
+            { tenDanhMuc: 'Bình thường', maDanhMuc: 'CAT-UT-03', mauSac: '#0284c7' },
+            { tenDanhMuc: 'Thấp', maDanhMuc: 'CAT-UT-04', mauSac: '#64748b' }
+          ],
+          'phòng ban': [
+            { tenDanhMuc: 'Kỹ thuật & Công nghệ', maDanhMuc: 'CAT-PB-01' },
+            { tenDanhMuc: 'Thiết kế & Sản phẩm', maDanhMuc: 'CAT-PB-02' },
+            { tenDanhMuc: 'Marketing & Truyền thông', maDanhMuc: 'CAT-PB-03' },
+            { tenDanhMuc: 'Vận hành & Nhân sự', maDanhMuc: 'CAT-PB-04' },
+            { tenDanhMuc: 'Kinh doanh & Đối tác', maDanhMuc: 'CAT-PB-05' },
+            { tenDanhMuc: 'Tài chính & Kế toán', maDanhMuc: 'CAT-PB-06' }
+          ],
+          'cấp bậc nhân sự': [
+            { tenDanhMuc: 'Lead', maDanhMuc: 'CAT-CB-01' },
+            { tenDanhMuc: 'Senior', maDanhMuc: 'CAT-CB-02' },
+            { tenDanhMuc: 'Mid', maDanhMuc: 'CAT-CB-03' },
+            { tenDanhMuc: 'Junior', maDanhMuc: 'CAT-CB-04' }
+          ],
+          'trạng thái dự án': [
+            { tenDanhMuc: 'Đang tiến hành', maDanhMuc: 'CAT-DA-01' },
+            { tenDanhMuc: 'Hoàn thành', maDanhMuc: 'CAT-DA-02' },
+            { tenDanhMuc: 'Tạm hoãn', maDanhMuc: 'CAT-DA-03' },
+            { tenDanhMuc: 'Đang lập kế hoạch', maDanhMuc: 'CAT-DA-04' }
+          ],
+          'trạng thái nhân sự': [
+            { tenDanhMuc: 'Đang hoạt động', maDanhMuc: 'CAT-NS-01' },
+            { tenDanhMuc: 'Nghỉ phép / Tạm ngưng', maDanhMuc: 'CAT-NS-02' }
+          ]
+        };
+        return fallbacks[norm] || [];
+      },
+
+      escapeHtml: function(text) {
+        if (text === null || text === undefined) return '';
+        return String(text)
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;')
+          .replace(/'/g, '&#039;');
+      },
+
+      renderOptions: function(groupName, selectedValue, defaultPlaceholder) {
+        var items = this.getItemsByGroup(groupName);
+        var html = '';
+        if (defaultPlaceholder) {
+          html += '<option value="">' + this.escapeHtml(defaultPlaceholder) + '</option>';
+        }
+        var self = this;
+        items.forEach(function(it) {
+          var val = it.tenDanhMuc || it.ten || it.Ten || it['Tên'] || it['Tên Danh Mục'] || '';
+          var isSelected = selectedValue && String(selectedValue).trim().toLowerCase() === String(val).trim().toLowerCase();
+          var safeVal = self.escapeHtml(val);
+          html += '<option value="' + safeVal + '" ' + (isSelected ? 'selected' : '') + '>' + safeVal + '</option>';
+        });
+        return html;
+      },
+
+      updateSelectElement: function(selectId, groupName, defaultPlaceholder) {
+        var el = document.getElementById(selectId);
+        if (!el) return;
+        var currentVal = el.value;
+        el.innerHTML = this.renderOptions(groupName, currentVal, defaultPlaceholder);
+        if (currentVal) {
+          el.value = currentVal;
+        }
+      }
+    };
+
+    /**
+     * POPULATE DYNAMIC DROPDOWNS
+     * Tự động đồng bộ các bộ lọc Toolbar và Drawer
+     */
+    window.populateDynamicDropdowns = function() {
+      if (!window.TaxonomyHelper) return;
+
+      // 1. Task filter toolbar
+      TaxonomyHelper.updateSelectElement('task-filter-status', 'Trạng Thái Task', 'Tất cả trạng thái');
+      TaxonomyHelper.updateSelectElement('task-filter-priority', 'Mức Độ Ưu Tiên', 'Tất cả mức ưu tiên');
+
+      // 2. Project filter toolbar
+      TaxonomyHelper.updateSelectElement('proj-status-filter', 'Trạng Thái Dự Án', 'Tất cả trạng thái');
+      TaxonomyHelper.updateSelectElement('proj-dept-filter', 'Phòng Ban', 'Tất cả phòng ban');
+
+      // 3. Team filter toolbar
+      TaxonomyHelper.updateSelectElement('team-dept-filter', 'Phòng Ban', 'Tất cả phòng ban');
+      TaxonomyHelper.updateSelectElement('team-rank-filter', 'Cấp Bậc Nhân Sự', 'Tất cả cấp bậc');
     };
 
     /**
@@ -8091,6 +8428,11 @@ window.ModuleTeamProjects = ModuleTeamProjects;
           }
         } catch (e) {
           console.warn('LocalStorage error:', e);
+        }
+
+        // Động hóa dropdowns từ taxonomy
+        if (window.populateDynamicDropdowns) {
+          window.populateDynamicDropdowns();
         }
 
         // Bật tab mặc định
@@ -8114,6 +8456,47 @@ window.ModuleTeamProjects = ModuleTeamProjects;
         this.refreshData(true);
       },
 
+      // Helper khởi tạo DatePicker chuẩn Việt Nam dd/mm/yyyy với Flatpickr và auto-mask
+      initDatePicker(selectorOrEl, initialValue) {
+        const el = typeof selectorOrEl === 'string' ? document.querySelector(selectorOrEl) : selectorOrEl;
+        if (!el) return;
+
+        if (initialValue && !el.value) {
+          el.value = initialValue;
+        }
+
+        // Mặt nạ gõ phím auto-mask định dạng dd/mm/yyyy
+        if (!el._hasDateMask) {
+          el._hasDateMask = true;
+          el.addEventListener('input', function() {
+            let v = this.value.replace(/\D/g, '').slice(0, 8);
+            if (v.length >= 5) {
+              this.value = v.slice(0, 2) + '/' + v.slice(2, 4) + '/' + v.slice(4);
+            } else if (v.length >= 3) {
+              this.value = v.slice(0, 2) + '/' + v.slice(2);
+            } else {
+              this.value = v;
+            }
+          });
+        }
+
+        // Tích hợp thư viện Flatpickr tiếng Việt
+        if (window.flatpickr) {
+          const vnLocale = (window.flatpickr.l10ns && window.flatpickr.l10ns.vn) ? window.flatpickr.l10ns.vn : 'vn';
+          try {
+            window.flatpickr(el, {
+              dateFormat: 'd/m/Y',
+              disableMobile: true,
+              locale: vnLocale,
+              allowInput: true,
+              defaultDate: el.value || initialValue || undefined
+            });
+          } catch (e) {
+            console.warn('Flatpickr init warning:', e);
+          }
+        }
+      },
+
       // 2. Chuyển đổi tab chức năng
       switchTab(tabId) {
         window.AppState.currentTab = tabId;
@@ -8126,6 +8509,7 @@ window.ModuleTeamProjects = ModuleTeamProjects;
           routines: { title: 'Kỷ Luật Đội Ngũ & Lịch Họp', sub: 'Lịch họp định kỳ và ma trận đánh giá kỷ luật tuần theo người' },
           team: { title: 'Danh Bạ Đội Ngũ & Tải Công Việc', sub: 'Theo dõi khối lượng task, cấp bậc và tỷ lệ hoàn thành đúng hạn' },
           projects: { title: 'Danh Mục Dự Án & Tiến Độ Tổng', sub: 'Quản trị danh mục dự án, ngân sách và tiến độ hoàn thành' },
+          catalogs: { title: 'Danh Mục & Tham Số Hệ Thống', sub: 'Quản trị động Phòng ban, Mức độ ưu tiên, Trạng thái công việc và Cấp bậc nhân sự' },
           help: { title: 'Hướng Dẫn Vận Hành & Hỗ Trợ', sub: 'Quy trình khởi động 3 bước và giải đáp thắc mắc thường gặp' }
         };
 
@@ -8174,6 +8558,13 @@ window.ModuleTeamProjects = ModuleTeamProjects;
           window.ModuleRoutinesMatrix.render();
         } else if ((tabId === 'team' || tabId === 'projects') && window.ModuleTeamProjects && typeof window.ModuleTeamProjects.render === 'function') {
           window.ModuleTeamProjects.render(tabId);
+        } else if (tabId === 'catalogs' && window.ModuleCatalogs && typeof window.ModuleCatalogs.render === 'function') {
+          window.ModuleCatalogs.render();
+        }
+
+        // Tự động cập nhật dropdowns khi chuyển tab
+        if (window.populateDynamicDropdowns) {
+          window.populateDynamicDropdowns();
         }
 
         // Cuộn viewport về đầu trang
@@ -8215,8 +8606,23 @@ window.ModuleTeamProjects = ModuleTeamProjects;
         if (window.lucide) window.lucide.createIcons();
       },
 
+      // Utility to escape HTML
+      escapeHtml(str) {
+        if (str === null || str === undefined) return '';
+        return String(str)
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;')
+          .replace(/'/g, '&#039;');
+      },
+
       // 4. Mở Right Slide-over Drawer / Mobile Bottom Sheet (Rule 4: Zero Phantom Overlay)
       openDrawer({ title = 'Chi Tiết Tác Vụ', subtitle = '', contentHtml = '', onSave = null, saveLabel = 'Lưu Thay Đổi', showFooter = true } = {}) {
+        if (this._drawerTimeout) {
+          clearTimeout(this._drawerTimeout);
+          this._drawerTimeout = null;
+        }
         const container = document.getElementById('action-drawer-container');
         const backdrop = document.getElementById('action-drawer-backdrop');
         const drawer = document.getElementById('action-drawer');
@@ -8263,6 +8669,10 @@ window.ModuleTeamProjects = ModuleTeamProjects;
 
       // 5. Đóng Drawer (Rule 4: Zero Phantom Overlay)
       closeDrawer() {
+        if (this._drawerTimeout) {
+          clearTimeout(this._drawerTimeout);
+          this._drawerTimeout = null;
+        }
         const container = document.getElementById('action-drawer-container');
         const backdrop = document.getElementById('action-drawer-backdrop');
         const drawer = document.getElementById('action-drawer');
@@ -8276,10 +8686,11 @@ window.ModuleTeamProjects = ModuleTeamProjects;
         }
 
         // Animation kết thúc sau 300ms thì thêm lại class 'hidden'
-        setTimeout(() => {
+        this._drawerTimeout = setTimeout(() => {
           if (container) container.classList.add('hidden');
           const bodyEl = document.getElementById('drawer-body');
           if (bodyEl) bodyEl.innerHTML = '';
+          this._drawerTimeout = null;
         }, 300);
       },
 
@@ -8301,11 +8712,14 @@ window.ModuleTeamProjects = ModuleTeamProjects;
                          type === 'error' ? 'alert-circle' :
                          type === 'warning' ? 'alert-triangle' : 'info';
 
+        const safeTitle = this.escapeHtml(title);
+        const safeMessage = this.escapeHtml(message);
+
         toast.innerHTML = `
           <div class="shrink-0 ${iconColor} mt-0.5"><i data-lucide="${iconName}" class="w-4 h-4"></i></div>
           <div class="flex-1">
-            <div class="font-bold text-slate-900">${title}</div>
-            ${message ? `<div class="text-slate-500 mt-0.5 leading-relaxed">${message}</div>` : ''}
+            <div class="font-bold text-slate-900">${safeTitle}</div>
+            ${safeMessage ? `<div class="text-slate-500 mt-0.5 leading-relaxed">${safeMessage}</div>` : ''}
           </div>
         `;
 
@@ -8363,8 +8777,19 @@ window.ModuleTeamProjects = ModuleTeamProjects;
           `<option value="${s.hoTen || s.name}">${s.hoTen || s.name} (${s.chucDanh || s.role})</option>`
         ).join('');
 
-        const todayStr = new Date().toISOString().split('T')[0];
-        const nextWeek = new Date(Date.now() + 7 * 86400000).toISOString().split('T')[0];
+        const now = new Date();
+        const next = new Date(Date.now() + 7 * 86400000);
+        const todayStr = `${String(now.getDate()).padStart(2, '0')}/${String(now.getMonth() + 1).padStart(2, '0')}/${now.getFullYear()}`;
+        const nextWeek = `${String(next.getDate()).padStart(2, '0')}/${String(next.getMonth() + 1).padStart(2, '0')}/${next.getFullYear()}`;
+
+        const priorityOptions = window.TaxonomyHelper
+          ? window.TaxonomyHelper.renderOptions('Mức Độ Ưu Tiên', 'Cao')
+          : `
+            <option value="Khẩn cấp">Khẩn cấp (P1)</option>
+            <option value="Cao" selected>Cao (P2)</option>
+            <option value="Bình thường">Bình thường (P3)</option>
+            <option value="Thấp">Thấp (P4)</option>
+          `;
 
         const formHtml = `
           <div class="space-y-4 text-xs">
@@ -8392,10 +8817,7 @@ window.ModuleTeamProjects = ModuleTeamProjects;
               <div>
                 <label class="block font-semibold text-slate-700 mb-1.5">Mức độ ưu tiên</label>
                 <select id="quick-task-priority" class="w-full h-10 px-3 rounded-xl border border-slate-200 focus:outline-none focus:border-emerald-600 font-medium">
-                  <option value="Khẩn cấp">Khẩn cấp (P1)</option>
-                  <option value="Cao" selected>Cao (P2)</option>
-                  <option value="Bình thường">Bình thường (P3)</option>
-                  <option value="Thấp">Thấp (P4)</option>
+                  ${priorityOptions}
                 </select>
               </div>
               <div>
@@ -8411,11 +8833,11 @@ window.ModuleTeamProjects = ModuleTeamProjects;
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
                 <label class="block font-semibold text-slate-700 mb-1.5">Ngày bắt đầu</label>
-                <input type="date" id="quick-task-start" value="${todayStr}" class="w-full h-10 px-3 rounded-xl border border-slate-200 focus:outline-none focus:border-emerald-600 font-medium">
+                <input type="text" id="quick-task-start" value="${todayStr}" placeholder="dd/mm/yyyy" maxlength="10" autocomplete="off" class="w-full h-10 px-3 rounded-xl border border-slate-200 focus:outline-none focus:border-emerald-600 font-medium">
               </div>
               <div>
                 <label class="block font-semibold text-slate-700 mb-1.5">Hạn chót (Deadline) <span class="text-rose-500">*</span></label>
-                <input type="date" id="quick-task-deadline" value="${nextWeek}" class="w-full h-10 px-3 rounded-xl border border-slate-200 focus:outline-none focus:border-emerald-600 font-medium">
+                <input type="text" id="quick-task-deadline" value="${nextWeek}" placeholder="dd/mm/yyyy" maxlength="10" autocomplete="off" class="w-full h-10 px-3 rounded-xl border border-slate-200 focus:outline-none focus:border-emerald-600 font-medium">
               </div>
             </div>
 
@@ -8433,6 +8855,9 @@ window.ModuleTeamProjects = ModuleTeamProjects;
           saveLabel: 'Tạo Nhiệm Vụ',
           onSave: () => this.handleSaveQuickTask()
         });
+
+        this.initDatePicker('#quick-task-start', todayStr);
+        this.initDatePicker('#quick-task-deadline', nextWeek);
       },
 
       // Xử lý lưu việc mới từ Drawer
@@ -8455,8 +8880,10 @@ window.ModuleTeamProjects = ModuleTeamProjects;
         // Format dates dd/mm/yyyy
         const formatDateVN = (dStr) => {
           if (!dStr) return '';
-          const parts = dStr.split('-');
-          return parts.length === 3 ? `${parts[2]}/${parts[1]}/${parts[0]}` : dStr;
+          const str = String(dStr).trim();
+          if (str.includes('/')) return str;
+          const parts = str.split('-');
+          return parts.length === 3 ? `${parts[2]}/${parts[1]}/${parts[0]}` : str;
         };
 
         const projectObj = window.AppState.data.projects.find(p => (p.maDuAn || p.id) === projId);
@@ -8620,6 +9047,9 @@ window.ModuleTeamProjects = ModuleTeamProjects;
                 if (res.taxonomy && res.taxonomy.length > 0) window.AppState.data.taxonomy = res.taxonomy;
 
                 this.saveStateToLocalStorage();
+                if (window.populateDynamicDropdowns) {
+                  window.populateDynamicDropdowns();
+                }
 
                 // Re-render module hiện tại
                 this.switchTab(window.AppState.currentTab);
@@ -8704,6 +9134,455 @@ window.ModuleTeamProjects = ModuleTeamProjects;
         } catch (e) {
           console.warn('Cannot save to localStorage:', e);
         }
+      }
+    };
+
+    /**
+     * =========================================================================
+     * MODULE MASTER CATALOGS (TẦNG 3: QUẢN TRỊ DANH MỤC HỆ THỐNG - RULE 3 & 4)
+     * =========================================================================
+     */
+    window.ModuleCatalogs = {
+      state: {
+        currentGroupFilter: 'ALL',
+        searchQuery: ''
+      },
+
+      escapeHtml: function(text) {
+        if (text === null || text === undefined) return '';
+        return String(text)
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;')
+          .replace(/'/g, '&#039;');
+      },
+
+      getGroupNameFromFilter: function(filterKey) {
+        if (filterKey === 'PHONG_BAN') return 'Phòng Ban';
+        if (filterKey === 'UU_TIEN') return 'Mức Độ Ưu Tiên';
+        if (filterKey === 'TRANG_THAI') return 'Trạng Thái Task';
+        if (filterKey === 'CAP_BAC') return 'Cấp Bậc Nhân Sự';
+        return 'Phòng Ban';
+      },
+
+      getNextOrder: function(groupName) {
+        var all = (window.AppState && window.AppState.data && Array.isArray(window.AppState.data.taxonomy))
+          ? window.AppState.data.taxonomy
+          : [];
+        var maxOrder = 0;
+        var norm = String(groupName || '').trim().toLowerCase();
+        for (var i = 0; i < all.length; i++) {
+          var g = String(all[i].nhom || all[i].Nhom || all[i]['Nhóm'] || '').trim().toLowerCase();
+          if (g === norm) {
+            var ord = Number(all[i].thuTu || all[i]['Thứ Tự'] || 0);
+            if (ord > maxOrder) maxOrder = ord;
+          }
+        }
+        return maxOrder + 1;
+      },
+
+      setGroupFilter: function(groupKey) {
+        this.state.currentGroupFilter = groupKey || 'ALL';
+        var tabs = document.querySelectorAll('.cat-tab-btn');
+        var self = this;
+        tabs.forEach(function(btn) {
+          var f = btn.getAttribute('data-cat-filter');
+          if (f === self.state.currentGroupFilter) {
+            btn.className = 'cat-tab-btn px-3 py-1.5 rounded-lg text-xs font-bold transition bg-emerald-50 text-emerald-700 border border-emerald-200';
+          } else {
+            btn.className = 'cat-tab-btn px-3 py-1.5 rounded-lg text-xs font-medium transition text-slate-600 hover:bg-slate-100 border border-transparent';
+          }
+        });
+        this.render();
+      },
+
+      handleSearch: function(val) {
+        this.state.searchQuery = String(val || '').trim().toLowerCase();
+        this.render();
+      },
+
+      refresh: function() {
+        var icon = document.getElementById('cat-refresh-icon');
+        if (icon) icon.classList.add('animate-spin-fast');
+        App.refreshData();
+        setTimeout(function() {
+          if (icon) icon.classList.remove('animate-spin-fast');
+        }, 600);
+      },
+
+      render: function() {
+        var tax = (window.AppState && window.AppState.data && Array.isArray(window.AppState.data.taxonomy))
+          ? window.AppState.data.taxonomy
+          : [];
+
+        // 1. Thống kê Metrics
+        var totalCount = tax.length;
+        var deptCount = tax.filter(function(it) {
+          return String(it.nhom || it.Nhom || it['Nhóm'] || '').trim().toLowerCase() === 'phòng ban';
+        }).length;
+        var priorityCount = tax.filter(function(it) {
+          return String(it.nhom || it.Nhom || it['Nhóm'] || '').trim().toLowerCase() === 'mức độ ưu tiên';
+        }).length;
+        var statusCount = tax.filter(function(it) {
+          var n = String(it.nhom || it.Nhom || it['Nhóm'] || '').trim().toLowerCase();
+          return n.indexOf('trạng thái') !== -1 || n.indexOf('cấp bậc') !== -1;
+        }).length;
+
+        var elTotal = document.getElementById('cat-stat-total');
+        var elCntAll = document.getElementById('cat-cnt-all');
+        var elDepts = document.getElementById('cat-stat-depts') || document.getElementById('cat-stat-dept');
+        var elPriority = document.getElementById('cat-stat-priority');
+        var elStatus = document.getElementById('cat-stat-status');
+
+        if (elTotal) elTotal.innerText = totalCount;
+        if (elCntAll) elCntAll.innerText = totalCount;
+        if (elDepts) elDepts.innerText = deptCount;
+        if (elPriority) elPriority.innerText = priorityCount;
+        if (elStatus) elStatus.innerText = statusCount;
+
+        // 2. Lọc theo Phân nhóm và Search query
+        var filterKey = this.state.currentGroupFilter;
+        var q = this.state.searchQuery;
+
+        var filtered = tax.filter(function(it) {
+          var group = String(it.nhom || it.Nhom || it['Nhóm'] || it.loai || '').trim();
+          var normG = group.toLowerCase();
+
+          var matchGroup = true;
+          if (filterKey === 'PHONG_BAN') {
+            matchGroup = (normG === 'phòng ban');
+          } else if (filterKey === 'UU_TIEN') {
+            matchGroup = (normG === 'mức độ ưu tiên');
+          } else if (filterKey === 'TRANG_THAI') {
+            matchGroup = (normG.indexOf('trạng thái') !== -1);
+          } else if (filterKey === 'CAP_BAC') {
+            matchGroup = (normG.indexOf('cấp bậc') !== -1);
+          }
+
+          if (!matchGroup) return false;
+
+          if (q) {
+            var code = String(it.maDanhMuc || it.ma || it['Mã'] || '').toLowerCase();
+            var name = String(it.tenDanhMuc || it.ten || it['Tên'] || '').toLowerCase();
+            var notes = String(it.ghiChu || it['Ghi Chú'] || '').toLowerCase();
+            if (code.indexOf(q) === -1 && name.indexOf(q) === -1 && normG.indexOf(q) === -1 && notes.indexOf(q) === -1) {
+              return false;
+            }
+          }
+          return true;
+        });
+
+        // 3. Sắp xếp theo nhóm rồi theo thứ tự
+        filtered.sort(function(a, b) {
+          var gA = String(a.nhom || a.Nhom || a['Nhóm'] || '');
+          var gB = String(b.nhom || b.Nhom || b['Nhóm'] || '');
+          if (gA !== gB) return gA.localeCompare(gB);
+          return (Number(a.thuTu || a['Thứ Tự'] || 999) - Number(b.thuTu || b['Thứ Tự'] || 999));
+        });
+
+        var tableBody = document.getElementById('catalogs-table-body');
+        var mobileList = document.getElementById('catalogs-mobile-list');
+        var emptyState = document.getElementById('catalogs-empty-state');
+        var self = this;
+
+        if (filtered.length === 0) {
+          if (emptyState) emptyState.classList.remove('hidden');
+          if (tableBody) tableBody.innerHTML = '';
+          if (mobileList) mobileList.innerHTML = '';
+          return;
+        }
+
+        if (emptyState) emptyState.classList.add('hidden');
+
+        // 4. Render Master Table Desktop
+        if (tableBody) {
+          var rowsHtml = filtered.map(function(it) {
+            var ma = it.maDanhMuc || it.ma || it['Mã'] || '';
+            var ten = it.tenDanhMuc || it.ten || it['Tên'] || '';
+            var nhom = it.nhom || it.Nhom || it['Nhóm'] || '';
+            var thuTu = it.thuTu || it['Thứ Tự'] || 1;
+            var mauSac = it.mauSac || it['Màu Sắc'] || '#059669';
+            var ghiChu = it.ghiChu || it['Ghi Chú'] || '';
+
+            return '<tr class="hover:bg-slate-50/80 transition border-b border-slate-100">' +
+              '<td class="py-3 px-4 font-mono font-semibold text-slate-700 text-xs">' + self.escapeHtml(ma) + '</td>' +
+              '<td class="py-3 px-4 font-bold text-slate-900">' + self.escapeHtml(ten) + '</td>' +
+              '<td class="py-3 px-4">' +
+                '<span class="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-medium bg-slate-100 text-slate-700 border border-slate-200/50">' +
+                  self.escapeHtml(nhom) +
+                '</span>' +
+              '</td>' +
+              '<td class="py-3 px-4 text-center font-mono font-semibold text-slate-600">' + thuTu + '</td>' +
+              '<td class="py-3 px-4">' +
+                '<div class="flex items-center gap-2">' +
+                  '<span class="w-3.5 h-3.5 rounded-full shrink-0 border border-black/10 shadow-2xs" style="background-color: ' + self.escapeHtml(mauSac) + '"></span>' +
+                  '<span class="font-mono text-[11px] text-slate-500">' + self.escapeHtml(mauSac) + '</span>' +
+                '</div>' +
+              '</td>' +
+              '<td class="py-3 px-4 text-slate-500 text-[11px] max-w-xs truncate" title="' + self.escapeHtml(ghiChu) + '">' +
+                (ghiChu ? self.escapeHtml(ghiChu) : '<span class="text-slate-300">—</span>') +
+              '</td>' +
+              '<td class="py-3 px-4 text-right">' +
+                '<div class="flex items-center justify-end gap-1">' +
+                  '<button onclick="ModuleCatalogs.openDrawer(\'' + self.escapeHtml(ma) + '\')" type="button" class="p-1.5 rounded-lg text-slate-500 hover:text-emerald-700 hover:bg-emerald-50 transition" title="Chỉnh sửa">' +
+                    '<i data-lucide="edit-3" class="w-4 h-4"></i>' +
+                  '</button>' +
+                  '<button onclick="ModuleCatalogs.confirmDelete(\'' + self.escapeHtml(ma) + '\')" type="button" class="p-1.5 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition" title="Xóa danh mục">' +
+                    '<i data-lucide="trash-2" class="w-4 h-4"></i>' +
+                  '</button>' +
+                '</div>' +
+              '</td>' +
+            '</tr>';
+          }).join('');
+          tableBody.innerHTML = rowsHtml;
+        }
+
+        // 5. Render Table-to-Card Mobile
+        if (mobileList) {
+          var cardsHtml = filtered.map(function(it) {
+            var ma = it.maDanhMuc || it.ma || it['Mã'] || '';
+            var ten = it.tenDanhMuc || it.ten || it['Tên'] || '';
+            var nhom = it.nhom || it.Nhom || it['Nhóm'] || '';
+            var thuTu = it.thuTu || it['Thứ Tự'] || 1;
+            var mauSac = it.mauSac || it['Màu Sắc'] || '#059669';
+            var ghiChu = it.ghiChu || it['Ghi Chú'] || '';
+
+            return '<div class="p-3.5 bg-white border border-slate-200/80 rounded-2xl shadow-2xs space-y-2.5">' +
+              '<div class="flex items-start justify-between gap-2">' +
+                '<div class="flex-1 min-w-0">' +
+                  '<div class="font-bold text-slate-900 text-xs truncate">' + self.escapeHtml(ten) + '</div>' +
+                  '<div class="flex items-center gap-2 mt-1">' +
+                    '<span class="font-mono text-[11px] font-semibold text-slate-500">' + self.escapeHtml(ma) + '</span>' +
+                    '<span class="text-slate-300">•</span>' +
+                    '<span class="px-2 py-0.5 rounded text-[10px] font-medium bg-slate-100 text-slate-700">' + self.escapeHtml(nhom) + '</span>' +
+                  '</div>' +
+                '</div>' +
+                '<div class="flex items-center gap-1 shrink-0">' +
+                  '<button onclick="ModuleCatalogs.openDrawer(\'' + self.escapeHtml(ma) + '\')" type="button" class="p-1.5 rounded-lg text-slate-500 hover:text-emerald-700 hover:bg-emerald-50 transition">' +
+                    '<i data-lucide="edit-3" class="w-4 h-4"></i>' +
+                  '</button>' +
+                  '<button onclick="ModuleCatalogs.confirmDelete(\'' + self.escapeHtml(ma) + '\')" type="button" class="p-1.5 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition">' +
+                    '<i data-lucide="trash-2" class="w-4 h-4"></i>' +
+                  '</button>' +
+                '</div>' +
+              '</div>' +
+              '<div class="flex items-center justify-between pt-2 border-t border-slate-100 text-[11px] text-slate-500">' +
+                '<div class="flex items-center gap-1.5">' +
+                  '<span class="w-2.5 h-2.5 rounded-full border border-black/10 shrink-0" style="background-color: ' + self.escapeHtml(mauSac) + '"></span>' +
+                  '<span class="font-mono">' + self.escapeHtml(mauSac) + '</span>' +
+                '</div>' +
+                '<div>Thứ tự: <span class="font-mono font-bold text-slate-700">' + thuTu + '</span></div>' +
+              '</div>' +
+              (ghiChu ? ('<p class="text-[11px] text-slate-500 line-clamp-2 leading-relaxed bg-slate-50 p-2 rounded-lg">' + self.escapeHtml(ghiChu) + '</p>') : '') +
+            '</div>';
+          }).join('');
+          mobileList.innerHTML = cardsHtml;
+        }
+
+        if (window.lucide) {
+          window.lucide.createIcons();
+        }
+      },
+
+      openDrawer: function(code) {
+        var all = (window.AppState && window.AppState.data && Array.isArray(window.AppState.data.taxonomy))
+          ? window.AppState.data.taxonomy
+          : [];
+        var existing = null;
+        if (code) {
+          for (var i = 0; i < all.length; i++) {
+            if ((all[i].maDanhMuc || all[i].ma || all[i]['Mã']) === code) {
+              existing = all[i];
+              break;
+            }
+          }
+        }
+
+        var isEdit = !!existing;
+        var targetCode = isEdit ? (existing.maDanhMuc || existing.ma || existing['Mã']) : App.generateId('CAT');
+        var targetName = isEdit ? (existing.tenDanhMuc || existing.ten || existing['Tên'] || '') : '';
+        var targetGroup = isEdit ? (existing.nhom || existing.Nhom || existing['Nhóm'] || 'Phòng Ban') : (this.state.currentGroupFilter !== 'ALL' ? this.getGroupNameFromFilter(this.state.currentGroupFilter) : 'Phòng Ban');
+        var targetOrder = isEdit ? (existing.thuTu || existing['Thứ Tự'] || 1) : this.getNextOrder(targetGroup);
+        var targetColor = isEdit ? (existing.mauSac || existing['Màu Sắc'] || '#059669') : '#059669';
+        var targetNotes = isEdit ? (existing.ghiChu || existing['Ghi Chú'] || '') : '';
+        var self = this;
+
+        var groupOptions = [
+          'Phòng Ban',
+          'Mức Độ Ưu Tiên',
+          'Trạng Thái Task',
+          'Cấp Bậc Nhân Sự',
+          'Trạng Thái Dự Án',
+          'Trạng Thái Nhân Sự'
+        ].map(function(grp) {
+          var sel = (grp === targetGroup) ? 'selected' : '';
+          return '<option value="' + self.escapeHtml(grp) + '" ' + sel + '>' + self.escapeHtml(grp) + '</option>';
+        }).join('');
+
+        var formHtml = '<div class="space-y-4 text-xs">' +
+          '<div>' +
+            '<label class="block font-semibold text-slate-700 mb-1.5">Mã danh mục</label>' +
+            '<input type="text" id="cat-form-code" value="' + self.escapeHtml(targetCode) + '" readonly class="w-full h-10 px-3 rounded-xl border border-slate-200 bg-slate-50 font-mono font-bold text-slate-600 focus:outline-none cursor-not-allowed">' +
+          '</div>' +
+          '<div>' +
+            '<label class="block font-semibold text-slate-700 mb-1.5">Tên hiển thị dropdown <span class="text-rose-500">*</span></label>' +
+            '<input type="text" id="cat-form-name" value="' + self.escapeHtml(targetName) + '" placeholder="VD: Khẩn cấp (P1), Kỹ thuật..." class="w-full h-10 px-3 rounded-xl border border-slate-200 focus:outline-none focus:border-emerald-600 focus:ring-1 focus:ring-emerald-600 font-medium">' +
+          '</div>' +
+          '<div class="grid grid-cols-1 sm:grid-cols-2 gap-3">' +
+            '<div>' +
+              '<label class="block font-semibold text-slate-700 mb-1.5">Phân nhóm hệ thống <span class="text-rose-500">*</span></label>' +
+              '<select id="cat-form-group" class="w-full h-10 px-3 rounded-xl border border-slate-200 focus:outline-none focus:border-emerald-600 font-medium">' +
+                groupOptions +
+              '</select>' +
+            '</div>' +
+            '<div>' +
+              '<label class="block font-semibold text-slate-700 mb-1.5">Thứ tự sắp xếp</label>' +
+              '<input type="number" id="cat-form-order" min="1" max="99" value="' + targetOrder + '" class="w-full h-10 px-3 rounded-xl border border-slate-200 focus:outline-none focus:border-emerald-600 font-mono font-medium">' +
+            '</div>' +
+          '</div>' +
+          '<div>' +
+            '<label class="block font-semibold text-slate-700 mb-1.5">Màu sắc nhận diện (HEX)</label>' +
+            '<div class="flex items-center gap-2">' +
+              '<input type="color" id="cat-form-color-picker" value="' + self.escapeHtml(targetColor) + '" oninput="document.getElementById(\'cat-form-color\').value=this.value" class="w-10 h-10 rounded-xl cursor-pointer border border-slate-200 p-1 shrink-0">' +
+              '<input type="text" id="cat-form-color" value="' + self.escapeHtml(targetColor) + '" oninput="document.getElementById(\'cat-form-color-picker\').value=this.value" placeholder="#059669" class="flex-1 h-10 px-3 rounded-xl border border-slate-200 focus:outline-none focus:border-emerald-600 font-mono text-xs">' +
+            '</div>' +
+          '</div>' +
+          '<div>' +
+            '<label class="block font-semibold text-slate-700 mb-1.5">Ghi chú & mô tả chi tiết</label>' +
+            '<textarea id="cat-form-notes" rows="3" placeholder="Mục đích sử dụng, phạm vi áp dụng..." class="w-full p-3 rounded-xl border border-slate-200 focus:outline-none focus:border-emerald-600 text-xs leading-relaxed">' + self.escapeHtml(targetNotes) + '</textarea>' +
+          '</div>' +
+        '</div>';
+
+        App.openDrawer({
+          title: isEdit ? 'Chỉnh Sửa Danh Mục' : 'Thêm Mới Danh Mục',
+          subtitle: isEdit ? ('Cập nhật tham số ' + targetCode) : 'Khai báo tham số hệ thống dùng chung',
+          contentHtml: formHtml,
+          saveLabel: isEdit ? 'Lưu Thay Đổi' : 'Tạo Danh Mục',
+          onSave: function() {
+            self.handleSave(targetCode, isEdit);
+          }
+        });
+      },
+
+      handleSave: function(code, isEdit) {
+        var elName = document.getElementById('cat-form-name');
+        var name = elName ? elName.value.trim() : '';
+        if (!name) {
+          App.toast('Thiếu thông tin', 'Vui lòng nhập tên danh mục hiển thị.', 'warning');
+          return;
+        }
+
+        var groupEl = document.getElementById('cat-form-group');
+        var group = groupEl ? groupEl.value : 'Phòng Ban';
+        var orderEl = document.getElementById('cat-form-order');
+        var order = orderEl ? (Number(orderEl.value) || 1) : 1;
+        var colorEl = document.getElementById('cat-form-color');
+        var color = colorEl ? colorEl.value.trim() || '#059669' : '#059669';
+        var notesEl = document.getElementById('cat-form-notes');
+        var notes = notesEl ? notesEl.value.trim() : '';
+
+        var itemObj = {
+          maDanhMuc: code, ma: code, 'Mã': code,
+          tenDanhMuc: name, ten: name, 'Tên': name, giaTri: name,
+          nhom: group, Nhom: group, 'Nhóm': group, loai: group,
+          thuTu: order, 'Thứ Tự': order,
+          mauSac: color, 'Màu Sắc': color,
+          ghiChu: notes, 'Ghi Chú': notes
+        };
+
+        if (!Array.isArray(window.AppState.data.taxonomy)) {
+          window.AppState.data.taxonomy = [];
+        }
+
+        var all = window.AppState.data.taxonomy;
+        var foundIndex = -1;
+        for (var i = 0; i < all.length; i++) {
+          if ((all[i].maDanhMuc || all[i].ma || all[i]['Mã']) === code) {
+            foundIndex = i;
+            break;
+          }
+        }
+
+        if (foundIndex >= 0) {
+          all[foundIndex] = itemObj;
+        } else {
+          all.unshift(itemObj);
+        }
+
+        App.saveStateToLocalStorage();
+        if (window.populateDynamicDropdowns) {
+          window.populateDynamicDropdowns();
+        }
+        App.closeDrawer();
+        App.toast('Lưu thành công', 'Đã lưu danh mục ' + name + ' (' + code + ').');
+
+        if (typeof google !== 'undefined' && google.script && google.script.run) {
+          google.script.run
+            .withSuccessHandler(function(res) {
+              if (res && res.success) {
+                App.toast('Google Sheets', 'Đã lưu ' + code + ' vào DB_DanhMuc.');
+              }
+            })
+            .withFailureHandler(function(err) {
+              App.toast('Lỗi lưu Sheets', err.toString(), 'error');
+            })
+            .apiSaveCatalogItem(itemObj);
+        }
+
+        this.render();
+      },
+
+      confirmDelete: function(code) {
+        var all = (window.AppState && window.AppState.data && Array.isArray(window.AppState.data.taxonomy))
+          ? window.AppState.data.taxonomy
+          : [];
+        var item = null;
+        for (var i = 0; i < all.length; i++) {
+          if ((all[i].maDanhMuc || all[i].ma || all[i]['Mã']) === code) {
+            item = all[i];
+            break;
+          }
+        }
+        var name = item ? (item.tenDanhMuc || item.ten || item['Tên'] || code) : code;
+        var self = this;
+        App.confirm({
+          title: 'Xác nhận xóa danh mục?',
+          message: 'Bạn có chắc chắn muốn xóa danh mục "' + name + '" (' + code + ')? Thao tác này sẽ cập nhật trên Google Sheets.',
+          okText: 'Xóa Danh Mục',
+          cancelText: 'Hủy Bỏ',
+          onConfirm: function() {
+            self.executeDelete(code);
+          }
+        });
+      },
+
+      executeDelete: function(code) {
+        if (!Array.isArray(window.AppState.data.taxonomy)) return;
+        window.AppState.data.taxonomy = window.AppState.data.taxonomy.filter(function(it) {
+          return (it.maDanhMuc || it.ma || it['Mã']) !== code;
+        });
+
+        App.saveStateToLocalStorage();
+        if (window.populateDynamicDropdowns) {
+          window.populateDynamicDropdowns();
+        }
+        App.toast('Đã xóa', 'Đã xóa danh mục ' + code + '.');
+
+        if (typeof google !== 'undefined' && google.script && google.script.run) {
+          google.script.run
+            .withSuccessHandler(function(res) {
+              if (res && res.success) {
+                App.toast('Google Sheets', 'Đã xóa ' + code + ' khỏi DB_DanhMuc.');
+              }
+            })
+            .withFailureHandler(function(err) {
+              App.toast('Lỗi xóa Sheets', err.toString(), 'error');
+            })
+            .apiDeleteCatalogItem(code);
+        }
+
+        this.render();
       }
     };
 

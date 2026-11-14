@@ -1,39 +1,36 @@
-# BRIEFING — 2026-11-12T15:25:00Z
+# BRIEFING — 2026-11-14T13:36:00Z
 
 ## Mission
-Oversee General path execution (teamwork_orchestrator) for complete refinement of PROJECTS_WEBAPPS/QuanLyCongViecTeam_Index.html resolving all 5 identified issues, maintain monitoring crons, and conduct victory audit upon completion.
+Orchestrate execution of AGENTS.md standards compliance for QuanLyCongViecTeam (date formatting dd/mm/yyyy, Master Catalogs tab, dynamic dropdowns, v3.5 stamping, syntax checks, GitHub sync).
 
 ## 🔒 My Identity
 - Archetype: sentinel
 - Working directory: c:\Users\zit\OneDrive\Tài liệu\ANTIGRAVITY\FILE_DI_LAM_MVP\.agents\teamwork\sentinel\
-- Orchestrator: 013619e0-3ed3-491c-9953-d4b3fc27933e
-- Victory Auditor: 362b5ae6-9e73-4bcb-a854-a4c633201cb5
+- Orchestrator: f6c24d8f-d47a-4ce5-9892-cdd05a350d83
+- Victory Auditor: [to be spawned on victory claim]
 
 ## 🔒 Key Constraints
 - No technical decisions — relay only
 - Victory Audit is MANDATORY before reporting completion
-- Full Bleed Flat Canvas UI Refactoring (Anti-Card & Anti-Pill Overload)
-- Seamless Gantt Timeline Matrix & Edge-to-Edge Master-Tables
-- Preservation of Business Logic, Version Stamping & Verification
-- 5 Identified Refinement Tasks: True 100% Full Width (Edge-to-Edge), Sync Calendar button UX, Overhaul Tab HDSD to Flat Workflow Guide, Eliminate 100% Icon Pills, Node.js syntax verification.
+- Route: General -> teamwork_orchestrator
+- Integrity mode: development
+- R1: Date formatting dd/mm/yyyy on all date inputs
+- R2: Master Catalogs module in Tier 3 (tab-catalogs) synced with DB_DanhMuc
+- R3: Dynamic dropdowns for department, priority, status from AppState.data.taxonomy
+- R4: Stamp v3.5 (Active) badge, 0 syntax errors, push to GitHub remote
 
 ## User Context
-- **Last user request**: Refinement of PROJECTS_WEBAPPS/QuanLyCongViecTeam_Index.html across 5 key areas.
-- **Pending clarifications**: none
-- **Delivered results**: Complete refinement of PROJECTS_WEBAPPS/QuanLyCongViecTeam_Index.html. Victory confirmed by independent victory auditor (33/33 assertions PASS). All cleanup tasks completed.
+- **Last user request**: Approved task prompt received
+- **Pending clarifications**: [none]
+- **Delivered results**: [none]
 
 ## Project Status
-- **Phase**: complete
-- **Route**: General (`teamwork_orchestrator`)
+- **Phase**: in progress
 
 ## Victory Audit Status
-- **Triggered**: yes
-- **Verdict**: VICTORY CONFIRMED
+- **Triggered**: no
+- **Verdict**: pending
 - **Retry count**: 0
 
 ## Artifact Index
-- `.agents/teamwork/ORIGINAL_REQUEST.md` — Authoritative record of approved task prompt
-- `.agents/teamwork/orchestrator_refine/handoff.md` — Orchestrator victory handoff report
-- `.agents/teamwork/victory_auditor_refine/handoff.md` — Independent victory auditor report (VICTORY CONFIRMED)
-- `PROJECTS_WEBAPPS/QuanLyCongViecTeam_Index.html` — Target deliverable (Bản 3.2, 100% full width, flat workflow guide, zero icon pills)
-- `PROJECTS_WEBAPPS/QuanLyCongViecTeam_Code.gs` — Preserved backend source (0 diff)
+- .agents/teamwork/ORIGINAL_REQUEST.md — Authoritative user intent record

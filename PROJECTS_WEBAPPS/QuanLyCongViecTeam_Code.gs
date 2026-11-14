@@ -1,6 +1,6 @@
 /**
  * =========================================================================================
- * DỰ ÁN: QUẢN LÝ CÔNG VIỆC TEAM & TIẾN ĐỘ DỰ ÁN 3.2 — WEB APP — FILE ĐI LÀM
+ * DỰ ÁN: QUẢN LÝ CÔNG VIỆC TEAM & TIẾN ĐỘ DỰ ÁN 3.5 — WEB APP — FILE ĐI LÀM
  * =========================================================================================
  * Phiên bản: Master Standard V2.4 (Map-Reduce Pipeline & Single Visible Tab Policy)
  * Thương hiệu: FILE ĐI LÀM (Workbook & Apps Script Web App Architecture)
@@ -9,8 +9,8 @@
  */
 
 // --- CẤU HÌNH HỆ THỐNG & CONSTANTS TOÀN CỤC ---
-var APP_TITLE = 'QUẢN LÝ CÔNG VIỆC TEAM & TIẾN ĐỘ DỰ ÁN 3.2 — WEB APP — FILE ĐI LÀM';
-var APP_VERSION = 'Bản 3.2';
+var APP_TITLE = 'QUẢN LÝ CÔNG VIỆC TEAM & TIẾN ĐỘ DỰ ÁN 3.5 — WEB APP — FILE ĐI LÀM';
+var APP_VERSION = 'Bản 3.5 (Active)';
 var WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbyexample/exec';
 
 // Tên các Tab Database chuẩn theo Master Contract
@@ -867,12 +867,19 @@ function seedSampleTaxonomy(ss) {
     ['Phòng Ban', 'CAT-PB-01', 'Kỹ thuật & Công nghệ', '#0284c7', 1, 'Phát triển phần mềm, hạ tầng kỹ thuật'],
     ['Phòng Ban', 'CAT-PB-02', 'Thiết kế & Sản phẩm', '#7c3aed', 2, 'UI/UX, nghiên cứu sản phẩm, thương hiệu'],
     ['Phòng Ban', 'CAT-PB-03', 'Marketing & Truyền thông', '#db2777', 3, 'Tăng trưởng người dùng, truyền thông'],
-    ['Phòng Ban', 'CAT-PB-04', 'Vận hành & Hậu cần', '#059669', 4, 'Quản trị đội ngũ, kho vận & quy trình'],
-    ['Phòng Ban', 'CAT-PB-05', 'Nhân sự & Đào tạo', '#f59e0b', 5, 'Tuyển dụng, đào tạo & văn hóa doanh nghiệp'],
+    ['Phòng Ban', 'CAT-PB-04', 'Kinh doanh & Vận hành', '#059669', 4, 'Bán hàng, đối tác & vận hành doanh nghiệp'],
+    ['Phòng Ban', 'CAT-PB-05', 'Tài chính & Kế toán', '#f59e0b', 5, 'Quản trị dòng tiền, ngân sách & kế toán'],
+    ['Phòng Ban', 'CAT-PB-06', 'Nhân sự & Đào tạo', '#10b981', 6, 'Tuyển dụng, đào tạo & văn hóa doanh nghiệp'],
     ['Cấp Bậc Nhân Sự', 'CAT-CB-01', 'Lead', '#dc2626', 1, 'Trưởng nhóm / Trưởng bộ phận'],
     ['Cấp Bậc Nhân Sự', 'CAT-CB-02', 'Senior', '#ea580c', 2, 'Chuyên viên cao cấp'],
     ['Cấp Bậc Nhân Sự', 'CAT-CB-03', 'Mid', '#0284c7', 3, 'Chuyên viên chính thức'],
-    ['Cấp Bậc Nhân Sự', 'CAT-CB-04', 'Junior', '#64748b', 4, 'Chuyên viên tập sự / mới vào']
+    ['Cấp Bậc Nhân Sự', 'CAT-CB-04', 'Junior', '#64748b', 4, 'Chuyên viên tập sự / mới vào'],
+    ['Trạng Thái Dự Án', 'CAT-DA-01', 'Đang tiến hành', '#0284c7', 1, 'Dự án đang trong quá trình thực thi'],
+    ['Trạng Thái Dự Án', 'CAT-DA-02', 'Hoàn thành', '#059669', 2, 'Dự án đã nghiệm thu bàn giao'],
+    ['Trạng Thái Dự Án', 'CAT-DA-03', 'Tạm dừng', '#ea580c', 3, 'Dự án tạm ngưng chờ quyết định'],
+    ['Trạng Thái Dự Án', 'CAT-DA-04', 'Chuẩn bị', '#64748b', 4, 'Dự án đang lập kế hoạch ban đầu'],
+    ['Trạng Thái Nhân Sự', 'CAT-NS-01', 'Đang hoạt động', '#059669', 1, 'Nhân sự đang công tác bình thường'],
+    ['Trạng Thái Nhân Sự', 'CAT-NS-02', 'Nghỉ phép / Tạm ngưng', '#94a3b8', 2, 'Nhân sự đang nghỉ phép hoặc tạm ngưng']
   ];
   sheet.getRange(2, 1, data.length, data[0].length).setValues(data);
   formatDataRangeRows(sheet, 2, data.length, data[0].length);
@@ -1664,5 +1671,115 @@ function recalculateStaffWorkload(ss) {
     }
   } catch (err) {
     Logger.log('Lỗi recalculateStaffWorkload: ' + err.toString());
+  }
+}
+
+/**
+ * =========================================================================================
+ * 11. BỘ API QUẢN TRỊ DANH MỤC HỆ THỐNG (DB_DanhMuc)
+ * =========================================================================================
+ */
+
+/**
+ * API: Lưu hoặc Cập nhật Mục Danh Mục Hệ Thống (DB_DanhMuc)
+ * Đảm bảo cơ chế LockService 15s và ánh xạ dual-header Tiếng Việt + camelCase
+ */
+function apiSaveCatalogItem(itemData) {
+  var lock = LockService.getScriptLock();
+  try {
+    lock.waitLock(15000);
+    var ss = SpreadsheetApp.getActiveSpreadsheet();
+    var sheet = ss.getSheetByName(SHEET_DANH_MUC);
+    if (!sheet) throw new Error('Không tìm thấy tab DB_DanhMuc');
+
+    var nhom = String(itemData.nhom || itemData['Nhóm'] || itemData.group || 'Phòng Ban').trim();
+    var maDanhMuc = String(itemData.maDanhMuc || itemData['Mã Danh Mục'] || itemData.code || itemData.id || '').trim();
+    var tenDanhMuc = String(itemData.tenDanhMuc || itemData['Tên Danh Mục'] || itemData.name || itemData.label || '').trim();
+    var mauSac = String(itemData.mauSac || itemData['Màu Sắc / Mã CSS'] || itemData.color || '#64748b').trim();
+    var thuTu = Number(itemData.thuTu !== undefined ? itemData.thuTu : (itemData['Thứ Tự'] !== undefined ? itemData['Thứ Tự'] : (itemData.order !== undefined ? itemData.order : 1))) || 1;
+    var ghiChu = String(itemData.ghiChu || itemData['Ghi Chú'] || itemData.note || '').trim();
+
+    if (!tenDanhMuc) throw new Error('Tên danh mục không được để trống');
+
+    var isNew = false;
+    if (!maDanhMuc) {
+      maDanhMuc = generateEntityId('CATG');
+      isNew = true;
+    }
+
+    // Chống Formula Injection: Nếu chuỗi bắt đầu bằng =, +, -, @ thì thêm ' để Google Sheets lưu text thuần
+    var rowValues = [nhom, maDanhMuc, tenDanhMuc, mauSac, thuTu, ghiChu].map(function(val) {
+      if (typeof val === 'string' && /^[=+\-@]/.test(val)) {
+        return val.replace(/^([=+\-@])/, "'$1");
+      }
+      return val;
+    });
+    var lastRow = sheet.getLastRow();
+    var targetRow = -1;
+
+    // Tìm kiếm xem mã danh mục đã tồn tại chưa (Cột 2: Mã Danh Mục)
+    if (!isNew && lastRow > 1) {
+      var ids = sheet.getRange(2, 2, lastRow - 1, 1).getValues();
+      for (var i = 0; i < ids.length; i++) {
+        if (String(ids[i][0]).trim().toUpperCase() === maDanhMuc.toUpperCase()) {
+          targetRow = i + 2;
+          break;
+        }
+      }
+    }
+
+    if (targetRow > 1) {
+      sheet.getRange(targetRow, 1, 1, rowValues.length).setValues([rowValues]);
+    } else {
+      isNew = true;
+      sheet.appendRow(rowValues);
+      targetRow = sheet.getLastRow();
+      formatDataRangeRows(sheet, targetRow, 1, rowValues.length);
+    }
+
+    return {
+      success: true,
+      message: (isNew ? 'Thêm mới' : 'Cập nhật') + ' danh mục thành công!',
+      maDanhMuc: maDanhMuc
+    };
+  } catch (err) {
+    Logger.log('Lỗi apiSaveCatalogItem: ' + err.toString());
+    return { success: false, message: 'Lỗi: ' + err.toString() };
+  } finally {
+    lock.releaseLock();
+  }
+}
+
+/**
+ * API: Xóa Mục Danh Mục Khỏi DB_DanhMuc
+ * Có bảo vệ LockService 15s
+ */
+function apiDeleteCatalogItem(maDanhMuc) {
+  var lock = LockService.getScriptLock();
+  try {
+    lock.waitLock(15000);
+    var ss = SpreadsheetApp.getActiveSpreadsheet();
+    var sheet = ss.getSheetByName(SHEET_DANH_MUC);
+    if (!sheet) throw new Error('Không tìm thấy tab DB_DanhMuc');
+
+    var targetId = String(maDanhMuc || '').trim().toUpperCase();
+    if (!targetId) throw new Error('Mã danh mục không hợp lệ');
+
+    var lastRow = sheet.getLastRow();
+    if (lastRow > 1) {
+      var ids = sheet.getRange(2, 2, lastRow - 1, 1).getValues();
+      for (var i = 0; i < ids.length; i++) {
+        if (String(ids[i][0]).trim().toUpperCase() === targetId) {
+          sheet.deleteRow(i + 2);
+          return { success: true, message: 'Đã xóa danh mục: ' + maDanhMuc };
+        }
+      }
+    }
+    return { success: false, message: 'Không tìm thấy danh mục để xóa' };
+  } catch (err) {
+    Logger.log('Lỗi apiDeleteCatalogItem: ' + err.toString());
+    return { success: false, message: 'Lỗi: ' + err.toString() };
+  } finally {
+    lock.releaseLock();
   }
 }

@@ -5485,6 +5485,20 @@ document.addEventListener('DOMContentLoaded', () => {
         }
       }
 
+      const objectiveLabels = {
+        tiktok_traffic: 'Lưu lượng web',
+        tiktok_purchase: 'Mua sản phẩm',
+        lead_gen: 'Khách tiềm năng',
+        profile_visits: 'Xem hồ sơ',
+        engagement: 'Thích & Bình luận',
+        video_views: 'Lượt xem video',
+        followers: 'Follow mới',
+        live_stream: 'Phiên LIVE',
+        meta_traffic: 'Lượt click web',
+        meta_messages: 'Tin nhắn'
+      };
+      const objectiveText = a.objective ? (objectiveLabels[a.objective] || a.objective) : '';
+
       return `
         <tr>
           <td>
@@ -5496,6 +5510,7 @@ document.addEventListener('DOMContentLoaded', () => {
               <span style="display: inline-flex; align-items: center; justify-content: center; width: 24px; height: 24px; border-radius: 4px; background: #f8fafc; border: 1px solid #e2e8f0; flex-shrink: 0;" title="${escapeHtml(channelLabel)}">
                 ${channelIcon}
               </span>
+              ${objectiveText ? `<span style="font-size: 0.72rem; font-weight: 600; color: #047857; background: #ecfdf5; border: 1px solid #a7f3d0; padding: 2px 6px; border-radius: 4px;" title="Mục tiêu chiến dịch">${escapeHtml(objectiveText)}</span>` : ''}
               ${(a.url && a.ad_url && a.url !== a.ad_url) ? `
                 <a href="${escapeHtml(a.url)}" target="_blank" rel="noopener" style="font-size: 0.76rem; font-weight: 600; color: #059669; text-decoration: none; display: inline-flex; align-items: center; gap: 3px; padding: 2px 8px; background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 4px;" title="Xem video / bài viết">
                   <svg width="11" height="11" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
@@ -5710,6 +5725,7 @@ document.addEventListener('DOMContentLoaded', () => {
     setField('adsPostIdInput', item.post_id || '');
     setField('adsTitleInput', item.title);
     setField('adsChannelSelect', item.channel || 'tiktok');
+    setField('adsObjectiveSelect', item.objective || (item.channel === 'tiktok' ? 'tiktok_traffic' : 'other'));
     setField('adsProductSelect', item.product_id);
     
     setField('adsManagerUrlInput', item.ad_url || item.manager_url || item.url);
@@ -5792,6 +5808,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const docId = document.getElementById('adsDocId').value.trim();
         const title = document.getElementById('adsTitleInput').value.trim();
         const channel = document.getElementById('adsChannelSelect').value;
+        const objective = document.getElementById('adsObjectiveSelect')?.value || 'tiktok_traffic';
         const product_id = document.getElementById('adsProductSelect').value;
         
         const ad_url = document.getElementById('adsManagerUrlInput')?.value.trim() || '';
@@ -5837,6 +5854,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const data = {
           title: finalTitle,
           channel,
+          objective,
           product_id,
           product_name,
           url,
@@ -6513,6 +6531,388 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('postsTypeFilter')?.addEventListener('change', renderFilteredPosts);
   document.getElementById('postsProductFilter')?.addEventListener('change', renderFilteredPosts);
 
+
+  // =============================================================================
+  // MODULE: EXPORT TOÀN BỘ DỮ LIỆU CÁC PHÂN HỆ THÀNH FILE EXCEL (.XLSX)
+  // Chuẩn Table List phẳng (Flat Table) theo tiêu chuẩn FILE ĐI LÀM
+  // =============================================================================
+
+  function formatDateTimeVN(val) {
+    if (!val) return '';
+    try {
+      let d = null;
+      if (typeof val === 'object' && val.seconds !== undefined) {
+        d = new Date(val.seconds * 1000);
+      } else if (typeof val === 'object' && typeof val.toDate === 'function') {
+        d = val.toDate();
+      } else {
+        d = new Date(val);
+      }
+      if (isNaN(d.getTime())) return String(val);
+      const day = String(d.getDate()).padStart(2, '0');
+      const month = String(d.getMonth() + 1).padStart(2, '0');
+      const year = d.getFullYear();
+      const hours = String(d.getHours()).padStart(2, '0');
+      const mins = String(d.getMinutes()).padStart(2, '0');
+      const secs = String(d.getSeconds()).padStart(2, '0');
+      return `${day}/${month}/${year} ${hours}:${mins}:${secs}`;
+    } catch (e) {
+      return String(val);
+    }
+  }
+
+  function formatDateVN(val) {
+    if (!val) return '';
+    try {
+      let d = null;
+      if (typeof val === 'object' && val.seconds !== undefined) {
+        d = new Date(val.seconds * 1000);
+      } else if (typeof val === 'object' && typeof val.toDate === 'function') {
+        d = val.toDate();
+      } else {
+        d = new Date(val);
+      }
+      if (isNaN(d.getTime())) return String(val);
+      const day = String(d.getDate()).padStart(2, '0');
+      const month = String(d.getMonth() + 1).padStart(2, '0');
+      const year = d.getFullYear();
+      return `${day}/${month}/${year}`;
+    } catch (e) {
+      return String(val);
+    }
+  }
+
+  function prepareOrdersTableData(ordersList) {
+    return (ordersList || []).map((o, idx) => {
+      const isPaid = (o.status === 'PAID' || o.paid === true);
+      return {
+        'STT': idx + 1,
+        'Mã đơn hàng': o.order_id || o.id || '',
+        'Thời gian lên đơn': formatDateTimeVN(o.created_at || o.createdAt),
+        'Thời gian thanh toán': formatDateTimeVN(o.paid_at || o.paidAt || (isPaid ? o.updated_at || o.created_at : '')),
+        'Tên khách hàng': o.customer_name || o.buyer_name || o.customerName || '',
+        'Số điện thoại': o.customer_phone || o.phone || '',
+        'Email khách hàng': o.customer_email || o.email || '',
+        'Tên sản phẩm / Gói file': o.product_name || o.productTitle || '',
+        'Mã sản phẩm': o.product_id || '',
+        'Giá bán niêm yết (đ)': Number(o.original_price || o.originalPrice || o.amount || 0),
+        'Mã coupon áp dụng': o.coupon_code || o.couponCode || '',
+        'Số tiền giảm giá (đ)': Number(o.discount_amount || o.discountAmount || 0),
+        'Tổng tiền thực thu (đ)': Number(o.amount || o.totalAmount || o.final_amount || 0),
+        'Trạng thái đơn': isPaid ? 'ĐÃ THANH TOÁN' : 'CHỜ THANH TOÁN',
+        'Kênh thanh toán': o.payment_method || 'VietQR Chuyển khoản',
+        'Nội dung chuyển khoản': o.order_id || o.id || '',
+        'Mã giao dịch ngân hàng': o.bank_ref || o.transaction_id || ''
+      };
+    });
+  }
+
+  function prepareProductsTableData(productsList) {
+    return (productsList || []).map((p, idx) => {
+      return {
+        'STT': idx + 1,
+        'Mã sản phẩm': p.id || '',
+        'Tên sản phẩm file': p.name || '',
+        'Danh mục phân loại': p.category || '',
+        'Định dạng file': p.format || '',
+        'Giá bán khuyến mãi (đ)': Number(p.price || 0),
+        'Giá gốc niêm yết (đ)': Number(p.original_price || 0),
+        'Lượt tải xuống': Number(p.downloads_count || 0),
+        'Link bản gốc Google Sheets': p.sheets_url || '',
+        'Drive Template Link': p.drive_template_link || '',
+        'File đính kèm': p.file_url || '',
+        'Mô tả tóm tắt': p.short_description || p.description || ''
+      };
+    });
+  }
+
+  function prepareCouponsTableData(couponsList) {
+    return (couponsList || []).map((c, idx) => {
+      let typeText = 'Giảm %';
+      if (c.type === 'amount') typeText = 'Giảm tiền mặt (đ)';
+      else if (c.type === 'fixed') typeText = 'Đồng giá cố định';
+      else if (c.type === 'gift') typeText = 'Tặng kèm file';
+      else if (c.type === 'addon') typeText = 'Ưu đãi mua kèm';
+
+      return {
+        'STT': idx + 1,
+        'Mã giảm giá': c.code || c.id || '',
+        'Tên chương trình': c.name || '',
+        'Hình thức ưu đãi': typeText,
+        'Giá trị ưu đãi': Number(c.value || 0),
+        'Đơn hàng tối thiểu (đ)': Number(c.min_order || c.minOrder || 0),
+        'Mức giảm tối đa (đ)': Number(c.max_discount || c.maxDiscount || 0),
+        'Hiệu lực từ': formatDateVN(c.start_date || c.startDate),
+        'Hạn sử dụng đến': formatDateVN(c.end_date || c.endDate),
+        'Lượt đã dùng': Number(c.used_count || 0),
+        'Giới hạn lượt dùng': Number(c.max_uses || c.usage_limit || 0),
+        'Trạng thái': (c.is_active !== false) ? 'ĐANG KÍCH HOẠT' : 'TẠM DỪNG',
+        'Mô tả / Điều kiện': c.description || ''
+      };
+    });
+  }
+
+  function preparePostsTableData(postsList, productsList) {
+    return (postsList || []).map((pt, idx) => {
+      const prod = (productsList || []).find(p => p.id === pt.product_id);
+      return {
+        'STT': idx + 1,
+        'Mã bài đăng': pt.id || '',
+        'Tiêu đề / Chủ đề video': pt.title || '',
+        'Nền tảng MXH': (pt.platform || '').toUpperCase(),
+        'Định dạng': pt.type === 'video' ? 'Video ngắn (Reels/TikTok)' : 'Bài viết/Ảnh',
+        'Sản phẩm mục tiêu': prod ? `${prod.name} (${prod.id})` : (pt.product_id || ''),
+        'Ngày đăng tải': formatDateVN(pt.publish_date || pt.publishDate || pt.created_at),
+        'Link video / Bài viết': pt.video_url || pt.url || '',
+        'Trạng thái bài': pt.status === 'PUBLISHED' ? 'ĐÃ ĐĂNG' : (pt.status === 'DRAFT' ? 'BẢN NHÁP' : 'LÊN KẾ HOẠCH'),
+        'Ghi chú / Kịch bản hook': pt.notes || pt.description || ''
+      };
+    });
+  }
+
+  function prepareAdsTableData(adsList, productsList) {
+    return (adsList || []).map((a, idx) => {
+      const prod = (productsList || []).find(p => p.id === a.product_id);
+      return {
+        'STT': idx + 1,
+        'Mã chiến dịch': a.id || '',
+        'Tên chiến dịch quảng cáo': a.title || a.name || '',
+        'Kênh quảng cáo': (a.channel || a.platform || '').toUpperCase(),
+        'Sản phẩm chạy Ads': prod ? `${prod.name} (${prod.id})` : (a.product_id || ''),
+        'Chi phí Ads (đ)': Number(a.spent || a.cost || a.budget || 0),
+        'Số click / Lượt truy cập': Number(a.clicks || 0),
+        'Số tin nhắn / Chuyển đổi': Number(a.conversions || a.messages || 0),
+        'Doanh thu tạo ra (đ)': Number(a.revenue || 0),
+        'Ngày bắt đầu': formatDateVN(a.start_date || a.startDate),
+        'Ngày kết thúc': formatDateVN(a.end_date || a.endDate),
+        'Trạng thái': a.status === 'RUNNING' ? 'ĐANG CHẠY' : (a.status === 'PAUSED' ? 'TẠM DỪNG' : 'ĐÃ HOÀN TẤT'),
+        'Link video ads': a.video_url || a.link || '',
+        'Ghi chú chiến dịch': a.notes || ''
+      };
+    });
+  }
+
+  // Tải SheetJS nếu chưa có trên window
+  async function ensureXlsxLibrary() {
+    if (typeof XLSX !== 'undefined') return true;
+    showToast('Đang tải thư viện xuất Excel SheetJS...', false);
+    return new Promise((resolve, reject) => {
+      const script = document.createElement('script');
+      script.src = 'https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js';
+      script.onload = () => {
+        console.log('SheetJS library loaded successfully');
+        resolve(true);
+      };
+      script.onerror = () => {
+        showToast('Không thể tải thư viện xuất Excel. Kiểm tra kết nối mạng!', true);
+        reject(new Error('Failed to load SheetJS'));
+      };
+      document.head.appendChild(script);
+    });
+  }
+
+  function triggerExcelDownload(workbook, fileName) {
+    if (typeof XLSX === 'undefined') {
+      alert('Thư viện tạo file Excel đang tải, vui lòng thử lại sau 2 giây.');
+      return;
+    }
+    XLSX.writeFile(workbook, fileName);
+  }
+
+  // Hàm xuất toàn bộ 5 module ra 1 file Excel Table List đa sheet
+  async function exportAllDataToExcel() {
+    try {
+      showToast('Đang tổng hợp dữ liệu toàn bộ phân hệ để xuất Excel...');
+      await ensureXlsxLibrary();
+
+      // Đảm bảo dữ liệu mới nhất nếu mảng đang rỗng
+      if ((!cachedOrders || cachedOrders.length === 0) && typeof loadAdminOrders === 'function') {
+        try { await loadAdminOrders(); } catch (e) {}
+      }
+      if ((!currentProducts || currentProducts.length === 0) && typeof loadProducts === 'function') {
+        try { await loadProducts(); } catch (e) {}
+      }
+      if ((!currentCoupons || currentCoupons.length === 0) && typeof loadCoupons === 'function') {
+        try { await loadCoupons(); } catch (e) {}
+      }
+      if ((!currentSocialPosts || currentSocialPosts.length === 0) && typeof loadSocialPosts === 'function') {
+        try { await loadSocialPosts(); } catch (e) {}
+      }
+      if ((!currentAds || currentAds.length === 0) && typeof loadAdsCampaigns === 'function') {
+        try { await loadAdsCampaigns(); } catch (e) {}
+      }
+
+      const wb = XLSX.utils.book_new();
+
+      // 1. Đơn hàng
+      const ordersData = prepareOrdersTableData(cachedOrders || []);
+      const wsOrders = XLSX.utils.json_to_sheet(ordersData.length > 0 ? ordersData : [{'Thông báo': 'Chưa có dữ liệu đơn hàng'}]);
+      XLSX.utils.book_append_sheet(wb, wsOrders, 'Đơn Hàng');
+
+      // 2. Sản phẩm
+      const productsData = prepareProductsTableData(currentProducts || []);
+      const wsProducts = XLSX.utils.json_to_sheet(productsData.length > 0 ? productsData : [{'Thông báo': 'Chưa có dữ liệu sản phẩm'}]);
+      XLSX.utils.book_append_sheet(wb, wsProducts, 'Sản Phẩm');
+
+      // 3. Mã giảm giá
+      const couponsData = prepareCouponsTableData(currentCoupons || []);
+      const wsCoupons = XLSX.utils.json_to_sheet(couponsData.length > 0 ? couponsData : [{'Thông báo': 'Chưa có mã giảm giá'}]);
+      XLSX.utils.book_append_sheet(wb, wsCoupons, 'Mã Giảm Giá');
+
+      // 4. Bài đăng MXH
+      const postsData = preparePostsTableData(currentSocialPosts || [], currentProducts || []);
+      const wsPosts = XLSX.utils.json_to_sheet(postsData.length > 0 ? postsData : [{'Thông báo': 'Chưa có bài đăng MXH'}]);
+      XLSX.utils.book_append_sheet(wb, wsPosts, 'Bài Đăng MXH');
+
+      // 5. Chiến dịch quảng cáo
+      const adsData = prepareAdsTableData(currentAds || [], currentProducts || []);
+      const wsAds = XLSX.utils.json_to_sheet(adsData.length > 0 ? adsData : [{'Thông báo': 'Chưa có dữ liệu quảng cáo'}]);
+      XLSX.utils.book_append_sheet(wb, wsAds, 'Quảng Cáo Ads');
+
+      const nowStr = new Date().toISOString().slice(0, 10).replace(/-/g, '');
+      const fileName = `FILE_DI_LAM_TOAN_BO_DATA_${nowStr}.xlsx`;
+      triggerExcelDownload(wb, fileName);
+      showToast(`Đã xuất thành công toàn bộ dữ liệu vào file: ${fileName}`);
+    } catch (err) {
+      console.error('Lỗi khi xuất toàn bộ Excel:', err);
+      showToast('Lỗi khi xuất Excel: ' + err.message, true);
+    }
+  }
+
+  // Hàm xuất riêng từng module
+  async function exportOrdersOnlyToExcel() {
+    try {
+      showToast('Đang xuất danh sách đơn hàng...');
+      await ensureXlsxLibrary();
+      if ((!cachedOrders || cachedOrders.length === 0) && typeof loadAdminOrders === 'function') {
+        try { await loadAdminOrders(); } catch (e) {}
+      }
+      const ordersData = prepareOrdersTableData(cachedOrders || []);
+      if (ordersData.length === 0) {
+        showToast('Danh sách đơn hàng hiện đang trống.', true);
+        return;
+      }
+      const wb = XLSX.utils.book_new();
+      const ws = XLSX.utils.json_to_sheet(ordersData);
+      XLSX.utils.book_append_sheet(wb, ws, 'Danh Sách Đơn Hàng');
+      const nowStr = new Date().toISOString().slice(0, 10).replace(/-/g, '');
+      triggerExcelDownload(wb, `DS_DON_HANG_${nowStr}.xlsx`);
+      showToast('Đã xuất danh sách đơn hàng ra file Excel thành công!');
+    } catch (err) {
+      showToast('Lỗi xuất đơn hàng: ' + err.message, true);
+    }
+  }
+
+  async function exportProductsOnlyToExcel() {
+    try {
+      showToast('Đang xuất danh sách sản phẩm...');
+      await ensureXlsxLibrary();
+      if ((!currentProducts || currentProducts.length === 0) && typeof loadProducts === 'function') {
+        try { await loadProducts(); } catch (e) {}
+      }
+      const data = prepareProductsTableData(currentProducts || []);
+      if (data.length === 0) {
+        showToast('Danh sách sản phẩm đang trống.', true);
+        return;
+      }
+      const wb = XLSX.utils.book_new();
+      const ws = XLSX.utils.json_to_sheet(data);
+      XLSX.utils.book_append_sheet(wb, ws, 'Danh Sách Sản Phẩm');
+      const nowStr = new Date().toISOString().slice(0, 10).replace(/-/g, '');
+      triggerExcelDownload(wb, `DS_SAN_PHAM_${nowStr}.xlsx`);
+      showToast('Đã xuất danh sách sản phẩm ra file Excel thành công!');
+    } catch (err) {
+      showToast('Lỗi xuất sản phẩm: ' + err.message, true);
+    }
+  }
+
+  async function exportCouponsOnlyToExcel() {
+    try {
+      showToast('Đang xuất danh sách mã giảm giá...');
+      await ensureXlsxLibrary();
+      if ((!currentCoupons || currentCoupons.length === 0) && typeof loadCoupons === 'function') {
+        try { await loadCoupons(); } catch (e) {}
+      }
+      const data = prepareCouponsTableData(currentCoupons || []);
+      if (data.length === 0) {
+        showToast('Danh sách mã giảm giá đang trống.', true);
+        return;
+      }
+      const wb = XLSX.utils.book_new();
+      const ws = XLSX.utils.json_to_sheet(data);
+      XLSX.utils.book_append_sheet(wb, ws, 'Danh Sách Mã Giảm Giá');
+      const nowStr = new Date().toISOString().slice(0, 10).replace(/-/g, '');
+      triggerExcelDownload(wb, `DS_MA_GIAM_GIA_${nowStr}.xlsx`);
+      showToast('Đã xuất danh sách mã giảm giá ra file Excel thành công!');
+    } catch (err) {
+      showToast('Lỗi xuất mã giảm giá: ' + err.message, true);
+    }
+  }
+
+  async function exportPostsOnlyToExcel() {
+    try {
+      showToast('Đang xuất danh sách bài đăng MXH...');
+      await ensureXlsxLibrary();
+      if ((!currentSocialPosts || currentSocialPosts.length === 0) && typeof loadSocialPosts === 'function') {
+        try { await loadSocialPosts(); } catch (e) {}
+      }
+      const data = preparePostsTableData(currentSocialPosts || [], currentProducts || []);
+      if (data.length === 0) {
+        showToast('Danh sách bài đăng MXH đang trống.', true);
+        return;
+      }
+      const wb = XLSX.utils.book_new();
+      const ws = XLSX.utils.json_to_sheet(data);
+      XLSX.utils.book_append_sheet(wb, ws, 'Danh Sách Bài Đăng MXH');
+      const nowStr = new Date().toISOString().slice(0, 10).replace(/-/g, '');
+      triggerExcelDownload(wb, `DS_BAI_DANG_MXH_${nowStr}.xlsx`);
+      showToast('Đã xuất danh sách bài đăng ra file Excel thành công!');
+    } catch (err) {
+      showToast('Lỗi xuất bài đăng: ' + err.message, true);
+    }
+  }
+
+  async function exportAdsOnlyToExcel() {
+    try {
+      showToast('Đang xuất danh sách chiến dịch quảng cáo...');
+      await ensureXlsxLibrary();
+      if ((!currentAds || currentAds.length === 0) && typeof loadAdsCampaigns === 'function') {
+        try { await loadAdsCampaigns(); } catch (e) {}
+      }
+      const data = prepareAdsTableData(currentAds || [], currentProducts || []);
+      if (data.length === 0) {
+        showToast('Danh sách chiến dịch quảng cáo đang trống.', true);
+        return;
+      }
+      const wb = XLSX.utils.book_new();
+      const ws = XLSX.utils.json_to_sheet(data);
+      XLSX.utils.book_append_sheet(wb, ws, 'Quản Lý Quảng Cáo Ads');
+      const nowStr = new Date().toISOString().slice(0, 10).replace(/-/g, '');
+      triggerExcelDownload(wb, `DS_CHIEN_DICH_ADS_${nowStr}.xlsx`);
+      showToast('Đã xuất danh sách quảng cáo ra file Excel thành công!');
+    } catch (err) {
+      showToast('Lỗi xuất quảng cáo: ' + err.message, true);
+    }
+  }
+
+  // Khởi tạo Event Listeners cho các nút Xuất Excel (Chạy ngay bên trong DOMContentLoaded)
+  document.getElementById('btnExportAllExcel')?.addEventListener('click', exportAllDataToExcel);
+  document.getElementById('btnExportOrdersExcel')?.addEventListener('click', exportOrdersOnlyToExcel);
+  document.getElementById('btnExportProductsExcel')?.addEventListener('click', exportProductsOnlyToExcel);
+  document.getElementById('btnExportCouponsExcel')?.addEventListener('click', exportCouponsOnlyToExcel);
+  document.getElementById('btnExportPostsExcel')?.addEventListener('click', exportPostsOnlyToExcel);
+  document.getElementById('btnExportAdsExcel')?.addEventListener('click', exportAdsOnlyToExcel);
+
+  // Gắn ra window để có thể gọi trực tiếp từ console hoặc onclick
+  window.exportAllDataToExcel = exportAllDataToExcel;
+  window.exportOrdersOnlyToExcel = exportOrdersOnlyToExcel;
+  window.exportProductsOnlyToExcel = exportProductsOnlyToExcel;
+  window.exportCouponsOnlyToExcel = exportCouponsOnlyToExcel;
+  window.exportPostsOnlyToExcel = exportPostsOnlyToExcel;
+  window.exportAdsOnlyToExcel = exportAdsOnlyToExcel;
+
+
+
 });
 
 // Global listener to close popovers when clicking outside
@@ -6533,3 +6933,6 @@ document.addEventListener('click', () => {
       titleInp.value = 'Ads: ' + prod.name;
     }
   });
+
+
+// =============================================================================
