@@ -2252,6 +2252,17 @@ function escapeHtml(value) {
       ? 'Bấm tạo bản sao vào Google Drive. Sau khi tải xong, chọn menu <strong>File Đi Làm &gt; Mở ứng dụng</strong> và cấp quyền Google lần đầu để sử dụng ngay.'
       : 'Bấm <strong>Tạo bản sao</strong> để lưu file trực tiếp vào Google Drive của bạn và bắt đầu sử dụng.';
 
+    var deviceGuideInHowItWorks = isAppsScript ? (
+      '<div style="background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 10px; padding: 12px 14px; margin-top: 14px; font-size: 0.85rem; color: #14532d; line-height: 1.5;">' +
+        '<div style="font-weight: 700; color: #166534; margin-bottom: 4px; display: flex; align-items: center; gap: 6px;">' +
+          '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect><line x1="12" y1="18" x2="12.01" y2="18"></line></svg>' +
+          '<span>Lưu ý về thiết bị sử dụng:</span>' +
+        '</div>' +
+        '<div style="margin-bottom: 3px;">• <strong>Vận hành hằng ngày:</strong> 100% trên <strong>Điện thoại, iPad/Tablet và Máy tính</strong> (Giao diện Web App chuyên biệt cho di động, lưu icon ra màn hình chính bấm là vào).</div>' +
+        '<div>• <strong>Kích hoạt lần đầu (chỉ 1 – 2 phút):</strong> Cần thao tác 1 lần duy nhất trên trình duyệt <strong>Máy tính / Laptop</strong> để Google hiển thị hộp thoại cấp quyền liên kết dữ liệu vào Gmail chính chủ của bạn. Sau khi kích hoạt xong, bạn chỉ cần mở link Web App trên điện thoại dùng vĩnh viễn mà không cần mở lại máy tính nữa.</div>' +
+      '</div>'
+    ) : '';
+
     var howItWorksHtml =
       '<div class="detail-how-it-works-box">' +
         '<h4 class="detail-how-title">CÁCH HOẠT ĐỘNG</h4>' +
@@ -2263,6 +2274,7 @@ function escapeHtml(value) {
           '<li class="detail-how-item"><span class="detail-how-num">5</span><span>Nếu có thắc mắc trong quá trình sử dụng, nhắn Zalo <strong>0938 134 576</strong> hoặc email <strong>kiencam.work@gmail.com</strong> để được hỗ trợ nhanh chóng.</span></li>' +
           '<li class="detail-how-item"><span class="detail-how-num">6</span><span>Sản phẩm mua 1 lần sở hữu vĩnh viễn, không thu phí duy trì hàng tháng.</span></li>' +
         '</ol>' +
+        deviceGuideInHowItWorks +
         '<div class="detail-how-sep"></div>' +
         '<h4 class="detail-how-title">LƯU Ý QUAN TRỌNG KHI MUA HÀNG</h4>' +
         '<ul class="detail-how-notice-list">' +
@@ -2282,17 +2294,6 @@ function escapeHtml(value) {
           '<span>Xem video demo trên TikTok</span>' +
           '<svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>' +
         '</a>' +
-      '</div>'
-    ) : '';
-
-    var deviceGuideHtml = isAppsScript ? (
-      '<div style="background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 12px; padding: 14px 16px; margin: 16px 0; font-size: 0.88rem; color: #14532d; line-height: 1.55;">' +
-        '<div style="font-weight: 700; color: #166534; margin-bottom: 6px; display: flex; align-items: center; gap: 6px;">' +
-          '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect><line x1="12" y1="18" x2="12.01" y2="18"></line></svg>' +
-          '<span>Lưu ý về thiết bị sử dụng:</span>' +
-        '</div>' +
-        '<div style="margin-bottom: 4px;">• <strong>Vận hành hằng ngày:</strong> 100% trên <strong>Điện thoại, iPad/Tablet và Máy tính</strong> (Giao diện Web App chuyên biệt cho di động, lưu icon ra màn hình chính bấm là vào).</div>' +
-        '<div>• <strong>Kích hoạt lần đầu (chỉ 1 – 2 phút):</strong> Cần thao tác 1 lần duy nhất trên trình duyệt <strong>Máy tính / Laptop</strong> để Google hiển thị hộp thoại cấp quyền liên kết dữ liệu vào Gmail chính chủ của bạn. Sau khi kích hoạt xong, bạn chỉ cần mở link Web App trên điện thoại dùng vĩnh viễn mà không cần mở lại máy tính nữa.</div>' +
       '</div>'
     ) : '';
 
@@ -2357,7 +2358,6 @@ function escapeHtml(value) {
             '<div class="detail-desc-content">' +
               '<p style="margin:0;">' + formattedDesc + '</p>' +
             '</div>' +
-            deviceGuideHtml +
             (product.usageGuide ? '<div style="background:#f1f5f9; padding:12px 16px; border-radius:10px; font-size:0.92rem; color:#334155;"><strong>Cách dùng nhanh:</strong> ' + escapeHtml(product.usageGuide) + '</div>' : '') +
             formatProductRichContent(product.featuresDetail, product.highlights) +
             (product.sheets && product.sheets.length ? '<div style="font-size:0.92rem; color:#475569;"><strong>Bao gồm các Sheet:</strong> ' + escapeHtml(product.sheets.join(', ')) + '</div>' : '') +
