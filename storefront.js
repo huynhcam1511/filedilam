@@ -2657,6 +2657,7 @@ function escapeHtml(value) {
   }
 
   function renderProductThumb(product) {
+    var isPinned = (product.is_pinned === true || product.is_pinned === 'true');
     var isAppsScript = product.type === "apps_script" || product.type === "web_app";
     var isGoogleSheet = !isAppsScript && (product.type === "google_sheets" || !!product.sheetUrl);
     var isCombo = product.categoryId === "combo" || product.type === "combo";
@@ -2686,6 +2687,7 @@ function escapeHtml(value) {
       '<div class="product-thumb is-placeholder">' +
         '<span class="thumb-placeholder-text">FILE</span>' +
         '<span class="product-type-badge' + typeClass + '">' + typeLabel + '</span>' +
+        pinBadgeHtml +
         discountBadgeHtml +
       '</div>'
     );
