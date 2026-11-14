@@ -1840,7 +1840,7 @@ function escapeHtml(value) {
         e.stopPropagation();
         var prodId = btn.getAttribute("data-cart-id");
         if (prodId) {
-          addToCart(prodId, { openDrawer: true });
+          addToCart(prodId, { openDrawer: false });
         }
       });
     });
@@ -2537,7 +2537,7 @@ function escapeHtml(value) {
     var btnDetailAdd = document.getElementById("detailAddToCart");
     if (btnDetailAdd) {
       btnDetailAdd.addEventListener("click", function () {
-        addToCart(product.id, { openDrawer: true });
+        addToCart(product.id, { openDrawer: false });
         // Update detail cart count
         var cB = document.getElementById("cartCountDetail");
         if (cB) cB.textContent = getCartCount();
@@ -2556,7 +2556,7 @@ function escapeHtml(value) {
     var btnStickyAdd = document.getElementById("detailStickyAddToCart");
     if (btnStickyAdd) {
       btnStickyAdd.addEventListener("click", function() {
-        addToCart(product.id, { openDrawer: true });
+        addToCart(product.id, { openDrawer: false });
         var cB = document.getElementById("cartCountDetail");
         if (cB) cB.textContent = getCartCount();
       });
@@ -2628,7 +2628,7 @@ function escapeHtml(value) {
         e.stopPropagation();
         var id = btn.getAttribute("data-cart-id");
         if (id) {
-          addToCart(id, { openDrawer: true });
+          addToCart(id, { openDrawer: false });
         }
       });
     });
@@ -3796,12 +3796,16 @@ function escapeHtml(value) {
   }
 
   function pulseCart() {
-    if (!openCartButton) return;
-    openCartButton.classList.remove("cart-pulse");
-    void openCartButton.offsetWidth;
-    openCartButton.classList.add("cart-pulse");
+    var cartBtns = [openCartButton, document.getElementById("openCartFromDetail")].filter(Boolean);
+    cartBtns.forEach(function(btn) {
+      btn.classList.remove("cart-pulse");
+      void btn.offsetWidth;
+      btn.classList.add("cart-pulse");
+    });
     window.setTimeout(function () {
-      openCartButton.classList.remove("cart-pulse");
+      cartBtns.forEach(function(btn) {
+        btn.classList.remove("cart-pulse");
+      });
     }, 650);
   }
 

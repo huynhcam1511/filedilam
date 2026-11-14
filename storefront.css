@@ -937,7 +937,10 @@ body.cart-drawer-open .page-layout {
   animation: cartBounce 0.6s cubic-bezier(0.36, 0, 0.66, -0.56) both;
 }
 
-.cart-button.cart-pulse .cart-badge {
+.cart-button.cart-pulse .cart-badge,
+.cart-button.cart-pulse .cart-badge-pill,
+.cart-button.cart-pulse #cartCount,
+.cart-button.cart-pulse #cartCountDetail {
   animation: badgePop 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) both;
 }
 
@@ -1630,20 +1633,34 @@ body.cart-drawer-open .page-layout {
   bottom: 24px;
   left: 50%;
   transform: translateX(-50%) translateY(20px);
-  background: #111827;
+  background: #0f172a;
   color: #fff;
-  padding: 12px 24px;
+  padding: 12px 22px;
   border-radius: 999px;
   font-size: 0.9rem;
   font-weight: 500;
   opacity: 0;
   pointer-events: none;
-  transition: all 0.3s ease;
-  z-index: 60;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  z-index: 1000100 !important;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  white-space: nowrap;
+}
+
+@media (max-width: 960px) {
+  .toast {
+    bottom: 74px;
+    font-size: 0.85rem;
+    padding: 10px 18px;
+  }
 }
 
 .toast.is-visible {
   opacity: 1;
+  pointer-events: auto;
   transform: translateX(-50%) translateY(0);
 }
 
