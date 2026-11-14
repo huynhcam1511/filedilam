@@ -3521,6 +3521,180 @@ body.checkout-page-open {
   border-top: 1px solid #f1f5f9;
 }
 
+/* Applied Coupon Bar (Zero-click / Active Status) */
+.checkout-applied-coupon-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 9px 12px;
+  background: #f0fdf4;
+  border: 1px solid #a7f3d0;
+  border-radius: 8px;
+  margin-bottom: 8px;
+  animation: couponBarFadeIn 0.2s ease;
+}
+
+@keyframes couponBarFadeIn {
+  from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.applied-coupon-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.applied-coupon-tag {
+  font-size: 0.68rem;
+  font-weight: 700;
+  background: #059669;
+  color: #ffffff;
+  padding: 2px 6px;
+  border-radius: 4px;
+  letter-spacing: 0.3px;
+  line-height: 1.2;
+}
+
+.applied-coupon-code {
+  font-weight: 700;
+  color: #065f46;
+  font-size: 0.88rem;
+  font-family: var(--font-mono, monospace);
+}
+
+.applied-coupon-desc {
+  font-size: 0.78rem;
+  color: #047857;
+}
+
+.btn-coupon-deselect {
+  background: none;
+  border: none;
+  color: #64748b;
+  font-size: 0.76rem;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 3px 6px;
+  border-radius: 4px;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+}
+
+.btn-coupon-deselect:hover {
+  color: #dc2626;
+  background: #fef2f2;
+  text-decoration: underline;
+}
+
+/* Collapsible Toggle Text Link */
+.checkout-promo-toggle-wrap {
+  margin: 6px 0;
+}
+
+.checkout-promo-link-btn {
+  background: none;
+  border: none;
+  padding: 6px 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: #059669;
+  font-size: 0.82rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  font-family: inherit;
+}
+
+.checkout-promo-link-btn:hover {
+  color: #047857;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.checkout-promo-link-btn .chevron-icon {
+  transition: transform 0.2s ease;
+}
+
+.checkout-promo-link-btn.is-expanded .chevron-icon {
+  transform: rotate(180deg);
+}
+
+/* Collapsible Content (Private Form & Public List) */
+.checkout-promo-collapse-content {
+  margin-top: 8px;
+  animation: promoCollapseFadeIn 0.2s ease;
+}
+
+@keyframes promoCollapseFadeIn {
+  from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.checkout-promo-input-form {
+  margin: 8px 0 10px 0;
+}
+
+.promo-input-wrap,
+.coupon-input-group {
+  display: flex;
+  gap: 8px;
+  width: 100%;
+  align-items: center;
+}
+
+.checkout-promo-input,
+.checkout-coupon-input {
+  flex: 1;
+  height: 38px;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  padding: 0 12px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #0f172a;
+  text-transform: uppercase;
+  background: #ffffff;
+  font-family: var(--font-mono, monospace);
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.checkout-promo-input:focus,
+.checkout-coupon-input:focus {
+  outline: none;
+  border-color: #059669;
+  box-shadow: 0 0 0 2px rgba(5, 150, 105, 0.15);
+}
+
+.btn-promo-apply,
+.btn-apply-coupon {
+  height: 38px;
+  padding: 0 16px;
+  background: #059669;
+  color: #ffffff;
+  font-size: 0.82rem;
+  font-weight: 600;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.15s ease;
+  font-family: inherit;
+}
+
+.btn-promo-apply:hover,
+.btn-apply-coupon:hover {
+  background: #047857;
+}
+
+.btn-promo-apply:disabled,
+.btn-apply-coupon:disabled {
+  background: #94a3b8;
+  cursor: not-allowed;
+}
+
 .checkout-coupon-option:last-child {
   border-bottom: 1px solid #e2e8f0;
   padding-bottom: 10px;
@@ -3596,49 +3770,6 @@ body.checkout-page-open {
   font-weight: 500;
   color: #64748b;
   margin-bottom: 8px;
-}
-
-.coupon-input-group {
-  display: flex;
-  gap: 8px;
-  align-items: center;
-}
-
-.checkout-coupon-input {
-  flex: 1;
-  height: 42px;
-  padding: 0 14px;
-  border: 1px solid #e2e8f0;
-  border-radius: 8px;
-  font-size: 0.88rem;
-  font-family: inherit;
-  background: #ffffff;
-  color: #0f172a;
-  transition: border-color 0.15s ease;
-}
-
-.checkout-coupon-input:focus {
-  outline: none;
-  border-color: #059669;
-}
-
-.btn-apply-coupon {
-  height: 42px;
-  padding: 0 18px;
-  border: 1px solid #e2e8f0;
-  background: #ffffff;
-  color: #475569;
-  font-weight: 600;
-  font-size: 0.86rem;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: all 0.15s ease;
-}
-
-.btn-apply-coupon:hover {
-  background: #f8fafc;
-  border-color: #cbd5e1;
-  color: #0f172a;
 }
 
 /* Right Column: Customer Form Card */

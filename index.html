@@ -20,7 +20,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="./storefront.css?v=245" />
+    <link rel="stylesheet" href="./storefront.css?v=246" />
     <style>
     :root {
       --bg: #ffffff;
@@ -3442,11 +3442,61 @@
               <div class="checkout-totals">
                 <h4 class="checkout-payment-summary-title">Tóm tắt thanh toán</h4>
                 <!-- Discount coupon row -->
-                <div class="checkout-coupon-box">
-                  <div class="coupon-box-title">Chọn mã giảm giá</div>
-                  <div id="checkoutCouponMsg" style="font-size: 0.78rem; margin-top: 6px; padding: 6px 10px; border-radius: 6px; display: none; line-height: 1.4;"></div>
-                  <div class="checkout-coupon-list" id="checkoutCouponList" aria-live="polite">
-                    <div class="checkout-coupon-empty">Đang tải mã giảm giá...</div>
+                <div class="checkout-coupon-box" id="checkoutCouponBox">
+                  <!-- Trạng thái 1: Khi ĐÃ ÁP DỤNG MÃ (Auto-Applied hoặc User chọn) -->
+                  <div class="checkout-applied-coupon-bar" id="checkoutAppliedCouponBar" style="display: none;">
+                    <div class="applied-coupon-info">
+                      <span class="applied-coupon-tag">ĐÃ ÁP DỤNG</span>
+                      <span class="applied-coupon-code font-mono" id="appliedCouponCodeDisplay">FILEDILAM</span>
+                      <span class="applied-coupon-desc" id="appliedCouponDescDisplay">Giảm 20%</span>
+                    </div>
+                    <button type="button" class="btn-coupon-deselect" id="btnDeselectAppliedCoupon" title="Bỏ chọn mã này">
+                      Bỏ chọn
+                    </button>
+                  </div>
+
+                  <!-- Trạng thái 2: Text link thanh lịch "Bạn có mã ưu đãi?" -->
+                  <div class="checkout-promo-toggle-wrap" id="checkoutPromoToggleWrap">
+                    <button type="button" class="checkout-promo-link-btn" id="btnTogglePromoForm">
+                      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path>
+                        <line x1="7" y1="7" x2="7.01" y2="7"></line>
+                      </svg>
+                      <span id="promoToggleText">Bạn có mã ưu đãi?</span>
+                      <svg class="chevron-icon" id="promoToggleChevron" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="6 9 12 15 18 9"></polyline>
+                      </svg>
+                    </button>
+                  </div>
+
+                  <!-- Khối thu gọn (Collapsible Form & List) - Mặc định ẩn, bung khi click text link -->
+                  <div class="checkout-promo-collapse-content" id="checkoutPromoCollapseContent" style="display: none;">
+                    <!-- Form nhập mã riêng (Private / Secret Voucher) -->
+                    <form class="checkout-promo-input-form" id="privateCouponForm" onsubmit="event.preventDefault();">
+                      <div class="promo-input-wrap">
+                        <input 
+                          type="text" 
+                          id="privateCouponInput" 
+                          class="checkout-promo-input font-mono" 
+                          placeholder="Nhập mã ưu đãi (Zalo, CSKH...)" 
+                          autocomplete="off" 
+                          autocapitalize="characters" 
+                          spellcheck="false" 
+                          maxlength="20"
+                        />
+                        <button type="button" class="btn-promo-apply" id="btnApplyPrivateCoupon">
+                          Áp dụng
+                        </button>
+                      </div>
+                    </form>
+
+                    <!-- Thông báo trạng thái kiểm tra mã (lỗi / thành công) -->
+                    <div id="checkoutCouponMsg" class="checkout-coupon-msg" style="font-size: 0.78rem; margin-top: 6px; padding: 6px 10px; border-radius: 6px; display: none; line-height: 1.4;"></div>
+
+                    <!-- Danh sách mã công khai (chỉ hiện khi bung ra nếu có mã) -->
+                    <div class="checkout-coupon-list" id="checkoutCouponList" aria-live="polite">
+                      <div class="checkout-coupon-empty">Đang tải mã giảm giá...</div>
+                    </div>
                   </div>
                 </div>
 
@@ -3962,7 +4012,7 @@
     <script src="./storefront-data.js?v=22"></script>
     <script src="./storefront-products.generated.js?v=6"></script>
     <script src="assets/qrcode-generator-1.4.4.js"></script>
-    <script src="storefront.js?v=250"></script>
+    <script src="storefront.js?v=251"></script>
     <!-- Agentation: Visual Feedback & Annotation for AI agents -->
   <script src="./agentation-vanilla.js"></script>
 </body>
