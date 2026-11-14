@@ -1495,11 +1495,10 @@ def api(req: https_fn.Request) -> https_fn.Response:
 
         doc_ref.set(order_doc_data)
 
-        # Gửi thông báo đến Admin (huynhkiencam151102@gmail.com) khi có đơn hàng mới phát sinh
-        try:
-            send_admin_new_order_notification(order_id, order_doc_data)
-        except Exception as notify_err:
-            print(f"[Admin Notify] Lỗi khi kích hoạt thông báo đơn mới: {notify_err}")
+        # Lưu ý luồng Automation 100%: Khi khách vừa bấm xác nhận đặt hàng, hệ thống KHÔNG bắn email ngay để tránh spam.
+        # Sau 10-15 phút, Cron Job (check_pending_orders_reminder) sẽ tự động kiểm tra trạng thái đơn:
+        # - Nếu ĐÃ THANH TOÁN (PAID) -> Đã có mail báo tiền về SePay cho Admin & mail bàn giao cho khách.
+        # - Nếu CHƯA THANH TOÁN (PENDING) -> Tự động gửi email nhắc thanh toán kèm VietQR cho khách & báo Admin kèm Zalo 1 chạm.
         
         return json_response({
             "order_id": order_id,
