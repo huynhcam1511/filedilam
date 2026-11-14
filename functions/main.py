@@ -862,9 +862,13 @@ def generate_vietqr_emvco(amount, order_id, account="59215112002"):
         s = str(val)
         return f"{tag}{len(s):02d}{s}"
 
-    recipient = field("00", "970423") + field("01", account)
-    provider = field("00", "A000000727") + field("01", recipient) + field("02", "QRIBFTTA")
-    payload = "000201010212" + field("38", provider) + "5303704" + field("54", amount) + "5802VN" + field("62", field("08", order_id)) + "6304"
+    # Tag 38 Provider:
+    # 00: GUID NAPAS 'A000000727'
+    # 01: Beneficiary Org (00: Bin '970423', 01: Account '59215112002') -> 25 ký tự
+    # 02: Service Code 'QRIBFTTA'
+    recipient = "000697042301" + f"{len(str(account)):02d}" + str(account)
+    provider = "0010A000000727" + f"01{len(recipient):02d}" + recipient + "0208QRIBFTTA"
+    payload = "000201010212" + f"38{len(provider):02d}" + provider + "5303704" + field("54", amount) + "5802VN" + field("62", field("08", order_id)) + "6304"
 
     crc = 0xFFFF
     for ch in payload:
