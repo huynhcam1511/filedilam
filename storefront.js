@@ -1793,6 +1793,13 @@ function escapeHtml(value) {
               '</div>' +
               '<div class="product-card-footer">' +
                 socialProofHtml +
+                '<button class="btn-card-add-cart" type="button" data-cart-id="' + escapeHtml(product.id) + '" title="Thêm vào giỏ hàng" aria-label="Thêm vào giỏ">' +
+                  '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">' +
+                    '<circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle>' +
+                    '<path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>' +
+                  '</svg>' +
+                  '<span>Thêm giỏ</span>' +
+                '</button>' +
               '</div>' +
             '</div>' +
           '</div>'
@@ -1822,7 +1829,9 @@ function escapeHtml(value) {
       btn.addEventListener("click", function (e) {
         e.stopPropagation();
         var prodId = btn.getAttribute("data-cart-id");
-        buyNow(prodId);
+        if (prodId) {
+          addToCart(prodId, { openDrawer: true });
+        }
       });
     });
   }
@@ -2399,6 +2408,13 @@ function escapeHtml(value) {
                         '<span style="color:#d97706; font-weight:700;">⭐ ' + itemRating.score + '</span>' +
                         '<span style="color:#64748b; font-weight:500;">(' + itemRating.sales + ')</span>' +
                       '</div>' +
+                      '<button class="btn-card-add-cart" type="button" data-cart-id="' + escapeHtml(item.id) + '" title="Thêm vào giỏ hàng" aria-label="Thêm vào giỏ">' +
+                        '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">' +
+                          '<circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle>' +
+                          '<path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>' +
+                        '</svg>' +
+                        '<span>Thêm giỏ</span>' +
+                      '</button>' +
                     '</div>' +
                   '</div>' +
                 '</div>'
@@ -2585,10 +2601,23 @@ function escapeHtml(value) {
 
     // Attach related product clicks
     Array.prototype.forEach.call(detailBody.querySelectorAll(".detail-related-grid .product-card"), function(card) {
-      card.addEventListener("click", function() {
+      card.addEventListener("click", function(e) {
+        if (e.target.closest("[data-cart-id]")) {
+          return;
+        }
         var id = card.getAttribute("data-detail-id") || card.getAttribute("data-product-id");
         if (id) {
           openDetail(id);
+        }
+      });
+    });
+
+    Array.prototype.forEach.call(detailBody.querySelectorAll(".detail-related-grid [data-cart-id]"), function(btn) {
+      btn.addEventListener("click", function(e) {
+        e.stopPropagation();
+        var id = btn.getAttribute("data-cart-id");
+        if (id) {
+          addToCart(id, { openDrawer: true });
         }
       });
     });
