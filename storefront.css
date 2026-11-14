@@ -5815,3 +5815,25 @@ body:not(.is-admin) #userProfile {
     padding: 0 16px;
   }
 }
+
+/* Pinned Featured Badge */
+.product-thumb-pin-tag {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  z-index: 3;
+  background: #059669;
+  color: #ffffff;
+  font-size: 0.65rem;
+  font-weight: 700;
+  padding: 3px 7px;
+  border-radius: 6px;
+  box-shadow: 0 2px 6px rgba(5, 150, 105, 0.35);
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  letter-spacing: -0.1px;
+}
+.product-thumb:has(.product-thumb-pin-tag) .product-thumb-discount-tag {
+  top: 34px !important;
+}

@@ -155,6 +155,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (document.getElementById('productCoachingPrice')) document.getElementById('productCoachingPrice').value = '';
     if (document.getElementById('productCoachingTitle')) document.getElementById('productCoachingTitle').value = '';
     if (document.getElementById('btnOpenSheetUrl')) document.getElementById('btnOpenSheetUrl').style.display = 'none';
+    if (document.getElementById('productIsPinned')) document.getElementById('productIsPinned').checked = false;
     document.getElementById('imageBtnText').innerHTML = '<svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg> Chọn file ảnh bìa';
     document.getElementById('fileBtnText').innerHTML = '<svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"></path></svg> Chọn file đính kèm';
     updateFormatFields();
@@ -559,7 +560,10 @@ document.addEventListener('DOMContentLoaded', () => {
             <div style="width: 44px; height: 44px; border-radius: 6px; background-image: url('${escapeHtml(p.previewImageUrl || '')}'); background-size: cover; background-position: center; background-color: #f8fafc; border: 1px solid #e2e8f0;"></div>
           </td>
           <td>
-            <div style="font-weight: 600; color: #0f172a; font-size: 0.9rem;">${escapeHtml(p.name)}</div>
+            <div style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">
+              <span style="font-weight: 600; color: #0f172a; font-size: 0.9rem;">${escapeHtml(p.name)}</span>
+              ${(p.is_pinned === true || p.is_pinned === 'true') ? `<span style="display: inline-flex; align-items: center; gap: 3px; font-size: 0.70rem; font-weight: 700; color: #059669; background: #ecfdf5; border: 1px solid #a7f3d0; padding: 1px 6px; border-radius: 4px;" title="Sản phẩm đang được ghim lên đầu trang chủ">📌 Đã ghim</span>` : ''}
+            </div>
             <div style="display: flex; align-items: center; gap: 8px; margin-top: 4px; flex-wrap: wrap;">
               <span style="font-size: 0.75rem; color: ${isValidProductSku(p.id) ? '#64748b' : '#dc2626'}; font-family: monospace; font-weight: ${isValidProductSku(p.id) ? '500' : '700'};">${escapeHtml(p.id)}</span>
               ${!isValidProductSku(p.id) ? `
@@ -599,6 +603,10 @@ document.addEventListener('DOMContentLoaded', () => {
                   <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
                   <span>Chuẩn hóa SKU (PRD-XXXXXX)</span>
                 </button>` : ''}
+                <button type="button" class="action-dropdown-item btn-toggle-pin" data-id="${p.id}" data-pinned="${(p.is_pinned === true || p.is_pinned === 'true') ? 'true' : 'false'}" style="color: ${(p.is_pinned === true || p.is_pinned === 'true') ? '#d97706' : '#059669'}; font-weight: 600;">
+                  <span style="font-size: 1rem; line-height: 1;">📌</span>
+                  <span>${(p.is_pinned === true || p.is_pinned === 'true') ? 'Bỏ ghim khỏi đầu trang' : 'Ghim lên đầu trang chủ'}</span>
+                </button>
                 <button type="button" class="action-dropdown-item btn-edit" data-id="${p.id}">
                   <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
                   <span>Chỉnh sửa</span>
@@ -635,6 +643,46 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!isShown && popover) {
           popover.classList.add('show');
           btn.classList.add('active');
+        }
+      });
+    });
+
+    // Lắng nghe thao tác Ghim / Bỏ ghim nhanh từ menu thao tác
+    document.querySelectorAll('.btn-toggle-pin').forEach(btn => {
+      btn.addEventListener('click', async (e) => {
+        e.stopPropagation();
+        const id = btn.dataset.id;
+        const isCurrentlyPinned = btn.dataset.pinned === 'true';
+        const newPinnedState = !isCurrentlyPinned;
+
+        // Đóng popover
+        document.querySelectorAll('.action-dropdown-popover.show').forEach(p => p.classList.remove('show'));
+
+        if (newPinnedState) {
+          // Kiểm tra xem đã có 3 sản phẩm ghim chưa
+          const currentPinnedCount = (currentProducts || []).filter(p => (p.is_pinned === true || p.is_pinned === 'true') && p.id !== id).length;
+          if (currentPinnedCount >= 3) {
+            showToast('Chỉ được ghim tối đa 3 sản phẩm lên đầu trang chủ! Vui lòng bỏ ghim sản phẩm khác trước.', true);
+            return;
+          }
+        }
+
+        try {
+          btn.disabled = true;
+          await db.collection('products').doc(id).update({
+            is_pinned: newPinnedState
+          });
+          
+          // Cập nhật state local
+          const prod = (currentProducts || []).find(p => p.id === id);
+          if (prod) {
+            prod.is_pinned = newPinnedState;
+          }
+          renderFilteredProducts();
+          showToast(newPinnedState ? 'Đã ghim sản phẩm lên đầu trang chủ!' : 'Đã bỏ ghim sản phẩm thành công.');
+        } catch (err) {
+          console.error('Lỗi khi cập nhật trạng thái ghim:', err);
+          showToast('Lỗi khi cập nhật ghim: ' + (err.message || 'Thử lại sau'), true);
         }
       });
     });
@@ -693,6 +741,9 @@ document.addEventListener('DOMContentLoaded', () => {
           document.getElementById('productPrice').value = new Intl.NumberFormat('vi-VN').format(product.price || 0);
           document.getElementById('productOriginalPrice').value = product.originalPrice ? new Intl.NumberFormat('vi-VN').format(product.originalPrice) : '';
           document.getElementById('productTag').value = product.tag || '';
+          if (document.getElementById('productIsPinned')) {
+            document.getElementById('productIsPinned').checked = !!product.is_pinned;
+          }
           document.getElementById('productSuitableFor').value = product.suitableFor || '';
           document.getElementById('productDescription').value = product.description || '';
           const rawContent = product.featuresDetail || (product.highlights || []).map(h => '- ' + h).join('\n');
@@ -1051,6 +1102,16 @@ document.addEventListener('DOMContentLoaded', () => {
     const originalPriceRaw = (document.getElementById('productOriginalPrice').value || '').replace(/\D/g, '');
     const originalPrice = parseInt(originalPriceRaw, 10) || 0;
     const tag = (document.getElementById('productTag').value || '').trim();
+    const isPinned = document.getElementById('productIsPinned') ? document.getElementById('productIsPinned').checked : false;
+
+    // Kiểm tra giới hạn tối đa 3 sản phẩm được ghim lên đầu trang chủ
+    if (isPinned) {
+      const currentPinnedCount = (currentProducts || []).filter(p => (p.is_pinned === true || p.is_pinned === 'true') && p.id !== editingId).length;
+      if (currentPinnedCount >= 3) {
+        showToast('Chỉ được ghim tối đa 3 sản phẩm lên đầu trang chủ! Vui lòng bỏ ghim sản phẩm khác trước.', true);
+        return;
+      }
+    }
     const suitableFor = (document.getElementById('productSuitableFor').value || '').trim();
     const description = document.getElementById('productDescription').value;
     const featuresRaw = document.getElementById('productFeatures').value;
@@ -1091,6 +1152,7 @@ document.addEventListener('DOMContentLoaded', () => {
         price,
         originalPrice: originalPrice > 0 ? originalPrice : null,
         tag: tag || null,
+        is_pinned: isPinned,
         suitableFor: suitableFor || null,
         description,
         featuresDetail: featuresRaw,

@@ -1739,6 +1739,16 @@ function escapeHtml(value) {
   function renderProducts() {
     var category = getActiveCategory();
     var items = getFilteredProducts().filter(matchesSearch);
+    
+    // Tự động đưa các sản phẩm được ghim (is_pinned: true) lên vị trí đầu tiên (Tối đa 3 sản phẩm)
+    items.sort(function(a, b) {
+      var isPinnedA = (a.is_pinned === true || a.is_pinned === 'true') ? 1 : 0;
+      var isPinnedB = (b.is_pinned === true || b.is_pinned === 'true') ? 1 : 0;
+      if (isPinnedA !== isPinnedB) {
+        return isPinnedB - isPinnedA; // Ghim lên đầu
+      }
+      return 0; // Giữ nguyên thứ tự tương đối ban đầu
+    });
     if (catalogTitle) catalogTitle.textContent = category ? category.name : "Tất cả sản phẩm";
     if (catalogDescription) catalogDescription.textContent = category ? category.description : "Toàn bộ file Excel và Google Sheets đang có trên cửa hàng.";
 
@@ -2089,6 +2099,7 @@ function escapeHtml(value) {
       cartBadgeDetail.textContent = totalQty;
     }
 
+    var isPinned = (product.is_pinned === true || product.is_pinned === 'true');
     var isAppsScript = product.type === "apps_script" || product.type === "web_app";
     var isGoogleSheet = !isAppsScript && (product.type === "google_sheets" || !!product.sheetUrl);
     var isCombo = product.categoryId === "combo" || product.type === "combo";
@@ -2657,12 +2668,16 @@ function escapeHtml(value) {
     var discountBadgeHtml = hasDiscount
       ? '<span class="product-thumb-discount-tag">-' + discountPercent + '%</span>'
       : '';
+    var pinBadgeHtml = isPinned
+      ? '<span class="product-thumb-pin-tag" title="Sản phẩm nổi bật được ghim">📌 Nổi bật</span>'
+      : '';
 
     var cardImg = product.previewImageUrl || product.thumbnailUrl;
     if (cardImg) {
       return (
         '<div class="product-thumb" style="background-image:url(&quot;' + escapeHtml(cardImg) + '&quot;);">' +
           '<span class="product-type-badge' + typeClass + '">' + typeLabel + '</span>' +
+          pinBadgeHtml +
           discountBadgeHtml +
         '</div>'
       );
