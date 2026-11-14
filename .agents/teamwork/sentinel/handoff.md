@@ -1,70 +1,70 @@
-# BÁO CÁO BÀN GIAO SENTINEL (HANDOFF REPORT)
-## GIÁM SÁT & HOÀN TẤT ĐỢT TINH CHỈNH: QUẢN LÝ CÔNG VIỆC TEAM & TIẾN ĐỘ DỰ ÁN 3.2
-
-- **Agent:** Project Sentinel
-- **Mục tiêu:** Giám sát quy trình tinh chỉnh toàn diện `PROJECTS_WEBAPPS/QuanLyCongViecTeam_Index.html` giải quyết triệt để 5 vấn đề cốt lõi, duy trì crons kiểm tra tiến độ/sống còn, và kích hoạt kiểm định độc lập Victory Auditor.
-- **Thời gian:** 2026-11-12T15:26:00Z
-- **Phán quyết cuối cùng:** **VICTORY CONFIRMED**
+# BÁO CÁO BÀN GIAO SENTINEL (SENTINEL HANDOFF REPORT)
+**Nhiệm vụ**: Tối ưu hóa UI/UX và logic luồng mã giảm giá (Coupon Flow) tại trang thanh toán (#thanh-toan) của File Đi Làm
+**Thời gian**: 2026-11-14T20:18:00Z
+**Trạng thái**: VICTORY CONFIRMED
 
 ---
 
-## 1. OBSERVATION (QUAN SÁT THỰC NGHIỆM)
-1. **Lộ trình điều hướng (Routing)**:
-   - Yêu cầu người dùng gắn tag `[skip-interview]` được ghi nhận chuẩn xác vào `ORIGINAL_REQUEST.md`.
-   - Sentinel đã điều hướng chính xác vào lộ trình **General** (`teamwork_orchestrator`).
-2. **Quy trình lặp (2-Iteration Lifecycle)**:
-   - **Iteration 1**:
-     - 3 Explorers khảo sát độc lập (Full-width canvas, Calendar sync UX, Tab HDSD flat guide, Icon pills, Node.js testing).
-     - Worker `worker_refine` áp dụng 5 hạng mục tinh chỉnh.
-     - Reviewer 1 & 2 phê duyệt APPROVE.
-     - Challenger 1 & 2 yêu cầu REQUEST_CHANGES đối với 3 điểm biên (emoji ⏳ trong nút lưu modal, re-entrancy lock cho nút sync header, alias `App.navigate`).
-     - Auditor 1 xác nhận tính toàn vẹn CLEAN.
-     - Orchestrator đánh giá Gate 1: FAIL để chuyển sang Iteration 2.
-   - **Iteration 2**:
-     - Worker `worker_patch` xử lý triệt để 3 điểm biên của Challenger.
-     - Challenger `challenger_final` kiểm thử độc lập 50 assertions đạt 100% PASS (APPROVE).
-     - Orchestrator đánh giá Gate 2: PASS và tuyên bố hoàn thành.
-3. **Kiểm định độc lập sau chiến thắng (Independent Victory Audit)**:
-   - Sentinel đã kích hoạt `teamwork_victory_auditor` độc lập hoàn toàn với đội ngũ thực thi.
-   - Victory Auditor chạy `independent_victory_auditor_suite.js` (33 assertions) cùng 4 bộ test khác, xác nhận 100% PASS, 0 errors, 0 warnings.
-   - Phán quyết chính thức: **VICTORY CONFIRMED**.
-4. **Vệ sinh tài nguyên (Resource Cleanup)**:
-   - Hủy bỏ toàn bộ 2 Crons (`manage_task` kill task-30 và task-32).
-   - Giải phóng toàn bộ Subagents (`manage_subagents` kill_all).
+## 1. Observation (Quan sát thực nghiệm)
+- **Tập tin thay đổi trực tiếp**:
+  - `index.html`: Tái cấu trúc khu vực mã giảm giá (#thanh-toan) thành kiến trúc 3 thành phần: thanh trạng thái mã đã áp dụng (`#checkoutAppliedCouponBar`), text link phẳng tinh tế (`#btnTogglePromoForm` — "Bạn có mã ưu đãi?"), và khối mở rộng (`#checkoutPromoCollapseContent`) chứa form nhập mã riêng (`#privateCouponForm`) kèm danh sách mã.
+  - `storefront.css`: Thêm kiểu dáng chuẩn Fintech tối giản, tông màu Emerald Mint (`#059669`), surface nhạt (`#f0fdf4`), border thanh nhã (`#a7f3d0`), zero emoji, hiệu ứng chuyển động trượt mở mượt mà.
+  - `storefront.js`:
+    - `findBestEligibleCoupon(coupons, subtotal)`: Thuật toán chọn mã giảm sâu nhất có min_order thỏa mãn đơn hàng, ưu tiên mã thương hiệu `FILEDILAM`.
+    - `autoApplyBestCouponIfEligible()`: Tự động kích hoạt khi vào trang `#thanh-toan`, trừ tiền chiết khấu tức thì không cần click chuột.
+    - `handleDeselectAppliedCoupon()`: Xử lý nút "Bỏ chọn", lưu cờ `filedilam_user_deselected_coupon: 'true'` vào `sessionStorage` để không tự động áp lại trong cùng phiên.
+    - `applyCheckoutCoupon(code)`: Hỗ trợ mã chiến dịch riêng (`TRIAN20`), vệ sinh ký tự dấu ngoặc kép, an toàn với `CSS.escape`, xóa cờ hủy session khi người dùng chủ động áp mã.
+    - `makeLocalVietQr(order, account, owner)`: Tạo mã VietQR EMVCo với Tag 54 đúng số tiền thực trả sau giảm giá.
+    - `invalidateActiveOrderOnCartOrCouponChange()`: Tự động xóa order cũ khi giỏ hàng hoặc mã giảm giá thay đổi, tránh khách quét nhầm số tiền cũ.
+- **Kết quả kiểm thử độc lập**:
+  - Toàn bộ 8 bộ test (`node -c storefront.js`, `test_coupon_unit.js`, `verify_m1_dom_chrome.js`, `e2e_coupon_flow.js`, `adversarial_coupon_stress.js`, `test_challenger_2_payment_backend.js`, `adversarial_recheck_fuzz.js`, `reproduce_css_selector_injection.js`) thực thi độc lập và đều vượt qua 100% với exit code 0.
 
 ---
 
-## 2. LOGIC CHAIN (CHUỖI SUY LUẬN KỸ THUẬT)
-1. Mục tiêu ban đầu yêu cầu giải quyết 5 vấn đề cụ thể trên `QuanLyCongViecTeam_Index.html` mà không làm thay đổi hợp đồng backend trong `QuanLyCongViecTeam_Code.gs`.
-2. Kiểm tra Git diff xác nhận tệp backend `QuanLyCongViecTeam_Code.gs` có 0 dòng thay đổi (bảo toàn 100% backend contract và 8 hàm RPC).
-3. Tệp frontend `QuanLyCongViecTeam_Index.html` đã được chỉnh sửa chuẩn xác:
-   - Xóa bỏ toàn bộ `max-w-7xl` và `mx-auto`, áp dụng layout 100% full-width tràn viền (`w-full px-4 lg:px-8 py-6`).
-   - Tách nút Calendar Sync ra khỏi `<nav>` thành Action block chuyên dụng với hiệu ứng spin đồng bộ và khóa nút khi gọi RPC.
-   - Đại tu toàn diện Tab HDSD thành Sổ tay vận hành 5 phân hệ phẳng, FAQ phẳng không dùng khung hộp card dày, khối hỗ trợ kỹ thuật Slate-900 phẳng với 2 nút CTA chuẩn chiều cao 46px.
-   - Khử sạch 100% icon pills, avatar pastel bo tròn và emojis (bao gồm cả emoji ⏳).
-   - Bổ sung `App.navigate(tabId)` đảm bảo chuyển tab không có Dead Click.
-4. Kiểm định độc lập từ `teamwork_victory_auditor` với kết quả VICTORY CONFIRMED là điều kiện tiên quyết và đầy đủ để báo cáo thành công lên cấp trên.
+## 2. Logic Chain (Chuỗi lập luận kỹ thuật)
+1. **R1 — Tự động áp mã tốt nhất (Auto-Apply Best Deal)**:
+   - Khi giỏ hàng đủ điều kiện (VD: >= 20.000 đ), vào trang thanh toán hệ thống tự tìm mã ưu đãi nhất và áp dụng ngay.
+   - Dòng giảm giá và tổng tiền thanh toán hiển thị số tiền trừ ngay lập tức.
+   - Khi bấm "Bỏ chọn", `sessionStorage` ghi nhớ lựa chọn này của khách, đảm bảo khách chuyển qua lại giữa các màn hình trong cùng phiên không bị ép áp mã lại.
+2. **R2 — Thu gọn giao diện khi chưa đủ điều kiện hoặc dùng mã riêng (Private Voucher)**:
+   - Khi chưa đủ điều kiện hoặc chưa có mã công khai, toàn bộ danh sách mã được ẩn đi để chống phân tâm và giảm tỷ lệ bỏ giỏ hàng.
+   - Chỉ hiển thị text link phẳng "Bạn có mã ưu đãi?". Khi bấm vào, form mở rộng bung mở mượt mà, cho phép nhập mã riêng (CSKH, Affiliate, Livestream) hoặc chọn mã.
+3. **R3 — Tương thích VietQR & Firestore**:
+   - Thư viện `jsqr` đọc trực tiếp ma trận Canvas QR: Tag 54 ghi nhận chính xác 100% số tiền sau chiết khấu.
+   - Đơn hàng gửi về Firestore ghi nhận đầy đủ mã giảm giá, số tiền giảm và số tiền thanh toán thực tế, thỏa mãn kiểm tra toàn vẹn backend.
+   - Lỗ hổng cú pháp selector do ký tự ngoặc kép được khắc phục triệt để bằng `CSS.escape` và loại bỏ quote thừa.
 
 ---
 
-## 3. CAVEATS (ĐIỀU KIỆN BIÊN)
-1. Tệp backend `QuanLyCongViecTeam_Code.gs` không bị chỉnh sửa, đảm bảo tương thích 100% với Google Apps Script deployment hiện tại.
-2. Bản nâng cấp đã được đóng dấu nhận diện trực quan `Bản 3.2` trên Header Topbar và `Phiên bản 3.2 (Active)` tại chân Sidebar để chống lưu cache bản cũ khi người dùng mở Web App.
+## 3. Caveats (Lưu ý vận hành)
+- Headless Chrome cần được đóng sạch sau các phiên test để tránh chiếm dụng debug port khi chạy nhiều lần liên tiếp.
+- Mọi logic tính toán giảm giá phía client đều đồng bộ với logic xác thực tại Cloud Functions `promotions.py`.
 
 ---
 
-## 4. CONCLUSION (KẾT LUẬN)
-- Đợt tinh chỉnh `PROJECTS_WEBAPPS/QuanLyCongViecTeam_Index.html` đã hoàn tất 100% với chất lượng vượt chuẩn `AGENTS.md`.
-- Toàn bộ 5 yêu cầu từ `ORIGINAL_REQUEST.md` đã được nghiệm thu độc lập với phán quyết **VICTORY CONFIRMED**.
-- Dự án sẵn sàng bàn giao cho người dùng cuối.
+## 4. Conclusion (Kết luận)
+- Đội ngũ đã hoàn thành 100% các yêu cầu R1, R2, R3 từ `ORIGINAL_REQUEST.md`.
+- Đã qua kiểm tra độc lập 3 pha từ Victory Auditor với kết quả: **VICTORY CONFIRMED**.
 
 ---
 
-## 5. VERIFICATION METHOD (LỆNH TÁI KIỂM TRA)
-- Cú pháp và kiểm thử độc lập:
-  ```powershell
-  node tests/independent_victory_auditor_suite.js
-  node tests/test_challenger_final_verification.js
-  node tests/verify_all_syntax.cjs
-  ```
-- Kết quả: 100% PASS, 0 errors, 0 warnings.
+## 5. Verification Method (Phương pháp kiểm chứng)
+```bash
+# 1. Kiểm tra cú pháp JavaScript
+node -c storefront.js
+
+# 2. Kiểm thử Unit logic Coupon
+node tests/test_coupon_unit.js
+
+# 3. Kiểm thử DOM Headless Chrome
+node tests/verify_m1_dom_chrome.js
+
+# 4. Kiểm thử toàn diện End-to-End luồng thanh toán VietQR & Firestore
+node tests/e2e_coupon_flow.js
+
+# 5. Kiểm thử đối kháng Fuzzing & Stress Test
+node tests/adversarial_coupon_stress.js
+node tests/test_challenger_2_payment_backend.js
+node tests/adversarial_recheck_fuzz.js
+node tests/reproduce_css_selector_injection.js
+```

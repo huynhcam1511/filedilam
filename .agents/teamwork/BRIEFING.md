@@ -1,13 +1,13 @@
-# BRIEFING — 2026-11-14T06:52:00Z
+# BRIEFING — 2026-11-14T18:48:00Z
 
 ## Mission
-Orchestrate end-to-end automation flow for File Đi Làm system (instant payment alert, 10-15m pending reminder, 1-touch Zalo links, automated verification suite).
+Execute Coupon Flow optimization at checkout (#thanh-toan) with Auto-Apply Best Deal, Private Voucher expandable form, VietQR/Firestore compatibility, and automated E2E test suite.
 
 ## 🔒 My Identity
 - Archetype: sentinel
 - Working directory: c:\Users\zit\OneDrive\Tài liệu\ANTIGRAVITY\FILE_DI_LAM_MVP\.agents\teamwork
-- Orchestrator: a772ff51-89b1-4b40-9be4-120e7f473ce7 (completed)
-- Victory Auditor: df2bb40b-438a-4cec-958a-fba6d6ecbf84 (completed)
+- Orchestrator: 752afa3b-cb8a-446d-9b2d-cacb91810c39
+- Victory Auditor: 7decf515-e2f5-458d-8c70-baea72be7728
 
 ## 🔒 Key Constraints
 - No technical decisions — relay only
@@ -17,20 +17,24 @@ Orchestrate end-to-end automation flow for File Đi Làm system (instant payment
 - Target files: functions/main.py, admin.html, admin.js
 - Admin recipient: huynhkiencam151102@gmail.com
 - Automated verification suite with 100% assertions required
+- Checkout coupon flow: Auto-apply best deal without manual click
+- Remember manual coupon deselect in current session (prevent immediate re-apply)
+- Ineligible or private voucher state: compact text link "Bạn có mã ưu đãi?" expanding on demand
+- Full compatibility with VietQR payment amount and Firestore order recording
+- Automated E2E verification test suite covering all voucher scenarios
 
 ## User Context
-- **Last user request**: Approved task prompt received for production automation flow.
+- **Last user request**: Approved task prompt received for Coupon Flow optimization at checkout (#thanh-toan).
 - **Pending clarifications**: none
 - **Delivered results**:
-  - Instant admin payment success email on SePay webhook (R1)
-  - Scheduled 10-15m PENDING order reminder job with VietQR, deduplication, and admin alert (R2)
-  - 1-tap Zalo links integrated across email templates and admin interface (R3)
-  - 100% passing automated test suite with 54 tests across workspace (R4)
+  - R1: Auto-apply best deal algorithm on checkout open, zero-click total discount calculation, applied badge with one-click deselect, and `sessionStorage` memory preventing re-apply in same session.
+  - R2: Collapsible minimalist text link "Bạn có mã ưu đãi?" expanding smoothly to secret voucher input form and selection list.
+  - R3: Verified VietQR EMVCo Tag 54 exact dynamic transfer amount, Firestore order payload compatibility, and 8 independent automated test suites passing with 100% assertions.
 
 ## Project Status
 - **Phase**: complete
 - **Route**: General (teamwork_orchestrator)
-- **Rationale**: Multi-part full-stack SWE task completed and independently verified.
+- **Rationale**: Multi-requirement full-stack SWE feature completed and verified with VICTORY CONFIRMED.
 
 ## Victory Audit Status
 - **Triggered**: yes
@@ -39,9 +43,9 @@ Orchestrate end-to-end automation flow for File Đi Làm system (instant payment
 
 ## Artifact Index
 - .agents/teamwork/ORIGINAL_REQUEST.md — Authoritative user intent record
-- .agents/teamwork/orchestrator/handoff.md — Orchestrator comprehensive delivery report
-- .agents/teamwork/victory_auditor_auto_1/handoff.md — Independent victory audit report
-- functions/main.py — Backend webhooks, scheduled reminder function, and email templates
-- admin.html — Admin interface with 1-tap Zalo button CSS and markup
-- admin.js — Admin interface logic with phone normalization and Zalo links
-- tests/test_automation_suite.py — Independent hermetic test suite (14/14 tests passing)
+- .agents/teamwork/orchestrator_coupon/handoff.md — Orchestrator completion report
+- .agents/teamwork/victory_auditor_coupon_1/handoff.md — Independent post-victory audit report
+- storefront.js — Checkout coupon logic, auto-apply, session tracking, and VietQR generation
+- index.html — Checkout (#thanh-toan) markup and coupon UI styling
+- storefront.css — Fintech styling for coupon badges and collapsible drawer
+- tests/e2e_coupon_flow.js — End-to-end automated verification suite (Canvas QR decode & Firestore assertions)

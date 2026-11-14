@@ -1,46 +1,41 @@
 # Original User Request
 
-## Initial Request — 2026-11-14T13:35:49Z
+## Initial Request — 2026-11-14T18:48:34Z
 
-Khắc phục các vi phạm chuẩn STANDARDS_TEMPLATE/AGENTS_MASTER.md trong giải pháp Quản Lý Công Việc Team tại các file PROJECTS_WEBAPPS/QuanLyCongViecTeam_Code.gs và PROJECTS_WEBAPPS/QuanLyCongViecTeam_Index.html.
+Tối ưu hóa UI/UX và logic luồng mã giảm giá (Coupon Flow) tại trang thanh toán (#thanh-toan) của File Đi Làm: tự động áp mã tốt nhất khi đủ điều kiện, thu gọn form nhập voucher khi chưa đủ điều kiện hoặc dùng mã riêng, và đảm bảo tương thích toàn diện với luồng thanh toán VietQR và Firestore.
 
 Working directory: c:\Users\zit\OneDrive\Tài liệu\ANTIGRAVITY\FILE_DI_LAM_MVP
 Integrity mode: development
 
 ## Requirements
 
-### R1. Chuẩn hóa ô nhập ngày tháng sang định dạng Việt Nam (dd/mm/yyyy)
-Sửa toàn bộ các ô nhập ngày tháng vi phạm định dạng Mỹ mm/dd/yyyy sang chuẩn Việt Nam dd/mm/yyyy trên toàn bộ giao diện Web App (sử dụng input date có mặt nạ định dạng tự động hoặc Flatpickr format dd/mm/yyyy do đội ngũ kỹ thuật quyết định giải pháp tối ưu).
+### R1. Tự động áp dụng mã giảm giá tốt nhất khi đủ điều kiện (Auto-Apply Best Deal)
+Khi giỏ hàng của khách đủ điều kiện của một mã giảm giá công khai (ví dụ đơn >= 20.000 đ đủ điều kiện mã FILEDILAM giảm 20%), hệ thống tự động áp mã giảm giá tốt nhất ngay khi vào trang thanh toán (#thanh-toan). Dòng giảm giá và tổng thanh toán tự động trừ tiền ngay, không bắt khách phải tự tay click 'Chọn mã'. Nút mã hiển thị trạng thái đã áp dụng kèm nút Bỏ chọn nếu khách muốn hủy; khi khách chủ động bấm Bỏ chọn, hệ thống ghi nhớ trạng thái này trong phiên hiện tại để không tự động áp lại ngay lập tức.
 
-### R2. Xây dựng Module Danh Mục Hệ Thống (Master Catalogs)
-Xây dựng Module Danh Mục Hệ Thống ở Tầng 3 (tab-catalogs) kết nối với tab DB_DanhMuc của Google Sheets để quản trị động Phòng Ban, Mức Độ Ưu Tiên, Trạng Thái, Cấp Bậc (hỗ trợ xem, thêm mới, chỉnh sửa, cập nhật danh mục).
+### R2. Thu gọn giao diện mã giảm giá khi chưa đủ điều kiện hoặc dùng mã riêng (Private / Secret Voucher)
+Không bày sẵn cả khối danh sách mã khi đơn chưa đủ điều kiện hoặc khi không có mã công khai, tránh gây phân tâm hay tăng tỷ lệ bỏ giỏ hàng (Cart Abandonment). Thay vào đó, hiển thị một text link nhỏ gọn phẳng, tinh tế: "Bạn có mã ưu đãi?". Khi khách click vào text link "Bạn có mã ưu đãi?", bung nhẹ form/danh sách để nhập mã ưu đãi riêng (dành cho mã tặng qua Zalo, Livestream, Affiliate hoặc mã CSKH) hoặc chọn mã.
 
-### R3. Động hóa dropdown trong các Form
-Động hóa toàn bộ các dropdown chọn Phòng ban, Trạng thái, Ưu tiên trong Form Dự Án, Form Task, Form Nhân Sự lấy dữ liệu từ AppState.data.taxonomy thay vì hardcode.
-
-### R4. Đóng dấu phiên bản v3.5, kiểm thử cú pháp và đồng bộ GitHub
-Đóng dấu hiển thị Phiên bản 3.5 (Active) tại Header Topbar và Sidebar footer, kiểm thử cú pháp đảm bảo 0 lỗi syntax/runtime trên Code.gs và Index.html, sau đó commit thay đổi và git push trực tiếp lên nhánh hiện tại của remote repository.
+### R3. Kiểm thử toàn diện và tương thích luồng thanh toán VietQR và Firestore
+Kiểm thử toàn diện và kiểm tra tính tương thích với toàn bộ luồng thanh toán VietQR (mã QR, số tiền chuyển khoản chính xác sau giảm giá, nội dung chuyển khoản) và ghi nhận đơn hàng lên Firestore. Đội ngũ tự viết script kiểm thử tự động / end-to-end để xác minh tính tương thích và vận hành chính xác của toàn bộ luồng.
 
 ## Verification Resources
-- Quy chuẩn AGENTS.md tại thư mục gốc repository.
-- Kiểm tra cú pháp tự động (Node.js syntax check với `node -c`) cho backend Apps Script (`PROJECTS_WEBAPPS/QuanLyCongViecTeam_Code.gs`) và các khối script trong frontend (`PROJECTS_WEBAPPS/QuanLyCongViecTeam_Index.html`).
+- Script kiểm thử tự động / end-to-end do đội ngũ xây dựng để mô phỏng và xác minh các kịch bản giỏ hàng (đủ điều kiện auto-apply, chưa đủ điều kiện, nhập mã private, hủy mã) cùng luồng tạo mã VietQR và ghi đơn hàng Firestore.
+- Mã nguồn hiện tại của trang thanh toán (`index.html`, `storefront.js`, `firebase-config.js`).
 
 ## Acceptance Criteria
 
-### Date Input Formatting
-- [ ] 100% các ô nhập liệu ngày tháng trong tất cả các form (Task, Dự Án, v.v.) hiển thị và nhận giá trị theo định dạng `dd/mm/yyyy`.
-- [ ] Không còn ô nhập ngày tháng nào hiển thị định dạng mặc định `mm/dd/yyyy` của trình duyệt.
+### Auto-Apply Coupon Flow
+- [ ] Khi giỏ hàng có tổng tiền đạt điều kiện áp dụng mã công khai, mã giảm giá tốt nhất được tự động áp dụng ngay khi chuyển sang trang thanh toán (#thanh-toan).
+- [ ] Dòng giảm giá và tổng tiền thanh toán cuối cùng tự động hiển thị số tiền đã trừ ngay khi trang thanh toán được tải, không đòi hỏi người dùng phải bấm 'Chọn mã'.
+- [ ] Nút/thẻ voucher hiển thị rõ trạng thái đã áp dụng cùng nút hoặc thao tác "Bỏ chọn" cho phép hủy mã.
+- [ ] Khi người dùng bấm "Bỏ chọn" để hủy mã đã auto-apply, hệ thống ghi nhớ trạng thái này trong phiên làm việc hiện tại và không tự động áp lại mã đó trong cùng phiên.
 
-### Master Catalogs Module (tab-catalogs)
-- [ ] Tab Danh mục Hệ thống xuất hiện tại Tầng 3 trên menu điều hướng của Web App.
-- [ ] Giao diện tab-catalogs cho phép quản trị 4 nhóm danh mục: Phòng Ban, Mức Độ Ưu Tiên, Trạng Thái, Cấp Bậc.
-- [ ] Các thao tác thêm, sửa, cập nhật danh mục gửi yêu cầu đồng bộ chính xác về tab `DB_DanhMuc` trên Google Sheets thông qua Google Apps Script backend.
+### Private Voucher & Ineligible State UI/UX
+- [ ] Khi giỏ hàng chưa đủ điều kiện của bất kỳ mã công khai nào hoặc không có mã công khai hợp lệ, khối danh sách mã không hiển thị mặc định mà chỉ hiển thị text link phẳng, nhỏ gọn: "Bạn có mã ưu đãi?".
+- [ ] Khi người dùng click vào "Bạn có mã ưu đãi?", form nhập mã ưu đãi riêng và/hoặc danh sách voucher bung mở nhẹ nhàng, cho phép nhập mã chiến dịch riêng (Zalo, Livestream, Affiliate, CSKH) hoặc chọn mã.
+- [ ] Khi người dùng nhập một mã ưu đãi riêng hợp lệ và xác nhận, hệ thống áp dụng giảm giá thành công và cập nhật lại dòng giảm giá cùng tổng thanh toán.
 
-### Dynamic Dropdowns
-- [ ] Toàn bộ dropdown Phòng ban, Trạng thái, Ưu tiên trong Form Dự Án, Form Task và Form Nhân Sự lấy danh sách tùy chọn động từ `AppState.data.taxonomy`.
-- [ ] Khi thay đổi hoặc bổ sung danh mục mới trong `tab-catalogs`, các dropdown tương ứng cập nhật danh sách tùy chọn mà không cần sửa code.
-
-### Version Stamping & Quality Assurance
-- [ ] Huy hiệu phiên bản trên thanh Header Topbar và chân Sidebar hiển thị chính xác `Bản 3.5 (Active)`.
-- [ ] Kiểm tra cú pháp tự động bằng Node.js (`node -c`) đối với `PROJECTS_WEBAPPS/QuanLyCongViecTeam_Code.gs` và mã JavaScript trong `PROJECTS_WEBAPPS/QuanLyCongViecTeam_Index.html` trả về 0 lỗi.
-- [ ] Tất cả các thay đổi được tạo git commit và push thành công lên nhánh hiện tại của GitHub remote repository.
+### VietQR & Firestore Compatibility
+- [ ] Mã VietQR sinh ra trên giao diện thanh toán thể hiện chính xác số tiền cần chuyển khoản sau khi đã trừ giảm giá của mã voucher.
+- [ ] Thông tin đơn hàng lưu vào Firestore ghi nhận đầy đủ và chính xác: mã voucher đã dùng, số tiền giảm giá và số tiền thanh toán thực tế.
+- [ ] Script kiểm thử tự động / end-to-end thực thi thành công, bao phủ cả hai kịch bản (đủ điều kiện auto-apply và nhập mã private) với kết quả kiểm tra VietQR và Firestore đều đạt.

@@ -1,62 +1,54 @@
-# BRIEFING — 2026-11-09T13:15:00Z
+# BRIEFING — 2026-11-14T19:38:00Z
 
 ## Mission
-Milestone 2 Completed: Refactor CONGNO_Index.html into a Monolithic Flat Single-File SPA matching TAISAN_Index.html golden standard, and upgrade CONGNO_Code.gs with missing RPC handlers (deleteThanhToan, saveDanhMuc) and single visible tab sheet protection.
+Construct and execute a comprehensive automated End-to-End test suite (`tests/e2e_coupon_flow.js`) using Node.js, Chrome Headless via CDP WebSocket, and `jsqr` covering all 5 Milestone M2 scenarios for VietQR, Firestore compatibility, and Coupon UI/UX flow.
 
 ## 🔒 My Identity
-- Archetype: teamwork_worker
-- Roles: implementer, qa, specialist
+- Archetype: Test Writer
+- Roles: specialist, qa
 - Working directory: c:\Users\zit\OneDrive\Tài liệu\ANTIGRAVITY\FILE_DI_LAM_MVP\.agents\teamwork\worker_m2\
-- Original parent: 5762d32b-3f13-408e-a713-64266374f48b
-- Milestone: Milestone 2 — Monolithic Flat SPA Implementation
+- Original parent: 752afa3b-cb8a-446d-9b2d-cacb91810c39
+- Milestone: Milestone M2: VietQR & Firestore Compatibility & Automated E2E Testing
 
 ## 🔒 Key Constraints
-- Strict adherence to AGENTS.md: Fintech aesthetics (#059669 / #10b981), mobile-first, no child emojis, no card/pill overuse, flat master tables, bottom sheets, single visible tab rule for Google Sheets.
-- Do not cheat: Genuine implementations only, real state and logic, real DOM tests.
-- Title: `<title>QUẢN LÝ CÔNG NỢ KHÁCH HÀNG & NCC — WEB APP v1.0 — FILE ĐI LÀM</title>`
-- 7 standardized Tab IDs: `tab-dashboard`, `tab-transactions`, `tab-invoices`, `tab-partners`, `tab-categories`, `tab-settings`, `tab-help`.
-- Comprehensive seed data embedded so initial render is instantaneous.
-- Flat monolithic architecture matching `TAISAN_Index.html` standard.
-- Chart.js lifecycle management via `let ChartInstances = {}` with safe `.destroy()`.
-- No phantom templates (`template#tpl-mod-dashboard`).
-- Drawer leak fix with `hidden` and transition handling.
-- `CONGNO_Code.gs`: `deleteThanhToan(maTT)`, `saveDanhMuc(payload)`, `lockAndHideDatabaseSheets()`.
+- DO NOT CHEAT. All implementations must be genuine. DO NOT hardcode test results, create dummy/facade implementations, or circumvent the intended task.
+- Test Writer role: modify test code only, never implementation code. Escalate any bugs found to orchestrator.
+- Use Node.js, Chrome Headless via CDP WebSocket, and global jsqr at `C:\Users\zit\AppData\Roaming\npm\node_modules\jsqr`.
+- Cover 5 scenarios:
+  1. Auto-Apply Best Deal (F1, F2, F3)
+  2. Deselect & Single-Session Memory (F3, F4)
+  3. Collapsible Ineligible UI & Secret/Private Voucher (F5, F6)
+  4. VietQR Generation & Tag 54 Exact Amount Verification (F7)
+  5. Firestore Order Payload Schema Verification (F8)
 
 ## Current Parent
-- Conversation ID: 5762d32b-3f13-408e-a713-64266374f48b
-- Updated: 2026-11-09T13:15:00Z
+- Conversation ID: 752afa3b-cb8a-446d-9b2d-cacb91810c39
+- Updated: not yet
 
 ## Task Summary
-- **What to build**: Full monolithic SPA for Debt Management (`CONGNO_Index.html`) and backend Apps Script (`CONGNO_Code.gs`).
-- **Success criteria**: 7 tabs operational, zero console errors, 8 charts functioning with lifecycle cleanups, drawer & modal functional, seed data instant render, backend RPCs implemented, 100% automated test pass (57/57 tests passed).
-- **Interface contracts**: PROJECT.md / AGENTS.md / analysis.md blueprint.
-- **Code layout**: `STANDARDS_TEMPLATE/CONGNO_Index.html`, `STANDARDS_TEMPLATE/CONGNO_Code.gs`.
+- **What to build**: `tests/e2e_coupon_flow.js` covering the full coupon checkout flow, VietQR EMVCo decode, Firestore order payload verification.
+- **Success criteria**: All 5 scenarios pass genuinely with deep assertions on DOM, EMVCo tags (Tag 54, Tag 62.08), and intercepted Cloud Functions `/orders` payload.
+- **Interface contracts**: PROJECT.md, ORIGINAL_REQUEST.md.
+- **Code layout**: `tests/e2e_coupon_flow.js`, handoff in `.agents/teamwork/worker_m2/handoff.md`.
 
 ## Key Decisions Made
-- Standardized tab container and button IDs with prefix `tab-` across desktop sidebar, mobile dock, and container panes.
-- Embedded full seed data matching Section 5.1 of `analysis.md` so the application renders immediately with rich data upon opening.
-- Flattened the 7 modules into direct functions: `renderDashboard()`, `renderTransactions()`, `renderInvoices()`, `renderPartners()`, `renderCategories()`, `renderSettings()`, `renderHelp()`.
-- Maintained backward compatibility bridge objects `window.ModuleDashboard`, `window.ModuleTransactions`, etc. to guarantee zero runtime errors even if legacy code references them.
-- Fixed drawer leak by initializing `<aside id="action-drawer">` with `hidden` and managing class transitions safely with fallback for environments lacking `requestAnimationFrame`.
-- Added missing RPCs `deleteThanhToan(maTT)` (with invoice balance restoration) and `saveDanhMuc(payload)` wrapped with `LockService` to `STANDARDS_TEMPLATE/CONGNO_Code.gs`.
+- Implemented `tests/e2e_coupon_flow.js` using Node.js, Chrome Headless via CDP WebSocket, and `jsqr`.
+- Created native EMVCo parser for TLV tags (Tag 54 amount, Tag 62.08 transfer note/memo).
+- Extracted canvas image data from browser via chunked base64 conversion and decoded with `jsqr`.
+- Verified mathematical invariant `amount == subtotal - discount_amount` matching backend `promotions.py:117`.
+- Verified both auto-applied `FILEDILAM` and private voucher `TRIAN20` with VietQR Tag 54 and Firestore payload assertions.
 
 ## Artifact Index
-- `STANDARDS_TEMPLATE/CONGNO_Index.html` — Monolithic Flat SPA
-- `STANDARDS_TEMPLATE/CONGNO_Code.gs` — Apps Script backend
-- `test_dom_simulation.js` — Automated verification test suite (57 tests passing)
-- `handoff.md` — 5-component handoff report
-
-## Change Tracker
-- **Files modified**:
-  * `STANDARDS_TEMPLATE/CONGNO_Code.gs`: Added `deleteThanhToan(maTT)` with invoice balance rollback, `saveDanhMuc(payload)` with LockService.
-  * `STANDARDS_TEMPLATE/CONGNO_Index.html`: Replaced fragmented nested module objects with monolithic flat architecture, embedded comprehensive seed data, fixed drawer leak, standardized 7 tab IDs and renderers.
-- **Build status**: Pass (Syntax valid, 57/57 automated simulation tests passed)
-- **Pending issues**: None
-
-## Quality Status
-- **Build/test result**: PASS (57/57 tests passed)
-- **Lint status**: Clean
-- **Tests added/modified**: `test_dom_simulation.js` covering syntax, AppState, router, 8 charts, master-tables, drawer, modal, and legacy bridges.
+- `.agents/teamwork/worker_m2/DISPATCH.md` — Dispatch message
+- `.agents/teamwork/worker_m2/BRIEFING.md` — Situational awareness
+- `.agents/teamwork/worker_m2/progress.md` — Liveness & heartbeat
+- `tests/e2e_coupon_flow.js` — Target E2E test file
+- `.agents/teamwork/worker_m2/handoff.md` — Final handoff report
 
 ## Loaded Skills
-- None explicitly requested to load
+- None specified by orchestrator dispatch.
+
+## Quality Status
+- **Build/test result**: `node tests/e2e_coupon_flow.js` passed 100% (exit code 0).
+- **Lint status**: Clean JavaScript syntax (`node -c tests/e2e_coupon_flow.js`).
+- **Tests added/modified**: `tests/e2e_coupon_flow.js` (comprehensive automated E2E test suite).
