@@ -6688,6 +6688,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Hàm xuất chi tiết cho 1 đơn hàng cụ thể đang xem trên Drawer / Inspector
   async function exportSingleOrderDetailToExcel(orderId) {
+    if (_isExporting) return;
+    _isExporting = true;
+    setTimeout(() => { _isExporting = false; }, 2500);
     try {
       showToast('Đang xuất chi tiết đơn hàng #' + orderId + '...');
       await ensureXlsxLibrary();
@@ -6828,6 +6831,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
+  let _isExporting = false;
   function triggerExcelDownload(workbook, fileName) {
     if (typeof XLSX === 'undefined') {
       alert('Thư viện tạo file Excel đang tải, vui lòng thử lại sau 2 giây.');
@@ -6838,6 +6842,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Hàm xuất toàn bộ 5 module ra 1 file Excel Table List đa sheet
   async function exportAllDataToExcel() {
+    if (_isExporting) return;
+    _isExporting = true;
+    setTimeout(() => { _isExporting = false; }, 2500);
     try {
       showToast('Đang tổng hợp dữ liệu toàn bộ phân hệ để xuất Excel...');
       await ensureXlsxLibrary();
@@ -6898,6 +6905,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Hàm xuất riêng từng module
   async function exportOrdersOnlyToExcel() {
+    if (_isExporting) return;
+    _isExporting = true;
+    setTimeout(() => { _isExporting = false; }, 2500);
     try {
       showToast('Đang xuất danh sách đơn hàng...');
       await ensureXlsxLibrary();
@@ -6921,6 +6931,9 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   async function exportProductsOnlyToExcel() {
+    if (_isExporting) return;
+    _isExporting = true;
+    setTimeout(() => { _isExporting = false; }, 2500);
     try {
       showToast('Đang xuất danh sách sản phẩm...');
       await ensureXlsxLibrary();
@@ -6944,6 +6957,9 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   async function exportCouponsOnlyToExcel() {
+    if (_isExporting) return;
+    _isExporting = true;
+    setTimeout(() => { _isExporting = false; }, 2500);
     try {
       showToast('Đang xuất danh sách mã giảm giá...');
       await ensureXlsxLibrary();
@@ -6967,6 +6983,9 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   async function exportPostsOnlyToExcel() {
+    if (_isExporting) return;
+    _isExporting = true;
+    setTimeout(() => { _isExporting = false; }, 2500);
     try {
       showToast('Đang xuất danh sách bài đăng MXH...');
       await ensureXlsxLibrary();
@@ -6990,6 +7009,9 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   async function exportAdsOnlyToExcel() {
+    if (_isExporting) return;
+    _isExporting = true;
+    setTimeout(() => { _isExporting = false; }, 2500);
     try {
       showToast('Đang xuất danh sách chiến dịch quảng cáo...');
       await ensureXlsxLibrary();
@@ -7012,13 +7034,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  // Khởi tạo Event Listeners cho các nút Xuất Excel (Chạy ngay bên trong DOMContentLoaded)
-  document.getElementById('btnExportAllExcel')?.addEventListener('click', exportAllDataToExcel);
-  document.getElementById('btnExportOrdersExcel')?.addEventListener('click', exportOrdersOnlyToExcel);
-  document.getElementById('btnExportProductsExcel')?.addEventListener('click', exportProductsOnlyToExcel);
-  document.getElementById('btnExportCouponsExcel')?.addEventListener('click', exportCouponsOnlyToExcel);
-  document.getElementById('btnExportPostsExcel')?.addEventListener('click', exportPostsOnlyToExcel);
-  document.getElementById('btnExportAdsExcel')?.addEventListener('click', exportAdsOnlyToExcel);
+  // (Xuất Excel: Đã gắn qua thuộc tính onclick trên HTML kèm cờ _isExporting chống tải lặp)
 
   // Gắn ra window để có thể gọi trực tiếp từ console hoặc onclick
   window.exportAllDataToExcel = exportAllDataToExcel;
