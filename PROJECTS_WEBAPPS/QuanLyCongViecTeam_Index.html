@@ -3070,20 +3070,24 @@ window.ModuleTasksGantt = (function() {
         else if (startsBefore) roundedClass = 'rounded-r-lg rounded-l-none';
         else if (endsAfter) roundedClass = 'rounded-l-lg rounded-r-none';
 
+        var deadlineDayFormatted = toDisplayDate(tEnd).substring(0, 5); // VD: 12/11
         var titleTooltip = escapeHtml(tenTask) + ' (' + toDisplayDate(tStart) + ' — ' + toDisplayDate(tEnd) + ')';
 
         html += '<div onclick="ModuleTasksGantt.openGanttTaskPopover(\'' + escapeHtml(maTask) + '\', event)" ' +
                      'style="' + gridSpanStyle + '" ' +
                      'title="' + titleTooltip + '" ' +
-                     'class="absolute inset-y-1.5 ' + roundedClass + ' ' + barBg + ' shadow-xs cursor-pointer select-none overflow-hidden transition-all duration-150 hover:brightness-105 hover:scale-[1.01] hover:shadow-md flex items-center z-10 mx-0.5">' +
+                     'class="absolute inset-y-1.5 ' + roundedClass + ' ' + barBg + ' shadow-xs cursor-pointer select-none overflow-hidden transition-all duration-150 hover:brightness-105 hover:scale-[1.01] hover:shadow-md flex items-center z-10 ml-0.5 mr-1.5">' +
                   '<div class="absolute left-0 top-0 bottom-0 bg-black/20 border-r border-white/40" style="width: ' + tienDo + '%;"></div>' +
                   '<div class="relative z-10 flex items-center justify-between px-2 w-full text-white text-[11px] font-semibold truncate drop-shadow-xs">' +
-                    '<span class="truncate flex items-center gap-1">' +
-                      (startsBefore ? '<span class="text-[9px] opacity-75 font-mono">◀</span>' : '') +
+                    '<span class="truncate flex items-center gap-1 min-w-0">' +
+                      (startsBefore ? '<span class="text-[9px] opacity-75 font-mono shrink-0">◀</span>' : '') +
                       '<span class="truncate">' + escapeHtml(tenTask) + '</span>' +
-                      (endsAfter ? '<span class="text-[9px] opacity-75 font-mono">▶</span>' : '') +
+                      (endsAfter ? '<span class="text-[9px] opacity-75 font-mono shrink-0">▶</span>' : '') +
                     '</span>' +
-                    '<span class="font-mono text-[10px] text-white/90 shrink-0 ml-1.5">' + tienDo + '%</span>' +
+                    '<span class="font-mono text-[10px] text-white/90 shrink-0 ml-1.5 flex items-center gap-1">' +
+                      '<span class="opacity-80 font-normal hidden sm:inline">' + deadlineDayFormatted + '</span>' +
+                      '<span>' + tienDo + '%</span>' +
+                    '</span>' +
                   '</div>' +
                 '</div>';
       }
