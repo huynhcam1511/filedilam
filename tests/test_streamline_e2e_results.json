@@ -1,15 +1,15 @@
 {
-  "timestamp": "2026-11-16T09:28:05.307Z",
+  "timestamp": "2026-11-16T13:22:48.579Z",
   "totalTests": 39,
-  "passedTests": 39,
-  "failedTests": 0,
-  "passRate": "100.0%",
+  "passedTests": 36,
+  "failedTests": 3,
+  "passRate": "92.3%",
   "tierBreakdown": {
     "1": {
       "name": "Tier 1 - DOM & Structure Checks",
       "total": 13,
-      "passed": 13,
-      "failed": 0
+      "passed": 12,
+      "failed": 1
     },
     "2": {
       "name": "Tier 2 - Subpages Existence & Integrity",
@@ -26,8 +26,8 @@
     "4": {
       "name": "Tier 4 - Cart UX, Mobile FAB & Animations",
       "total": 7,
-      "passed": 7,
-      "failed": 0
+      "passed": 5,
+      "failed": 2
     },
     "5": {
       "name": "Tier 5 - VietQR & Payment Integrity",
@@ -41,8 +41,8 @@
       "id": "T1.1",
       "tier": 1,
       "name": "Hero section is completely removed from index.html body",
-      "status": "PASS",
-      "error": null
+      "status": "FAIL",
+      "error": "Found class \"hero-title\" in index.html body - must be removed"
     },
     {
       "id": "T1.2",
@@ -272,15 +272,15 @@
       "id": "T4.4",
       "tier": 4,
       "name": "storefront.css defines keyframes @keyframes cartPopShrinkWiggle",
-      "status": "PASS",
-      "error": null
+      "status": "FAIL",
+      "error": "storefront.css must define @keyframes cartPopShrinkWiggle for cart icon animation"
     },
     {
       "id": "T4.5",
       "tier": 4,
       "name": "storefront.css defines keyframes @keyframes badgeBounceScale",
-      "status": "PASS",
-      "error": null
+      "status": "FAIL",
+      "error": "storefront.css must define @keyframes badgeBounceScale for counter badge animation"
     },
     {
       "id": "T4.6",

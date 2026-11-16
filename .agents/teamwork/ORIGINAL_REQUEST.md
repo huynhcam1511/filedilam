@@ -1,51 +1,45 @@
 # Original User Request
 
-## Approved Task Prompt — 2026-11-16T08:39:05Z
+## Approved Task Prompt — 2026-11-16T13:15:12Z
 
-Tối giản landing page (index.html) thành giao diện tập trung mua hàng ngay: lược bỏ các section rườm rà (Hero, Stats, Steps, Compare, Coupons ngoài trang chủ, FAQ, Custom), đưa Danh mục sản phẩm (Catalog - id="catalog") và Giỏ hàng lên vị trí chính ngay dưới Topbar; tách nội dung FAQ và Dịch vụ thiết kế riêng thành 2 trang con độc lập (faq.html, custom.html); nâng cấp trải nghiệm giỏ hàng với Mobile FAB và bộ hiệu ứng chuyển động Fly-to-Cart, Pop-Shrink, Wiggle, Bounce sinh động.
+Đồng bộ toàn diện website File Đi Làm thành một thể thống nhất giữa các trang (index.html, faq.html, custom.html) theo chuẩn giao diện thương hiệu Fintech cao cấp trong AGENTS.md, loại bỏ mục "Trang chủ" trên navigation bar ở tất cả các trang, thiết kế hoàn thiện chuyên sâu cho các trang con, kiểm tra tính toàn vẹn và deploy lên Firebase Hosting.
 
 Working directory: c:\Users\zit\OneDrive\Tài liệu\ANTIGRAVITY\FILE_DI_LAM_MVP
 Integrity mode: development
 
 ## Requirements
 
-### R1. Tối giản cấu trúc Landing Page (index.html) và đưa Catalog lên vị trí trọng tâm
-Lược bỏ hoàn toàn các section gây phân tâm khỏi index.html: Hero section, Stats-section, Steps-section (Quy trình mua), Compare-compact-section (So sánh kinh tế), landingCouponSection (Khối voucher ở ngoài trang chủ), Faq-section, Custom-clean-section (Thiết kế riêng). Đưa trực tiếp Danh mục sản phẩm (Catalog - id="catalog") và Giỏ hàng lên vị trí chính ngay dưới Topbar để khách hàng vào là có thể chọn sản phẩm và thực hiện mua ngay. Mã ưu đãi (Coupons) được chọn hoặc nhập trực tiếp bên trong Cart Drawer / Checkout Modal; đảm bảo mã nguồn JavaScript (storefront.js) không phát sinh lỗi khi landingCouponSection bị gỡ bỏ (hàm syncLandingCouponTicket có safe null-check).
+### R1. Bỏ chữ "Trang chủ" trên navigation bar ở tất cả các trang
+Loại bỏ liên kết "Trang chủ" khỏi thanh điều hướng (Header Topbar và Mobile Drawer) trên tất cả các trang (`index.html`, `faq.html`, `custom.html`), vì logo File Đi Làm đã đảm nhiệm chức năng liên kết về trang chủ.
 
-### R2. Tách trang con độc lập cho FAQ (faq.html) và Dịch vụ thiết kế riêng (custom.html)
-Chuyển toàn bộ nội dung FAQ (Câu hỏi thường gặp) thành trang con độc lập faq.html với header, footer đồng bộ và nội dung đầy đủ, chuẩn SEO. Chuyển khối "Thiết kế file riêng" thành trang con độc lập custom.html giới thiệu dịch vụ thiết kế theo yêu cầu cùng nút liên hệ tư vấn qua Zalo. Đồng bộ toàn bộ liên kết điều hướng trên Header Topbar, Mobile Nav Drawer và Footer của index.html trỏ chính xác sang faq.html và custom.html.
+### R2. Đồng bộ nhận diện thương hiệu, hệ thống thiết kế và giao diện cốt lõi
+Đồng bộ toàn bộ layout, Header/Topbar, Footer, Typography (Manrope / Plus Jakarta Sans), bảng màu Mint Fintech (`#059669`, `#10b981`, slate tones, border `#e2e8f0`), hệ thống icon Lucide Icons nét mảnh, phong cách thẻ (card styling), và quy chuẩn nút bấm (chiều cao 46px, bo góc `rounded-xl`) xuyên suốt giữa `index.html`, `faq.html`, và `custom.html` theo chuẩn AGENTS.md.
 
-### R3. Nâng cấp trải nghiệm Giỏ hàng và bộ hiệu ứng chuyển động (Animation)
-Giữ luồng mở Cart Drawer / Checkout Modal chỉ khi người dùng click vào icon giỏ hàng. Bổ sung nút Floating Action Button (FAB) Giỏ hàng hình tròn màu Mint ở góc dưới bên phải màn hình Mobile, chỉ hiện khi giỏ hàng có từ 1 sản phẩm trở lên. Khi người dùng bấm "Thêm vào giỏ", kích hoạt đồng bộ các hiệu ứng chuyển động: hiệu ứng bay sản phẩm (Fly-to-Cart) từ thẻ sản phẩm bay cong vào icon giỏ hàng, icon giỏ hàng trên Topbar và nút FAB thực hiện hiệu ứng Pop-Shrink (scale 1.25 -> 0.95 -> 1.0) kết hợp Wiggle nhẹ, cùng badge số lượng nảy sinh động (Bounce).
+### R3. Chia sẻ cấu trúc Layout, Topbar Navigation và Footer chung
+Cả 3 trang (`index.html`, `faq.html`, `custom.html`) chia sẻ cùng một cấu trúc layout, thanh điều hướng Topbar đồng nhất (Logo, "Mẫu File Đi Làm", "Hỏi đáp", "Thiết kế file riêng", icon giỏ hàng, nút menu drawer 3 gạch trên mobile) và chân trang Footer đồng nhất về nhận diện thương hiệu (thông tin liên hệ, mạng xã hội, liên kết dịch vụ, liên kết chính sách).
 
-### R4. Bảo toàn tính toàn vẹn hệ thống và quy chuẩn kỹ thuật
-Tuân thủ nghiêm ngặt các quy chuẩn của dự án trong AGENTS.md. Tuyệt đối không làm gián đoạn hoặc sai lệch luồng thanh toán tự động VietQR, tích hợp SePay và đồng bộ dữ liệu đơn hàng với Firebase Firestore.
+### R4. Thiết kế chỉn chu, có chiều sâu cho trang FAQ và Thiết kế file riêng
+Nâng cấp trang `faq.html` và `custom.html` thành các trang nội dung hoàn chỉnh, có chiều sâu, trải nghiệm như một website SaaS / Fintech thương mại điện tử chuyên nghiệp thực thụ của thương hiệu FILE ĐI LÀM theo quy chuẩn AGENTS.md; tuyệt đối không làm hời hợt hoặc lệch pha về trải nghiệm so với trang chủ.
+
+### R5. Kiểm thử và Triển khai lên Firebase Hosting
+Kiểm tra tính toàn vẹn của các trang, đảm bảo không có lỗi JavaScript console, luồng giỏ hàng và thanh toán hoạt động bình thường, sau đó deploy bản hoàn thiện lên Firebase Hosting (`filedilam.web.app`).
 
 ## Verification Resources
-- Script kiểm thử tự động / end-to-end do đội ngũ tự xây dựng để kiểm tra và xác thực: cấu trúc DOM trang index.html (đã lược bỏ các section không cần thiết, catalog nằm ngay dưới topbar), tính độc lập và điều hướng của faq.html và custom.html, kích hoạt animation và hiển thị FAB Mobile, an toàn không phát sinh lỗi JS trong storefront.js, và luồng tạo mã VietQR / Firestore.
-- Mã nguồn và tài nguyên hiện có của hệ thống (index.html, storefront.js, firebase-config.js, AGENTS.md).
+- Script kiểm thử tự động do đội ngũ xây dựng để kiểm tra và xác thực: tính nhất quán của cấu trúc DOM và CSS giữa 3 trang (Header/Topbar, Footer, không có mục "Trang chủ", logo link về trang chủ), không phát sinh lỗi JavaScript console, hiển thị tốt trên responsive (Desktop & Mobile), và trạng thái triển khai thành công lên Firebase Hosting.
+- Toàn bộ mã nguồn hiện tại của dự án trong `c:\Users\zit\OneDrive\Tài liệu\ANTIGRAVITY\FILE_DI_LAM_MVP` và quy chuẩn thương hiệu trong `AGENTS.md`.
 
 ## Acceptance Criteria
 
-### Landing Page Streamlining & Navigation
-- [ ] Các section Hero, Stats, Steps, Compare-compact, landingCouponSection, FAQ và Custom-clean được gỡ bỏ hoàn toàn khỏi index.html.
-- [ ] Danh mục sản phẩm (id="catalog") hiển thị ngay dưới Topbar trên index.html khi tải trang.
-- [ ] storefront.js và hàm syncLandingCouponTicket hoạt động trơn tru không gây lỗi JavaScript console khi landingCouponSection không tồn tại trên index.html.
-- [ ] Mã ưu đãi (coupons) vẫn hiển thị và áp dụng chính xác bên trong Cart Drawer / Checkout Modal.
-- [ ] Tất cả liên kết FAQ và Thiết kế riêng trên Header Topbar, Mobile Nav Drawer và Footer của index.html trỏ chính xác đến faq.html và custom.html.
+### Navigation & Brand Consistency
+- [ ] Chữ "Trang chủ" được gỡ bỏ khỏi navbar (cả Header Topbar và Mobile Drawer) trên cả `index.html`, `faq.html`, và `custom.html`.
+- [ ] Click vào logo File Đi Làm trên mọi trang đều chuyển hướng chính xác về trang chủ (`index.html`).
+- [ ] Cả 3 trang (`index.html`, `faq.html`, `custom.html`) chia sẻ cùng cấu trúc Header/Topbar và Footer: các liên kết "Mẫu File Đi Làm", "Hỏi đáp", "Thiết kế file riêng", icon giỏ hàng, menu drawer mobile, thông tin liên hệ và chính sách hoạt động chính xác và đồng nhất.
+- [ ] Toàn bộ 3 trang sử dụng đồng nhất Typography (Manrope / Plus Jakarta Sans), bảng màu Mint Fintech (`#059669`, `#10b981`, slate tones, border `#e2e8f0`), Lucide Icons nét mảnh, và quy chuẩn nút bấm (cao 46px, bo góc `rounded-xl`).
 
-### Subpages Creation
-- [ ] File faq.html tồn tại độc lập, có cấu trúc Header và Footer đồng bộ với index.html, nội dung FAQ đầy đủ, accordion đóng/mở mượt mà.
-- [ ] File custom.html tồn tại độc lập, có cấu trúc Header và Footer đồng bộ với index.html, hiển thị dịch vụ thiết kế theo yêu cầu và nút liên kết Zalo hoạt động đúng.
+### Secondary Pages Quality (faq.html & custom.html)
+- [ ] Trang `faq.html` được thiết kế có chiều sâu, nội dung câu hỏi thường gặp đầy đủ, phân loại rõ ràng, giao diện accordion đóng/mở mượt mà theo đúng chuẩn Fintech.
+- [ ] Trang `custom.html` được thiết kế chuyên nghiệp, thể hiện chi tiết dịch vụ thiết kế theo yêu cầu, khối thông tin và bảng quy trình trực quan, nút liên hệ tư vấn rõ ràng.
 
-### Cart Experience & Animation
-- [ ] Cart Drawer / Checkout chỉ trượt mở khi người dùng click vào icon giỏ hàng (hoặc nút FAB).
-- [ ] Nút FAB giỏ hàng màu Mint xuất hiện ở góc dưới bên phải màn hình Mobile khi giỏ hàng có >= 1 sản phẩm, và tự động ẩn khi giỏ hàng rỗng.
-- [ ] Khi click "Thêm vào giỏ", hiệu ứng Fly-to-Cart bay hình ảnh/thẻ sản phẩm cong vào icon giỏ hàng diễn ra mượt mà.
-- [ ] Icon giỏ hàng trên Topbar và FAB thực hiện hiệu ứng Pop-Shrink và Wiggle khi nhận sản phẩm mới.
-- [ ] Badge hiển thị số lượng giỏ hàng thực hiện hiệu ứng Bounce khi cập nhật số lượng.
-
-### System Integrity & Payments
-- [ ] Luồng tạo mã VietQR thanh toán tự động hoạt động chính xác sau khi thêm/sửa/xóa sản phẩm và áp voucher.
-- [ ] Trạng thái đơn hàng và đồng bộ dữ liệu Firestore không bị ảnh hưởng hay phát sinh lỗi.
-- [ ] Script kiểm thử tự động / end-to-end do đội ngũ xây dựng thực thi và xác minh thành công toàn bộ các tiêu chí trên.
+### Verification & Deployment
+- [ ] Script kiểm thử tự động do đội ngũ xây dựng thực thi thành công, xác nhận DOM và CSS đồng bộ giữa các trang, không có lỗi JavaScript console trên cả desktop và mobile.
+- [ ] Toàn bộ website được deploy thành công lên Firebase Hosting (`filedilam.web.app`) và kiểm tra truy cập ổn định trên môi trường live.

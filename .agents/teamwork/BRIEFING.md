@@ -1,33 +1,38 @@
-# BRIEFING — 2026-11-16T08:40:00Z
+# BRIEFING — 2026-11-16T13:16:30Z
 
 ## Mission
-Supervise project orchestration for streamlining landing page, creating subpages, upgrading cart experience, and animations.
+Ensure full design and functional synchronization across all web pages of File Đi Làm (index.html, faq.html, custom.html) under AGENTS.md standards and deploy to Firebase Hosting.
 
 ## 🔒 My Identity
 - Archetype: sentinel
-- Working directory: c:\Users\zit\OneDrive\Tài liệu\ANTIGRAVITY\FILE_DI_LAM_MVP\.agents\teamwork
-- Orchestrator: 5f207323-051b-4a94-9df9-1320bd920f8a
-- Victory Auditor: e187fb00-2952-4427-bea3-2ea09dd85692
+- Working directory: c:\Users\zit\OneDrive\Tài liệu\ANTIGRAVITY\FILE_DI_LAM_MVP\.agents\teamwork\
+- Orchestrator: cc7fc295-69e2-46c3-b66c-b75134c064c7
+- Victory Auditor: [to be spawned on victory claim]
 
 ## 🔒 Key Constraints
 - No technical decisions — relay only
 - Victory Audit is MANDATORY before reporting completion
-- Route: General (teamwork_orchestrator)
-- Must follow AGENTS.md constitution
+- Route to teamwork_orchestrator (General path) as this is a multi-part web application synchronization, enhancement, testing, and deployment task
+- Strict brand consistency with AGENTS.md: Mint Fintech theme, Lucide icons, 46px rounded-xl buttons, zero emoji
+- Remove "Trang chủ" navbar item across all pages (logo links to index.html)
+- Synchronize Header, Footer, Typography, layout, and components across index.html, faq.html, and custom.html
+- Automated verification script required
+- Deploy and verify on Firebase Hosting (filedilam.web.app)
 
 ## User Context
-- **Last user request**: Approved task prompt on streamlining landing page, creating faq.html and custom.html, upgrading cart animations and mobile FAB.
+- **Last user request**: Approved task prompt received. Synchronize index.html, faq.html, custom.html into a cohesive SaaS/Fintech website; remove "Trang chủ" nav link; verify with automated test script; deploy to Firebase Hosting.
 - **Pending clarifications**: none
-- **Delivered results**: none
+- **Delivered results**: [none]
 
 ## Project Status
-- **Phase**: complete
+- **Phase**: in progress
+- **Active Orchestrator**: cc7fc295-69e2-46c3-b66c-b75134c064c7
+- **Routing Decision**: General path -> teamwork_orchestrator (multi-page frontend sync, component restructuring, testing script, and deployment).
 
 ## Victory Audit Status
-- **Triggered**: yes
-- **Verdict**: VICTORY CONFIRMED
+- **Triggered**: no
+- **Verdict**: pending
 - **Retry count**: 0
 
 ## Artifact Index
-- .agents/teamwork/ORIGINAL_REQUEST.md — Authoritative record of user intent
-- .agents/teamwork/BRIEFING.md — Persistent working memory
+- `.agents/teamwork/ORIGINAL_REQUEST.md` — Authoritative approved task prompt
