@@ -55,7 +55,8 @@ var SCHEMA_DU_AN = [
 var SCHEMA_NHAN_SU = [
   'Mã Nhân Sự', 'Họ Và Tên', 'Chức Danh', 'Cấp Bậc', 'Phòng Ban', 
   'Số Điện Thoại', 'Google Email', 'Task Đang Làm', 'Task Hoàn Thành', 
-  'Tỷ Lệ Đúng Hạn %', 'Hiệu Suất Thời Gian %', 'Trạng Thái'
+  'Tỷ Lệ Đúng Hạn %', 'Hiệu Suất Thời Gian %', 'Trạng Thái',
+  'Ngày Vào Làm', 'Kỹ Năng', 'Zalo', 'Ghi Chú'
 ];
 
 var SCHEMA_LICH_LAP_LAI = [
@@ -383,6 +384,10 @@ function mapStaffRow(r, rowIndex) {
   var tyLeDungHan = Number(r[9]) || 100;
   var hieuSuatThoiGian = Number(r[10]) || 100;
   var trangThai = String(r[11] || 'Đang hoạt động').trim();
+  var ngayVaoLam = formatCellDate(r[12]);
+  var kyNang = String(r[13] || '').trim();
+  var zalo = String(r[14] || '').trim();
+  var ghiChu = String(r[15] || '').trim();
 
   return {
     rowIndex: rowIndex,
@@ -398,6 +403,10 @@ function mapStaffRow(r, rowIndex) {
     tyLeDungHan: tyLeDungHan,
     hieuSuatThoiGian: hieuSuatThoiGian,
     trangThai: trangThai,
+    ngayVaoLam: ngayVaoLam,
+    kyNang: kyNang,
+    zalo: zalo,
+    ghiChu: ghiChu,
 
     'Mã Nhân Sự': maNhanSu,
     'Họ Và Tên': hoTen,
@@ -411,6 +420,10 @@ function mapStaffRow(r, rowIndex) {
     'Tỷ Lệ Đúng Hạn %': tyLeDungHan,
     'Hiệu Suất Thời Gian %': hieuSuatThoiGian,
     'Trạng Thái': trangThai,
+    'Ngày Vào Làm': ngayVaoLam,
+    'Kỹ Năng': kyNang,
+    'Zalo': zalo,
+    'Ghi Chú': ghiChu,
 
     id: maNhanSu,
     name: hoTen,
@@ -424,7 +437,10 @@ function mapStaffRow(r, rowIndex) {
     completedTasks: taskHoanThanh,
     onTimeRate: tyLeDungHan,
     efficiency: hieuSuatThoiGian,
-    status: trangThai
+    status: trangThai,
+    joinedDate: ngayVaoLam,
+    skills: kyNang,
+    note: ghiChu
   };
 }
 
@@ -1474,7 +1490,11 @@ function apiSaveStaff(staffData) {
       Number(staffData.taskHoanThanh || staffData['Task Hoàn Thành'] || staffData.completedTasks) || 0,
       Number(staffData.tyLeDungHan || staffData['Tỷ Lệ Đúng Hạn %'] || staffData.onTimeRate) || 100,
       Number(staffData.hieuSuatThoiGian || staffData['Hiệu Suất Thời Gian %'] || staffData.efficiency) || 100,
-      staffData.trangThai || staffData['Trạng Thái'] || staffData.status || 'Đang hoạt động'
+      staffData.trangThai || staffData['Trạng Thái'] || staffData.status || 'Đang hoạt động',
+      staffData.ngayVaoLam || staffData['Ngày Vào Làm'] || staffData.joinedDate || '',
+      staffData.kyNang || staffData['Kỹ Năng'] || staffData.skills || '',
+      staffData.zalo || staffData['Zalo'] || '',
+      staffData.ghiChu || staffData['Ghi Chú'] || staffData.note || ''
     ];
 
     var lastRow = sheet.getLastRow();
