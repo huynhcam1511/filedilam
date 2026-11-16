@@ -8,23 +8,13 @@
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23059669'><path d='M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z'/><polyline points='14 2 14 8 20 8'/></svg>" />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="./storefront.css?v=272" />
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./storefront.css?v=275" />
   <script src="https://unpkg.com/lucide@latest"></script>
   <style>
-    :root {
-      --text: #0f172a;
-      --muted: #64748b;
-      --mint: #059669;
-      --mint-dark: #047857;
-      --mint-light: #ecfdf5;
-      --border-subtle: #f1f5f9;
-      --border-box: #e2e8f0;
-    }
-
     body {
-      background-color: #f8fafc;
-      color: var(--text);
+      background-color: #ffffff;
+      color: #0f172a;
       font-family: 'Manrope', -apple-system, BlinkMacSystemFont, sans-serif;
       line-height: 1.6;
       -webkit-font-smoothing: antialiased;
@@ -33,80 +23,62 @@
     }
 
     .faq-page-wrap {
-      max-width: 820px;
+      max-width: 780px;
       margin: 0 auto;
-      padding: 48px 24px 80px;
+      padding: 56px 24px 88px;
     }
 
     @media (max-width: 768px) {
       .faq-page-wrap {
-        padding: 32px 16px 60px;
+        padding: 36px 16px 64px;
       }
     }
 
     .faq-hero-header {
-      text-align: center;
-      margin-bottom: 44px;
+      margin-bottom: 48px;
     }
 
-    .faq-badge-tag {
-      background: #ecfdf5;
-      border: 1px solid #a7f3d0;
-      padding: 4px 14px;
-      border-radius: 9999px;
-      font-size: 0.78rem;
+    .faq-section-label {
+      font-size: 0.82rem;
       font-weight: 700;
-      letter-spacing: 0.04em;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
       color: #059669;
-      display: inline-block;
-      margin-bottom: 14px;
+      margin-bottom: 8px;
+      display: block;
     }
 
     .faq-main-title {
-      font-size: 2.2rem;
+      font-size: 2.25rem;
       font-weight: 800;
       color: #0f172a;
-      letter-spacing: -0.6px;
+      letter-spacing: -0.03em;
       margin: 0 0 12px;
-      line-height: 1.25;
+      line-height: 1.2;
     }
 
     .faq-subtitle {
-      font-size: 1rem;
-      color: var(--muted);
-      max-width: 540px;
-      margin: 0 auto;
-      line-height: 1.55;
+      font-size: 1.02rem;
+      color: #64748b;
+      margin: 0;
+      line-height: 1.6;
     }
 
-    /* Refined Minimalist Accordion - Flat, Anti-Card Overload */
-    .faq-accordion-group {
-      background: #ffffff;
-      border: 1px solid var(--border-box);
-      border-radius: 16px;
-      overflow: hidden;
-      margin-bottom: 48px;
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+    /* Flat Accordion - Zero Card Overload (Dividers only) */
+    .faq-flat-list {
+      border-top: 1px solid #e2e8f0;
+      margin-bottom: 64px;
     }
 
-    .faq-card {
+    .faq-flat-item {
       border-bottom: 1px solid #f1f5f9;
-      transition: background-color 0.15s ease;
-    }
-
-    .faq-card:last-child {
-      border-bottom: none;
-    }
-
-    .faq-card.is-open {
-      background-color: #fafbfc;
     }
 
     .faq-trigger {
       width: 100%;
       background: none;
       border: none;
-      padding: 20px 24px;
+      padding: 22px 0;
       text-align: left;
       display: flex;
       align-items: center;
@@ -114,70 +86,52 @@
       gap: 16px;
       cursor: pointer;
       font-family: inherit;
+      color: #0f172a;
+      transition: color 0.15s ease;
+    }
+
+    .faq-trigger:hover {
+      color: #059669;
     }
 
     .faq-trigger:focus-visible {
-      outline: 2px solid var(--mint);
-      outline-offset: -2px;
+      outline: 2px solid #059669;
+      outline-offset: 4px;
     }
 
-    .faq-card-question {
-      font-size: 1.02rem;
+    .faq-question-text {
+      font-size: 1.05rem;
       font-weight: 700;
-      color: #0f172a;
       line-height: 1.45;
       margin: 0;
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-
-    .faq-bullet-dot {
-      display: inline-block;
-      width: 6px;
-      height: 6px;
-      border-radius: 50%;
-      background: #94a3b8;
-      flex-shrink: 0;
-      transition: background-color 0.2s ease, transform 0.2s ease;
-    }
-
-    .faq-card.is-open .faq-bullet-dot {
-      background: #059669;
-      transform: scale(1.4);
     }
 
     .faq-chevron {
       color: #94a3b8;
-      transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), color 0.2s;
+      transition: transform 0.2s ease, color 0.2s ease;
       flex-shrink: 0;
       width: 18px;
       height: 18px;
     }
 
-    .faq-card.is-open .faq-chevron {
+    .faq-flat-item.is-open .faq-chevron {
       transform: rotate(180deg);
-      color: var(--mint);
+      color: #059669;
+    }
+
+    .faq-flat-item.is-open .faq-question-text {
+      color: #059669;
     }
 
     .faq-content {
       display: none;
-      padding: 0 24px 22px 42px;
+      padding: 0 0 24px 0;
       color: #475569;
-      font-size: 0.95rem;
+      font-size: 0.96rem;
       line-height: 1.65;
     }
 
-    @media (max-width: 640px) {
-      .faq-trigger {
-        padding: 16px 18px;
-      }
-      .faq-content {
-        padding: 0 18px 18px 36px;
-      }
-    }
-
-    .faq-card.is-open .faq-content {
+    .faq-flat-item.is-open .faq-content {
       display: block;
       animation: fadeIn 0.2s ease-out;
     }
@@ -187,58 +141,68 @@
       to { opacity: 1; transform: translateY(0); }
     }
 
-    /* Zalo CTA Box - Clean Fintech Flat */
-    .faq-zalo-cta {
-      background: #ffffff;
-      border: 1px solid #a7f3d0;
+    /* Flat Contact Box - Clean, no gradient or bulky card */
+    .faq-flat-contact {
+      background: #f8fafc;
       border-radius: 16px;
-      padding: 36px 28px;
-      text-align: center;
-      box-shadow: 0 4px 20px -4px rgba(5, 150, 105, 0.08);
+      padding: 36px 32px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
     }
 
-    .faq-zalo-cta h3 {
-      font-size: 1.35rem;
+    @media (max-width: 640px) {
+      .faq-flat-contact {
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 28px 20px;
+        gap: 20px;
+      }
+    }
+
+    .faq-flat-contact h3 {
+      font-size: 1.25rem;
       font-weight: 800;
-      color: #065f46;
-      margin: 0 0 8px;
+      color: #0f172a;
+      margin: 0 0 6px;
+      letter-spacing: -0.02em;
     }
 
-    .faq-zalo-cta p {
-      font-size: 0.94rem;
-      color: #475569;
-      max-width: 520px;
-      margin: 0 auto 24px;
-      line-height: 1.55;
+    .faq-flat-contact p {
+      font-size: 0.92rem;
+      color: #64748b;
+      margin: 0;
+      line-height: 1.5;
     }
 
     .btn-zalo-faq {
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      gap: 10px;
+      gap: 8px;
       background: #059669;
       color: #ffffff;
       height: 46px;
-      padding: 0 28px;
+      padding: 0 24px;
       border-radius: 12px;
       font-weight: 700;
-      font-size: 0.96rem;
+      font-size: 0.92rem;
       text-decoration: none;
-      box-shadow: 0 4px 14px rgba(5, 150, 105, 0.3);
-      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+      white-space: nowrap;
+      flex-shrink: 0;
+      transition: background 0.15s ease, transform 0.15s ease;
     }
 
     .btn-zalo-faq:hover {
       background: #047857;
-      transform: translateY(-2px);
-      box-shadow: 0 6px 18px rgba(5, 150, 105, 0.4);
+      transform: translateY(-1px);
       color: #ffffff;
     }
   </style>
 </head>
 <body>
-  <!-- Top Navigation Bar (Shared Component) -->
+  <!-- Top Navigation Bar -->
   <header class="top-nav">
     <div class="nav-container">
       <div class="nav-logo" style="display: flex; align-items: center;">
@@ -290,7 +254,6 @@
     </div>
     <div class="drawer-body" style="padding: 24px 20px;">
       <nav class="mobile-nav-list" style="display: flex; flex-direction: column; gap: 16px;">
-
         <a href="index.html#catalog" class="mobile-nav-link" style="font-size: 1.15rem; font-weight: 600; color: #0f172a; padding: 10px 0; border-bottom: 1px solid #f1f5f9; display: flex; justify-content: space-between; align-items: center;">
           <span>Mẫu File Đi Làm</span>
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"></polyline></svg>
@@ -318,35 +281,29 @@
   <!-- Main FAQ Content -->
   <main class="faq-page-wrap">
     <div class="faq-hero-header">
-      <span class="faq-badge-tag">TRƯỚC KHI MUA</span>
-      <h1 class="faq-main-title">Những câu khách hay hỏi</h1>
-      <p class="faq-subtitle">Tất cả những điều bạn cần biết trước khi sở hữu và sử dụng file Google Sheets tại File Đi Làm.</p>
+      <span class="faq-section-label">Câu hỏi thường gặp</span>
+      <h1 class="faq-main-title">Những điều khách hay hỏi</h1>
+      <p class="faq-subtitle">Giải đáp rõ ràng mọi thắc mắc trước khi bạn lựa chọn file Google Sheets tại File Đi Làm.</p>
     </div>
 
-    <div class="faq-accordion-group">
-      <!-- Item 1: Thiết bị & Di động -->
-      <div class="faq-card is-open">
+    <div class="faq-flat-list">
+      <!-- Item 1 -->
+      <div class="faq-flat-item is-open">
         <button class="faq-trigger" type="button" aria-expanded="true">
-          <div class="faq-card-question">
-            <span class="faq-bullet-dot"></span>
-            <span>Tôi chỉ dùng Điện thoại hoặc iPad/Tablet thì có dùng được không?</span>
-          </div>
+          <span class="faq-question-text">Tôi chỉ dùng Điện thoại hoặc iPad/Tablet thì có dùng được không?</span>
           <i data-lucide="chevron-down" class="faq-chevron"></i>
         </button>
         <div class="faq-content">
           <p style="margin: 0 0 10px 0;"><strong>Vận hành hằng ngày: 100% trên Điện thoại, iPad/Tablet và Máy tính.</strong> Giao diện Web App được tối ưu chuyên biệt cho di động, bạn có thể lưu icon ra màn hình chính để mở 1 chạm thao tác ngay mọi lúc mọi nơi.</p>
           <p style="margin: 0 0 10px 0;"><strong>Kích hoạt lần đầu (chỉ mất 1 – 2 phút):</strong> Bạn cần mở file <strong>duy nhất 1 lần trên trình duyệt Máy tính/Laptop</strong> để Google hiển thị hộp thoại cấp quyền liên kết bảo mật vào tài khoản Gmail chính chủ của bạn. Sau khi kích hoạt xong, bạn chỉ cần mở link Web App trên điện thoại dùng vĩnh viễn mà không cần mở lại máy tính nữa.</p>
-          <p style="margin: 0; font-size: 0.88rem; color: #64748b;">* Nếu chưa có máy tính cá nhân, bạn có thể mượn máy tính của bạn bè/cơ quan đăng nhập Gmail mở 1 phút là xong, hoặc nhắn Zalo 0938 134 576 để bên mình hỗ trợ kích hoạt giúp bạn nhé.</p>
+          <p style="margin: 0; font-size: 0.88rem; color: #64748b;">* Nếu chưa có máy tính cá nhân, bạn có thể mượn máy tính bạn bè mở 1 phút là xong, hoặc nhắn Zalo 0938 134 576 để bên mình hỗ trợ kích hoạt giúp bạn nhé.</p>
         </div>
       </div>
 
-      <!-- Item 2: Bảo mật dữ liệu -->
-      <div class="faq-card">
+      <!-- Item 2 -->
+      <div class="faq-flat-item">
         <button class="faq-trigger" type="button" aria-expanded="false">
-          <div class="faq-card-question">
-            <span class="faq-bullet-dot"></span>
-            <span>Khi sử dụng file template, vấn đề bảo mật sẽ như thế nào?</span>
-          </div>
+          <span class="faq-question-text">Khi sử dụng file template, vấn đề bảo mật dữ liệu sẽ như thế nào?</span>
           <i data-lucide="chevron-down" class="faq-chevron"></i>
         </button>
         <div class="faq-content">
@@ -354,13 +311,10 @@
         </div>
       </div>
 
-      <!-- Item 3: Chi phí & Sở hữu -->
-      <div class="faq-card">
+      <!-- Item 3 -->
+      <div class="faq-flat-item">
         <button class="faq-trigger" type="button" aria-expanded="false">
-          <div class="faq-card-question">
-            <span class="faq-bullet-dot"></span>
-            <span>Mua file có trả theo từng tháng không, hay mua một lần và xài mãi mãi?</span>
-          </div>
+          <span class="faq-question-text">Mua file có trả theo từng tháng không, hay mua một lần và xài mãi mãi?</span>
           <i data-lucide="chevron-down" class="faq-chevron"></i>
         </button>
         <div class="faq-content">
@@ -368,13 +322,10 @@
         </div>
       </div>
 
-      <!-- Item 4: Hỗ trợ kỹ thuật -->
-      <div class="faq-card">
+      <!-- Item 4 -->
+      <div class="faq-flat-item">
         <button class="faq-trigger" type="button" aria-expanded="false">
-          <div class="faq-card-question">
-            <span class="faq-bullet-dot"></span>
-            <span>Sau khi mua hàng, mình sử dụng và gặp vấn đề thì giải quyết như thế nào?</span>
-          </div>
+          <span class="faq-question-text">Sau khi mua hàng, mình sử dụng và gặp vấn đề thì giải quyết như thế nào?</span>
           <i data-lucide="chevron-down" class="faq-chevron"></i>
         </button>
         <div class="faq-content">
@@ -382,13 +333,10 @@
         </div>
       </div>
 
-      <!-- Item 5: Hướng dẫn sử dụng -->
-      <div class="faq-card">
+      <!-- Item 5 -->
+      <div class="faq-flat-item">
         <button class="faq-trigger" type="button" aria-expanded="false">
-          <div class="faq-card-question">
-            <span class="faq-bullet-dot"></span>
-            <span>Trong file có hướng dẫn sử dụng không?</span>
-          </div>
+          <span class="faq-question-text">Trong file có hướng dẫn sử dụng chi tiết không?</span>
           <i data-lucide="chevron-down" class="faq-chevron"></i>
         </button>
         <div class="faq-content">
@@ -397,13 +345,15 @@
       </div>
     </div>
 
-    <!-- Zalo CTA Box -->
-    <div class="faq-zalo-cta">
-      <h3>Bạn có câu hỏi riêng về nhu cầu của mình?</h3>
-      <p>Nhắn trực tiếp qua Zalo 0938 134 576, đội ngũ kỹ thuật File Đi Làm phản hồi nhanh và tư vấn giải pháp phù hợp nhất cho bạn.</p>
+    <!-- Clean Flat Contact Box -->
+    <div class="faq-flat-contact">
+      <div>
+        <h3>Bạn có câu hỏi riêng về nhu cầu của mình?</h3>
+        <p>Nhắn trực tiếp qua Zalo 0938 134 576, đội ngũ kỹ thuật File Đi Làm tư vấn nhanh giải pháp phù hợp nhất cho bạn.</p>
+      </div>
       <a href="https://zalo.me/0938134576" target="_blank" rel="noopener noreferrer" class="btn-zalo-faq">
         <i data-lucide="message-circle" style="width: 18px; height: 18px;"></i>
-        <span>Nhắn Zalo tư vấn miễn phí ↗</span>
+        <span>Nhắn Zalo tư vấn ↗</span>
       </a>
     </div>
   </main>
@@ -489,28 +439,25 @@
         lucide.createIcons();
       }
 
-      // Accordion toggle
       var triggers = document.querySelectorAll(".faq-trigger");
       triggers.forEach(function (trigger) {
         trigger.addEventListener("click", function () {
-          var card = trigger.closest(".faq-card");
-          var isOpen = card.classList.contains("is-open");
+          var item = trigger.closest(".faq-flat-item");
+          var isOpen = item.classList.contains("is-open");
           
-          // Close others for clean single-view accordion
-          document.querySelectorAll(".faq-card").forEach(function (c) {
+          document.querySelectorAll(".faq-flat-item").forEach(function (c) {
             c.classList.remove("is-open");
             var btn = c.querySelector(".faq-trigger");
             if (btn) btn.setAttribute("aria-expanded", "false");
           });
 
           if (!isOpen) {
-            card.classList.add("is-open");
+            item.classList.add("is-open");
             trigger.setAttribute("aria-expanded", "true");
           }
         });
       });
 
-      // Mobile Menu Drawer
       var openMobileMenuBtn = document.getElementById("openMobileMenu");
       var closeMobileMenuBtn = document.getElementById("closeMobileMenu");
       var mobileNavDrawer = document.getElementById("mobileNavDrawer");
