@@ -199,10 +199,10 @@
   <div class="flex-1 flex overflow-hidden">
 
     <!-- DESKTOP SIDEBAR (240px, Thu gọn 64px) -->
-    <aside id="desktop-sidebar" class="hidden lg:flex flex-col w-60 border-r border-slate-200/80 bg-slate-100/80 transition-all duration-300 select-none shrink-0 z-30">
+    <aside id="desktop-sidebar" class="hidden lg:flex flex-col w-60 border-r border-slate-200 bg-slate-100 transition-all duration-300 select-none shrink-0 z-30">
       
       <!-- Header Brand & Collapse Toggle -->
-      <div id="sidebar-header-wrap" class="h-16 px-4 border-b border-slate-200/60 bg-slate-100/80 flex items-center justify-between shrink-0 transition-all">
+      <div id="sidebar-header-wrap" class="h-16 px-4 border-b border-slate-200 bg-slate-100 flex items-center justify-between shrink-0 transition-all">
         <div class="flex items-center gap-3 overflow-hidden">
           <div class="w-9 h-9 rounded-xl bg-blue-600 flex items-center justify-center text-white shrink-0 shadow-sm shadow-blue-500/20">
             <!-- Logo Chuẩn File Đi Làm: Biểu đồ Bảng tính Fintech 3 vạch -->
@@ -5838,28 +5838,28 @@ if (document.readyState === 'loading') {
     </div>
   </div>
 
-  <!-- 2. MINI METRICS DẢI CHỈ SỐ -->
-  <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
-    <div class="p-3.5 bg-white border border-slate-200/80 rounded-xl">
-      <div class="text-[11px] font-medium text-slate-400 uppercase">Tổng Danh Mục</div>
-      <div id="cat-stat-total" class="text-lg font-bold font-mono text-slate-900 mt-1">0</div>
+  <!-- 2. MINI METRICS DẢI CHỈ SỐ (Flat Edge-to-Edge Bar) -->
+  <div class="grid grid-cols-2 lg:grid-cols-4 py-4 border-y border-slate-100 divide-x divide-slate-100 bg-white">
+    <div class="px-4 first:pl-0">
+      <span class="text-[11px] font-medium text-slate-400 block tracking-wider uppercase">Tổng Danh Mục</span>
+      <span id="cat-stat-total" class="text-2xl font-bold font-mono text-slate-900 mt-0.5 block">0</span>
     </div>
-    <div class="p-3.5 bg-white border border-slate-200/80 rounded-xl">
-      <div class="text-[11px] font-medium text-slate-400 uppercase">Phòng Ban</div>
-      <div id="cat-stat-depts" class="text-lg font-bold font-mono text-blue-600 mt-1">0</div>
+    <div class="px-4">
+      <span class="text-[11px] font-medium text-slate-400 block tracking-wider uppercase">Phòng Ban</span>
+      <span id="cat-stat-depts" class="text-2xl font-bold font-mono text-blue-600 mt-0.5 block">0</span>
     </div>
-    <div class="p-3.5 bg-white border border-slate-200/80 rounded-xl">
-      <div class="text-[11px] font-medium text-slate-400 uppercase">Mức Độ Ưu Tiên</div>
-      <div id="cat-stat-priority" class="text-lg font-bold font-mono text-amber-600 mt-1">0</div>
+    <div class="px-4">
+      <span class="text-[11px] font-medium text-slate-400 block tracking-wider uppercase">Mức Độ Ưu Tiên</span>
+      <span id="cat-stat-priority" class="text-2xl font-bold font-mono text-amber-600 mt-0.5 block">0</span>
     </div>
-    <div class="p-3.5 bg-white border border-slate-200/80 rounded-xl">
-      <div class="text-[11px] font-medium text-slate-400 uppercase">Trạng Thái & Cấp Bậc</div>
-      <div id="cat-stat-status" class="text-lg font-bold font-mono text-emerald-600 mt-1">0</div>
+    <div class="px-4 last:pr-0">
+      <span class="text-[11px] font-medium text-slate-400 block tracking-wider uppercase">Trạng Thái & Cấp Bậc</span>
+      <span id="cat-stat-status" class="text-2xl font-bold font-mono text-emerald-600 mt-0.5 block">0</span>
     </div>
   </div>
 
-  <!-- 3. THANH CÔNG CỤ: SUB-TAB FILTER PILLS & SEARCH BOX -->
-  <div class="flex flex-col md:flex-row md:items-center justify-between gap-3 bg-white p-3.5 rounded-2xl border border-slate-200/80 shadow-2xs">
+  <!-- 3. THANH CÔNG CỤ: SUB-TAB FILTER PILLS & SEARCH BOX (Flat Border-b) -->
+  <div class="flex flex-col md:flex-row md:items-center justify-between gap-3 pb-3 border-b border-slate-100">
     <!-- Sub-tab Category Switcher -->
     <div class="flex items-center gap-1.5 overflow-x-auto pb-1 md:pb-0" id="cat-filter-tabs">
       <button onclick="ModuleCatalogs.setGroupFilter('ALL')" data-cat-filter="ALL" class="cat-tab-btn px-3 py-1.5 rounded-lg text-xs font-bold transition bg-emerald-50 text-emerald-700 border border-emerald-200">
@@ -5892,13 +5892,13 @@ if (document.readyState === 'loading') {
     </div>
   </div>
 
-  <!-- 4. MASTER TABLE DESKTOP (Edge-to-Edge) -->
-  <div class="hidden md:block bg-white rounded-2xl border border-slate-200/80 shadow-xs overflow-hidden">
+  <!-- 4. MASTER TABLE DESKTOP (Edge-to-Edge Full Bleed) -->
+  <div class="hidden md:block overflow-hidden">
     <div class="overflow-x-auto">
       <table class="w-full text-left border-collapse">
         <thead>
-          <tr class="border-b border-slate-100 bg-slate-50/75 text-[11px] font-bold text-slate-500 uppercase tracking-wider">
-            <th class="py-3 px-4 w-32">Mã Danh Mục</th>
+          <tr class="border-b border-slate-200 bg-slate-50/75 text-[11px] font-bold text-slate-500 uppercase tracking-wider">
+            <th class="py-3 px-4 w-36">Mã Danh Mục</th>
             <th class="py-3 px-4">Tên Hiển Thị Dropdown</th>
             <th class="py-3 px-4 w-44">Phân Nhóm</th>
             <th class="py-3 px-4 w-24 text-center">Thứ Tự</th>
@@ -5915,12 +5915,12 @@ if (document.readyState === 'loading') {
   </div>
 
   <!-- 5. TABLE-TO-CARD MOBILE LIST (< md) -->
-  <div id="catalogs-mobile-list" class="md:hidden space-y-3">
+  <div id="catalogs-mobile-list" class="md:hidden divide-y divide-slate-100 border-y border-slate-100 bg-white">
     <!-- Rendered dynamically by ModuleCatalogs.render() -->
   </div>
 
   <!-- Empty State -->
-  <div id="catalogs-empty-state" class="hidden py-12 text-center bg-white rounded-2xl border border-slate-100">
+  <div id="catalogs-empty-state" class="hidden py-12 text-center bg-white border-y border-slate-100">
     <div class="w-12 h-12 mx-auto mb-2.5 rounded-xl bg-slate-100 flex items-center justify-center text-slate-400">
       <i data-lucide="tag" class="w-6 h-6"></i>
     </div>
@@ -9348,7 +9348,7 @@ window.ModuleTeamProjects = ModuleTeamProjects;
             var mauSac = it.mauSac || it['Màu Sắc'] || '#059669';
             var ghiChu = it.ghiChu || it['Ghi Chú'] || '';
 
-            return '<div class="p-3.5 bg-white border border-slate-200/80 rounded-2xl shadow-2xs space-y-2.5">' +
+            return '<div class="py-3 px-1 space-y-2">' +
               '<div class="flex items-start justify-between gap-2">' +
                 '<div class="flex-1 min-w-0">' +
                   '<div class="font-bold text-slate-900 text-xs truncate">' + self.escapeHtml(ten) + '</div>' +
