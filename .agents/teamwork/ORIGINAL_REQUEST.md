@@ -1,41 +1,51 @@
 # Original User Request
 
-## Initial Request — 2026-11-14T18:48:34Z
+## Approved Task Prompt — 2026-11-16T08:39:05Z
 
-Tối ưu hóa UI/UX và logic luồng mã giảm giá (Coupon Flow) tại trang thanh toán (#thanh-toan) của File Đi Làm: tự động áp mã tốt nhất khi đủ điều kiện, thu gọn form nhập voucher khi chưa đủ điều kiện hoặc dùng mã riêng, và đảm bảo tương thích toàn diện với luồng thanh toán VietQR và Firestore.
+Tối giản landing page (index.html) thành giao diện tập trung mua hàng ngay: lược bỏ các section rườm rà (Hero, Stats, Steps, Compare, Coupons ngoài trang chủ, FAQ, Custom), đưa Danh mục sản phẩm (Catalog - id="catalog") và Giỏ hàng lên vị trí chính ngay dưới Topbar; tách nội dung FAQ và Dịch vụ thiết kế riêng thành 2 trang con độc lập (faq.html, custom.html); nâng cấp trải nghiệm giỏ hàng với Mobile FAB và bộ hiệu ứng chuyển động Fly-to-Cart, Pop-Shrink, Wiggle, Bounce sinh động.
 
 Working directory: c:\Users\zit\OneDrive\Tài liệu\ANTIGRAVITY\FILE_DI_LAM_MVP
 Integrity mode: development
 
 ## Requirements
 
-### R1. Tự động áp dụng mã giảm giá tốt nhất khi đủ điều kiện (Auto-Apply Best Deal)
-Khi giỏ hàng của khách đủ điều kiện của một mã giảm giá công khai (ví dụ đơn >= 20.000 đ đủ điều kiện mã FILEDILAM giảm 20%), hệ thống tự động áp mã giảm giá tốt nhất ngay khi vào trang thanh toán (#thanh-toan). Dòng giảm giá và tổng thanh toán tự động trừ tiền ngay, không bắt khách phải tự tay click 'Chọn mã'. Nút mã hiển thị trạng thái đã áp dụng kèm nút Bỏ chọn nếu khách muốn hủy; khi khách chủ động bấm Bỏ chọn, hệ thống ghi nhớ trạng thái này trong phiên hiện tại để không tự động áp lại ngay lập tức.
+### R1. Tối giản cấu trúc Landing Page (index.html) và đưa Catalog lên vị trí trọng tâm
+Lược bỏ hoàn toàn các section gây phân tâm khỏi index.html: Hero section, Stats-section, Steps-section (Quy trình mua), Compare-compact-section (So sánh kinh tế), landingCouponSection (Khối voucher ở ngoài trang chủ), Faq-section, Custom-clean-section (Thiết kế riêng). Đưa trực tiếp Danh mục sản phẩm (Catalog - id="catalog") và Giỏ hàng lên vị trí chính ngay dưới Topbar để khách hàng vào là có thể chọn sản phẩm và thực hiện mua ngay. Mã ưu đãi (Coupons) được chọn hoặc nhập trực tiếp bên trong Cart Drawer / Checkout Modal; đảm bảo mã nguồn JavaScript (storefront.js) không phát sinh lỗi khi landingCouponSection bị gỡ bỏ (hàm syncLandingCouponTicket có safe null-check).
 
-### R2. Thu gọn giao diện mã giảm giá khi chưa đủ điều kiện hoặc dùng mã riêng (Private / Secret Voucher)
-Không bày sẵn cả khối danh sách mã khi đơn chưa đủ điều kiện hoặc khi không có mã công khai, tránh gây phân tâm hay tăng tỷ lệ bỏ giỏ hàng (Cart Abandonment). Thay vào đó, hiển thị một text link nhỏ gọn phẳng, tinh tế: "Bạn có mã ưu đãi?". Khi khách click vào text link "Bạn có mã ưu đãi?", bung nhẹ form/danh sách để nhập mã ưu đãi riêng (dành cho mã tặng qua Zalo, Livestream, Affiliate hoặc mã CSKH) hoặc chọn mã.
+### R2. Tách trang con độc lập cho FAQ (faq.html) và Dịch vụ thiết kế riêng (custom.html)
+Chuyển toàn bộ nội dung FAQ (Câu hỏi thường gặp) thành trang con độc lập faq.html với header, footer đồng bộ và nội dung đầy đủ, chuẩn SEO. Chuyển khối "Thiết kế file riêng" thành trang con độc lập custom.html giới thiệu dịch vụ thiết kế theo yêu cầu cùng nút liên hệ tư vấn qua Zalo. Đồng bộ toàn bộ liên kết điều hướng trên Header Topbar, Mobile Nav Drawer và Footer của index.html trỏ chính xác sang faq.html và custom.html.
 
-### R3. Kiểm thử toàn diện và tương thích luồng thanh toán VietQR và Firestore
-Kiểm thử toàn diện và kiểm tra tính tương thích với toàn bộ luồng thanh toán VietQR (mã QR, số tiền chuyển khoản chính xác sau giảm giá, nội dung chuyển khoản) và ghi nhận đơn hàng lên Firestore. Đội ngũ tự viết script kiểm thử tự động / end-to-end để xác minh tính tương thích và vận hành chính xác của toàn bộ luồng.
+### R3. Nâng cấp trải nghiệm Giỏ hàng và bộ hiệu ứng chuyển động (Animation)
+Giữ luồng mở Cart Drawer / Checkout Modal chỉ khi người dùng click vào icon giỏ hàng. Bổ sung nút Floating Action Button (FAB) Giỏ hàng hình tròn màu Mint ở góc dưới bên phải màn hình Mobile, chỉ hiện khi giỏ hàng có từ 1 sản phẩm trở lên. Khi người dùng bấm "Thêm vào giỏ", kích hoạt đồng bộ các hiệu ứng chuyển động: hiệu ứng bay sản phẩm (Fly-to-Cart) từ thẻ sản phẩm bay cong vào icon giỏ hàng, icon giỏ hàng trên Topbar và nút FAB thực hiện hiệu ứng Pop-Shrink (scale 1.25 -> 0.95 -> 1.0) kết hợp Wiggle nhẹ, cùng badge số lượng nảy sinh động (Bounce).
+
+### R4. Bảo toàn tính toàn vẹn hệ thống và quy chuẩn kỹ thuật
+Tuân thủ nghiêm ngặt các quy chuẩn của dự án trong AGENTS.md. Tuyệt đối không làm gián đoạn hoặc sai lệch luồng thanh toán tự động VietQR, tích hợp SePay và đồng bộ dữ liệu đơn hàng với Firebase Firestore.
 
 ## Verification Resources
-- Script kiểm thử tự động / end-to-end do đội ngũ xây dựng để mô phỏng và xác minh các kịch bản giỏ hàng (đủ điều kiện auto-apply, chưa đủ điều kiện, nhập mã private, hủy mã) cùng luồng tạo mã VietQR và ghi đơn hàng Firestore.
-- Mã nguồn hiện tại của trang thanh toán (`index.html`, `storefront.js`, `firebase-config.js`).
+- Script kiểm thử tự động / end-to-end do đội ngũ tự xây dựng để kiểm tra và xác thực: cấu trúc DOM trang index.html (đã lược bỏ các section không cần thiết, catalog nằm ngay dưới topbar), tính độc lập và điều hướng của faq.html và custom.html, kích hoạt animation và hiển thị FAB Mobile, an toàn không phát sinh lỗi JS trong storefront.js, và luồng tạo mã VietQR / Firestore.
+- Mã nguồn và tài nguyên hiện có của hệ thống (index.html, storefront.js, firebase-config.js, AGENTS.md).
 
 ## Acceptance Criteria
 
-### Auto-Apply Coupon Flow
-- [ ] Khi giỏ hàng có tổng tiền đạt điều kiện áp dụng mã công khai, mã giảm giá tốt nhất được tự động áp dụng ngay khi chuyển sang trang thanh toán (#thanh-toan).
-- [ ] Dòng giảm giá và tổng tiền thanh toán cuối cùng tự động hiển thị số tiền đã trừ ngay khi trang thanh toán được tải, không đòi hỏi người dùng phải bấm 'Chọn mã'.
-- [ ] Nút/thẻ voucher hiển thị rõ trạng thái đã áp dụng cùng nút hoặc thao tác "Bỏ chọn" cho phép hủy mã.
-- [ ] Khi người dùng bấm "Bỏ chọn" để hủy mã đã auto-apply, hệ thống ghi nhớ trạng thái này trong phiên làm việc hiện tại và không tự động áp lại mã đó trong cùng phiên.
+### Landing Page Streamlining & Navigation
+- [ ] Các section Hero, Stats, Steps, Compare-compact, landingCouponSection, FAQ và Custom-clean được gỡ bỏ hoàn toàn khỏi index.html.
+- [ ] Danh mục sản phẩm (id="catalog") hiển thị ngay dưới Topbar trên index.html khi tải trang.
+- [ ] storefront.js và hàm syncLandingCouponTicket hoạt động trơn tru không gây lỗi JavaScript console khi landingCouponSection không tồn tại trên index.html.
+- [ ] Mã ưu đãi (coupons) vẫn hiển thị và áp dụng chính xác bên trong Cart Drawer / Checkout Modal.
+- [ ] Tất cả liên kết FAQ và Thiết kế riêng trên Header Topbar, Mobile Nav Drawer và Footer của index.html trỏ chính xác đến faq.html và custom.html.
 
-### Private Voucher & Ineligible State UI/UX
-- [ ] Khi giỏ hàng chưa đủ điều kiện của bất kỳ mã công khai nào hoặc không có mã công khai hợp lệ, khối danh sách mã không hiển thị mặc định mà chỉ hiển thị text link phẳng, nhỏ gọn: "Bạn có mã ưu đãi?".
-- [ ] Khi người dùng click vào "Bạn có mã ưu đãi?", form nhập mã ưu đãi riêng và/hoặc danh sách voucher bung mở nhẹ nhàng, cho phép nhập mã chiến dịch riêng (Zalo, Livestream, Affiliate, CSKH) hoặc chọn mã.
-- [ ] Khi người dùng nhập một mã ưu đãi riêng hợp lệ và xác nhận, hệ thống áp dụng giảm giá thành công và cập nhật lại dòng giảm giá cùng tổng thanh toán.
+### Subpages Creation
+- [ ] File faq.html tồn tại độc lập, có cấu trúc Header và Footer đồng bộ với index.html, nội dung FAQ đầy đủ, accordion đóng/mở mượt mà.
+- [ ] File custom.html tồn tại độc lập, có cấu trúc Header và Footer đồng bộ với index.html, hiển thị dịch vụ thiết kế theo yêu cầu và nút liên kết Zalo hoạt động đúng.
 
-### VietQR & Firestore Compatibility
-- [ ] Mã VietQR sinh ra trên giao diện thanh toán thể hiện chính xác số tiền cần chuyển khoản sau khi đã trừ giảm giá của mã voucher.
-- [ ] Thông tin đơn hàng lưu vào Firestore ghi nhận đầy đủ và chính xác: mã voucher đã dùng, số tiền giảm giá và số tiền thanh toán thực tế.
-- [ ] Script kiểm thử tự động / end-to-end thực thi thành công, bao phủ cả hai kịch bản (đủ điều kiện auto-apply và nhập mã private) với kết quả kiểm tra VietQR và Firestore đều đạt.
+### Cart Experience & Animation
+- [ ] Cart Drawer / Checkout chỉ trượt mở khi người dùng click vào icon giỏ hàng (hoặc nút FAB).
+- [ ] Nút FAB giỏ hàng màu Mint xuất hiện ở góc dưới bên phải màn hình Mobile khi giỏ hàng có >= 1 sản phẩm, và tự động ẩn khi giỏ hàng rỗng.
+- [ ] Khi click "Thêm vào giỏ", hiệu ứng Fly-to-Cart bay hình ảnh/thẻ sản phẩm cong vào icon giỏ hàng diễn ra mượt mà.
+- [ ] Icon giỏ hàng trên Topbar và FAB thực hiện hiệu ứng Pop-Shrink và Wiggle khi nhận sản phẩm mới.
+- [ ] Badge hiển thị số lượng giỏ hàng thực hiện hiệu ứng Bounce khi cập nhật số lượng.
+
+### System Integrity & Payments
+- [ ] Luồng tạo mã VietQR thanh toán tự động hoạt động chính xác sau khi thêm/sửa/xóa sản phẩm và áp voucher.
+- [ ] Trạng thái đơn hàng và đồng bộ dữ liệu Firestore không bị ảnh hưởng hay phát sinh lỗi.
+- [ ] Script kiểm thử tự động / end-to-end do đội ngũ xây dựng thực thi và xác minh thành công toàn bộ các tiêu chí trên.

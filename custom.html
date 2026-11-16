@@ -1,0 +1,779 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dịch Vụ Thiết Kế File Riêng | File Đi Làm</title>
+  <meta name="description" content="Thiết kế Web App & Google Sheets riêng theo quy trình đặc thù của bạn. Bàn giao 24-48h, chỉnh sửa tới khi đúng ý, bảo hành trọn đời." />
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23059669'><path d='M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z'/><polyline points='14 2 14 8 20 8'/></svg>" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./storefront.css" />
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <style>
+    :root {
+      --text: #0f172a;
+      --muted: #64748b;
+      --mint: #059669;
+      --mint-dark: #047857;
+      --mint-light: #ecfdf5;
+      --border-subtle: #f1f5f9;
+      --border-box: #e2e8f0;
+    }
+
+    body {
+      background-color: #f8fafc;
+      color: var(--text);
+      font-family: 'Manrope', -apple-system, BlinkMacSystemFont, sans-serif;
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+      padding-top: 56px;
+      margin: 0;
+    }
+
+    .custom-page-wrap {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 48px 24px 80px;
+    }
+
+    @media (max-width: 768px) {
+      .custom-page-wrap {
+        padding: 32px 16px 60px;
+      }
+    }
+
+    /* Hero section */
+    .custom-hero {
+      background: #ffffff;
+      border: 1px solid var(--border-box);
+      border-radius: 20px;
+      padding: 44px 40px;
+      margin-bottom: 48px;
+      box-shadow: 0 4px 20px -4px rgba(0, 0, 0, 0.04);
+      display: grid;
+      grid-template-columns: 1.2fr 0.8fr;
+      gap: 40px;
+      align-items: center;
+    }
+
+    @media (max-width: 900px) {
+      .custom-hero {
+        grid-template-columns: 1fr;
+        padding: 32px 24px;
+        gap: 32px;
+      }
+    }
+
+    .custom-badge-tag {
+      background: #ecfdf5;
+      color: #059669;
+      border: 1px solid #a7f3d0;
+      padding: 5px 14px;
+      border-radius: 9999px;
+      font-size: 0.78rem;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      margin-bottom: 16px;
+    }
+
+    .custom-main-title {
+      font-size: 2.3rem;
+      font-weight: 800;
+      color: #0f172a;
+      letter-spacing: -0.8px;
+      margin: 0 0 16px;
+      line-height: 1.25;
+    }
+
+    .custom-desc {
+      font-size: 1.02rem;
+      color: #475569;
+      line-height: 1.65;
+      margin: 0 0 24px;
+    }
+
+    /* 3 Commitments */
+    .custom-commitments {
+      list-style: none;
+      padding: 0;
+      margin: 0 0 28px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .custom-commitment-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: #1e293b;
+    }
+
+    .custom-check-icon {
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      background: #ecfdf5;
+      color: #059669;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+
+    .btn-zalo-hero {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      background: #059669;
+      color: #ffffff;
+      padding: 14px 28px;
+      border-radius: 12px;
+      font-weight: 700;
+      font-size: 1rem;
+      text-decoration: none;
+      box-shadow: 0 4px 16px rgba(5, 150, 105, 0.35);
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .btn-zalo-hero:hover {
+      background: #047857;
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(5, 150, 105, 0.45);
+      color: #ffffff;
+    }
+
+    /* Quick Highlight Card in Hero */
+    .custom-highlight-box {
+      background: linear-gradient(135deg, #f0fdf4 0%, #ecfdf5 100%);
+      border: 1.5px solid #a7f3d0;
+      border-radius: 16px;
+      padding: 28px;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+
+    .highlight-stat-item {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .highlight-stat-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      background: #ffffff;
+      color: #059669;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 2px 8px rgba(5, 150, 105, 0.15);
+      flex-shrink: 0;
+    }
+
+    .highlight-stat-info strong {
+      display: block;
+      font-size: 1.1rem;
+      font-weight: 800;
+      color: #065f46;
+    }
+
+    .highlight-stat-info span {
+      font-size: 0.85rem;
+      color: #047857;
+    }
+
+    /* Section Titles */
+    .custom-section-heading {
+      text-align: center;
+      margin-bottom: 36px;
+    }
+
+    .custom-section-heading h2 {
+      font-size: 1.85rem;
+      font-weight: 800;
+      color: #0f172a;
+      letter-spacing: -0.5px;
+      margin: 0 0 8px;
+    }
+
+    .custom-section-heading p {
+      color: var(--muted);
+      font-size: 0.98rem;
+      margin: 0;
+    }
+
+    /* 5 Painpoints Grid */
+    .painpoints-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 20px;
+      margin-bottom: 56px;
+    }
+
+    .painpoint-story-card {
+      background: #ffffff;
+      border: 1px solid var(--border-box);
+      border-radius: 16px;
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.02);
+    }
+
+    .painpoint-story-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 10px 24px -4px rgba(0, 0, 0, 0.08);
+      border-color: #cbd5e1;
+    }
+
+    .painpoint-author-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+
+    .painpoint-avatar-badge {
+      width: 38px;
+      height: 38px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 0.85rem;
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .painpoint-author-name {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: #0f172a;
+    }
+
+    .painpoint-quote {
+      font-size: 0.95rem;
+      color: #334155;
+      line-height: 1.55;
+      margin-bottom: 16px;
+      font-style: italic;
+      background: #f8fafc;
+      padding: 12px 14px;
+      border-radius: 10px;
+      border-left: 3px solid #059669;
+    }
+
+    .painpoint-tags {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.78rem;
+      color: #059669;
+      font-weight: 600;
+    }
+
+    /* 3-Step Process */
+    .process-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+      margin-bottom: 56px;
+    }
+
+    @media (max-width: 800px) {
+      .process-grid {
+        grid-template-columns: 1fr;
+        gap: 16px;
+      }
+    }
+
+    .process-card {
+      background: #ffffff;
+      border: 1px solid var(--border-box);
+      border-radius: 16px;
+      padding: 26px 22px;
+      text-align: center;
+    }
+
+    .process-step-num {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: #ecfdf5;
+      color: #059669;
+      font-size: 1.1rem;
+      font-weight: 800;
+      font-family: 'JetBrains Mono', monospace;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 14px;
+    }
+
+    .process-card h4 {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: #0f172a;
+      margin: 0 0 8px;
+    }
+
+    .process-card p {
+      font-size: 0.9rem;
+      color: var(--muted);
+      line-height: 1.5;
+      margin: 0;
+    }
+
+    /* Final CTA */
+    .custom-bottom-cta {
+      background: #0f172a;
+      color: #ffffff;
+      border-radius: 20px;
+      padding: 44px 36px;
+      text-align: center;
+      box-shadow: 0 12px 32px -8px rgba(15, 23, 42, 0.3);
+    }
+
+    .custom-bottom-cta h3 {
+      font-size: 1.8rem;
+      font-weight: 800;
+      margin: 0 0 12px;
+      letter-spacing: -0.5px;
+    }
+
+    .custom-bottom-cta p {
+      color: #94a3b8;
+      font-size: 1rem;
+      max-width: 560px;
+      margin: 0 auto 24px;
+      line-height: 1.6;
+    }
+  </style>
+</head>
+<body>
+  <!-- Top Navigation Bar (Shared Component) -->
+  <header class="top-nav">
+    <div class="nav-container">
+      <div class="nav-logo" style="display: flex; align-items: center;">
+        <a href="index.html" style="display: inline-flex; align-items: center; gap: 10px; text-decoration: none;">
+          <img src="./assets/logo.jpg" alt="File Đi Làm" style="width: 36px; height: 36px; border-radius: 50%; object-fit: cover; border: 1.5px solid #059669; box-shadow: 0 1px 3px rgba(0,0,0,0.08);">
+          <strong id="navBrand" style="font-family: 'Manrope', sans-serif; font-size: 1.25rem; font-weight: 700; letter-spacing: -0.5px; color: #059669; line-height: 1;">File Đi Làm</strong>
+        </a>
+      </div>
+      <nav class="nav-links">
+        <a href="index.html">Trang chủ</a>
+        <a href="index.html#catalog">Mẫu File Đi Làm</a>
+        <a href="faq.html">Hỏi đáp</a>
+        <a href="custom.html" class="nav-link-custom active">
+          <svg class="nav-sparkle-icon" width="15" height="15" viewBox="0 0 24 24" fill="#059669">
+            <path d="M10 2C10 6.418 6.418 10 2 10C6.418 10 10 13.582 10 18C10 13.582 13.582 10 18 10C13.582 10 10 6.418 10 2Z" />
+            <path d="M18 14C18 16.209 16.209 18 14 18C16.209 18 18 19.791 18 22C18 19.791 19.791 18 22 18C19.791 18 18 16.209 18 14Z" />
+          </svg>
+          <span>Thiết kế file riêng</span>
+        </a>
+      </nav>
+      <div class="nav-actions" style="display: flex; align-items: center;">
+        <a href="index.html#catalog" class="cart-button shopping-bag-btn" aria-label="Xem sản phẩm">
+          <svg class="cart-bag-icon" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"></path>
+            <line x1="3" y1="6" x2="21" y2="6"></line>
+            <path d="M16 10a4 4 0 0 1-8 0"></path>
+          </svg>
+        </a>
+        <button class="menu-burger-btn" id="openMobileMenu" type="button" aria-label="Menu" title="Menu">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="4" y1="7" x2="20" y2="7"></line>
+            <line x1="4" y1="12" x2="20" y2="12"></line>
+            <line x1="4" y1="17" x2="20" y2="17"></line>
+          </svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Mobile Nav Drawer -->
+  <aside class="cart-drawer mobile-nav-drawer" id="mobileNavDrawer" aria-hidden="true" style="z-index: 10008;">
+    <div class="drawer-header">
+      <strong style="font-family: 'Manrope', sans-serif; font-size: 1.25rem; font-weight: 700; color: #0f172a; letter-spacing: -0.5px;">File Đi Làm</strong>
+      <button class="icon-button close-drawer-btn" id="closeMobileMenu" type="button" aria-label="Đóng">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="18" y1="6" x2="6" y2="18"></line>
+          <line x1="6" y1="6" x2="18" y2="18"></line>
+        </svg>
+      </button>
+    </div>
+    <div class="drawer-body" style="padding: 24px 20px;">
+      <nav class="mobile-nav-list" style="display: flex; flex-direction: column; gap: 16px;">
+        <a href="index.html" class="mobile-nav-link" style="font-size: 1.15rem; font-weight: 600; color: #0f172a; padding: 10px 0; border-bottom: 1px solid #f1f5f9; display: flex; justify-content: space-between; align-items: center;">
+          <span>Trang chủ</span>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"></polyline></svg>
+        </a>
+        <a href="index.html#catalog" class="mobile-nav-link" style="font-size: 1.15rem; font-weight: 600; color: #0f172a; padding: 10px 0; border-bottom: 1px solid #f1f5f9; display: flex; justify-content: space-between; align-items: center;">
+          <span>Mẫu File Đi Làm</span>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"></polyline></svg>
+        </a>
+        <a href="faq.html" class="mobile-nav-link" style="font-size: 1.15rem; font-weight: 600; color: #0f172a; padding: 10px 0; border-bottom: 1px solid #f1f5f9; display: flex; justify-content: space-between; align-items: center;">
+          <span>Hỏi đáp</span>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"></polyline></svg>
+        </a>
+        <a href="custom.html" class="mobile-nav-link" style="font-size: 1.15rem; font-weight: 700; color: #059669; padding: 10px 0; border-bottom: 1px solid #f1f5f9; display: flex; justify-content: space-between; align-items: center;">
+          <span>Thiết kế file riêng</span>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"></polyline></svg>
+        </a>
+        <a href="/chinh-sach.html" class="mobile-nav-link" style="font-size: 1.15rem; font-weight: 600; color: #0f172a; padding: 10px 0; border-bottom: 1px solid #f1f5f9; display: flex; justify-content: space-between; align-items: center;">
+          <span>Chính sách & Bảo mật</span>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"></polyline></svg>
+        </a>
+      </nav>
+    </div>
+    <div class="drawer-footer" style="padding: 20px; border-top: 1px solid #f1f5f9;">
+      <div style="font-size: 0.84rem; color: #64748b; line-height: 1.5; margin-bottom: 12px;">Hotline tư vấn: <strong style="color: #0f172a;">0938 134 576</strong></div>
+      <div style="font-size: 0.84rem; color: #64748b;">Hỗ trợ kỹ thuật cả thứ 7 & CN</div>
+    </div>
+  </aside>
+
+  <!-- Main Custom Content -->
+  <main class="custom-page-wrap">
+    <!-- Hero Banner -->
+    <div class="custom-hero">
+      <div>
+        <span class="custom-badge-tag">
+          <i data-lucide="sparkles" style="width: 14px; height: 14px;"></i>
+          <span>DỊCH VỤ THIẾT KẾ RIÊNG</span>
+        </span>
+        <h1 class="custom-main-title">Thiết kế File Đi Làm của riêng bạn</h1>
+        <p class="custom-desc">
+          Quy trình của bạn đặc thù và chưa có mẫu sẵn? Đừng để mớ sổ sách hay cách tính thủ công làm bạn đau đầu mỗi tối. Chỉ cần gửi bài toán qua Zalo, File Đi Làm code riêng Web App &amp; Google Sheets đúng cách bạn làm việc.
+        </p>
+
+        <ul class="custom-commitments">
+          <li class="custom-commitment-item">
+            <span class="custom-check-icon"><i data-lucide="check" style="width: 14px; height: 14px;"></i></span>
+            <span>Tư vấn cấu trúc &amp; báo giá nhanh miễn phí</span>
+          </li>
+          <li class="custom-commitment-item">
+            <span class="custom-check-icon"><i data-lucide="check" style="width: 14px; height: 14px;"></i></span>
+            <span>Chốt tiến độ trước khi làm (bàn giao 24 – 48h)</span>
+          </li>
+          <li class="custom-commitment-item">
+            <span class="custom-check-icon"><i data-lucide="check" style="width: 14px; height: 14px;"></i></span>
+            <span>Chỉnh sửa tới khi bạn thấy đúng ý, bảo hành trọn đời</span>
+          </li>
+        </ul>
+
+        <div>
+          <a href="https://zalo.me/0938134576" target="_blank" rel="noopener noreferrer" class="btn-zalo-hero">
+            <i data-lucide="message-square" style="width: 18px; height: 18px;"></i>
+            <span>Nhắn Zalo bài toán của bạn ↗</span>
+          </a>
+        </div>
+      </div>
+
+      <!-- Quick Highlights Card -->
+      <div class="custom-highlight-box">
+        <div class="highlight-stat-item">
+          <div class="highlight-stat-icon">
+            <i data-lucide="clock" style="width: 22px; height: 22px;"></i>
+          </div>
+          <div class="highlight-stat-info">
+            <strong>24 – 48 Giờ</strong>
+            <span>Thời gian bàn giao phiên bản chạy thử</span>
+          </div>
+        </div>
+
+        <div class="highlight-stat-item">
+          <div class="highlight-stat-icon">
+            <i data-lucide="shield-check" style="width: 22px; height: 22px;"></i>
+          </div>
+          <div class="highlight-stat-info">
+            <strong>Bảo Hành Trọn Đời</strong>
+            <span>Hỗ trợ sửa lỗi công thức &amp; tính năng vĩnh viễn</span>
+          </div>
+        </div>
+
+        <div class="highlight-stat-item">
+          <div class="highlight-stat-icon">
+            <i data-lucide="smartphone" style="width: 22px; height: 22px;"></i>
+          </div>
+          <div class="highlight-stat-info">
+            <strong>Trải Nghiệm Kép</strong>
+            <span>Google Sheets nền tảng + Web App di động</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 5 Painpoints Case Studies -->
+    <div class="custom-section-heading">
+      <h2>Những bài toán khách hàng đã gửi cho tụi mình</h2>
+      <p>Từ quán xá, phòng trọ, xưởng sản xuất đến đại lý bán sỉ — mỗi mô hình đều có giải pháp riêng</p>
+    </div>
+
+    <div class="painpoints-grid">
+      <!-- Case 1: Chủ Nhà Trọ -->
+      <div class="painpoint-story-card">
+        <div>
+          <div class="painpoint-author-row">
+            <div class="painpoint-avatar-badge" style="background: #ecfdf5; color: #059669; border: 1px solid #a7f3d0;">NT</div>
+            <div>
+              <div class="painpoint-author-name">Anh Nam • Chủ 18 phòng trọ</div>
+              <div style="font-size: 0.78rem; color: #94a3b8;">Hà Nội</div>
+            </div>
+          </div>
+          <div class="painpoint-quote">
+            "Cuối tháng ngồi cộng điện nước từng phòng rồi viết phiếu thu gửi Zalo mất nguyên cả ngày..."
+          </div>
+        </div>
+        <div class="painpoint-tags">
+          <span>#QuảnLýPhòngTrọ</span>
+          <span>•</span>
+          <span>#ĐiệnNước</span>
+        </div>
+      </div>
+
+      <!-- Case 2: Chủ Salon Tóc -->
+      <div class="painpoint-story-card">
+        <div>
+          <div class="painpoint-author-row">
+            <div class="painpoint-avatar-badge" style="background: #fdf2f8; color: #db2777; border: 1px solid #fbcfe8;">ST</div>
+            <div>
+              <div class="painpoint-author-name">Chị Mai • Chủ Salon 6 thợ</div>
+              <div style="font-size: 0.78rem; color: #94a3b8;">TP. Hồ Chí Minh</div>
+            </div>
+          </div>
+          <div class="painpoint-quote">
+            "Hoa hồng thợ chính, thợ phụ với tiền tip lộn xộn, cuối tháng tính lương toàn cãi nhau..."
+          </div>
+        </div>
+        <div class="painpoint-tags">
+          <span>#LươngHoaHồng</span>
+          <span>•</span>
+          <span>#ChấmCông</span>
+        </div>
+      </div>
+
+      <!-- Case 3: Quản Lý Bida -->
+      <div class="painpoint-story-card">
+        <div>
+          <div class="painpoint-author-row">
+            <div class="painpoint-avatar-badge" style="background: #eff6ff; color: #2563eb; border: 1px solid #bfdbfe;">BD</div>
+            <div>
+              <div class="painpoint-author-name">Hoàng Tuấn • Quản lý CLB Bida</div>
+              <div style="font-size: 0.78rem; color: #94a3b8;">Đà Nẵng</div>
+            </div>
+          </div>
+          <div class="painpoint-quote">
+            "12 bàn vừa tính tiền theo phút vừa bán nước, ca đêm nhân viên hay tính nhầm giờ..."
+          </div>
+        </div>
+        <div class="painpoint-tags">
+          <span>#BidaTínhGiờ</span>
+          <span>•</span>
+          <span>#ThấtThoát</span>
+        </div>
+      </div>
+
+      <!-- Case 4: Xưởng May -->
+      <div class="painpoint-story-card">
+        <div>
+          <div class="painpoint-author-row">
+            <div class="painpoint-avatar-badge" style="background: #fefce8; color: #ca8a04; border: 1px solid #fef08a;">XM</div>
+            <div>
+              <div class="painpoint-author-name">Chị Hằng • Xưởng may thời trang</div>
+              <div style="font-size: 0.78rem; color: #94a3b8;">Bình Dương</div>
+            </div>
+          </div>
+          <div class="painpoint-quote">
+            "Một mẫu 4 màu x 5 size, kho loạn xạ không biết còn màu nào size nào để báo sỉ..."
+          </div>
+        </div>
+        <div class="painpoint-tags">
+          <span>#KhoMàuSize</span>
+          <span>•</span>
+          <span>#QuảnLýXưởng</span>
+        </div>
+      </div>
+
+      <!-- Case 5: Bác Hùng • Đại lý bán sỉ -->
+      <div class="painpoint-story-card">
+        <div>
+          <div class="painpoint-author-row">
+            <div class="painpoint-avatar-badge" style="background: #f0fdf4; color: #166534; border: 1px solid #bbf7d0;">BH</div>
+            <div>
+              <div class="painpoint-author-name">Bác Hùng • Đại lý bán sỉ</div>
+              <div style="font-size: 0.78rem; color: #94a3b8;">Hải Phòng</div>
+            </div>
+          </div>
+          <div class="painpoint-quote">
+            "File Excel tải trên mạng bị lỗi #VALUE!, muốn thêm cột theo dõi công nợ mà bị khóa mật khẩu..."
+          </div>
+        </div>
+        <div class="painpoint-tags">
+          <span>#LỗiCôngThức</span>
+          <span>•</span>
+          <span>#KhóaMậtKhẩu</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 3-Step Process -->
+    <div class="custom-section-heading">
+      <h2>Quy trình làm việc 3 bước tinh gọn</h2>
+      <p>Không thủ tục phức tạp — bắt đầu ngay từ cuộc trò chuyện Zalo</p>
+    </div>
+
+    <div class="process-grid">
+      <div class="process-card">
+        <div class="process-step-num">01</div>
+        <h4>1. Nhắn bài toán qua Zalo</h4>
+        <p>Gửi sổ sách hiện tại, ảnh chụp quy trình hoặc mô tả cách bạn đang ghi chép hằng ngày.</p>
+      </div>
+
+      <div class="process-card">
+        <div class="process-step-num">02</div>
+        <h4>2. Nhận bản thử sau 24-48h</h4>
+        <p>Bên mình lên cấu trúc Google Sheets + Web App demo để bạn nhập thử dữ liệu thực tế.</p>
+      </div>
+
+      <div class="process-card">
+        <div class="process-step-num">03</div>
+        <h4>3. Tinh chỉnh &amp; Dùng trọn đời</h4>
+        <p>Góp ý chỉnh sửa cho tới khi 100% đúng ý bạn. Hỗ trợ kỹ thuật đồng hành vĩnh viễn.</p>
+      </div>
+    </div>
+
+    <!-- Final CTA Banner -->
+    <div class="custom-bottom-cta">
+      <h3>Sẵn sàng tự động hóa công việc hôm nay?</h3>
+      <p>Chỉ cần gửi bài toán hoặc hình ảnh sổ sách qua Zalo, File Đi Làm sẽ tư vấn cấu trúc và giải pháp phù hợp nhất cho bạn.</p>
+      <a href="https://zalo.me/0938134576" target="_blank" rel="noopener noreferrer" class="btn-zalo-hero" style="background: #059669; padding: 15px 32px; font-size: 1.05rem;">
+        <i data-lucide="message-circle" style="width: 20px; height: 20px;"></i>
+        <span>Nhắn Zalo bài toán của bạn (0938 134 576) ↗</span>
+      </a>
+    </div>
+  </main>
+
+  <!-- Footer (Shared Component) -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-columns">
+        <div class="footer-brand-col">
+          <div class="footer-brand-title" style="display: flex; align-items: center; gap: 10px;">
+            <img src="./assets/logo.jpg" alt="File Đi Làm" style="width: 32px; height: 32px; border-radius: 50%; object-fit: cover; border: 1.5px solid #059669;">
+            <span>File Đi Làm</span>
+          </div>
+          <div class="footer-social-icons">
+            <a href="https://youtube.com" target="_blank" rel="noopener" aria-label="YouTube">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
+            </a>
+            <a href="https://tiktok.com" target="_blank" rel="noopener" aria-label="TikTok">
+              <svg width="19" height="19" viewBox="0 0 24 24" fill="currentColor"><path d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-1.43.08-2.86-.31-4.08-1.03-2.02-1.19-3.44-3.37-3.65-5.71-.02-.5-.03-1-.01-1.49.18-1.9 1.12-3.72 2.58-4.96 1.66-1.44 3.98-2.13 6.15-1.72.02 1.48-.04 2.96-.04 4.44-.99-.32-2.15-.23-3.02.37-.63.41-1.11 1.04-1.36 1.75-.21.51-.24 1.07-.14 1.61.24 1.64 1.82 3.02 3.5 2.87 1.12-.01 2.19-.66 2.77-1.61.19-.33.4-.67.41-1.06.1-1.79.06-3.57.07-5.36.01-4.03-.01-8.05.02-12.07z"/></svg>
+            </a>
+            <a href="https://threads.net" target="_blank" rel="noopener" aria-label="Threads">
+              <svg width="19" height="19" viewBox="0 0 24 24" fill="currentColor"><path d="M12.001 0C5.372 0 0 5.373 0 12s5.372 12 12 12 12-5.373 12-12S18.628 0 12.001 0zm3.882 12.72c-.172 2.683-1.674 4.14-3.955 4.14-2.19 0-3.665-1.577-3.665-3.918 0-2.582 1.647-4.108 3.864-4.108 1.55 0 2.748.775 3.25 2.083l-1.62.774c-.287-.714-.84-1.171-1.63-1.171-1.282 0-2.023 1.04-2.023 2.422 0 1.446.772 2.298 1.954 2.298 1.341 0 2.05-.888 2.136-2.062h-2.136v-1.69h3.766v1.232z"/></svg>
+            </a>
+            <a href="https://facebook.com" target="_blank" rel="noopener" aria-label="Facebook">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+            </a>
+          </div>
+          <p class="footer-tagline">Giải pháp Google Sheets & Web App tự động hoá quy trình làm việc cho cá nhân và doanh nghiệp.</p>
+        </div>
+        <div>
+          <h4 class="footer-title">Liên hệ</h4>
+          <ul class="footer-links footer-contact-list">
+            <li>
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
+              <span>0938 134 576</span>
+            </li>
+            <li>
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
+              <span>kiencam.work@gmail.com</span>
+            </li>
+            <li>
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+              <span>TP. Hồ Chí Minh</span>
+            </li>
+          </ul>
+        </div>
+        <div>
+          <h4 class="footer-title">Dịch vụ &amp; Template</h4>
+          <ul class="footer-links">
+            <li><a href="index.html#catalog">Tất cả template</a></li>
+            <li><a href="custom.html">Thiết kế file riêng</a></li>
+            <li><a href="faq.html">Câu hỏi thường gặp (FAQ)</a></li>
+            <li><a href="index.html#catalog">Kinh doanh &amp; Quản lý</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 class="footer-title">Chính sách</h4>
+          <ul class="footer-links">
+            <li><a href="/chinh-sach.html#dieu-khoan-su-dung">Điều khoản sử dụng</a></li>
+            <li><a href="/chinh-sach.html#bao-mat-thong-tin">Bảo mật thông tin</a></li>
+            <li><a href="/chinh-sach.html#giao-hang">Chính sách giao hàng</a></li>
+            <li><a href="/chinh-sach.html#doi-tra-va-hoan-tien">Hỗ trợ & hoàn tiền</a></li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="footer-bottom">
+        <div>© 2026 File Đi Làm. Nền tảng tự động hoá trên Google Sheets.</div>
+        <div class="footer-bottom-links">
+          <a href="faq.html">FAQ</a>
+          <a href="custom.html">Thiết kế riêng</a>
+          <a href="/chinh-sach.html#dieu-khoan-su-dung">Điều khoản</a>
+          <a href="/chinh-sach.html#bao-mat-thong-tin">Bảo mật</a>
+          <a href="/chinh-sach.html#giao-hang">Giao hàng</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      if (window.lucide) {
+        lucide.createIcons();
+      }
+
+      // Mobile Menu Drawer
+      var openMobileMenuBtn = document.getElementById("openMobileMenu");
+      var closeMobileMenuBtn = document.getElementById("closeMobileMenu");
+      var mobileNavDrawer = document.getElementById("mobileNavDrawer");
+
+      if (openMobileMenuBtn && mobileNavDrawer) {
+        openMobileMenuBtn.addEventListener("click", function () {
+          mobileNavDrawer.classList.add("is-open");
+          document.body.classList.add("drawer-open");
+        });
+      }
+      if (closeMobileMenuBtn && mobileNavDrawer) {
+        closeMobileMenuBtn.addEventListener("click", function () {
+          mobileNavDrawer.classList.remove("is-open");
+          document.body.classList.remove("drawer-open");
+        });
+      }
+      document.addEventListener("click", function (event) {
+        if (mobileNavDrawer && mobileNavDrawer.classList.contains("is-open")) {
+          if (!mobileNavDrawer.contains(event.target) && !event.target.closest("#openMobileMenu")) {
+            mobileNavDrawer.classList.remove("is-open");
+            document.body.classList.remove("drawer-open");
+          }
+        }
+      });
+    });
+  </script>
+</body>
+</html>

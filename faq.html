@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Câu Hỏi Thường Gặp (FAQ) | File Đi Làm</title>
+  <meta name="description" content="Tất cả những điều bạn cần biết trước khi sở hữu và sử dụng file Google Sheets tại File Đi Làm." />
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23059669'><path d='M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z'/><polyline points='14 2 14 8 20 8'/></svg>" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./storefront.css" />
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <style>
+    :root {
+      --text: #0f172a;
+      --muted: #64748b;
+      --mint: #059669;
+      --mint-dark: #047857;
+      --mint-light: #ecfdf5;
+      --border-subtle: #f1f5f9;
+      --border-box: #e2e8f0;
+    }
+
+    body {
+      background-color: #f8fafc;
+      color: var(--text);
+      font-family: 'Manrope', -apple-system, BlinkMacSystemFont, sans-serif;
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+      padding-top: 56px;
+      margin: 0;
+    }
+
+    .faq-page-wrap {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 48px 24px 80px;
+    }
+
+    @media (max-width: 768px) {
+      .faq-page-wrap {
+        padding: 32px 16px 60px;
+      }
+    }
+
+    .faq-hero-header {
+      text-align: center;
+      margin-bottom: 40px;
+    }
+
+    .faq-badge-tag {
+      background: #ffffff;
+      border: 1px solid #cbd5e1;
+      padding: 4px 14px;
+      border-radius: 9999px;
+      font-size: 0.76rem;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      color: #475569;
+      display: inline-block;
+      margin-bottom: 12px;
+    }
+
+    .faq-main-title {
+      font-size: 2.1rem;
+      font-weight: 800;
+      color: #0f172a;
+      letter-spacing: -0.6px;
+      margin: 0 0 12px;
+      line-height: 1.25;
+    }
+
+    .faq-subtitle {
+      font-size: 1rem;
+      color: var(--muted);
+      max-width: 580px;
+      margin: 0 auto;
+      line-height: 1.55;
+    }
+
+    /* Accordion styles */
+    .faq-accordion-group {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      margin-bottom: 48px;
+    }
+
+    .faq-card {
+      background: #ffffff;
+      border: 1px solid var(--border-box);
+      border-radius: 14px;
+      overflow: hidden;
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+    }
+
+    .faq-card.is-open {
+      border-color: #a7f3d0;
+      box-shadow: 0 4px 16px rgba(5, 150, 105, 0.08);
+    }
+
+    .faq-trigger {
+      width: 100%;
+      background: none;
+      border: none;
+      padding: 20px 22px;
+      text-align: left;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      cursor: pointer;
+      font-family: inherit;
+    }
+
+    .faq-trigger:focus-visible {
+      outline: 2px solid var(--mint);
+      outline-offset: -2px;
+    }
+
+    .faq-card-question {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: #0f172a;
+      line-height: 1.45;
+      margin: 0;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .faq-card-num {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 26px;
+      height: 26px;
+      border-radius: 8px;
+      background: #f1f5f9;
+      color: #059669;
+      font-size: 0.78rem;
+      font-weight: 800;
+      font-family: 'JetBrains Mono', monospace;
+      flex-shrink: 0;
+    }
+
+    .faq-card.is-open .faq-card-num {
+      background: #ecfdf5;
+    }
+
+    .faq-chevron {
+      color: #94a3b8;
+      transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), color 0.2s;
+      flex-shrink: 0;
+    }
+
+    .faq-card.is-open .faq-chevron {
+      transform: rotate(180deg);
+      color: var(--mint);
+    }
+
+    .faq-content {
+      display: none;
+      padding: 0 22px 22px 60px;
+      color: #334155;
+      font-size: 0.95rem;
+      line-height: 1.65;
+      border-top: 1px solid #f8fafc;
+    }
+
+    @media (max-width: 640px) {
+      .faq-content {
+        padding: 0 18px 18px 18px;
+      }
+    }
+
+    .faq-card.is-open .faq-content {
+      display: block;
+      animation: fadeIn 0.25s ease-out;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-4px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Zalo CTA Box */
+    .faq-zalo-cta {
+      background: linear-gradient(135deg, #ecfdf5 0%, #f0fdf4 100%);
+      border: 1.5px solid #a7f3d0;
+      border-radius: 18px;
+      padding: 32px 28px;
+      text-align: center;
+      box-shadow: 0 8px 24px -4px rgba(5, 150, 105, 0.1);
+    }
+
+    .faq-zalo-cta h3 {
+      font-size: 1.35rem;
+      font-weight: 800;
+      color: #065f46;
+      margin: 0 0 8px;
+    }
+
+    .faq-zalo-cta p {
+      font-size: 0.94rem;
+      color: #047857;
+      max-width: 520px;
+      margin: 0 auto 20px;
+      line-height: 1.55;
+    }
+
+    .btn-zalo-faq {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      background: #059669;
+      color: #ffffff;
+      padding: 13px 26px;
+      border-radius: 12px;
+      font-weight: 700;
+      font-size: 0.96rem;
+      text-decoration: none;
+      box-shadow: 0 4px 14px rgba(5, 150, 105, 0.35);
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .btn-zalo-faq:hover {
+      background: #047857;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 18px rgba(5, 150, 105, 0.45);
+      color: #ffffff;
+    }
+  </style>
+</head>
+<body>
+  <!-- Top Navigation Bar (Shared Component) -->
+  <header class="top-nav">
+    <div class="nav-container">
+      <div class="nav-logo" style="display: flex; align-items: center;">
+        <a href="index.html" style="display: inline-flex; align-items: center; gap: 10px; text-decoration: none;">
+          <img src="./assets/logo.jpg" alt="File Đi Làm" style="width: 36px; height: 36px; border-radius: 50%; object-fit: cover; border: 1.5px solid #059669; box-shadow: 0 1px 3px rgba(0,0,0,0.08);">
+          <strong id="navBrand" style="font-family: 'Manrope', sans-serif; font-size: 1.25rem; font-weight: 700; letter-spacing: -0.5px; color: #059669; line-height: 1;">File Đi Làm</strong>
+        </a>
+      </div>
+      <nav class="nav-links">
+        <a href="index.html">Trang chủ</a>
+        <a href="index.html#catalog">Mẫu File Đi Làm</a>
+        <a href="faq.html" class="active">Hỏi đáp</a>
+        <a href="custom.html" class="nav-link-custom">
+          <svg class="nav-sparkle-icon" width="15" height="15" viewBox="0 0 24 24" fill="#059669">
+            <path d="M10 2C10 6.418 6.418 10 2 10C6.418 10 10 13.582 10 18C10 13.582 13.582 10 18 10C13.582 10 10 6.418 10 2Z" />
+            <path d="M18 14C18 16.209 16.209 18 14 18C16.209 18 18 19.791 18 22C18 19.791 19.791 18 22 18C19.791 18 18 16.209 18 14Z" />
+          </svg>
+          <span>Thiết kế file riêng</span>
+        </a>
+      </nav>
+      <div class="nav-actions" style="display: flex; align-items: center;">
+        <a href="index.html#catalog" class="cart-button shopping-bag-btn" aria-label="Xem sản phẩm">
+          <svg class="cart-bag-icon" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"></path>
+            <line x1="3" y1="6" x2="21" y2="6"></line>
+            <path d="M16 10a4 4 0 0 1-8 0"></path>
+          </svg>
+        </a>
+        <button class="menu-burger-btn" id="openMobileMenu" type="button" aria-label="Menu" title="Menu">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="4" y1="7" x2="20" y2="7"></line>
+            <line x1="4" y1="12" x2="20" y2="12"></line>
+            <line x1="4" y1="17" x2="20" y2="17"></line>
+          </svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Mobile Nav Drawer -->
+  <aside class="cart-drawer mobile-nav-drawer" id="mobileNavDrawer" aria-hidden="true" style="z-index: 10008;">
+    <div class="drawer-header">
+      <strong style="font-family: 'Manrope', sans-serif; font-size: 1.25rem; font-weight: 700; color: #0f172a; letter-spacing: -0.5px;">File Đi Làm</strong>
+      <button class="icon-button close-drawer-btn" id="closeMobileMenu" type="button" aria-label="Đóng">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="18" y1="6" x2="6" y2="18"></line>
+          <line x1="6" y1="6" x2="18" y2="18"></line>
+        </svg>
+      </button>
+    </div>
+    <div class="drawer-body" style="padding: 24px 20px;">
+      <nav class="mobile-nav-list" style="display: flex; flex-direction: column; gap: 16px;">
+        <a href="index.html" class="mobile-nav-link" style="font-size: 1.15rem; font-weight: 600; color: #0f172a; padding: 10px 0; border-bottom: 1px solid #f1f5f9; display: flex; justify-content: space-between; align-items: center;">
+          <span>Trang chủ</span>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"></polyline></svg>
+        </a>
+        <a href="index.html#catalog" class="mobile-nav-link" style="font-size: 1.15rem; font-weight: 600; color: #0f172a; padding: 10px 0; border-bottom: 1px solid #f1f5f9; display: flex; justify-content: space-between; align-items: center;">
+          <span>Mẫu File Đi Làm</span>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"></polyline></svg>
+        </a>
+        <a href="faq.html" class="mobile-nav-link" style="font-size: 1.15rem; font-weight: 700; color: #059669; padding: 10px 0; border-bottom: 1px solid #f1f5f9; display: flex; justify-content: space-between; align-items: center;">
+          <span>Hỏi đáp</span>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"></polyline></svg>
+        </a>
+        <a href="custom.html" class="mobile-nav-link" style="font-size: 1.15rem; font-weight: 600; color: #0f172a; padding: 10px 0; border-bottom: 1px solid #f1f5f9; display: flex; justify-content: space-between; align-items: center;">
+          <span>Thiết kế file riêng</span>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"></polyline></svg>
+        </a>
+        <a href="/chinh-sach.html" class="mobile-nav-link" style="font-size: 1.15rem; font-weight: 600; color: #0f172a; padding: 10px 0; border-bottom: 1px solid #f1f5f9; display: flex; justify-content: space-between; align-items: center;">
+          <span>Chính sách & Bảo mật</span>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"></polyline></svg>
+        </a>
+      </nav>
+    </div>
+    <div class="drawer-footer" style="padding: 20px; border-top: 1px solid #f1f5f9;">
+      <div style="font-size: 0.84rem; color: #64748b; line-height: 1.5; margin-bottom: 12px;">Hotline tư vấn: <strong style="color: #0f172a;">0938 134 576</strong></div>
+      <div style="font-size: 0.84rem; color: #64748b;">Hỗ trợ kỹ thuật cả thứ 7 & CN</div>
+    </div>
+  </aside>
+
+  <!-- Main FAQ Content -->
+  <main class="faq-page-wrap">
+    <div class="faq-hero-header">
+      <span class="faq-badge-tag">TRƯỚC KHI MUA</span>
+      <h1 class="faq-main-title">Những câu khách hay hỏi</h1>
+      <p class="faq-subtitle">Tất cả những điều bạn cần biết trước khi sở hữu và sử dụng file Google Sheets tại File Đi Làm.</p>
+    </div>
+
+    <div class="faq-accordion-group">
+      <!-- Item 1: Thiết bị & Di động -->
+      <div class="faq-card is-open">
+        <button class="faq-trigger" type="button" aria-expanded="true">
+          <div class="faq-card-question">
+            <span class="faq-card-num">01</span>
+            <span>Tôi chỉ dùng Điện thoại hoặc iPad/Tablet thì có dùng được không?</span>
+          </div>
+          <i data-lucide="chevron-down" class="faq-chevron"></i>
+        </button>
+        <div class="faq-content">
+          <p style="margin: 0 0 10px 0;"><strong>Vận hành hằng ngày: 100% trên Điện thoại, iPad/Tablet và Máy tính.</strong> Giao diện Web App được tối ưu chuyên biệt cho di động, bạn có thể lưu icon ra màn hình chính để mở 1 chạm thao tác ngay mọi lúc mọi nơi.</p>
+          <p style="margin: 0 0 10px 0;"><strong>Kích hoạt lần đầu (chỉ mất 1 – 2 phút):</strong> Bạn cần mở file <strong>duy nhất 1 lần trên trình duyệt Máy tính/Laptop</strong> để Google hiển thị hộp thoại cấp quyền liên kết bảo mật vào tài khoản Gmail chính chủ của bạn. Sau khi kích hoạt xong, bạn chỉ cần mở link Web App trên điện thoại dùng vĩnh viễn mà không cần mở lại máy tính nữa.</p>
+          <p style="margin: 0; font-size: 0.88rem; color: #64748b;">* Nếu chưa có máy tính cá nhân, bạn có thể mượn máy tính của bạn bè/cơ quan đăng nhập Gmail mở 1 phút là xong, hoặc nhắn Zalo 0938 134 576 để bên mình hỗ trợ kích hoạt giúp bạn nhé.</p>
+        </div>
+      </div>
+
+      <!-- Item 2: Bảo mật dữ liệu -->
+      <div class="faq-card">
+        <button class="faq-trigger" type="button" aria-expanded="false">
+          <div class="faq-card-question">
+            <span class="faq-card-num">02</span>
+            <span>Khi sử dụng file template, vấn đề bảo mật sẽ như thế nào?</span>
+          </div>
+          <i data-lucide="chevron-down" class="faq-chevron"></i>
+        </button>
+        <div class="faq-content">
+          <p style="margin: 0;">Bên mình dựng file trên Google Sheets. Khi bạn tạo một bản sao, file nằm hoàn toàn trong tài khoản Google Drive cá nhân của bạn. Không có bất kỳ ai có quyền truy cập được vào dữ liệu kinh doanh của bạn, trừ khi bạn chủ động cấp quyền chia sẻ.</p>
+        </div>
+      </div>
+
+      <!-- Item 3: Chi phí & Sở hữu -->
+      <div class="faq-card">
+        <button class="faq-trigger" type="button" aria-expanded="false">
+          <div class="faq-card-question">
+            <span class="faq-card-num">03</span>
+            <span>Mua file có trả theo từng tháng không, hay mua một lần và xài mãi mãi?</span>
+          </div>
+          <i data-lucide="chevron-down" class="faq-chevron"></i>
+        </button>
+        <div class="faq-content">
+          <p style="margin: 0;">Tại File Đi Làm, bạn chỉ cần <strong>mua một lần duy nhất và sở hữu vĩnh viễn trọn đời</strong>. Cam kết 0đ phí duy trì mỗi tháng, không phát sinh bất kỳ phụ phí ẩn nào trong suốt quá trình sử dụng.</p>
+        </div>
+      </div>
+
+      <!-- Item 4: Hỗ trợ kỹ thuật -->
+      <div class="faq-card">
+        <button class="faq-trigger" type="button" aria-expanded="false">
+          <div class="faq-card-question">
+            <span class="faq-card-num">04</span>
+            <span>Sau khi mua hàng, mình sử dụng và gặp vấn đề thì giải quyết như thế nào?</span>
+          </div>
+          <i data-lucide="chevron-down" class="faq-chevron"></i>
+        </button>
+        <div class="faq-content">
+          <p style="margin: 0;">Bạn có thể nhắn tin trực tiếp qua Zalo <strong>0938 134 576</strong> hoặc gửi email tới <strong>kiencam.work@gmail.com</strong>. Đội ngũ kỹ thuật của File Đi Làm hỗ trợ xuyên suốt cả thứ 7 và Chủ nhật để giải đáp thắc mắc và đồng hành cùng bạn.</p>
+        </div>
+      </div>
+
+      <!-- Item 5: Hướng dẫn sử dụng -->
+      <div class="faq-card">
+        <button class="faq-trigger" type="button" aria-expanded="false">
+          <div class="faq-card-question">
+            <span class="faq-card-num">05</span>
+            <span>Trong file có hướng dẫn sử dụng không?</span>
+          </div>
+          <i data-lucide="chevron-down" class="faq-chevron"></i>
+        </button>
+        <div class="faq-content">
+          <p style="margin: 0;">Mỗi file template đều có sẵn trang tab Hướng Dẫn Sử Dụng (HDSD) chi tiết từng bước. Đối với các file có cấu trúc mở rộng hoặc liên kết Web App, hệ thống có video thao tác thực tế từng phân hệ để bạn xem là làm được ngay.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Zalo CTA Box -->
+    <div class="faq-zalo-cta">
+      <h3>Bạn có câu hỏi riêng về nhu cầu của mình?</h3>
+      <p>Nhắn trực tiếp qua Zalo 0938 134 576, đội ngũ kỹ thuật File Đi Làm phản hồi nhanh và tư vấn giải pháp phù hợp nhất cho bạn.</p>
+      <a href="https://zalo.me/0938134576" target="_blank" rel="noopener noreferrer" class="btn-zalo-faq">
+        <i data-lucide="message-circle" style="width: 18px; height: 18px;"></i>
+        <span>Nhắn Zalo tư vấn miễn phí ↗</span>
+      </a>
+    </div>
+  </main>
+
+  <!-- Footer (Shared Component) -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-columns">
+        <div class="footer-brand-col">
+          <div class="footer-brand-title" style="display: flex; align-items: center; gap: 10px;">
+            <img src="./assets/logo.jpg" alt="File Đi Làm" style="width: 32px; height: 32px; border-radius: 50%; object-fit: cover; border: 1.5px solid #059669;">
+            <span>File Đi Làm</span>
+          </div>
+          <div class="footer-social-icons">
+            <a href="https://youtube.com" target="_blank" rel="noopener" aria-label="YouTube">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
+            </a>
+            <a href="https://tiktok.com" target="_blank" rel="noopener" aria-label="TikTok">
+              <svg width="19" height="19" viewBox="0 0 24 24" fill="currentColor"><path d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-1.43.08-2.86-.31-4.08-1.03-2.02-1.19-3.44-3.37-3.65-5.71-.02-.5-.03-1-.01-1.49.18-1.9 1.12-3.72 2.58-4.96 1.66-1.44 3.98-2.13 6.15-1.72.02 1.48-.04 2.96-.04 4.44-.99-.32-2.15-.23-3.02.37-.63.41-1.11 1.04-1.36 1.75-.21.51-.24 1.07-.14 1.61.24 1.64 1.82 3.02 3.5 2.87 1.12-.01 2.19-.66 2.77-1.61.19-.33.4-.67.41-1.06.1-1.79.06-3.57.07-5.36.01-4.03-.01-8.05.02-12.07z"/></svg>
+            </a>
+            <a href="https://threads.net" target="_blank" rel="noopener" aria-label="Threads">
+              <svg width="19" height="19" viewBox="0 0 24 24" fill="currentColor"><path d="M12.001 0C5.372 0 0 5.373 0 12s5.372 12 12 12 12-5.373 12-12S18.628 0 12.001 0zm3.882 12.72c-.172 2.683-1.674 4.14-3.955 4.14-2.19 0-3.665-1.577-3.665-3.918 0-2.582 1.647-4.108 3.864-4.108 1.55 0 2.748.775 3.25 2.083l-1.62.774c-.287-.714-.84-1.171-1.63-1.171-1.282 0-2.023 1.04-2.023 2.422 0 1.446.772 2.298 1.954 2.298 1.341 0 2.05-.888 2.136-2.062h-2.136v-1.69h3.766v1.232z"/></svg>
+            </a>
+            <a href="https://facebook.com" target="_blank" rel="noopener" aria-label="Facebook">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+            </a>
+          </div>
+          <p class="footer-tagline">Giải pháp Google Sheets & Web App tự động hoá quy trình làm việc cho cá nhân và doanh nghiệp.</p>
+        </div>
+        <div>
+          <h4 class="footer-title">Liên hệ</h4>
+          <ul class="footer-links footer-contact-list">
+            <li>
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
+              <span>0938 134 576</span>
+            </li>
+            <li>
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
+              <span>kiencam.work@gmail.com</span>
+            </li>
+            <li>
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+              <span>TP. Hồ Chí Minh</span>
+            </li>
+          </ul>
+        </div>
+        <div>
+          <h4 class="footer-title">Dịch vụ &amp; Template</h4>
+          <ul class="footer-links">
+            <li><a href="index.html#catalog">Tất cả template</a></li>
+            <li><a href="custom.html">Thiết kế file riêng</a></li>
+            <li><a href="faq.html">Câu hỏi thường gặp (FAQ)</a></li>
+            <li><a href="index.html#catalog">Kinh doanh &amp; Quản lý</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 class="footer-title">Chính sách</h4>
+          <ul class="footer-links">
+            <li><a href="/chinh-sach.html#dieu-khoan-su-dung">Điều khoản sử dụng</a></li>
+            <li><a href="/chinh-sach.html#bao-mat-thong-tin">Bảo mật thông tin</a></li>
+            <li><a href="/chinh-sach.html#giao-hang">Chính sách giao hàng</a></li>
+            <li><a href="/chinh-sach.html#doi-tra-va-hoan-tien">Hỗ trợ & hoàn tiền</a></li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="footer-bottom">
+        <div>© 2026 File Đi Làm. Nền tảng tự động hoá trên Google Sheets.</div>
+        <div class="footer-bottom-links">
+          <a href="faq.html">FAQ</a>
+          <a href="custom.html">Thiết kế riêng</a>
+          <a href="/chinh-sach.html#dieu-khoan-su-dung">Điều khoản</a>
+          <a href="/chinh-sach.html#bao-mat-thong-tin">Bảo mật</a>
+          <a href="/chinh-sach.html#giao-hang">Giao hàng</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      if (window.lucide) {
+        lucide.createIcons();
+      }
+
+      // Accordion toggle
+      var triggers = document.querySelectorAll(".faq-trigger");
+      triggers.forEach(function (trigger) {
+        trigger.addEventListener("click", function () {
+          var card = trigger.closest(".faq-card");
+          var isOpen = card.classList.contains("is-open");
+          
+          // Close others for clean single-view accordion
+          document.querySelectorAll(".faq-card").forEach(function (c) {
+            c.classList.remove("is-open");
+            var btn = c.querySelector(".faq-trigger");
+            if (btn) btn.setAttribute("aria-expanded", "false");
+          });
+
+          if (!isOpen) {
+            card.classList.add("is-open");
+            trigger.setAttribute("aria-expanded", "true");
+          }
+        });
+      });
+
+      // Mobile Menu Drawer
+      var openMobileMenuBtn = document.getElementById("openMobileMenu");
+      var closeMobileMenuBtn = document.getElementById("closeMobileMenu");
+      var mobileNavDrawer = document.getElementById("mobileNavDrawer");
+
+      if (openMobileMenuBtn && mobileNavDrawer) {
+        openMobileMenuBtn.addEventListener("click", function () {
+          mobileNavDrawer.classList.add("is-open");
+          document.body.classList.add("drawer-open");
+        });
+      }
+      if (closeMobileMenuBtn && mobileNavDrawer) {
+        closeMobileMenuBtn.addEventListener("click", function () {
+          mobileNavDrawer.classList.remove("is-open");
+          document.body.classList.remove("drawer-open");
+        });
+      }
+      document.addEventListener("click", function (event) {
+        if (mobileNavDrawer && mobileNavDrawer.classList.contains("is-open")) {
+          if (!mobileNavDrawer.contains(event.target) && !event.target.closest("#openMobileMenu")) {
+            mobileNavDrawer.classList.remove("is-open");
+            document.body.classList.remove("drawer-open");
+          }
+        }
+      });
+    });
+  </script>
+</body>
+</html>

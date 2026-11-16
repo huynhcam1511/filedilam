@@ -1,0 +1,314 @@
+{
+  "timestamp": "2026-11-16T09:28:05.307Z",
+  "totalTests": 39,
+  "passedTests": 39,
+  "failedTests": 0,
+  "passRate": "100.0%",
+  "tierBreakdown": {
+    "1": {
+      "name": "Tier 1 - DOM & Structure Checks",
+      "total": 13,
+      "passed": 13,
+      "failed": 0
+    },
+    "2": {
+      "name": "Tier 2 - Subpages Existence & Integrity",
+      "total": 11,
+      "passed": 11,
+      "failed": 0
+    },
+    "3": {
+      "name": "Tier 3 - Storefront JS & Safe Null-Checks",
+      "total": 6,
+      "passed": 6,
+      "failed": 0
+    },
+    "4": {
+      "name": "Tier 4 - Cart UX, Mobile FAB & Animations",
+      "total": 7,
+      "passed": 7,
+      "failed": 0
+    },
+    "5": {
+      "name": "Tier 5 - VietQR & Payment Integrity",
+      "total": 2,
+      "passed": 2,
+      "failed": 0
+    }
+  },
+  "tests": [
+    {
+      "id": "T1.1",
+      "tier": 1,
+      "name": "Hero section is completely removed from index.html body",
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "id": "T1.2",
+      "tier": 1,
+      "name": "Stats section is completely removed from index.html body",
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "id": "T1.3",
+      "tier": 1,
+      "name": "Steps section (Quy trình mua) is completely removed from index.html body",
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "id": "T1.4",
+      "tier": 1,
+      "name": "Compare section (So sánh kinh tế) is completely removed from index.html body",
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "id": "T1.5",
+      "tier": 1,
+      "name": "Landing coupon section (landingCouponSection) is completely removed from index.html",
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "id": "T1.6",
+      "tier": 1,
+      "name": "FAQ section is completely removed from index.html",
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "id": "T1.7",
+      "tier": 1,
+      "name": "Custom service section is completely removed from index.html",
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "id": "T1.8",
+      "tier": 1,
+      "name": "#catalog is positioned directly under Topbar header and header tag is closed",
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "id": "T1.9",
+      "tier": 1,
+      "name": "Topbar header navigation links point to faq.html and custom.html",
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "id": "T1.10",
+      "tier": 1,
+      "name": "Mobile Drawer navigation links point to faq.html and custom.html",
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "id": "T1.11",
+      "tier": 1,
+      "name": "Detail Modal navigation links point to faq.html and custom.html",
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "id": "T1.12",
+      "tier": 1,
+      "name": "Checkout Modal navigation links point to faq.html and custom.html",
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "id": "T1.13",
+      "tier": 1,
+      "name": "Footer navigation links point to faq.html and custom.html",
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "id": "T2.1",
+      "tier": 2,
+      "name": "faq.html exists and is non-empty",
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "id": "T2.2",
+      "tier": 2,
+      "name": "faq.html contains 5 FAQ questions and comprehensive answers",
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "id": "T2.3",
+      "tier": 2,
+      "name": "faq.html contains interactive accordion structure and toggle logic",
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "id": "T2.4",
+      "tier": 2,
+      "name": "faq.html has unified Header Topbar with active class on \"Hỏi đáp\"",
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "id": "T2.5",
+      "tier": 2,
+      "name": "faq.html contains Mobile Nav Drawer and unified Footer",
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "id": "T2.6",
+      "tier": 2,
+      "name": "custom.html exists and is non-empty",
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "id": "T2.7",
+      "tier": 2,
+      "name": "custom.html contains custom design value proposition and 3 commitments",
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "id": "T2.8",
+      "tier": 2,
+      "name": "custom.html contains 5 painpoint case studies",
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "id": "T2.9",
+      "tier": 2,
+      "name": "custom.html contains Zalo consultation CTA with correct URL and attributes",
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "id": "T2.10",
+      "tier": 2,
+      "name": "custom.html has unified Header Topbar with active class on \"Thiết kế file riêng\"",
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "id": "T2.11",
+      "tier": 2,
+      "name": "custom.html contains Mobile Nav Drawer and unified Footer",
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "id": "T3.1",
+      "tier": 3,
+      "name": "storefront.js compiles cleanly via Node VM with 0 syntax errors",
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "id": "T3.2",
+      "tier": 3,
+      "name": "syncLandingCouponTicket contains safe null-check guard when section is absent",
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "id": "T3.3",
+      "tier": 3,
+      "name": "syncHeroCoupons contains safe null-check guard when container is absent",
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "id": "T3.4",
+      "tier": 3,
+      "name": "runSmoothStatsReveal contains safe null-checks for missing stats section/counters",
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "id": "T3.5",
+      "tier": 3,
+      "name": "Mobile hamburger menu (#openMobileMenu) has click event listener attached",
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "id": "T3.6",
+      "tier": 3,
+      "name": "Document click-outside handler explicitly excludes #cartFab",
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "id": "T4.1",
+      "tier": 4,
+      "name": "index.html contains #cartFab and #cartFabCount elements",
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "id": "T4.2",
+      "tier": 4,
+      "name": "storefront.css contains .cart-fab styling with Mint #059669 and fixed positioning",
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "id": "T4.3",
+      "tier": 4,
+      "name": "storefront.css contains high z-index (950) and visibility state for .cart-fab",
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "id": "T4.4",
+      "tier": 4,
+      "name": "storefront.css defines keyframes @keyframes cartPopShrinkWiggle",
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "id": "T4.5",
+      "tier": 4,
+      "name": "storefront.css defines keyframes @keyframes badgeBounceScale",
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "id": "T4.6",
+      "tier": 4,
+      "name": "storefront.css defines .cart-flyer styling for Fly-to-Cart animation",
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "id": "T4.7",
+      "tier": 4,
+      "name": "addToCart calls retain { openDrawer: false } to prevent unexpected auto-opening",
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "id": "T5.1",
+      "tier": 5,
+      "name": "makeLocalVietQr generates valid EMVCo payload with accurate CCITT CRC16 checksum",
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "id": "T5.2",
+      "tier": 5,
+      "name": "Storefront order creation and status polling route integrity (/orders)",
+      "status": "PASS",
+      "error": null
+    }
+  ]
+}
