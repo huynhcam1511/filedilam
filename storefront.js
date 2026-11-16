@@ -456,10 +456,10 @@ function escapeHtml(value) {
       });
     }
 
-    if (openCartButton) openCartButton.addEventListener("click", openCart);
-    if (cartFab) cartFab.addEventListener("click", openCart);
+    if (openCartButton) openCartButton.addEventListener("click", openCheckout);
+    if (cartFab) cartFab.addEventListener("click", openCheckout);
     var elOpenCartFromDetail = document.getElementById("openCartFromDetail");
-    if (elOpenCartFromDetail) elOpenCartFromDetail.addEventListener("click", openCart);
+    if (elOpenCartFromDetail) elOpenCartFromDetail.addEventListener("click", openCheckout);
     var elCloseCart = document.getElementById("closeCart");
     if (elCloseCart) elCloseCart.addEventListener("click", closeCart);
 
@@ -2021,9 +2021,8 @@ function escapeHtml(value) {
         var productImage = item.product.previewImageUrl || item.product.thumbnailUrl || "";
         var productDescription = item.product.subtitle || item.product.shortDescription || item.product.description || "File làm việc sẵn sàng sử dụng";
         var removeBtnHtml = canRemove ? (
-          '<button type="button" class="btn-checkout-remove-item" data-remove-id="' + escapeHtml(item.product.id) + '" title="Bỏ file này khỏi đơn" style="background: none; border: none; padding: 0; color: #94a3b8; cursor: pointer; font-size: 0.75rem; display: inline-flex; align-items: center; gap: 3px; margin-top: 4px; transition: color 0.15s ease;" onmouseover="this.style.color=\'#dc2626\';" onmouseout="this.style.color=\'#94a3b8\';">' +
-            '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>' +
-            '<span>Bỏ chọn</span>' +
+          '<button type="button" class="btn-checkout-remove-item" data-remove-id="' + escapeHtml(item.product.id) + '" title="Bỏ file này khỏi đơn" aria-label="Xóa file">' +
+            '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>' +
           '</button>'
         ) : '';
 
@@ -2032,8 +2031,7 @@ function escapeHtml(value) {
             '<div class="checkout-product-avatar"' + (productImage ? ' style="background-image:url(&quot;' + escapeHtml(productImage) + '&quot;)"' : '') + '></div>' +
             '<div class="checkout-product-copy">' +
               '<div class="checkout-product-heading-1">' + escapeHtml(item.product.name) + '</div>' +
-              '<div class="checkout-product-heading-2">' + escapeHtml(productDescription) + '</div>' +
-            '</div>' +
+                          '</div>' +
             '<div class="checkout-product-action-col" style="display: flex; flex-direction: column; align-items: flex-end; justify-content: flex-start;">' +
               '<div class="checkout-product-price font-mono">' +
                 formatCurrency(item.total) +
@@ -2093,7 +2091,7 @@ function escapeHtml(value) {
             '</div>' +
           '</div>' +
           '<button type="button" class="btn-checkout-upsell-add" data-upsell-id="' + escapeHtml(prod.id) + '" style="background: transparent; border: 1px solid #059669; color: #059669; font-size: 0.75rem; font-weight: 700; padding: 4px 10px; border-radius: 6px; cursor: pointer; flex-shrink: 0; display: inline-flex; align-items: center; gap: 3px; transition: all 0.15s ease;" onmouseover="this.style.background=\'#059669\'; this.style.color=\'#fff\';" onmouseout="this.style.background=\'transparent\'; this.style.color=\'#059669\';">' +
-            '<span>+ Thêm</span>' +
+            '<span>Thêm</span>' +
           '</button>' +
         '</div>'
       );
@@ -2570,7 +2568,7 @@ function escapeHtml(value) {
     var btnDetailAdd = document.getElementById("detailAddToCart");
     if (btnDetailAdd) {
       btnDetailAdd.addEventListener("click", function () {
-        addToCart(product.id, { openDrawer: false });
+        addToCart(product.id, { openDrawer: false, sourceElement: btnDetailAdd });
         // Update detail cart count
         var cB = document.getElementById("cartCountDetail");
         if (cB) cB.textContent = getCartCount();
@@ -2589,7 +2587,7 @@ function escapeHtml(value) {
     var btnStickyAdd = document.getElementById("detailStickyAddToCart");
     if (btnStickyAdd) {
       btnStickyAdd.addEventListener("click", function() {
-        addToCart(product.id, { openDrawer: false });
+        addToCart(product.id, { openDrawer: false, sourceElement: btnStickyAdd });
         var cB = document.getElementById("cartCountDetail");
         if (cB) cB.textContent = getCartCount();
       });
@@ -2748,32 +2746,9 @@ function escapeHtml(value) {
     unlockBodyIfNeeded();
   }
 
-  function openCart() {
-    renderCart();
-    if (cartDrawer) {
-      cartDrawer.scrollTop = 0;
-    }
-    if (cartItems) {
-      cartItems.scrollTop = 0;
-    }
-    var cartDrawerBody = cartDrawer ? cartDrawer.querySelector(".drawer-body") : null;
-    if (cartDrawerBody) {
-      cartDrawerBody.scrollTop = 0;
-    }
-    cartDrawer.classList.add("is-open");
-    cartDrawer.setAttribute("aria-hidden", "false");
-    document.body.classList.add("drawer-open");
-    document.body.classList.add("cart-drawer-open");
-    requestAnimationFrame(function () {
-      if (cartDrawer) cartDrawer.scrollTop = 0;
-      if (cartItems) cartItems.scrollTop = 0;
-      if (cartDrawerBody) cartDrawerBody.scrollTop = 0;
-    });
-    setTimeout(function () {
-      if (cartDrawer) cartDrawer.scrollTop = 0;
-      if (cartItems) cartItems.scrollTop = 0;
-      if (cartDrawerBody) cartDrawerBody.scrollTop = 0;
-    }, 40);
+    function openCart() {
+    // Luôn mở thẳng màn hình đơn hàng & thanh toán
+    openCheckout();
   }
 
   function closeCart() {
@@ -2795,9 +2770,11 @@ function escapeHtml(value) {
     if (checkoutModalTitle) checkoutModalTitle.textContent = "Thông tin thanh toán";
     if (quickNameGroup) quickNameGroup.style.display = "block";
     if (quickPhoneLabel) {
-      quickPhoneLabel.innerHTML = 'Số điện thoại / Zalo <span class="req">*</span>';
+      quickPhoneLabel.innerHTML = 'SĐT / Zalo';
     }
-    if (quickPhone) quickPhone.placeholder = "Ví dụ: 0912345678";
+    if (quickEmail) quickEmail.placeholder = "";
+    if (quickName) quickName.placeholder = "";
+    if (quickPhone) quickPhone.placeholder = "";
     if (quickEmailGroup) quickEmailGroup.style.display = "block";
     if (quickPassGroup) quickPassGroup.style.display = "none";
     if (btnQuickSubmitText) btnQuickSubmitText.textContent = "Xác nhận thông tin & tạo đơn";
@@ -3822,14 +3799,13 @@ function escapeHtml(value) {
     trackCartEvent("add_to_cart", productId);
 
     if (options.openDrawer === true) {
-      openCart();
+      openCheckout();
     } else {
       var sourceEl = options.sourceElement;
       if (!sourceEl && typeof event !== "undefined" && event && event.target) {
         sourceEl = event.target.closest("button") || event.target;
       }
       flyToCart(sourceEl);
-      pulseCart();
       showToast(existingIdx !== -1 ? "Sản phẩm đã có trong giỏ hàng." : "Đã thêm vào giỏ hàng.");
     }
   }
@@ -3860,7 +3836,7 @@ function escapeHtml(value) {
       window.setTimeout(function () {
         btn.classList.remove("cart-pop-wiggle");
         btn.classList.remove("cart-pulse");
-      }, 600);
+      }, 480);
     });
 
     badges.forEach(function (badge) {
@@ -3869,17 +3845,27 @@ function escapeHtml(value) {
       badge.classList.add("badge-bounce");
       window.setTimeout(function () {
         badge.classList.remove("badge-bounce");
-      }, 550);
+      }, 480);
     });
   }
 
   function flyToCart(sourceEl, targetEl) {
-    if (!sourceEl) {
-      triggerCartAnimation(targetEl);
-      return;
+    var isMobile = window.innerWidth <= 768;
+    var detailModalEl = document.getElementById("detailModal");
+    var isDetailOpen = detailModalEl && detailModalEl.classList.contains("is-open");
+    var detailCartBtn = document.getElementById("openCartFromDetail");
+
+    if (!targetEl) {
+      if (isDetailOpen && detailCartBtn) {
+        targetEl = detailCartBtn;
+      } else if (isMobile && cartFab && cartFab.classList.contains("is-visible")) {
+        targetEl = cartFab;
+      } else {
+        targetEl = openCartButton || cartFab || detailCartBtn;
+      }
     }
-    targetEl = targetEl || ((window.innerWidth <= 768 && cartFab) ? cartFab : openCartButton);
-    if (!targetEl || !sourceEl.getBoundingClientRect) {
+
+    if (!sourceEl || !sourceEl.getBoundingClientRect || !targetEl || !targetEl.getBoundingClientRect) {
       triggerCartAnimation(targetEl);
       return;
     }
@@ -3898,6 +3884,7 @@ function escapeHtml(value) {
 
     var flyer = document.createElement("div");
     flyer.className = "cart-flyer";
+    flyer.style.zIndex = "2000000";
     var imgEl = sourceEl.querySelector ? (sourceEl.querySelector("img") || (sourceEl.closest && sourceEl.closest(".product-card") ? sourceEl.closest(".product-card").querySelector("img") : null)) : null;
     if (imgEl && imgEl.src) {
       var imgClone = document.createElement("img");
@@ -3907,8 +3894,8 @@ function escapeHtml(value) {
       flyer.innerHTML = '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"></path><line x1="3" y1="6" x2="21" y2="6"></line><path d="M16 10a4 4 0 0 1-8 0"></path></svg>';
     }
 
-    flyer.style.left = (startX - 24) + "px";
-    flyer.style.top = (startY - 24) + "px";
+    flyer.style.left = (startX - 26) + "px";
+    flyer.style.top = (startY - 26) + "px";
     document.body.appendChild(flyer);
 
     if (!flyer.animate) {
@@ -3919,18 +3906,18 @@ function escapeHtml(value) {
 
     var deltaX = endX - startX;
     var deltaY = endY - startY;
-    var midX = deltaX * 0.5;
-    var midY = Math.min(0, deltaY) - Math.max(80, Math.abs(deltaX) * 0.25);
+    var midX = deltaX * 0.55;
+    var midY = Math.min(deltaY * 0.4, 0) - Math.max(70, Math.abs(deltaX) * 0.2);
 
     var keyframes = [
       { transform: "translate3d(0, 0, 0) scale(1) rotate(0deg)", opacity: 1 },
-      { transform: "translate3d(" + midX + "px, " + midY + "px, 0) scale(0.85) rotate(-15deg)", opacity: 0.9, offset: 0.5 },
-      { transform: "translate3d(" + deltaX + "px, " + deltaY + "px, 0) scale(0.2) rotate(10deg)", opacity: 0.3 }
+      { transform: "translate3d(" + midX + "px, " + midY + "px, 0) scale(0.9) rotate(-10deg)", opacity: 0.95, offset: 0.45 },
+      { transform: "translate3d(" + deltaX + "px, " + deltaY + "px, 0) scale(0.22) rotate(4deg)", opacity: 0.4 }
     ];
 
     var anim = flyer.animate(keyframes, {
-      duration: 600,
-      easing: "cubic-bezier(0.25, 0.8, 0.25, 1)",
+      duration: 520,
+      easing: "cubic-bezier(0.22, 1, 0.36, 1)",
       fill: "forwards"
     });
 
@@ -4525,19 +4512,13 @@ function escapeHtml(value) {
       showToast("Chưa có mã QR để tải.");
       return;
     }
-    if (saveQrBtn) {
-      saveQrBtn.disabled = true;
-      saveQrBtn.classList.add("is-downloading");
-      saveQrBtn.innerHTML = '<span>Đang tải ảnh...</span>';
-    }
 
     var filename = "ma-qr-filedilam.png";
 
-    // Chuyển dataURL sang Blob trực tiếp bằng synchronous Base64 decode (Tức thì 0ms, không fetch mạng)
     function dataUrlToBlob(dataUrl) {
       try {
         var arr = dataUrl.split(',');
-        var mime = arr[0].match(/:(.*?);/)[1];
+        var mime = (arr[0].match(/:(.*?);/) || [])[1] || 'image/png';
         var bstr = atob(arr[1]);
         var n = bstr.length;
         var u8arr = new Uint8Array(n);
@@ -4550,41 +4531,80 @@ function escapeHtml(value) {
       }
     }
 
-    // 1. Kiểm tra nếu là thiết bị di động hỗ trợ Web Share API với files (Lưu thẳng vào Photo Album)
-    var isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent || "");
     var blob = dataUrlToBlob(currentQrImageUrl);
 
-    if (isMobile && blob && navigator.canShare) {
+    // 1. Dành cho Di động (iOS / iPadOS / Android): Dùng Web Share API để kích hoạt nút "Lưu hình ảnh" (Save to Photos)
+    var isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent || "");
+    if (isMobile && blob && navigator.canShare && typeof File !== "undefined") {
       try {
         var file = new File([blob], filename, { type: "image/png" });
         if (navigator.canShare({ files: [file] })) {
+          if (saveQrBtn) {
+            saveQrBtn.disabled = true;
+          }
           navigator.share({
             files: [file],
-            title: "Mã VietQR thanh toán"
+            title: "Mã VietQR thanh toán",
+            text: "Quét mã VietQR để thanh toán đơn hàng File Đi Làm"
           })
-          .then(function() {
+          .then(function () {
             onQrDownloaded();
+            showToast("Đã lưu mã QR thành công!");
           })
-          .catch(function(err) {
-            if (err && err.name === "AbortError") {
+          .catch(function (err) {
+            if (saveQrBtn) saveQrBtn.disabled = false;
+            if (err && (err.name === "AbortError" || (err.message && err.message.indexOf("abort") !== -1))) {
               resetQrActions();
             } else {
-              showToast("Nhấn giữ ảnh QR ở trên rồi chọn Lưu vào Ảnh.");
-              resetQrActions();
+              triggerDirectDownload(blob, filename);
             }
           });
           return;
         }
       } catch (e) {
-        console.warn("Share API fallback:", e);
+        console.warn("Share API error:", e);
       }
     }
 
-    // 2. Tải ngay lập tức (Direct download)
+    // 2. Dành cho Máy tính (Desktop) hoặc trình duyệt không hỗ trợ Share
+    triggerDirectDownload(blob, filename);
+  }
+
+  function triggerDirectDownload(blob, filename) {
     if (blob) {
-      directDownload(blob, filename);
-    } else {
-      fallbackDownloadUrl(currentQrImageUrl);
+      try {
+        var blobUrl = window.URL.createObjectURL(blob);
+        var a = document.createElement("a");
+        a.style.display = "none";
+        a.href = blobUrl;
+        a.download = filename || "ma-qr-filedilam.png";
+        document.body.appendChild(a);
+        a.click();
+        setTimeout(function () {
+          if (a.parentNode) a.parentNode.removeChild(a);
+          window.URL.revokeObjectURL(blobUrl);
+        }, 1500);
+        onQrDownloaded();
+        showToast("Đã tải mã QR về máy.");
+        return;
+      } catch (err) {
+        console.warn("Blob download error:", err);
+      }
+    }
+
+    try {
+      var a2 = document.createElement("a");
+      a2.href = currentQrImageUrl;
+      a2.download = filename || "ma-qr-filedilam.png";
+      document.body.appendChild(a2);
+      a2.click();
+      setTimeout(function () {
+        if (a2.parentNode) a2.parentNode.removeChild(a2);
+      }, 500);
+      onQrDownloaded();
+      showToast("Đã lưu ảnh mã QR.");
+    } catch (e) {
+      showToast("Nhấn giữ trực tiếp vào ảnh QR ở trên để Lưu vào Ảnh.");
     }
   }
 

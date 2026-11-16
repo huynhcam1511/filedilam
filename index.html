@@ -20,7 +20,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="./storefront.css?v=246" />
+    <link rel="stylesheet" href="./storefront.css?v=270" />
     <style>
     :root {
       --bg: #ffffff;
@@ -2335,7 +2335,6 @@
           </a>
         </div>
         <nav class="nav-links">
-          <a href="#" class="active">Trang chủ</a>
           <a href="#catalog">Mẫu File Đi Làm</a>
           <a href="faq.html">Hỏi đáp</a>
           <a href="custom.html" class="nav-link-custom">
@@ -2377,9 +2376,9 @@
     <!-- CATALOG & FILTER SECTION (DYNAMIC FIRESTORE PRODUCTS) -->
     <section class="catalog-section-wrap" id="catalog">
       <div class="container">
-        <span class="section-tag" style="background: #f5f5f5; border: none; padding: 6px 14px; border-radius: 9999px; font-size: 0.8rem; font-weight: 500; color: #666; display: inline-block; margin-bottom: 14px;">Thư viện giải pháp</span>
-        <h2 class="section-title catalog-heading">Chọn file theo việc bạn đang làm</h2>
-
+        <h1 class="catalog-hero-title">
+          Google Sheet &amp; Web App <span class="gradient-text">dành cho người Phải Đi Làm</span>
+        </h1>
         <!-- Horizontal Category Bar populated by storefront.js -->
         <div class="horizontal-filter-row">
           <ul class="category-list-horizontal" id="folderGrid">
@@ -2424,7 +2423,7 @@
               <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
             </a>
           </div>
-          <p class="footer-tagline">Giải pháp Google Sheets & Web App tự động hoá quy trình làm việc cho cá nhân và doanh nghiệp.</p>
+          <p class="footer-tagline">Google Sheet &amp; Web App dành cho người Phải Đi Làm.</p>
         </div>
         <div>
           <h4 class="footer-title">Liên hệ</h4>
@@ -2491,10 +2490,7 @@
       </div>
       <div class="drawer-body" style="padding: 24px 20px;">
         <nav class="mobile-nav-list" style="display: flex; flex-direction: column; gap: 16px;">
-          <a href="#" class="mobile-nav-link" style="font-size: 1.15rem; font-weight: 600; color: #0f172a; padding: 10px 0; border-bottom: 1px solid #f1f5f9; display: flex; justify-content: space-between; align-items: center;">
-            <span>Trang chủ</span>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"></polyline></svg>
-          </a>
+
           <a href="#catalog" class="mobile-nav-link" style="font-size: 1.15rem; font-weight: 600; color: #0f172a; padding: 10px 0; border-bottom: 1px solid #f1f5f9; display: flex; justify-content: space-between; align-items: center;">
             <span>Mẫu File Đi Làm</span>
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"></polyline></svg>
@@ -2647,7 +2643,6 @@
               </span>
             </div>
             <nav class="detail-nav-links">
-              <a href="javascript:void(0)" class="detail-nav-home-link active">Trang chủ</a>
               <a href="javascript:void(0)" class="detail-nav-catalog-link">Mẫu File Đi Làm</a>
               <a href="faq.html">Hỏi đáp</a>
               <a href="custom.html" class="nav-link-custom">
@@ -2690,7 +2685,6 @@
               </span>
             </div>
             <nav class="checkout-nav-links">
-              <a href="javascript:void(0)" class="checkout-nav-home-link active">Trang chủ</a>
               <a href="javascript:void(0)" class="checkout-nav-catalog-link">Mẫu File Đi Làm</a>
               <a href="faq.html">Hỏi đáp</a>
               <a href="custom.html" class="nav-link-custom">
@@ -2802,25 +2796,25 @@
                 <!-- Field 1: Gmail nhận file Drive (BẮT BUỘC DUY NHẤT) -->
                 <div class="checkout-field" id="quickEmailGroup">
                   <label class="checkout-label" for="quickEmail">
-                    Gmail nhận file Google Drive <span class="req">*</span>
+                    Gmail nhận file Google Drive
                   </label>
-                  <input id="quickEmail" type="email" placeholder="Ví dụ: yourname@gmail.com" required class="checkout-input" />
+                  <input id="quickEmail" type="email" placeholder="" required class="checkout-input" />
                 </div>
 
-                <!-- Field 2 & 3: Họ tên + SĐT / Zalo (Tùy chọn) đặt gọn 2 cột -->
+                <!-- Field 2 & 3: Họ tên + SĐT / Zalo đặt gọn 2 cột -->
                 <div class="checkout-optional-row">
                   <div class="checkout-field" id="quickNameGroup">
                     <label class="checkout-label" for="quickName">
-                      Họ và tên <span class="checkout-optional-tag">(Tùy chọn)</span>
+                      Họ và tên
                     </label>
-                    <input id="quickName" type="text" placeholder="Nguyễn Văn An" class="checkout-input" />
+                    <input id="quickName" type="text" placeholder="" class="checkout-input" />
                   </div>
 
                   <div class="checkout-field">
                     <label class="checkout-label" id="quickPhoneLabel" for="quickPhone">
-                      SĐT / Zalo <span class="checkout-optional-tag">(Tùy chọn)</span>
+                      SĐT / Zalo
                     </label>
-                    <input id="quickPhone" type="tel" inputmode="numeric" placeholder="0912345678" class="checkout-input" />
+                    <input id="quickPhone" type="tel" inputmode="numeric" placeholder="" class="checkout-input" />
                   </div>
                 </div>
 
@@ -2828,7 +2822,6 @@
                 <button class="button-primary button-full btn-place-order" id="btnQuickSubmit" type="submit" style="margin-top: 14px;">
                   <span id="btnQuickSubmitText">Xác nhận thông tin &amp; tạo đơn</span>
                 </button>
-                <div class="checkout-submit-help">Sau bước này, mã QR thanh toán sẽ được tạo và có hiệu lực trong 10 phút.</div>
               </form>
 
               <!-- Helpful Note (Concise) -->
@@ -2949,8 +2942,8 @@
                       <span class="applied-coupon-code font-mono" id="appliedCouponCodeDisplay">FILEDILAM</span>
                       <span class="applied-coupon-desc" id="appliedCouponDescDisplay">Giảm 20%</span>
                     </div>
-                    <button type="button" class="btn-coupon-deselect" id="btnDeselectAppliedCoupon" title="Bỏ chọn mã này">
-                      Bỏ chọn
+                    <button type="button" class="btn-coupon-deselect" id="btnDeselectAppliedCoupon" title="Bỏ chọn mã này" aria-label="Bỏ chọn mã">
+                      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
                     </button>
                   </div>
 
@@ -3521,7 +3514,7 @@
     <script src="./storefront-data.js?v=22"></script>
     <script src="./storefront-products.generated.js?v=6"></script>
     <script src="assets/qrcode-generator-1.4.4.js"></script>
-    <script src="storefront.js?v=251"></script>
+    <script src="storefront.js?v=270"></script>
     <!-- Agentation: Visual Feedback & Annotation for AI agents -->
   <script src="./agentation-vanilla.js"></script>
 </body>
