@@ -51,12 +51,23 @@
     }
 
     .faq-main-title {
-      font-size: 2.25rem;
+      font-size: 2.1rem;
       font-weight: 800;
       color: #0f172a;
       letter-spacing: -0.03em;
-      margin: 0 0 12px;
+      margin: 0 0 10px;
       line-height: 1.2;
+      white-space: nowrap;
+    }
+
+    @media (max-width: 768px) {
+      .faq-main-title {
+        font-size: clamp(1.4rem, 6vw, 1.85rem) !important;
+        white-space: nowrap;
+      }
+      .faq-hero-header {
+        margin-bottom: 32px;
+      }
     }
 
     .faq-subtitle {
@@ -284,7 +295,7 @@
   <main class="faq-page-wrap">
     <div class="faq-hero-header">
       <span class="faq-section-label">Câu hỏi thường gặp</span>
-      <h1 class="faq-main-title">Những điều khách hay hỏi</h1>
+      <h1 class="faq-main-title">Câu hỏi thường gặp</h1>
       <p class="faq-subtitle">Giải đáp rõ ràng mọi thắc mắc trước khi bạn lựa chọn file Google Sheets tại File Đi Làm.</p>
     </div>
 
