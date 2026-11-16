@@ -2028,7 +2028,7 @@ if (document.readyState === 'loading') {
   <!-- BẢNG GANTT TIMELINE MATRIX TRÀN VIỀN: Pure Flat Canvas -->
   <div class="bg-white border-y border-slate-200/80 overflow-hidden relative">
     <div id="gantt-grid-wrapper" class="overflow-x-auto min-h-[460px]">
-      <div id="gantt-grid-container" class="min-w-[1250px] select-none">
+      <div id="gantt-grid-container" class="w-full min-w-[850px] select-none">
         <!-- Gantt Header & Rows render dynamically via ModuleTasksGantt.renderGantt() -->
       </div>
     </div>
@@ -2897,7 +2897,7 @@ window.ModuleTasksGantt = (function() {
 
     // 1. Tính toán khoảng thời gian của View (Tuần 14 ngày hoặc Tháng 30 ngày)
     var numDays = state.gantt.viewMode === 'week' ? 14 : 30;
-    var colWidth = state.gantt.viewMode === 'week' ? 50 : 24; // 24px per day column in month view to fit entire month
+    var colWidth = state.gantt.viewMode === 'week' ? 26 : 18; // Độ rộng gọn gàng ~26px mỗi ngày để vừa vặn trọn vẹn màn hình
 
     var rangeStart = new Date(state.gantt.startDate);
     rangeStart.setHours(0, 0, 0, 0);
