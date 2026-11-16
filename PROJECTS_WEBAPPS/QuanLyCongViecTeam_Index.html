@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>QUẢN LÝ CÔNG VIỆC TEAM & TIẾN ĐỘ DỰ ÁN 3.5 — FILE ĐI LÀM</title>
+  <title>QUẢN LÝ CÔNG VIỆC TEAM & TIẾN ĐỘ DỰ ÁN 3.6 — FILE ĐI LÀM</title>
   
   <!-- 1. GOOGLE FONTS (Inter & JetBrains Mono) -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -215,7 +215,7 @@
           </div>
           <div class="sidebar-text truncate">
             <span class="font-extrabold text-xs tracking-wider text-blue-900 uppercase block font-sans">FILE ĐI LÀM</span>
-            <span class="text-[10px] font-bold text-blue-600/80 tracking-wide truncate block">TEAM WORK 3.5</span>
+            <span class="text-[10px] font-bold text-blue-600/80 tracking-wide truncate block">TEAM WORK 3.6</span>
           </div>
         </div>
         <button id="sidebar-burger-btn" onclick="App.toggleSidebar()" class="text-slate-400 hover:text-blue-600 p-1.5 rounded-lg hover:bg-blue-50 transition shrink-0" title="Thu gọn / Mở rộng menu">
@@ -309,11 +309,11 @@
           </div>
           <div class="sidebar-text truncate">
             <div class="text-xs font-bold text-slate-800">FILE ĐI LÀM</div>
-            <div class="text-[10px] font-medium text-slate-400">Team Work Edition · Phiên bản 3.5 (Active)</div>
+            <div class="text-[10px] font-medium text-slate-400">Team Work Edition · Phiên bản 3.6 (Active)</div>
           </div>
         </div>
         <div class="sidebar-text pt-0.5">
-          <span id="appBuildVersionBadge" class="text-[10px] text-emerald-700 font-mono font-bold bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200 shadow-2xs">Bản 3.5 (Active)</span>
+          <span id="appBuildVersionBadge" class="text-[10px] text-emerald-700 font-mono font-bold bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200 shadow-2xs">Bản 3.6 (Active)</span>
         </div>
       </div>
     </aside>
@@ -338,7 +338,7 @@
     <div>
       <div class="flex items-center gap-2.5">
         <h2 class="text-base lg:text-lg font-bold text-slate-900 tracking-tight">Tổng Quan Tiến Độ & Kỷ Luật Team</h2>
-        <span class="text-[10px] text-emerald-700 font-mono font-bold bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-200 shrink-0">Bản 3.5 (Active)</span>
+        <span class="text-[10px] text-emerald-700 font-mono font-bold bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-200 shrink-0">Bản 3.6 (Active)</span>
         <span class="text-xs text-blue-600 font-mono font-medium flex items-center gap-1">Live 0s</span>
       </div>
       <p class="text-xs text-slate-500 mt-0.5">Theo dõi thời gian thực KPI vận hành, công việc khẩn cấp và hiệu suất thực thi tuần</p>
@@ -5822,7 +5822,7 @@ if (document.readyState === 'loading') {
           <i data-lucide="tags" class="w-5 h-5 text-emerald-600"></i>
           <span>Danh Mục Dữ Liệu Dùng Chung</span>
         </h2>
-        <span class="text-[10px] text-emerald-700 font-mono font-bold bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-200 shrink-0">Bản 3.5 (Active)</span>
+        <span class="text-[10px] text-emerald-700 font-mono font-bold bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-200 shrink-0">Bản 3.6 (Active)</span>
       </div>
       <p class="text-xs text-slate-500 mt-0.5">Dữ liệu nguồn đồng bộ 2 chiều với tab DB_DanhMuc trên Google Sheets</p>
     </div>
@@ -9211,6 +9211,39 @@ window.ModuleTeamProjects = ModuleTeamProjects;
         }, 600);
       },
 
+      normalizeCatalogCode: function(code, group, order) {
+        var s = String(code || '').trim().toUpperCase();
+        if (/^CATG-\d{6}$/.test(s)) return s;
+
+        var legacyMap = {
+          'UT-01': 'CATG-201001', 'UT-02': 'CATG-201002', 'UT-03': 'CATG-201003', 'UT-04': 'CATG-201004', 'UT-05': 'CATG-201005',
+          'CAT-UT-01': 'CATG-201001', 'CAT-UT-02': 'CATG-201002', 'CAT-UT-03': 'CATG-201003', 'CAT-UT-04': 'CATG-201004',
+          'PB-01': 'CATG-301001', 'PB-02': 'CATG-301002', 'PB-03': 'CATG-301003', 'PB-04': 'CATG-301004', 'PB-05': 'CATG-301005', 'PB-06': 'CATG-301006',
+          'CAT-PB-01': 'CATG-301001', 'CAT-PB-02': 'CATG-301002', 'CAT-PB-03': 'CATG-301003', 'CAT-PB-04': 'CATG-301004', 'CAT-PB-05': 'CATG-301005', 'CAT-PB-06': 'CATG-301006',
+          'TT-01': 'CATG-101001', 'TT-02': 'CATG-101002', 'TT-03': 'CATG-101003', 'TT-04': 'CATG-101004', 'TT-05': 'CATG-101005',
+          'CAT-TT-01': 'CATG-101001', 'CAT-TT-02': 'CATG-101002', 'CAT-TT-03': 'CATG-101003', 'CAT-TT-04': 'CATG-101004', 'CAT-TT-05': 'CATG-101005',
+          'CB-01': 'CATG-401001', 'CB-02': 'CATG-401002', 'CB-03': 'CATG-401003', 'CB-04': 'CATG-401004',
+          'CAT-CB-01': 'CATG-401001', 'CAT-CB-02': 'CATG-401002', 'CAT-CB-03': 'CATG-401003', 'CAT-CB-04': 'CATG-401004',
+          'DA-01': 'CATG-501001', 'DA-02': 'CATG-501002', 'DA-03': 'CATG-501003', 'DA-04': 'CATG-501004',
+          'CAT-DA-01': 'CATG-501001', 'CAT-DA-02': 'CATG-501002', 'CAT-DA-03': 'CATG-501003', 'CAT-DA-04': 'CATG-501004',
+          'NS-01': 'CATG-601001', 'NS-02': 'CATG-601002',
+          'CAT-NS-01': 'CATG-601001', 'CAT-NS-02': 'CATG-601002'
+        };
+        if (legacyMap[s]) return legacyMap[s];
+
+        var groupPrefix = '10';
+        var g = String(group || '').toLowerCase();
+        if (g.indexOf('ưu tiên') !== -1) groupPrefix = '20';
+        else if (g.indexOf('phòng ban') !== -1) groupPrefix = '30';
+        else if (g.indexOf('cấp bậc') !== -1) groupPrefix = '40';
+        else if (g.indexOf('dự án') !== -1) groupPrefix = '50';
+        else if (g.indexOf('nhân sự') !== -1) groupPrefix = '60';
+
+        var num = parseInt(s.replace(/\D/g, ''), 10) || Number(order) || 1;
+        var padded = ('000' + num).slice(-4);
+        return 'CATG-' + groupPrefix + padded;
+      },
+
       render: function() {
         var tax = (window.AppState && window.AppState.data && Array.isArray(window.AppState.data.taxonomy))
           ? window.AppState.data.taxonomy
@@ -9298,11 +9331,12 @@ window.ModuleTeamProjects = ModuleTeamProjects;
         // 4. Render Master Table Desktop
         if (tableBody) {
           var rowsHtml = filtered.map(function(it) {
-            var ma = it.maDanhMuc || it.ma || it['Mã'] || '';
-            var ten = it.tenDanhMuc || it.ten || it['Tên'] || '';
+            var rawMa = it.maDanhMuc || it.ma || it['Mã Danh Mục'] || it['Mã'] || '';
+            var ma = ModuleCatalogs.normalizeCatalogCode(rawMa, it.nhom || it.Nhom || it['Nhóm'] || '', it.thuTu || it['Thứ Tự'] || 1);
+            var ten = it.tenDanhMuc || it.ten || it['Tên Danh Mục'] || it['Tên'] || '';
             var nhom = it.nhom || it.Nhom || it['Nhóm'] || '';
             var thuTu = it.thuTu || it['Thứ Tự'] || 1;
-            var mauSac = it.mauSac || it['Màu Sắc'] || '#059669';
+            var mauSac = it.mauSac || it['Màu Sắc'] || it['Màu Sắc / Mã CSS'] || '#059669';
             var ghiChu = it.ghiChu || it['Ghi Chú'] || '';
 
             return '<tr class="hover:bg-slate-50/80 transition border-b border-slate-100">' +
@@ -9341,11 +9375,12 @@ window.ModuleTeamProjects = ModuleTeamProjects;
         // 5. Render Table-to-Card Mobile
         if (mobileList) {
           var cardsHtml = filtered.map(function(it) {
-            var ma = it.maDanhMuc || it.ma || it['Mã'] || '';
-            var ten = it.tenDanhMuc || it.ten || it['Tên'] || '';
+            var rawMa = it.maDanhMuc || it.ma || it['Mã Danh Mục'] || it['Mã'] || '';
+            var ma = ModuleCatalogs.normalizeCatalogCode(rawMa, it.nhom || it.Nhom || it['Nhóm'] || '', it.thuTu || it['Thứ Tự'] || 1);
+            var ten = it.tenDanhMuc || it.ten || it['Tên Danh Mục'] || it['Tên'] || '';
             var nhom = it.nhom || it.Nhom || it['Nhóm'] || '';
             var thuTu = it.thuTu || it['Thứ Tự'] || 1;
-            var mauSac = it.mauSac || it['Màu Sắc'] || '#059669';
+            var mauSac = it.mauSac || it['Màu Sắc'] || it['Màu Sắc / Mã CSS'] || '#059669';
             var ghiChu = it.ghiChu || it['Ghi Chú'] || '';
 
             return '<div class="py-3 px-1 space-y-2">' +

@@ -10,7 +10,7 @@
 
 // --- CẤU HÌNH HỆ THỐNG & CONSTANTS TOÀN CỤC ---
 var APP_TITLE = 'QUẢN LÝ CÔNG VIỆC TEAM & TIẾN ĐỘ DỰ ÁN 3.5 — WEB APP — FILE ĐI LÀM';
-var APP_VERSION = 'Bản 3.5 (Active)';
+var APP_VERSION = 'Bản 3.6 (Active)';
 var WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbyexample/exec';
 
 // Tên các Tab Database chuẩn theo Master Contract
@@ -157,6 +157,9 @@ function getInitialData() {
   if (!taskSheet || taskSheet.getLastRow() <= 1) {
     Logger.log('Phát hiện cơ sở dữ liệu trống hoặc chưa khởi tạo. Bắt đầu Auto-Seed...');
     setupDatabaseSheets();
+  } else {
+    // Tự động di trú chuẩn hóa mã danh mục nếu tab DB_DanhMuc còn chứa mã cũ UT-, PB-, TT-
+    autoMigrateLegacyCatalogCodes(ss);
   }
 
   // Đọc đồng thời 6 tab dữ liệu với Dual Header Mapping
@@ -529,13 +532,51 @@ function mapChecklistRow(r, rowIndex) {
   };
 }
 
+function normalizeCatalogCode(code, group, order) {
+  var s = String(code || '').trim().toUpperCase();
+  if (/^CATG-\d{6}$/.test(s)) return s;
+
+  // Tự động map từ mã cũ UT-, PB-, TT-, CB-, DA-, NS-
+  var legacyMap = {
+    'UT-01': 'CATG-201001', 'UT-02': 'CATG-201002', 'UT-03': 'CATG-201003', 'UT-04': 'CATG-201004', 'UT-05': 'CATG-201005',
+    'CAT-UT-01': 'CATG-201001', 'CAT-UT-02': 'CATG-201002', 'CAT-UT-03': 'CATG-201003', 'CAT-UT-04': 'CATG-201004',
+    'PB-01': 'CATG-301001', 'PB-02': 'CATG-301002', 'PB-03': 'CATG-301003', 'PB-04': 'CATG-301004', 'PB-05': 'CATG-301005', 'PB-06': 'CATG-301006',
+    'CAT-PB-01': 'CATG-301001', 'CAT-PB-02': 'CATG-301002', 'CAT-PB-03': 'CATG-301003', 'CAT-PB-04': 'CATG-301004', 'CAT-PB-05': 'CATG-301005', 'CAT-PB-06': 'CATG-301006',
+    'TT-01': 'CATG-101001', 'TT-02': 'CATG-101002', 'TT-03': 'CATG-101003', 'TT-04': 'CATG-101004', 'TT-05': 'CATG-101005',
+    'CAT-TT-01': 'CATG-101001', 'CAT-TT-02': 'CATG-101002', 'CAT-TT-03': 'CATG-101003', 'CAT-TT-04': 'CATG-101004', 'CAT-TT-05': 'CATG-101005',
+    'CB-01': 'CATG-401001', 'CB-02': 'CATG-401002', 'CB-03': 'CATG-401003', 'CB-04': 'CATG-401004',
+    'CAT-CB-01': 'CATG-401001', 'CAT-CB-02': 'CATG-401002', 'CAT-CB-03': 'CATG-401003', 'CAT-CB-04': 'CATG-401004',
+    'DA-01': 'CATG-501001', 'DA-02': 'CATG-501002', 'DA-03': 'CATG-501003', 'DA-04': 'CATG-501004',
+    'CAT-DA-01': 'CATG-501001', 'CAT-DA-02': 'CATG-501002', 'CAT-DA-03': 'CATG-501003', 'CAT-DA-04': 'CATG-501004',
+    'NS-01': 'CATG-601001', 'NS-02': 'CATG-601002',
+    'CAT-NS-01': 'CATG-601001', 'CAT-NS-02': 'CATG-601002'
+  };
+  if (legacyMap[s]) return legacyMap[s];
+
+  // Nếu là số hoặc mã cũ khác -> sinh số chuẩn theo nhóm
+  var groupPrefix = '10';
+  var g = String(group || '').toLowerCase();
+  if (g.indexOf('ưu tiên') !== -1) groupPrefix = '20';
+  else if (g.indexOf('phòng ban') !== -1) groupPrefix = '30';
+  else if (g.indexOf('cấp bậc') !== -1) groupPrefix = '40';
+  else if (g.indexOf('dự án') !== -1) groupPrefix = '50';
+  else if (g.indexOf('nhân sự') !== -1) groupPrefix = '60';
+
+  var num = parseInt(s.replace(/\D/g, ''), 10) || Number(order) || 1;
+  var padded = ('000' + num).slice(-4);
+  return 'CATG-' + groupPrefix + padded;
+}
+
 function mapTaxonomyRow(r, rowIndex) {
   var nhom = String(r[0] || '').trim();
-  var maDanhMuc = String(r[1] || '').trim();
+  var rawMa = String(r[1] || '').trim();
   var tenDanhMuc = String(r[2] || '').trim();
   var mauSac = String(r[3] || '#64748b').trim();
   var thuTu = Number(r[4]) || 1;
   var ghiChu = String(r[5] || '').trim();
+
+  // Tự động chuẩn hóa mã danh mục theo chuẩn AGENTS.md (CATG-XXXXXX)
+  var maDanhMuc = normalizeCatalogCode(rawMa, nhom, thuTu);
 
   return {
     rowIndex: rowIndex,
@@ -561,6 +602,40 @@ function mapTaxonomyRow(r, rowIndex) {
     order: thuTu,
     note: ghiChu
   };
+}
+
+/**
+ * Tự động di trú và chuẩn hóa mã danh mục trong DB_DanhMuc về chuẩn CATG-XXXXXX
+ */
+function autoMigrateLegacyCatalogCodes(ss) {
+  try {
+    var sheet = ss.getSheetByName(SHEET_DANH_MUC);
+    if (!sheet) return;
+    var lastRow = sheet.getLastRow();
+    if (lastRow <= 1) return;
+
+    var range = sheet.getRange(2, 1, lastRow - 1, 5);
+    var values = range.getValues();
+    var hasChanges = false;
+
+    for (var i = 0; i < values.length; i++) {
+      var nhom = values[i][0];
+      var oldCode = values[i][1];
+      var thuTu = values[i][4];
+      var newCode = normalizeCatalogCode(oldCode, nhom, thuTu);
+      if (newCode !== oldCode) {
+        values[i][1] = newCode;
+        hasChanges = true;
+      }
+    }
+
+    if (hasChanges) {
+      sheet.getRange(2, 1, values.length, 5).setValues(values);
+      Logger.log('Đã tự động di trú ' + values.length + ' mã danh mục sang chuẩn CATG-XXXXXX');
+    }
+  } catch (e) {
+    Logger.log('Lỗi autoMigrateLegacyCatalogCodes: ' + e.toString());
+  }
 }
 
 /**

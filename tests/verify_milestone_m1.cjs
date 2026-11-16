@@ -47,10 +47,10 @@ assert(html.includes('team-dept-filter'), 'R3: team-dept-filter dynamically popu
 assert(html.includes('team-rank-filter'), 'R3: team-rank-filter dynamically populated');
 console.log('[ PASS ] R3 Requirements 100% satisfied');
 
-console.log('=== VERIFYING R4: VERSION STAMPING V3.5 ===');
-assert(gs.includes("'Bản 3.5 (Active)'"), 'R4: Code.gs APP_VERSION is Bản 3.5 (Active)');
-assert(html.includes('Bản 3.5 (Active)'), 'R4: Header Topbar & badges display Bản 3.5 (Active)');
-assert(html.includes('Phiên bản 3.5 (Active)'), 'R4: Sidebar displays Phiên bản 3.5 (Active)');
+console.log('=== VERIFYING R4: VERSION STAMPING V3.6 ===');
+assert(gs.includes("'Bản 3.6 (Active)'"), 'R4: Code.gs APP_VERSION is Bản 3.6 (Active)');
+assert(html.includes('Bản 3.6 (Active)'), 'R4: Header Topbar & badges display Bản 3.6 (Active)');
+assert(html.includes('Phiên bản 3.6 (Active)'), 'R4: Sidebar displays Phiên bản 3.6 (Active)');
 assert(html.includes('id="appBuildVersionBadge"'), 'R4: #appBuildVersionBadge exists');
 console.log('[ PASS ] R4 Requirements 100% satisfied');
 
