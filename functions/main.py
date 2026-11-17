@@ -542,9 +542,9 @@ Xem chi tiết tại: https://filedilam.web.app/admin.html
 
 def send_admin_payment_success_notification(order_id, order_data, payment_details=None):
     """
-    Gửi thông báo 'Nổ tiền' tức thì từ kiencam.work@gmail.com đến huynhkiencam151102@gmail.com
-    khi đơn hàng được thanh toán thành công qua SePay Webhook.
-    Tiêu đề: [ĐÃ THANH TOÁN THÀNH CÔNG] +<Số_tiền>đ - Đơn #<Mã_đơn> - <Tên_khách_hàng>
+    Gửi thông báo 'Nổ tiền' phẳng, tối giản theo chuẩn AGENTS_MASTER.md
+    từ kiencam.work@gmail.com đến huynhkiencam151102@gmail.com khi đơn hàng thanh toán thành công.
+    Tiêu đề: [ĐÃ THANH TOÁN] +<Số_tiền>đ - Đơn #<Mã_đơn> - <Tên_khách_hàng>
     """
     try:
         amount = int(order_data.get("amount") or 0)
@@ -554,7 +554,6 @@ def send_admin_payment_success_notification(order_id, order_data, payment_detail
             except (ValueError, TypeError):
                 amount = 0
         amount_str = f"{amount:,}".replace(",", ".")
-        amount_badge = f"+{amount_str} đ"
         
         cust_name = order_data.get("customer_name") or "Khách hàng"
         cust_email = order_data.get("customer_email") or "Chưa cung cấp"
@@ -580,28 +579,49 @@ def send_admin_payment_success_notification(order_id, order_data, payment_detail
             for idx, it in enumerate(items, 1):
                 i_name = escape(str(it.get("product_name") or it.get("name") or "File"))
                 i_price = f"{int(it.get('price') or 0):,}".replace(",", ".") + " đ"
-                item_rows.append(f"<tr class='border-row' style='border-bottom:1px solid #e2e8f0;'><td class='label-text' style='padding:8px 0; font-size:13px; color:#334155;'>{idx}. {i_name}</td><td class='val-text' style='padding:8px 0; font-size:13px; text-align:right; font-weight:700; color:#0f172a;'>{i_price}</td></tr>")
+                item_rows.append(f"<tr><td style='padding:4px 0; color:#64748b; font-size:13px;'>{idx}. {i_name}</td><td style='padding:4px 0; text-align:right; font-weight:600; color:#0f172a; font-size:13px;'>{i_price}</td></tr>")
             items_detail = f"""
-            <div class="sec-card" style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:12px; padding:14px 16px; margin-bottom:14px;">
-              <div class="sec-title" style="font-size:11px; font-weight:800; color:#059669; text-transform:uppercase; letter-spacing:0.6px; margin-bottom:8px;">Chi tiết sản phẩm / Combo</div>
+            <div style="padding-top: 14px; border-top: 1px solid #f1f5f9; margin-bottom: 18px;">
+              <div style="font-size: 11px; font-weight: 700; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px;">
+                Chi tiết sản phẩm / Combo
+              </div>
               <table width="100%" cellpadding="0" cellspacing="0" border="0">
                 {''.join(item_rows)}
               </table>
             </div>
             """
 
-        phone_cell_html = f'<a href="tel:{escape(cust_phone)}" style="color:#059669; text-decoration:none; font-weight:700;">{escape(cust_phone)}</a>'
+        phone_cell_html = f'<a href="tel:{escape(cust_phone)}" style="color:#0f172a; text-decoration:none; font-weight:600;">{escape(cust_phone)}</a>'
         if zalo_link:
-            phone_cell_html += f' <a href="{zalo_link}" target="_blank" rel="noopener noreferrer" style="margin-left:6px; display:inline-block; background-color:#0068ff; color:#ffffff !important; text-decoration:none; font-size:11px; font-weight:700; padding:2px 7px; border-radius:4px; vertical-align:middle;"><span style="color:#ffffff !important;">Zalo</span></a>'
+            phone_cell_html += f' <a href="{zalo_link}" target="_blank" rel="noopener noreferrer" style="margin-left:8px; color:#0068ff; text-decoration:none; font-size:12px; font-weight:600;">Nhắn Zalo &rarr;</a>'
 
         zalo_cta_html = ""
         if zalo_link:
             zalo_cta_html = f"""
-            <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin: 20px 0 10px 0;">
+            <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-top: 8px;">
+              <tr>
+                <td>
+                  <a href="{zalo_link}" target="_blank" rel="noopener noreferrer" style="display: block; width: 100%; box-sizing: border-box; background-color: #059669; color: #ffffff !important; text-decoration: none; font-size: 14px; font-weight: 600; line-height: 46px; height: 46px; border-radius: 8px; text-align: center;">
+                    Mở Zalo khách ({cust_phone})
+                  </a>
+                </td>
+              </tr>
+              <tr>
+                <td align="center" style="padding-top: 12px;">
+                  <a href="https://filedilam.web.app/admin.html" target="_blank" style="font-size: 12.5px; color: #64748b; text-decoration: none;">
+                    Mở trang quản trị Admin &rarr;
+                  </a>
+                </td>
+              </tr>
+            </table>
+            """
+        else:
+            zalo_cta_html = f"""
+            <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-top: 8px;">
               <tr>
                 <td align="center">
-                  <a href="{zalo_link}" target="_blank" rel="noopener noreferrer" style="display: block; width: 100%; box-sizing: border-box; background-color: #0068ff; background: -webkit-linear-gradient(135deg, #0068ff 0%, #0052cc 100%); background: linear-gradient(135deg, #0068ff 0%, #0052cc 100%); color: #ffffff !important; text-decoration: none; font-size: 15px; font-weight: 700; padding: 14px 20px; border-radius: 12px; text-align: center; letter-spacing: 0.2px; box-shadow: 0 4px 14px rgba(0, 104, 255, 0.28);">
-                    <span style="color: #ffffff !important; text-decoration: none;">&#128172; Nhắn Zalo khách ngay ({cust_phone})</span>
+                  <a href="https://filedilam.web.app/admin.html" target="_blank" style="font-size: 13px; color: #059669; text-decoration: none; font-weight: 600;">
+                    Mở trang quản trị Admin &rarr;
                   </a>
                 </td>
               </tr>
@@ -609,138 +629,104 @@ def send_admin_payment_success_notification(order_id, order_data, payment_detail
             """
 
         html_content = f"""<!DOCTYPE html>
-<html lang="vi" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office">
+<html lang="vi">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="color-scheme" content="light dark">
-<meta name="supported-color-schemes" content="light dark">
 <title>Đã thanh toán #{order_id}</title>
-<style>
-  :root {{ color-scheme: light dark; supported-color-schemes: light dark; }}
-  @media (prefers-color-scheme: dark) {{
-    .email-bg {{ background-color: #0b0f17 !important; }}
-    .email-card {{ background-color: #151b26 !important; border-color: #1e293b !important; color: #f1f5f9 !important; }}
-    .hero-banner {{ background-color: #064e3b !important; border-color: #047857 !important; }}
-    .hero-sub {{ color: #a7f3d0 !important; }}
-    .hero-amount {{ color: #34d399 !important; }}
-    .hero-time {{ color: #6ee7b7 !important; }}
-    .sec-card {{ background-color: #1a2232 !important; border-color: #243044 !important; }}
-    .sec-title {{ color: #34d399 !important; }}
-    .label-text {{ color: #94a3b8 !important; }}
-    .val-text {{ color: #f8fafc !important; }}
-    .border-row {{ border-bottom-color: #243044 !important; }}
-    .btn-admin {{ background-color: #1a2232 !important; color: #34d399 !important; border-color: #059669 !important; }}
-  }}
-</style>
 </head>
-<body class="email-bg" style="margin: 0; padding: 20px 12px; background-color: #f1f5f9; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; color: #0f172a; line-height: 1.5; -webkit-font-smoothing: antialiased;">
-  <div class="email-card" style="max-width: 520px; margin: 0 auto; background-color: #ffffff; border-radius: 16px; overflow: hidden; border: 1px solid #e2e8f0; box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.08);">
+<body style="margin: 0; padding: 24px 12px; background-color: #f8fafc; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; color: #0f172a; line-height: 1.5;">
+  <div style="max-width: 500px; margin: 0 auto; background-color: #ffffff; border: 1px solid #e2e8f0; border-radius: 8px; overflow: hidden;">
     
-    <!-- Top Accent Bar (Mint Emerald gradient) -->
-    <div style="height: 6px; background: linear-gradient(90deg, #059669 0%, #10b981 100%);"></div>
-
-    <div style="padding: 24px 22px;">
-      
-      <!-- Brand & Header Badges -->
-      <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom: 18px;">
+    <!-- Header phẳng, tối giản thương hiệu -->
+    <div style="padding: 20px 24px 16px 24px; border-bottom: 1px solid #f1f5f9;">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
         <tr>
-          <td align="left" valign="middle">
-            <span style="display: inline-block; font-size: 11.5px; font-weight: 800; color: #059669; text-transform: uppercase; letter-spacing: 0.8px; background: #ecfdf5; padding: 4px 10px; border-radius: 6px; border: 1px solid #a7f3d0;">
-              FILE ĐI LÀM &bull; NỔ TIỀN THÀNH CÔNG
-            </span>
+          <td align="left">
+            <span style="font-size: 13px; font-weight: 700; color: #059669; letter-spacing: 0.3px;">FILE ĐI LÀM</span>
+            <span style="color: #cbd5e1; margin: 0 6px;">|</span>
+            <span style="font-size: 13px; color: #64748b;">Nổ tiền SePay</span>
           </td>
-          <td align="right" valign="middle">
-            <span style="font-size: 13px; font-weight: 800; color: #475569; font-family: ui-monospace, Menlo, Consolas, monospace;">#{order_id}</span>
+          <td align="right">
+            <span style="font-family: ui-monospace, Menlo, Consolas, monospace; font-size: 12px; font-weight: 600; color: #64748b;">#{order_id}</span>
           </td>
         </tr>
       </table>
+    </div>
 
-      <!-- Hero Section Fintech: Biến động số dư nổ tiền -->
-      <div class="hero-banner" style="background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%); border: 1.5px solid #6ee7b7; border-radius: 14px; padding: 22px 18px; text-align: center; margin-bottom: 20px;">
-        <div class="hero-sub" style="font-size: 12px; font-weight: 700; color: #047857; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 6px;">
-          TÀI KHOẢN VỪA CỘNG TIỀN (SEPAY)
+    <div style="padding: 24px;">
+      
+      <!-- Số tiền biến động phẳng, thanh lịch -->
+      <div style="margin-bottom: 24px;">
+        <div style="font-size: 12px; color: #64748b; font-weight: 500; margin-bottom: 4px;">Số tiền thực nhận</div>
+        <div style="font-size: 32px; font-weight: 700; color: #059669; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; letter-spacing: -0.5px; line-height: 1;">
+          +{amount_str} đ
         </div>
-        <div class="hero-amount" style="font-size: 34px; font-weight: 900; color: #047857; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; letter-spacing: -0.5px; line-height: 1.15; margin: 4px 0 8px 0;">
-          {amount_badge}
-        </div>
-        <div class="hero-time" style="font-size: 12px; color: #059669; font-weight: 600;">
-          &#9201; {vn_now_str} (GMT+7)
+        <div style="font-size: 12px; color: #94a3b8; margin-top: 6px;">
+          Ghi nhận lúc {vn_now_str} &bull; <span style="color: #059669; font-weight: 600;">Đã thanh toán</span>
         </div>
       </div>
 
-      <!-- Card 1: Thông tin khách hàng & Chăm sóc -->
-      <div class="sec-card" style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 14px 16px; margin-bottom: 14px;">
-        <div class="sec-title" style="font-size: 11px; font-weight: 800; color: #059669; text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 10px;">
-          Khách hàng & Nhận file
+      <!-- Khối 1: Khách hàng & Sản phẩm (Phẳng, không đóng khung card) -->
+      <div style="padding-top: 16px; border-top: 1px solid #f1f5f9; margin-bottom: 20px;">
+        <div style="font-size: 11px; font-weight: 700; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 12px;">
+          Thông tin khách hàng
         </div>
-        <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <table width="100%" cellpadding="0" cellspacing="0" border="0" style="font-size: 13.5px;">
           <tr>
-            <td class="label-text" style="padding: 5px 0; font-size: 13px; color: #64748b; width: 105px;">Khách hàng:</td>
-            <td class="val-text" style="padding: 5px 0; font-size: 14px; font-weight: 700; color: #0f172a;">{escape(cust_name)}</td>
+            <td style="padding: 5px 0; color: #64748b; width: 110px;">Khách hàng:</td>
+            <td style="padding: 5px 0; font-weight: 600; color: #0f172a;">{escape(cust_name)}</td>
           </tr>
           <tr>
-            <td class="label-text" style="padding: 5px 0; font-size: 13px; color: #64748b;">Số điện thoại:</td>
-            <td class="val-text" style="padding: 5px 0; font-size: 13.5px; font-weight: 600; color: #0f172a;">{phone_cell_html}</td>
+            <td style="padding: 5px 0; color: #64748b;">Số điện thoại:</td>
+            <td style="padding: 5px 0; color: #0f172a;">{phone_cell_html}</td>
           </tr>
           <tr>
-            <td class="label-text" style="padding: 5px 0; font-size: 13px; color: #64748b;">Email:</td>
-            <td class="val-text" style="padding: 5px 0; font-size: 13px; color: #0284c7; font-family: ui-monospace, Menlo, Consolas, monospace; word-break: break-all;">{escape(cust_email)}</td>
+            <td style="padding: 5px 0; color: #64748b;">Email nhận file:</td>
+            <td style="padding: 5px 0; color: #0f172a; font-family: ui-monospace, Menlo, Consolas, monospace; font-size: 13px;">{escape(cust_email)}</td>
           </tr>
           <tr>
-            <td class="label-text" style="padding: 5px 0; font-size: 13px; color: #64748b;">Sản phẩm:</td>
-            <td class="val-text" style="padding: 5px 0; font-size: 13.5px; font-weight: 600; color: #0f172a;">{escape(product_name)} <span style="font-size: 12px; color: #64748b; font-weight: normal;">({escape(package_name)})</span></td>
+            <td style="padding: 5px 0; color: #64748b;">Sản phẩm:</td>
+            <td style="padding: 5px 0; color: #0f172a;">{escape(product_name)} <span style="color: #64748b; font-size: 12px;">({escape(package_name)})</span></td>
           </tr>
         </table>
       </div>
 
-      <!-- Chi tiết combo nếu có -->
       {items_detail}
 
-      <!-- Card 2: Dữ liệu giao dịch ngân hàng (Gọn gàng & chuyên nghiệp) -->
-      <div class="sec-card" style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 14px 16px; margin-bottom: 16px;">
-        <div class="sec-title" style="font-size: 11px; font-weight: 800; color: #475569; text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 10px;">
-          Đối soát giao dịch ngân hàng
+      <!-- Khối 2: Chi tiết đối soát giao dịch SePay (Dạng bảng phẳng thanh mảnh) -->
+      <div style="padding-top: 16px; border-top: 1px solid #f1f5f9; margin-bottom: 24px;">
+        <div style="font-size: 11px; font-weight: 700; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 12px;">
+          Chi tiết giao dịch ngân hàng
         </div>
-        <table width="100%" cellpadding="0" cellspacing="0" border="0">
-          <tr class="border-row" style="border-bottom: 1px solid #f1f5f9;">
-            <td class="label-text" style="padding: 6px 0; font-size: 12.5px; color: #64748b; width: 110px;">Cổng thanh toán:</td>
-            <td class="val-text" style="padding: 6px 0; font-size: 12.5px; font-weight: 600; color: #0f172a;">{escape(gateway)}</td>
-          </tr>
-          <tr class="border-row" style="border-bottom: 1px solid #f1f5f9;">
-            <td class="label-text" style="padding: 6px 0; font-size: 12.5px; color: #64748b;">Mã GD SePay:</td>
-            <td class="val-text" style="padding: 6px 0; font-size: 12.5px; color: #0f172a; font-family: ui-monospace, Menlo, Consolas, monospace;">{escape(sepay_id)}</td>
-          </tr>
-          <tr class="border-row" style="border-bottom: 1px solid #f1f5f9;">
-            <td class="label-text" style="padding: 6px 0; font-size: 12.5px; color: #64748b;">Mã tham chiếu:</td>
-            <td class="val-text" style="padding: 6px 0; font-size: 12.5px; color: #0f172a; font-family: ui-monospace, Menlo, Consolas, monospace;">{escape(ref_code)}</td>
+        <table width="100%" cellpadding="0" cellspacing="0" border="0" style="font-size: 12.5px;">
+          <tr>
+            <td style="padding: 4px 0; color: #64748b; width: 110px;">Ngân hàng:</td>
+            <td style="padding: 4px 0; color: #0f172a; font-weight: 500;">{escape(gateway)}</td>
           </tr>
           <tr>
-            <td class="label-text" style="padding: 6px 0; font-size: 12.5px; color: #64748b;">Nội dung CK:</td>
-            <td class="val-text" style="padding: 6px 0; font-size: 12px; color: #334155; font-family: ui-monospace, Menlo, Consolas, monospace; word-break: break-all;">{escape(transfer_content)}</td>
+            <td style="padding: 4px 0; color: #64748b;">Mã GD SePay:</td>
+            <td style="padding: 4px 0; color: #0f172a; font-family: ui-monospace, Menlo, Consolas, monospace;">{escape(sepay_id)}</td>
+          </tr>
+          <tr>
+            <td style="padding: 4px 0; color: #64748b;">Mã tham chiếu:</td>
+            <td style="padding: 4px 0; color: #0f172a; font-family: ui-monospace, Menlo, Consolas, monospace;">{escape(ref_code)}</td>
+          </tr>
+          <tr>
+            <td style="padding: 4px 0; color: #64748b;">Nội dung CK:</td>
+            <td style="padding: 4px 0; color: #475569; font-family: ui-monospace, Menlo, Consolas, monospace; font-size: 12px;">{escape(transfer_content)}</td>
           </tr>
         </table>
       </div>
 
-      <!-- Action Button 1: Chat Zalo 1 Chạm nổi bật -->
+      <!-- Nút hành động chuẩn: Đơn giản, cao 46px, không bóng đổ lòe loẹt -->
       {zalo_cta_html}
-
-      <!-- Action Button 2: Mở Admin Dashboard tinh tế -->
-      <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-top: 6px;">
-        <tr>
-          <td align="center">
-            <a href="https://filedilam.web.app/admin.html" target="_blank" class="btn-admin" style="display: inline-block; background-color: #f1f5f9; color: #0f172a; border: 1px solid #cbd5e1; text-decoration: none; font-size: 13px; font-weight: 600; padding: 10px 24px; border-radius: 10px;">
-              Mở Admin Dashboard &rarr;
-            </a>
-          </td>
-        </tr>
-      </table>
 
     </div>
 
-    <!-- Footer phẳng tối giản -->
-    <div style="padding: 12px 20px; background-color: #f8fafc; border-top: 1px solid #f1f5f9; font-size: 11.5px; color: #94a3b8; text-align: center;">
-      Hệ thống thông báo tự động SePay &bull; File Đi Làm
+    <!-- Footer phẳng một dòng -->
+    <div style="padding: 12px 24px; background-color: #f8fafc; border-top: 1px solid #f1f5f9; font-size: 11.5px; color: #94a3b8; text-align: center;">
+      File Đi Làm &bull; Thông báo giao dịch tự động SePay
     </div>
 
   </div>
@@ -748,11 +734,11 @@ def send_admin_payment_success_notification(order_id, order_data, payment_detail
 </html>"""
 
         zalo_plain = f" (Zalo: {zalo_link})" if zalo_link else ""
-        plain_text = f"""[ĐÃ THANH TOÁN THÀNH CÔNG] {amount_badge} - Đơn #{order_id} - {cust_name}
+        plain_text = f"""[ĐÃ THANH TOÁN] +{amount_str}đ - Đơn #{order_id} - {cust_name}
 
 Thông tin giao dịch SePay:
 - Mã đơn hàng: #{order_id}
-- Số tiền: {amount_badge}
+- Số tiền: +{amount_str} đ
 - Trạng thái: ĐÃ THANH TOÁN (PAID)
 - Cổng thanh toán: {gateway}
 - Mã GD SePay: {sepay_id}
@@ -765,12 +751,12 @@ Thông tin khách hàng:
 - Email: {cust_email}
 - SĐT: {cust_phone}{zalo_plain}
 - Sản phẩm: {product_name} ({package_name})
-- Link Zalo 1 chạm: {zalo_link or 'Chưa có SĐT hợp lệ'}
+- Link Zalo: {zalo_link or 'Chưa có SĐT hợp lệ'}
 
 Xem chi tiết tại Admin Dashboard: https://filedilam.web.app/admin.html
 """
 
-        subject = f"[ĐÃ THANH TOÁN THÀNH CÔNG] +{amount_str}đ - Đơn #{order_id} - {cust_name}"
+        subject = f"[ĐÃ THANH TOÁN] +{amount_str}đ - Đơn #{order_id} - {cust_name}"
         msg = MIMEMultipart("alternative")
         msg["Subject"] = subject
         msg["From"] = f'"File Đi Làm" <{SMTP_USER}>'
