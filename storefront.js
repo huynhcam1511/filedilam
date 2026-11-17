@@ -2157,6 +2157,28 @@ function escapeHtml(value) {
     if (coverImg) {
       galleryList.push(coverImg);
     }
+
+    // NẾU LÀ SẢN PHẨM COMBO: Tự động gom thêm toàn bộ ảnh bìa / gallery của các file con thành phần
+    if (isCombo && Array.isArray(product.combo_items) && product.combo_items.length > 0) {
+      product.combo_items.forEach(function(childId) {
+        var childProd = getProductById(childId);
+        if (childProd) {
+          var childCover = childProd.previewImageUrl || childProd.thumbnailUrl;
+          if (childCover && galleryList.indexOf(childCover) === -1) {
+            galleryList.push(childCover);
+          }
+          var childGallery = childProd.gallery || childProd.previewImages || childProd.images || [];
+          if (Array.isArray(childGallery)) {
+            childGallery.forEach(function(gUrl) {
+              if (typeof gUrl === 'string' && gUrl.trim() && galleryList.indexOf(gUrl) === -1) {
+                galleryList.push(gUrl);
+              }
+            });
+          }
+        }
+      });
+    }
+
     var rawGallery = [];
     if (Array.isArray(product.gallery) && product.gallery.length > 0) {
       rawGallery = product.gallery;
