@@ -1734,6 +1734,7 @@ document.addEventListener('DOMContentLoaded', () => {
   let statsCategoryView = 'donut'; // 'donut', 'treemap'
   let statsSelectedLagAdId = null; // ID chiến dịch Ads đang chọn trong tab Hiệu ứng trễ 72h
   let statsLagWindowDays = 'all'; // Khung cửa sổ phân bổ: 'all' (toàn chu kỳ), 7 (1 tuần), hoặc 3 (72h)
+  let statsPnlViewMode = 'SPLIT'; // 'SPLIT' (Bóc tách doanh thu & chi phí Ads combo về file con theo tỷ trọng) hoặc 'RAW' (Xem độc lập theo mã SKU/chiến dịch gốc)
 
   function parseDateObj(val) {
     if (!val) return null;
@@ -1806,8 +1807,8 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   
-  // Helper: Bóc tách đơn hàng thành các sản phẩm con độc lập (hỗ trợ cả đơn lẻ, đơn combo mảng items, và đơn combo cũ dạng "A + B")
-  function resolveOrderLineItems(order, knownProductsMap) {
+  // Helper: Bóc tách đơn hàng thành các sản phẩm con độc lập (hỗ trợ cả đơn lẻ, đơn combo mảng items, đơn combo cũ dạng "A + B", và phân bổ combo IFRS 15)
+  function resolveOrderLineItems(order, knownProductsMap, viewMode = 'SPLIT') {
     if (!order) return [];
     const amt = parseInt(order.amount || 0, 10);
     const productKeys = Object.keys(knownProductsMap);
@@ -1837,10 +1838,71 @@ document.addEventListener('DOMContentLoaded', () => {
       return null;
     }
 
+    // Helper nội bộ: Tách doanh thu combo cho các file con theo tỷ trọng giá niêm yết (IFRS 15)
+    function splitComboItems(comboPid, comboAmt, originalName) {
+      const combo = knownProductsMap[comboPid];
+      if (!combo || !Array.isArray(combo.combo_items) || combo.combo_items.length === 0) {
+        return [{
+          productId: comboPid,
+          name: combo ? combo.name : comboPid,
+          revenue: comboAmt,
+          isCurrent: true,
+          isCombo: true,
+          isComboComponent: false,
+          originalName: originalName || (combo ? combo.name : comboPid)
+        }];
+      }
+
+      if (viewMode === 'RAW') {
+        // Góc nhìn theo mã bán (SKU): Giữ nguyên mã Combo là một sản phẩm độc lập
+        return [{
+          productId: comboPid,
+          name: combo.name,
+          revenue: comboAmt,
+          isCurrent: true,
+          isCombo: true,
+          isComboComponent: false,
+          originalName: originalName || combo.name
+        }];
+      }
+
+      // Góc nhìn Bóc tách file lẻ (SPLIT): Phân bổ doanh thu về từng file con theo tỷ trọng giá niêm yết
+      const childIds = combo.combo_items;
+      let totalChildPrice = 0;
+      childIds.forEach(cid => {
+        const cp = knownProductsMap[cid];
+        totalChildPrice += (cp && cp.price) ? parseInt(cp.price, 10) : 10000;
+      });
+      if (totalChildPrice <= 0) totalChildPrice = childIds.length;
+
+      let allocatedSum = 0;
+      return childIds.map((cid, idx) => {
+        const cp = knownProductsMap[cid];
+        const cPrice = (cp && cp.price) ? parseInt(cp.price, 10) : 10000;
+        const ratio = cPrice / totalChildPrice;
+        const childRev = (idx === childIds.length - 1) ? (comboAmt - allocatedSum) : Math.round(comboAmt * ratio);
+        allocatedSum += childRev;
+
+        return {
+          productId: cid,
+          name: cp ? cp.name : cid,
+          revenue: childRev,
+          isCurrent: !!cp,
+          isCombo: false,
+          isComboComponent: true,
+          comboParentId: comboPid,
+          comboParentName: combo.name,
+          originalName: originalName || (cp ? cp.name : cid)
+        };
+      });
+    }
+
     // Trường hợp 1: Đơn hàng mới có mảng items[] rõ ràng
     if (Array.isArray(order.items) && order.items.length > 0) {
       const count = order.items.length;
-      return order.items.map(it => {
+      const resultItems = [];
+
+      order.items.forEach(it => {
         let pid = it.product_id || 'other';
         if (!knownProductsMap[pid]) {
           const matched = matchCurrentProduct(it.product_name || pid);
@@ -1852,14 +1914,23 @@ document.addEventListener('DOMContentLoaded', () => {
         const pPrice = parseInt(it.price || (knownProductsMap[pid] && knownProductsMap[pid].price) || 0, 10);
         const allocatedRev = pPrice > 0 ? pPrice : Math.round(amt / count);
 
-        return {
-          productId: (isCurrent && !isTest) ? pid : '__ARCHIVED_TEST__',
-          name: (isCurrent && !isTest) ? pName : '[Test / File cũ đã xóa]',
-          revenue: allocatedRev,
-          isCurrent: isCurrent && !isTest,
-          originalName: it.product_name || pName
-        };
+        if (isCurrent && !isTest && (knownProductsMap[pid]?.is_combo || knownProductsMap[pid]?.type === 'combo')) {
+          const splitted = splitComboItems(pid, allocatedRev, it.product_name || pName);
+          resultItems.push(...splitted);
+        } else {
+          resultItems.push({
+            productId: (isCurrent && !isTest) ? pid : '__ARCHIVED_TEST__',
+            name: (isCurrent && !isTest) ? pName : '[Test / File cũ đã xóa]',
+            revenue: allocatedRev,
+            isCurrent: isCurrent && !isTest,
+            isCombo: false,
+            isComboComponent: false,
+            originalName: it.product_name || pName
+          });
+        }
       });
+
+      return resultItems;
     }
 
     // Trường hợp 2: Đơn hàng cũ lưu tên dạng Combo "A + B"
@@ -1876,6 +1947,9 @@ document.addEventListener('DOMContentLoaded', () => {
             name: knownProductsMap[foundPid].name,
             revenue: 0,
             isCurrent: true,
+            isCombo: false,
+            isComboComponent: true,
+            comboParentName: rawName,
             originalName: partName
           });
         } else {
@@ -1884,29 +1958,50 @@ document.addEventListener('DOMContentLoaded', () => {
             name: '[Test / File cũ đã xóa]',
             revenue: 0,
             isCurrent: false,
+            isCombo: false,
+            isComboComponent: false,
             originalName: partName
           });
         }
       });
 
       if (matchedList.length > 0) {
-        const splitRev = Math.round(amt / matchedList.length);
-        matchedList.forEach(m => m.revenue = splitRev);
+        // Phân bổ theo tỷ trọng giá thay vì chia cào bằng
+        let totalPartPrice = 0;
+        matchedList.forEach(m => {
+          const cp = knownProductsMap[m.productId];
+          totalPartPrice += (cp && cp.price) ? parseInt(cp.price, 10) : 10000;
+        });
+        if (totalPartPrice <= 0) totalPartPrice = matchedList.length;
+
+        let allocatedSum = 0;
+        matchedList.forEach((m, idx) => {
+          const cp = knownProductsMap[m.productId];
+          const cPrice = (cp && cp.price) ? parseInt(cp.price, 10) : 10000;
+          const ratio = cPrice / totalPartPrice;
+          m.revenue = (idx === matchedList.length - 1) ? (amt - allocatedSum) : Math.round(amt * ratio);
+          allocatedSum += m.revenue;
+        });
         return matchedList;
       }
     }
 
-    // Trường hợp 3: Đơn hàng đơn lẻ
+    // Trường hợp 3: Đơn hàng đơn lẻ hoặc đơn chứa mã Combo trong product_id / product_name
     let singlePid = order.product_id || 'other';
     let matchedPid = matchCurrentProduct(order.product_name || singlePid);
     const isTest = rawName.toLowerCase().includes('[test]') || rawName.toLowerCase().includes('thanh toán 2k');
 
     if (matchedPid && !isTest) {
+      if (knownProductsMap[matchedPid]?.is_combo || knownProductsMap[matchedPid]?.type === 'combo') {
+        return splitComboItems(matchedPid, amt, rawName);
+      }
       return [{
         productId: matchedPid,
         name: knownProductsMap[matchedPid].name,
         revenue: amt,
         isCurrent: true,
+        isCombo: false,
+        isComboComponent: false,
         originalName: rawName
       }];
     }
@@ -1917,6 +2012,8 @@ document.addEventListener('DOMContentLoaded', () => {
       name: '[Test / File cũ đã xóa]',
       revenue: amt,
       isCurrent: false,
+      isCombo: false,
+      isComboComponent: false,
       originalName: rawName
     }];
   }
@@ -2343,7 +2440,7 @@ document.addEventListener('DOMContentLoaded', () => {
           weekdayMap[dow] = (weekdayMap[dow] || 0) + 1;
         }
 
-        const lineItems = resolveOrderLineItems(o, knownProductsMap);
+        const lineItems = resolveOrderLineItems(o, knownProductsMap, statsPnlViewMode);
         let effectiveOrderRev = 0;
         lineItems.forEach(it => {
           if (statsFilterProduct !== 'ALL' && it.productId !== statsFilterProduct) {
@@ -2358,11 +2455,20 @@ document.addEventListener('DOMContentLoaded', () => {
               id: key,
               name: displayName,
               count: 0,
+              singleCount: 0,
+              comboCount: 0,
               revenue: 0,
-              isCurrent: it.isCurrent
+              isCurrent: it.isCurrent,
+              isCombo: it.isCombo || false,
+              isComboComponent: it.isComboComponent || false
             };
           }
           productMap[key].count += 1;
+          if (it.isComboComponent) {
+            productMap[key].comboCount = (productMap[key].comboCount || 0) + 1;
+          } else {
+            productMap[key].singleCount = (productMap[key].singleCount || 0) + 1;
+          }
           productMap[key].revenue += it.revenue;
 
           const catKey = resolveProductCategory(it, knownProductsMap);
@@ -4071,12 +4177,79 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     }
 
-    // 8. KHỐI HIỆU QUẢ & P&L TỪNG FILE (BEST SELLERS & MARKETING P&L)
+    // 8. KHỐI HIỆU QUẢ & P&L TỪNG FILE (BEST SELLERS & MARKETING P&L THEO 2 GÓC NHÌN)
     if (bestSellersContainer) {
-      const allFileIds = new Set([...Object.keys(productMap), ...Object.keys(productAdsMap)]);
+      // Cập nhật trạng thái nút bấm 2 góc nhìn P&L
+      const pnlSwitcherEl = document.getElementById('statsPnlViewSwitcher');
+      if (pnlSwitcherEl) {
+        pnlSwitcherEl.querySelectorAll('button[data-pnlview]').forEach(btn => {
+          if (btn.dataset.pnlview === statsPnlViewMode) btn.classList.add('active');
+          else btn.classList.remove('active');
+        });
+      }
+      if (bestSellersSubTitle) {
+        bestSellersSubTitle.textContent = (statsPnlViewMode === 'SPLIT')
+          ? 'Góc nhìn: Bóc tách doanh thu & ads combo về file lẻ'
+          : 'Góc nhìn: Theo từng mã SKU và chiến dịch gốc';
+      }
+
+      // Xử lý phân bổ chi phí Ads theo góc nhìn (IFRS 15 Matching Principle)
+      let effectiveAdsMap = {};
+      if (statsPnlViewMode === 'SPLIT') {
+        // Góc nhìn Bóc tách file lẻ: Nếu có bài Ads chạy cho Combo, phân bổ chi phí Ads về các file con theo tỷ trọng giá
+        Object.keys(productAdsMap).forEach(pid => {
+          const ad = productAdsMap[pid];
+          const combo = knownProductsMap[pid];
+          if (combo && (combo.is_combo || combo.type === 'combo') && Array.isArray(combo.combo_items) && combo.combo_items.length > 0) {
+            const childIds = combo.combo_items;
+            let totalChildP = 0;
+            childIds.forEach(cid => {
+              const cp = knownProductsMap[cid];
+              totalChildP += (cp && cp.price) ? parseInt(cp.price, 10) : 10000;
+            });
+            if (totalChildP <= 0) totalChildP = childIds.length;
+
+            let spentAllocated = 0;
+            childIds.forEach((cid, idx) => {
+              const cp = knownProductsMap[cid];
+              const cPrice = (cp && cp.price) ? parseInt(cp.price, 10) : 10000;
+              const ratio = cPrice / totalChildP;
+              const cSpent = (idx === childIds.length - 1) ? (ad.spent - spentAllocated) : Math.round(ad.spent * ratio);
+              spentAllocated += cSpent;
+
+              if (!effectiveAdsMap[cid]) {
+                effectiveAdsMap[cid] = {
+                  id: cid,
+                  spent: 0,
+                  views: 0,
+                  clicks: 0,
+                  bio: 0,
+                  count: 0,
+                  name: cp ? cp.name : cid
+                };
+              }
+              effectiveAdsMap[cid].spent += cSpent;
+              effectiveAdsMap[cid].views += Math.round(ad.views * ratio);
+              effectiveAdsMap[cid].clicks += Math.round(ad.clicks * ratio);
+            });
+          } else {
+            if (!effectiveAdsMap[pid]) {
+              effectiveAdsMap[pid] = { ...ad };
+            } else {
+              effectiveAdsMap[pid].spent += ad.spent;
+              effectiveAdsMap[pid].views += ad.views;
+              effectiveAdsMap[pid].clicks += ad.clicks;
+            }
+          }
+        });
+      } else {
+        effectiveAdsMap = productAdsMap;
+      }
+
+      const allFileIds = new Set([...Object.keys(productMap), ...Object.keys(effectiveAdsMap)]);
       const filePnlList = Array.from(allFileIds).map(pid => {
-        const pOrder = productMap[pid] || { count: 0, revenue: 0, name: knownProductsMap[pid]?.name || pid };
-        const pAd = productAdsMap[pid] || { spent: 0, views: 0, clicks: 0, bio: 0 };
+        const pOrder = productMap[pid] || { count: 0, singleCount: 0, comboCount: 0, revenue: 0, name: knownProductsMap[pid]?.name || pid };
+        const pAd = effectiveAdsMap[pid] || { spent: 0, views: 0, clicks: 0, bio: 0 };
         const rev = pOrder.revenue;
         const spent = pAd.spent;
         const net = rev - spent;
@@ -4090,10 +4263,19 @@ document.addEventListener('DOMContentLoaded', () => {
           spent: spent,
           net: net,
           count: pOrder.count,
+          singleCount: pOrder.singleCount || 0,
+          comboCount: pOrder.comboCount || 0,
           roas: roas,
           cpa: cpa
         };
-      }).filter(item => item.id !== '__ARCHIVED_TEST__')
+      }).filter(item => {
+        if (item.id === '__ARCHIVED_TEST__') return false;
+        // Ở chế độ SPLIT: loại bỏ dòng Combo rỗng (nếu có) để tập trung 100% vào file lẻ
+        if (statsPnlViewMode === 'SPLIT' && (knownProductsMap[item.id]?.is_combo || knownProductsMap[item.id]?.type === 'combo')) {
+          return false;
+        }
+        return true;
+      })
         .sort((a, b) => (b.revenue + b.spent) - (a.revenue + a.spent))
         .slice(0, 6);
 
@@ -4108,6 +4290,12 @@ document.addEventListener('DOMContentLoaded', () => {
           const spentPct = item.spent > 0 ? Math.max(Math.round((item.spent / maxFileMetric) * 100), 2) : 0;
           const netColor = item.net >= 0 ? '#059669' : '#ef4444';
           const netLabel = (item.net >= 0 ? '+' : '-') + formatCurrency(Math.abs(item.net));
+
+          // Chú thích chi tiết số lượng đơn: bán lẻ hay ăn theo combo
+          let orderCountDetail = item.count + ' đơn';
+          if (statsPnlViewMode === 'SPLIT' && item.comboCount > 0) {
+            orderCountDetail = item.count + ' đơn <span style="font-size:0.64rem; color:#059669; font-weight:600;">(' + (item.singleCount ? item.singleCount + ' lẻ + ' : '') + item.comboCount + ' combo)</span>';
+          }
 
           return (
             '<div style="margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px solid #f1f5f9;">' +
@@ -4133,7 +4321,7 @@ document.addEventListener('DOMContentLoaded', () => {
               '</div>' +
               // Micro stats line
               '<div style="display: flex; justify-content: space-between; font-size: 0.69rem; color: #64748b; margin-top: 4px; font-family: monospace;">' +
-                '<span>DT: <b>' + formatCurrency(item.revenue) + '</b> (' + item.count + ' đơn)</span>' +
+                '<span>DT: <b>' + formatCurrency(item.revenue) + '</b> (' + orderCountDetail + ')</span>' +
                 '<span>Ads: <b>' + (item.spent > 0 ? formatCurrency(item.spent) : '0 đ') + '</b> • ROAS: <b style="color:' + (item.spent > 0 && item.net >= 0 ? '#059669' : '#475569') + '">' + item.roas + '</b></span>' +
               '</div>' +
             '</div>'
@@ -5018,6 +5206,19 @@ document.addEventListener('DOMContentLoaded', () => {
       statsCategoryViewSelector.querySelectorAll('button').forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
       statsCategoryView = btn.dataset.catview;
+      renderStatsDashboard();
+    });
+  }
+
+  // Bộ chọn góc nhìn P&L Từng File (Bóc tách file lẻ vs Theo mã bán gốc)
+  const statsPnlViewSwitcher = document.getElementById('statsPnlViewSwitcher');
+  if (statsPnlViewSwitcher) {
+    statsPnlViewSwitcher.addEventListener('click', (e) => {
+      const btn = e.target.closest('button[data-pnlview]');
+      if (!btn) return;
+      statsPnlViewSwitcher.querySelectorAll('button').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      statsPnlViewMode = btn.dataset.pnlview || 'SPLIT';
       renderStatsDashboard();
     });
   }

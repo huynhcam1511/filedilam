@@ -2831,10 +2831,15 @@
           </div>
 
           <div class="saas-card col-span-4">
-            <div class="saas-card-header">
+            <div class="saas-card-header" style="display: flex; justify-content: space-between; align-items: flex-start; gap: 8px;">
               <div>
                 <h3 class="saas-card-title" id="bestSellersTitle">Hiệu Quả & P&L Từng File</h3>
                 <p class="saas-card-subtitle" id="bestSellersSubTitle">Doanh thu vs Chi phí Ads • Lợi nhuận & ROAS</p>
+              </div>
+              <!-- Toggle 2 góc nhìn P&L: Bóc tách file lẻ vs Theo mã bán -->
+              <div class="pill-btn-group" id="statsPnlViewSwitcher" style="margin: 0; display: inline-flex; gap: 2px; flex-shrink: 0;">
+                <button type="button" class="pill-btn active" data-pnlview="SPLIT" style="font-size: 0.68rem; padding: 2px 7px; height: 24px;" title="Bóc tách doanh thu và chi phí Ads combo về các file con theo tỷ trọng">Bóc tách file</button>
+                <button type="button" class="pill-btn" data-pnlview="RAW" style="font-size: 0.68rem; padding: 2px 7px; height: 24px;" title="Xem độc lập theo từng mã sản phẩm / chiến dịch gốc">Theo mã bán</button>
               </div>
             </div>
             <div id="bestSellersContainer" style="display: flex; flex-direction: column; justify-content: flex-start; min-height: 320px; overflow-y: auto;">
