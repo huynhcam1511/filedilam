@@ -9,9 +9,24 @@
  */
 
 // --- CẤU HÌNH HỆ THỐNG & CONSTANTS TOÀN CỤC ---
-var APP_TITLE = 'QUẢN LÝ CÔNG VIỆC TEAM & TIẾN ĐỘ DỰ ÁN 3.5 — WEB APP — FILE ĐI LÀM';
+var APP_TITLE = 'QUẢN LÝ TIẾN ĐỘ DỰ ÁN & KỶ LUẬT TEAM — WEB APP v3.6 — FILE ĐI LÀM';
 var APP_VERSION = 'Bản 3.6 (Active)';
-var WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbyexample/exec';
+var WEB_APP_URL = 'https://script.google.com/macros/s/AKfychyM6_3dtf0AiXsnT1cXBHdxxbwlrV8zoK86Mg4tnNFaQfMpvl4yw5zFFl1UTIWkp8mxm/exec';
+
+/**
+ * Lấy URL Web App động: Ưu tiên ScriptApp.getService().getUrl() nếu có triển khai
+ */
+function getEffectiveWebAppUrl() {
+  try {
+    var publishedUrl = ScriptApp.getService().getUrl();
+    if (publishedUrl && publishedUrl.indexOf('macros/s/') !== -1) {
+      return publishedUrl;
+    }
+  } catch (e) {
+    // Không trong context service
+  }
+  return WEB_APP_URL;
+}
 
 // Tên các Tab Database chuẩn theo Master Contract
 var SHEET_HDSD = 'HDSD';
@@ -80,12 +95,9 @@ var SCHEMA_DANH_MUC = [
  */
 function onOpen() {
   var ui = SpreadsheetApp.getUi();
+  // QUY TẮC HIẾN PHÁP FILE ĐI LÀM: Menu duy nhất 1 mục con "Mở Ứng Dụng Quản Lý"
   ui.createMenu('File Đi Làm')
     .addItem('Mở Ứng Dụng Quản Lý', 'openWebApp')
-    .addSeparator()
-    .addItem('Khóa & Ẩn Database (Bảo vệ dữ liệu)', 'lockAndHideDatabaseSheets')
-    .addItem('Đồng bộ Deadline sang Google Calendar', 'syncDeadlinesToGoogleCalendar')
-    .addItem('Khởi tạo Dữ Liệu Chuẩn', 'setupDatabaseSheets')
     .addToUi();
 
   // Tự động kiểm tra và đồng bộ tên file Google Sheet khớp với APP_TITLE
@@ -104,12 +116,13 @@ function onOpen() {
  * Mở Web App trực tiếp qua Dialog nếu chưa mở link /exec
  */
 function openWebApp() {
+  var url = getEffectiveWebAppUrl();
   var html = HtmlService.createHtmlOutput(
     '<div style="font-family:sans-serif;padding:16px;text-align:center;">' +
-    '<h3 style="color:#059669;margin-bottom:12px;">FILE ĐI LÀM — QUẢN LÝ TIẾN ĐỘ 3.0</h3>' +
+    '<h3 style="color:#059669;margin-bottom:12px;">FILE ĐI LÀM — QUẢN LÝ TIẾN ĐỘ DỰ ÁN 3.6</h3>' +
     '<p style="font-size:13px;color:#475569;margin-bottom:20px;">Hệ thống đang mở ứng dụng Web App trên tab mới...</p>' +
-    '<a href="' + WEB_APP_URL + '" target="_blank" style="background:#059669;color:#ffffff;padding:10px 20px;border-radius:8px;text-decoration:none;font-weight:bold;font-size:14px;display:inline-block;">Mở Trực Tiếp Ngay</a>' +
-    '<script>window.open("' + WEB_APP_URL + '", "_blank");setTimeout(function(){google.script.host.close();}, 1500);</script>' +
+    '<a href="' + url + '" target="_blank" style="background:#059669;color:#ffffff;padding:10px 20px;border-radius:8px;text-decoration:none;font-weight:bold;font-size:14px;display:inline-block;">Mở Trực Tiếp Ngay</a>' +
+    '<script>window.open("' + url + '", "_blank");setTimeout(function(){google.script.host.close();}, 1500);</script>' +
     '</div>'
   ).setWidth(380).setHeight(180);
   SpreadsheetApp.getUi().showModalDialog(html, 'Đang mở ứng dụng Web App...');
@@ -1019,19 +1032,24 @@ function setupTabHDSD(ss) {
 
   // Dòng 3-4: Nút Mint Launcher bấm mở Web App (B3:E4 Merged)
   var btnRange = sheet.getRange('B3:E4').merge();
-  btnRange.setValue('MỞ ỨNG DỤNG WEB APP (BẤM VÀO ĐÂY)')
-    .setFontFamily('Arial').setFontSize(13).setFontWeight('bold')
-    .setFontColor('#ffffff').setBackground('#059669')
-    .setHorizontalAlignment('center').setVerticalAlignment('middle')
-    .setBorder(true, true, true, true, true, true, '#047857', SpreadsheetApp.BorderStyle.SOLID_MEDIUM);
+  var finalUrl = getEffectiveWebAppUrl();
   sheet.setRowHeight(3, 26);
   sheet.setRowHeight(4, 26);
 
-  // Link trực tiếp đến Web App URL
+  // Gán công thức HYPERLINK chuẩn
   try {
-    sheet.getRange('B3').setFormula('=HYPERLINK("' + WEB_APP_URL + '", "MỞ ỨNG DỤNG WEB APP (BẤM VÀO ĐÂY)")');
+    sheet.getRange('B3').setFormula('=HYPERLINK("' + finalUrl + '", "MỞ ỨNG DỤNG WEB APP (BẤM VÀO ĐÂY)")');
+    sheet.getRange('B3:E4')
+      .setFontFamily('Arial').setFontSize(13).setFontWeight('bold')
+      .setFontColor('#ffffff').setBackground('#059669')
+      .setHorizontalAlignment('center').setVerticalAlignment('middle')
+      .setBorder(true, true, true, true, true, true, '#047857', SpreadsheetApp.BorderStyle.SOLID_MEDIUM);
   } catch (e) {
-    // Fallback nếu formula không thành công
+    btnRange.setValue('MỞ ỨNG DỤNG WEB APP (BẤM VÀO ĐÂY)')
+      .setFontFamily('Arial').setFontSize(13).setFontWeight('bold')
+      .setFontColor('#ffffff').setBackground('#059669')
+      .setHorizontalAlignment('center').setVerticalAlignment('middle')
+      .setBorder(true, true, true, true, true, true, '#047857', SpreadsheetApp.BorderStyle.SOLID_MEDIUM);
   }
 
   // Dòng 6: Tiêu đề khối hướng dẫn
