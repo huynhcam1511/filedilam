@@ -1734,7 +1734,7 @@ document.addEventListener('DOMContentLoaded', () => {
   let statsCategoryView = 'donut'; // 'donut', 'treemap'
   let statsSelectedLagAdId = null; // ID chiến dịch Ads đang chọn trong tab Hiệu ứng trễ 72h
   let statsLagWindowDays = 'all'; // Khung cửa sổ phân bổ: 'all' (toàn chu kỳ), 7 (1 tuần), hoặc 3 (72h)
-  let statsPnlViewMode = 'SPLIT'; // 'SPLIT' (Bóc tách doanh thu & chi phí Ads combo về file con theo tỷ trọng) hoặc 'RAW' (Xem độc lập theo mã SKU/chiến dịch gốc)
+  let statsPnlViewMode = 'SINGLE'; // 'SINGLE' (Chỉ hiển thị File Lẻ, doanh thu combo được bóc tách chia về file con) hoặc 'COMBO' (Chỉ hiển thị các gói File Combo)
 
   function parseDateObj(val) {
     if (!val) return null;
@@ -1808,7 +1808,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   
   // Helper: Bóc tách đơn hàng thành các sản phẩm con độc lập (hỗ trợ cả đơn lẻ, đơn combo mảng items, đơn combo cũ dạng "A + B", và phân bổ combo IFRS 15)
-  function resolveOrderLineItems(order, knownProductsMap, viewMode = 'SPLIT') {
+  function resolveOrderLineItems(order, knownProductsMap, viewMode = 'SINGLE') {
     if (!order) return [];
     const amt = parseInt(order.amount || 0, 10);
     const productKeys = Object.keys(knownProductsMap);
@@ -1816,22 +1816,48 @@ document.addEventListener('DOMContentLoaded', () => {
     function matchCurrentProduct(str) {
       if (!str) return null;
       const s = String(str).trim().toLowerCase();
-      // Nhận diện theo từ khóa đặc trưng của các sản phẩm hiện hành
+
+      // 1. Khớp chính xác tên sản phẩm trước
+      for (const pid of productKeys) {
+        const pName = (knownProductsMap[pid].name || '').trim().toLowerCase();
+        if (pName && pName === s) return pid;
+      }
+
+      // 2. Nhận diện gói Combo (khi chuỗi có từ khóa combo hoặc chứa cả 2 sản phẩm con)
+      if (s.includes('combo')) {
+        const foundCombo = productKeys.find(k => {
+          const p = knownProductsMap[k];
+          if (!p.is_combo && p.type !== 'combo') return false;
+          const pName = (p.name || '').toLowerCase();
+          return pName.includes('combo') && (
+            (s.includes('kho') && (s.includes('f&b') || s.includes('giá vốn'))) ||
+            s.includes(pName) || pName.includes(s)
+          );
+        });
+        if (foundCombo) return foundCombo;
+      }
+
+      // 3. Nhận diện các sản phẩm đơn lẻ
       if (s.includes('bán hàng online') || s.includes('shop online')) {
         const found = productKeys.find(k => (knownProductsMap[k].name || '').toLowerCase().includes('bán hàng online') || k.includes('ban-hang-online'));
         if (found) return found;
       }
       if (s.includes('quản lý kho') || s.includes('kho mini')) {
-        const found = productKeys.find(k => (knownProductsMap[k].name || '').toLowerCase().includes('kho') || k.includes('kho-mini'));
-        if (found) return found;
+        if (!s.includes('f&b') && !s.includes('giá vốn')) {
+          const found = productKeys.find(k => (knownProductsMap[k].name || '').toLowerCase().includes('kho') || k.includes('kho-mini'));
+          if (found) return found;
+        }
       }
       if (s.includes('cost') || s.includes('giá vốn') || s.includes('f&b')) {
-        const found = productKeys.find(k => (knownProductsMap[k].name || '').toLowerCase().includes('cost') || k.includes('cost'));
-        if (found) return found;
+        if (!s.includes('kho')) {
+          const found = productKeys.find(k => (knownProductsMap[k].name || '').toLowerCase().includes('cost') || k.includes('cost'));
+          if (found) return found;
+        }
       }
+
       for (const pid of productKeys) {
         const pName = (knownProductsMap[pid].name || '').trim().toLowerCase();
-        if (pName && (pName === s || pName.includes(s) || s.includes(pName))) {
+        if (pName && (s.includes(pName) || pName.includes(s))) {
           return pid;
         }
       }
@@ -1853,8 +1879,8 @@ document.addEventListener('DOMContentLoaded', () => {
         }];
       }
 
-      if (viewMode === 'RAW') {
-        // Góc nhìn theo mã bán (SKU): Giữ nguyên mã Combo là một sản phẩm độc lập
+      if (viewMode === 'COMBO') {
+        // Góc nhìn File Combo: Giữ nguyên mã Combo là một sản phẩm độc lập
         return [{
           productId: comboPid,
           name: combo.name,
@@ -1866,7 +1892,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }];
       }
 
-      // Góc nhìn Bóc tách file lẻ (SPLIT): Phân bổ doanh thu về từng file con theo tỷ trọng giá niêm yết
+      // Góc nhìn File Lẻ (SINGLE): Phân bổ doanh thu về từng file con theo tỷ trọng giá niêm yết
       const childIds = combo.combo_items;
       let totalChildPrice = 0;
       childIds.forEach(cid => {
@@ -1933,7 +1959,7 @@ document.addEventListener('DOMContentLoaded', () => {
       return resultItems;
     }
 
-    // Trường hợp 2: Đơn hàng cũ lưu tên dạng Combo "A + B"
+    // Trường hợp 2: Đơn hàng cũ lưu tên dạng Combo 'A + B'
     const rawName = String(order.product_name || '').trim();
     if (rawName.includes(' + ')) {
       const parts = rawName.split(' + ').map(s => s.trim().toLowerCase());
@@ -1966,7 +1992,28 @@ document.addEventListener('DOMContentLoaded', () => {
       });
 
       if (matchedList.length > 0) {
-        // Phân bổ theo tỷ trọng giá thay vì chia cào bằng
+        // Trong góc nhìn File Combo: Gộp các file con lại thành gói Combo tương ứng
+        if (viewMode === 'COMBO') {
+          const pids = matchedList.map(m => m.productId);
+          const foundCombo = productKeys.find(k => {
+            const p = knownProductsMap[k];
+            if (!p.is_combo && p.type !== 'combo') return false;
+            return Array.isArray(p.combo_items) && pids.every(id => p.combo_items.includes(id));
+          });
+          if (foundCombo) {
+            return [{
+              productId: foundCombo,
+              name: knownProductsMap[foundCombo].name,
+              revenue: amt,
+              isCurrent: true,
+              isCombo: true,
+              isComboComponent: false,
+              originalName: rawName
+            }];
+          }
+        }
+
+        // Trong góc nhìn File Lẻ: Phân bổ theo tỷ trọng giá niêm yết
         let totalPartPrice = 0;
         matchedList.forEach(m => {
           const cp = knownProductsMap[m.productId];
@@ -4188,14 +4235,14 @@ document.addEventListener('DOMContentLoaded', () => {
         });
       }
       if (bestSellersSubTitle) {
-        bestSellersSubTitle.textContent = (statsPnlViewMode === 'SPLIT')
-          ? 'Góc nhìn: Bóc tách doanh thu & ads combo về file lẻ'
-          : 'Góc nhìn: Theo từng mã SKU và chiến dịch gốc';
+        bestSellersSubTitle.textContent = (statsPnlViewMode === 'COMBO')
+          ? 'Góc nhìn: Chỉ hiển thị các gói File Combo'
+          : 'Góc nhìn: Chỉ hiển thị các File Lẻ (Đơn combo phân bổ về file con)';
       }
 
       // Xử lý phân bổ chi phí Ads theo góc nhìn (IFRS 15 Matching Principle)
       let effectiveAdsMap = {};
-      if (statsPnlViewMode === 'SPLIT') {
+      if (statsPnlViewMode === 'SINGLE') {
         // Góc nhìn Bóc tách file lẻ: Nếu có bài Ads chạy cho Combo, phân bổ chi phí Ads về các file con theo tỷ trọng giá
         Object.keys(productAdsMap).forEach(pid => {
           const ad = productAdsMap[pid];
@@ -4270,11 +4317,14 @@ document.addEventListener('DOMContentLoaded', () => {
         };
       }).filter(item => {
         if (item.id === '__ARCHIVED_TEST__') return false;
-        // Ở chế độ SPLIT: loại bỏ dòng Combo rỗng (nếu có) để tập trung 100% vào file lẻ
-        if (statsPnlViewMode === 'SPLIT' && (knownProductsMap[item.id]?.is_combo || knownProductsMap[item.id]?.type === 'combo')) {
-          return false;
+        const isComboProd = !!(knownProductsMap[item.id]?.is_combo || knownProductsMap[item.id]?.type === 'combo');
+        if (statsPnlViewMode === 'COMBO') {
+          // Chỉ hiển thị các gói File Combo
+          return isComboProd;
+        } else {
+          // Chỉ hiển thị các File Lẻ (Loại trừ gói combo vì đã bóc tách về các file con)
+          return !isComboProd;
         }
-        return true;
       })
         .sort((a, b) => (b.revenue + b.spent) - (a.revenue + a.spent))
         .slice(0, 6);
@@ -5210,18 +5260,20 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // Bộ chọn góc nhìn P&L Từng File (Bóc tách file lẻ vs Theo mã bán gốc)
-  const statsPnlViewSwitcher = document.getElementById('statsPnlViewSwitcher');
-  if (statsPnlViewSwitcher) {
-    statsPnlViewSwitcher.addEventListener('click', (e) => {
-      const btn = e.target.closest('button[data-pnlview]');
-      if (!btn) return;
-      statsPnlViewSwitcher.querySelectorAll('button').forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-      statsPnlViewMode = btn.dataset.pnlview || 'SPLIT';
-      renderStatsDashboard();
-    });
-  }
+  // Bộ chọn góc nhìn P&L Từng File (File lẻ vs File combo)
+  // Gắn event delegation toàn cục để đảm bảo 100% nhấp chuyển tức thì không bao giờ bị đơ
+  document.addEventListener('click', (e) => {
+    const btn = e.target.closest('#statsPnlViewSwitcher button[data-pnlview]');
+    if (!btn) return;
+    const container = document.getElementById('statsPnlViewSwitcher');
+    if (container) {
+      container.querySelectorAll('button').forEach(b => b.classList.remove('active'));
+    }
+    btn.classList.add('active');
+    statsPnlViewMode = btn.dataset.pnlview || 'SINGLE';
+    console.log('[P&L View] Chuyển góc nhìn P&L:', statsPnlViewMode);
+    renderStatsDashboard();
+  });
 
   document.getElementById('refreshOrdersBtn')?.addEventListener('click', loadAdminOrders);
   document.getElementById('orderSearchInput')?.addEventListener('input', renderFilteredOrders);
