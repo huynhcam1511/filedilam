@@ -220,6 +220,31 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
+  function resetAddComboForm() {
+    if (!comboForm) return;
+    comboForm.reset();
+    document.getElementById('editingComboId').value = '';
+    document.getElementById('comboFormTitle').textContent = 'Tạo Combo Mới';
+    const comboTopSubmitText = document.getElementById('comboTopSubmitText');
+    if (comboTopSubmitText) comboTopSubmitText.textContent = 'Lưu & Đăng bán Combo';
+    document.getElementById('comboImage').required = true;
+    const resetCoverWrap = document.getElementById('comboCoverPreviewWrap');
+    if (resetCoverWrap) resetCoverWrap.style.display = 'none';
+    if (typeof visualComboEditor !== 'undefined' && visualComboEditor) visualComboEditor.innerHTML = '';
+    selectedComboGalleryFiles = [];
+    existingComboGalleryUrls = [];
+    renderComboGalleryPreviews();
+    document.getElementById('comboImageBtnText').innerHTML = '<svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg> Chọn ảnh bìa Combo';
+    populateComboItemsSelector();
+  }
+
+  const sidebarAddComboLi = document.querySelector('.sidebar-menu li[data-tab="addComboTab"]');
+  if (sidebarAddComboLi) {
+    sidebarAddComboLi.addEventListener('click', () => {
+      resetAddComboForm();
+    });
+  }
+
   // --- AUTH LOGIC ---
   // Profile chip dropdown toggle
   const profileChip = document.getElementById('profileChip');
@@ -515,6 +540,7 @@ document.addEventListener('DOMContentLoaded', () => {
       renderFilteredProducts();
       try { populatePostProductDropdowns(); } catch (e) {}
       try { populateAdsProductDropdowns(); } catch (e) {}
+      try { populateComboItemsSelector(); } catch (e) {}
     } catch (error) {
       console.error("Lỗi tải sản phẩm:", error);
       if (productListBody) {
@@ -775,6 +801,50 @@ document.addEventListener('DOMContentLoaded', () => {
         const id = targetBtn.dataset.id;
         const product = currentProducts.find(p => p.id === id);
         if (product) {
+          // NẾU LÀ SẢN PHẨM COMBO -> CHUYỂN SANG FORM COMBO ĐỂ CHỈNH SỬA
+          if (product.is_combo || product.type === 'combo' || product.categoryId === 'combo') {
+            document.getElementById('editingComboId').value = id;
+            document.getElementById('comboFormTitle').textContent = 'Chỉnh Sửa Combo';
+            const comboTopSubmitText = document.getElementById('comboTopSubmitText');
+            if (comboTopSubmitText) comboTopSubmitText.textContent = 'Cập nhật Combo';
+
+            document.getElementById('comboName').value = product.name || '';
+            document.getElementById('comboTag').value = product.tag || '[COMBO TIẾT KIỆM]';
+            document.getElementById('comboSuitableFor').value = product.suitableFor || '';
+            document.getElementById('comboDescription').value = product.description || '';
+            document.getElementById('comboPrice').value = new Intl.NumberFormat('vi-VN').format(product.price || 0);
+
+            // Nạp danh sách checkbox với các file đã chọn
+            populateComboItemsSelector(product.combo_items || []);
+
+            const rawContentCombo = product.featuresDetail || (product.highlights || []).map(h => '- ' + h).join('\n');
+            document.getElementById('comboFeatures').value = rawContentCombo;
+            if (typeof visualComboEditor !== 'undefined' && visualComboEditor) {
+              visualComboEditor.innerHTML = convertRawToVisualHtml(rawContentCombo);
+            }
+
+            // Load gallery combo
+            selectedComboGalleryFiles = [];
+            existingComboGalleryUrls = Array.isArray(product.gallery) ? product.gallery.slice() : [];
+            renderComboGalleryPreviews();
+
+            document.getElementById('comboImage').required = false;
+            const coverWrap = document.getElementById('comboCoverPreviewWrap');
+            const coverImg = document.getElementById('comboCoverPreviewImg');
+            const coverName = document.getElementById('comboCoverPreviewName');
+            if (product.previewImageUrl && coverWrap && coverImg) {
+              coverImg.src = product.previewImageUrl;
+              if (coverName) coverName.textContent = product.name || 'Ảnh bìa hiện tại';
+              coverWrap.style.display = 'flex';
+            } else if (coverWrap) {
+              coverWrap.style.display = 'none';
+            }
+
+            switchTab('addComboTab');
+            window.scrollTo(0, 0);
+            return;
+          }
+
           document.getElementById('editingProductId').value = id;
           document.getElementById('formTitle').textContent = 'Sửa Sản Phẩm';
           document.getElementById('formDescription').textContent = 'Cập nhật thông tin cho sản phẩm đang chọn.';
@@ -1083,7 +1153,7 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     });
 
-    document.querySelectorAll('.saas-btn[data-cmd]').forEach(btn => {
+    document.querySelectorAll('#addTab .saas-btn[data-cmd]').forEach(btn => {
       btn.addEventListener('click', (e) => {
         e.preventDefault();
         const cmd = btn.dataset.cmd;
@@ -1298,6 +1368,361 @@ document.addEventListener('DOMContentLoaded', () => {
       if (topSubmitText) topSubmitText.textContent = editingId ? 'Cập nhật sản phẩm' : 'Lưu & Đăng bán';
     }
   });
+
+  // ==========================================
+  // --- MODULE TẠO & QUẢN LÝ COMBO TIẾT KIỆM ---
+  // ==========================================
+  const comboForm = document.getElementById('comboForm');
+  const comboItemsContainer = document.getElementById('comboItemsContainer');
+  const comboPriceInput = document.getElementById('comboPrice');
+  const comboOriginalPriceInput = document.getElementById('comboOriginalPrice');
+  const comboSavingsBadge = document.getElementById('comboSavingsBadge');
+  const comboSelectedCountHint = document.getElementById('comboSelectedCountHint');
+  let selectedComboGalleryFiles = [];
+  let existingComboGalleryUrls = [];
+
+  // Nạp danh sách các sản phẩm lẻ vào bộ chọn Combo
+  function populateComboItemsSelector(selectedIds = []) {
+    if (!comboItemsContainer) return;
+    const standaloneProducts = (currentProducts || []).filter(p => !p.is_combo && p.type !== 'combo' && p.categoryId !== 'combo');
+    if (!standaloneProducts.length) {
+      comboItemsContainer.innerHTML = '<div style="padding: 18px; text-align: center; color: #94a3b8; font-size: 0.85rem;">Chưa có sản phẩm lẻ nào để tạo combo.</div>';
+      return;
+    }
+
+    comboItemsContainer.innerHTML = standaloneProducts.map(p => {
+      const isChecked = selectedIds.indexOf(p.id) !== -1;
+      const priceStr = formatCurrency(p.price || 0);
+      const imgUrl = p.previewImageUrl || '';
+      return `
+        <label style="display: flex; align-items: center; justify-content: space-between; padding: 10px 12px; background: #ffffff; border: 1px solid ${isChecked ? '#10b981' : '#e2e8f0'}; border-radius: 8px; cursor: pointer; transition: all 0.15s ease;">
+          <div style="display: flex; align-items: center; gap: 10px;">
+            <input type="checkbox" class="chk-combo-child" value="${escapeHtml(p.id)}" data-price="${p.price || 0}" ${isChecked ? 'checked' : ''} style="width: 18px; height: 18px; accent-color: #059669; cursor: pointer;">
+            <div style="width: 36px; height: 36px; border-radius: 6px; background-image: url('${escapeHtml(imgUrl)}'); background-size: cover; background-position: center; background-color: #f1f5f9; border: 1px solid #e2e8f0; flex-shrink: 0;"></div>
+            <div>
+              <div style="font-size: 0.86rem; font-weight: 600; color: #0f172a; line-height: 1.3;">${escapeHtml(p.name)}</div>
+              <div style="font-size: 0.74rem; color: #64748b; font-family: monospace; margin-top: 2px;">${escapeHtml(p.id)}</div>
+            </div>
+          </div>
+          <div style="text-align: right; flex-shrink: 0;">
+            <span style="font-size: 0.88rem; font-weight: 700; color: #059669;">${priceStr}</span>
+          </div>
+        </label>
+      `;
+    }).join('');
+
+    // Lắng nghe sự kiện click checkbox để tự động cộng dồn giá gốc
+    comboItemsContainer.querySelectorAll('.chk-combo-child').forEach(chk => {
+      chk.addEventListener('change', updateComboCalculatedOriginalPrice);
+    });
+
+    updateComboCalculatedOriginalPrice();
+  }
+
+  // Tự động tính tổng tiền các file con được tích chọn
+  function updateComboCalculatedOriginalPrice() {
+    if (!comboItemsContainer) return;
+    const checkedBoxes = Array.from(comboItemsContainer.querySelectorAll('.chk-combo-child:checked'));
+    let totalOriginal = 0;
+    checkedBoxes.forEach(chk => {
+      totalOriginal += parseInt(chk.dataset.price || 0, 10);
+    });
+
+    if (comboOriginalPriceInput) {
+      comboOriginalPriceInput.value = totalOriginal > 0 ? new Intl.NumberFormat('vi-VN').format(totalOriginal) : '';
+    }
+    if (comboSelectedCountHint) {
+      comboSelectedCountHint.textContent = `Đã chọn: ${checkedBoxes.length} file`;
+      comboSelectedCountHint.style.color = checkedBoxes.length >= 2 ? '#059669' : '#dc2626';
+    }
+
+    // Tính % tiết kiệm hiển thị
+    updateComboSavingsNotice();
+  }
+
+  function updateComboSavingsNotice() {
+    if (!comboSavingsBadge || !comboPriceInput || !comboOriginalPriceInput) return;
+    const promoRaw = comboPriceInput.value.replace(/\D/g, '');
+    const originalRaw = comboOriginalPriceInput.value.replace(/\D/g, '');
+    const promo = parseInt(promoRaw, 10) || 0;
+    const original = parseInt(originalRaw, 10) || 0;
+
+    if (promo > 0 && original > promo) {
+      const savedAmt = original - promo;
+      const savedPct = Math.round((savedAmt / original) * 100);
+      comboSavingsBadge.textContent = `Tiết kiệm: -${savedPct}% (${formatCurrency(savedAmt)} so với mua lẻ từng file)`;
+      comboSavingsBadge.style.display = 'block';
+    } else {
+      comboSavingsBadge.style.display = 'none';
+    }
+  }
+
+  // Format giá khuyến mãi khi gõ
+  if (comboPriceInput) {
+    comboPriceInput.addEventListener('input', function(e) {
+      let val = e.target.value.replace(/\D/g, '');
+      if (val) {
+        e.target.value = new Intl.NumberFormat('vi-VN').format(parseInt(val, 10));
+      } else {
+        e.target.value = '';
+      }
+      updateComboSavingsNotice();
+    });
+  }
+
+  // Preview ảnh bìa Combo
+  const comboImageInput = document.getElementById('comboImage');
+  if (comboImageInput) {
+    comboImageInput.addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      const btnText = document.getElementById('comboImageBtnText');
+      const coverWrap = document.getElementById('comboCoverPreviewWrap');
+      const coverImg = document.getElementById('comboCoverPreviewImg');
+      const coverName = document.getElementById('comboCoverPreviewName');
+
+      if (file) {
+        if (btnText) {
+          btnText.innerHTML = '<svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg> Đã chọn: ' + escapeHtml(file.name);
+        }
+        if (coverWrap && coverImg) {
+          coverImg.src = URL.createObjectURL(file);
+          if (coverName) coverName.textContent = file.name;
+          coverWrap.style.display = 'flex';
+        }
+      }
+    });
+  }
+
+  // Gallery ảnh chi tiết Combo
+  const comboGalleryInput = document.getElementById('comboGallery');
+  if (comboGalleryInput) {
+    comboGalleryInput.addEventListener('change', (e) => {
+      const files = Array.from(e.target.files || []);
+      files.forEach(f => {
+        selectedComboGalleryFiles.push({
+          file: f,
+          previewUrl: URL.createObjectURL(f)
+        });
+      });
+      comboGalleryInput.value = '';
+      renderComboGalleryPreviews();
+    });
+  }
+
+  function renderComboGalleryPreviews() {
+    const grid = document.getElementById('comboGalleryPreviewGrid');
+    if (!grid) return;
+    grid.innerHTML = '';
+
+    existingComboGalleryUrls.forEach((url, idx) => {
+      const item = document.createElement('div');
+      item.className = 'gallery-thumb-item';
+      item.innerHTML = `
+        <img src="${escapeHtml(url)}" alt="Gallery ${idx + 1}" />
+        <button type="button" class="gallery-thumb-remove" title="Xóa ảnh này">×</button>
+      `;
+      item.querySelector('.gallery-thumb-remove').addEventListener('click', () => {
+        existingComboGalleryUrls.splice(idx, 1);
+        renderComboGalleryPreviews();
+      });
+      grid.appendChild(item);
+    });
+
+    selectedComboGalleryFiles.forEach((itemObj, idx) => {
+      const item = document.createElement('div');
+      item.className = 'gallery-thumb-item';
+      item.innerHTML = `
+        <img src="${itemObj.previewUrl}" alt="Gallery New ${idx + 1}" />
+        <button type="button" class="gallery-thumb-remove" title="Xóa ảnh này">×</button>
+      `;
+      item.querySelector('.gallery-thumb-remove').addEventListener('click', () => {
+        selectedComboGalleryFiles.splice(idx, 1);
+        renderComboGalleryPreviews();
+      });
+      grid.appendChild(item);
+    });
+  }
+
+  // WYSIWYG Soạn thảo Module cho Combo
+  const visualComboEditor = document.getElementById('comboFeaturesEditor');
+  const comboFeaturesHidden = document.getElementById('comboFeatures');
+  const comboHeadingSelect = document.getElementById('saasComboHeadingSelect');
+  const btnComboTemplate = document.getElementById('btnComboInsertTemplate');
+
+  if (visualComboEditor) {
+    visualComboEditor.addEventListener('input', () => {
+      if (comboFeaturesHidden) {
+        comboFeaturesHidden.value = visualComboEditor.innerHTML.trim();
+      }
+    });
+
+    document.querySelectorAll('#addComboTab .saas-btn[data-cmd]').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.preventDefault();
+        const cmd = btn.dataset.cmd;
+        document.execCommand(cmd, false, null);
+        visualComboEditor.focus();
+        if (comboFeaturesHidden) comboFeaturesHidden.value = visualComboEditor.innerHTML.trim();
+      });
+    });
+
+    if (comboHeadingSelect) {
+      comboHeadingSelect.addEventListener('change', () => {
+        const tag = comboHeadingSelect.value;
+        if (tag === 'p') document.execCommand('formatBlock', false, '<p>');
+        else if (tag === 'h3') document.execCommand('formatBlock', false, '<h3>');
+        else if (tag === 'h4') document.execCommand('formatBlock', false, '<h4>');
+        visualComboEditor.focus();
+        if (comboFeaturesHidden) comboFeaturesHidden.value = visualComboEditor.innerHTML.trim();
+      });
+    }
+
+    if (btnComboTemplate) {
+      btnComboTemplate.addEventListener('click', (e) => {
+        e.preventDefault();
+        const templateHtml = `
+          <h3>1. PHÂN HỆ QUẢN LÝ BÁN HÀNG ONLINE</h3>
+          <ul>
+            <li><strong>Lên đơn & Theo dõi:</strong> Quản lý chi tiết từng đơn hàng, tự động đối soát tiền COD</li>
+            <li><strong>Báo cáo doanh thu:</strong> Cập nhật dòng tiền và lợi nhuận bán hàng theo ngày/tháng</li>
+          </ul>
+          <h3>2. PHÂN HỆ QUẢN LÝ KHO MINI SMART</h3>
+          <ul>
+            <li><strong>Tự động trừ kho:</strong> Đơn bán thành công là hệ thống tự trừ số lượng tồn kho tương ứng</li>
+            <li><strong>Cảnh báo tồn kho an toàn:</strong> Báo động đỏ khi sản phẩm chạm ngưỡng sắp hết hàng</li>
+          </ul>
+          <h3>3. QUY TRÌNH KẾT HỢP VẬN HÀNH</h3>
+          <ul>
+            <li><strong>Khép kín toàn diện:</strong> Đồng bộ từ khâu nhập hàng, bán hàng đến quản lý dòng tiền</li>
+            <li><strong>Sở hữu vĩnh viễn:</strong> Dùng trên Google Sheets chính chủ, không thu phí tháng</li>
+          </ul>
+          <p></p>
+        `;
+        visualComboEditor.focus();
+        document.execCommand('insertHTML', false, templateHtml);
+        if (comboFeaturesHidden) comboFeaturesHidden.value = visualComboEditor.innerHTML.trim();
+      });
+    }
+  }
+
+  // Submit form Combo
+  if (comboForm) {
+    comboForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const editingId = document.getElementById('editingComboId').value;
+      const checkedBoxes = Array.from(comboItemsContainer.querySelectorAll('.chk-combo-child:checked'));
+      if (checkedBoxes.length < 2) {
+        showToast('Vui lòng chọn ít nhất 2 sản phẩm thành phần để tạo gói Combo!', true);
+        return;
+      }
+      const comboItems = checkedBoxes.map(c => c.value);
+
+      const name = document.getElementById('comboName').value.trim();
+      const description = document.getElementById('comboDescription').value.trim();
+      const tag = (document.getElementById('comboTag')?.value || '[COMBO TIẾT KIỆM]').trim();
+      const suitableFor = (document.getElementById('comboSuitableFor')?.value || '').trim();
+      const priceRaw = comboPriceInput.value.replace(/\D/g, '');
+      const price = parseInt(priceRaw, 10) || 0;
+      const originalPriceRaw = comboOriginalPriceInput.value.replace(/\D/g, '');
+      const originalPrice = parseInt(originalPriceRaw, 10) || 0;
+
+      if (!price || price <= 0) {
+        showToast('Vui lòng nhập giá bán khuyến mãi của Combo', true);
+        return;
+      }
+
+      const imageFile = document.getElementById('comboImage').files[0];
+      if (!editingId && !imageFile) {
+        showToast('Vui lòng chọn ảnh bìa cho Combo', true);
+        return;
+      }
+
+      const comboTopSubmitText = document.getElementById('comboTopSubmitText');
+      if (comboTopSubmitText) comboTopSubmitText.textContent = 'Đang lưu Combo...';
+
+      try {
+        const id = editingId || generateUniqueProductId(currentProducts);
+        const featuresRaw = comboFeaturesHidden ? comboFeaturesHidden.value : (visualComboEditor ? visualComboEditor.innerHTML : '');
+        const highlights = featuresRaw.split('\n').map(l => l.replace(/^- /, '').replace(/<[^>]+>/g, '').trim()).filter(l => l && l.length > 3).slice(0, 5);
+
+        // Gom toàn bộ link Google Sheets / File của các sản phẩm con để tự động phân phối
+        const selectedChildProds = (currentProducts || []).filter(p => comboItems.indexOf(p.id) !== -1);
+        const childLinks = selectedChildProds.map(p => p.sheetUrl || p.fileUrl || p.delivery_link || '').filter(Boolean);
+        const primaryLink = childLinks[0] || '';
+
+        let updateData = {
+          name,
+          is_combo: true,
+          type: 'combo',
+          categoryId: 'combo',
+          combo_items: comboItems,
+          child_links: childLinks,
+          price,
+          originalPrice: originalPrice > price ? originalPrice : null,
+          tag,
+          is_pinned: true, // Mặc định Combo luôn được ưu tiên
+          suitableFor: suitableFor || null,
+          description,
+          featuresDetail: featuresRaw,
+          highlights,
+          sheetUrl: primaryLink,
+          delivery_link: primaryLink,
+          delivery: `Trọn bộ ${comboItems.length} file Google Sheets / Excel tạo bản sao tự động`,
+          fileCount: comboItems.length
+        };
+
+        if (!editingId) {
+          updateData.id = id;
+          updateData.createdAt = firebase.firestore.FieldValue.serverTimestamp();
+        }
+
+        // Upload ảnh bìa
+        if (imageFile) {
+          const imageRef = storage.ref(`products/${id}/cover_${imageFile.name}`);
+          await imageRef.put(imageFile);
+          const coverDownloadUrl = await imageRef.getDownloadURL();
+          updateData.previewImageUrl = coverDownloadUrl;
+          updateData.thumbnailUrl = coverDownloadUrl;
+        }
+
+        // Upload gallery mới nếu có
+        let finalGallery = existingComboGalleryUrls.slice();
+        for (const itemObj of selectedComboGalleryFiles) {
+          const gRef = storage.ref(`products/${id}/gallery_${Date.now()}_${itemObj.file.name}`);
+          await gRef.put(itemObj.file);
+          const gUrl = await gRef.getDownloadURL();
+          finalGallery.push(gUrl);
+        }
+        updateData.gallery = finalGallery;
+
+        if (editingId) {
+          await db.collection('products').doc(editingId).update(updateData);
+          showToast('Cập nhật Combo thành công!');
+        } else {
+          await db.collection('products').doc(id).set(updateData);
+          showToast('Tạo sản phẩm Combo thành công!');
+        }
+
+        comboForm.reset();
+        if (visualComboEditor) visualComboEditor.innerHTML = '';
+        selectedComboGalleryFiles = [];
+        existingComboGalleryUrls = [];
+        renderComboGalleryPreviews();
+        document.getElementById('editingComboId').value = '';
+        const resetCoverWrap = document.getElementById('comboCoverPreviewWrap');
+        if (resetCoverWrap) resetCoverWrap.style.display = 'none';
+
+        loadProducts();
+        switchTab('productsTab');
+      } catch (err) {
+        console.error('Lỗi lưu Combo:', err);
+        showToast('Lỗi khi lưu Combo: ' + err.message, true);
+      } finally {
+        if (comboTopSubmitText) comboTopSubmitText.textContent = editingId ? 'Cập nhật Combo' : 'Lưu & Đăng bán Combo';
+      }
+    });
+  }
 
     // --- REVENUE STATISTICS & ORDER MANAGEMENT ---
   let cachedOrders = [];

@@ -1758,14 +1758,24 @@ function escapeHtml(value) {
     var category = getActiveCategory();
     var items = getFilteredProducts().filter(matchesSearch);
     
-    // Tự động đưa các sản phẩm được ghim (is_pinned: true) lên vị trí đầu tiên (Tối đa 3 sản phẩm)
+    // SẮP XẾP ƯU TIÊN HIỂN THỊ TRANG CHỦ:
+    // 1. Combo tiết kiệm (is_combo: true hoặc type: 'combo') luôn ưu tiên lên vị trí đầu tiên
+    // 2. Sản phẩm lẻ có đánh dấu ghim (is_pinned: true)
+    // 3. Các sản phẩm lẻ thông thường còn lại
     items.sort(function(a, b) {
+      var isComboA = (a.is_combo === true || a.type === 'combo' || a.categoryId === 'combo') ? 1 : 0;
+      var isComboB = (b.is_combo === true || b.type === 'combo' || b.categoryId === 'combo') ? 1 : 0;
+      if (isComboA !== isComboB) {
+        return isComboB - isComboA; // 1. Combo lên đầu tiên
+      }
+
       var isPinnedA = (a.is_pinned === true || a.is_pinned === 'true') ? 1 : 0;
       var isPinnedB = (b.is_pinned === true || b.is_pinned === 'true') ? 1 : 0;
       if (isPinnedA !== isPinnedB) {
-        return isPinnedB - isPinnedA; // Ghim lên đầu
+        return isPinnedB - isPinnedA; // 2. Ghim lên tiếp theo
       }
-      return 0; // Giữ nguyên thứ tự tương đối ban đầu
+
+      return 0; // 3. Giữ nguyên thứ tự tương đối
     });
     if (catalogTitle) catalogTitle.textContent = category ? category.name : "Tất cả sản phẩm";
     if (catalogDescription) catalogDescription.textContent = category ? category.description : "Toàn bộ file Excel và Google Sheets đang có trên cửa hàng.";
