@@ -1031,21 +1031,17 @@ function setupTabHDSD(ss) {
   sheet.setRowHeight(3, 26);
   sheet.setRowHeight(4, 26);
 
-  // Gán công thức HYPERLINK chuẩn
-  try {
-    sheet.getRange('B3').setFormula('=HYPERLINK("' + finalUrl + '", "MỞ ỨNG DỤNG WEB APP (BẤM VÀO ĐÂY)")');
-    sheet.getRange('B3:E4')
-      .setFontFamily('Arial').setFontSize(13).setFontWeight('bold')
-      .setFontColor('#ffffff').setBackground('#059669')
-      .setHorizontalAlignment('center').setVerticalAlignment('middle')
-      .setBorder(true, true, true, true, true, true, '#047857', SpreadsheetApp.BorderStyle.SOLID_MEDIUM);
-  } catch (e) {
-    btnRange.setValue('MỞ ỨNG DỤNG WEB APP (BẤM VÀO ĐÂY)')
-      .setFontFamily('Arial').setFontSize(13).setFontWeight('bold')
-      .setFontColor('#ffffff').setBackground('#059669')
-      .setHorizontalAlignment('center').setVerticalAlignment('middle')
-      .setBorder(true, true, true, true, true, true, '#047857', SpreadsheetApp.BorderStyle.SOLID_MEDIUM);
-  }
+  // Tạo RichText Hyperlink để Google Sheets hiển thị text chuẩn 100%, không bao giờ bị lỗi #ERROR! của formula
+  var richText = SpreadsheetApp.newRichTextValue()
+    .setText('MỞ ỨNG DỤNG WEB APP (BẤM VÀO ĐÂY)')
+    .setLinkUrl(finalUrl)
+    .build();
+
+  btnRange.setRichTextValue(richText)
+    .setFontFamily('Arial').setFontSize(13).setFontWeight('bold')
+    .setFontColor('#ffffff').setBackground('#059669')
+    .setHorizontalAlignment('center').setVerticalAlignment('middle')
+    .setBorder(true, true, true, true, true, true, '#047857', SpreadsheetApp.BorderStyle.SOLID_MEDIUM);
 
   // Dòng 6: Tiêu đề khối hướng dẫn
   sheet.getRange('B6:E6').merge()
