@@ -11,7 +11,7 @@
 // --- CẤU HÌNH HỆ THỐNG & CONSTANTS TOÀN CỤC ---
 var APP_TITLE = 'QUẢN LÝ TIẾN ĐỘ DỰ ÁN & KỶ LUẬT TEAM — WEB APP v3.6 — FILE ĐI LÀM';
 var APP_VERSION = 'Bản 3.6 (Active)';
-var WEB_APP_URL = 'https://script.google.com/macros/s/AKfychyM6_3dtf0AiXsnT1cXBHdxxbwlrV8zoK86Mg4tnNFaQfMpvl4yw5zFFl1UTIWkp8mxm/exec';
+var WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbxRxAEx0UvgY_12hFsrQXXruvSJSp2voPo2_0v7PdTyImaDQwgKL2UsTupWdKTvEu8H/exec';
 
 /**
  * Lấy URL Web App động: Ưu tiên ScriptApp.getService().getUrl() nếu có triển khai
