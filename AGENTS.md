@@ -100,6 +100,29 @@
       - `ModuleTeamProjects.render('projects')`
       - `ModuleCatalogs.render()`
     - Nếu bất kỳ hàm nào ném lỗi runtime, coi như CHƯA ĐẠT và cấm tuyệt đối báo hoàn tất cho người dùng.
+
+12. **Quy tắc "Single Source of Truth for Web App Deployment URL" (Bất biến URL Web App & Tự Động Đồng Bộ)**:
+    - **URL Web App là hằng số duy nhất (`WEB_APP_URL`)**:
+      - Tuyệt đối CẤM dùng `ScriptApp.getService().getUrl()` để ghi đè `WEB_APP_URL` vì Google Apps Script thường trả về URL của phiên bản triển khai cũ hoặc bản private gây lỗi 404 Drive (*"Rất tiếc, không thể mở tệp tại thời điểm này"*).
+      - Hàm helper mở link bắt buộc viết phẳng 100%:
+        ```javascript
+        function getEffectiveWebAppUrl() {
+          return WEB_APP_URL;
+        }
+        ```
+    - **Phản xạ tức thì khi người dùng gửi Link Deploy mới**:
+      - Bất cứ khi nào người dùng gửi một đường link có định dạng `https://script.google.com/macros/s/.../exec`:
+        1. Agent **lập tức cập nhật `WEB_APP_URL`** ở đầu file `[TENDUAN]_Code.gs` bằng chính xác link đó.
+        2. Cập nhật lại công thức Hyperlink của nút Mint trên tab `HDSD` (tại ô `B3:E4` hoặc `B2:D3`).
+        3. Commit và push code ngay lập tức.
+    - **Phòng vệ tham số rỗng cho các hàm Setup Sheet**:
+      - Mọi hàm thiết lập giao diện Sheet như `setupTabHDSD(ss)` hoặc `setupDatabaseSheets(ss)` bắt buộc phải có dòng tự gán:
+        ```javascript
+        if (!ss) {
+          ss = SpreadsheetApp.getActiveSpreadsheet();
+        }
+        ```
+        nhằm bảo đảm khi người dùng hoặc lập trình viên bấm nút "Chạy" trực tiếp từ trình soạn thảo Apps Script thì hàm vẫn chạy thành công 100%, không bao giờ ném lỗi `TypeError: Cannot read properties of undefined`.
 ---
 
 ## 2. CHUẨN THIẾT KẾ UI/UX FINTECH CAO CẤP (MINIMALIST & CLASSY)
