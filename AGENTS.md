@@ -76,6 +76,30 @@
      2. Số phiên bản `Bản XX` phải tăng lũy tiến đồng bộ với số phiên bản của Google Apps Script Deployment (VD: Deploy bản 44 thì code đóng dấu `Bản 44`).
      3. Nhờ đó, người dùng và lập trình viên chỉ cần nhìn lướt qua màn hình Web App trong 0.1 giây là biết ngay link đang chạy đúng bản mới hay bị kẹt cache bản cũ.
 
+
+10. **Quy tắc "Strict Module Scope & Safe Formatter Rule" (Triệt tiêu 100% lỗi gọi hàm ma / sai tên hàm formatter)**:
+    - **Bối cảnh lỗi thực tế**: Trong kiến trúc Monolithic SPA gồm nhiều module (`ModuleDashboard`, `ModuleTasksGantt`, `ModuleTeamProjects`...), lập trình viên rất dễ gọi nhầm tên hàm format (VD: gọi `cleanDateDisplay` trong khi hàm trong scope là `toDateVNDisplay`). Khi chạy thật, trình duyệt bị lỗi ngầm `ReferenceError: ... is not defined` làm đứt toàn bộ quá trình render DOM khiến bảng bị trắng xóa!
+    - **QUY CHUẨN BẮT BUỘC**:
+      1. Tuyệt đối CẤM gọi hàm helper format mà chưa kiểm tra định nghĩa trong cùng scope.
+      2. Mọi module con bắt buộc trang bị cơ chế fallback an toàn đa tầng:
+         ```javascript
+         const safeDate = (typeof toDateVNDisplay === 'function')
+           ? toDateVNDisplay(val)
+           : (window.App && typeof window.App.formatDate === 'function' ? window.App.formatDate(val) : String(val || ''));
+         ```
+      3. Toàn bộ các hàm dùng chung cấp App (`formatVND`, `formatDate`, `escapeHtml`, `openDrawer`, `toast`, `confirm`) phải được khai báo tập trung trên `window.App` để các module con tái sử dụng đồng nhất.
+
+11. **Quy tắc "Runtime VM Execution Dry-Run" (Cấm báo hoàn tất khi chưa chạy thử toàn bộ hàm render)**:
+    - **Bối cảnh**: Kiểm tra cú pháp tĩnh (`vm.runInContext(code)`) chỉ kiểm tra xem code có bị lỗi cú pháp JS (SyntaxError) hay không, hoàn toàn KHÔNG bắt được các lỗi gọi hàm sai tên (`ReferenceError`) hay truy cập thuộc tính của undefined (`TypeError`) chỉ xảy ra khi hàm thực sự được gọi!
+    - **QUY CHUẨN BẮT BUỘC**: Trước khi commit và bàn giao, lập trình viên/Agent BẮT BUỘC phải chạy script test kích hoạt thực thi trực tiếp toàn bộ các hàm render của từng module với dữ liệu mẫu:
+      - `ModuleDashboard.render()`
+      - `ModuleTasksGantt.render('tasks')`
+      - `ModuleTasksGantt.render('gantt')`
+      - `ModuleRoutinesMatrix.render()`
+      - `ModuleTeamProjects.render('team')`
+      - `ModuleTeamProjects.render('projects')`
+      - `ModuleCatalogs.render()`
+    - Nếu bất kỳ hàm nào ném lỗi runtime, coi như CHƯA ĐẠT và cấm tuyệt đối báo hoàn tất cho người dùng.
 ---
 
 ## 2. CHUẨN THIẾT KẾ UI/UX FINTECH CAO CẤP (MINIMALIST & CLASSY)
@@ -159,7 +183,7 @@ Gom về cuối cùng của hệ thống:
      - *Media Query CSS cứng*: Bắt buộc bổ sung khối CSS trong thẻ `<style>` để đảm bảo tuyệt đối không bị lệch về bên trái hay đè lên sidebar:
        ```css
        @media (min-width: 1024px) {
-         #action-drawer {
+         #action-drawer, #team-proj-drawer-panel {
            top: 0 !important;
            bottom: 0 !important;
            right: 0 !important;
@@ -168,6 +192,10 @@ Gom về cuối cùng của hệ thống:
            max-height: 100vh !important;
            height: 100vh !important;
            border-radius: 0 !important;
+           transform: translateX(100%) !important;
+         }
+         #action-drawer.drawer-open, #team-proj-drawer-panel.drawer-open {
+           transform: translateX(0) !important;
          }
        }
        ```
@@ -296,7 +324,7 @@ Gom về cuối cùng của hệ thống:
 
 ---
 
-## 8. DANH MỤC KIỂM TRA TRƯỚC KHI BÀN GIAO (CHECKLIST 15 ĐIỂM)
+## 8. DANH MỤC KIỂM TRA TRƯỚC KHI BÀN GIAO (CHECKLIST 17 ĐIỂM)
 
 - [ ] 1. Tên file local đúng chuẩn: `[TENDUAN]_Code.gs` và `[TENDUAN]_Index.html`.
 - [ ] 2. Tên file Google Sheet chuẩn: `[TÊN SẢN PHẨM IN HOA CÓ DẤU] v[X.X] — FILE ĐI LÀM`.
@@ -313,3 +341,5 @@ Gom về cuối cùng của hệ thống:
 - [ ] 13. Giao diện tuân thủ chuẩn Instant Render (hiển thị ngay trong 0s), không chứa khối loading placeholder nào che phủ giữa màn hình.
 - [ ] 14. Biến `AppState.data` được nhúng sẵn 100% dữ liệu mẫu thực chiến ngay từ đầu, tuyệt đối không khai báo mảng rỗng `[]`.
 - [ ] 15. Giao diện có gắn huy hiệu phiên bản trực quan (Visual Version Badge `Bản XX`) tại Topbar và Footer để đối soát phiên bản triển khai tức thì.
+- [ ] 16. **Zero Ma Hàm (Scope Safety)**: 100% các hàm format (`toDateVNDisplay`, `formatVND`, `escapeHtml`) đều tồn tại thực tế và có fallback an toàn, không có bất kỳ lệnh gọi hàm không xác định nào.
+- [ ] 17. **Runtime Dry-Run Verified**: Đã chạy thử nghiệm thực thi toàn bộ các hàm `render()` của tất cả các module trong môi trường Node VM giả lập mà không phát sinh bất kỳ `ReferenceError` hay `TypeError` nào.
