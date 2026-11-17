@@ -2191,19 +2191,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const effectiveAddToCart = totalAddToCart;
     const effectiveCheckoutOpened = totalCheckoutOpened;
     const checkoutOpenedRate = effectiveAddToCart > 0 ? ((effectiveCheckoutOpened / effectiveAddToCart) * 100).toFixed(1) : 0;
-    // Đồng bộ đơn hàng phát sinh cùng khoảng thời gian có dữ liệu Tracker
-    const analyticsDates = new Set(filteredAnalytics.map(m => m.date).filter(Boolean));
-    const ordersInTrackerPeriod = analyticsDates.size > 0 
-      ? filteredOrders.filter(o => {
-          const dObj = parseDateObj(o.created_at);
-          if (!dObj) return false;
-          const ds = dObj.toISOString().slice(0, 10);
-          return analyticsDates.has(ds);
-        })
-      : filteredOrders;
-
-    const ordersCreatedInPeriod = ordersInTrackerPeriod.length;
-    const ordersPaidInPeriod = ordersInTrackerPeriod.filter(o => String(o.status || '').toUpperCase() === 'PAID').length;
+    // Đồng bộ đơn hàng phát sinh cùng khoảng thời gian đang lọc
+    // (Đếm đầy đủ toàn bộ đơn hàng trong bộ lọc đang chọn, không bị giới hạn bởi ngày bắt đầu của Tracker 07/11)
+    const ordersCreatedInPeriod = filteredOrders.length;
+    const ordersPaidInPeriod = filteredOrders.filter(o => String(o.status || '').toUpperCase() === 'PAID').length;
 
     const cartDropOffCount = Math.max(0, effectiveAddToCart - ordersCreatedInPeriod);
     const cartDropOffRate = effectiveAddToCart > 0 ? Math.round((cartDropOffCount / effectiveAddToCart) * 100) : 0;
