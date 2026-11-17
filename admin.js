@@ -635,17 +635,12 @@ document.addEventListener('DOMContentLoaded', () => {
           <td>
             <div style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">
               <span style="font-weight: 600; color: #0f172a; font-size: 0.9rem;">${escapeHtml(p.name)}</span>
-              ${(p.is_pinned === true || p.is_pinned === 'true') ? `<span style="display: inline-flex; align-items: center; gap: 3px; font-size: 0.70rem; font-weight: 700; color: #059669; background: #ecfdf5; border: 1px solid #a7f3d0; padding: 1px 6px; border-radius: 4px;" title="Sản phẩm đang được ghim lên đầu trang chủ">📌 Đã ghim</span>` : ''}
+              ${(p.is_pinned === true || p.is_pinned === 'true') ? `<span style="font-size: 0.72rem; font-weight: 600; color: #059669;" title="Sản phẩm đang được ghim lên đầu trang chủ">📌 Đã ghim</span>` : ''}
             </div>
             <div style="display: flex; align-items: center; gap: 8px; margin-top: 4px; flex-wrap: wrap;">
-              <span style="font-size: 0.75rem; color: ${isValidProductSku(p.id) ? '#64748b' : '#dc2626'}; font-family: monospace; font-weight: ${isValidProductSku(p.id) ? '500' : '700'};">${escapeHtml(p.id)}</span>
-              ${!isValidProductSku(p.id) ? `
-                <button type="button" class="btn-normalize-sku-quick" data-id="${p.id}" style="font-size: 0.70rem; color: #b45309; background: #fef3c7; border: 1px solid #fde68a; border-radius: 4px; padding: 1px 6px; cursor: pointer; display: inline-flex; align-items: center; gap: 3px;" title="Chuẩn hóa sang mã PRD-XXXXXX chuẩn theo AGENTS.md">
-                  <svg width="10" height="10" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
-                  <span>Cần chuẩn hóa SKU</span>
-                </button>` : ''}
+              <span style="font-size: 0.75rem; color: #64748b; font-family: monospace; font-weight: 500;">${escapeHtml(p.id)}</span>
               ${fileLink ? `
-                <a href="${escapeHtml(fileLink)}" target="_blank" rel="noopener" style="font-size: 0.74rem; font-weight: 600; color: #059669; text-decoration: none; display: inline-flex; align-items: center; gap: 3px; padding: 2px 7px; background: #ecfdf5; border: 1px solid #a7f3d0; border-radius: 4px;" title="Mở file Google Sheets / Drive">
+                <a href="${escapeHtml(fileLink)}" target="_blank" rel="noopener" style="font-size: 0.74rem; font-weight: 600; color: #059669; text-decoration: none; display: inline-flex; align-items: center; gap: 3px;" title="Mở file Google Sheets / Drive">
                   <svg width="11" height="11" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
                   <span>Mở file</span>
                 </a>` : ''}
