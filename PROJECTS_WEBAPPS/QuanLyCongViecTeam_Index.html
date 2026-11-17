@@ -3259,7 +3259,7 @@ window.ModuleTasksGantt = (function() {
     var staffOptions = staff.map(function(s) {
       var name = s.hoTen || s['Họ Và Tên'] || s.name;
       var email = s.googleEmail || s['Google Email'] || s.email || '';
-      var selected = (existing && existing.nguoiPhuTrach === name) ? 'selected' : '';
+      var selected = (existing && existing.nguoiPhuTrach === name && (!existing.emailNhanSu || existing.emailNhanSu === email)) ? 'selected' : '';
       return '<option value="' + escapeHtml(name) + '" data-email="' + escapeHtml(email) + '" ' + selected + '>' + escapeHtml(name) + (email ? ' (' + email + ')' : '') + '</option>';
     }).join('');
 
@@ -3407,7 +3407,7 @@ window.ModuleTasksGantt = (function() {
     if (!emailInput || !selectEl) return;
     var opt = selectEl.options[selectEl.selectedIndex];
     var email = opt ? opt.getAttribute('data-email') : '';
-    if (email) emailInput.value = email;
+    emailInput.value = email || '';
   }
 
   function generateTaskId() {
@@ -3424,8 +3424,14 @@ window.ModuleTasksGantt = (function() {
     var maDuAn = pSelect.value;
     var tenDuAn = pSelect.options[pSelect.selectedIndex] ? pSelect.options[pSelect.selectedIndex].getAttribute('data-name') : '';
     var sSelect = document.getElementById('task-form-assignee');
-    var nguoiPhuTrach = sSelect.value;
-    var emailNhanSu = document.getElementById('task-form-email').value.trim();
+    var nguoiPhuTrach = sSelect ? sSelect.value : '';
+
+    if (!tenNhiemVu || !maDuAn || !nguoiPhuTrach) {
+      safeShowToast('Thiếu thông tin', 'Vui lòng nhập tên nhiệm vụ, chọn dự án và người phụ trách.', 'warning');
+      return;
+    }
+
+    var emailNhanSu = document.getElementById('task-form-email') ? document.getElementById('task-form-email').value.trim() : '';
     var capDo = document.getElementById('task-form-priority').value;
     var trongSo = Number(document.getElementById('task-form-weight').value) || 1;
     var ngayBatDau = toDisplayDate(document.getElementById('task-form-start-date').value);
@@ -3505,6 +3511,9 @@ window.ModuleTasksGantt = (function() {
     renderTasks();
     renderGantt();
 
+    // Tự động tính toán lại tiến độ dự án liên quan (Client-side Autonomous Roll-up)
+    recalculateClientProjectProgress(maDuAn);
+
     // Đồng bộ lại Dashboard nếu có
     if (window.ModuleDashboard && typeof window.ModuleDashboard.render === 'function') {
       window.ModuleDashboard.render();
@@ -3530,6 +3539,33 @@ window.ModuleTasksGantt = (function() {
 
   function closeTaskDrawer() {
     safeCloseDrawer();
+  }
+
+  function recalculateClientProjectProgress(maDuAn) {
+    if (!maDuAn) return;
+    var allProjects = getProjectsData();
+    var parentProj = allProjects.find(function(p) {
+      return (p.maDuAn || p['Mã Dự Án'] || p.id) === maDuAn;
+    });
+    if (!parentProj) return;
+
+    var allTasks = getTasksData();
+    var projTasks = allTasks.filter(function(t) {
+      var pId = t.maDuAn || t['Mã Dự Án'] || '';
+      return pId === maDuAn;
+    });
+    if (projTasks.length === 0) return;
+    var totalWeight = 0;
+    var weightedProgress = 0;
+    projTasks.forEach(function(t) {
+      var w = Number(t.trongSo || t['Trọng Số'] || 1) || 1;
+      var prog = Number(t.tienDo || t['Tiến Độ %'] || 0) || 0;
+      totalWeight += w;
+      weightedProgress += (prog * w);
+    });
+    var calcProg = totalWeight > 0 ? Math.round(weightedProgress / totalWeight) : 0;
+    parentProj.tienDoTong = calcProg;
+    parentProj['Tiến Độ Tổng %'] = calcProg;
   }
 
   // --- 10. QUICK TOGGLE TASK (HOÀN THÀNH / ĐANG LÀM 1 CHẠM) ---
@@ -3745,7 +3781,8 @@ window.ModuleTasksGantt = (function() {
     handleGanttFilter: handleGanttFilter,
     openGanttTaskPopover: openGanttTaskPopover,
     closeGanttPopover: closeGanttPopover,
-    handleStaffSelectChange: handleStaffSelectChange
+    handleStaffSelectChange: handleStaffSelectChange,
+    recalculateClientProjectProgress: recalculateClientProjectProgress
   };
 })();
 </script>
@@ -5311,17 +5348,42 @@ const ModuleRoutinesMatrix = (function() {
       return;
     }
 
+    const routines = getData('routines') || [];
+    const targetRoutine = routines.find(function(r) {
+      return (r.maLich || r['Mã Lịch']) === maLich;
+    });
+    const freq = String(targetRoutine ? (targetRoutine.tanSuat || targetRoutine['Tần Suất'] || '') : '').toLowerCase();
+
+    const isDaily = !freq || freq.includes('hàng ngày') || freq.includes('mỗi ngày') || freq.includes('thứ 2 - thứ 6');
+    let hasThu2 = isDaily || freq.includes('thứ 2') || freq.includes('thu 2');
+    let hasThu3 = isDaily || freq.includes('thứ 3') || freq.includes('thu 3');
+    let hasThu4 = isDaily || freq.includes('thứ 4') || freq.includes('thu 4');
+    let hasThu5 = isDaily || freq.includes('thứ 5') || freq.includes('thu 5');
+    let hasThu6 = isDaily || freq.includes('thứ 6') || freq.includes('thu 6');
+    let hasThu7 = freq.includes('thứ 7') || freq.includes('thu 7');
+
+    if (!hasThu2 && !hasThu3 && !hasThu4 && !hasThu5 && !hasThu6 && !hasThu7) {
+      hasThu2 = true; hasThu3 = true; hasThu4 = true; hasThu5 = true; hasThu6 = true;
+    }
+
+    const v2 = hasThu2 ? 'Not Yet' : '-';
+    const v3 = hasThu3 ? 'Not Yet' : '-';
+    const v4 = hasThu4 ? 'Not Yet' : '-';
+    const v5 = hasThu5 ? 'Not Yet' : '-';
+    const v6 = hasThu6 ? 'Not Yet' : '-';
+    const v7 = hasThu7 ? 'Not Yet' : '-';
+
     const newRow = {
       maLich: maLich,
       nhiemVu: tieuDe,
       maNhanSu: maNhanSu,
       tenNhanSu: tenNhanSu,
-      thu2: 'Not Yet',
-      thu3: 'Not Yet',
-      thu4: 'Not Yet',
-      thu5: 'Not Yet',
-      thu6: 'Not Yet',
-      thu7: '-',
+      thu2: v2,
+      thu3: v3,
+      thu4: v4,
+      thu5: v5,
+      thu6: v6,
+      thu7: v7,
       tyLeTuan: '0%',
       tuanThu: tuanThu,
       // Dual-mapping
@@ -5329,12 +5391,12 @@ const ModuleRoutinesMatrix = (function() {
       'Nhiệm Vụ / Meeting': tieuDe,
       'Mã Nhân Sự': maNhanSu,
       'Tên Nhân Sự': tenNhanSu,
-      'Thứ 2': 'Not Yet',
-      'Thứ 3': 'Not Yet',
-      'Thứ 4': 'Not Yet',
-      'Thứ 5': 'Not Yet',
-      'Thứ 6': 'Not Yet',
-      'Thứ 7': '-',
+      'Thứ 2': v2,
+      'Thứ 3': v3,
+      'Thứ 4': v4,
+      'Thứ 5': v5,
+      'Thứ 6': v6,
+      'Thứ 7': v7,
       'Tỷ Lệ Tuần %': '0%',
       'Tuần Thứ': tuanThu
     };
@@ -7657,7 +7719,8 @@ const ModuleTeamProjects = (function() {
     var defaultGoal = (projObj && (projObj.mucTieu || projObj['Mục Tiêu'])) || '';
     var defaultStart = (projObj && (projObj.ngayBatDau || projObj['Ngày Bắt Đầu'])) ? toDateVNDisplay(projObj.ngayBatDau || projObj['Ngày Bắt Đầu']) : toDateVNDisplay(new Date());
     var defaultDeadline = (projObj && (projObj.hanHoanThanh || projObj['Hạn Hoàn Thành'])) ? toDateVNDisplay(projObj.hanHoanThanh || projObj['Hạn Hoàn Thành']) : toDateVNDisplay(new Date(Date.now() + 30 * 86400000));
-    var defaultBudget = (projObj && (projObj.nganSach || projObj['Ngân Sách'])) || 100000000;
+    var rawBudget = projObj ? (projObj.nganSach !== undefined ? projObj.nganSach : projObj['Ngân Sách']) : undefined;
+    var defaultBudget = (rawBudget !== undefined && rawBudget !== null && rawBudget !== '') ? Number(rawBudget) : 100000000;
     var defaultStatus = (projObj && (projObj.trangThai || projObj['Trạng Thái'])) || 'Đang tiến hành';
     var defaultProgress = (projObj && (projObj.tienDoTong || projObj['Tiến Độ Tổng %'])) || 0;
     var defaultNotes = (projObj && (projObj.ghiChu || projObj['Ghi Chú'])) || '';
