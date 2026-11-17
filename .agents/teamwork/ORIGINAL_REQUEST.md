@@ -1,45 +1,30 @@
 # Original User Request
 
-## Approved Task Prompt — 2026-11-16T13:15:12Z
+## Parameters
 
-Đồng bộ toàn diện website File Đi Làm thành một thể thống nhất giữa các trang (index.html, faq.html, custom.html) theo chuẩn giao diện thương hiệu Fintech cao cấp trong AGENTS.md, loại bỏ mục "Trang chủ" trên navigation bar ở tất cả các trang, thiết kế hoàn thiện chuyên sâu cho các trang con, kiểm tra tính toàn vẹn và deploy lên Firebase Hosting.
+[skip-interview]
+How this run was launched; not part of the task.
 
-Working directory: c:\Users\zit\OneDrive\Tài liệu\ANTIGRAVITY\FILE_DI_LAM_MVP
-Integrity mode: development
+## Initial Request — 2026-11-17T02:08:31Z
 
-## Requirements
+Thực hiện toàn diện Kế hoạch kiểm thử End-to-End (E2E) nhập liệu và kế thừa dữ liệu theo tài liệu implementation_plan_e2e_test.md:
 
-### R1. Bỏ chữ "Trang chủ" trên navigation bar ở tất cả các trang
-Loại bỏ liên kết "Trang chủ" khỏi thanh điều hướng (Header Topbar và Mobile Drawer) trên tất cả các trang (`index.html`, `faq.html`, `custom.html`), vì logo File Đi Làm đã đảm nhiệm chức năng liên kết về trang chủ.
+1. Kế hoạch chi tiết tại: C:\Users\zit\.gemini\antigravity\brain\a6c9a7f7-5965-4d62-b431-f34a04801348\implementation_plan_e2e_test.md
+2. Các bước thực hiện:
+   - Kịch bản 1: Kiểm thử nhập liệu ở Quản Lý (Thêm mới Dự Án DUAN-999001, Nhân Sự NHAN-888002, Lịch Họp).
+   - Kịch bản 2: Kiểm thử kế thừa sang Vận Hành (Dropdown trong form tạo Task tự động nạp các dữ liệu vừa thêm, tự động điền Email Google của nhân sự được chọn khi gán task).
+   - Kịch bản 3: Kiểm thử phản ánh Realtime (Task mới lập tức vẽ lên biểu đồ Gantt chuẩn ngày chuẩn màu, tính vào % tiến độ dự án, xuất hiện trong ma trận kỷ luật và Dashboard).
+   - Kịch bản 4: Kiểm thử Backend Google Apps Script (Mô phỏng gọi các hàm RPC backend apiSaveProject, apiSaveStaff, apiSaveTask, apiUpdateChecklistCell với dữ liệu chuẩn, kiểm tra LockService và Dual Header Mapping).
+3. Viết script kiểm thử tự động tests/test_e2e_data_flow.cjs, chạy kiểm thử thực tế và báo cáo kết quả chi tiết từng kịch bản. Đảm bảo tuân thủ 100% Hiến pháp AGENTS.md và AGENTS_MASTER.md (Rule 10 Safe Formatter, Rule 11 Runtime VM Dry-Run, Checklist 17 điểm).
 
-### R2. Đồng bộ nhận diện thương hiệu, hệ thống thiết kế và giao diện cốt lõi
-Đồng bộ toàn bộ layout, Header/Topbar, Footer, Typography (Manrope / Plus Jakarta Sans), bảng màu Mint Fintech (`#059669`, `#10b981`, slate tones, border `#e2e8f0`), hệ thống icon Lucide Icons nét mảnh, phong cách thẻ (card styling), và quy chuẩn nút bấm (chiều cao 46px, bo góc `rounded-xl`) xuyên suốt giữa `index.html`, `faq.html`, và `custom.html` theo chuẩn AGENTS.md.
+## Follow-up — 2026-11-17T02:09:10Z
 
-### R3. Chia sẻ cấu trúc Layout, Topbar Navigation và Footer chung
-Cả 3 trang (`index.html`, `faq.html`, `custom.html`) chia sẻ cùng một cấu trúc layout, thanh điều hướng Topbar đồng nhất (Logo, "Mẫu File Đi Làm", "Hỏi đáp", "Thiết kế file riêng", icon giỏ hàng, nút menu drawer 3 gạch trên mobile) và chân trang Footer đồng nhất về nhận diện thương hiệu (thông tin liên hệ, mạng xã hội, liên kết dịch vụ, liên kết chính sách).
+Yêu cầu đã được xác định cụ thể và chi tiết trong implementation_plan_e2e_test.md. Hãy tiến hành triển khai ngay lập tức: tạo tests/test_e2e_data_flow.cjs, chạy kiểm thử toàn diện 4 kịch bản E2E nhập liệu và kế thừa dữ liệu, đảm bảo không có lỗi runtime và tuân thủ chuẩn 17 điểm AGENTS_MASTER.md.
 
-### R4. Thiết kế chỉn chu, có chiều sâu cho trang FAQ và Thiết kế file riêng
-Nâng cấp trang `faq.html` và `custom.html` thành các trang nội dung hoàn chỉnh, có chiều sâu, trải nghiệm như một website SaaS / Fintech thương mại điện tử chuyên nghiệp thực thụ của thương hiệu FILE ĐI LÀM theo quy chuẩn AGENTS.md; tuyệt đối không làm hời hợt hoặc lệch pha về trải nghiệm so với trang chủ.
+## Follow-up — 2026-11-17T03:03:51Z
 
-### R5. Kiểm thử và Triển khai lên Firebase Hosting
-Kiểm tra tính toàn vẹn của các trang, đảm bảo không có lỗi JavaScript console, luồng giỏ hàng và thanh toán hoạt động bình thường, sau đó deploy bản hoàn thiện lên Firebase Hosting (`filedilam.web.app`).
+Đã ghi nhận báo cáo Gate 1. Tiếp tục thực thi Vòng Khắc phục Iteration 2 (Remediation Cycle): đảm bảo nạp trực tiếp 100% file QuanLyCongViecTeam_Code.gs thật vào Sandbox test, bao phủ các trường hợp edge cases (ngân sách 0, email trống), và báo cáo khi hoàn tất Re-Review/Re-Audit.
 
-## Verification Resources
-- Script kiểm thử tự động do đội ngũ xây dựng để kiểm tra và xác thực: tính nhất quán của cấu trúc DOM và CSS giữa 3 trang (Header/Topbar, Footer, không có mục "Trang chủ", logo link về trang chủ), không phát sinh lỗi JavaScript console, hiển thị tốt trên responsive (Desktop & Mobile), và trạng thái triển khai thành công lên Firebase Hosting.
-- Toàn bộ mã nguồn hiện tại của dự án trong `c:\Users\zit\OneDrive\Tài liệu\ANTIGRAVITY\FILE_DI_LAM_MVP` và quy chuẩn thương hiệu trong `AGENTS.md`.
+## Follow-up — 2026-11-17T03:20:02Z
 
-## Acceptance Criteria
-
-### Navigation & Brand Consistency
-- [ ] Chữ "Trang chủ" được gỡ bỏ khỏi navbar (cả Header Topbar và Mobile Drawer) trên cả `index.html`, `faq.html`, và `custom.html`.
-- [ ] Click vào logo File Đi Làm trên mọi trang đều chuyển hướng chính xác về trang chủ (`index.html`).
-- [ ] Cả 3 trang (`index.html`, `faq.html`, `custom.html`) chia sẻ cùng cấu trúc Header/Topbar và Footer: các liên kết "Mẫu File Đi Làm", "Hỏi đáp", "Thiết kế file riêng", icon giỏ hàng, menu drawer mobile, thông tin liên hệ và chính sách hoạt động chính xác và đồng nhất.
-- [ ] Toàn bộ 3 trang sử dụng đồng nhất Typography (Manrope / Plus Jakarta Sans), bảng màu Mint Fintech (`#059669`, `#10b981`, slate tones, border `#e2e8f0`), Lucide Icons nét mảnh, và quy chuẩn nút bấm (cao 46px, bo góc `rounded-xl`).
-
-### Secondary Pages Quality (faq.html & custom.html)
-- [ ] Trang `faq.html` được thiết kế có chiều sâu, nội dung câu hỏi thường gặp đầy đủ, phân loại rõ ràng, giao diện accordion đóng/mở mượt mà theo đúng chuẩn Fintech.
-- [ ] Trang `custom.html` được thiết kế chuyên nghiệp, thể hiện chi tiết dịch vụ thiết kế theo yêu cầu, khối thông tin và bảng quy trình trực quan, nút liên hệ tư vấn rõ ràng.
-
-### Verification & Deployment
-- [ ] Script kiểm thử tự động do đội ngũ xây dựng thực thi thành công, xác nhận DOM và CSS đồng bộ giữa các trang, không có lỗi JavaScript console trên cả desktop và mobile.
-- [ ] Toàn bộ website được deploy thành công lên Firebase Hosting (`filedilam.web.app`) và kiểm tra truy cập ổn định trên môi trường live.
+Đã ghi nhận. Hãy đảm bảo kiểm tra cẩn thận cả Quy tắc 12 vừa được cập nhật vào AGENTS_MASTER.md (Single Source of Truth cho WEB_APP_URL và phòng vệ ss param) trong các kịch bản test backend. Tiếp tục tiến trình Gate 2.

@@ -1,0 +1,393 @@
+{
+  "startedAt": "2026-11-17T03:39:03.553Z",
+  "total": 71,
+  "passed": 71,
+  "failed": 0,
+  "scenarios": [
+    {
+      "name": "Scenario 1: Nhập Liệu Tầng Quản Lý",
+      "tests": [
+        {
+          "testName": "1.1 Thêm mới Dự Án DUAN-999001 vào AppState.data.projects",
+          "passed": true,
+          "details": ""
+        },
+        {
+          "testName": "1.1 Dự Án mới lưu đúng Tên Dự Án",
+          "passed": true,
+          "details": ""
+        },
+        {
+          "testName": "1.1 Dự Án mới lưu đúng Ngân Sách 120.000.000 đ",
+          "passed": true,
+          "details": ""
+        },
+        {
+          "testName": "1.1 Dự Án mới có Dual Header Mapping (Mã Dự Án & maDuAn)",
+          "passed": true,
+          "details": ""
+        },
+        {
+          "testName": "1.1 KPI Tổng số dự án (#proj-total-count) cập nhật tăng +1",
+          "passed": true,
+          "details": ""
+        },
+        {
+          "testName": "1.1 DOM Master Table / Grid (#proj-cards-grid) hiển thị mã DUAN-999001",
+          "passed": true,
+          "details": ""
+        },
+        {
+          "testName": "1.1 DOM Master Table / Grid hiển thị tên dự án mới",
+          "passed": true,
+          "details": ""
+        },
+        {
+          "testName": "1.1 Form Dự Án từ chối lưu khi để trống Tên Dự Án bắt buộc",
+          "passed": true,
+          "details": ""
+        },
+        {
+          "testName": "1.2 Thêm mới Nhân Sự NHAN-888002 vào AppState.data.staff",
+          "passed": true,
+          "details": ""
+        },
+        {
+          "testName": "1.2 Nhân Sự mới lưu đúng Họ Và Tên Đặng Thái Sơn",
+          "passed": true,
+          "details": ""
+        },
+        {
+          "testName": "1.2 Nhân Sự mới lưu đúng Google Email son.dang@filedilam.vn",
+          "passed": true,
+          "details": ""
+        },
+        {
+          "testName": "1.2 Nhân Sự mới có Dual Header Mapping (Google Email & googleEmail)",
+          "passed": true,
+          "details": ""
+        },
+        {
+          "testName": "1.2 KPI Tổng số nhân sự (#team-total-count) cập nhật tăng +1",
+          "passed": true,
+          "details": ""
+        },
+        {
+          "testName": "1.2 DOM Grid Nhân Sự (#team-staff-grid) hiển thị mã NHAN-888002",
+          "passed": true,
+          "details": ""
+        },
+        {
+          "testName": "1.2 DOM Grid Nhân Sự hiển thị tên Đặng Thái Sơn",
+          "passed": true,
+          "details": ""
+        },
+        {
+          "testName": "1.2 Form Nhân Sự từ chối lưu khi để trống Họ Và Tên bắt buộc",
+          "passed": true,
+          "details": ""
+        },
+        {
+          "testName": "1.3 Thêm mới Lịch Họp LICH-777003 vào AppState.data.routines",
+          "passed": true,
+          "details": ""
+        },
+        {
+          "testName": "1.3 Tiêu đề cuộc họp lưu chính xác",
+          "passed": true,
+          "details": ""
+        },
+        {
+          "testName": "1.3 Bảng Lịch Định Kỳ (#rout-table-body) hiển thị mã LICH-777003",
+          "passed": true,
+          "details": ""
+        },
+        {
+          "testName": "1.3 Form Lịch Họp từ chối lưu khi để trống Tiêu Đề bắt buộc",
+          "passed": true,
+          "details": ""
+        },
+        {
+          "testName": "1.3 Hàng Checklist cho Đặng Thái Sơn được tạo trong AppState.data.checklist",
+          "passed": true,
+          "details": ""
+        },
+        {
+          "testName": "1.3 Hàng Checklist tự động gán ngày không họp là \"-\" dựa trên tần suất Thứ 4",
+          "passed": true,
+          "details": ""
+        },
+        {
+          "testName": "1.3 Hàng Checklist tự động gán ngày họp Thứ 4 là \"Not Yet\"",
+          "passed": true,
+          "details": ""
+        },
+        {
+          "testName": "1.3 Ma Trận Kỷ Luật (#matrix-table-body) hiển thị tên Đặng Thái Sơn",
+          "passed": true,
+          "details": ""
+        }
+      ],
+      "passed": 24,
+      "failed": 0
+    },
+    {
+      "name": "Scenario 2: Kế Thừa Sang Vận Hành & Tạo Task",
+      "tests": [
+        {
+          "testName": "2.1 Dropdown \"Thuộc Dự Án\" kế thừa tự động DUAN-999001 & data-name",
+          "passed": true,
+          "details": ""
+        },
+        {
+          "testName": "2.1 Dropdown \"Người Phụ Trách\" kế thừa tự động Đặng Thái Sơn & data-email",
+          "passed": true,
+          "details": ""
+        },
+        {
+          "testName": "2.2 Chọn Đặng Thái Sơn tự động điền son.dang@filedilam.vn vào #task-form-email",
+          "passed": true,
+          "details": ""
+        },
+        {
+          "testName": "2.2 Chọn nhân sự không có email thì ô #task-form-email tự động xóa trắng",
+          "passed": true,
+          "details": ""
+        },
+        {
+          "testName": "2.3 Form Nhiệm Vụ từ chối lưu khi để trống Tên Nhiệm Vụ bắt buộc",
+          "passed": true,
+          "details": ""
+        },
+        {
+          "testName": "2.3 Số lượng nhiệm vụ trong AppState.data.tasks tăng +1",
+          "passed": true,
+          "details": ""
+        },
+        {
+          "testName": "2.3 Task mới được thêm vào đầu danh sách (unshift)",
+          "passed": true,
+          "details": ""
+        },
+        {
+          "testName": "2.3 Mã Task đúng định dạng TASK-XXXXXX [observed: TASK-890164]",
+          "passed": true,
+          "details": ""
+        },
+        {
+          "testName": "2.3 Task mới gán đúng Dự Án DUAN-999001",
+          "passed": true,
+          "details": ""
+        },
+        {
+          "testName": "2.3 Task mới gán đúng Người Phụ Trách Đặng Thái Sơn",
+          "passed": true,
+          "details": ""
+        },
+        {
+          "testName": "2.3 Task mới gán đúng Email Nhân Sự son.dang@filedilam.vn",
+          "passed": true,
+          "details": ""
+        },
+        {
+          "testName": "2.3 Task mới có Cấp Độ Khẩn Cấp",
+          "passed": true,
+          "details": ""
+        },
+        {
+          "testName": "2.3 Task mới có Tiến Độ 30%",
+          "passed": true,
+          "details": ""
+        },
+        {
+          "testName": "2.3 Task mới có Dual Header Mapping đầy đủ 14 trường",
+          "passed": true,
+          "details": ""
+        }
+      ],
+      "passed": 14,
+      "failed": 0
+    },
+    {
+      "name": "Scenario 3: Phản Ánh Thời Gian Thực",
+      "tests": [
+        {
+          "testName": "3.1 Biểu đồ Gantt vẽ thanh bar chứa mã task mới",
+          "passed": true,
+          "details": ""
+        },
+        {
+          "testName": "3.1 Thanh Task Bar mang màu đỏ Rose Khẩn Cấp (bg-rose-500)",
+          "passed": true,
+          "details": ""
+        },
+        {
+          "testName": "3.1 Thanh Task Bar hiển thị tiến độ 30% (width: 30%)",
+          "passed": true,
+          "details": ""
+        },
+        {
+          "testName": "3.1 Bộ lọc Gantt theo Dự Án DUAN-999001 chỉ hiển thị task thuộc dự án này",
+          "passed": true,
+          "details": ""
+        },
+        {
+          "testName": "3.2 Backend recalculateProjectProgress tính đúng tiến độ 30% từ task con",
+          "passed": true,
+          "details": ""
+        },
+        {
+          "testName": "3.2 Client-side tự động cộng gộp tiến độ dự án DUAN-999001 đạt 30%",
+          "passed": true,
+          "details": ""
+        },
+        {
+          "testName": "3.2 Giao diện Thẻ Dự Án hiển thị tiến độ 30%",
+          "passed": true,
+          "details": ""
+        },
+        {
+          "testName": "3.3 Tỷ lệ kỷ luật ban đầu của Đặng Thái Sơn là 0%",
+          "passed": true,
+          "details": ""
+        },
+        {
+          "testName": "3.3 Toggle cell Thứ 4 chuyển thành trạng thái Done",
+          "passed": true,
+          "details": ""
+        },
+        {
+          "testName": "3.3 Tỷ lệ kỷ luật tuần của Đặng Thái Sơn nhảy lên 100% [observed: 100%]",
+          "passed": true,
+          "details": ""
+        },
+        {
+          "testName": "3.3 Ma Trận Kỷ Luật DOM cập nhật huy hiệu xanh 100%",
+          "passed": true,
+          "details": ""
+        },
+        {
+          "testName": "3.4 Dashboard KPI Nhiệm Vụ Đang Chạy cập nhật > 0",
+          "passed": true,
+          "details": ""
+        },
+        {
+          "testName": "3.4 Dashboard KPI Quá Hạn & Khẩn Cấp ghi nhận task khẩn cấp mới",
+          "passed": true,
+          "details": ""
+        },
+        {
+          "testName": "3.4 Task khẩn cấp mới xuất hiện trong Daily Action Center",
+          "passed": true,
+          "details": ""
+        }
+      ],
+      "passed": 14,
+      "failed": 0
+    },
+    {
+      "name": "Scenario 4: Backend Google Apps Script Dry-Run",
+      "tests": [
+        {
+          "testName": "4.1 Backend apiSaveProject thực thi thành công (success: true)",
+          "passed": true,
+          "details": ""
+        },
+        {
+          "testName": "4.1 Tab DB_DuAn trong Google Sheets ghi nhận dòng DUAN-999001 chuẩn xác",
+          "passed": true,
+          "details": ""
+        },
+        {
+          "testName": "4.2 Backend apiSaveStaff thực thi thành công (success: true)",
+          "passed": true,
+          "details": ""
+        },
+        {
+          "testName": "4.2 Tab DB_NhanSu ghi nhận dòng NHAN-888002 & son.dang@filedilam.vn",
+          "passed": true,
+          "details": ""
+        },
+        {
+          "testName": "4.3 Backend apiSaveTask thực thi thành công (success: true)",
+          "passed": true,
+          "details": ""
+        },
+        {
+          "testName": "4.3 Tab DB_CongViec ghi nhận đúng Task mới vừa lưu",
+          "passed": true,
+          "details": ""
+        },
+        {
+          "testName": "4.4 Backend apiUpdateChecklistCell thực thi thành công",
+          "passed": true,
+          "details": ""
+        },
+        {
+          "testName": "4.4 Tab DB_ChecklistLap cập nhật ô Thứ 4 thành \"Done\"",
+          "passed": true,
+          "details": ""
+        },
+        {
+          "testName": "4.5 LockService.waitLock được gọi với timeout >= 10000ms [observed: 15000ms]",
+          "passed": true,
+          "details": ""
+        },
+        {
+          "testName": "4.5 LockService.releaseLock được giải phóng đầy đủ [Acquired: 9, Released: 9]",
+          "passed": true,
+          "details": ""
+        },
+        {
+          "testName": "4.5 Backend xử lý ngoại lệ an toàn không crash (success: false)",
+          "passed": true,
+          "details": ""
+        },
+        {
+          "testName": "4.5 LockService cam kết 100% giải phóng khóa trong khối finally khi ném exception",
+          "passed": true,
+          "details": ""
+        },
+        {
+          "testName": "4.6 getInitialData() trả về success: true",
+          "passed": true,
+          "details": ""
+        },
+        {
+          "testName": "4.6 getInitialData() trả về đầy đủ 6 bảng dữ liệu nguồn",
+          "passed": true,
+          "details": ""
+        },
+        {
+          "testName": "4.6 Bảng tasks có Dual Header Mapping (tiếng Việt có dấu & camelCase)",
+          "passed": true,
+          "details": ""
+        },
+        {
+          "testName": "4.6 Bảng projects có Dual Header Mapping",
+          "passed": true,
+          "details": ""
+        },
+        {
+          "testName": "4.6 Bảng staff có Dual Header Mapping",
+          "passed": true,
+          "details": ""
+        },
+        {
+          "testName": "4.6 Bảng routines có Dual Header Mapping",
+          "passed": true,
+          "details": ""
+        },
+        {
+          "testName": "4.6 Bảng checklist có Dual Header Mapping",
+          "passed": true,
+          "details": ""
+        }
+      ],
+      "passed": 19,
+      "failed": 0
+    }
+  ],
+  "completedAt": "2026-11-17T03:39:03.597Z",
+  "durationMs": 44
+}
