@@ -1007,6 +1007,9 @@ function formatDataRangeRows(sheet, startRow, numRows, numCols) {
  * =========================================================================================
  */
 function setupTabHDSD(ss) {
+  if (!ss) {
+    ss = SpreadsheetApp.getActiveSpreadsheet();
+  }
   var sheet = ss.getSheetByName(SHEET_HDSD);
   if (!sheet) {
     sheet = ss.insertSheet(SHEET_HDSD, 0);
