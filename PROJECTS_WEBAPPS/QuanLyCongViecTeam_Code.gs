@@ -14,17 +14,9 @@ var APP_VERSION = 'Bản 3.6 (Active)';
 var WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbxRxAEx0UvgY_12hFsrQXXruvSJSp2voPo2_0v7PdTyImaDQwgKL2UsTupWdKTvEu8H/exec';
 
 /**
- * Lấy URL Web App động: Ưu tiên ScriptApp.getService().getUrl() nếu có triển khai
+ * Lấy URL Web App: Luôn trả về URL triển khai chính thức được cấu hình
  */
 function getEffectiveWebAppUrl() {
-  try {
-    var publishedUrl = ScriptApp.getService().getUrl();
-    if (publishedUrl && publishedUrl.indexOf('macros/s/') !== -1) {
-      return publishedUrl;
-    }
-  } catch (e) {
-    // Không trong context service
-  }
   return WEB_APP_URL;
 }
 
