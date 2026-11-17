@@ -2445,9 +2445,11 @@
                 <input type="search" id="orderSearchInput" placeholder="Tìm theo Mã đơn, SĐT..." style="height: 34px; font-size: 0.80rem;" />
               </div>
               <select id="orderStatusFilter" class="pill-select">
-                <option value="ALL">Tất cả trạng thái</option>
+                <option value="REAL_ONLY" selected>Chỉ đơn khách thật</option>
+                <option value="ALL">Tất cả đơn hàng (gồm đơn test)</option>
                 <option value="PAID">Thanh toán thành công</option>
                 <option value="PENDING">Chờ thanh toán (PENDING)</option>
+                <option value="TEST_ONLY">Chỉ đơn test nội bộ</option>
               </select>
               <button class="btn-icon-pill" id="btnExportOrdersExcel" onclick="window.exportOrdersOnlyToExcel && window.exportOrdersOnlyToExcel()" title="Xuất danh sách đơn hàng ra Excel (.xlsx)" style="width: 34px; height: 34px; border-radius: 6px; color: #047857;">
                 <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
@@ -3025,7 +3027,7 @@
   <script src="/__/firebase/init.js"></script>
   
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-  <script src="./admin.js?v=317"></script>
+  <script src="./admin.js?v=318"></script>
   <!-- Agentation: Visual Feedback & Annotation for AI agents -->
   <script src="./agentation-vanilla.js"></script>
 

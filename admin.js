@@ -1,6 +1,53 @@
 const ADMIN_EMAIL = 'huynhkiencam151102@gmail.com';
 
 /**
+ * Danh sách nhận diện đơn test nội bộ của đội ngũ admin
+ */
+const INTERNAL_TEST_PHONES = ['0938134576', '0948275769'];
+const INTERNAL_TEST_EMAILS = [
+  'huynhkiencam151102@gmail.com',
+  'huynhkiencam151102',
+  'kiencam.work@gmail.com',
+  'kiencam.work',
+  'anhthi20041105@gmail.com',
+  'anhthi20041105'
+];
+const INTERNAL_TEST_NAMES = [
+  'huỳnh kiến cẩm',
+  'huynh kien cam',
+  'kien cam huynh',
+  'kiencam',
+  'nguyễn thị anh thi',
+  'nguyen thi anh thi',
+  'anh thi'
+];
+
+/**
+ * Kiểm tra xem một đơn hàng có phải đơn test nội bộ hay không
+ * @param {Object} order
+ * @returns {boolean}
+ */
+function isInternalTestOrder(order) {
+  if (!order) return false;
+
+  // 1. Kiểm tra số điện thoại
+  const cleanPhone = normalizePhoneNumber(order.customer_phone);
+  if (cleanPhone && INTERNAL_TEST_PHONES.includes(cleanPhone)) return true;
+  const rawPhone = String(order.customer_phone || '').replace(/\s+/g, '');
+  if (INTERNAL_TEST_PHONES.some(p => rawPhone.includes(p))) return true;
+
+  // 2. Kiểm tra email
+  const email = String(order.customer_email || '').trim().toLowerCase();
+  if (email && INTERNAL_TEST_EMAILS.some(te => email.includes(te))) return true;
+
+  // 3. Kiểm tra họ tên khách hàng
+  const name = String(order.customer_name || '').trim().toLowerCase();
+  if (name && INTERNAL_TEST_NAMES.some(tn => name.includes(tn))) return true;
+
+  return false;
+}
+
+/**
  * Chuẩn hóa số điện thoại Việt Nam về định dạng 10 chữ số bắt đầu bằng 0 (dùng cho Zalo me)
  * Hỗ trợ: +84, 84, 0084, khoảng trắng, gạch nối, dấu chấm, 9 chữ số thiếu 0.
  * @param {string|number} rawPhone
@@ -1731,8 +1778,9 @@ document.addEventListener('DOMContentLoaded', () => {
       return null;
     }
 
-    // 1. Lọc đơn hàng
+    // 1. Lọc đơn hàng (Tự động loại trừ các đơn test nội bộ để số liệu thống kê chính xác 100%)
     const filteredOrders = (cachedOrders || []).filter(o => {
+      if (isInternalTestOrder(o)) return false;
       const isPaid = String(o.status || '').toUpperCase() === 'PAID';
       // Đối với đơn đã thanh toán: thời gian tiền về tài khoản (Dòng tiền / Doanh thu) là paid_at
       // Đối với đơn chưa thanh toán: thời gian tạo đơn là created_at
@@ -4020,6 +4068,10 @@ document.addEventListener('DOMContentLoaded', () => {
     contentBox.style.display = 'block';
 
     const isPaid = (order.status || '').toUpperCase() === 'PAID';
+    const isTest = isInternalTestOrder(order);
+    const testBadge = isTest 
+      ? '<span style="display:inline-block; font-size:0.67rem; font-weight:600; background:#f1f5f9; color:#475569; border:1px solid #cbd5e1; padding:1px 6px; border-radius:4px; vertical-align:middle;">Test nội bộ</span>'
+      : '';
     const amountVal = order.amount || 0;
     const orderId = order.order_id || '';
     const cleanPhone = normalizePhoneNumber(order.customer_phone);
@@ -4053,6 +4105,7 @@ document.addEventListener('DOMContentLoaded', () => {
           <div style="font-size: 1.05rem; font-weight: 700; color: #0f172a; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; letter-spacing: -0.01em; margin-top: 2px;">#${escapeHtml(orderId)}</div>
         </div>
         <div style="display: flex; align-items: center; gap: 8px;">
+          ${testBadge}
           ${isPaid 
             ? '<span class="badge-status badge-status-paid"><span class="status-dot"></span>Đã thanh toán</span>'
             : '<span class="badge-status badge-status-pending"><span class="status-dot"></span>Chờ thanh toán</span>'}
@@ -4307,11 +4360,21 @@ document.addEventListener('DOMContentLoaded', () => {
     const orderListBody = document.getElementById('orderListBody');
     if (!orderListBody) return;
     const searchVal = (document.getElementById('orderSearchInput')?.value || '').trim().toLowerCase();
-    const statusVal = document.getElementById('orderStatusFilter')?.value || 'ALL';
+    const statusVal = document.getElementById('orderStatusFilter')?.value || 'REAL_ONLY';
 
     const filtered = (cachedOrders || []).filter(order => {
-      const matchStatus = statusVal === 'ALL' || (order.status || '').toUpperCase() === statusVal;
-      if (!matchStatus) return false;
+      const isTest = isInternalTestOrder(order);
+
+      // Bộ lọc nguồn đơn & trạng thái:
+      // 'REAL_ONLY': Chỉ đơn khách thật (ẩn đơn test nội bộ)
+      // 'ALL': Tất cả đơn hàng (gồm cả đơn test)
+      // 'TEST_ONLY': Chỉ đơn test nội bộ
+      // 'PAID': Chỉ đơn đã thanh toán
+      // 'PENDING': Chỉ đơn chờ thanh toán
+      if (statusVal === 'REAL_ONLY' && isTest) return false;
+      if (statusVal === 'TEST_ONLY' && !isTest) return false;
+      if (statusVal === 'PAID' && (order.status || '').toUpperCase() !== 'PAID') return false;
+      if (statusVal === 'PENDING' && (order.status || '').toUpperCase() !== 'PENDING') return false;
 
       if (!searchVal) return true;
       const oId = String(order.order_id || '').toLowerCase();
@@ -4331,6 +4394,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     orderListBody.innerHTML = filtered.map(order => {
       const isPaid = (order.status || '').toUpperCase() === 'PAID';
+      const isTest = isInternalTestOrder(order);
+      const testBadge = isTest
+        ? '<span style="display:inline-block; font-size:0.67rem; font-weight:600; background:#f1f5f9; color:#475569; border:1px solid #cbd5e1; padding:1px 5px; border-radius:4px; margin-left:4px; vertical-align:middle;" title="Đơn test nội bộ của ban quản trị">Test nội bộ</span>'
+        : '';
       const statusBadge = isPaid
         ? '<span class="badge-status badge-status-paid"><span class="status-dot"></span>Đã thanh toán</span>'
         : '<span class="badge-status badge-status-pending"><span class="status-dot"></span>Chờ thanh toán</span>';
@@ -4422,7 +4489,7 @@ document.addEventListener('DOMContentLoaded', () => {
           <td style="text-align: center;">${couponHtml}</td>
           <td style="text-align: right;">${discountHtml}</td>
           <td style="text-align: right;"><strong style="color: var(--mint-primary); font-size: 0.82rem; font-family: ui-monospace, SFMono-Regular, Menlo, monospace;">${formatCurrency(order.amount || 0)}</strong></td>
-          <td style="text-align: center;">${statusBadge}</td>
+          <td style="text-align: center;"><div style="display:inline-flex; align-items:center; gap:4px; justify-content:center;">${statusBadge}${testBadge}</div></td>
           <td style="text-align: center; vertical-align: middle;">${qrThumbHtml}</td>
         </tr>
       `;
