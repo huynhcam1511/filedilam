@@ -5106,18 +5106,48 @@ function escapeHtml(value) {
     return !['percent','fixed'].includes(c.type) || (c.scope && c.scope !== 'all') || Number(c.min_items) > 0;
   }
 
+  function isComboProduct(p) {
+    if (!p) return false;
+    return p.is_combo === true || p.type === 'combo' || p.categoryId === 'combo' || (Array.isArray(p.combo_items) && p.combo_items.length > 0);
+  }
+
   function evaluateCoupon(c, subtotal) {
     const scope = c.scope || 'all';
     const rewardIds = c.reward_ids || [];
     const products = state.cart.map(e => getProductById(e.productId)).filter(Boolean);
-    const eligible = products.filter(p => p.price > 0 && !rewardIds.includes(p.id) && (
-      scope === 'all' || (scope === 'single' && p.type !== 'combo') || (scope === 'combo' && p.type === 'combo') ||
-      scope === 'category:' + p.categoryId || scope === 'product:' + p.id));
+
+    // PHƯƠNG ÁN 1: Mặc định tất cả các mã giảm giá chỉ áp dụng cho FILE LẺ (Loại trừ Combo đã có giá sốc)
+    // Trừ trường hợp quản trị viên cấu hình tường minh scope === 'combo'
+    const eligible = products.filter(p => {
+      if (p.price <= 0 || rewardIds.includes(p.id)) return false;
+      const isCombo = isComboProduct(p);
+
+      if (scope === 'combo') {
+        return isCombo;
+      }
+      // Mặc định (scope === 'all', 'single', 'category:...', 'product:...'): LOẠI TRỪ sản phẩm Combo
+      if (isCombo) return false;
+
+      if (scope === 'all' || scope === 'single') return true;
+      if (scope === 'category:' + p.categoryId) return true;
+      if (scope === 'product:' + p.id) return true;
+      return false;
+    });
+
     const count = new Set(eligible.map(p => p.id)).size;
     const required = Number(c.min_items || 0);
-    const base = scope === 'all' && !rewardIds.length ? subtotal : eligible.reduce((sum,p) =>
+    const base = eligible.reduce((sum, p) =>
       sum + p.price * state.cart.find(e => e.productId === p.id).quantity, 0);
     const invalid = error => ({error, amount:0});
+
+    // Thông báo lỗi chi tiết khi giỏ hàng chỉ có sản phẩm Combo
+    if (!eligible.length) {
+      const hasComboInCart = products.some(p => isComboProduct(p));
+      if (hasComboInCart && !products.some(p => !isComboProduct(p))) {
+        return invalid('Mã giảm giá không áp dụng cho sản phẩm Combo (đã hưởng ưu đãi giá sốc).');
+      }
+      return invalid('Chưa đủ sản phẩm phù hợp. ' + getCouponConditionText(c));
+    }
     if (!count || count < required) return invalid('Chưa đủ sản phẩm phù hợp. ' + getCouponConditionText(c));
     if (base < Number(c.min_order || 0)) return invalid('Giá trị sản phẩm đủ điều kiện chưa đạt ' + formatCurrency(c.min_order) + '.');
     const value = Number(c.value || 0);
