@@ -1868,7 +1868,7 @@ function escapeHtml(value) {
         e.stopPropagation();
         var prodId = btn.getAttribute("data-cart-id");
         if (prodId) {
-          addToCart(prodId, { openDrawer: false });
+          addToCart(prodId, { openDrawer: false, sourceElement: btn });
         }
       });
     });
@@ -2691,7 +2691,7 @@ function escapeHtml(value) {
         e.stopPropagation();
         var id = btn.getAttribute("data-cart-id");
         if (id) {
-          addToCart(id, { openDrawer: false });
+          addToCart(id, { openDrawer: false, sourceElement: btn });
         }
       });
     });
@@ -3888,12 +3888,14 @@ function escapeHtml(value) {
     var detailCartBtn = document.getElementById("openCartFromDetail");
 
     if (!targetEl) {
-      if (isDetailOpen && detailCartBtn) {
+      if (isDetailOpen && detailCartBtn && detailCartBtn.getBoundingClientRect().width > 0) {
         targetEl = detailCartBtn;
-      } else if (isMobile && cartFab && cartFab.classList.contains("is-visible")) {
+      } else if (openCartButton && openCartButton.getBoundingClientRect().width > 0) {
+        targetEl = openCartButton;
+      } else if (cartFab) {
         targetEl = cartFab;
       } else {
-        targetEl = openCartButton || cartFab || detailCartBtn;
+        targetEl = openCartButton || detailCartBtn;
       }
     }
 
@@ -5108,7 +5110,14 @@ function escapeHtml(value) {
 
   function isComboProduct(p) {
     if (!p) return false;
-    return p.is_combo === true || p.type === 'combo' || p.categoryId === 'combo' || (Array.isArray(p.combo_items) && p.combo_items.length > 0);
+    var nameLower = (typeof p.name === 'string' ? p.name.trim().toLowerCase() : '');
+    return p.is_combo === true || 
+           p.type === 'combo' || 
+           p.categoryId === 'combo' || 
+           (Array.isArray(p.combo_items) && p.combo_items.length > 0) ||
+           nameLower.startsWith('combo ') || 
+           nameLower.startsWith('combo-') ||
+           nameLower.includes(' + ');
   }
 
   function evaluateCoupon(c, subtotal) {
