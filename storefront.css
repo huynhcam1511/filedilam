@@ -3343,8 +3343,8 @@ body.checkout-page-open {
   margin: 0 auto !important;
   padding: 18px 24px 32px !important;
   display: grid !important;
-  grid-template-columns: minmax(0, 1.25fr) minmax(0, 0.95fr) !important;
-  column-gap: 52px !important;
+  grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.95fr) !important;
+  column-gap: 38px !important;
   row-gap: 28px !important;
   align-items: start !important;
   background: #ffffff !important;
