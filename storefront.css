@@ -6396,3 +6396,162 @@ body:not(.is-admin) #userProfile {
     margin-left: 4px;
   }
 }
+
+
+/* ========================================================
+   KINGFOODMART-STYLE PRODUCT PRICING & COMBO BOX BREAKDOWN
+   ======================================================== */
+.checkout-product-price-col {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  text-align: right;
+  gap: 3px;
+}
+
+.checkout-product-price-current {
+  color: #0f172a;
+  font-size: 0.92rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.checkout-product-price-original-row {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.74rem;
+  line-height: 1;
+}
+
+.checkout-product-price-original {
+  color: #94a3b8;
+  text-decoration: line-through;
+  font-weight: 400;
+}
+
+.checkout-product-badge-deal {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  font-size: 0.65rem;
+  font-weight: 600;
+  color: #ea580c;
+  background: #fff7ed;
+  border: 1px solid #ffedd5;
+  padding: 1px 5px;
+  border-radius: 4px;
+  letter-spacing: 0.2px;
+}
+
+/* COMBO BOX (Dashed Card with Nested Items) */
+.checkout-combo-container {
+  margin-bottom: 16px;
+  border-radius: 12px;
+  background: #f8fafc;
+  border: 1.5px dashed #cbd5e1;
+  padding: 14px 14px 10px;
+  transition: all 0.2s ease;
+}
+
+.checkout-combo-container:hover {
+  border-color: #94a3b8;
+  background: #f1f5f9;
+}
+
+.checkout-combo-main-row {
+  display: grid;
+  grid-template-columns: 60px minmax(0, 1fr) auto;
+  align-items: start;
+  gap: 12px;
+  padding-bottom: 10px;
+  border-bottom: 1px dashed #e2e8f0;
+}
+
+.checkout-combo-tag {
+  display: inline-block;
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: #0369a1;
+  background: #e0f2fe;
+  border: 1px solid #bae6fd;
+  padding: 1px 5px;
+  border-radius: 4px;
+  margin-bottom: 4px;
+}
+
+.checkout-combo-children-list {
+  margin-top: 10px;
+  padding-left: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.checkout-combo-child-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  font-size: 0.8rem;
+  color: #475569;
+}
+
+.checkout-combo-child-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.checkout-combo-child-avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  background: #ffffff center / cover no-repeat;
+  border: 1px solid #e2e8f0;
+  flex-shrink: 0;
+}
+
+.checkout-combo-child-title {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-weight: 500;
+}
+
+.checkout-combo-child-qty {
+  font-size: 0.72rem;
+  color: #94a3b8;
+  font-family: var(--font-mono, monospace);
+  flex-shrink: 0;
+}
+
+/* SAVINGS SUMMARY ROW */
+.checkout-savings-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  margin-top: 8px;
+  background: #ecfdf5;
+  border: 1px dashed #6ee7b7;
+  border-radius: 8px;
+  color: #065f46;
+  font-size: 0.82rem;
+  font-weight: 600;
+}
+
+.checkout-savings-val {
+  font-weight: 700;
+  color: #059669;
+  font-size: 0.95rem;
+}
+
+.checkout-discount-note {
+  display: block;
+  font-size: 0.72rem;
+  color: #94a3b8;
+  margin-top: 2px;
+  font-weight: 400;
+}

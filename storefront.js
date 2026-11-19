@@ -1984,7 +1984,6 @@ function escapeHtml(value) {
     var checkoutHeroTotal = document.getElementById("checkoutHeroTotal");
     var checkoutSubTotal = document.getElementById("checkoutSubTotal");
     var checkoutGrandTotal = document.getElementById("checkoutGrandTotal");
-    var total = getCartTotal();
 
     if (!detailedCart) {
       detailedCart = state.cart.map(function(entry) {
@@ -1997,21 +1996,72 @@ function escapeHtml(value) {
     var subtotal = getCartSubtotal();
     var discount = state.discountAmount || 0;
 
+    // Tính tổng giá gốc niêm yết (originalPrice) của toàn bộ sản phẩm trong giỏ
+    var originalSubtotal = 0;
+    detailedCart.forEach(function(item) {
+      var p = item.product;
+      var origP = 0;
+      if (p.originalPrice && p.originalPrice > p.price) {
+        origP = p.originalPrice;
+      } else if (isComboProduct(p)) {
+        // Nếu là combo, tính tổng giá gốc của các file con thành phần nếu có
+        var sumChildren = 0;
+        if (Array.isArray(p.combo_items) && p.combo_items.length > 0) {
+          p.combo_items.forEach(function(childId) {
+            var cp = getProductById(childId);
+            if (cp) sumChildren += (cp.originalPrice && cp.originalPrice > cp.price ? cp.originalPrice : (cp.price || 0));
+          });
+        }
+        origP = sumChildren > p.price ? sumChildren : (p.price * 2);
+      } else {
+        origP = p.price;
+      }
+      originalSubtotal += (origP * item.quantity);
+    });
+
+    // Tổng tiết kiệm = (Tổng giá gốc - Tổng tạm tính) + Tiền giảm voucher
+    var directSavings = Math.max(0, originalSubtotal - subtotal);
+    var totalSavings = directSavings + discount;
+
     if (checkoutHeroTotal) checkoutHeroTotal.textContent = formatCurrency(grandTotal);
     if (checkoutSubTotal) checkoutSubTotal.textContent = formatCurrency(subtotal);
     if (checkoutGrandTotal) checkoutGrandTotal.textContent = formatCurrency(grandTotal);
 
+    // Cập nhật dòng Giảm giá (Voucher)
     var discountRow = document.getElementById("checkoutDiscountRow");
     var discountVal = document.getElementById("checkoutDiscountVal");
     var discountLabel = document.getElementById("checkoutDiscountLabel");
+    var discountNote = document.getElementById("checkoutDiscountNote");
     if (discountRow) {
       if (discount > 0 && state.appliedCoupons.length) {
         discountRow.style.display = "flex";
         if (discountVal) discountVal.textContent = "-" + formatCurrency(discount);
         if (discountLabel) discountLabel.textContent = "Giảm giá (" + state.appliedCoupons[0].code + ")";
+        if (discountNote) {
+          var hasCombo = detailedCart.some(function(it) { return isComboProduct(it.product); });
+          if (hasCombo) {
+            discountNote.textContent = "(Áp dụng cho sản phẩm lẻ, không áp dụng Combo)";
+            discountNote.style.display = "block";
+          } else {
+            discountNote.style.display = "none";
+          }
+        }
       } else {
         discountRow.style.display = "none";
         if (discountVal) discountVal.textContent = "0 đ";
+        if (discountNote) discountNote.style.display = "none";
+      }
+    }
+
+    // Cập nhật dòng Tiết kiệm được (Kiểu Kingfoodmart)
+    var savingsRow = document.getElementById("checkoutSavingsRow");
+    var savingsVal = document.getElementById("checkoutSavingsVal");
+    if (savingsRow && savingsVal) {
+      if (totalSavings > 0) {
+        savingsRow.style.display = "flex";
+        savingsVal.textContent = formatCurrency(totalSavings);
+      } else {
+        savingsRow.style.display = "none";
       }
     }
 
@@ -2026,26 +2076,118 @@ function escapeHtml(value) {
     const gift = giftCoupon && getProductById(giftCoupon.reward_ids[0]);
     if (gift) detailedCart = detailedCart.concat({product:{...gift, name:'Quà tặng · ' + gift.name}, quantity:1, total:0});
     var canRemove = detailedCart.length > 1;
+
     checkoutItems.innerHTML = detailedCart
       .map(function (item) {
-        var productImage = item.product.previewImageUrl || item.product.thumbnailUrl || "";
-        var productDescription = item.product.subtitle || item.product.shortDescription || item.product.description || "File làm việc sẵn sàng sử dụng";
+        var p = item.product;
+        var productImage = p.previewImageUrl || p.thumbnailUrl || "";
+        var isCombo = isComboProduct(p);
+
+        // Tính giá gốc (originalPrice)
+        var origPrice = 0;
+        if (p.originalPrice && p.originalPrice > p.price) {
+          origPrice = p.originalPrice;
+        } else if (isCombo) {
+          var sumChildren = 0;
+          if (Array.isArray(p.combo_items) && p.combo_items.length > 0) {
+            p.combo_items.forEach(function(childId) {
+              var cp = getProductById(childId);
+              if (cp) sumChildren += (cp.originalPrice && cp.originalPrice > cp.price ? cp.originalPrice : (cp.price || 0));
+            });
+          }
+          origPrice = sumChildren > p.price ? sumChildren : (p.price * 2);
+        }
+
         var removeBtnHtml = canRemove ? (
-          '<button type="button" class="btn-checkout-remove-item" data-remove-id="' + escapeHtml(item.product.id) + '" title="Bỏ file này khỏi đơn" aria-label="Xóa file">' +
+          '<button type="button" class="btn-checkout-remove-item" data-remove-id="' + escapeHtml(p.id) + '" title="Bỏ file này khỏi đơn" aria-label="Xóa file">' +
             '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>' +
           '</button>'
         ) : '';
 
+        // Dòng giá theo chuẩn Kingfoodmart:
+        // Giá bán thực tế (đen đậm): 35.000 đ
+        // Giá gốc (gạch ngang màu xám/xanh nhạt bên cạnh): ~44.000 đ~ kèm nhãn nhỏ Ưu đãi màu cam nhạt
+        var priceBlockHtml = '<div class="checkout-product-price-col">' +
+          '<div class="checkout-product-price-current font-mono">' + formatCurrency(item.total) + '</div>';
+
+        if (origPrice && origPrice > p.price) {
+          priceBlockHtml += '<div class="checkout-product-price-original-row">' +
+            '<span class="checkout-product-price-original font-mono">' + formatCurrency(origPrice * item.quantity) + '</span>' +
+            '<span class="checkout-product-badge-deal">' +
+              '<svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>' +
+              'Ưu đãi' +
+            '</span>' +
+          '</div>';
+        }
+        priceBlockHtml += '</div>';
+
+        // NẾU LÀ SẢN PHẨM COMBO: Render dạng thẻ khung viền nét đứt kèm danh sách file thành phần
+        if (isCombo) {
+          var childrenHtml = '';
+          var comboChildList = [];
+          if (Array.isArray(p.combo_items) && p.combo_items.length > 0) {
+            p.combo_items.forEach(function(cId) {
+              var cp = getProductById(cId);
+              if (cp) comboChildList.push(cp);
+            });
+          }
+
+          // Fallback nếu chưa lưu combo_items trong DB: tách từ tên (VD: Combo Kho + Bán hàng)
+          if (comboChildList.length === 0 && p.name) {
+            var rawParts = p.name.replace(/^combos+/i, '').split(/[+&]/);
+            if (rawParts.length >= 2) {
+              rawParts.forEach(function(part) {
+                var cleanName = part.trim();
+                var matched = (data.products || []).find(function(cand) {
+                  return cand.name && cand.name.toLowerCase().includes(cleanName.toLowerCase());
+                });
+                comboChildList.push(matched || { name: cleanName, previewImageUrl: '' });
+              });
+            }
+          }
+
+          if (comboChildList.length > 0) {
+            childrenHtml = '<div class="checkout-combo-children-list">' +
+              comboChildList.map(function(child) {
+                var cImg = child.previewImageUrl || child.thumbnailUrl || '';
+                return '<div class="checkout-combo-child-item">' +
+                  '<div class="checkout-combo-child-left">' +
+                    '<div class="checkout-combo-child-avatar"' + (cImg ? ' style="background-image:url(&quot;' + escapeHtml(cImg) + '&quot;)"' : '') + '></div>' +
+                    '<span class="checkout-combo-child-title" title="' + escapeHtml(child.name) + '">' + escapeHtml(child.name) + '</span>' +
+                  '</div>' +
+                  '<span class="checkout-combo-child-qty">x1</span>' +
+                '</div>';
+              }).join('') +
+            '</div>';
+          }
+
+          return (
+            '<div class="checkout-combo-container">' +
+              '<div class="checkout-combo-main-row">' +
+                '<div class="checkout-product-avatar"' + (productImage ? ' style="background-image:url(&quot;' + escapeHtml(productImage) + '&quot;)"' : '') + '></div>' +
+                '<div class="checkout-product-copy">' +
+                  '<span class="checkout-combo-tag">COMBO TIẾT KIỆM</span>' +
+                  '<div class="checkout-product-heading-1">' + escapeHtml(p.name) + '</div>' +
+                '</div>' +
+                '<div class="checkout-product-action-col" style="display: flex; flex-direction: column; align-items: flex-end; justify-content: flex-start; gap: 4px;">' +
+                  priceBlockHtml +
+                  removeBtnHtml +
+                '</div>' +
+              '</div>' +
+              childrenHtml +
+            '</div>'
+          );
+        }
+
+        // SẢN PHẨM ĐƠN LẺ BÌNH THƯỜNG
         return (
           '<div class="checkout-product-row">' +
             '<div class="checkout-product-avatar"' + (productImage ? ' style="background-image:url(&quot;' + escapeHtml(productImage) + '&quot;)"' : '') + '></div>' +
             '<div class="checkout-product-copy">' +
-              '<div class="checkout-product-heading-1">' + escapeHtml(item.product.name) + '</div>' +
-                          '</div>' +
-            '<div class="checkout-product-action-col" style="display: flex; flex-direction: column; align-items: flex-end; justify-content: flex-start;">' +
-              '<div class="checkout-product-price font-mono">' +
-                formatCurrency(item.total) +
-              '</div>' +
+              '<div class="checkout-product-heading-1">' + escapeHtml(p.name) + '</div>' +
+            '</div>' +
+            '<div class="checkout-product-action-col" style="display: flex; flex-direction: column; align-items: flex-end; justify-content: flex-start; gap: 4px;">' +
+              priceBlockHtml +
               removeBtnHtml +
             '</div>' +
           '</div>'
@@ -5328,12 +5470,16 @@ function escapeHtml(value) {
   }
 
   function getCouponConditionText(coupon) {
-    if (coupon.description) return coupon.description;
     var discountText = coupon.type === "fixed"
       ? "Giảm " + formatCurrency(Number(coupon.value || 0))
       : "Giảm " + Number(coupon.value || 0) + "%";
     var minOrder = Number(coupon.min_order || 0);
-    return discountText + (minOrder > 0 ? " cho đơn từ " + formatCurrency(minOrder) : " cho mọi đơn hàng");
+    var scopeNote = (coupon.scope === 'combo') ? ' (chỉ áp dụng Combo)' : ' (không áp dụng Combo)';
+    var baseText = coupon.description || (discountText + (minOrder > 0 ? " cho đơn từ " + formatCurrency(minOrder) : " cho mọi đơn hàng"));
+    if (!baseText.toLowerCase().includes('combo')) {
+      baseText += scopeNote;
+    }
+    return baseText;
   }
 
   var isPromoCollapseOpen = false;
@@ -5441,10 +5587,7 @@ function escapeHtml(value) {
         appliedBar.style.display = "flex";
         if (appliedCodeDisplay) appliedCodeDisplay.textContent = active.code;
         if (appliedDescDisplay) {
-          var desc = active.type === "fixed"
-            ? "Giảm " + formatCurrency(Number(active.value || 0))
-            : "Giảm " + Number(active.value || 0) + "%";
-          appliedDescDisplay.textContent = active.description || desc;
+          appliedDescDisplay.textContent = getCouponConditionText(active);
         }
       }
       if (toggleWrap) toggleWrap.style.display = "none";
