@@ -6459,13 +6459,14 @@ body:not(.is-admin) #userProfile {
   flex-shrink: 0;
 }
 
-.checkout-combo-tag {
-  display: inline-block;
-  font-size: 0.7rem;
-  font-weight: 600;
+.checkout-combo-subtitle {
+  font-size: 0.75rem;
+  font-weight: 500;
   color: #059669;
-  margin-bottom: 2px;
-  letter-spacing: 0.2px;
+  margin-top: 3px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
 }
 
 .checkout-combo-children-list {
@@ -6517,31 +6518,15 @@ body:not(.is-admin) #userProfile {
   flex-shrink: 0;
 }
 
-/* SAVINGS SUMMARY ROW (CLEAN MINT PILL / SLATE BAR) */
-.checkout-savings-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 8px 12px;
-  margin-top: 10px;
-  background: #ecfdf5;
-  border: 1px solid #a7f3d0;
-  border-radius: 8px;
-  color: #065f46;
-  font-size: 0.8rem;
+/* FLAT SAVINGS TEXT (ZERO PILL, CLEAN FINTECH) */
+.checkout-savings-text {
+  font-size: 0.78rem;
   font-weight: 600;
-}
-
-.checkout-savings-val {
-  font-weight: 700;
   color: #059669;
-  font-size: 0.92rem;
+  margin-top: 2px;
+  letter-spacing: -0.1px;
 }
 
-.checkout-discount-note {
-  display: block;
-  font-size: 0.7rem;
-  color: #64748b;
-  margin-top: 2px;
-  font-weight: 400;
+.checkout-savings-text span {
+  font-weight: 700;
 }

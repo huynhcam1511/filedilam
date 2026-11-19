@@ -2027,29 +2027,18 @@ function escapeHtml(value) {
     if (checkoutSubTotal) checkoutSubTotal.textContent = formatCurrency(subtotal);
     if (checkoutGrandTotal) checkoutGrandTotal.textContent = formatCurrency(grandTotal);
 
-    // Cập nhật dòng Giảm giá (Voucher)
+    // Cập nhật dòng Giảm giá (Voucher) - Gọn sạch, không lặp lại giải thích thừa
     var discountRow = document.getElementById("checkoutDiscountRow");
     var discountVal = document.getElementById("checkoutDiscountVal");
     var discountLabel = document.getElementById("checkoutDiscountLabel");
-    var discountNote = document.getElementById("checkoutDiscountNote");
     if (discountRow) {
       if (discount > 0 && state.appliedCoupons.length) {
         discountRow.style.display = "flex";
         if (discountVal) discountVal.textContent = "-" + formatCurrency(discount);
         if (discountLabel) discountLabel.textContent = "Giảm giá (" + state.appliedCoupons[0].code + ")";
-        if (discountNote) {
-          var hasCombo = detailedCart.some(function(it) { return isComboProduct(it.product); });
-          if (hasCombo) {
-            discountNote.textContent = "(Áp dụng cho sản phẩm lẻ, không áp dụng Combo)";
-            discountNote.style.display = "block";
-          } else {
-            discountNote.style.display = "none";
-          }
-        }
       } else {
         discountRow.style.display = "none";
         if (discountVal) discountVal.textContent = "0 đ";
-        if (discountNote) discountNote.style.display = "none";
       }
     }
 
@@ -2158,8 +2147,8 @@ function escapeHtml(value) {
               '<div class="checkout-combo-main-row">' +
                 '<div class="checkout-product-avatar"' + (productImage ? ' style="background-image:url(&quot;' + escapeHtml(productImage) + '&quot;)"' : '') + '></div>' +
                 '<div class="checkout-product-copy">' +
-                  '<span class="checkout-combo-tag">Combo bao gồm ' + (comboChildList.length || 2) + ' file:</span>' +
                   '<div class="checkout-product-heading-1">' + escapeHtml(p.name) + '</div>' +
+                  '<div class="checkout-combo-subtitle">Bao gồm ' + (comboChildList.length || 2) + ' file thành phần:</div>' +
                 '</div>' +
                 '<div class="checkout-combo-action-wrap">' +
                   priceBlockHtml +

@@ -32,7 +32,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="./storefront.css?v=277" />
+    <link rel="stylesheet" href="./storefront.css?v=278" />
     <style>
     :root {
       --bg: #ffffff;
@@ -3009,23 +3009,19 @@
                   <span id="checkoutSubTotal">0 đ</span>
                 </div>
                 <div class="checkout-calc-row" id="checkoutDiscountRow" style="display: none;">
-                  <div class="checkout-discount-label" style="display: flex; flex-direction: column; align-items: flex-start;">
+                  <div class="checkout-discount-label">
                     <span id="checkoutDiscountLabel">Giảm giá</span>
-                    <span class="checkout-discount-note" id="checkoutDiscountNote"></span>
                   </div>
                   <span id="checkoutDiscountVal">-0 đ</span>
                 </div>
                 <div class="checkout-calc-row checkout-grand-row">
                   <span>Tổng thanh toán</span>
-                  <span id="checkoutGrandTotal">0 đ</span>
-                </div>
-                <!-- Dòng hiển thị tổng tiền tiết kiệm chuẩn Fintech -->
-                <div class="checkout-savings-row" id="checkoutSavingsRow" style="display: none;">
-                  <span style="display: inline-flex; align-items: center; gap: 6px;">
-                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path><line x1="7" y1="7" x2="7.01" y2="7"></line></svg>
-                    Tiết kiệm được
-                  </span>
-                  <span class="checkout-savings-val font-mono" id="checkoutSavingsVal">0 đ</span>
+                  <div style="text-align: right;">
+                    <div id="checkoutGrandTotal">0 đ</div>
+                    <div class="checkout-savings-text" id="checkoutSavingsRow" style="display: none;">
+                      Tiết kiệm <span id="checkoutSavingsVal" class="font-mono">0 đ</span> so với giá gốc
+                    </div>
+                  </div>
                 </div>
               </div>
               <div class="checkout-payment-notes">
@@ -3535,7 +3531,7 @@
     <script src="./storefront-data.js?v=22"></script>
     <script src="./storefront-products.generated.js?v=6"></script>
     <script src="assets/qrcode-generator-1.4.4.js"></script>
-    <script src="storefront.js?v=274"></script>
+    <script src="storefront.js?v=275"></script>
     <!-- Agentation: Visual Feedback & Annotation for AI agents -->
   <script src="./agentation-vanilla.js"></script>
 </body>
