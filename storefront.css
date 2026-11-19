@@ -6576,3 +6576,28 @@ body:not(.is-admin) #userProfile {
 .checkout-savings-text span {
   font-weight: 700;
 }
+
+
+/* CHECKOUT BOTTOM RELATED SECTION (FULL BLEED / IDENTICAL TO DETAIL PAGE) */
+.checkout-related-section {
+  width: 100%;
+  border-top: 1px solid #f1f5f9;
+  background: #ffffff;
+  padding: 36px 0 60px;
+  margin-top: 24px;
+}
+
+.checkout-related-container {
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 0 24px;
+  box-sizing: border-box;
+}
+
+.checkout-related-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #0f172a;
+  margin-bottom: 20px;
+  letter-spacing: -0.3px;
+}

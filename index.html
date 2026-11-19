@@ -32,7 +32,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="./storefront.css?v=280" />
+    <link rel="stylesheet" href="./storefront.css?v=281" />
     <style>
     :root {
       --bg: #ffffff;
@@ -3028,15 +3028,16 @@
                 <div id="qrCountdownContainer" aria-live="polite"><span>Mã có hiệu lực trong <strong id="qrTimerDisplay">10:00</strong></span></div>
               </div>
 
-              <!-- Grab-style Upsell Add-on Section (Placed below totals so it doesn't interrupt items -> price) -->
-              <div class="checkout-upsell-box" id="checkoutUpsellBox" style="display: none;">
-                <div class="checkout-upsell-header">
-                  <span>Gợi ý mua kèm ưu đãi</span>
-                </div>
-                <div class="checkout-upsell-list" id="checkoutUpsellList"></div>
-              </div>
             </div>
 
+          </div>
+        </div>
+
+        <!-- Khối gợi ý mua kèm đặt ở chân toàn bộ màn hình thanh toán chuẩn Detail -->
+        <div class="checkout-related-section" id="checkoutUpsellBox" style="display: none;">
+          <div class="checkout-related-container">
+            <h3 class="checkout-related-title">Các file template liên quan khác</h3>
+            <div class="detail-related-grid" id="checkoutUpsellList"></div>
           </div>
         </div>
 
@@ -3531,7 +3532,7 @@
     <script src="./storefront-data.js?v=22"></script>
     <script src="./storefront-products.generated.js?v=6"></script>
     <script src="assets/qrcode-generator-1.4.4.js"></script>
-    <script src="storefront.js?v=277"></script>
+    <script src="storefront.js?v=278"></script>
     <!-- Agentation: Visual Feedback & Annotation for AI agents -->
   <script src="./agentation-vanilla.js"></script>
 </body>

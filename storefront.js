@@ -2196,9 +2196,21 @@ function escapeHtml(value) {
     var upsellList = document.getElementById("checkoutUpsellList");
     if (!upsellBox || !upsellList) return;
 
-    var cartProductIds = (state.cart || []).map(function(item) { return item.productId; });
+    // 1. Gom toàn bộ ID của sản phẩm trong giỏ và các file con của combo trong giỏ
+    var excludedProductIds = new Set();
+    (state.cart || []).forEach(function(item) {
+      excludedProductIds.add(item.productId);
+      var p = getProductById(item.productId);
+      if (p) {
+        if (Array.isArray(p.combo_items)) {
+          p.combo_items.forEach(function(cId) { excludedProductIds.add(cId); });
+        }
+      }
+    });
+
+    // 2. Lọc sản phẩm gợi ý: Không nằm trong danh sách đã có trong đơn
     var availableUpsells = (data.products || []).filter(function(prod) {
-      return !cartProductIds.includes(prod.id);
+      return !excludedProductIds.has(prod.id);
     });
 
     if (!availableUpsells.length) {
@@ -2206,41 +2218,66 @@ function escapeHtml(value) {
       return;
     }
 
-    // Chọn tối đa 2 sản phẩm gợi ý để tránh rối danh sách đơn hàng
-    var upsellItems = availableUpsells.slice(0, 2);
+    // Chọn 3 sản phẩm phù hợp nhất để hiển thị lưới chân trang Checkout
+    var upsellItems = availableUpsells.slice(0, 3);
     upsellBox.style.display = "block";
-    upsellList.innerHTML = upsellItems.map(function(prod) {
-      var thumb = prod.previewImageUrl || prod.thumbnailUrl || '';
+
+    upsellList.innerHTML = upsellItems.map(function(item) {
+      var itemImg = item.thumbnailUrl || item.previewImageUrl || '';
+      var itemRating = getProductRatingDisplay(item);
+      var isCombo = isComboProduct(item);
+
       return (
-        '<div class="checkout-upsell-item" style="display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 10px 0; border-bottom: 1px dashed #f1f5f9; background: transparent;">' +
-          '<div style="display: flex; align-items: center; gap: 10px; min-width: 0; flex: 1;">' +
-            '<div style="width: 38px; height: 38px; border-radius: 6px; background-size: cover; background-position: center; border: 1px solid #e2e8f0; flex-shrink: 0; background-image: url(&quot;' + escapeHtml(thumb) + '&quot;);"></div>' +
-            '<div style="min-width: 0; flex: 1;">' +
-              '<div style="font-size: 0.84rem; font-weight: 600; color: #0f172a; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">' + escapeHtml(prod.name) + '</div>' +
-              '<div style="display: flex; align-items: baseline; gap: 6px; font-size: 0.82rem; margin-top: 2px;">' +
-                '<span style="font-weight: 600; color: #0f172a;">' + formatCurrency(prod.price) + '</span>' +
-                (prod.originalPrice && prod.originalPrice > prod.price ? '<span style="color: #059669; text-decoration: line-through; font-size: 0.75rem; font-weight: 500;">' + formatCurrency(prod.originalPrice) + '</span>' : '') +
+        '<div class="product-card" data-detail-id="' + escapeHtml(item.id) + '">' +
+          '<div class="product-thumb" style="aspect-ratio:1/1; background-image:url(&quot;' + escapeHtml(itemImg) + '&quot;); background-size:cover; background-position:center; border-radius:12px; border:1px solid #e2e8f0; position:relative;">' +
+            '<span class="product-type-badge">' + (isCombo ? 'Combo' : (item.type === 'google_sheets' ? 'Sheets' : 'Web App')) + '</span>' +
+          '</div>' +
+          '<div class="product-info" style="display:flex; flex-direction:column; gap:6px; margin-top:8px;">' +
+            '<h4 class="product-name" style="font-size:0.95rem; font-weight:600; color:#0f172a; margin:0; line-height:1.3; min-height:2.6em; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden;">' + escapeHtml(item.name) + '</h4>' +
+            '<div style="display:flex; align-items:baseline; gap:8px;">' +
+              '<span style="font-size:1.05rem; font-weight:700; color:#0f172a; font-family:var(--font-mono);">' + formatCurrency(item.price) + '</span>' +
+              (item.originalPrice && item.originalPrice > item.price ? '<span style="font-size:0.8rem; color:#059669; text-decoration:line-through; font-weight:500;">' + formatCurrency(item.originalPrice) + '</span>' : '') +
+            '</div>' +
+            '<div class="product-card-footer">' +
+              '<div style="display:inline-flex; align-items:center; gap:4px; font-size:0.8rem;">' +
+                '<span style="color:#d97706; font-weight:700;">★ ' + itemRating.score + '</span>' +
+                '<span style="color:#64748b; font-weight:500;">(' + itemRating.sales + ')</span>' +
               '</div>' +
+              '<button class="btn-card-add-cart btn-checkout-related-add" type="button" data-cart-id="' + escapeHtml(item.id) + '" title="Thêm vào đơn hàng" aria-label="Thêm vào đơn hàng">' +
+                '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">' +
+                  '<circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle>' +
+                  '<path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>' +
+                '</svg>' +
+                '<span>Thêm giỏ</span>' +
+              '</button>' +
             '</div>' +
           '</div>' +
-          '<button type="button" class="btn-checkout-upsell-add" data-upsell-id="' + escapeHtml(prod.id) + '" style="background: transparent; border: 1px solid #059669; color: #059669; font-size: 0.75rem; font-weight: 700; padding: 4px 10px; border-radius: 6px; cursor: pointer; flex-shrink: 0; display: inline-flex; align-items: center; gap: 3px; transition: all 0.15s ease;" onmouseover="this.style.background=\'#059669\'; this.style.color=\'#fff\';" onmouseout="this.style.background=\'transparent\'; this.style.color=\'#059669\';">' +
-            '<span>Thêm</span>' +
-          '</button>' +
         '</div>'
       );
     }).join("");
 
-    Array.prototype.forEach.call(upsellList.querySelectorAll(".btn-checkout-upsell-add"), function(btn) {
+    // Bấm nút "Thêm giỏ" trên thẻ: Tự động cập nhật vào đơn hàng ở trên
+    Array.prototype.forEach.call(upsellList.querySelectorAll(".btn-checkout-related-add"), function(btn) {
       btn.addEventListener("click", function(e) {
         e.preventDefault();
         e.stopPropagation();
-        var id = btn.getAttribute("data-upsell-id");
+        var id = btn.getAttribute("data-cart-id");
         if (id) {
-          addToCart(id, { openDrawer: false });
-          invalidateActiveOrderOnCartOrCouponChange("Đã thêm sản phẩm ưu đãi vào đơn hàng!");
+          addToCart(id, { openDrawer: false, sourceElement: btn });
+          invalidateActiveOrderOnCartOrCouponChange("Đã cập nhật lại đơn hàng!");
           renderCart();
-          showToast("Đã thêm vào đơn hàng thành công!");
+          renderCheckoutSummary();
+          showToast("Đã thêm file vào đơn hàng thành công!");
         }
+      });
+    });
+
+    // Bấm vào thân thẻ: Mở xem chi tiết file
+    Array.prototype.forEach.call(upsellList.querySelectorAll(".product-card"), function(card) {
+      card.addEventListener("click", function(e) {
+        if (e.target.closest(".btn-checkout-related-add")) return;
+        var pId = card.getAttribute("data-detail-id");
+        if (pId) openDetail(pId);
       });
     });
   }
