@@ -3685,6 +3685,7 @@ body.checkout-page-open {
   to { opacity: 1; transform: translateY(0); }
 }
 
+/* ELEGANT INTEGRATED PROMO INPUT BAR */
 .checkout-promo-input-form {
   margin: 8px 0 10px 0;
 }
@@ -3692,58 +3693,74 @@ body.checkout-page-open {
 .promo-input-wrap,
 .coupon-input-group {
   display: flex;
-  gap: 8px;
-  width: 100%;
   align-items: center;
+  position: relative;
+  width: 100%;
+  background: #ffffff;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 2px 4px 2px 12px;
+  transition: all 0.2s ease;
+}
+
+.promo-input-wrap:focus-within,
+.coupon-input-group:focus-within {
+  border-color: #059669;
+  box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.08);
 }
 
 .checkout-promo-input,
 .checkout-coupon-input {
   flex: 1;
-  height: 38px;
-  border: 1px solid #cbd5e1;
-  border-radius: 8px;
-  padding: 0 12px;
-  font-size: 0.85rem;
-  font-weight: 600;
+  height: 36px;
+  border: none !important;
+  background: transparent !important;
+  padding: 0 8px 0 0;
+  font-size: 0.82rem;
+  font-weight: 500;
   color: #0f172a;
-  text-transform: uppercase;
-  background: #ffffff;
-  font-family: var(--font-mono, monospace);
-  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  outline: none !important;
+  box-shadow: none !important;
+  font-family: var(--font-main, inherit);
 }
 
-.checkout-promo-input:focus,
-.checkout-coupon-input:focus {
-  outline: none;
-  border-color: #059669;
-  box-shadow: 0 0 0 2px rgba(5, 150, 105, 0.15);
+.checkout-promo-input::placeholder,
+.checkout-coupon-input::placeholder {
+  color: #94a3b8;
+  font-weight: 400;
+  text-transform: none;
+  font-family: var(--font-main, inherit);
 }
 
 .btn-promo-apply,
 .btn-apply-coupon {
-  height: 38px;
-  padding: 0 16px;
-  background: #059669;
-  color: #ffffff;
-  font-size: 0.82rem;
+  height: 32px;
+  padding: 0 14px;
+  background: #f1f5f9;
+  color: #059669;
+  font-size: 0.8rem;
   font-weight: 600;
-  border: none;
-  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
   cursor: pointer;
   white-space: nowrap;
-  transition: background 0.15s ease;
+  transition: all 0.15s ease;
   font-family: inherit;
+  flex-shrink: 0;
 }
 
 .btn-promo-apply:hover,
 .btn-apply-coupon:hover {
-  background: #047857;
+  background: #059669;
+  border-color: #059669;
+  color: #ffffff;
 }
 
 .btn-promo-apply:disabled,
 .btn-apply-coupon:disabled {
-  background: #94a3b8;
+  background: #f8fafc;
+  border-color: #e2e8f0;
+  color: #94a3b8;
   cursor: not-allowed;
 }
 
@@ -3761,25 +3778,49 @@ body.checkout-page-open {
 
 .checkout-coupon-option {
   width: 100%;
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  column-gap: 14px;
-  row-gap: 4px;
+  display: flex;
   align-items: center;
+  justify-content: space-between;
   padding: 10px 12px;
   border: 1px solid #e2e8f0;
   border-radius: 8px;
-  background: #fff;
+  background: #ffffff;
   text-align: left;
+  transition: all 0.15s ease;
+  cursor: pointer;
 }
-.checkout-coupon-option-selected{grid-column:2;grid-row:1;color:#059669;font-size:.76rem;font-weight:600;white-space:nowrap}
-.checkout-coupon-option-condition{grid-column:1 / -1;grid-row:2}
-.checkout-coupon-option.is-selected .checkout-coupon-option-code{color:#065f46}
-.checkout-coupon-option.is-selected{background:#f8fdfb;border-color:#a7f3d0}
-.checkout-coupon-option.is-selected .checkout-coupon-option-selected{text-decoration:underline;text-underline-offset:3px}
 
 .checkout-coupon-option:hover {
-  color: #047857;
+  border-color: #cbd5e1;
+  background: #f8fafc;
+}
+
+.checkout-coupon-option-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.checkout-coupon-option-selected {
+  font-size: 0.76rem;
+  font-weight: 600;
+  color: #059669;
+  background: #ecfdf5;
+  border: 1px solid #a7f3d0;
+  padding: 3px 8px;
+  border-radius: 5px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.checkout-coupon-option.is-selected {
+  background: #f0fdf4;
+  border-color: #a7f3d0;
+}
+
+.checkout-coupon-option.is-selected .checkout-coupon-option-code {
+  color: #065f46;
 }
 
 .checkout-coupon-option-code {

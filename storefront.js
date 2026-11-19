@@ -5745,9 +5745,11 @@ function escapeHtml(value) {
       checkoutCouponList.innerHTML = publicCoupons.map(function (coupon) {
         var selected = state.appliedCoupons.some(function(active) { return active.code === coupon.code; });
         return '<button type="button" class="checkout-coupon-option' + (selected ? ' is-selected' : '') + '" aria-pressed="' + selected + '" data-coupon-code="' + escapeHtml(coupon.code) + '">' +
-          '<span class="checkout-coupon-option-code">' + escapeHtml(coupon.code) + '</span>' +
-          '<span class="checkout-coupon-option-condition">' + escapeHtml(getCouponConditionText(coupon)) + '</span>' +
-          '<span class="checkout-coupon-option-selected">' + (selected ? 'Bỏ chọn' : 'Chọn mã') + '</span>' +
+          '<div class="checkout-coupon-option-info">' +
+            '<span class="checkout-coupon-option-code">' + escapeHtml(coupon.code) + '</span>' +
+            '<span class="checkout-coupon-option-condition">' + escapeHtml(getCouponConditionText(coupon)) + '</span>' +
+          '</div>' +
+          '<span class="checkout-coupon-option-selected">' + (selected ? 'Đã chọn' : 'Dùng mã') + '</span>' +
         '</button>';
       }).join("");
 
