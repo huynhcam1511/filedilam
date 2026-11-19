@@ -3536,13 +3536,14 @@ body.checkout-page-open {
 .checkout-grand-row {
   font-size: 1.08rem;
   font-weight: 700;
-  color: #047857;
+  color: #0f172a;
   padding-top: 2px;
 }
 
 #checkoutGrandTotal {
   font-size: 1.25rem;
   font-weight: 800;
+  color: #0f172a;
 }
 
 /* Coupon Box */
@@ -6460,9 +6461,9 @@ body:not(.is-admin) #userProfile {
 
 .checkout-product-price-original {
   font-size: 0.76rem;
-  color: #94a3b8;
+  color: #059669;
   text-decoration: line-through;
-  font-weight: 400;
+  font-weight: 500;
 }
 
 /* COMBO ITEM FLAT CLEAN WRAPPER */

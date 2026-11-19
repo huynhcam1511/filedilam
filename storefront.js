@@ -2219,7 +2219,7 @@ function escapeHtml(value) {
               '<div style="font-size: 0.84rem; font-weight: 600; color: #0f172a; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">' + escapeHtml(prod.name) + '</div>' +
               '<div style="display: flex; align-items: baseline; gap: 6px; font-size: 0.82rem; margin-top: 2px;">' +
                 '<span style="font-weight: 600; color: #0f172a;">' + formatCurrency(prod.price) + '</span>' +
-                (prod.originalPrice && prod.originalPrice > prod.price ? '<span style="color: #94a3b8; text-decoration: line-through; font-size: 0.75rem;">' + formatCurrency(prod.originalPrice) + '</span>' : '') +
+                (prod.originalPrice && prod.originalPrice > prod.price ? '<span style="color: #059669; text-decoration: line-through; font-size: 0.75rem; font-weight: 500;">' + formatCurrency(prod.originalPrice) + '</span>' : '') +
               '</div>' +
             '</div>' +
           '</div>' +
