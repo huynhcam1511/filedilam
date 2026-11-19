@@ -6520,6 +6520,10 @@ body:not(.is-admin) #userProfile {
 
 /* FLAT SAVINGS TEXT (ZERO PILL, CLEAN FINTECH) */
 .checkout-savings-text {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 4px;
   font-size: 0.78rem;
   font-weight: 600;
   color: #059669;
