@@ -6435,10 +6435,28 @@ body:not(.is-admin) #userProfile {
 }
 
 .checkout-combo-main-row {
-  display: grid;
-  grid-template-columns: 56px minmax(0, 1fr) auto auto;
-  align-items: center;
+  display: flex;
+  align-items: flex-start;
   gap: 12px;
+}
+
+.checkout-combo-main-row .checkout-product-avatar {
+  width: 56px;
+  height: 56px;
+  flex-shrink: 0;
+  border-radius: 8px;
+}
+
+.checkout-combo-main-row .checkout-product-copy {
+  flex: 1;
+  min-width: 0;
+}
+
+.checkout-combo-main-row .checkout-combo-action-wrap {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
 }
 
 .checkout-combo-tag {

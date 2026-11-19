@@ -2161,8 +2161,10 @@ function escapeHtml(value) {
                   '<span class="checkout-combo-tag">Combo bao gồm ' + (comboChildList.length || 2) + ' file:</span>' +
                   '<div class="checkout-product-heading-1">' + escapeHtml(p.name) + '</div>' +
                 '</div>' +
-                priceBlockHtml +
-                removeBtnHtml +
+                '<div class="checkout-combo-action-wrap">' +
+                  priceBlockHtml +
+                  removeBtnHtml +
+                '</div>' +
               '</div>' +
               childrenHtml +
             '</div>'
