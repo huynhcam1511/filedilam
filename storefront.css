@@ -3622,16 +3622,18 @@ body.checkout-page-open {
 }
 
 .btn-checkout-remove-item {
-  background: none;
+  background: transparent;
   border: none;
-  padding: 5px;
+  padding: 0;
+  width: 26px;
+  height: 26px;
   color: #94a3b8;
   cursor: pointer;
   border-radius: 6px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  margin-top: 4px;
+  margin: 0;
   transition: all 0.15s ease;
   flex-shrink: 0;
 }
@@ -4219,10 +4221,10 @@ body.checkout-page-open {
   .checkout-product-action-col {
     width: auto !important;
     display: flex !important;
-    flex-direction: column !important;
-    align-items: flex-end !important;
-    justify-content: center !important;
-    gap: 4px !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    justify-content: flex-end !important;
+    gap: 8px !important;
     margin-top: 0 !important;
     padding-top: 0 !important;
     border-top: none !important;
@@ -6497,7 +6499,16 @@ body:not(.is-admin) #userProfile {
 .checkout-combo-main-row .checkout-combo-action-wrap {
   display: flex;
   align-items: center;
-  gap: 10px;
+  justify-content: flex-end;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.checkout-product-action-col {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
   flex-shrink: 0;
 }
 
