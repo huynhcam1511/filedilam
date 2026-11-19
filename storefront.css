@@ -6399,14 +6399,15 @@ body:not(.is-admin) #userProfile {
 
 
 /* ========================================================
-   KINGFOODMART-STYLE PRODUCT PRICING & COMBO BOX BREAKDOWN
+   MINIMALIST FINTECH CHECKOUT PRICING & COMBO (V2.4 STANDARD)
    ======================================================== */
 .checkout-product-price-col {
   display: flex;
   flex-direction: column;
   align-items: flex-end;
   text-align: right;
-  gap: 3px;
+  gap: 2px;
+  line-height: 1.25;
 }
 
 .checkout-product-price-current {
@@ -6416,76 +6417,47 @@ body:not(.is-admin) #userProfile {
   white-space: nowrap;
 }
 
-.checkout-product-price-original-row {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  font-size: 0.74rem;
-  line-height: 1;
-}
-
 .checkout-product-price-original {
+  font-size: 0.76rem;
   color: #94a3b8;
   text-decoration: line-through;
   font-weight: 400;
 }
 
-.checkout-product-badge-deal {
-  display: inline-flex;
-  align-items: center;
-  gap: 2px;
-  font-size: 0.65rem;
-  font-weight: 600;
-  color: #ea580c;
-  background: #fff7ed;
-  border: 1px solid #ffedd5;
-  padding: 1px 5px;
-  border-radius: 4px;
-  letter-spacing: 0.2px;
-}
-
-/* COMBO BOX (Dashed Card with Nested Items) */
+/* COMBO ITEM FLAT CLEAN WRAPPER */
 .checkout-combo-container {
-  margin-bottom: 16px;
-  border-radius: 12px;
+  margin-bottom: 14px;
+  border-radius: 10px;
   background: #f8fafc;
-  border: 1.5px dashed #cbd5e1;
-  padding: 14px 14px 10px;
-  transition: all 0.2s ease;
-}
-
-.checkout-combo-container:hover {
-  border-color: #94a3b8;
-  background: #f1f5f9;
+  border: 1px solid #e2e8f0;
+  border-left: 3px solid #059669;
+  padding: 12px 12px 10px;
 }
 
 .checkout-combo-main-row {
   display: grid;
-  grid-template-columns: 60px minmax(0, 1fr) auto;
-  align-items: start;
+  grid-template-columns: 56px minmax(0, 1fr) auto auto;
+  align-items: center;
   gap: 12px;
-  padding-bottom: 10px;
-  border-bottom: 1px dashed #e2e8f0;
 }
 
 .checkout-combo-tag {
   display: inline-block;
-  font-size: 0.65rem;
-  font-weight: 700;
-  color: #0369a1;
-  background: #e0f2fe;
-  border: 1px solid #bae6fd;
-  padding: 1px 5px;
-  border-radius: 4px;
-  margin-bottom: 4px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: #059669;
+  margin-bottom: 2px;
+  letter-spacing: 0.2px;
 }
 
 .checkout-combo-children-list {
-  margin-top: 10px;
-  padding-left: 12px;
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px dashed #e2e8f0;
+  padding-left: 8px;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 6px;
 }
 
 .checkout-combo-child-item {
@@ -6493,23 +6465,22 @@ body:not(.is-admin) #userProfile {
   align-items: center;
   justify-content: space-between;
   gap: 10px;
-  font-size: 0.8rem;
-  color: #475569;
+  font-size: 0.78rem;
+  color: #64748b;
 }
 
 .checkout-combo-child-left {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
   min-width: 0;
 }
 
-.checkout-combo-child-avatar {
-  width: 28px;
-  height: 28px;
-  border-radius: 6px;
-  background: #ffffff center / cover no-repeat;
-  border: 1px solid #e2e8f0;
+.checkout-combo-child-bullet {
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: #10b981;
   flex-shrink: 0;
 }
 
@@ -6518,40 +6489,41 @@ body:not(.is-admin) #userProfile {
   overflow: hidden;
   text-overflow: ellipsis;
   font-weight: 500;
+  color: #475569;
 }
 
 .checkout-combo-child-qty {
-  font-size: 0.72rem;
+  font-size: 0.7rem;
   color: #94a3b8;
   font-family: var(--font-mono, monospace);
   flex-shrink: 0;
 }
 
-/* SAVINGS SUMMARY ROW */
+/* SAVINGS SUMMARY ROW (CLEAN MINT PILL / SLATE BAR) */
 .checkout-savings-row {
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: 8px 12px;
-  margin-top: 8px;
+  margin-top: 10px;
   background: #ecfdf5;
-  border: 1px dashed #6ee7b7;
+  border: 1px solid #a7f3d0;
   border-radius: 8px;
   color: #065f46;
-  font-size: 0.82rem;
+  font-size: 0.8rem;
   font-weight: 600;
 }
 
 .checkout-savings-val {
   font-weight: 700;
   color: #059669;
-  font-size: 0.95rem;
+  font-size: 0.92rem;
 }
 
 .checkout-discount-note {
   display: block;
-  font-size: 0.72rem;
-  color: #94a3b8;
+  font-size: 0.7rem;
+  color: #64748b;
   margin-top: 2px;
   font-weight: 400;
 }

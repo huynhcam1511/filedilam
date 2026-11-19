@@ -2111,17 +2111,11 @@ function escapeHtml(value) {
           '<div class="checkout-product-price-current font-mono">' + formatCurrency(item.total) + '</div>';
 
         if (origPrice && origPrice > p.price) {
-          priceBlockHtml += '<div class="checkout-product-price-original-row">' +
-            '<span class="checkout-product-price-original font-mono">' + formatCurrency(origPrice * item.quantity) + '</span>' +
-            '<span class="checkout-product-badge-deal">' +
-              '<svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>' +
-              'Ưu đãi' +
-            '</span>' +
-          '</div>';
+          priceBlockHtml += '<span class="checkout-product-price-original font-mono">' + formatCurrency(origPrice * item.quantity) + '</span>';
         }
         priceBlockHtml += '</div>';
 
-        // NẾU LÀ SẢN PHẨM COMBO: Render dạng thẻ khung viền nét đứt kèm danh sách file thành phần
+        // NẾU LÀ SẢN PHẨM COMBO: Render dạng thẻ phẳng tinh gọn kèm danh sách file thành phần
         if (isCombo) {
           var childrenHtml = '';
           var comboChildList = [];
@@ -2132,16 +2126,15 @@ function escapeHtml(value) {
             });
           }
 
-          // Fallback nếu chưa lưu combo_items trong DB: tách từ tên (VD: Combo Kho + Bán hàng)
           if (comboChildList.length === 0 && p.name) {
-            var rawParts = p.name.replace(/^combos+/i, '').split(/[+&]/);
+            var rawParts = p.name.replace(/^combo\s+/i, '').split(/[\+&]/);
             if (rawParts.length >= 2) {
               rawParts.forEach(function(part) {
                 var cleanName = part.trim();
                 var matched = (data.products || []).find(function(cand) {
                   return cand.name && cand.name.toLowerCase().includes(cleanName.toLowerCase());
                 });
-                comboChildList.push(matched || { name: cleanName, previewImageUrl: '' });
+                comboChildList.push(matched || { name: cleanName });
               });
             }
           }
@@ -2149,10 +2142,9 @@ function escapeHtml(value) {
           if (comboChildList.length > 0) {
             childrenHtml = '<div class="checkout-combo-children-list">' +
               comboChildList.map(function(child) {
-                var cImg = child.previewImageUrl || child.thumbnailUrl || '';
                 return '<div class="checkout-combo-child-item">' +
                   '<div class="checkout-combo-child-left">' +
-                    '<div class="checkout-combo-child-avatar"' + (cImg ? ' style="background-image:url(&quot;' + escapeHtml(cImg) + '&quot;)"' : '') + '></div>' +
+                    '<span class="checkout-combo-child-bullet"></span>' +
                     '<span class="checkout-combo-child-title" title="' + escapeHtml(child.name) + '">' + escapeHtml(child.name) + '</span>' +
                   '</div>' +
                   '<span class="checkout-combo-child-qty">x1</span>' +
@@ -2166,13 +2158,11 @@ function escapeHtml(value) {
               '<div class="checkout-combo-main-row">' +
                 '<div class="checkout-product-avatar"' + (productImage ? ' style="background-image:url(&quot;' + escapeHtml(productImage) + '&quot;)"' : '') + '></div>' +
                 '<div class="checkout-product-copy">' +
-                  '<span class="checkout-combo-tag">COMBO TIẾT KIỆM</span>' +
+                  '<span class="checkout-combo-tag">Combo bao gồm ' + (comboChildList.length || 2) + ' file:</span>' +
                   '<div class="checkout-product-heading-1">' + escapeHtml(p.name) + '</div>' +
                 '</div>' +
-                '<div class="checkout-product-action-col" style="display: flex; flex-direction: column; align-items: flex-end; justify-content: flex-start; gap: 4px;">' +
-                  priceBlockHtml +
-                  removeBtnHtml +
-                '</div>' +
+                priceBlockHtml +
+                removeBtnHtml +
               '</div>' +
               childrenHtml +
             '</div>'
@@ -2186,7 +2176,7 @@ function escapeHtml(value) {
             '<div class="checkout-product-copy">' +
               '<div class="checkout-product-heading-1">' + escapeHtml(p.name) + '</div>' +
             '</div>' +
-            '<div class="checkout-product-action-col" style="display: flex; flex-direction: column; align-items: flex-end; justify-content: flex-start; gap: 4px;">' +
+            '<div class="checkout-product-action-col" style="display: flex; align-items: center; justify-content: flex-end; gap: 10px;">' +
               priceBlockHtml +
               removeBtnHtml +
             '</div>' +
