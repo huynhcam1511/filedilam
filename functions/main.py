@@ -642,8 +642,11 @@ File Đi Làm - https://filedilam.web.app
 
 def send_retention_voucher_email(customer_email, customer_name, order_id, order_data=None):
     """
-    EMAIL 2 ĐỘC LẬP: Thư cảm ơn & Tấm thẻ Voucher Tri Ân MEMBER30 kèm Logo File Đi Làm.
-    Gửi riêng biệt sau khi kích hoạt đơn hàng, không làm loãng hướng dẫn nhận file.
+    EMAIL 3 ĐỘC LẬP: Thư cảm ơn và quà tặng đồng hành (Chăm sóc & hỗ trợ công việc sau 30-60 phút).
+    - Tiêu đề: Thư cảm ơn và quà tặng đồng hành gửi bạn [Tên] - File Đi Làm
+    - Tông giọng: Tự nhiên, chân thành như một người đồng nghiệp/sáng lập gửi hỗ trợ công việc.
+    - Tránh các từ ngữ kích hoạt bộ lọc quảng cáo (Voucher, giảm %, khuyến mãi sốc).
+    - Đặc quyền: Tài trợ 30% chi phí (tối đa 20.000đ) khi cần thêm giải pháp đồng hành.
     """
     if not customer_email or "@" not in customer_email:
         return False
@@ -685,28 +688,37 @@ def send_retention_voucher_email(customer_email, customer_name, order_id, order_
             p_name = sp["name"]
             p_type = sp["type"]
             p_id = sp["id"]
-            p_orig = sp["original_price"]
             p_price = sp["price"]
             discount_val = min(int(p_price * 0.3), 20000)
             member_price = p_price - discount_val
-            orig_fmt = f"{p_orig:,}".replace(",", ".") + " đ"
             price_fmt = f"{p_price:,}".replace(",", ".") + " đ"
             member_fmt = f"{member_price:,}".replace(",", ".") + " đ"
-            saved_fmt = f"{discount_val:,}".replace(",", ".") + " đ"
 
             direct_buy_url = f"https://filedilam.web.app/?add={p_id}&{user_params}"
 
             cards_html.append(f"""
-            <div style="background-color: #ffffff; border: 1px solid #cbd5e1; border-radius: 8px; padding: 14px 16px; margin-bottom: 12px; text-align: left;">
-              <div style="font-weight: 700; color: #0f172a; font-size: 14px;">📁 {p_name} <span style="font-size: 11px; font-weight: 500; color: #059669; background: #ecfdf5; padding: 2px 6px; border-radius: 4px; border: 1px solid #a7f3d0;">{p_type}</span></div>
-              <div style="margin: 6px 0; font-size: 12.5px; color: #64748b; line-height: 1.5;">
-                Giá gốc: <span style="text-decoration: line-through;">{orig_fmt}</span> &nbsp;&middot;&nbsp; 
-                Giá niêm yết: <span style="color: #334155; font-weight: 600;">{price_fmt}</span><br>
-                Ưu đãi thành viên giảm 30%: <strong style="color: #059669; font-size: 13.5px;">{member_fmt}</strong> <span style="color: #d97706; font-size: 11.5px; font-weight: 600;">(Tiết kiệm {saved_fmt})</span>
+            <div style="background-color: #ffffff; border: 1px solid #e2e8f0; border-radius: 8px; padding: 16px 18px; margin-bottom: 12px; text-align: left;">
+              <table style="width: 100%; border-collapse: collapse;">
+                <tr>
+                  <td style="vertical-align: top;">
+                    <div style="font-size: 14.5px; font-weight: 700; color: #0f172a; margin-bottom: 4px;">
+                      {p_name}
+                    </div>
+                    <div style="font-size: 12px; color: #059669; font-weight: 500; margin-bottom: 8px;">
+                      &bull; {p_type}
+                    </div>
+                    <div style="font-size: 13px; color: #64748b; line-height: 1.6;">
+                      Chi phí chuẩn: <span>{price_fmt}</span><br>
+                      Hỗ trợ thành viên File Đi Làm: <strong style="color: #059669; font-size: 14px;">{member_fmt}</strong>
+                    </div>
+                  </td>
+                </tr>
+              </table>
+              <div style="margin-top: 12px;">
+                <a href="{direct_buy_url}" target="_blank" rel="noopener noreferrer" style="display: block; text-align: center; background-color: #059669; color: #ffffff; text-decoration: none; font-size: 13.5px; font-weight: 700; padding: 11px 16px; border-radius: 6px; letter-spacing: 0.2px;">
+                  Xem chi tiết &amp; Nhận giải pháp ({member_fmt}) &rarr;
+                </a>
               </div>
-              <a href="{direct_buy_url}" target="_blank" rel="noopener noreferrer" style="display: block; text-align: center; background-color: #059669; color: #ffffff; text-decoration: none; font-size: 13px; font-weight: 700; padding: 10px 14px; border-radius: 6px; margin-top: 8px;">
-                👉 Bấm để mua ngay chỉ {member_fmt} (Đã áp mã MEMBER30)
-              </a>
             </div>
             """)
 
@@ -718,12 +730,12 @@ def send_retention_voucher_email(customer_email, customer_name, order_id, order_
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Quà tặng tri ân thành viên - File Đi Làm</title>
+<title>Thư cảm ơn và quà tặng đồng hành gửi bạn {customer_name or ''} - File Đi Làm</title>
 </head>
 <body style="margin: 0; padding: 32px 16px; background-color: #f8fafc; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; color: #0f172a; line-height: 1.6; -webkit-font-smoothing: antialiased;">
   <div style="max-width: 580px; margin: 0 auto; background-color: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden;">
     
-    <!-- Header: Có Logo chính thức File Đi Làm -->
+    <!-- Header: Thanh lịch kèm Logo chính thức -->
     <div style="padding: 24px 32px 20px 32px; border-bottom: 1px solid #f1f5f9;">
       <table style="width: 100%; border-collapse: collapse;">
         <tr>
@@ -732,52 +744,58 @@ def send_retention_voucher_email(customer_email, customer_name, order_id, order_
           </td>
           <td style="padding-left: 12px; vertical-align: middle;">
             <div style="font-size: 17px; font-weight: 700; color: #0f172a; letter-spacing: -0.3px; line-height: 1.2;">File Đi Làm</div>
-            <div style="font-size: 13px; color: #059669; font-weight: 600; margin-top: 2px;">🎁 Thư cảm ơn & Quà tặng tri ân thành viên</div>
+            <div style="font-size: 13px; color: #64748b; margin-top: 2px;">Thư cảm ơn &amp; Đồng hành cùng công việc của bạn</div>
           </td>
         </tr>
       </table>
     </div>
 
-    <!-- Body -->
+    <!-- Body Content -->
     <div style="padding: 28px 32px 32px 32px;">
       <p style="font-size: 15px; margin: 0 0 14px 0; color: #334155;">
-        Xin chào <strong>{customer_name or 'Quý khách'}</strong>,
+        Chào <strong>{customer_name or 'bạn'}</strong>,
       </p>
-      <p style="font-size: 14px; margin: 0 0 20px 0; color: #475569; line-height: 1.6;">
-        Cảm ơn bạn đã tin tưởng sở hữu giải pháp từ <strong>File Đi Làm</strong>. Đội ngũ hy vọng file đã giúp công việc và việc quản lý của bạn trở nên bài bản, nhẹ nhàng hơn mỗi ngày.
+      <p style="font-size: 14px; margin: 0 0 14px 0; color: #334155; line-height: 1.65;">
+        Mình là Cẩm từ đội ngũ <strong>File Đi Làm</strong>. Trước hết, mình xin gửi lời cảm ơn chân thành vì bạn đã tin tưởng lựa chọn giải pháp từ hệ thống.
+      </p>
+      <p style="font-size: 14px; margin: 0 0 20px 0; color: #475569; line-height: 1.65;">
+        Không biết là bạn đã kịp mở file và bắt đầu thao tác thử chưa? Trong quá trình nhập liệu hoặc vận hành thực tế, nếu gặp bất kỳ vướng mắc nào về cách dùng hoặc cần điều chỉnh thêm theo thói quen làm việc, bạn cứ nhắn tin Zalo cho mình bất cứ lúc nào qua số <strong>0938 134 576</strong> nhé. Đội ngũ luôn sẵn sàng hỗ trợ bạn.
       </p>
 
-      <!-- Thẻ Voucher Tri Ân Chuẩn Fintech -->
-      <div style="margin: 20px 0 24px 0; padding: 20px 22px; background-color: #f8fafc; border: 1.5px solid #e2e8f0; border-radius: 10px;">
-        <div style="font-size: 14px; font-weight: 700; color: #0f172a; margin-bottom: 8px;">
-          🎁 ĐẶC QUYỀN DÀNH RIÊNG CHO BẠN: VOUCHER GIẢM 30%
+      <!-- Khối Quà Tặng Đồng Hành Thiết Kế Phẳng & Tinh Tế -->
+      <div style="margin: 22px 0 24px 0; padding: 22px 24px; background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px;">
+        <div style="font-size: 14.5px; font-weight: 700; color: #0f172a; margin-bottom: 6px; letter-spacing: -0.2px;">
+          ĐẶC QUYỀN ĐỒNG HÀNH CÙNG BẠN
         </div>
-        <div style="font-size: 13px; color: #475569; line-height: 1.6; margin-bottom: 16px;">
-          Mã voucher độc quyền: <strong style="font-family: monospace; font-size: 15px; color: #059669; background: #ecfdf5; padding: 3px 10px; border-radius: 4px; border: 1px solid #a7f3d0;">MEMBER30</strong><br>
-          Mức giảm: <strong>30% (tối đa 20.000đ)</strong> áp dụng cho bất kỳ sản phẩm nào trên hệ thống.
+        <p style="font-size: 13.5px; color: #475569; line-height: 1.65; margin: 0 0 14px 0;">
+          Để đồng hành lâu dài cùng công việc của bạn, hệ thống đã kích hoạt sẵn đặc quyền tài trợ <strong>30% chi phí (tối đa 20.000đ)</strong> dành riêng cho bạn khi cần mở rộng thêm các file quản lý tiếp theo.
+        </p>
+        <div style="font-size: 13.5px; color: #334155; margin-bottom: 16px;">
+          Mã đặc quyền của bạn: <span style="font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; font-size: 14.5px; font-weight: 700; color: #059669; background: #ecfdf5; padding: 3px 8px; border-radius: 4px; border: 1px solid #a7f3d0;">MEMBER30</span>
         </div>
 
-        <div style="font-size: 12.5px; font-weight: 700; color: #334155; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 0.3px;">
-          💡 Gợi ý 2 file bổ trợ tốt nhất cho công việc của bạn:
+        <div style="font-size: 12.5px; font-weight: 700; color: #334155; margin-bottom: 12px; text-transform: uppercase; letter-spacing: 0.3px;">
+          2 giải pháp bổ trợ thường được dùng kèm hiệu quả nhất:
         </div>
         {suggested_box_html}
 
-        <div style="text-align: center; margin-top: 14px;">
-          <a href="{explore_all_url}" target="_blank" rel="noopener noreferrer" style="font-size: 13px; color: #059669; font-weight: 600; text-decoration: underline;">
-            Khám phá toàn bộ kho file (Tự động kích hoạt mã MEMBER30) &rarr;
+        <div style="text-align: center; margin-top: 16px;">
+          <a href="{explore_all_url}" target="_blank" rel="noopener noreferrer" style="font-size: 13.5px; color: #059669; font-weight: 600; text-decoration: underline;">
+            Khám phá thêm các giải pháp khác (Đã kích hoạt sẵn MEMBER30) &rarr;
           </a>
         </div>
       </div>
 
-      <!-- Lời nhắn & Zalo hỗ trợ -->
-      <div style="margin-top: 24px; padding-top: 18px; border-top: 1px solid #f1f5f9; font-size: 13px; color: #64748b; line-height: 1.5;">
-        Nếu bạn cần hỗ trợ thêm về cách vận hành hoặc có nhu cầu tùy chỉnh thêm tính năng theo quy trình riêng, đừng ngần ngại nhắn Zalo cho mình qua số: <strong style="color: #0f172a;">0938 134 576</strong> nhé!<br><br>
-        Chúc công việc của bạn luôn hanh thông và thuận lợi!<br>
-        <strong>Đội ngũ File Đi Làm</strong>
+      <!-- Lời kết chân thành -->
+      <div style="margin-top: 24px; padding-top: 18px; border-top: 1px solid #f1f5f9; font-size: 13.5px; color: #64748b; line-height: 1.65;">
+        Chúc công việc của bạn luôn trôi chảy và đạt hiệu suất cao nhất mỗi ngày!<br><br>
+        Thân mến,<br>
+        <strong style="color: #0f172a;">Kiên Cẩm &amp; Đội ngũ File Đi Làm</strong><br>
+        <span style="font-size: 12.5px; color: #94a3b8;">Hotline / Zalo hỗ trợ: 0938 134 576</span>
       </div>
     </div>
 
-    <!-- Footer -->
+    <!-- Footer phẳng, tối giản -->
     <div style="padding: 16px 32px; background-color: #f8fafc; border-top: 1px solid #f1f5f9; font-size: 12px; color: #94a3b8; text-align: center; line-height: 1.5;">
       File Đi Làm &middot; Hệ thống quản lý và tự động hoá quy trình trên Google Sheets<br>
       Website: <a href="https://filedilam.web.app" target="_blank" style="color: #64748b; text-decoration: underline;">filedilam.web.app</a>
@@ -786,20 +804,26 @@ def send_retention_voucher_email(customer_email, customer_name, order_id, order_
 </body>
 </html>"""
 
-        plain_text = f"""Xin chào {customer_name or 'Quý khách'},
+        plain_text = f"""Chào {customer_name or 'bạn'},
 
-Cảm ơn bạn đã tin tưởng sở hữu sản phẩm từ File Đi Làm!
-Đội ngũ xin gửi tặng bạn mã tri ân MEMBER30 (Giảm 30% tối đa 20.000đ cho đơn hàng tiếp theo).
+Mình là Cẩm từ đội ngũ File Đi Làm. Cảm ơn bạn rất nhiều vì đã tin tưởng lựa chọn giải pháp từ hệ thống!
 
-Bạn có thể chọn file và sử dụng ưu đãi tại:
+Không biết bạn đã kịp mở file thao tác thử chưa? Nếu có bất kỳ câu hỏi nào trong quá trình sử dụng, bạn cứ nhắn tin cho mình qua Zalo số 0938 134 576 nhé.
+
+Để đồng hành lâu dài cùng bạn, hệ thống đã kích hoạt sẵn mã đặc quyền tài trợ 30% chi phí cho giải pháp tiếp theo:
+Mã đặc quyền: MEMBER30
+
+Bạn có thể tham khảo thêm tại:
 https://filedilam.web.app/?coupon=MEMBER30
 
-Chúc bạn làm việc hiệu quả và thành công!
-File Đi Làm - Hotline/Zalo: 0938 134 576
+Chúc công việc của bạn luôn trôi chảy và hiệu quả!
+Thân mến,
+Kiên Cẩm - File Đi Làm
+Hotline/Zalo: 0938 134 576
 """
 
         msg = MIMEMultipart("alternative")
-        msg["Subject"] = f"🎁 [Quà tặng thành viên] Gửi tặng {customer_name or 'bạn'} Voucher giảm 30% từ File Đi Làm"
+        msg["Subject"] = f"Thư cảm ơn và quà tặng đồng hành gửi bạn {customer_name or 'bạn'} - File Đi Làm"
         msg["From"] = f'"File Đi Làm" <{SMTP_USER}>'
         msg["To"] = customer_email
         msg["Reply-To"] = "huynhkiencam151102@gmail.com"
@@ -812,12 +836,11 @@ File Đi Làm - Hotline/Zalo: 0938 134 576
         server.login(SMTP_USER, SMTP_PASS)
         server.sendmail(SMTP_USER, [customer_email], msg.as_string())
         server.quit()
-        print(f"[Email] Đã gửi email tri ân voucher MEMBER30 tới {customer_email}")
+        print(f"[Email] Đã gửi thư cảm ơn & quà tặng đồng hành tới {customer_email}")
         return True
     except Exception as e:
-        print(f"[Email] Lỗi gửi email tri ân voucher MEMBER30 tới {customer_email}: {e}")
+        print(f"[Email] Lỗi gửi thư cảm ơn tới {customer_email}: {e}")
         return False
-
 
 def send_order_success_email(customer_email, customer_name, order_id, order_data):
     """
@@ -2591,6 +2614,56 @@ except Exception:
 schedule_kwargs = {"schedule": "every 10 minutes"}
 if VN_TZ is not None:
     schedule_kwargs["timezone"] = VN_TZ
+
+def process_paid_order_retention_vouchers(db=None, schedule_time=None) -> dict:
+    """
+    Quét các đơn hàng PAID đã thanh toán từ 30 phút đến 24 giờ trước (retention_voucher_sent_at is None),
+    tự động gửi Thư cảm ơn và quà tặng đồng hành (MEMBER30) sau khi khách đã làm quen với file,
+    giúp tăng tỷ lệ đọc ở tab Primary và trải nghiệm tự nhiên nhất.
+    """
+    if db is None:
+        db = get_db()
+
+    now = parse_to_utc_datetime(schedule_time) or datetime.now(timezone.utc)
+    processed_ids = []
+
+    try:
+        paid_stream = db.collection("orders").where("status", "==", "PAID").stream()
+        for doc in paid_stream:
+            order_data = doc.to_dict() if hasattr(doc, "to_dict") else {}
+            order_id = str(order_data.get("id") or getattr(doc, "id", "")).strip().upper()
+            if not order_id:
+                continue
+
+            # Đã gửi thư cảm ơn rồi thì bỏ qua
+            if order_data.get("retention_voucher_sent_at"):
+                continue
+
+            # Tính thời gian từ lúc thanh toán thành công (hoặc lúc tạo đơn)
+            paid_at = parse_to_utc_datetime(order_data.get("paid_at") or order_data.get("updated_at") or order_data.get("created_at"))
+            if not paid_at:
+                continue
+
+            age_seconds = (now - paid_at).total_seconds()
+
+            # Gửi sau 30 phút (>= 1800 giây) và trong vòng 24 giờ (<= 86400 giây)
+            if 1800 <= age_seconds <= 86400:
+                cust_email = str(order_data.get("customer_email") or "").strip()
+                cust_name = order_data.get("customer_name") or ""
+
+                if cust_email and "@" in cust_email and not cust_email.endswith("@khachhang.filedilam.vn"):
+                    try:
+                        # Đánh dấu đã gửi trước để chống duplicate
+                        doc.reference.update({"retention_voucher_sent_at": now})
+                        send_retention_voucher_email(cust_email, cust_name, order_id, order_data)
+                        processed_ids.append(order_id)
+                        print(f"[Retention Scheduler] Đã gửi thư cảm ơn cho đơn #{order_id} ({cust_email}) sau {int(age_seconds/60)} phút")
+                    except Exception as err:
+                        print(f"[Retention Scheduler] Lỗi gửi thư cảm ơn đơn #{order_id}: {err}")
+    except Exception as e:
+        print(f"[Retention Scheduler] Lỗi quét đơn hàng PAID: {e}")
+
+    return {"retention_processed_count": len(processed_ids), "order_ids": processed_ids}
 
 @scheduler_fn.on_schedule(**schedule_kwargs)
 def check_pending_orders_reminder(event: scheduler_fn.ScheduledEvent) -> None:
