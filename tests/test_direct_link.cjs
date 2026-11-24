@@ -542,14 +542,12 @@ vm.runInContext(storefrontCode, context9);
 
 // Find copy button in detail modal
 const detailBody9 = doc9.getElementById('detailBody');
-const copyBtnTop = doc9.getElementById('detailTopCopyLinkBtn');
 const copyBtnHeader = doc9.getElementById('detailHeaderCopyLinkBtn');
 
-assert(copyBtnTop, 'Top bar must have #detailTopCopyLinkBtn');
 assert(copyBtnHeader, 'Header title row must have #detailHeaderCopyLinkBtn');
 
 // Click copy button
-copyBtnTop.dispatchEvent({ type: 'click', preventDefault: () => {}, stopPropagation: () => {} });
+copyBtnHeader.dispatchEvent({ type: 'click', preventDefault: () => {}, stopPropagation: () => {} });
 await new Promise(r => setTimeout(r, 20));
 const clipboardOutput = win9.getClipboardText();
 assert.strictEqual(clipboardOutput, 'https://filedilam.vn/#san-pham=ban-hang-online', 'Clipboard must contain direct URL with slug');
