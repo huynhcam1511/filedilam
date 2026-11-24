@@ -60,98 +60,324 @@ get_zalo_chat_url = get_zalo_link
 def ensure_copy_link(url):
     raw = str(url or "").strip()
     if "docs.google.com/spreadsheets" in raw:
-        m = re.search(r"docs\.google\.com/spreadsheets/d/([a-zA-Z0-9_-]+)", raw)
+        m = re.search(r"docs\.google\.com/spreadsheets/(?:u/\d+/)?d/([a-zA-Z0-9_-]+)", raw)
         if m:
             return f"https://docs.google.com/spreadsheets/d/{m.group(1)}/copy"
+    if "drive.google.com" in raw:
+        m = re.search(r"drive\.google\.com/(?:(?:u/\d+/)?file/d/|open\?id=)([a-zA-Z0-9_-]+)", raw)
+        if m:
+            return f"https://drive.google.com/file/d/{m.group(1)}/copy"
     return raw
 
-def send_order_success_email(customer_email, customer_name, order_id, order_data):
+def normalize_product_type(ptype_str, name=""):
+    """
+    Chuẩn hoá định dạng sản phẩm:
+    - apps_script / web_app -> 'apps_script'
+    - google_sheets / excel -> 'google_sheets'
+    """
+    raw = str(ptype_str or "").strip().lower().replace("-", "_").replace(" ", "_")
+    if raw in ["apps_script", "appscript", "web_app", "webapp", "google_apps_script", "app_script"]:
+        return "apps_script"
+    if raw in ["google_sheets", "googlesheets", "sheet", "sheets", "excel", "xlsx", "google_sheet"]:
+        return "google_sheets"
+
+    # Fallback kiểm tra từ khóa trong tên file nếu chưa có định dạng rõ ràng
+    name_lower = str(name or "").lower()
+    if any(kw in name_lower for kw in ["web app", "webapp", "apps script", "appscript", "google apps script"]):
+        return "apps_script"
+    return "google_sheets"
+
+
+def extract_combo_items(order_data):
+    """
+    Bóc tách và chuẩn hóa danh sách các file con trong đơn hàng combo:
+    Mỗi file con trả về đảm bảo đủ các trường:
+    - product_name (tên file con)
+    - product_file_url (link copy chuẩn)
+    - product_type ('apps_script' hoặc 'google_sheets')
+    """
+    if not isinstance(order_data, dict):
+        return []
+
+    # 1. Bóc tách và chuẩn hóa danh sách combo_items cấp cao nhất (nếu có)
+    raw_combo = order_data.get("combo_items")
+    normalized_combo = []
+    if isinstance(raw_combo, list) and len(raw_combo) > 0:
+        for it in raw_combo:
+            if isinstance(it, dict):
+                c_name = it.get("product_name") or it.get("name") or it.get("title") or "File Đã Mua"
+                c_url = ensure_copy_link(it.get("product_file_url") or it.get("sheetUrl") or it.get("delivery_link") or it.get("file_url") or "")
+                c_type = normalize_product_type(it.get("product_type") or it.get("type"), c_name)
+                normalized_combo.append({
+                    "product_id": str(it.get("product_id") or it.get("id") or ""),
+                    "product_name": c_name,
+                    "product_file_url": c_url,
+                    "product_type": c_type
+                })
+            elif isinstance(it, str) and it.strip():
+                cid = it.strip()
+                try:
+                    db_conn = get_db()
+                    if db_conn:
+                        c_doc = db_conn.collection("products").document(cid).get()
+                        if c_doc.exists:
+                            cd = c_doc.to_dict()
+                            c_name = cd.get("name") or "File Google Sheets"
+                            c_url = ensure_copy_link(cd.get("sheetUrl") or cd.get("delivery_link") or cd.get("fileUrl") or "")
+                            c_type = normalize_product_type(cd.get("type"), c_name)
+                            normalized_combo.append({
+                                "product_id": cid,
+                                "product_name": c_name,
+                                "product_file_url": c_url,
+                                "product_type": c_type
+                            })
+                except Exception:
+                    pass
+
+    # 2. Bóc tách và mở rộng từ danh sách items (nếu có)
+    items = order_data.get("items")
+    expanded_from_items = []
+    if isinstance(items, list) and len(items) > 0:
+        for it in items:
+            if not isinstance(it, dict):
+                continue
+            nested = it.get("combo_items")
+            if isinstance(nested, list) and len(nested) > 0:
+                for c in nested:
+                    if isinstance(c, dict):
+                        c_name = c.get("product_name") or c.get("name") or c.get("title") or "File Đã Mua"
+                        c_url = ensure_copy_link(c.get("product_file_url") or c.get("sheetUrl") or c.get("delivery_link") or c.get("file_url") or "")
+                        c_type = normalize_product_type(c.get("product_type") or c.get("type"), c_name)
+                        expanded_from_items.append({
+                            "product_id": str(c.get("product_id") or c.get("id") or ""),
+                            "product_name": c_name,
+                            "product_file_url": c_url,
+                            "product_type": c_type
+                        })
+                    elif isinstance(c, str) and c.strip():
+                        cid = c.strip()
+                        try:
+                            db_conn = get_db()
+                            if db_conn:
+                                c_doc = db_conn.collection("products").document(cid).get()
+                                if c_doc.exists:
+                                    cd = c_doc.to_dict()
+                                    c_name = cd.get("name") or "File Google Sheets"
+                                    c_url = ensure_copy_link(cd.get("sheetUrl") or cd.get("delivery_link") or cd.get("fileUrl") or "")
+                                    c_type = normalize_product_type(cd.get("type"), c_name)
+                                    expanded_from_items.append({
+                                        "product_id": cid,
+                                        "product_name": c_name,
+                                        "product_file_url": c_url,
+                                        "product_type": c_type
+                                    })
+                        except Exception:
+                            pass
+            else:
+                # Kiểm tra nếu item này là combo nhưng chưa được lồng combo_items
+                it_name = str(it.get("product_name") or it.get("name") or it.get("title") or "")
+                it_name_lower = it_name.lower()
+                is_it_combo = (
+                    it.get("is_combo") is True
+                    or str(it.get("product_type") or "").lower() == "combo"
+                    or str(it.get("type") or "").lower() == "combo"
+                    or it_name_lower.startswith("combo ")
+                    or it_name_lower.startswith("combo-")
+                    or it_name_lower.startswith("combo:")
+                    or it_name_lower.startswith("gói combo")
+                    or (isinstance(it.get("child_links"), list) and len(it.get("child_links")) > 1)
+                )
+                expanded_sub = []
+                it_pid = it.get("product_id")
+                if is_it_combo and it_pid:
+                    try:
+                        db_conn = get_db()
+                        if db_conn:
+                            p_doc = db_conn.collection("products").document(str(it_pid)).get()
+                            if p_doc.exists:
+                                p_dict = p_doc.to_dict()
+                                db_combo = p_dict.get("combo_items")
+                                if isinstance(db_combo, list) and len(db_combo) > 0:
+                                    for cid in db_combo:
+                                        if isinstance(cid, str):
+                                            c_doc = db_conn.collection("products").document(cid).get()
+                                            if c_doc.exists:
+                                                cd = c_doc.to_dict()
+                                                expanded_sub.append({
+                                                    "product_id": cid,
+                                                    "product_name": cd.get("name") or "File Google Sheets",
+                                                    "product_file_url": ensure_copy_link(cd.get("sheetUrl") or cd.get("delivery_link") or cd.get("fileUrl") or ""),
+                                                    "product_type": normalize_product_type(cd.get("type"), cd.get("name"))
+                                                })
+                                        elif isinstance(cid, dict):
+                                            c_name = cid.get("product_name") or cid.get("name") or "File Google Sheets"
+                                            expanded_sub.append({
+                                                "product_id": str(cid.get("product_id") or cid.get("id") or ""),
+                                                "product_name": c_name,
+                                                "product_file_url": ensure_copy_link(cid.get("product_file_url") or cid.get("sheetUrl") or ""),
+                                                "product_type": normalize_product_type(cid.get("product_type") or cid.get("type"), c_name)
+                                            })
+                    except Exception:
+                        pass
+                if len(expanded_sub) > 1:
+                    expanded_from_items.extend(expanded_sub)
+                elif is_it_combo and ("+" in it_name or " & " in it_name):
+                    clean_it_name = re.sub(r'^(combo\s*[\-:]*|\s*gói\s*combo[\s\-:]*)', '', it_name, flags=re.I).strip()
+                    it_parts = [p.strip() for p in re.split(r'\s*\+\s*|\s+&\s+', clean_it_name) if p.strip()]
+                    if len(it_parts) >= 2:
+                        it_links = it.get("child_links") or []
+                        for idx, part in enumerate(it_parts):
+                            p_url = it_links[idx] if (idx < len(it_links) and it_links[idx]) else (it.get("product_file_url") or "")
+                            expanded_from_items.append({
+                                "product_id": "",
+                                "product_name": part,
+                                "product_file_url": ensure_copy_link(p_url),
+                                "product_type": normalize_product_type("", part)
+                            })
+                    else:
+                        c_name = it_name or "File Đã Mua"
+                        c_url = ensure_copy_link(it.get("product_file_url") or it.get("sheetUrl") or it.get("delivery_link") or it.get("file_url") or "")
+                        c_type = normalize_product_type(it.get("product_type") or it.get("type"), c_name)
+                        expanded_from_items.append({
+                            "product_id": str(it.get("product_id") or it.get("id") or ""),
+                            "product_name": c_name,
+                            "product_file_url": c_url,
+                            "product_type": c_type
+                        })
+                else:
+                    c_name = it_name or "File Đã Mua"
+                    c_url = ensure_copy_link(it.get("product_file_url") or it.get("sheetUrl") or it.get("delivery_link") or it.get("file_url") or "")
+                    c_type = normalize_product_type(it.get("product_type") or it.get("type"), c_name)
+                    expanded_from_items.append({
+                        "product_id": str(it.get("product_id") or it.get("id") or ""),
+                        "product_name": c_name,
+                        "product_file_url": c_url,
+                        "product_type": c_type
+                    })
+
+    # Quyết định kết quả bóc tách tối ưu nhất:
+    # Ưu tiên danh sách có nhiều file thực tế hơn (tránh trường hợp items chứa combo chưa mở rộng lấn át combo_items đã mở rộng)
+    if len(normalized_combo) > 1 and len(normalized_combo) >= len(expanded_from_items):
+        return normalized_combo
+    if len(expanded_from_items) > 1:
+        return expanded_from_items
+    if len(normalized_combo) > 0:
+        return normalized_combo
+    if len(expanded_from_items) > 0:
+        return expanded_from_items
+
+    # 3. Kiểm tra cờ combo hoặc từ khóa tên combo
+    order_ptype = str(order_data.get("product_type") or "").lower()
+    is_combo_flag = order_data.get("is_combo") is True or order_ptype == "combo"
+    prod_name = str(order_data.get("product_name") or "")
+    if not is_combo_flag:
+        name_lower = prod_name.lower()
+        if (
+            name_lower.startswith("combo ")
+            or name_lower.startswith("combo-")
+            or name_lower.startswith("combo:")
+            or name_lower.startswith("gói combo")
+            or (isinstance(order_data.get("child_links"), list) and len(order_data.get("child_links")) > 1)
+        ):
+            is_combo_flag = True
+
+    # 4. Tra cứu từ Firestore DB nếu có database connection và product_id là combo
+    pid = order_data.get("product_id")
+    if pid and is_combo_flag:
+        try:
+            db_conn = get_db()
+            if db_conn:
+                p_doc = db_conn.collection("products").document(str(pid)).get()
+                if p_doc.exists:
+                    p_dict = p_doc.to_dict()
+                    db_combo = p_dict.get("combo_items")
+                    if isinstance(db_combo, list) and len(db_combo) > 0:
+                        child_items = []
+                        for cid in db_combo:
+                            if isinstance(cid, str):
+                                c_doc = db_conn.collection("products").document(cid).get()
+                                if c_doc.exists:
+                                    cd = c_doc.to_dict()
+                                    child_items.append({
+                                        "product_id": cid,
+                                        "product_name": cd.get("name") or "File Google Sheets",
+                                        "product_file_url": ensure_copy_link(cd.get("sheetUrl") or cd.get("delivery_link") or cd.get("fileUrl") or ""),
+                                        "product_type": normalize_product_type(cd.get("type"), cd.get("name"))
+                                    })
+                            elif isinstance(cid, dict):
+                                c_name = cid.get("product_name") or cid.get("name") or cid.get("title") or "File Google Sheets"
+                                c_url = ensure_copy_link(cid.get("product_file_url") or cid.get("sheetUrl") or cid.get("delivery_link") or cid.get("fileUrl") or "")
+                                c_type = normalize_product_type(cid.get("product_type") or cid.get("type"), c_name)
+                                child_items.append({
+                                    "product_id": str(cid.get("product_id") or cid.get("id") or ""),
+                                    "product_name": c_name,
+                                    "product_file_url": c_url,
+                                    "product_type": c_type
+                                })
+                        if len(child_items) > 1:
+                            return child_items
+        except Exception:
+            pass
+
+    # 5. Phân giải dự phòng từ tên combo (VD: "Combo A + B" hoặc "Combo A & B") kèm child_links nếu có
+    if is_combo_flag:
+        clean_name = re.sub(r'^(combo\s*[\-:]*|\s*gói\s*combo[\s\-:]*)', '', prod_name, flags=re.I).strip()
+        raw_parts = [p.strip() for p in re.split(r'\s*\+\s*|\s+&\s+', clean_name) if p.strip()]
+        if len(raw_parts) >= 2:
+            child_links = order_data.get("child_links")
+            if not isinstance(child_links, list):
+                child_links = []
+            fallback_items = []
+            for idx, part in enumerate(raw_parts):
+                part_url = child_links[idx] if (idx < len(child_links) and child_links[idx]) else (order_data.get("product_file_url") or "")
+                fallback_items.append({
+                    "product_id": "",
+                    "product_name": part,
+                    "product_file_url": ensure_copy_link(part_url),
+                    "product_type": normalize_product_type("", part)
+                })
+            return fallback_items
+
+    return []
+
+
+def send_single_delivery_email(customer_email, customer_name, order_id, file_item, order_data=None):
+    """
+    Gửi đúng 1 email bàn giao file cho 1 sản phẩm/file con độc lập:
+    - Tiêu đề gắn liền với tên sản phẩm con cụ thể.
+    - Template hướng dẫn tương ứng chính xác:
+      + apps_script: Cảnh báo đỏ, 6 bước cấp quyền bảo mật, 1 nút link tạo bản sao.
+      + google_sheets: Hướng dẫn Google Sheets 3 bước ngắn gọn, 1 nút link tạo bản sao.
+    """
     if not customer_email or "@" not in customer_email:
         print(f"[Email] Bỏ qua gửi email do địa chỉ không hợp lệ: {customer_email}")
         return False
-    
+
     try:
-        product_name = order_data.get("product_name") or "File Quản Lý Google Sheets"
-        raw_file_url = order_data.get("product_file_url") or "https://filedilam.web.app"
+        order_data = order_data or {}
+        product_name = file_item.get("product_name") or order_data.get("product_name") or "File Quản Lý Google Sheets"
+        raw_file_url = file_item.get("product_file_url") or order_data.get("product_file_url") or "https://filedilam.web.app"
         file_url = ensure_copy_link(raw_file_url)
-        items = order_data.get("items") or []
 
-        # Nhận diện chính xác dựa trực tiếp vào Định dạng (product_type) do Admin chọn:
-        # apps_script / web_app -> Gửi hướng dẫn Web App Apps Script
-        # google_sheets -> Gửi hướng dẫn Google Sheets
-        order_ptype = str(order_data.get("product_type") or "").lower()
-        has_appscript = order_ptype in ["apps_script", "web_app"]
+        file_ptype = normalize_product_type(file_item.get("product_type") or file_item.get("type"), product_name)
+        has_appscript = (file_ptype == "apps_script")
 
-        # Kiểm tra thêm trong từng item của đơn hàng / combo
-        if not has_appscript and isinstance(items, list) and len(items) > 0:
-            for it in items:
-                it_ptype = str(it.get("product_type") or it.get("type") or "").lower()
-                if it_ptype in ["apps_script", "web_app"]:
-                    has_appscript = True
-                    break
-
-        # Fallback bổ trợ nếu dữ liệu cũ chưa có trường product_type
-        if not has_appscript:
-            all_text = ((product_name or "") + " " + " ".join(str(it.get("product_name") or "") for it in (items or []))).lower()
-            if any(kw in all_text for kw in ["apps_script", "appscript", "web app", "webapp", "cost", "giá vốn", "f&b", "kho"]):
-                has_appscript = True
-
-        # Bóc tách danh sách file (đơn lẻ hoặc combo)
-        resolved_files = []
-        if isinstance(items, list) and len(items) > 0:
-            for it in items:
-                it_name = it.get("product_name") or it.get("name") or it.get("title") or "File Google Sheets"
-                it_raw_url = it.get("product_file_url") or it.get("file_url") or file_url
-                resolved_files.append({
-                    "name": it_name,
-                    "url": ensure_copy_link(it_raw_url)
-                })
-        else:
-            resolved_files.append({
-                "name": product_name,
-                "url": file_url
-            })
-
-        # Danh sách nút / link nhận file chuẩn Fintech - Đặt ở cuối email sau khi đã đọc hướng dẫn
-        if len(resolved_files) == 1:
-            single = resolved_files[0]
-            btn_title = f"Đã đọc kỹ hướng dẫn &rarr; Bắt đầu Bước 1: Khởi động & Tạo bản sao ({single['name']})" if has_appscript else f"Đã đọc kỹ hướng dẫn &rarr; Bắt đầu: Tạo bản sao Google Sheets ({single['name']})"
-            files_html = f"""
-            <div style="margin: 24px 0 20px 0; padding: 22px 20px; background-color: #f0fdf4; border: 2px dashed #059669; border-radius: 10px; text-align: center;">
-              <div style="font-size: 13px; font-weight: 700; color: #065f46; margin-bottom: 12px; text-transform: uppercase; letter-spacing: 0.3px;">
-                {"Link khởi động & Cấp quyền Web App (Mở trên máy tính):" if has_appscript else "Link tạo bản sao Google Sheets:"}
-              </div>
-              <a href="{single['url']}" target="_blank" rel="noopener noreferrer" style="display: block; text-align: center; background-color: #059669; color: #ffffff; text-decoration: none; font-size: 15px; font-weight: 700; padding: 15px 24px; border-radius: 8px; letter-spacing: 0.2px; box-shadow: 0 4px 6px -1px rgba(5, 150, 105, 0.25);">
-                {btn_title}
-              </a>
-              <div style="margin-top: 12px; font-size: 12px; color: #64748b; line-height: 1.5;">
-                Link dự phòng (Copy dán vào trình duyệt máy tính):<br>
-                <a href="{single['url']}" target="_blank" style="color: #059669; text-decoration: underline; word-break: break-all;">{single['url']}</a>
-              </div>
-            </div>
-            """
-        else:
-            items_list = ""
-            for idx, f in enumerate(resolved_files, 1):
-                items_list += f"""
-                <div style="padding: 14px 0; border-bottom: 1px solid #e2e8f0;">
-                  <div style="font-size: 14.5px; font-weight: 600; color: #0f172a; margin-bottom: 8px;">{idx}. {f['name']}</div>
-                  <a href="{f['url']}" target="_blank" rel="noopener noreferrer" style="display: inline-block; background-color: #059669; color: #ffffff; text-decoration: none; font-size: 13.5px; font-weight: 600; padding: 10px 20px; border-radius: 6px;">
-                    Đã đọc hướng dẫn &rarr; Bắt đầu Tạo bản sao /copy
-                  </a>
-                  <div style="margin-top: 6px; font-size: 12px; color: #64748b;">
-                    Link trực tiếp: <a href="{f['url']}" target="_blank" style="color: #059669; text-decoration: underline;">{f['url']}</a>
-                  </div>
-                </div>
-                """
-            files_html = f"""
-            <div style="margin: 20px 0 16px 0; padding: 18px; background-color: #f0fdf4; border: 2px dashed #059669; border-radius: 10px;">
-              <div style="font-size: 13px; font-weight: 700; color: #065f46; margin-bottom: 12px; text-transform: uppercase;">
-                Danh sách link nhận file (Mở bằng máy tính):
-              </div>
-              {items_list}
-            </div>
-            """
+        # Nút bấm nhận file chuẩn Fintech 1-chạm cho đúng file này
+        btn_title = f"Đã đọc kỹ hướng dẫn &rarr; Bắt đầu Bước 1: Khởi động & Tạo bản sao ({product_name})" if has_appscript else f"Đã đọc kỹ hướng dẫn &rarr; Bắt đầu: Tạo bản sao Google Sheets ({product_name})"
+        files_html = f"""
+        <div style="margin: 24px 0 20px 0; padding: 22px 20px; background-color: #f0fdf4; border: 2px dashed #059669; border-radius: 10px; text-align: center;">
+          <div style="font-size: 13px; font-weight: 700; color: #065f46; margin-bottom: 12px; text-transform: uppercase; letter-spacing: 0.3px;">
+            {"Link khởi động & Cấp quyền Web App (Mở trên máy tính):" if has_appscript else "Link tạo bản sao Google Sheets:"}
+          </div>
+          <a href="{file_url}" target="_blank" rel="noopener noreferrer" style="display: block; text-align: center; background-color: #059669; color: #ffffff; text-decoration: none; font-size: 15px; font-weight: 700; padding: 15px 24px; border-radius: 8px; letter-spacing: 0.2px; box-shadow: 0 4px 6px -1px rgba(5, 150, 105, 0.25);">
+            {btn_title}
+          </a>
+          <div style="margin-top: 12px; font-size: 12px; color: #64748b; line-height: 1.5;">
+            Link dự phòng (Copy dán vào trình duyệt máy tính):<br>
+            <a href="{file_url}" target="_blank" style="color: #059669; text-decoration: underline; word-break: break-all;">{file_url}</a>
+          </div>
+        </div>
+        """
 
         pkg_name = order_data.get("package_name") or "Bản Tự Dùng"
 
@@ -306,12 +532,22 @@ def send_order_success_email(customer_email, customer_name, order_id, order_data
         except Exception as error:
             print(f"Không tải được ưu đãi lần sau cho email bàn giao: {error}")
 
+        parent_combo_name = order_data.get("product_name") if (order_data.get("is_combo") or order_data.get("combo_items")) else None
+        combo_row_html = ""
+        if parent_combo_name and parent_combo_name != product_name:
+            combo_row_html = f"""
+          <tr>
+            <td style="padding: 8px 0; color: #64748b; border-bottom: 1px solid #f8fafc;">Gói Combo:</td>
+            <td style="padding: 8px 0; font-weight: 600; color: #059669; border-bottom: 1px solid #f8fafc;">{parent_combo_name}</td>
+          </tr>
+        """
+
         html_content = f"""<!DOCTYPE html>
 <html>
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Kích hoạt đơn hàng #{order_id} - File Đi Làm</title>
+<title>Kích hoạt đơn hàng #{order_id} - {product_name} - File Đi Làm</title>
 </head>
 <body style="margin: 0; padding: 32px 16px; background-color: #f8fafc; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; color: #0f172a; line-height: 1.6; -webkit-font-smoothing: antialiased;">
   <div style="max-width: 580px; margin: 0 auto; background-color: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden;">
@@ -338,6 +574,7 @@ def send_order_success_email(customer_email, customer_name, order_id, order_data
             <td style="padding: 8px 0; color: #64748b; width: 110px; border-bottom: 1px solid #f8fafc;">Sản phẩm:</td>
             <td style="padding: 8px 0; font-weight: 600; color: #0f172a; border-bottom: 1px solid #f8fafc;">{product_name}</td>
           </tr>
+          {combo_row_html}
           <tr>
             <td style="padding: 8px 0; color: #64748b; border-bottom: 1px solid #f8fafc;">Mã đơn:</td>
             <td style="padding: 8px 0; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; font-weight: 600; color: #059669; border-bottom: 1px solid #f8fafc;">#{order_id}</td>
@@ -375,7 +612,7 @@ Hệ thống File Đi Làm xác nhận đã nhận đủ thanh toán cho đơn h
 Sản phẩm: {product_name}
 Phân loại: {pkg_name}
 
-Bạn có thể truy cập link nhận file Google Sheets trực tiếp tại:
+Bạn có thể truy cập link nhận file trực tiếp tại:
 {file_url}
 
 Nếu cần hỗ trợ kỹ thuật hoặc có bất kỳ câu hỏi nào, vui lòng liên hệ Zalo/Hotline: 0938 134 576.
@@ -397,11 +634,58 @@ File Đi Làm - https://filedilam.web.app
         server.login(SMTP_USER, SMTP_PASS)
         server.sendmail(SMTP_USER, [customer_email], msg.as_string())
         server.quit()
-        print(f"[Email] Gửi email thành công tới {customer_email} cho đơn {order_id}")
+        print(f"[Email] Gửi email thành công tới {customer_email} cho file {product_name} (đơn #{order_id})")
         return True
     except Exception as e:
-        print(f"[Email] Lỗi gửi email cho đơn {order_id} ({customer_email}): {e}")
+        print(f"[Email] Lỗi gửi email cho file {product_name} đơn #{order_id} ({customer_email}): {e}")
         return False
+
+
+def send_order_success_email(customer_email, customer_name, order_id, order_data):
+    """
+    Xử lý gửi email bàn giao đơn hàng thành công:
+    - Nếu là đơn hàng COMBO (có danh sách combo_items gồm N file con):
+      BẮT BUỘC tách riêng chính xác N email độc lập cho từng file con.
+      TUYỆT ĐỐI KHÔNG gom chung dù các file cùng là Apps Script hay cùng là Google Sheets.
+    - Nếu là đơn hàng đơn lẻ: Gửi đúng 1 email cho sản phẩm đó.
+    """
+    if not customer_email or "@" not in customer_email:
+        print(f"[Email] Bỏ qua gửi email do địa chỉ không hợp lệ: {customer_email}")
+        return False
+
+    order_data = order_data or {}
+    combo_items = extract_combo_items(order_data)
+
+    if combo_items and len(combo_items) > 1:
+        print(f"[Email] Đơn hàng combo #{order_id} có {len(combo_items)} file con -> Tách gửi {len(combo_items)} email riêng biệt.")
+        all_success = True
+        for idx, item in enumerate(combo_items, 1):
+            print(f"[Email] Gửi email bàn giao file con {idx}/{len(combo_items)}: {item.get('product_name')} ({item.get('product_type')})")
+            success = send_single_delivery_email(
+                customer_email=customer_email,
+                customer_name=customer_name,
+                order_id=order_id,
+                file_item=item,
+                order_data=order_data
+            )
+            if not success:
+                all_success = False
+        return all_success
+    else:
+        # Đơn hàng đơn lẻ (hoặc combo chỉ có 1 file)
+        single_item = combo_items[0] if (combo_items and len(combo_items) == 1) else {
+            "product_name": order_data.get("product_name") or "File Quản Lý Google Sheets",
+            "product_file_url": order_data.get("product_file_url") or "https://filedilam.web.app",
+            "product_type": order_data.get("product_type") or "google_sheets",
+            "product_id": order_data.get("product_id") or ""
+        }
+        return send_single_delivery_email(
+            customer_email=customer_email,
+            customer_name=customer_name,
+            order_id=order_id,
+            file_item=single_item,
+            order_data=order_data
+        )
 
 def send_admin_new_order_notification(order_id, order_data):
     """
@@ -1252,6 +1536,13 @@ def api(req: https_fn.Request) -> https_fn.Response:
             for it in order_items:
                 if isinstance(it, dict) and it.get("product_id"):
                     target_pids.add(it["product_id"])
+        combo_items_list = order_data.get("combo_items")
+        if isinstance(combo_items_list, list) and len(combo_items_list) > 0:
+            for cit in combo_items_list:
+                if isinstance(cit, dict) and cit.get("product_id"):
+                    target_pids.add(cit["product_id"])
+                elif isinstance(cit, str) and cit.strip():
+                    target_pids.add(cit.strip())
         elif order_data.get("product_id"):
             target_pids.add(order_data["product_id"])
 
@@ -1448,11 +1739,16 @@ def api(req: https_fn.Request) -> https_fn.Response:
                         except Exception:
                             pass
                     if age_sec <= 600:
-                        doc.reference.set({
+                        reused_update = {
                             "customer_name": str(data.get("customer_name") or ""),
                             "customer_email": data.get("customer_email") or user.get("email", ""),
                             "customer_phone": phone,
-                        }, merge=True)
+                        }
+                        reused_combo = extract_combo_items(data)
+                        if reused_combo:
+                            reused_update["combo_items"] = reused_combo
+                            reused_update["is_combo"] = True
+                        doc.reference.set(reused_update, merge=True)
                         c_at_str = c_at.isoformat() if hasattr(c_at, "isoformat") else str(c_at)
                         return json_response({
                             "order_id": o_data.get("id"),
@@ -1469,13 +1765,18 @@ def api(req: https_fn.Request) -> https_fn.Response:
         if isinstance(raw_items, list) and len(raw_items) > 0:
             for it in raw_items:
                 if isinstance(it, dict):
-                    items.append({
+                    item_dict = {
                         "product_id": str(it.get("product_id") or ""),
                         "product_name": str(it.get("product_name") or ""),
                         "product_file_url": str(it.get("product_file_url") or ""),
                         "product_type": str(it.get("product_type") or "google_sheets"),
                         "price": int(it.get("price") or 0)
-                    })
+                    }
+                    if it.get("combo_items"):
+                        item_dict["combo_items"] = it.get("combo_items")
+                    if it.get("is_combo"):
+                        item_dict["is_combo"] = True
+                    items.append(item_dict)
 
         customer_email = data.get("customer_email") or user.get("email", "")
         order_id = generate_order_id(phone)
@@ -1502,6 +1803,11 @@ def api(req: https_fn.Request) -> https_fn.Response:
             "status": "PENDING",
             "created_at": now
         }
+        order_combo_items = extract_combo_items(data)
+        if order_combo_items:
+            order_doc_data["combo_items"] = order_combo_items
+            order_doc_data["is_combo"] = True
+
         if quoted_items is not None:
             order_doc_data.update(product_id=quoted_items[0]["product_id"],
                                   product_file_url=quoted_items[0]["product_file_url"],
@@ -1969,6 +2275,15 @@ def api(req: https_fn.Request) -> https_fn.Response:
                         it_pid = it.get("product_id")
                         if it_pid:
                             target_pids.add(str(it_pid))
+                
+                # Bổ sung các product_id từ combo_items nếu có
+                combo_items_list = matched_order.get("combo_items")
+                if isinstance(combo_items_list, list) and len(combo_items_list) > 0:
+                    for cit in combo_items_list:
+                        if isinstance(cit, dict) and cit.get("product_id"):
+                            target_pids.add(str(cit["product_id"]))
+                        elif isinstance(cit, str) and cit.strip():
+                            target_pids.add(cit.strip())
                 
                 # Bổ sung product_id gốc nếu có
                 product_id = matched_order.get("product_id")

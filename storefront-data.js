@@ -71,6 +71,7 @@ window.StorefrontData = {
   products: [
     {
       id: "PRD-102938",
+      slug: "ban-hang-online",
       categoryId: "ban-hang-online",
       name: "Bán hàng online",
       price: 2000,
@@ -113,6 +114,7 @@ window.StorefrontData = {
     },
     {
       id: "PRD-203948",
+      slug: "quan-ly-kho-mini",
       categoryId: "quan-ly-kho",
       name: "Quản lý kho mini",
       price: 99000,

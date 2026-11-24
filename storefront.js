@@ -184,20 +184,22 @@ function escapeHtml(value) {
     var hashIdx = raw.indexOf('#');
     var cleanHash = hashIdx !== -1 ? raw.slice(hashIdx + 1) : raw;
     cleanHash = cleanHash.replace(/^\/+/, '');
-    var match = cleanHash.match(/(?:^|[&?])(?:san-pham|p)=([^&?#]+)/i);
+    var match = cleanHash.match(/(?:^|[&?])(?:san-pham|p)[=/]([^&?#]+)/i);
     if (match && match[1]) {
+      var val = match[1];
       try {
-        return decodeURIComponent(match[1]).trim();
+        val = decodeURIComponent(val.replace(/\+/g, ' '));
       } catch (e) {
-        return match[1].trim();
+        val = val.replace(/\+/g, ' ');
       }
+      return val.trim().replace(/\/+$/, '') || null;
     }
     return null;
   }
 
   function findProductByIdOrSlug(products, param) {
     if (!Array.isArray(products) || !param) return null;
-    var term = String(param).trim();
+    var term = String(param).trim().replace(/\/+$/, '');
     if (!term) return null;
 
     // 1. Đối soát theo product.id (chính xác hoặc không phân biệt hoa thường)
@@ -234,7 +236,8 @@ function escapeHtml(value) {
   function getProductDirectParam(product) {
     if (!product) return '';
     if (product.slug && String(product.slug).trim()) {
-      return String(product.slug).trim();
+      var s = String(product.slug).trim();
+      return slugifyVietnamese(s) || s;
     }
     return String(product.id || '').trim();
   }
@@ -243,17 +246,15 @@ function escapeHtml(value) {
     if (!product) return '';
     var param = getProductDirectParam(product);
     var base = window.location.origin;
-    var path = window.location.pathname || '/';
     if (!base || base === 'null' || !window.location.protocol.startsWith('http')) {
       base = 'https://filedilam.vn';
-      path = '/';
-    } else {
-      if (path.endsWith('.html')) {
-        path = path.substring(0, path.lastIndexOf('/') + 1);
-      }
-      if (!path.endsWith('/')) {
-        path += '/';
-      }
+    }
+    var path = window.location.pathname || '/';
+    if (path.endsWith('.html') || path === '/faq' || path === '/custom' || path === '/chinh-sach' || path === '/admin') {
+      path = path.substring(0, path.lastIndexOf('/') + 1);
+    }
+    if (!path.endsWith('/')) {
+      path += '/';
     }
     return base + path + '#san-pham=' + encodeURIComponent(param);
   }
@@ -274,6 +275,7 @@ function escapeHtml(value) {
     try {
       var textArea = document.createElement("textarea");
       textArea.value = text;
+      textArea.setAttribute('readonly', '');
       textArea.style.position = "fixed";
       textArea.style.top = "0";
       textArea.style.left = "0";
@@ -287,6 +289,9 @@ function escapeHtml(value) {
       document.body.appendChild(textArea);
       textArea.focus();
       textArea.select();
+      if (typeof textArea.setSelectionRange === 'function') {
+        textArea.setSelectionRange(0, 99999);
+      }
       var successful = document.execCommand('copy');
       document.body.removeChild(textArea);
       if (successful) {
@@ -299,8 +304,12 @@ function escapeHtml(value) {
     }
   }
 
+  var lastStorefrontCopyTime = 0;
   function copyStorefrontProductLink(product) {
     if (!product) return;
+    var now = Date.now();
+    if (now - lastStorefrontCopyTime < 300) return;
+    lastStorefrontCopyTime = now;
     var directUrl = getStorefrontProductDirectLink(product);
     copyDirectLinkTextToClipboard(directUrl, function() {
       showToast("Đã sao chép link sản phẩm: " + product.name);
@@ -947,10 +956,15 @@ function escapeHtml(value) {
     }
 
     window.addEventListener("popstate", function () {
-      if (detailModal && detailModal.classList.contains("is-open")) {
-        closeDetail(true);
+      var directParam = parseProductDirectHash(window.location.hash);
+      if (directParam) {
+        checkAndHandleDirectProductHash();
+      } else {
+        if (detailModal && detailModal.classList.contains("is-open")) {
+          closeDetail(true);
+        }
+        clearProductHashFromUrl();
       }
-      clearProductHashFromUrl();
 
       if (window.location.hash === "#thanh-toan") {
         openCheckout(true);
@@ -1669,13 +1683,13 @@ function escapeHtml(value) {
 
   function getSafeDeliveryUrl(url, productType, productId) {
     var value = String(url || "").trim();
-    var isGoogleSheet = productType === "google_sheets" || productId === "quan-ly-kho-mini-google-sheets-smart" || value.indexOf("docs.google.com/spreadsheets") !== -1 || value.indexOf("drive.google.com/file/d/") !== -1;
+    var isGoogleSheet = productType === "google_sheets" || productId === "quan-ly-kho-mini-google-sheets-smart" || value.indexOf("docs.google.com/spreadsheets") !== -1 || value.indexOf("drive.google.com") !== -1;
     if (!isGoogleSheet) return value;
 
     // Luôn lấy ID bảng tính rồi dựng lại đường dẫn /copy. Nhờ vậy đơn hàng
     // cũ có lưu /edit, /htmlview hoặc nhầm link Apps Script cũng không làm
     // khách đi sai trang nhận file.
-    var match = value.match(/docs\.google\.com\/spreadsheets\/d\/([a-zA-Z0-9_-]+)/);
+    var match = value.match(/docs\.google\.com\/spreadsheets\/(?:u\/\d+\/)?d\/([a-zA-Z0-9_-]+)/);
     var spreadsheetId = match && match[1];
     if (!spreadsheetId && productId === "quan-ly-kho-mini-google-sheets-smart") {
       spreadsheetId = "1xir1M-ieP0zqmGE5J4m1rGbxuzTIUaDw7aFoM7GEeZo";
@@ -1683,7 +1697,7 @@ function escapeHtml(value) {
     if (spreadsheetId) {
       return "https://docs.google.com/spreadsheets/d/" + spreadsheetId + "/copy";
     }
-    var driveMatch = value.match(/drive\.google\.com\/file\/d\/([a-zA-Z0-9_-]+)/);
+    var driveMatch = value.match(/drive\.google\.com\/(?:(?:u\/\d+\/)?file\/d\/|open\?id=)([a-zA-Z0-9_-]+)/);
     if (driveMatch && driveMatch[1]) {
       return "https://drive.google.com/file/d/" + driveMatch[1] + "/copy";
     }
@@ -3192,6 +3206,7 @@ function escapeHtml(value) {
 
   window.closeDetailModal = closeDetail;
   function closeDetail(fromHistoryEvent) {
+    window.__lastDetailCloseTime = Date.now();
     detailModal.classList.remove("is-open");
     detailModal.setAttribute("aria-hidden", "true");
     if (detailFooter) {
@@ -3886,13 +3901,7 @@ function escapeHtml(value) {
           allDeliveryFiles = allDeliveryFiles.concat(children);
         } else {
           var pRawUrl = p.sheetUrl || p.delivery_link || p.fileUrl || "";
-          var isApp = (p.type === "apps_script" || p.type === "web_app");
-          if (!isApp && p.name) {
-            var lowN = p.name.toLowerCase();
-            if (lowN.includes("web app") || lowN.includes("apps script") || lowN.includes("appscript")) {
-              isApp = true;
-            }
-          }
+          var isApp = isAppsScriptType(p);
           allDeliveryFiles.push({
             product_id: p.id,
             product_name: p.name,
@@ -3902,13 +3911,7 @@ function escapeHtml(value) {
         }
       } else {
         var pRawUrl = p.sheetUrl || p.delivery_link || p.fileUrl || "";
-        var isApp = (p.type === "apps_script" || p.type === "web_app");
-        if (!isApp && p.name) {
-          var lowN = p.name.toLowerCase();
-          if (lowN.includes("web app") || lowN.includes("apps script") || lowN.includes("appscript")) {
-            isApp = true;
-          }
-        }
+        var isApp = isAppsScriptType(p);
         allDeliveryFiles.push({
           product_id: p.id,
           product_name: p.name,
@@ -3931,13 +3934,7 @@ function escapeHtml(value) {
       var p = getProductById(e.productId);
       if (!p) return null;
       var pRawUrl = p.sheetUrl || p.delivery_link || p.fileUrl || "";
-      var isAppScript = (p.type === "apps_script" || p.type === "web_app");
-      if (!isAppScript && p.name) {
-        var lowN = p.name.toLowerCase();
-        if (lowN.includes("web app") || lowN.includes("apps script") || lowN.includes("appscript")) {
-          isAppScript = true;
-        }
-      }
+      var isAppScript = isAppsScriptType(p);
       var pFormat = isAppScript ? "apps_script" : (p.type === "excel" ? "excel" : "google_sheets");
       var itemObj = {
         product_id: p.id,
@@ -5525,7 +5522,7 @@ function escapeHtml(value) {
       return order.combo_items.map(function(it) {
         var p = getProductById(it.product_id) || findProductForOrder(it);
         var rawUrl = (p && (p.sheetUrl || p.delivery_link || p.fileUrl)) || it.product_file_url || "";
-        var isApp = (it.product_type === "apps_script" || (p && (p.type === "apps_script" || p.type === "web_app")));
+        var isApp = isAppsScriptType(it) || (p && isAppsScriptType(p));
         var pType = isApp ? "apps_script" : "google_sheets";
         var deliveryUrl = getSafeDeliveryUrl(rawUrl, "google_sheets", it.product_id);
         return {
@@ -5621,6 +5618,24 @@ function escapeHtml(value) {
     return !['percent','fixed'].includes(c.type) || (c.scope && c.scope !== 'all') || Number(c.min_items) > 0;
   }
 
+  function isAppsScriptType(typeOrProduct, name) {
+    var rawType = "";
+    var rawName = "";
+    if (typeOrProduct && typeof typeOrProduct === "object") {
+      rawType = String(typeOrProduct.product_type || typeOrProduct.type || "");
+      rawName = String(name || typeOrProduct.product_name || typeOrProduct.name || typeOrProduct.title || "");
+    } else {
+      rawType = String(typeOrProduct || "");
+      rawName = String(name || "");
+    }
+    var normType = rawType.trim().toLowerCase().replace(/[-_ ]+/g, "_");
+    if (["apps_script", "appscript", "web_app", "webapp", "google_apps_script", "app_script"].indexOf(normType) !== -1) {
+      return true;
+    }
+    var normName = rawName.toLowerCase();
+    return normName.includes("web app") || normName.includes("webapp") || normName.includes("apps script") || normName.includes("appscript") || normName.includes("google apps script");
+  }
+
   function isComboProduct(p) {
     if (!p) return false;
     var nameLower = (typeof p.name === 'string' ? p.name.trim().toLowerCase() : '');
@@ -5646,14 +5661,7 @@ function escapeHtml(value) {
         if (typeof c === "object") {
           if (c.product_name && (c.product_file_url || c.sheetUrl || c.fileUrl || c.delivery_link)) {
             var rawU = c.product_file_url || c.sheetUrl || c.delivery_link || c.fileUrl || "";
-            var isApp = (c.product_type === "apps_script" || c.type === "apps_script" || c.type === "web_app");
-            if (!isApp && c.product_name) {
-              var lowN = c.product_name.toLowerCase();
-              if (lowN.includes("web app") || lowN.includes("apps script") || lowN.includes("appscript")) {
-                isApp = true;
-              }
-            }
-            var pType = isApp ? "apps_script" : "google_sheets";
+            var pType = isAppsScriptType(c) ? "apps_script" : "google_sheets";
             comboChildList.push({
               product_id: c.product_id || c.id || "",
               product_name: c.product_name,
@@ -5666,14 +5674,7 @@ function escapeHtml(value) {
           if (cId) {
             var cp = getProductById(cId);
             if (cp) {
-              var isApp = (cp.type === "apps_script" || cp.type === "web_app");
-              if (!isApp && cp.name) {
-                var lowN = cp.name.toLowerCase();
-                if (lowN.includes("web app") || lowN.includes("apps script") || lowN.includes("appscript")) {
-                  isApp = true;
-                }
-              }
-              var pType = isApp ? "apps_script" : "google_sheets";
+              var pType = isAppsScriptType(cp) ? "apps_script" : "google_sheets";
               var rawU = cp.sheetUrl || cp.delivery_link || cp.fileUrl || "";
               comboChildList.push({
                 product_id: cp.id,
@@ -5687,14 +5688,7 @@ function escapeHtml(value) {
         } else if (typeof c === "string") {
           var cp = getProductById(c);
           if (cp) {
-            var isApp = (cp.type === "apps_script" || cp.type === "web_app");
-            if (!isApp && cp.name) {
-              var lowN = cp.name.toLowerCase();
-              if (lowN.includes("web app") || lowN.includes("apps script") || lowN.includes("appscript")) {
-                isApp = true;
-              }
-            }
-            var pType = isApp ? "apps_script" : "google_sheets";
+            var pType = isAppsScriptType(cp) ? "apps_script" : "google_sheets";
             var rawU = cp.sheetUrl || cp.delivery_link || cp.fileUrl || "";
             comboChildList.push({
               product_id: cp.id,
@@ -5718,14 +5712,7 @@ function escapeHtml(value) {
             return cand.name && cand.name.toLowerCase().includes(cleanName.toLowerCase());
           });
           if (matched) {
-            var isApp = (matched.type === "apps_script" || matched.type === "web_app");
-            if (!isApp && matched.name) {
-              var lowN = matched.name.toLowerCase();
-              if (lowN.includes("web app") || lowN.includes("apps script") || lowN.includes("appscript")) {
-                isApp = true;
-              }
-            }
-            var pType = isApp ? "apps_script" : "google_sheets";
+            var pType = isAppsScriptType(matched) ? "apps_script" : "google_sheets";
             var rawU = matched.sheetUrl || matched.delivery_link || matched.fileUrl || "";
             comboChildList.push({
               product_id: matched.id,
@@ -5735,8 +5722,7 @@ function escapeHtml(value) {
             });
           } else {
             var fallbackUrl = (Array.isArray(p.child_links) && p.child_links[idx]) ? p.child_links[idx] : (p.sheetUrl || p.delivery_link || p.fileUrl || "");
-            var isApp = cleanName.toLowerCase().includes("web app") || cleanName.toLowerCase().includes("apps script");
-            var pType = isApp ? "apps_script" : "google_sheets";
+            var pType = isAppsScriptType("", cleanName) ? "apps_script" : "google_sheets";
             comboChildList.push({
               product_id: "",
               product_name: cleanName,
@@ -5752,6 +5738,7 @@ function escapeHtml(value) {
   }
   window.resolveComboItems = resolveComboItems;
   window.isComboProduct = isComboProduct;
+  window.isAppsScriptType = isAppsScriptType;
 
   function evaluateCoupon(c, subtotal) {
     const scope = c.scope || 'all';
@@ -6728,11 +6715,14 @@ function escapeHtml(value) {
 
   function isExitIntentSuppressed() {
     if (cartDrawer && cartDrawer.classList.contains("is-open")) return true;
+    if (detailModal && detailModal.classList.contains("is-open")) return true;
     if (checkoutModal && checkoutModal.classList.contains("is-open")) return true;
     if (authModal && authModal.classList.contains("is-open")) return true;
     if (bankPickerModal && bankPickerModal.classList.contains("is-open")) return true;
     if (document.body.classList.contains("checkout-page-open")) return true;
     if (document.body.classList.contains("cart-drawer-open")) return true;
+    if (document.body.classList.contains("drawer-open")) return true;
+    if (window.__lastDetailCloseTime && (Date.now() - window.__lastDetailCloseTime < 1500)) return true;
     if (window.__lastCheckoutTransitionTime && (Date.now() - window.__lastCheckoutTransitionTime < 3000)) return true;
     if (state.appliedCoupons && state.appliedCoupons.length > 0) return true;
     return false;
