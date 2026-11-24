@@ -6008,7 +6008,7 @@ document.addEventListener('DOMContentLoaded', () => {
 // couponDescInput is readonly & auto-generated
 
   window.seedStandardCoupons = async function() {
-    if (!confirm("Bạn có muốn nạp nhanh bộ 5 mã giảm giá chuẩn chiến lược (FILEDILAM30, TIETKIEM10, VIP16, TIKTOK20, MEMBER30) không?")) {
+    if (!confirm("Bạn có muốn nạp nhanh bộ 5 mã giảm giá chuẩn chiến lược (FILEDILAM30, TIETKIEM10, VIP20, TIKTOK20, MEMBER30) không?")) {
       return;
     }
     const standardCoupons = [
@@ -6031,9 +6031,9 @@ document.addEventListener('DOMContentLoaded', () => {
         code: "TIETKIEM10",
         type: "fixed",
         value: 10000,
-        min_order: 55000,
+        min_order: 65000,
         max_discount: 0,
-        description: "Gói Ghép Tiết Kiệm (Giảm thẳng 10.000đ cho đơn từ 55.000đ)",
+        description: "Gói Ghép Tiết Kiệm (Giảm thẳng 10.000đ cho đơn từ 65.000đ)",
         is_active: true,
         is_public: true,
         scope: "all",
@@ -6043,12 +6043,12 @@ document.addEventListener('DOMContentLoaded', () => {
         updated_at: new Date().toISOString()
       },
       {
-        code: "VIP16",
+        code: "VIP20",
         type: "fixed",
-        value: 16000,
-        min_order: 85000,
+        value: 20000,
+        min_order: 95000,
         max_discount: 0,
-        description: "Tối Ưu Ngân Sách (Giảm thẳng 16.000đ cho đơn từ 85.000đ)",
+        description: "Tối Ưu Ngân Sách (Giảm thẳng 20.000đ cho đơn từ 95.000đ)",
         is_active: true,
         is_public: true,
         scope: "all",
