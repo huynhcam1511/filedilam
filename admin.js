@@ -420,6 +420,95 @@ document.addEventListener('DOMContentLoaded', () => {
     return /^PRD-\d{6}$/.test(String(id || ''));
   }
 
+  // ==========================================
+  // HỆ THỐNG LINK DIRECT SẢN PHẨM (R1, R3)
+  // ==========================================
+  function slugifyVietnamese(str) {
+    if (!str) return '';
+    return String(str)
+      .toLowerCase()
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .replace(/đ/g, 'd')
+      .replace(/Đ/g, 'd')
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-+|-+$/g, '');
+  }
+
+  function getAdminProductDirectParam(product) {
+    if (!product) return '';
+    if (product.slug && String(product.slug).trim()) {
+      return String(product.slug).trim();
+    }
+    return String(product.id || '').trim();
+  }
+
+  function getAdminProductDirectLink(product) {
+    if (!product) return '';
+    const param = getAdminProductDirectParam(product);
+    let base = window.location.origin;
+    let path = window.location.pathname || '/';
+    if (!base || base === 'null' || !window.location.protocol.startsWith('http')) {
+      base = 'https://filedilam.vn';
+      path = '/';
+    } else {
+      if (path.endsWith('.html')) {
+        path = path.substring(0, path.lastIndexOf('/') + 1);
+      }
+      if (!path.endsWith('/')) {
+        path += '/';
+      }
+    }
+    return `${base}${path}#san-pham=${encodeURIComponent(param)}`;
+  }
+
+  function copyTextToClipboard(text, onSuccess, onError) {
+    if (navigator.clipboard && window.isSecureContext) {
+      navigator.clipboard.writeText(text).then(() => {
+        if (typeof onSuccess === 'function') onSuccess();
+      }).catch(() => {
+        fallbackCopyText(text, onSuccess, onError);
+      });
+    } else {
+      fallbackCopyText(text, onSuccess, onError);
+    }
+  }
+
+  function fallbackCopyText(text, onSuccess, onError) {
+    try {
+      const textArea = document.createElement("textarea");
+      textArea.value = text;
+      textArea.style.position = "fixed";
+      textArea.style.top = "0";
+      textArea.style.left = "0";
+      textArea.style.width = "2em";
+      textArea.style.height = "2em";
+      textArea.style.padding = "0";
+      textArea.style.border = "none";
+      textArea.style.outline = "none";
+      textArea.style.boxShadow = "none";
+      textArea.style.background = "transparent";
+      document.body.appendChild(textArea);
+      textArea.focus();
+      textArea.select();
+      const successful = document.execCommand('copy');
+      document.body.removeChild(textArea);
+      if (successful) {
+        if (typeof onSuccess === 'function') onSuccess();
+      } else {
+        if (typeof onError === 'function') onError();
+      }
+    } catch (err) {
+      if (typeof onError === 'function') onError(err);
+    }
+  }
+
+  window.AdminDirectLink = {
+    slugifyVietnamese,
+    getAdminProductDirectParam,
+    getAdminProductDirectLink
+  };
+
   async function normalizeProductSku(oldId) {
     const product = (currentProducts || []).find(p => p.id === oldId);
     if (!product) return;
@@ -644,6 +733,10 @@ document.addEventListener('DOMContentLoaded', () => {
                   <svg width="11" height="11" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
                   <span>Mở file</span>
                 </a>` : ''}
+              <button type="button" class="btn-copy-direct-link btn-copy-row-link" data-id="${p.id}" style="background: #f0fdf4; border: 1px solid #bbf7d0; padding: 2px 8px; border-radius: 4px; cursor: pointer; font-size: 0.74rem; font-weight: 600; color: #059669; display: inline-flex; align-items: center; gap: 4px; transition: all 0.15s ease;" title="Sao chép link gửi khách">
+                <svg width="11" height="11" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
+                <span>Sao chép link gửi khách</span>
+              </button>
             </div>
           </td>
           <td>
@@ -666,6 +759,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 <svg width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="1.5"></circle><circle cx="12" cy="5" r="1.5"></circle><circle cx="12" cy="19" r="1.5"></circle></svg>
               </button>
               <div class="action-dropdown-popover" id="popover-product-${p.id}">
+                <button type="button" class="action-dropdown-item btn-copy-direct-link" data-id="${p.id}" style="color: #059669; font-weight: 600;">
+                  <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
+                  <span>Sao chép link gửi khách</span>
+                </button>
                 ${!isValidProductSku(p.id) ? `
                 <button type="button" class="action-dropdown-item btn-normalize-sku" data-id="${p.id}" style="color: #059669; font-weight: 600;">
                   <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
@@ -712,6 +809,29 @@ document.addEventListener('DOMContentLoaded', () => {
           popover.classList.add('show');
           btn.classList.add('active');
         }
+      });
+    });
+
+    // Lắng nghe thao tác Sao chép link gửi khách (cả trên từng dòng và trong menu 3 chấm)
+    document.querySelectorAll('.btn-copy-direct-link').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const id = btn.dataset.id;
+        document.querySelectorAll('.action-dropdown-popover.show').forEach(p => p.classList.remove('show'));
+        document.querySelectorAll('.action-dots-btn.active').forEach(b => b.classList.remove('active'));
+
+        const product = (currentProducts || []).find(p => String(p.id) === String(id));
+        if (!product) {
+          showToast('Không tìm thấy thông tin sản phẩm!', true);
+          return;
+        }
+
+        const directUrl = getAdminProductDirectLink(product);
+        copyTextToClipboard(directUrl, () => {
+          showToast(`Đã sao chép link gửi khách cho: ${product.name}`);
+        }, () => {
+          showToast('Không thể sao chép link. Vui lòng thử lại!', true);
+        });
       });
     });
 
@@ -804,6 +924,8 @@ document.addEventListener('DOMContentLoaded', () => {
             if (comboTopSubmitText) comboTopSubmitText.textContent = 'Cập nhật Combo';
 
             document.getElementById('comboName').value = product.name || '';
+            const cSlugInput = document.getElementById('comboSlug');
+            if (cSlugInput) cSlugInput.value = product.slug || '';
             document.getElementById('comboTag').value = product.tag || '[COMBO TIẾT KIỆM]';
             document.getElementById('comboSuitableFor').value = product.suitableFor || '';
             document.getElementById('comboDescription').value = product.description || '';
@@ -848,6 +970,8 @@ document.addEventListener('DOMContentLoaded', () => {
           if (topSubmitText) topSubmitText.textContent = 'Cập nhật sản phẩm';
           
           document.getElementById('productName').value = product.name || '';
+          const pSlugInput = document.getElementById('productSlug');
+          if (pSlugInput) pSlugInput.value = product.slug || '';
           document.getElementById('productCategory').value = product.categoryId || '';
           document.getElementById('productFormat').value = product.type || (product.sheetUrl ? 'google_sheets' : 'excel');
           document.getElementById('productPrice').value = new Intl.NumberFormat('vi-VN').format(product.price || 0);
@@ -1258,8 +1382,15 @@ document.addEventListener('DOMContentLoaded', () => {
       // Chuẩn hóa định danh SKU sản phẩm theo Điều 6 AGENTS.md: PRD-XXXXXX (6 chữ số ngẫu nhiên)
       const id = editingId || generateUniqueProductId(currentProducts);
 
+      const slugInputEl = document.getElementById('productSlug');
+      const rawProductSlug = (slugInputEl ? slugInputEl.value : '').trim();
+      const effectiveProductSlug = rawProductSlug
+        ? slugifyVietnamese(rawProductSlug)
+        : (slugInputEl ? null : ((editingId && (currentProducts.find(p => p.id === editingId) || {}).slug) || null));
+
       let updateData = {
         name,
+        slug: effectiveProductSlug,
         categoryId,
         price,
         originalPrice: originalPrice > 0 ? originalPrice : null,
@@ -1646,8 +1777,15 @@ document.addEventListener('DOMContentLoaded', () => {
         const childLinks = selectedChildProds.map(p => p.sheetUrl || p.fileUrl || p.delivery_link || '').filter(Boolean);
         const primaryLink = childLinks[0] || '';
 
+        const comboSlugInputEl = document.getElementById('comboSlug');
+        const rawComboSlug = (comboSlugInputEl ? comboSlugInputEl.value : '').trim();
+        const effectiveComboSlug = rawComboSlug
+          ? slugifyVietnamese(rawComboSlug)
+          : (comboSlugInputEl ? null : ((editingId && (currentProducts.find(p => p.id === editingId) || {}).slug) || null));
+
         let updateData = {
           name,
+          slug: effectiveComboSlug,
           is_combo: true,
           type: 'combo',
           categoryId: 'combo',
@@ -5314,6 +5452,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const couponStartDateInput = document.getElementById('couponStartDateInput');
   const couponEndDateInput = document.getElementById('couponEndDateInput');
   const couponIsActive = document.getElementById('couponIsActive');
+  const couponIsPublic = document.getElementById('couponIsPublic');
   const couponDocId = document.getElementById('couponDocId');
   const couponModalTitle = document.getElementById('couponModalTitle');
   const couponSearchInput = document.getElementById('couponSearchInput');
@@ -5673,6 +5812,7 @@ document.addEventListener('DOMContentLoaded', () => {
       couponCodeInput.readOnly = false;
     }
     if (couponIsActive) couponIsActive.checked = true;
+    if (couponIsPublic) couponIsPublic.checked = true;
     couponModal.style.display = 'flex';
     couponCodeInput?.focus();
   }
@@ -5698,6 +5838,7 @@ document.addEventListener('DOMContentLoaded', () => {
     couponEndDateInput?.dispatchEvent(new Event('change'));
     updateCouponDescPreview();
     if (couponIsActive) couponIsActive.checked = coupon.is_active !== false;
+    if (couponIsPublic) couponIsPublic.checked = coupon.is_public !== false;
 
     couponModal.style.display = 'flex';
   }
@@ -5724,6 +5865,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const endDate = couponEndDateInput ? couponEndDateInput.value : "";
     const description = couponDescInput ? couponDescInput.value.trim() : "";
     const isActive = couponIsActive ? couponIsActive.checked : true;
+    const isPublic = couponIsPublic ? couponIsPublic.checked : true;
 
     let expiresAtText = 'Vĩnh viễn';
     if (startDate && endDate) {
@@ -5767,6 +5909,7 @@ document.addEventListener('DOMContentLoaded', () => {
       expires_at: expiresAtText,
       description: description,
       is_active: isActive,
+      is_public: isPublic,
       updated_at: new Date().toISOString()
     };
     if (!id) {
@@ -5837,6 +5980,101 @@ document.addEventListener('DOMContentLoaded', () => {
   bindCouponDate(couponStartDateInput);
   bindCouponDate(couponEndDateInput);
 // couponDescInput is readonly & auto-generated
+
+  window.seedStandardCoupons = async function() {
+    if (!confirm("Báº¡n cÃ³ muá»‘n náº¡p nhanh bá»™ 5 mÃ£ giáº£m giÃ¡ chuáº©n chiáº¿n lÆ°á»£c (FILEDILAM30, TIETKIEM10, VIP16, TIKTOK20, MEMBER30) khÃ´ng?")) {
+      return;
+    }
+    const standardCoupons = [
+      {
+        code: "FILEDILAM30",
+        type: "percent",
+        value: 30,
+        min_order: 0,
+        max_discount: 5000,
+        description: "Æ¯u Ä Ã£i Ä Æ¡n Ä áº§u (Giáº£m 30% tá»‘i Ä‘a 5.000Ä‘ cho má» i Ä‘Æ¡n)",
+        is_active: true,
+        is_public: true,
+        scope: "all",
+        min_items: 0,
+        expires_at: "VÄ©nh viá»…n",
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      },
+      {
+        code: "TIETKIEM10",
+        type: "fixed",
+        value: 10000,
+        min_order: 55000,
+        max_discount: 0,
+        description: "GÃ³i GhÃ©p Tiáº¿t Kiá»‡m (Giáº£m tháº³ng 10.000Ä‘ cho Ä‘Æ¡n tá»« 55.000Ä‘)",
+        is_active: true,
+        is_public: true,
+        scope: "all",
+        min_items: 0,
+        expires_at: "VÄ©nh viá»…n",
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      },
+      {
+        code: "VIP16",
+        type: "fixed",
+        value: 16000,
+        min_order: 85000,
+        max_discount: 0,
+        description: "Tá»‘i Æ¯u NgÃ¢n SÃ¡ch (Giáº£m tháº³ng 16.000Ä‘ cho Ä‘Æ¡n tá»« 85.000Ä‘)",
+        is_active: true,
+        is_public: true,
+        scope: "all",
+        min_items: 0,
+        expires_at: "VÄ©nh viá»…n",
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      },
+      {
+        code: "TIKTOK20",
+        type: "percent",
+        value: 20,
+        min_order: 25000,
+        max_discount: 10000,
+        description: "Æ¯u Ä Ã£i DÃ nh RiÃªng Cho Báº¡n Xem Video (Giáº£m 20% max 10K Ä‘Æ¡n tá»« 25K)",
+        is_active: true,
+        is_public: false,
+        scope: "all",
+        min_items: 0,
+        expires_at: "VÄ©nh viá»…n",
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      },
+      {
+        code: "MEMBER30",
+        type: "percent",
+        value: 30,
+        min_order: 0,
+        max_discount: 25000,
+        description: "MÃ£ ThÃ¢n Thiáº¿t DÃ nh Cho KhÃ¡ch Ä Ã£ Mua (Giáº£m 30% max 25K)",
+        is_active: true,
+        is_public: false,
+        scope: "all",
+        min_items: 0,
+        expires_at: "VÄ©nh viá»…n",
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      }
+    ];
+
+    try {
+      showToast("Ä ang náº¡p 5 mÃ£ chuáº©n vÃ o Firestore...");
+      for (const cp of standardCoupons) {
+        await db.collection('coupons').doc(cp.code).set(cp, { merge: true });
+      }
+      showToast("Ä Ã£ náº¡p thÃ nh cÃ´ng bá»™ 5 mÃ£ chiáº¿n lÆ°á»£c!");
+      await loadCoupons();
+    } catch (e) {
+      console.error("Lá»—i náº¡p mÃ£ chuáº©n:", e);
+      showToast("Lá»—i: " + e.message);
+    }
+  };
 
 
 

@@ -163,6 +163,202 @@ function escapeHtml(value) {
   var closePurchases = document.getElementById("closePurchases");
   var purchasesItems = document.getElementById("purchasesItems");
 
+  // ==========================================
+  // HỆ THỐNG LINK DIRECT SẢN PHẨM (R1, R2, R3)
+  // ==========================================
+  function slugifyVietnamese(str) {
+    if (!str) return '';
+    return String(str)
+      .toLowerCase()
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .replace(/đ/g, 'd')
+      .replace(/Đ/g, 'd')
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-+|-+$/g, '');
+  }
+
+  function parseProductDirectHash(hash) {
+    if (!hash) return null;
+    var raw = String(hash);
+    var hashIdx = raw.indexOf('#');
+    var cleanHash = hashIdx !== -1 ? raw.slice(hashIdx + 1) : raw;
+    cleanHash = cleanHash.replace(/^\/+/, '');
+    var match = cleanHash.match(/(?:^|[&?])(?:san-pham|p)=([^&?#]+)/i);
+    if (match && match[1]) {
+      try {
+        return decodeURIComponent(match[1]).trim();
+      } catch (e) {
+        return match[1].trim();
+      }
+    }
+    return null;
+  }
+
+  function findProductByIdOrSlug(products, param) {
+    if (!Array.isArray(products) || !param) return null;
+    var term = String(param).trim();
+    if (!term) return null;
+
+    // 1. Đối soát theo product.id (chính xác hoặc không phân biệt hoa thường)
+    var byId = products.find(function(p) {
+      return p && p.id && String(p.id).trim() === term;
+    });
+    if (byId) return byId;
+
+    var byIdCi = products.find(function(p) {
+      return p && p.id && String(p.id).trim().toLowerCase() === term.toLowerCase();
+    });
+    if (byIdCi) return byIdCi;
+
+    // 2. Đối soát theo slug tiếng Việt không dấu chuẩn hóa
+    var targetSlug = slugifyVietnamese(term);
+    if (!targetSlug) return null;
+
+    var byExplicitSlug = products.find(function(p) {
+      if (!p || !p.slug) return false;
+      var s = String(p.slug).trim();
+      return s === term || slugifyVietnamese(s) === targetSlug;
+    });
+    if (byExplicitSlug) return byExplicitSlug;
+
+    var byNameSlug = products.find(function(p) {
+      if (!p || !p.name) return false;
+      return slugifyVietnamese(p.name) === targetSlug;
+    });
+    if (byNameSlug) return byNameSlug;
+
+    return null;
+  }
+
+  function getProductDirectParam(product) {
+    if (!product) return '';
+    if (product.slug && String(product.slug).trim()) {
+      return String(product.slug).trim();
+    }
+    return String(product.id || '').trim();
+  }
+
+  function getStorefrontProductDirectLink(product) {
+    if (!product) return '';
+    var param = getProductDirectParam(product);
+    var base = window.location.origin;
+    var path = window.location.pathname || '/';
+    if (!base || base === 'null' || !window.location.protocol.startsWith('http')) {
+      base = 'https://filedilam.vn';
+      path = '/';
+    } else {
+      if (path.endsWith('.html')) {
+        path = path.substring(0, path.lastIndexOf('/') + 1);
+      }
+      if (!path.endsWith('/')) {
+        path += '/';
+      }
+    }
+    return base + path + '#san-pham=' + encodeURIComponent(param);
+  }
+
+  function copyDirectLinkTextToClipboard(text, onSuccess, onError) {
+    if (navigator.clipboard && window.isSecureContext) {
+      navigator.clipboard.writeText(text).then(function() {
+        if (typeof onSuccess === 'function') onSuccess();
+      }).catch(function() {
+        fallbackCopyDirectLinkText(text, onSuccess, onError);
+      });
+    } else {
+      fallbackCopyDirectLinkText(text, onSuccess, onError);
+    }
+  }
+
+  function fallbackCopyDirectLinkText(text, onSuccess, onError) {
+    try {
+      var textArea = document.createElement("textarea");
+      textArea.value = text;
+      textArea.style.position = "fixed";
+      textArea.style.top = "0";
+      textArea.style.left = "0";
+      textArea.style.width = "2em";
+      textArea.style.height = "2em";
+      textArea.style.padding = "0";
+      textArea.style.border = "none";
+      textArea.style.outline = "none";
+      textArea.style.boxShadow = "none";
+      textArea.style.background = "transparent";
+      document.body.appendChild(textArea);
+      textArea.focus();
+      textArea.select();
+      var successful = document.execCommand('copy');
+      document.body.removeChild(textArea);
+      if (successful) {
+        if (typeof onSuccess === 'function') onSuccess();
+      } else {
+        if (typeof onError === 'function') onError();
+      }
+    } catch (err) {
+      if (typeof onError === 'function') onError(err);
+    }
+  }
+
+  function copyStorefrontProductLink(product) {
+    if (!product) return;
+    var directUrl = getStorefrontProductDirectLink(product);
+    copyDirectLinkTextToClipboard(directUrl, function() {
+      showToast("Đã sao chép link sản phẩm: " + product.name);
+    }, function() {
+      showToast("Không thể sao chép link. Vui lòng thử lại!");
+    });
+  }
+
+  window.copyStorefrontProductLink = function(prod) {
+    var p = prod || (typeof getProductById === 'function' ? getProductById(state.selectedProductId) : null);
+    if (p) copyStorefrontProductLink(p);
+  };
+
+  function clearProductHashFromUrl() {
+    var hash = window.location.hash || '';
+    if (parseProductDirectHash(hash)) {
+      var cleanUrl = window.location.pathname + window.location.search;
+      if (window.history && typeof window.history.replaceState === 'function') {
+        window.history.replaceState(null, document.title, cleanUrl);
+      } else {
+        window.location.hash = '';
+      }
+    }
+  }
+
+  var hasAutoOpenedDirectProduct = false;
+  var isHandlingDirectHash = false;
+
+  function checkAndHandleDirectProductHash() {
+    if (isHandlingDirectHash) return;
+    var param = parseProductDirectHash(window.location.hash);
+    if (!param || !data || !data.products || !data.products.length) return;
+
+    var product = findProductByIdOrSlug(data.products, param);
+    if (product) {
+      hasAutoOpenedDirectProduct = true;
+      if (!detailModal || !detailModal.classList.contains("is-open") || state.selectedProductId !== product.id) {
+        isHandlingDirectHash = true;
+        try {
+          openDetail(product.id);
+        } finally {
+          isHandlingDirectHash = false;
+        }
+      }
+    }
+  }
+
+  // Expose helpers for automated testing & interoperability
+  window.StorefrontDirectLink = {
+    slugifyVietnamese: slugifyVietnamese,
+    parseProductDirectHash: parseProductDirectHash,
+    findProductByIdOrSlug: findProductByIdOrSlug,
+    getProductDirectParam: getProductDirectParam,
+    getStorefrontProductDirectLink: getStorefrontProductDirectLink,
+    clearProductHashFromUrl: clearProductHashFromUrl,
+    checkAndHandleDirectProductHash: checkAndHandleDirectProductHash
+  };
+
   // Review Modal elements
   var reviewModal = document.getElementById("reviewModal");
   var closeReviewModal = document.getElementById("closeReviewModal");
@@ -376,6 +572,9 @@ function escapeHtml(value) {
     window.setTimeout(function () { openCheckout(true); }, 0);
   }
 
+  // Tự động kiểm tra và mở modal chi tiết sản phẩm nếu URL chứa link direct
+  checkAndHandleDirectProductHash();
+
   // Load dynamic products from Firestore (Single Source of Truth)
   if (typeof firebase !== 'undefined' && firebase.firestore) {
     var db = firebase.firestore();
@@ -394,8 +593,9 @@ function escapeHtml(value) {
         activeCoupons.push(c);
       });
       cachedActiveCoupons = activeCoupons;
-      // Only display public welcome coupons in the hero (exclude private retention vouchers)
+      // Only display public welcome coupons in the hero (exclude private retention vouchers and non-public coupons)
       var heroCoupons = activeCoupons.filter(function(c) {
+        if (c.is_public === false || c.is_private === true) return false;
         var code = String(c.code || c.id || "").toUpperCase();
         return code !== "GIUCHANG10" && code !== "GIUCHAN" && code !== "TRIAN20";
       });
@@ -423,10 +623,13 @@ function escapeHtml(value) {
       renderFolders();
       renderProducts();
       renderCart();
+      // Kích hoạt link direct nếu tải từ Firestore hoàn tất
+      checkAndHandleDirectProductHash();
     }, function(error) {
       console.error("Error listening to Firestore products:", error);
       isFirestoreProductsLoaded = true;
       renderProducts();
+      checkAndHandleDirectProductHash();
     });
   } else {
     isFirestoreProductsLoaded = true;
@@ -744,10 +947,26 @@ function escapeHtml(value) {
     }
 
     window.addEventListener("popstate", function () {
+      if (detailModal && detailModal.classList.contains("is-open")) {
+        closeDetail(true);
+      }
+      clearProductHashFromUrl();
+
       if (window.location.hash === "#thanh-toan") {
         openCheckout(true);
       } else if (checkoutModal && checkoutModal.classList.contains("is-open")) {
         closeCheckout(true);
+      }
+    });
+
+    window.addEventListener("hashchange", function () {
+      var param = parseProductDirectHash(window.location.hash);
+      if (param) {
+        checkAndHandleDirectProductHash();
+      } else {
+        if (detailModal && detailModal.classList.contains("is-open")) {
+          closeDetail(true);
+        }
       }
     });
     
@@ -1450,7 +1669,7 @@ function escapeHtml(value) {
 
   function getSafeDeliveryUrl(url, productType, productId) {
     var value = String(url || "").trim();
-    var isGoogleSheet = productType === "google_sheets" || productId === "quan-ly-kho-mini-google-sheets-smart" || value.indexOf("docs.google.com/spreadsheets") !== -1;
+    var isGoogleSheet = productType === "google_sheets" || productId === "quan-ly-kho-mini-google-sheets-smart" || value.indexOf("docs.google.com/spreadsheets") !== -1 || value.indexOf("drive.google.com/file/d/") !== -1;
     if (!isGoogleSheet) return value;
 
     // Luôn lấy ID bảng tính rồi dựng lại đường dẫn /copy. Nhờ vậy đơn hàng
@@ -1461,9 +1680,14 @@ function escapeHtml(value) {
     if (!spreadsheetId && productId === "quan-ly-kho-mini-google-sheets-smart") {
       spreadsheetId = "1xir1M-ieP0zqmGE5J4m1rGbxuzTIUaDw7aFoM7GEeZo";
     }
-    return spreadsheetId
-      ? "https://docs.google.com/spreadsheets/d/" + spreadsheetId + "/copy"
-      : value;
+    if (spreadsheetId) {
+      return "https://docs.google.com/spreadsheets/d/" + spreadsheetId + "/copy";
+    }
+    var driveMatch = value.match(/drive\.google\.com\/file\/d\/([a-zA-Z0-9_-]+)/);
+    if (driveMatch && driveMatch[1]) {
+      return "https://drive.google.com/file/d/" + driveMatch[1] + "/copy";
+    }
+    return value;
   }
 
   function loadMyPurchases() {
@@ -2107,34 +2331,15 @@ function escapeHtml(value) {
         // NẾU LÀ SẢN PHẨM COMBO: Render dạng thẻ phẳng tinh gọn kèm danh sách file thành phần
         if (isCombo) {
           var childrenHtml = '';
-          var comboChildList = [];
-          if (Array.isArray(p.combo_items) && p.combo_items.length > 0) {
-            p.combo_items.forEach(function(cId) {
-              var cp = getProductById(cId);
-              if (cp) comboChildList.push(cp);
-            });
-          }
-
-          if (comboChildList.length === 0 && p.name) {
-            var rawParts = p.name.replace(/^combo\s+/i, '').split(/[\+&]/);
-            if (rawParts.length >= 2) {
-              rawParts.forEach(function(part) {
-                var cleanName = part.trim();
-                var matched = (data.products || []).find(function(cand) {
-                  return cand.name && cand.name.toLowerCase().includes(cleanName.toLowerCase());
-                });
-                comboChildList.push(matched || { name: cleanName });
-              });
-            }
-          }
-
+          var comboChildList = resolveComboItems(p);
           if (comboChildList.length > 0) {
             childrenHtml = '<div class="checkout-combo-children-list">' +
               comboChildList.map(function(child) {
+                var cName = child.product_name || child.name || "File đã mua";
                 return '<div class="checkout-combo-child-item">' +
                   '<div class="checkout-combo-child-left">' +
                     '<span class="checkout-combo-child-bullet"></span>' +
-                    '<span class="checkout-combo-child-title" title="' + escapeHtml(child.name) + '">' + escapeHtml(child.name) + '</span>' +
+                    '<span class="checkout-combo-child-title" title="' + escapeHtml(cName) + '">' + escapeHtml(cName) + '</span>' +
                   '</div>' +
                   '<span class="checkout-combo-child-qty">x1</span>' +
                 '</div>';
@@ -2290,7 +2495,7 @@ function escapeHtml(value) {
       return;
     }
 
-    state.selectedProductId = productId;
+    state.selectedProductId = product.id;
     if (detailTitle) detailTitle.innerHTML = '<h1 class="detail-h1-title">' + escapeHtml(product.name) + '</h1>';
 
     // Update cart badge in detail topbar if present
@@ -2388,6 +2593,13 @@ function escapeHtml(value) {
               '<polyline points="12 19 5 12 12 5"></polyline>' +
             '</svg>' +
             '<span>Trở lại danh sách file</span>' +
+          '</button>' +
+          '<button type="button" class="btn-detail-copy-link btn-detail-top-copy" id="detailTopCopyLinkBtn" onclick="window.copyStorefrontProductLink && window.copyStorefrontProductLink();" title="Sao chép link gửi khách">' +
+            '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' +
+              '<path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path>' +
+              '<path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>' +
+            '</svg>' +
+            '<span>Sao chép link</span>' +
           '</button>' +
         '</div>' +
       '</div>';
@@ -2523,7 +2735,16 @@ function escapeHtml(value) {
     var infoHtml =
       '<div class="detail-col-info">' +
         '<div class="detail-header-group">' +
-          '<h1 class="detail-product-title">' + escapeHtml(product.name) + '</h1>' +
+          '<div class="detail-title-copy-row">' +
+            '<h1 class="detail-product-title">' + escapeHtml(product.name) + '</h1>' +
+            '<button type="button" class="btn-detail-copy-link btn-detail-title-copy" id="detailHeaderCopyLinkBtn" onclick="window.copyStorefrontProductLink && window.copyStorefrontProductLink();" title="Sao chép link gửi khách">' +
+              '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' +
+                '<path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path>' +
+                '<path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>' +
+              '</svg>' +
+              '<span>Sao chép link</span>' +
+            '</button>' +
+          '</div>' +
           '<div class="detail-rating-row">' +
             '<div class="detail-rating-pill"><span class="star-val">★ ' + ratingInfo.score + '</span><span class="sep">•</span><span class="sales-val">' + ratingInfo.sales + ' lượt mua</span></div>' +
           '</div>' +
@@ -2856,6 +3077,47 @@ function escapeHtml(value) {
       });
     });
 
+    // Gắn sự kiện sao chép link direct cho các nút sao chép trong modal chi tiết
+    var detailCopyBtns = detailModal.querySelectorAll(".btn-detail-copy-link");
+    Array.prototype.forEach.call(detailCopyBtns, function(btn) {
+      btn.addEventListener("click", function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        copyStorefrontProductLink(product);
+      });
+    });
+
+    // Cập nhật URL sạch sẽ qua History API (/#san-pham={slug_hoac_id})
+    var directParam = getProductDirectParam(product);
+    if (directParam) {
+      var currentHashParam = parseProductDirectHash(window.location.hash);
+      var baseCleanUrl = window.location.pathname + window.location.search;
+      var directHash = '#san-pham=' + encodeURIComponent(directParam);
+
+      if (currentHashParam !== directParam) {
+        // Nếu là lần đầu mở trang qua link direct (chưa có state), chuẩn bị entry gốc sạch sẽ để khi bấm Back sẽ quay về trang chủ
+        if (!window.history.state || window.history.state.modal !== 'product-detail') {
+          if (currentHashParam && window.history && typeof window.history.replaceState === 'function') {
+            window.history.replaceState({ modal: null }, document.title, baseCleanUrl);
+          }
+        }
+        if (window.history && typeof window.history.pushState === 'function') {
+          window.history.pushState({ modal: 'product-detail', productId: product.id }, document.title, baseCleanUrl + directHash);
+        } else {
+          window.location.hash = directHash;
+        }
+      } else {
+        // Nếu đã ở đúng direct hash, chuẩn bị history state để Back button gỡ hash sạch sẽ
+        if (!window.history.state || window.history.state.modal !== 'product-detail') {
+          var curFullUrl = baseCleanUrl + window.location.hash;
+          if (window.history && typeof window.history.replaceState === 'function' && typeof window.history.pushState === 'function') {
+            window.history.replaceState({ modal: null }, document.title, baseCleanUrl);
+            window.history.pushState({ modal: 'product-detail', productId: product.id }, document.title, curFullUrl);
+          }
+        }
+      }
+    }
+
     detailModal.style.setProperty("top", "0px", "important");
     detailModal.style.setProperty("z-index", "99999", "important");
     detailModal.classList.add("is-open");
@@ -2929,13 +3191,14 @@ function escapeHtml(value) {
   }
 
   window.closeDetailModal = closeDetail;
-  function closeDetail() {
+  function closeDetail(fromHistoryEvent) {
     detailModal.classList.remove("is-open");
     detailModal.setAttribute("aria-hidden", "true");
     if (detailFooter) {
       detailFooter.innerHTML = "";
     }
     unlockBodyIfNeeded();
+    clearProductHashFromUrl();
   }
 
     function openCart() {
@@ -3613,12 +3876,70 @@ function escapeHtml(value) {
       return p ? p.name : '';
     }).filter(Boolean).join(" + ");
 
+    var allDeliveryFiles = [];
+    state.cart.forEach(function(entry) {
+      var p = getProductById(entry.productId);
+      if (!p) return;
+      if (isComboProduct(p)) {
+        var children = resolveComboItems(p);
+        if (children && children.length > 0) {
+          allDeliveryFiles = allDeliveryFiles.concat(children);
+        } else {
+          var pRawUrl = p.sheetUrl || p.delivery_link || p.fileUrl || "";
+          var isApp = (p.type === "apps_script" || p.type === "web_app");
+          if (!isApp && p.name) {
+            var lowN = p.name.toLowerCase();
+            if (lowN.includes("web app") || lowN.includes("apps script") || lowN.includes("appscript")) {
+              isApp = true;
+            }
+          }
+          allDeliveryFiles.push({
+            product_id: p.id,
+            product_name: p.name,
+            product_file_url: getSafeDeliveryUrl(pRawUrl, "google_sheets", p.id),
+            product_type: isApp ? "apps_script" : "google_sheets"
+          });
+        }
+      } else {
+        var pRawUrl = p.sheetUrl || p.delivery_link || p.fileUrl || "";
+        var isApp = (p.type === "apps_script" || p.type === "web_app");
+        if (!isApp && p.name) {
+          var lowN = p.name.toLowerCase();
+          if (lowN.includes("web app") || lowN.includes("apps script") || lowN.includes("appscript")) {
+            isApp = true;
+          }
+        }
+        allDeliveryFiles.push({
+          product_id: p.id,
+          product_name: p.name,
+          product_file_url: getSafeDeliveryUrl(pRawUrl, "google_sheets", p.id),
+          product_type: isApp ? "apps_script" : "google_sheets"
+        });
+      }
+    });
+
+    if (allDeliveryFiles.length === 0 && isComboProduct(product)) {
+      var children = resolveComboItems(product);
+      if (children && children.length > 0) {
+        allDeliveryFiles = children;
+      }
+    }
+
+    var comboItemsList = (allDeliveryFiles.length > 1) ? allDeliveryFiles : [];
+
     var orderItems = state.cart.map(function(e) {
       var p = getProductById(e.productId);
       if (!p) return null;
       var pRawUrl = p.sheetUrl || p.delivery_link || p.fileUrl || "";
-      var pFormat = p.type || "google_sheets";
-      return {
+      var isAppScript = (p.type === "apps_script" || p.type === "web_app");
+      if (!isAppScript && p.name) {
+        var lowN = p.name.toLowerCase();
+        if (lowN.includes("web app") || lowN.includes("apps script") || lowN.includes("appscript")) {
+          isAppScript = true;
+        }
+      }
+      var pFormat = isAppScript ? "apps_script" : (p.type === "excel" ? "excel" : "google_sheets");
+      var itemObj = {
         product_id: p.id,
         product_name: p.name,
         product_file_url: getSafeDeliveryUrl(pRawUrl, pFormat === "excel" ? "excel" : "google_sheets", p.id),
@@ -3626,6 +3947,14 @@ function escapeHtml(value) {
         quantity: e.quantity,
         price: p.price || 0
       };
+      if (isComboProduct(p)) {
+        var cList = resolveComboItems(p);
+        if (cList && cList.length > 0) {
+          itemObj.combo_items = cList;
+          itemObj.is_combo = true;
+        }
+      }
+      return itemObj;
     }).filter(Boolean);
 
     var finalAmount = getCartTotal();
@@ -3646,6 +3975,11 @@ function escapeHtml(value) {
       package_name: state.selectedPackage === "coaching" ? (product.coachingTitle || "Bản Kèm 1-1 (1 buổi 1 tiếng)") : "Bản Tự Dùng"
     };
 
+    if (comboItemsList.length > 0) {
+      orderData.combo_items = comboItemsList;
+      orderData.is_combo = true;
+    }
+
     authFetch("/orders", {
       method: "POST",
       body: JSON.stringify(orderData)
@@ -3663,6 +3997,8 @@ function escapeHtml(value) {
           transfer_note: resData.transfer_note,
           product_id: product.id,
           product_name: productNames || product.name,
+          combo_items: comboItemsList.length > 0 ? comboItemsList : undefined,
+          is_combo: comboItemsList.length > 0,
           package_type: state.selectedPackage || "standard",
           package_name: state.selectedPackage === "coaching" ? (product.coachingTitle || "Bản Kèm 1-1 (1 buổi 1 tiếng)") : "Bản Tự Dùng",
           customer_name: customerName,
@@ -4276,8 +4612,9 @@ function escapeHtml(value) {
         activeCoupons.push(c);
       });
 
-      // Only display public welcome coupons in the hero (exclude private retention vouchers)
+      // Only display public welcome coupons in the hero (exclude private retention vouchers and non-public coupons)
       var heroCoupons = activeCoupons.filter(function(c) {
+        if (c.is_public === false || c.is_private === true) return false;
         var code = String(c.code || c.id || "").toUpperCase();
         return code !== "GIUCHANG10" && code !== "GIUCHAN" && code !== "TRIAN20";
       });
@@ -5162,9 +5499,8 @@ function escapeHtml(value) {
   }
 
   function getProductById(productId) {
-    return data.products.find(function (product) {
-      return product.id === productId;
-    });
+    if (!productId || !data || !data.products) return null;
+    return findProductByIdOrSlug(data.products, productId);
   }
 
   function findProductForOrder(order) {
@@ -5185,6 +5521,23 @@ function escapeHtml(value) {
 
   function resolveOrderItems(order) {
     if (!order) return [];
+    if (Array.isArray(order.combo_items) && order.combo_items.length > 0) {
+      return order.combo_items.map(function(it) {
+        var p = getProductById(it.product_id) || findProductForOrder(it);
+        var rawUrl = (p && (p.sheetUrl || p.delivery_link || p.fileUrl)) || it.product_file_url || "";
+        var isApp = (it.product_type === "apps_script" || (p && (p.type === "apps_script" || p.type === "web_app")));
+        var pType = isApp ? "apps_script" : "google_sheets";
+        var deliveryUrl = getSafeDeliveryUrl(rawUrl, "google_sheets", it.product_id);
+        return {
+          product_id: it.product_id || (p && p.id) || "",
+          product_name: it.product_name || (p && p.name) || "File đã mua",
+          product_type: pType,
+          delivery_url: deliveryUrl,
+          is_cloud: true,
+          price: it.price ?? (p && p.price) ?? 0
+        };
+      });
+    }
     if (Array.isArray(order.items) && order.items.length > 0) {
       return order.items.map(function(it) {
         var p = getProductById(it.product_id) || findProductForOrder(it);
@@ -5275,10 +5628,130 @@ function escapeHtml(value) {
            p.type === 'combo' || 
            p.categoryId === 'combo' || 
            (Array.isArray(p.combo_items) && p.combo_items.length > 0) ||
+           (Array.isArray(p.child_links) && p.child_links.length > 1) ||
            nameLower.startsWith('combo ') || 
            nameLower.startsWith('combo-') ||
-           nameLower.includes(' + ');
+           nameLower.startsWith('combo:') ||
+           nameLower.startsWith('gói combo');
   }
+
+  function resolveComboItems(p) {
+    if (!p) return [];
+    var comboChildList = [];
+
+    // 1. Phân giải từ mảng combo_items có sẵn (ID chuỗi hoặc object cấu hình)
+    if (Array.isArray(p.combo_items) && p.combo_items.length > 0) {
+      p.combo_items.forEach(function(c) {
+        if (!c) return;
+        if (typeof c === "object") {
+          if (c.product_name && (c.product_file_url || c.sheetUrl || c.fileUrl || c.delivery_link)) {
+            var rawU = c.product_file_url || c.sheetUrl || c.delivery_link || c.fileUrl || "";
+            var isApp = (c.product_type === "apps_script" || c.type === "apps_script" || c.type === "web_app");
+            if (!isApp && c.product_name) {
+              var lowN = c.product_name.toLowerCase();
+              if (lowN.includes("web app") || lowN.includes("apps script") || lowN.includes("appscript")) {
+                isApp = true;
+              }
+            }
+            var pType = isApp ? "apps_script" : "google_sheets";
+            comboChildList.push({
+              product_id: c.product_id || c.id || "",
+              product_name: c.product_name,
+              product_file_url: getSafeDeliveryUrl(rawU, "google_sheets", c.product_id || c.id),
+              product_type: pType
+            });
+            return;
+          }
+          var cId = c.id || c.productId || c.product_id;
+          if (cId) {
+            var cp = getProductById(cId);
+            if (cp) {
+              var isApp = (cp.type === "apps_script" || cp.type === "web_app");
+              if (!isApp && cp.name) {
+                var lowN = cp.name.toLowerCase();
+                if (lowN.includes("web app") || lowN.includes("apps script") || lowN.includes("appscript")) {
+                  isApp = true;
+                }
+              }
+              var pType = isApp ? "apps_script" : "google_sheets";
+              var rawU = cp.sheetUrl || cp.delivery_link || cp.fileUrl || "";
+              comboChildList.push({
+                product_id: cp.id,
+                product_name: cp.name,
+                product_file_url: getSafeDeliveryUrl(rawU, "google_sheets", cp.id),
+                product_type: pType
+              });
+              return;
+            }
+          }
+        } else if (typeof c === "string") {
+          var cp = getProductById(c);
+          if (cp) {
+            var isApp = (cp.type === "apps_script" || cp.type === "web_app");
+            if (!isApp && cp.name) {
+              var lowN = cp.name.toLowerCase();
+              if (lowN.includes("web app") || lowN.includes("apps script") || lowN.includes("appscript")) {
+                isApp = true;
+              }
+            }
+            var pType = isApp ? "apps_script" : "google_sheets";
+            var rawU = cp.sheetUrl || cp.delivery_link || cp.fileUrl || "";
+            comboChildList.push({
+              product_id: cp.id,
+              product_name: cp.name,
+              product_file_url: getSafeDeliveryUrl(rawU, "google_sheets", cp.id),
+              product_type: pType
+            });
+            return;
+          }
+        }
+      });
+    }
+
+    // 2. Dự phòng: Tách từ tên sản phẩm (VD: Combo A + B hoặc Combo A & B) nếu combo_items rỗng
+    if (comboChildList.length === 0 && p.name && isComboProduct(p)) {
+      var rawParts = p.name.replace(/^(combo\s*[\-:]*|\s*gói\s*combo[\s\-:]*)/i, '').split(/\s*\+\s*|\s+&\s+/i);
+      if (rawParts.length >= 2) {
+        rawParts.forEach(function(part, idx) {
+          var cleanName = part.trim();
+          var matched = (data.products || []).find(function(cand) {
+            return cand.name && cand.name.toLowerCase().includes(cleanName.toLowerCase());
+          });
+          if (matched) {
+            var isApp = (matched.type === "apps_script" || matched.type === "web_app");
+            if (!isApp && matched.name) {
+              var lowN = matched.name.toLowerCase();
+              if (lowN.includes("web app") || lowN.includes("apps script") || lowN.includes("appscript")) {
+                isApp = true;
+              }
+            }
+            var pType = isApp ? "apps_script" : "google_sheets";
+            var rawU = matched.sheetUrl || matched.delivery_link || matched.fileUrl || "";
+            comboChildList.push({
+              product_id: matched.id,
+              product_name: matched.name,
+              product_file_url: getSafeDeliveryUrl(rawU, "google_sheets", matched.id),
+              product_type: pType
+            });
+          } else {
+            var fallbackUrl = (Array.isArray(p.child_links) && p.child_links[idx]) ? p.child_links[idx] : (p.sheetUrl || p.delivery_link || p.fileUrl || "");
+            var isApp = cleanName.toLowerCase().includes("web app") || cleanName.toLowerCase().includes("apps script");
+            var pType = isApp ? "apps_script" : "google_sheets";
+            comboChildList.push({
+              product_id: "",
+              product_name: cleanName,
+              product_file_url: getSafeDeliveryUrl(fallbackUrl, "google_sheets", ""),
+              product_type: pType
+            });
+          }
+        });
+      }
+    }
+
+    return comboChildList;
+  }
+  window.resolveComboItems = resolveComboItems;
+  window.isComboProduct = isComboProduct;
 
   function evaluateCoupon(c, subtotal) {
     const scope = c.scope || 'all';

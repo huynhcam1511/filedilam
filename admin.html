@@ -2297,6 +2297,12 @@
                 </div>
 
                 <div class="canvas-field-group">
+                  <label for="productSlug" class="canvas-label">Slug URL rút gọn <span style="font-size:0.75rem; color:#64748b; font-weight:normal;">(Không bắt buộc)</span></label>
+                  <input type="text" id="productSlug" class="canvas-input" placeholder="VD: quan-ly-kho-mini">
+                  <small class="canvas-help-text">Dùng để tạo link direct gửi khách (/#san-pham=slug). Nếu để trống, hệ thống dùng mã SKU.</small>
+                </div>
+
+                <div class="canvas-field-group">
                   <label for="productDescription" class="canvas-label">Mô tả ngắn (Heading 2) <span class="req">*</span></label>
                   <textarea id="productDescription" class="canvas-textarea" rows="2" style="min-height:64px;" required placeholder="VD: Phần Mềm Quản Lý Khách Hàng Bất Động Sản (Phân Quyền – Mua dùng cho cả team – mua 1 lần dùng mãi mãi)"></textarea>
                   <small class="canvas-help-text">Đóng vai trò là Sub-heading 2 súc tích định vị giải pháp ngay dưới tiêu đề sản phẩm.</small>
@@ -2496,6 +2502,12 @@
                   <label for="comboName" class="canvas-label">Tên Combo (Heading 1) <span class="req">*</span></label>
                   <input type="text" id="comboName" class="canvas-input" required placeholder="VD: [COMBO TIẾT KIỆM] Trọn Bộ Quản Lý Bán Hàng Online + Quản Lý Kho Mini">
                   <small class="canvas-help-text">Tiêu đề chính lớn nhất (H1) hiển thị trên cùng ở trang chi tiết sản phẩm Combo.</small>
+                </div>
+
+                <div class="canvas-field-group">
+                  <label for="comboSlug" class="canvas-label">Slug URL rút gọn Combo <span style="font-size:0.75rem; color:#64748b; font-weight:normal;">(Không bắt buộc)</span></label>
+                  <input type="text" id="comboSlug" class="canvas-input" placeholder="VD: combo-quan-ly-kho-ban-hang">
+                  <small class="canvas-help-text">Dùng để tạo link direct gửi khách (/#san-pham=slug). Nếu để trống, hệ thống dùng mã SKU Combo.</small>
                 </div>
 
                 <div class="canvas-field-group">
@@ -2926,6 +2938,7 @@
             <div class="status-counter-text" id="couponCountCounter">
               Đã kết nối Firestore • <b id="couponTotalNum">0</b> mã
             </div>
+            <button type="button" class="btn-create-pill" style="background:#059669;color:#ffffff;border:none;box-shadow:0 1px 2px rgba(0,0,0,0.05);" id="btnSeedStandardCoupons" onclick="window.seedStandardCoupons && window.seedStandardCoupons()">+ Nạp nhanh 5 mã chuẩn</button>
             <button type="button" class="btn-create-pill" style="background:white;color:#047857;border:1px solid #cbd5e1" id="btnPromoLibrary">Gợi ý chương trình</button>
             <button type="button" class="btn-create-pill" id="btnExportCouponsExcel" onclick="window.exportCouponsOnlyToExcel && window.exportCouponsOnlyToExcel()" style="background:#ffffff; color:#047857; border:1px solid #cbd5e1;" title="Xuất danh sách mã giảm giá ra Excel">
                 <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
@@ -3043,9 +3056,15 @@
                 <span style="display: block; font-size: 0.76rem; color: #94a3b8; margin-top: 5px;">* Khóa chỉnh sửa: Câu điều kiện được tạo tự động 100% dựa trên các trường bạn thiết lập.</span>
               </div>
 
-              <div style="display: flex; align-items: center; gap: 8px; margin-top: 4px;">
-                <input type="checkbox" id="couponIsActive" checked style="width: 18px; height: 18px; accent-color: #059669; cursor: pointer;" />
-                <label for="couponIsActive" style="font-size: 0.9rem; font-weight: 600; color: #1e293b; cursor: pointer;">Kích hoạt mã ngay</label>
+              <div style="display: flex; flex-direction: column; gap: 8px; margin-top: 6px;">
+                <div style="display: flex; align-items: center; gap: 8px;">
+                  <input type="checkbox" id="couponIsActive" checked style="width: 18px; height: 18px; accent-color: #059669; cursor: pointer;" />
+                  <label for="couponIsActive" style="font-size: 0.9rem; font-weight: 600; color: #1e293b; cursor: pointer;">Kích hoạt mã ngay</label>
+                </div>
+                <div style="display: flex; align-items: center; gap: 8px;">
+                  <input type="checkbox" id="couponIsPublic" checked style="width: 18px; height: 18px; accent-color: #059669; cursor: pointer;" />
+                  <label for="couponIsPublic" style="font-size: 0.9rem; font-weight: 600; color: #1e293b; cursor: pointer;">Hiển thị công khai ngoài giỏ hàng (bỏ chọn nếu là mã ẩn/đo lường TikTok, email)</label>
+                </div>
               </div>
 
               <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 14px; padding-top: 14px; border-top: 1px solid #f1f5f9;">
