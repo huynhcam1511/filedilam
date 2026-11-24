@@ -521,148 +521,6 @@ def send_single_delivery_email(customer_email, customer_name, order_id, file_ite
       </div>"""
 
         return_offers = []
-        try:
-            # Thuật toán gợi ý 2 file bổ trợ chưa mua (Loại trừ các file trong đơn hàng hiện tại)
-            purchased_ids = set()
-            for ci in (combo_items or []):
-                cid = ci.get("product_id") or ci.get("id")
-                if cid:
-                    purchased_ids.add(str(cid))
-            single_pid = order_data.get("product_id")
-            if single_pid:
-                purchased_ids.add(str(single_pid))
-
-            # Danh mục 8 sản phẩm chuẩn của File Đi Làm
-            CATALOG_PRODS = [
-                {
-                    "id": "PRD-662235",
-                    "name": "Quản Lý Kho & Nhập Xuất Tồn",
-                    "type": "Web App (Apps Script)",
-                    "category": "Kinh doanh",
-                    "price": 49000,
-                    "original_price": 129000,
-                    "sales": 23
-                },
-                {
-                    "id": "PRD-818270",
-                    "name": "Quản Lý Bán Hàng Online",
-                    "type": "Google Sheets",
-                    "category": "Kinh doanh",
-                    "price": 39000,
-                    "original_price": 99000,
-                    "sales": 67
-                },
-                {
-                    "id": "PRD-791771",
-                    "name": "Tính Giá Vốn F&B",
-                    "type": "Web App (Apps Script)",
-                    "category": "Kinh doanh",
-                    "price": 39000,
-                    "original_price": 89000,
-                    "sales": 8
-                },
-                {
-                    "id": "PRD-801788",
-                    "name": "Quản Lý Nhà Trọ",
-                    "type": "Web App (Apps Script)",
-                    "category": "Kinh doanh",
-                    "price": 79000,
-                    "original_price": 299000,
-                    "sales": 1
-                },
-                {
-                    "id": "PRD-506079",
-                    "name": "Quản Lý Tiến Độ Dự Án & Công Việc Đội Nhóm",
-                    "type": "Web App (Apps Script)",
-                    "category": "Công việc",
-                    "price": 69000,
-                    "original_price": 149000,
-                    "sales": 0
-                },
-                {
-                    "id": "PRD-262098",
-                    "name": "Quản Lý Công Việc & Thói Quen",
-                    "type": "Google Sheets",
-                    "category": "Phát triển bản thân",
-                    "price": 29000,
-                    "original_price": 109000,
-                    "sales": 0
-                }
-            ]
-
-            # Lọc bỏ các file khách vừa mua
-            available_prods = [p for p in CATALOG_PRODS if p["id"] not in purchased_ids]
-            # Ưu tiên theo lượt tải
-            available_prods.sort(key=lambda x: x.get("sales", 0), reverse=True)
-            suggested_prods = available_prods[:2]
-
-            import urllib.parse
-            q_name = urllib.parse.quote(str(customer_name or "").strip())
-            q_email = urllib.parse.quote(str(customer_email or "").strip())
-            q_phone = urllib.parse.quote(str(order_data.get("customer_phone") or "").strip())
-            user_params = f"name={q_name}&email={q_email}&phone={q_phone}&coupon=MEMBER30"
-
-            cards_html = []
-            for sp in suggested_prods:
-                p_name = sp["name"]
-                p_type = sp["type"]
-                p_id = sp["id"]
-                p_orig = sp["original_price"]
-                p_price = sp["price"]
-                # Giảm 30% tối đa 20k
-                discount_val = min(int(p_price * 0.3), 20000)
-                member_price = p_price - discount_val
-                orig_fmt = f"{p_orig:,}".replace(",", ".") + " đ"
-                price_fmt = f"{p_price:,}".replace(",", ".") + " đ"
-                member_fmt = f"{member_price:,}".replace(",", ".") + " đ"
-                saved_fmt = f"{discount_val:,}".replace(",", ".") + " đ"
-
-                direct_buy_url = f"https://filedilam.web.app/?add={p_id}&{user_params}"
-
-                cards_html.append(f"""
-                <div style="background-color: #ffffff; border: 1px solid #cbd5e1; border-radius: 8px; padding: 14px 16px; margin-bottom: 12px; text-align: left;">
-                  <div style="font-weight: 700; color: #0f172a; font-size: 14px;">📁 {p_name} <span style="font-size: 11px; font-weight: 500; color: #059669; background: #ecfdf5; padding: 2px 6px; border-radius: 4px; border: 1px solid #a7f3d0;">{p_type}</span></div>
-                  <div style="margin: 6px 0; font-size: 12.5px; color: #64748b; line-height: 1.5;">
-                    Giá gốc: <span style="text-decoration: line-through;">{orig_fmt}</span> &nbsp;&middot;&nbsp; 
-                    Giá niêm yết: <span style="color: #334155; font-weight: 600;">{price_fmt}</span><br>
-                    Ưu đãi thành viên giảm 30%: <strong style="color: #059669; font-size: 13.5px;">{member_fmt}</strong> <span style="color: #d97706; font-size: 11.5px; font-weight: 600;">(Tiết kiệm {saved_fmt})</span>
-                  </div>
-                  <a href="{direct_buy_url}" target="_blank" rel="noopener noreferrer" style="display: block; text-align: center; background-color: #059669; color: #ffffff; text-decoration: none; font-size: 13px; font-weight: 700; padding: 10px 14px; border-radius: 6px; margin-top: 8px;">
-                    👉 Bấm để mua ngay chỉ {member_fmt} (Đã áp mã MEMBER30)
-                  </a>
-                </div>
-                """)
-
-            suggested_box_html = "".join(cards_html)
-            explore_all_url = f"https://filedilam.web.app/?{user_params}"
-
-            gift_card_html = f"""
-            <!-- Khối Quà Tặng Tri Ân Thành Viên Chuẩn Fintech -->
-            <div style="margin: 28px 0 20px 0; padding: 20px 22px; background-color: #f8fafc; border: 1.5px solid #e2e8f0; border-radius: 10px;">
-              <div style="font-size: 14px; font-weight: 700; color: #0f172a; margin-bottom: 6px;">
-                🎁 QUÀ TẶNG TRI ÂN DÀNH RIÊNG CHO THÀNH VIÊN NGƯỜI ĐI LÀM
-              </div>
-              <div style="font-size: 13px; color: #475569; line-height: 1.5; margin-bottom: 14px;">
-                Mã ưu đãi độc quyền: <strong style="font-family: monospace; font-size: 14px; color: #059669; background: #ecfdf5; padding: 2px 8px; border-radius: 4px; border: 1px solid #a7f3d0;">MEMBER30</strong><br>
-                Ưu đãi: Giảm 30% (tối đa 20.000đ) áp dụng cho bất kỳ file nào trên hệ thống.
-              </div>
-
-              <!-- Danh sách file gợi ý mua kèm chưa mua -->
-              <div style="font-size: 12.5px; font-weight: 700; color: #334155; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.3px;">
-                💡 Gợi ý file bổ trợ tốt nhất cho công việc của bạn:
-              </div>
-              {suggested_box_html}
-
-              <div style="text-align: center; margin-top: 10px;">
-                <a href="{explore_all_url}" target="_blank" rel="noopener noreferrer" style="font-size: 12.5px; color: #059669; font-weight: 600; text-decoration: underline;">
-                  Hoặc bấm vào đây để xem toàn bộ kho file (Tự động kích hoạt mã MEMBER30) &rarr;
-                </a>
-              </div>
-            </div>
-            """
-            return_offers.append(gift_card_html)
-        except Exception as error:
-            print(f"Không tạo được khối quà tặng tri ân MEMBER30: {error}")
 
         parent_combo_name = order_data.get("product_name") if (order_data.get("is_combo") or order_data.get("combo_items")) else None
         combo_row_html = ""
@@ -684,10 +542,19 @@ def send_single_delivery_email(customer_email, customer_name, order_id, file_ite
 <body style="margin: 0; padding: 32px 16px; background-color: #f8fafc; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; color: #0f172a; line-height: 1.6; -webkit-font-smoothing: antialiased;">
   <div style="max-width: 580px; margin: 0 auto; background-color: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden;">
     
-    <!-- Header: Thanh lịch, tối giản (Fintech Classy) -->
-    <div style="padding: 28px 32px 20px 32px; border-bottom: 1px solid #f1f5f9;">
-      <div style="font-size: 18px; font-weight: 700; color: #0f172a; letter-spacing: -0.4px;">File Đi Làm</div>
-      <div style="font-size: 13.5px; color: #64748b; margin-top: 4px;">Xác nhận kích hoạt đơn hàng thành công</div>
+    <!-- Header: Thanh lịch, chuẩn Fintech kèm Logo chính thức -->
+    <div style="padding: 24px 32px 20px 32px; border-bottom: 1px solid #f1f5f9; display: flex; align-items: center; gap: 14px;">
+      <table style="width: 100%; border-collapse: collapse;">
+        <tr>
+          <td style="width: 44px; vertical-align: middle;">
+            <img src="https://filedilam.web.app/assets/logo.jpg" alt="Logo File Đi Làm" style="width: 42px; height: 42px; border-radius: 8px; display: block; border: 1px solid #e2e8f0;" />
+          </td>
+          <td style="padding-left: 12px; vertical-align: middle;">
+            <div style="font-size: 17px; font-weight: 700; color: #0f172a; letter-spacing: -0.3px; line-height: 1.2;">File Đi Làm</div>
+            <div style="font-size: 13px; color: #64748b; margin-top: 2px;">Xác nhận kích hoạt đơn hàng thành công</div>
+          </td>
+        </tr>
+      </table>
     </div>
 
     <!-- Body Content -->
@@ -722,7 +589,7 @@ def send_single_delivery_email(customer_email, customer_name, order_id, file_ite
 
       <!-- Danh sách nút nhận file (Chỉ bấm sau khi đã đọc hướng dẫn) -->
       {files_html}
-      {"".join(return_offers)}
+      
       <!-- Hỗ trợ kỹ thuật -->
       <div style="margin-top: 24px; padding-top: 18px; border-top: 1px solid #f1f5f9; font-size: 13px; color: #64748b; line-height: 1.5;">
         Nếu cần hỗ trợ kỹ thuật hoặc có bất kỳ câu hỏi nào trong quá trình thao tác, bạn vui lòng liên hệ Zalo/Hotline: <strong style="color: #0f172a;">0938 134 576</strong> (hoặc phản hồi trực tiếp email này). Đội ngũ kỹ thuật hỗ trợ cả Thứ 7 và Chủ Nhật.
@@ -770,6 +637,185 @@ File Đi Làm - https://filedilam.web.app
         return True
     except Exception as e:
         print(f"[Email] Lỗi gửi email cho file {product_name} đơn #{order_id} ({customer_email}): {e}")
+        return False
+
+
+def send_retention_voucher_email(customer_email, customer_name, order_id, order_data=None):
+    """
+    EMAIL 2 ĐỘC LẬP: Thư cảm ơn & Tấm thẻ Voucher Tri Ân MEMBER30 kèm Logo File Đi Làm.
+    Gửi riêng biệt sau khi kích hoạt đơn hàng, không làm loãng hướng dẫn nhận file.
+    """
+    if not customer_email or "@" not in customer_email:
+        return False
+
+    try:
+        order_data = order_data or {}
+        # Lấy danh sách ID các file khách vừa mua
+        purchased_ids = set()
+        combo_items = extract_combo_items(order_data)
+        for ci in (combo_items or []):
+            cid = ci.get("product_id") or ci.get("id")
+            if cid:
+                purchased_ids.add(str(cid))
+        single_pid = order_data.get("product_id")
+        if single_pid:
+            purchased_ids.add(str(single_pid))
+
+        CATALOG_PRODS = [
+            {"id": "PRD-662235", "name": "Quản Lý Kho & Nhập Xuất Tồn", "type": "Web App (Apps Script)", "price": 49000, "original_price": 129000, "sales": 23},
+            {"id": "PRD-818270", "name": "Quản Lý Bán Hàng Online", "type": "Google Sheets", "price": 39000, "original_price": 99000, "sales": 67},
+            {"id": "PRD-791771", "name": "Tính Giá Vốn F&B", "type": "Web App (Apps Script)", "price": 39000, "original_price": 89000, "sales": 8},
+            {"id": "PRD-801788", "name": "Quản Lý Nhà Trọ", "type": "Web App (Apps Script)", "price": 79000, "original_price": 299000, "sales": 1},
+            {"id": "PRD-506079", "name": "Quản Lý Tiến Độ Dự Án & Công Việc Đội Nhóm", "type": "Web App (Apps Script)", "price": 69000, "original_price": 149000, "sales": 0},
+            {"id": "PRD-262098", "name": "Quản Lý Công Việc & Thói Quen", "type": "Google Sheets", "price": 29000, "original_price": 109000, "sales": 0}
+        ]
+
+        available_prods = [p for p in CATALOG_PRODS if p["id"] not in purchased_ids]
+        available_prods.sort(key=lambda x: x.get("sales", 0), reverse=True)
+        suggested_prods = available_prods[:2]
+
+        import urllib.parse
+        q_name = urllib.parse.quote(str(customer_name or "").strip())
+        q_email = urllib.parse.quote(str(customer_email or "").strip())
+        q_phone = urllib.parse.quote(str(order_data.get("customer_phone") or "").strip())
+        user_params = f"name={q_name}&email={q_email}&phone={q_phone}&coupon=MEMBER30"
+
+        cards_html = []
+        for sp in suggested_prods:
+            p_name = sp["name"]
+            p_type = sp["type"]
+            p_id = sp["id"]
+            p_orig = sp["original_price"]
+            p_price = sp["price"]
+            discount_val = min(int(p_price * 0.3), 20000)
+            member_price = p_price - discount_val
+            orig_fmt = f"{p_orig:,}".replace(",", ".") + " đ"
+            price_fmt = f"{p_price:,}".replace(",", ".") + " đ"
+            member_fmt = f"{member_price:,}".replace(",", ".") + " đ"
+            saved_fmt = f"{discount_val:,}".replace(",", ".") + " đ"
+
+            direct_buy_url = f"https://filedilam.web.app/?add={p_id}&{user_params}"
+
+            cards_html.append(f"""
+            <div style="background-color: #ffffff; border: 1px solid #cbd5e1; border-radius: 8px; padding: 14px 16px; margin-bottom: 12px; text-align: left;">
+              <div style="font-weight: 700; color: #0f172a; font-size: 14px;">📁 {p_name} <span style="font-size: 11px; font-weight: 500; color: #059669; background: #ecfdf5; padding: 2px 6px; border-radius: 4px; border: 1px solid #a7f3d0;">{p_type}</span></div>
+              <div style="margin: 6px 0; font-size: 12.5px; color: #64748b; line-height: 1.5;">
+                Giá gốc: <span style="text-decoration: line-through;">{orig_fmt}</span> &nbsp;&middot;&nbsp; 
+                Giá niêm yết: <span style="color: #334155; font-weight: 600;">{price_fmt}</span><br>
+                Ưu đãi thành viên giảm 30%: <strong style="color: #059669; font-size: 13.5px;">{member_fmt}</strong> <span style="color: #d97706; font-size: 11.5px; font-weight: 600;">(Tiết kiệm {saved_fmt})</span>
+              </div>
+              <a href="{direct_buy_url}" target="_blank" rel="noopener noreferrer" style="display: block; text-align: center; background-color: #059669; color: #ffffff; text-decoration: none; font-size: 13px; font-weight: 700; padding: 10px 14px; border-radius: 6px; margin-top: 8px;">
+                👉 Bấm để mua ngay chỉ {member_fmt} (Đã áp mã MEMBER30)
+              </a>
+            </div>
+            """)
+
+        suggested_box_html = "".join(cards_html)
+        explore_all_url = f"https://filedilam.web.app/?{user_params}"
+
+        html_content = f"""<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Quà tặng tri ân thành viên - File Đi Làm</title>
+</head>
+<body style="margin: 0; padding: 32px 16px; background-color: #f8fafc; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; color: #0f172a; line-height: 1.6; -webkit-font-smoothing: antialiased;">
+  <div style="max-width: 580px; margin: 0 auto; background-color: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden;">
+    
+    <!-- Header: Có Logo chính thức File Đi Làm -->
+    <div style="padding: 24px 32px 20px 32px; border-bottom: 1px solid #f1f5f9;">
+      <table style="width: 100%; border-collapse: collapse;">
+        <tr>
+          <td style="width: 44px; vertical-align: middle;">
+            <img src="https://filedilam.web.app/assets/logo.jpg" alt="Logo File Đi Làm" style="width: 42px; height: 42px; border-radius: 8px; display: block; border: 1px solid #e2e8f0;" />
+          </td>
+          <td style="padding-left: 12px; vertical-align: middle;">
+            <div style="font-size: 17px; font-weight: 700; color: #0f172a; letter-spacing: -0.3px; line-height: 1.2;">File Đi Làm</div>
+            <div style="font-size: 13px; color: #059669; font-weight: 600; margin-top: 2px;">🎁 Thư cảm ơn & Quà tặng tri ân thành viên</div>
+          </td>
+        </tr>
+      </table>
+    </div>
+
+    <!-- Body -->
+    <div style="padding: 28px 32px 32px 32px;">
+      <p style="font-size: 15px; margin: 0 0 14px 0; color: #334155;">
+        Xin chào <strong>{customer_name or 'Quý khách'}</strong>,
+      </p>
+      <p style="font-size: 14px; margin: 0 0 20px 0; color: #475569; line-height: 1.6;">
+        Cảm ơn bạn đã tin tưởng sở hữu giải pháp từ <strong>File Đi Làm</strong>. Đội ngũ hy vọng file đã giúp công việc và việc quản lý của bạn trở nên bài bản, nhẹ nhàng hơn mỗi ngày.
+      </p>
+
+      <!-- Thẻ Voucher Tri Ân Chuẩn Fintech -->
+      <div style="margin: 20px 0 24px 0; padding: 20px 22px; background-color: #f8fafc; border: 1.5px solid #e2e8f0; border-radius: 10px;">
+        <div style="font-size: 14px; font-weight: 700; color: #0f172a; margin-bottom: 8px;">
+          🎁 ĐẶC QUYỀN DÀNH RIÊNG CHO BẠN: VOUCHER GIẢM 30%
+        </div>
+        <div style="font-size: 13px; color: #475569; line-height: 1.6; margin-bottom: 16px;">
+          Mã voucher độc quyền: <strong style="font-family: monospace; font-size: 15px; color: #059669; background: #ecfdf5; padding: 3px 10px; border-radius: 4px; border: 1px solid #a7f3d0;">MEMBER30</strong><br>
+          Mức giảm: <strong>30% (tối đa 20.000đ)</strong> áp dụng cho bất kỳ sản phẩm nào trên hệ thống.
+        </div>
+
+        <div style="font-size: 12.5px; font-weight: 700; color: #334155; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 0.3px;">
+          💡 Gợi ý 2 file bổ trợ tốt nhất cho công việc của bạn:
+        </div>
+        {suggested_box_html}
+
+        <div style="text-align: center; margin-top: 14px;">
+          <a href="{explore_all_url}" target="_blank" rel="noopener noreferrer" style="font-size: 13px; color: #059669; font-weight: 600; text-decoration: underline;">
+            Khám phá toàn bộ kho file (Tự động kích hoạt mã MEMBER30) &rarr;
+          </a>
+        </div>
+      </div>
+
+      <!-- Lời nhắn & Zalo hỗ trợ -->
+      <div style="margin-top: 24px; padding-top: 18px; border-top: 1px solid #f1f5f9; font-size: 13px; color: #64748b; line-height: 1.5;">
+        Nếu bạn cần hỗ trợ thêm về cách vận hành hoặc có nhu cầu tùy chỉnh thêm tính năng theo quy trình riêng, đừng ngần ngại nhắn Zalo cho mình qua số: <strong style="color: #0f172a;">0938 134 576</strong> nhé!<br><br>
+        Chúc công việc của bạn luôn hanh thông và thuận lợi!<br>
+        <strong>Đội ngũ File Đi Làm</strong>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div style="padding: 16px 32px; background-color: #f8fafc; border-top: 1px solid #f1f5f9; font-size: 12px; color: #94a3b8; text-align: center; line-height: 1.5;">
+      File Đi Làm &middot; Hệ thống quản lý và tự động hoá quy trình trên Google Sheets<br>
+      Website: <a href="https://filedilam.web.app" target="_blank" style="color: #64748b; text-decoration: underline;">filedilam.web.app</a>
+    </div>
+  </div>
+</body>
+</html>"""
+
+        plain_text = f"""Xin chào {customer_name or 'Quý khách'},
+
+Cảm ơn bạn đã tin tưởng sở hữu sản phẩm từ File Đi Làm!
+Đội ngũ xin gửi tặng bạn mã tri ân MEMBER30 (Giảm 30% tối đa 20.000đ cho đơn hàng tiếp theo).
+
+Bạn có thể chọn file và sử dụng ưu đãi tại:
+https://filedilam.web.app/?coupon=MEMBER30
+
+Chúc bạn làm việc hiệu quả và thành công!
+File Đi Làm - Hotline/Zalo: 0938 134 576
+"""
+
+        msg = MIMEMultipart("alternative")
+        msg["Subject"] = f"🎁 [Quà tặng thành viên] Gửi tặng {customer_name or 'bạn'} Voucher giảm 30% từ File Đi Làm"
+        msg["From"] = f'"File Đi Làm" <{SMTP_USER}>'
+        msg["To"] = customer_email
+        msg["Reply-To"] = "huynhkiencam151102@gmail.com"
+        msg["Date"] = email.utils.formatdate(localtime=True)
+        msg["Message-ID"] = email.utils.make_msgid(domain="gmail.com")
+        msg.attach(MIMEText(plain_text, "plain", "utf-8"))
+        msg.attach(MIMEText(html_content, "html", "utf-8"))
+
+        server = smtplib.SMTP_SSL("smtp.gmail.com", 465, timeout=15)
+        server.login(SMTP_USER, SMTP_PASS)
+        server.sendmail(SMTP_USER, [customer_email], msg.as_string())
+        server.quit()
+        print(f"[Email] Đã gửi email tri ân voucher MEMBER30 tới {customer_email}")
+        return True
+    except Exception as e:
+        print(f"[Email] Lỗi gửi email tri ân voucher MEMBER30 tới {customer_email}: {e}")
         return False
 
 
@@ -2551,4 +2597,5 @@ def check_pending_orders_reminder(event: scheduler_fn.ScheduledEvent) -> None:
     db = get_db()
     schedule_time = getattr(event, "schedule_time", None)
     process_pending_order_reminders(db, schedule_time)
+    process_paid_order_retention_vouchers(db, schedule_time)
 
