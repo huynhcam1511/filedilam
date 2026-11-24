@@ -643,10 +643,10 @@ File Đi Làm - https://filedilam.web.app
 def send_retention_voucher_email(customer_email, customer_name, order_id, order_data=None):
     """
     EMAIL 3 ĐỘC LẬP: Thư cảm ơn và quà tặng đồng hành (Chăm sóc & hỗ trợ công việc sau 30-60 phút).
-    - Tiêu đề: Thư cảm ơn và quà tặng đồng hành gửi bạn [Tên] - File Đi Làm
+    - Tiêu đề: Thư cảm ơn và quà tặng đồng hành gửi bạn [Tên khách] - File Đi Làm
     - Tông giọng: Tự nhiên, chân thành như một người đồng nghiệp/sáng lập gửi hỗ trợ công việc.
-    - Tránh các từ ngữ kích hoạt bộ lọc quảng cáo (Voucher, giảm %, khuyến mãi sốc).
-    - Đặc quyền: Tài trợ 30% chi phí (tối đa 20.000đ) khi cần thêm giải pháp đồng hành.
+    - Tránh các từ ngữ kích hoạt bộ lọc quảng cáo (Voucher, giảm %, khuyến mãi sốc, giá gốc, giá niêm yết).
+    - Đặc quyền: Tài trợ 30% chi phí khi cần thêm giải pháp đồng hành (quy tắc trần 20.000đ áp dụng ở backend/checkout).
     """
     if not customer_email or "@" not in customer_email:
         return False
@@ -677,10 +677,15 @@ def send_retention_voucher_email(customer_email, customer_name, order_id, order_
         available_prods.sort(key=lambda x: x.get("sales", 0), reverse=True)
         suggested_prods = available_prods[:2]
 
-        import urllib.parse
-        q_name = urllib.parse.quote(str(customer_name or "").strip())
+        clean_name = str(customer_name or "").strip()
+        safe_name_html = escape(clean_name) if clean_name else "bạn"
+        subject_name_part = f"bạn {clean_name}" if clean_name else "bạn"
+        raw_phone = str(order_data.get("customer_phone") or "").strip()
+        clean_phone = normalize_vietnam_phone(raw_phone) or raw_phone
+
+        q_name = urllib.parse.quote(clean_name)
         q_email = urllib.parse.quote(str(customer_email or "").strip())
-        q_phone = urllib.parse.quote(str(order_data.get("customer_phone") or "").strip())
+        q_phone = urllib.parse.quote(clean_phone)
         user_params = f"name={q_name}&email={q_email}&phone={q_phone}&coupon=MEMBER30"
 
         cards_html = []
@@ -689,7 +694,7 @@ def send_retention_voucher_email(customer_email, customer_name, order_id, order_
             p_type = sp["type"]
             p_id = sp["id"]
             p_price = sp["price"]
-            discount_val = min(int(p_price * 0.3), 20000)
+            discount_val = min((p_price * 30 + 50) // 100, 20000)
             member_price = p_price - discount_val
             price_fmt = f"{p_price:,}".replace(",", ".") + " đ"
             member_fmt = f"{member_price:,}".replace(",", ".") + " đ"
@@ -702,14 +707,14 @@ def send_retention_voucher_email(customer_email, customer_name, order_id, order_
                 <tr>
                   <td style="vertical-align: top;">
                     <div style="font-size: 14.5px; font-weight: 700; color: #0f172a; margin-bottom: 4px;">
-                      {p_name}
+                      {escape(p_name)}
                     </div>
                     <div style="font-size: 12px; color: #059669; font-weight: 500; margin-bottom: 8px;">
-                      &bull; {p_type}
+                      &bull; {escape(p_type)}
                     </div>
                     <div style="font-size: 13px; color: #64748b; line-height: 1.6;">
-                      Chi phí chuẩn: <span>{price_fmt}</span><br>
-                      Hỗ trợ thành viên File Đi Làm: <strong style="color: #059669; font-size: 14px;">{member_fmt}</strong>
+                      Mức phí: <span>{price_fmt}</span><br>
+                      Đặc quyền thành viên: <strong style="color: #059669; font-size: 14px;">{member_fmt}</strong>
                     </div>
                   </td>
                 </tr>
@@ -730,7 +735,7 @@ def send_retention_voucher_email(customer_email, customer_name, order_id, order_
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Thư cảm ơn và quà tặng đồng hành gửi bạn {customer_name or ''} - File Đi Làm</title>
+<title>Thư cảm ơn và quà tặng đồng hành gửi {escape(subject_name_part)} - File Đi Làm</title>
 </head>
 <body style="margin: 0; padding: 32px 16px; background-color: #f8fafc; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; color: #0f172a; line-height: 1.6; -webkit-font-smoothing: antialiased;">
   <div style="max-width: 580px; margin: 0 auto; background-color: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden;">
@@ -753,7 +758,7 @@ def send_retention_voucher_email(customer_email, customer_name, order_id, order_
     <!-- Body Content -->
     <div style="padding: 28px 32px 32px 32px;">
       <p style="font-size: 15px; margin: 0 0 14px 0; color: #334155;">
-        Chào <strong>{customer_name or 'bạn'}</strong>,
+        Chào <strong>{safe_name_html}</strong>,
       </p>
       <p style="font-size: 14px; margin: 0 0 14px 0; color: #334155; line-height: 1.65;">
         Mình là Cẩm từ đội ngũ <strong>File Đi Làm</strong>. Trước hết, mình xin gửi lời cảm ơn chân thành vì bạn đã tin tưởng lựa chọn giải pháp từ hệ thống.
@@ -768,7 +773,7 @@ def send_retention_voucher_email(customer_email, customer_name, order_id, order_
           ĐẶC QUYỀN ĐỒNG HÀNH CÙNG BẠN
         </div>
         <p style="font-size: 13.5px; color: #475569; line-height: 1.65; margin: 0 0 14px 0;">
-          Để đồng hành lâu dài cùng công việc của bạn, hệ thống đã kích hoạt sẵn đặc quyền tài trợ <strong>30% chi phí (tối đa 20.000đ)</strong> dành riêng cho bạn khi cần mở rộng thêm các file quản lý tiếp theo.
+          Để đồng hành lâu dài cùng công việc của bạn, hệ thống đã kích hoạt sẵn <strong>Đặc quyền tài trợ 30% chi phí khi cần thêm giải pháp đồng hành</strong>.
         </p>
         <div style="font-size: 13.5px; color: #334155; margin-bottom: 16px;">
           Mã đặc quyền của bạn: <span style="font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; font-size: 14.5px; font-weight: 700; color: #059669; background: #ecfdf5; padding: 3px 8px; border-radius: 4px; border: 1px solid #a7f3d0;">MEMBER30</span>
@@ -804,17 +809,17 @@ def send_retention_voucher_email(customer_email, customer_name, order_id, order_
 </body>
 </html>"""
 
-        plain_text = f"""Chào {customer_name or 'bạn'},
+        plain_text = f"""Chào {clean_name or 'bạn'},
 
 Mình là Cẩm từ đội ngũ File Đi Làm. Cảm ơn bạn rất nhiều vì đã tin tưởng lựa chọn giải pháp từ hệ thống!
 
 Không biết bạn đã kịp mở file thao tác thử chưa? Nếu có bất kỳ câu hỏi nào trong quá trình sử dụng, bạn cứ nhắn tin cho mình qua Zalo số 0938 134 576 nhé.
 
-Để đồng hành lâu dài cùng bạn, hệ thống đã kích hoạt sẵn mã đặc quyền tài trợ 30% chi phí cho giải pháp tiếp theo:
+Để đồng hành lâu dài cùng bạn, hệ thống đã kích hoạt sẵn Đặc quyền tài trợ 30% chi phí khi cần thêm giải pháp đồng hành:
 Mã đặc quyền: MEMBER30
 
 Bạn có thể tham khảo thêm tại:
-https://filedilam.web.app/?coupon=MEMBER30
+{explore_all_url}
 
 Chúc công việc của bạn luôn trôi chảy và hiệu quả!
 Thân mến,
@@ -823,7 +828,7 @@ Hotline/Zalo: 0938 134 576
 """
 
         msg = MIMEMultipart("alternative")
-        msg["Subject"] = f"Thư cảm ơn và quà tặng đồng hành gửi bạn {customer_name or 'bạn'} - File Đi Làm"
+        msg["Subject"] = f"Thư cảm ơn và quà tặng đồng hành gửi {subject_name_part} - File Đi Làm"
         msg["From"] = f'"File Đi Làm" <{SMTP_USER}>'
         msg["To"] = customer_email
         msg["Reply-To"] = "huynhkiencam151102@gmail.com"

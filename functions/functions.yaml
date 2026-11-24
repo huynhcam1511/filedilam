@@ -12,6 +12,22 @@
     secretEnvironmentVariables: []
     serviceAccountEmail: null
     timeoutSeconds: null
+  check_pending_orders_reminder:
+    availableMemoryMb: null
+    concurrency: null
+    entryPoint: check_pending_orders_reminder
+    labels: {}
+    maxInstances: null
+    minInstances: null
+    platform: gcfv2
+    scheduleTrigger:
+      schedule: every 10 minutes
+      timeZone: Asia/Ho_Chi_Minh
+    secretEnvironmentVariables: []
+    serviceAccountEmail: null
+    timeoutSeconds: null
 params: []
-requiredAPIs: []
+requiredAPIs:
+  - api: cloudscheduler.googleapis.com
+    reason: Needed for scheduled functions.
 specVersion: v1alpha1

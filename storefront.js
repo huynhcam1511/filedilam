@@ -556,6 +556,8 @@ function escapeHtml(value) {
 
   // Cache check for instant product display
   var isFirestoreProductsLoaded = false;
+  var hasFreshFirestoreProducts = false;
+  window.isFirestoreProductsLoaded = false;
   try {
     // Clear all legacy and temporary cache keys
     localStorage.removeItem("filedilam_cached_products");
@@ -569,9 +571,177 @@ function escapeHtml(value) {
       if (Array.isArray(cachedList) && cachedList.length > 0) {
         data.products = cachedList;
         isFirestoreProductsLoaded = true;
+        window.isFirestoreProductsLoaded = true;
       }
     }
   } catch(e) {}
+
+  var URL_PREFILL_STORAGE_KEY = "filedilam_prefill_customer";
+  var URL_AUTO_COUPON_STORAGE_KEY = "filedilam_url_auto_coupon";
+  var pendingAutoAddState = null;
+  var autoAddPollTimer = null;
+
+  function saveUrlPrefillProfile(name, email, phone) {
+    var cleanName = String(name || "").trim();
+    var cleanEmail = String(email || "").trim();
+    var cleanPhone = String(phone || "").trim();
+    if (!cleanName && !cleanEmail && !cleanPhone) return null;
+    var existing = getUrlPrefillProfile() || {};
+    var merged = {
+      full_name: cleanName || existing.full_name || "",
+      email: cleanEmail || existing.email || "",
+      phone: cleanPhone || existing.phone || ""
+    };
+    try {
+      sessionStorage.setItem(URL_PREFILL_STORAGE_KEY, JSON.stringify(merged));
+    } catch (e) {}
+    return merged;
+  }
+
+  function getUrlPrefillProfile() {
+    try {
+      var raw = sessionStorage.getItem(URL_PREFILL_STORAGE_KEY);
+      if (!raw) return null;
+      var parsed = JSON.parse(raw);
+      if (parsed && (parsed.full_name || parsed.email || parsed.phone)) {
+        return parsed;
+      }
+    } catch (e) {}
+    return null;
+  }
+
+  function getActiveUrlAutoCoupon() {
+    if (typeof isCouponDeselectedInSession === "function" && isCouponDeselectedInSession()) return "";
+    try {
+      var c = sessionStorage.getItem(URL_AUTO_COUPON_STORAGE_KEY);
+      return c ? String(c).trim().toUpperCase() : "";
+    } catch (e) {
+      return "";
+    }
+  }
+
+  function setUrlAutoCoupon(code) {
+    var clean = String(code || "").trim().toUpperCase();
+    if (!clean) return;
+    try {
+      sessionStorage.setItem(URL_AUTO_COUPON_STORAGE_KEY, clean);
+      sessionStorage.setItem("filedilam_auto_coupon", clean);
+    } catch (e) {}
+    if (typeof setCouponDeselectedInSession === "function") {
+      setCouponDeselectedInSession(false);
+    }
+  }
+
+  function clearUrlAutoCoupon() {
+    try {
+      sessionStorage.removeItem(URL_AUTO_COUPON_STORAGE_KEY);
+      sessionStorage.removeItem("filedilam_auto_coupon");
+    } catch (e) {}
+  }
+
+  function findCachedCouponByCode(code) {
+    var rawCode = String(code || "").trim().toUpperCase();
+    if (!rawCode) return null;
+    if (cachedActiveCoupons && cachedActiveCoupons.length) {
+      var found = cachedActiveCoupons.find(function(c) {
+        return String(c.code || c.id || "").toUpperCase() === rawCode;
+      });
+      if (found) return found;
+    }
+    return null;
+  }
+
+  function processPendingAutoAddCheckout() {
+    if (!pendingAutoAddState || pendingAutoAddState.handled) return false;
+    var p = getProductById(pendingAutoAddState.productId);
+    if (!p) {
+      if (hasFreshFirestoreProducts) {
+        pendingAutoAddState.handled = true;
+        if (autoAddPollTimer) {
+          clearInterval(autoAddPollTimer);
+          autoAddPollTimer = null;
+        }
+      }
+      return false;
+    }
+
+    pendingAutoAddState.handled = true;
+    if (autoAddPollTimer) {
+      clearInterval(autoAddPollTimer);
+      autoAddPollTimer = null;
+    }
+
+    var targetCoupon = pendingAutoAddState.coupon || getActiveUrlAutoCoupon();
+    if (targetCoupon) {
+      setUrlAutoCoupon(targetCoupon);
+    }
+
+    // (a) Thêm sản phẩm vào giỏ hoặc đưa lên đầu nếu đã có
+    addToCart(p.id, { openDrawer: false, silentToast: true });
+
+    // (b) Áp mã đồng bộ nếu đã có sẵn trong cache trước khi mở Checkout
+    if (targetCoupon) {
+      var cachedC = findCachedCouponByCode(targetCoupon);
+      if (cachedC && !evaluateCoupon(cachedC, getCartSubtotal()).error) {
+        state.appliedCoupons = [cachedC];
+        state.appliedCoupon = cachedC;
+        state.discountAmount = evaluateCoupon(cachedC, getCartSubtotal()).amount;
+      }
+    }
+
+    // (c) & (d) Điền thông tin khách hàng và mở thẳng màn hình Đơn hàng / Thanh toán
+    openCheckout();
+
+    // Nếu mã chưa có trong cache lúc vừa mở (hoặc cần xác thực với Firestore), áp dụng bất đồng bộ ngay
+    if (targetCoupon && !state.appliedCoupons.some(function(c) { return c.code === targetCoupon; })) {
+      applyCheckoutCoupon(targetCoupon, { forceApply: true, silentSwitch: true, fromAutoUrl: true });
+    }
+
+    showToast("Đã thêm " + p.name + " vào đơn hàng của bạn!");
+    return true;
+  }
+
+  function initAutoAddCheckout(productId, couponCode) {
+    pendingAutoAddState = {
+      productId: String(productId || "").trim(),
+      coupon: String(couponCode || "").trim().toUpperCase(),
+      handled: false,
+      attempts: 0
+    };
+    if (autoAddPollTimer) {
+      clearInterval(autoAddPollTimer);
+      autoAddPollTimer = null;
+    }
+
+    if (processPendingAutoAddCheckout()) {
+      return;
+    }
+
+    // Polling dự phòng song song với Firestore onSnapshot hook (tối đa 10 giây)
+    autoAddPollTimer = setInterval(function() {
+      if (!pendingAutoAddState || pendingAutoAddState.handled) {
+        clearInterval(autoAddPollTimer);
+        autoAddPollTimer = null;
+        return;
+      }
+      pendingAutoAddState.attempts += 1;
+      if (processPendingAutoAddCheckout() || pendingAutoAddState.attempts >= 50) {
+        if (pendingAutoAddState && !pendingAutoAddState.handled && pendingAutoAddState.attempts >= 50) {
+          pendingAutoAddState.handled = true;
+          console.warn("Timed out waiting for product in 1-click checkout:", pendingAutoAddState.productId);
+        }
+        clearInterval(autoAddPollTimer);
+        autoAddPollTimer = null;
+      }
+    }, 200);
+  }
+
+  window.StorefrontOneClickCheckout = {
+    initAutoAddCheckout: initAutoAddCheckout,
+    processPendingAutoAddCheckout: processPendingAutoAddCheckout,
+    getUrlPrefillProfile: getUrlPrefillProfile,
+    getActiveUrlAutoCoupon: getActiveUrlAutoCoupon
+  };
 
   renderFolders();
   renderPriceFilter();
@@ -634,19 +804,27 @@ function escapeHtml(value) {
       }
       cleanCart();
       isFirestoreProductsLoaded = true;
+      hasFreshFirestoreProducts = true;
+      window.isFirestoreProductsLoaded = true;
       renderFolders();
       renderProducts();
       renderCart();
-      // Kích hoạt link direct nếu tải từ Firestore hoàn tất
+      // Kích hoạt link direct & 1-click checkout từ email nếu tải từ Firestore hoàn tất
+      processPendingAutoAddCheckout();
       checkAndHandleDirectProductHash();
     }, function(error) {
       console.error("Error listening to Firestore products:", error);
       isFirestoreProductsLoaded = true;
+      hasFreshFirestoreProducts = true;
+      window.isFirestoreProductsLoaded = true;
       renderProducts();
+      processPendingAutoAddCheckout();
       checkAndHandleDirectProductHash();
     });
   } else {
     isFirestoreProductsLoaded = true;
+    hasFreshFirestoreProducts = true;
+    window.isFirestoreProductsLoaded = true;
   }
 
   function bindEvents() {
@@ -1069,10 +1247,8 @@ function escapeHtml(value) {
       });
     }
 
-    // Treo màn hình thanh toán nếu khách có đơn hàng PENDING còn hiệu lực khi vừa tải trang
-    restoreActiveOrderModal();
-
     // Hỗ trợ tự động áp mã, thêm sản phẩm và điền sẵn thông tin từ Email (?add=...&coupon=...&email=...&name=...&phone=...)
+    var hasAutoAddParam = false;
     try {
       var urlP = new URLSearchParams(window.location.search);
       var autoAdd = urlP.get("add");
@@ -1081,34 +1257,28 @@ function escapeHtml(value) {
       var autoName = urlP.get("name");
       var autoPhone = urlP.get("phone");
 
-      if (autoCoupon) {
-        sessionStorage.setItem("filedilam_auto_coupon", autoCoupon.toUpperCase());
+      if (autoCoupon && String(autoCoupon).trim()) {
+        setUrlAutoCoupon(autoCoupon);
       }
       if (autoName || autoEmail || autoPhone) {
-        if (!state.profile) state.profile = {};
-        if (autoName) state.profile.full_name = autoName;
-        if (autoEmail) state.profile.email = autoEmail;
-        if (autoPhone) state.profile.phone = autoPhone;
+        var prefillProfile = saveUrlPrefillProfile(autoName, autoEmail, autoPhone);
+        if (prefillProfile) {
+          state.profile = Object.assign({}, state.profile || {}, prefillProfile);
+        }
       }
 
-      // Nếu có ?add=... -> Tự động thêm sản phẩm vào giỏ, áp mã và mở thẳng màn hình thanh toán!
-      if (autoAdd) {
-        setTimeout(function() {
-          var p = getProductById(autoAdd);
-          if (p) {
-            addToCart(p.id, { openDrawer: false });
-            if (autoCoupon) {
-              setTimeout(function() {
-                applyCheckoutCoupon(autoCoupon);
-              }, 200);
-            }
-            openCheckout();
-            showToast("Đã thêm " + p.name + " vào đơn hàng của bạn!");
-          }
-        }, 500);
+      // Nếu có ?add=... -> Chờ dữ liệu sản phẩm sẵn sàng, thêm vào giỏ, áp mã và mở thẳng màn hình thanh toán!
+      if (autoAdd && String(autoAdd).trim()) {
+        hasAutoAddParam = true;
+        initAutoAddCheckout(String(autoAdd).trim(), autoCoupon ? String(autoCoupon).trim().toUpperCase() : "");
       }
     } catch(e) {
       console.warn("Could not parse 1-click checkout params:", e);
+    }
+
+    // Treo màn hình thanh toán nếu khách có đơn hàng PENDING còn hiệu lực khi vừa tải trang (không đè lên luồng 1-click ?add=...)
+    if (!hasAutoAddParam) {
+      restoreActiveOrderModal();
     }
 
     // Hỗ trợ tự động đăng nhập 1-chạm bằng Magic Link (?magic=token) và mở File của tôi
@@ -1188,6 +1358,18 @@ function escapeHtml(value) {
           }
           
           loadProfile().then(function (profile) {
+            var urlPrefill = getUrlPrefillProfile();
+            if (urlPrefill) {
+              state.profile = Object.assign({}, state.profile || {}, urlPrefill);
+              profile = state.profile;
+              if (checkoutModal && checkoutModal.classList.contains("is-open")) {
+                if (quickName && urlPrefill.full_name && !quickName.value) quickName.value = urlPrefill.full_name;
+                if (quickPhone && urlPrefill.phone && !quickPhone.value) quickPhone.value = urlPrefill.phone;
+                if (quickEmail && urlPrefill.email && (!quickEmail.value || quickEmail.value.indexOf("@khachhang.filedilam.vn") !== -1)) {
+                  quickEmail.value = urlPrefill.email;
+                }
+              }
+            }
             var displayId = (profile && profile.phone) ||
               (user.email && user.email.indexOf("@khachhang.filedilam.vn") !== -1
                 ? user.email.replace("@khachhang.filedilam.vn", "")
@@ -1201,7 +1383,7 @@ function escapeHtml(value) {
           });
         } else {
           state.user = null;
-          state.profile = null;
+          state.profile = getUrlPrefillProfile();
           document.body.classList.remove("is-logged-in");
           document.body.classList.add("is-logged-out");
           closeUserMenu();
@@ -1653,17 +1835,18 @@ function escapeHtml(value) {
     if (!state.user) return Promise.resolve(null);
     return authFetch("/profile")
       .then(function(profile) {
-        state.profile = profile || null;
+        var urlPrefill = getUrlPrefillProfile();
+        state.profile = (profile || urlPrefill) ? Object.assign({}, profile || {}, urlPrefill || {}) : null;
         var resolved = getResolvedPhone();
         if (resolved && (!state.profile || !isValidPhone(state.profile.phone))) {
-          state.profile = Object.assign({}, state.profile || {}, { phone: resolved, email: state.user.email || "" });
+          state.profile = Object.assign({}, state.profile || {}, { phone: resolved, email: state.user.email || "" }, getUrlPrefillProfile() || {});
           saveProfile({ phone: resolved, email: state.user.email || "", auth_provider: "auto_detect" });
         }
         return state.profile;
       })
       .catch(function(error) {
         var resolved = getResolvedPhone();
-        state.profile = { email: state.user.email || "", phone: resolved };
+        state.profile = Object.assign({ email: state.user.email || "", phone: resolved }, getUrlPrefillProfile() || {});
         if (resolved) {
           saveProfile({ phone: resolved, email: state.user.email || "", auth_provider: "auto_detect" });
         }
@@ -1674,8 +1857,8 @@ function escapeHtml(value) {
   function saveProfile(profile) {
     return authFetch("/profile", { method: "PUT", body: JSON.stringify(profile) })
       .then(function(saved) {
-        state.profile = saved;
-        return saved;
+        state.profile = Object.assign({}, profile || {}, saved || {}, getUrlPrefillProfile() || {});
+        return state.profile;
       })
       .catch(function(err) {
         console.warn("Could not save profile in background:", err);
@@ -3520,6 +3703,10 @@ function escapeHtml(value) {
     options = options || {};
     var force = options.force === true;
 
+    if (!force && pendingAutoAddState && !pendingAutoAddState.handled) {
+      return false;
+    }
+
     if (!force && userClosedCheckout) {
       updateFloatingOrderBar();
       return false;
@@ -4141,8 +4328,19 @@ function escapeHtml(value) {
 
     setCheckoutPackage(state.selectedPackage || "standard", false);
 
-    // Auto-apply best deal if eligible and not deselected in this session
-    if (typeof autoApplyBestCouponIfEligible === "function") {
+    // Ưu tiên mã đặc quyền từ URL (?coupon=MEMBER30) nếu chưa bị bỏ chọn
+    var urlAutoCoupon = getActiveUrlAutoCoupon();
+    if (urlAutoCoupon && (!state.appliedCoupons || !state.appliedCoupons.length)) {
+      var cachedUrlCoupon = findCachedCouponByCode(urlAutoCoupon);
+      if (cachedUrlCoupon && !evaluateCoupon(cachedUrlCoupon, getCartSubtotal()).error) {
+        state.appliedCoupons = [cachedUrlCoupon];
+        state.appliedCoupon = cachedUrlCoupon;
+        state.discountAmount = evaluateCoupon(cachedUrlCoupon, getCartSubtotal()).amount;
+      }
+    }
+
+    // Auto-apply best deal if eligible and not deselected in this session (only when no URL auto-coupon is pending)
+    if (!urlAutoCoupon && typeof autoApplyBestCouponIfEligible === "function") {
       autoApplyBestCouponIfEligible();
     }
 
@@ -4192,7 +4390,17 @@ function escapeHtml(value) {
       var rawActive = localStorage.getItem("filedilam_active_order");
       if (rawActive) {
         var pActive = JSON.parse(rawActive);
-        if (pActive && String(pActive.product_id || "") === String(product.id) && pActive.amount === total && (pActive.package_type || "standard") === (state.selectedPackage || "standard") && (Date.now() - (pActive.time || 0) < 600000)) {
+        var hasCurrentCoupon = state.appliedCoupons.length > 0;
+        var hasPendingUrlCoupon = !!urlAutoCoupon && !hasCurrentCoupon;
+        if (
+          !hasPendingUrlCoupon &&
+          pActive &&
+          String(pActive.product_id || "") === String(product.id) &&
+          Boolean(pActive.has_coupon) === hasCurrentCoupon &&
+          pActive.amount === total &&
+          (pActive.package_type || "standard") === (state.selectedPackage || "standard") &&
+          (Date.now() - (pActive.time || 0) < 600000)
+        ) {
           existingActiveOrder = pActive;
         }
       }
@@ -4232,6 +4440,9 @@ function escapeHtml(value) {
     }
     checkoutModal.scrollTop = 0;
     loadCheckoutCoupons();
+    if (urlAutoCoupon && !state.appliedCoupons.some(function(c) { return c.code === urlAutoCoupon; })) {
+      applyCheckoutCoupon(urlAutoCoupon, { forceApply: true, silentSwitch: true, fromAutoUrl: true });
+    }
 
     // Luôn hiển thị Form thanh toán 3 trường sạch sẽ, phẳng, chuẩn Fintech
     if (checkoutBackBtn) checkoutBackBtn.style.display = "inline-flex";
@@ -4248,13 +4459,17 @@ function escapeHtml(value) {
     if (quickNameGroup) quickNameGroup.style.display = "flex";
     if (quickEmailGroup) quickEmailGroup.style.display = "flex";
 
-    // Tự động điền dữ liệu nếu đã có thông tin từ trước
+    // Tự động điền dữ liệu từ URL (?name=...&email=...&phone=...) hoặc profile đã lưu
+    var urlPrefillProfile = getUrlPrefillProfile();
+    if (urlPrefillProfile) {
+      state.profile = Object.assign({}, state.profile || {}, urlPrefillProfile);
+    }
     if (state.profile) {
       if (quickName && state.profile.full_name && !quickName.value) quickName.value = state.profile.full_name;
       if (quickPhone && state.profile.phone && !quickPhone.value) quickPhone.value = state.profile.phone;
       // Chỉ điền email nếu là email thật của khách (không điền email ảo hệ thống @khachhang.filedilam.vn)
       var savedEmail = state.profile.email || "";
-      if (quickEmail && savedEmail && savedEmail.indexOf("@khachhang.filedilam.vn") === -1 && !quickEmail.value) {
+      if (quickEmail && savedEmail && savedEmail.indexOf("@khachhang.filedilam.vn") === -1 && (!quickEmail.value || quickEmail.value.indexOf("@khachhang.filedilam.vn") !== -1)) {
         quickEmail.value = savedEmail;
       }
     }
@@ -4354,7 +4569,7 @@ function escapeHtml(value) {
 
     if (options.openDrawer === true) {
       openCheckout();
-    } else {
+    } else if (!options.silentToast) {
       var sourceEl = options.sourceElement;
       if (!sourceEl && typeof event !== "undefined" && event && event.target) {
         sourceEl = event.target.closest("button") || event.target;
@@ -4897,6 +5112,7 @@ function escapeHtml(value) {
     }
 
     // 3. Điền mã vào input
+    clearUrlAutoCoupon();
     try {
       sessionStorage.setItem('filedilam_auto_coupon', code);
     } catch(e) {}
@@ -6053,6 +6269,7 @@ function escapeHtml(value) {
 
   function autoApplyBestCouponIfEligible() {
     if (isCouponDeselectedInSession()) return null;
+    if (getActiveUrlAutoCoupon()) return null;
     if (state.appliedCoupons && state.appliedCoupons.length) return state.appliedCoupons[0];
     var subtotal = getCartSubtotal();
     if (subtotal <= 0) return null;
@@ -6119,6 +6336,7 @@ function escapeHtml(value) {
   }
 
   function handleDeselectAppliedCoupon() {
+    clearUrlAutoCoupon();
     setCouponDeselectedInSession(true);
     state.appliedCoupons = [];
     state.appliedCoupon = null;
@@ -6232,9 +6450,26 @@ function escapeHtml(value) {
 
       cachedActiveCoupons = coupons;
 
-      // Auto-apply if eligible, not deselected in this session, and no coupon applied
+      // Auto-apply URL coupon first, or best public deal if eligible and not deselected in this session
       var currentSubtotal = getCartSubtotal();
-      if (!isCouponDeselectedInSession() && (!state.appliedCoupons || !state.appliedCoupons.length) && currentSubtotal > 0) {
+      var pendingUrlCoupon = getActiveUrlAutoCoupon();
+      if (pendingUrlCoupon && currentSubtotal > 0 && !state.appliedCoupons.some(function(c) { return c.code === pendingUrlCoupon; })) {
+        var matchedUrlCoupon = coupons.find(function(c) { return c.code === pendingUrlCoupon; });
+        if (matchedUrlCoupon) {
+          var urlEval = evaluateCoupon(matchedUrlCoupon, currentSubtotal);
+          if (!urlEval.error && Number(urlEval.amount || 0) > 0) {
+            state.appliedCoupons = [matchedUrlCoupon];
+            state.appliedCoupon = matchedUrlCoupon;
+            state.discountAmount = urlEval.amount;
+            var uTotal = getCartTotal();
+            renderCheckoutSummary();
+            var uBankEl = document.getElementById("bankAmount");
+            if (uBankEl) uBankEl.textContent = formatCurrency(uTotal);
+            var uSumPrice = document.getElementById("checkoutSummaryPrice");
+            if (uSumPrice) uSumPrice.textContent = formatCurrency(uTotal);
+          }
+        }
+      } else if (!pendingUrlCoupon && !isCouponDeselectedInSession() && (!state.appliedCoupons || !state.appliedCoupons.length) && currentSubtotal > 0) {
         var best = findBestEligibleCoupon(coupons, currentSubtotal);
         if (best) {
           state.appliedCoupons = [best];
@@ -6358,7 +6593,8 @@ function escapeHtml(value) {
     }
   }
 
-  async function applyCheckoutCoupon(code) {
+  async function applyCheckoutCoupon(code, options) {
+    options = options || {};
     if (!code) {
       try {
         code = sessionStorage.getItem('filedilam_auto_coupon');
@@ -6412,8 +6648,19 @@ function escapeHtml(value) {
     );
     var alreadySelected = state.appliedCoupons.some(function(coupon) { return coupon.code === rawCode; });
 
-    // Khi người dùng bấm Bỏ chọn (hoặc mã đang hiển thị là đã chọn), hủy áp mã ngay lập tức và ghi nhớ session
+    // Khi người dùng bấm Bỏ chọn (hoặc mã đang hiển thị là đã chọn), hủy áp mã ngay lập tức và ghi nhớ session (trừ khi forceApply từ 1-click checkout)
     if (alreadySelected || isDomSelected) {
+      if (options.forceApply) {
+        getCartTotal();
+        renderCart();
+        renderCheckoutSummary();
+        updateCheckoutCouponSelection();
+        renderCouponSectionUi();
+        var bankAmtForce = document.getElementById("bankAmount");
+        if (bankAmtForce) bankAmtForce.textContent = formatCurrency(getCartTotal());
+        return;
+      }
+      clearUrlAutoCoupon();
       setCouponDeselectedInSession(true);
       state.appliedCoupons = state.appliedCoupons.filter(function(coupon) { return coupon.code !== rawCode; });
       state.appliedCoupon = state.appliedCoupons[0] || null;
@@ -6451,12 +6698,22 @@ function escapeHtml(value) {
       // 1. Fetch from Firestore collection 'coupons'
       if (!coupon && typeof db !== 'undefined' && db.collection) {
         try {
-          var docSnap = await db.collection('coupons').doc(rawCode).get();
+          var docSnap = await Promise.race([
+            db.collection('coupons').doc(rawCode).get(),
+            new Promise(function(_, reject) {
+              setTimeout(function() { reject(new Error("COUPON_DOC_TIMEOUT")); }, 3000);
+            })
+          ]);
           if (docSnap.exists) {
             coupon = docSnap.data();
             coupon.id = docSnap.id;
           } else {
-            var querySnap = await db.collection('coupons').where('code', '==', rawCode).limit(1).get();
+            var querySnap = await Promise.race([
+              db.collection('coupons').where('code', '==', rawCode).limit(1).get(),
+              new Promise(function(_, reject) {
+                setTimeout(function() { reject(new Error("COUPON_QUERY_TIMEOUT")); }, 3000);
+              })
+            ]);
             if (!querySnap.empty) {
               var fDoc = querySnap.docs[0];
               coupon = fDoc.data();
@@ -6476,7 +6733,7 @@ function escapeHtml(value) {
         if (foundCached) coupon = foundCached;
       }
 
-      // 3. Check default fallback if matching FILEDILAM
+      // 3. Check default fallback if matching FILEDILAM or MEMBER30 (when Firestore is unreachable or offline test)
       if (!coupon && rawCode === "FILEDILAM") {
         coupon = {
           code: "FILEDILAM",
@@ -6488,8 +6745,22 @@ function escapeHtml(value) {
           is_active: true
         };
       }
+      if (!coupon && rawCode === "MEMBER30") {
+        coupon = {
+          code: "MEMBER30",
+          type: "percent",
+          value: 30,
+          min_order: 0,
+          max_discount: 20000,
+          description: "Mã Thân Thiết Dành Cho Khách Đã Mua (Giảm 30% max 20K)",
+          is_active: true,
+          is_public: false,
+          scope: "all"
+        };
+      }
 
       if (!coupon || coupon.is_active === false) {
+        if (options.fromAutoUrl) clearUrlAutoCoupon();
         showCouponMessage("Mã giảm giá '" + rawCode + "' không tồn tại hoặc đã hết hạn.", true);
         showToast("Mã '" + rawCode + "' không hợp lệ hoặc đã hết hạn.");
         return;
@@ -6528,6 +6799,9 @@ function escapeHtml(value) {
 
       // User explicitly applied a coupon -> remove deselected flag from session
       setCouponDeselectedInSession(false);
+      if (!options.fromAutoUrl) {
+        clearUrlAutoCoupon();
+      }
 
       var replacedCode = state.appliedCoupons.length ? state.appliedCoupons[0].code : null;
       state.appliedCoupons = [coupon];
@@ -6537,22 +6811,26 @@ function escapeHtml(value) {
       // Hủy mã QR cũ ngay lập tức nếu khách đã tạo đơn trước đó
       invalidateActiveOrderOnCartOrCouponChange("Đã áp dụng mã giảm giá mới! Vui lòng bấm Xác nhận thông tin để tạo lại mã QR.");
 
-      if (replacedCode && replacedCode !== rawCode) {
+      if (replacedCode && replacedCode !== rawCode && !options.silentSwitch) {
         showCouponMessage("Đã đổi từ " + replacedCode + " sang " + rawCode + " (mỗi đơn chỉ áp dụng tối đa 1 mã).", false);
         showToast("Đã đổi mã sang " + rawCode + "!");
-      } else {
+      } else if (!options.silentSwitch) {
         clearCouponMessage();
         showToast("Đã áp dụng mã " + rawCode + "!");
+      } else {
+        clearCouponMessage();
       }
       var input = document.getElementById("privateCouponInput") || document.getElementById("checkoutCouponInput");
       if (input) input.value = "";
       isPromoCollapseOpen = false;
 
-      getCartTotal();
+      var newFinalTotal = getCartTotal();
       renderCart();
       renderCheckoutSummary();
       updateCheckoutCouponSelection();
       renderCouponSectionUi();
+      var bankAmtUpdated = document.getElementById("bankAmount");
+      if (bankAmtUpdated) bankAmtUpdated.textContent = formatCurrency(newFinalTotal);
     } catch (err) {
       console.error("Lỗi áp mã:", err);
       showCouponMessage("Có lỗi khi kiểm tra mã. Vui lòng thử lại.", true);
@@ -6868,7 +7146,9 @@ function escapeHtml(value) {
       setTimeout(function() {
         var hasDirectHash = !!parseProductDirectHash(window.location.hash);
         var isModalDetailOpen = detailModal && detailModal.classList.contains("is-open");
-        if (!hasDirectHash && !isModalDetailOpen && !sessionStorage.getItem("filedilam_exit_intent_shown") && window.history && window.history.pushState) {
+        var isCheckoutOpen = checkoutModal && checkoutModal.classList.contains("is-open");
+        var isCheckoutUrl = window.location.hash === "#thanh-toan" || !!pendingAutoAddState;
+        if (!hasDirectHash && !isModalDetailOpen && !isCheckoutOpen && !isCheckoutUrl && !sessionStorage.getItem("filedilam_exit_intent_shown") && window.history && window.history.pushState) {
           window.history.pushState({ filedilam_trap: true }, "");
           window.addEventListener("popstate", function(event) {
             var modal = document.getElementById("exitIntentModal");
