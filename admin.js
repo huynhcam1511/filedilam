@@ -5527,6 +5527,11 @@ document.addEventListener('DOMContentLoaded', () => {
     couponsListBody.innerHTML = filtered.map(c => {
       const discountText = ['percent','cheapest'].includes(c.type) ? c.value + '%' : ['gift','choice','tier'].includes(c.type) ? 'Theo chương trình' : formatCurrency(c.value);
       const minOrderText = (c.min_order && c.min_order > 0) ? formatCurrency(c.min_order) : 'Không yêu cầu';
+      const isPublic = c.is_public !== false;
+      const publicHtml = isPublic
+        ? '<button type="button" class="btn-toggle-public" data-id="' + escapeHtml(c.id) + '" style="background:#ecfdf5; color:#059669; border:1px solid #a7f3d0; border-radius:20px; padding:3px 10px; font-size:0.75rem; font-weight:600; cursor:pointer; display:inline-flex; align-items:center; gap:4px;" title="Bấm để ẩn khỏi giỏ hàng/landing"><span style="width:6px; height:6px; border-radius:50%; background:#059669;"></span>Công khai (Landing)</button>'
+        : '<button type="button" class="btn-toggle-public" data-id="' + escapeHtml(c.id) + '" style="background:#f8fafc; color:#64748b; border:1px solid #e2e8f0; border-radius:20px; padding:3px 10px; font-size:0.75rem; font-weight:600; cursor:pointer; display:inline-flex; align-items:center; gap:4px;" title="Bấm để hiển thị công khai ngoài giỏ hàng"><span style="width:6px; height:6px; border-radius:50%; background:#94a3b8;"></span>Mã ẩn (Video/Email)</button>';
+
       const statusHtml = c.is_active
         ? '<span style="display: inline-flex; align-items: center; gap: 6px; color: #059669; font-weight: 600; font-size: 0.82rem;"><span style="width: 7px; height: 7px; border-radius: 50%; background: #059669;"></span>Đang hoạt động</span>'
         : '<span style="display: inline-flex; align-items: center; gap: 6px; color: #94a3b8; font-weight: 500; font-size: 0.82rem;"><span style="width: 7px; height: 7px; border-radius: 50%; background: #cbd5e1;"></span>Tạm dừng</span>';
@@ -5541,6 +5546,7 @@ document.addEventListener('DOMContentLoaded', () => {
           <td><strong style="color: #059669; font-size: 0.92rem;">${discountText}</strong></td>
           <td><span style="color: #334155; font-size: 0.86rem;">${minOrderText}</span></td>
           <td><span style="color: #64748b; font-size: 0.84rem;">${c.expires_at ? escapeHtml(c.expires_at) : 'Vĩnh viễn'}</span></td>
+          <td>${publicHtml}</td>
           <td>${statusHtml}</td>
           <td style="text-align: center;">
             <div class="action-menu-wrap">
@@ -5580,6 +5586,13 @@ document.addEventListener('DOMContentLoaded', () => {
           popover.classList.add('show');
           btn.classList.add('active');
         }
+      });
+    });
+
+        couponsListBody.querySelectorAll('.btn-toggle-public').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        toggleCouponPublic(btn.dataset.id);
       });
     });
 
@@ -5926,6 +5939,23 @@ document.addEventListener('DOMContentLoaded', () => {
     } catch (err) {
       console.error("Lỗi lưu coupon:", err);
       showToast("Không thể lưu: " + err.message);
+    }
+  }
+
+  async function toggleCouponPublic(id) {
+    const coupon = currentCoupons.find(c => c.id === id);
+    if (!coupon) return;
+    const nextPublic = coupon.is_public === false ? true : false;
+    try {
+      await db.collection('coupons').doc(id).update({
+        is_public: nextPublic,
+        updated_at: new Date().toISOString()
+      });
+      showToast((nextPublic ? "Đã bật hiển thị công khai mã " : "Đã chuyển sang mã ẩn ") + coupon.code);
+      await loadCoupons();
+    } catch (err) {
+      console.error("Lỗi đổi hiển thị coupon:", err);
+      showToast("Lỗi: " + err.message);
     }
   }
 
