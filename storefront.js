@@ -166,6 +166,8 @@ function escapeHtml(value) {
   // ==========================================
   // HỆ THỐNG LINK DIRECT SẢN PHẨM (R1, R2, R3)
   // ==========================================
+  var initialPageHash = window.location.hash || "";
+  var initialProductDirectParam = parseProductDirectHash(initialPageHash);
   function slugifyVietnamese(str) {
     if (!str) return '';
     return String(str)
@@ -324,6 +326,7 @@ function escapeHtml(value) {
   };
 
   function clearProductHashFromUrl() {
+    initialProductDirectParam = null;
     var hash = window.location.hash || '';
     if (parseProductDirectHash(hash)) {
       var cleanUrl = window.location.pathname + window.location.search;
@@ -340,12 +343,14 @@ function escapeHtml(value) {
 
   function checkAndHandleDirectProductHash() {
     if (isHandlingDirectHash) return;
-    var param = parseProductDirectHash(window.location.hash);
+    var currentParam = parseProductDirectHash(window.location.hash);
+    var param = currentParam || initialProductDirectParam;
     if (!param || !data || !data.products || !data.products.length) return;
 
     var product = findProductByIdOrSlug(data.products, param);
     if (product) {
       hasAutoOpenedDirectProduct = true;
+      initialProductDirectParam = null;
       if (!detailModal || !detailModal.classList.contains("is-open") || state.selectedProductId !== product.id) {
         isHandlingDirectHash = true;
         try {
@@ -3141,24 +3146,16 @@ function escapeHtml(value) {
       var directHash = '#san-pham=' + encodeURIComponent(directParam);
 
       if (currentHashParam !== directParam) {
-        // Nếu là lần đầu mở trang qua link direct (chưa có state), chuẩn bị entry gốc sạch sẽ để khi bấm Back sẽ quay về trang chủ
-        if (!window.history.state || window.history.state.modal !== 'product-detail') {
-          if (currentHashParam && window.history && typeof window.history.replaceState === 'function') {
-            window.history.replaceState({ modal: null }, document.title, baseCleanUrl);
-          }
-        }
         if (window.history && typeof window.history.pushState === 'function') {
           window.history.pushState({ modal: 'product-detail', productId: product.id }, document.title, baseCleanUrl + directHash);
         } else {
           window.location.hash = directHash;
         }
       } else {
-        // Nếu đã ở đúng direct hash, chuẩn bị history state để Back button gỡ hash sạch sẽ
         if (!window.history.state || window.history.state.modal !== 'product-detail') {
           var curFullUrl = baseCleanUrl + window.location.hash;
-          if (window.history && typeof window.history.replaceState === 'function' && typeof window.history.pushState === 'function') {
-            window.history.replaceState({ modal: null }, document.title, baseCleanUrl);
-            window.history.pushState({ modal: 'product-detail', productId: product.id }, document.title, curFullUrl);
+          if (window.history && typeof window.history.replaceState === 'function') {
+            window.history.replaceState({ modal: 'product-detail', productId: product.id }, document.title, curFullUrl);
           }
         }
       }
@@ -6869,7 +6866,9 @@ function escapeHtml(value) {
     // 4. Mobile Back Button (Popstate interception)
     try {
       setTimeout(function() {
-        if (!sessionStorage.getItem("filedilam_exit_intent_shown") && window.history && window.history.pushState) {
+        var hasDirectHash = !!parseProductDirectHash(window.location.hash);
+        var isModalDetailOpen = detailModal && detailModal.classList.contains("is-open");
+        if (!hasDirectHash && !isModalDetailOpen && !sessionStorage.getItem("filedilam_exit_intent_shown") && window.history && window.history.pushState) {
           window.history.pushState({ filedilam_trap: true }, "");
           window.addEventListener("popstate", function(event) {
             var modal = document.getElementById("exitIntentModal");
