@@ -438,7 +438,8 @@ document.addEventListener('DOMContentLoaded', () => {
   function getAdminProductDirectParam(product) {
     if (!product) return '';
     if (product.slug && String(product.slug).trim()) {
-      return String(product.slug).trim();
+      const s = String(product.slug).trim();
+      return slugifyVietnamese(s) || s;
     }
     return String(product.id || '').trim();
   }
@@ -447,19 +448,10 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!product) return '';
     const param = getAdminProductDirectParam(product);
     let base = window.location.origin;
-    let path = window.location.pathname || '/';
     if (!base || base === 'null' || !window.location.protocol.startsWith('http')) {
       base = 'https://filedilam.vn';
-      path = '/';
-    } else {
-      if (path.endsWith('.html')) {
-        path = path.substring(0, path.lastIndexOf('/') + 1);
-      }
-      if (!path.endsWith('/')) {
-        path += '/';
-      }
     }
-    return `${base}${path}#san-pham=${encodeURIComponent(param)}`;
+    return `${base}/#san-pham=${encodeURIComponent(param)}`;
   }
 
   function copyTextToClipboard(text, onSuccess, onError) {
@@ -478,6 +470,7 @@ document.addEventListener('DOMContentLoaded', () => {
     try {
       const textArea = document.createElement("textarea");
       textArea.value = text;
+      textArea.setAttribute('readonly', '');
       textArea.style.position = "fixed";
       textArea.style.top = "0";
       textArea.style.left = "0";
@@ -491,6 +484,9 @@ document.addEventListener('DOMContentLoaded', () => {
       document.body.appendChild(textArea);
       textArea.focus();
       textArea.select();
+      if (typeof textArea.setSelectionRange === 'function') {
+        textArea.setSelectionRange(0, 99999);
+      }
       const successful = document.execCommand('copy');
       document.body.removeChild(textArea);
       if (successful) {
@@ -5982,7 +5978,7 @@ document.addEventListener('DOMContentLoaded', () => {
 // couponDescInput is readonly & auto-generated
 
   window.seedStandardCoupons = async function() {
-    if (!confirm("Báº¡n cÃ³ muá»‘n náº¡p nhanh bá»™ 5 mÃ£ giáº£m giÃ¡ chuáº©n chiáº¿n lÆ°á»£c (FILEDILAM30, TIETKIEM10, VIP16, TIKTOK20, MEMBER30) khÃ´ng?")) {
+    if (!confirm("Bạn có muốn nạp nhanh bộ 5 mã giảm giá chuẩn chiến lược (FILEDILAM30, TIETKIEM10, VIP16, TIKTOK20, MEMBER30) không?")) {
       return;
     }
     const standardCoupons = [
@@ -5992,12 +5988,12 @@ document.addEventListener('DOMContentLoaded', () => {
         value: 30,
         min_order: 0,
         max_discount: 5000,
-        description: "Æ¯u Ä Ã£i Ä Æ¡n Ä áº§u (Giáº£m 30% tá»‘i Ä‘a 5.000Ä‘ cho má» i Ä‘Æ¡n)",
+        description: "Ưu Đãi Đơn Đầu (Giảm 30% tối đa 5.000đ cho mọi đơn)",
         is_active: true,
         is_public: true,
         scope: "all",
         min_items: 0,
-        expires_at: "VÄ©nh viá»…n",
+        expires_at: "Vĩnh viễn",
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString()
       },
@@ -6007,12 +6003,12 @@ document.addEventListener('DOMContentLoaded', () => {
         value: 10000,
         min_order: 55000,
         max_discount: 0,
-        description: "GÃ³i GhÃ©p Tiáº¿t Kiá»‡m (Giáº£m tháº³ng 10.000Ä‘ cho Ä‘Æ¡n tá»« 55.000Ä‘)",
+        description: "Gói Ghép Tiết Kiệm (Giảm thẳng 10.000đ cho đơn từ 55.000đ)",
         is_active: true,
         is_public: true,
         scope: "all",
         min_items: 0,
-        expires_at: "VÄ©nh viá»…n",
+        expires_at: "Vĩnh viễn",
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString()
       },
@@ -6022,12 +6018,12 @@ document.addEventListener('DOMContentLoaded', () => {
         value: 16000,
         min_order: 85000,
         max_discount: 0,
-        description: "Tá»‘i Æ¯u NgÃ¢n SÃ¡ch (Giáº£m tháº³ng 16.000Ä‘ cho Ä‘Æ¡n tá»« 85.000Ä‘)",
+        description: "Tối Ưu Ngân Sách (Giảm thẳng 16.000đ cho đơn từ 85.000đ)",
         is_active: true,
         is_public: true,
         scope: "all",
         min_items: 0,
-        expires_at: "VÄ©nh viá»…n",
+        expires_at: "Vĩnh viễn",
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString()
       },
@@ -6037,12 +6033,12 @@ document.addEventListener('DOMContentLoaded', () => {
         value: 20,
         min_order: 25000,
         max_discount: 10000,
-        description: "Æ¯u Ä Ã£i DÃ nh RiÃªng Cho Báº¡n Xem Video (Giáº£m 20% max 10K Ä‘Æ¡n tá»« 25K)",
+        description: "Ưu Đãi Dành Riêng Cho Bạn Xem Video (Giảm 20% max 10K đơn từ 25K)",
         is_active: true,
         is_public: false,
         scope: "all",
         min_items: 0,
-        expires_at: "VÄ©nh viá»…n",
+        expires_at: "Vĩnh viễn",
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString()
       },
@@ -6051,28 +6047,28 @@ document.addEventListener('DOMContentLoaded', () => {
         type: "percent",
         value: 30,
         min_order: 0,
-        max_discount: 25000,
-        description: "MÃ£ ThÃ¢n Thiáº¿t DÃ nh Cho KhÃ¡ch Ä Ã£ Mua (Giáº£m 30% max 25K)",
+        max_discount: 20000,
+        description: "Mã Thân Thiết Dành Cho Khách Đã Mua (Giảm 30% max 20K)",
         is_active: true,
         is_public: false,
         scope: "all",
         min_items: 0,
-        expires_at: "VÄ©nh viá»…n",
+        expires_at: "Vĩnh viễn",
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString()
       }
     ];
 
     try {
-      showToast("Ä ang náº¡p 5 mÃ£ chuáº©n vÃ o Firestore...");
+      showToast("Đang nạp 5 mã chuẩn vào Firestore...");
       for (const cp of standardCoupons) {
         await db.collection('coupons').doc(cp.code).set(cp, { merge: true });
       }
-      showToast("Ä Ã£ náº¡p thÃ nh cÃ´ng bá»™ 5 mÃ£ chiáº¿n lÆ°á»£c!");
+      showToast("Đã nạp thành công bộ 5 mã chiến lược!");
       await loadCoupons();
     } catch (e) {
-      console.error("Lá»—i náº¡p mÃ£ chuáº©n:", e);
-      showToast("Lá»—i: " + e.message);
+      console.error("Lỗi nạp mã chuẩn:", e);
+      showToast("Lỗi: " + e.message);
     }
   };
 
