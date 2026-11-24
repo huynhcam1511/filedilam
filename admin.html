@@ -2957,13 +2957,13 @@
             <table class="alocal-table">
               <thead>
                 <tr>
-                  <th style="width: 280px; min-width: 260px;">Mã giảm giá</th>
-                  <th>Loại ưu đãi</th>
-                  <th>Mức giảm</th>
-                  <th>Điều kiện đơn tối thiểu</th>
-                  <th>Thời hạn</th>
-                  <th>Hiển thị Web</th>
-                  <th>Trạng thái</th>
+                  <th style="width: 280px; min-width: 260px; cursor: pointer; user-select: none;" class="th-sortable" data-sort="code">Mã giảm giá <span class="sort-icon" data-sort-for="code">⇅</span></th>
+                  <th style="cursor: pointer; user-select: none;" class="th-sortable" data-sort="type">Loại ưu đãi <span class="sort-icon" data-sort-for="type">⇅</span></th>
+                  <th style="cursor: pointer; user-select: none;" class="th-sortable" data-sort="value">Mức giảm <span class="sort-icon" data-sort-for="value">⇅</span></th>
+                  <th style="cursor: pointer; user-select: none;" class="th-sortable" data-sort="min_order">Đơn tối thiểu <span class="sort-icon" data-sort-for="min_order">⇅</span></th>
+                  <th style="cursor: pointer; user-select: none;" class="th-sortable" data-sort="expires">Thời hạn <span class="sort-icon" data-sort-for="expires">⇅</span></th>
+                  <th style="cursor: pointer; user-select: none;" class="th-sortable" data-sort="is_public">Hiển thị Web <span class="sort-icon" data-sort-for="is_public">⇅</span></th>
+                  <th style="cursor: pointer; user-select: none;" class="th-sortable" data-sort="is_active">Trạng thái <span class="sort-icon" data-sort-for="is_active">⇅</span></th>
                   <th style="width: 44px; text-align: right;"></th>
                 </tr>
               </thead>
@@ -3230,7 +3230,7 @@
   <script src="/__/firebase/init.js"></script>
   
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-  <script src="./admin.js?v=326"></script>
+  <script src="./admin.js?v=327"></script>
   <!-- Agentation: Visual Feedback & Annotation for AI agents -->
   <script src="./agentation-vanilla.js"></script>
 

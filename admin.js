@@ -5508,6 +5508,51 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
+  let couponSortColumn = 'priority'; // mặc định ưu tiên công khai -> ẩn -> tạm dừng
+  let couponSortDirection = 'asc';
+
+  function sortCouponsList(list) {
+    return [...list].sort((a, b) => {
+      let valA, valB;
+      if (couponSortColumn === 'priority') {
+        // Công khai lên đầu, sau đó đến mã ẩn, tạm dừng xuống cuối
+        const scoreA = (!a.is_active ? 0 : (a.is_public !== false ? 2 : 1));
+        const scoreB = (!b.is_active ? 0 : (b.is_public !== false ? 2 : 1));
+        if (scoreB !== scoreA) return scoreB - scoreA;
+        return (a.min_order || 0) - (b.min_order || 0);
+      } else if (couponSortColumn === 'code') {
+        valA = String(a.code || '').toUpperCase();
+        valB = String(b.code || '').toUpperCase();
+        return couponSortDirection === 'asc' ? valA.localeCompare(valB) : valB.localeCompare(valA);
+      } else if (couponSortColumn === 'type') {
+        valA = String(a.type || '');
+        valB = String(b.type || '');
+        return couponSortDirection === 'asc' ? valA.localeCompare(valB) : valB.localeCompare(valA);
+      } else if (couponSortColumn === 'value') {
+        valA = Number(a.value || 0);
+        valB = Number(b.value || 0);
+        return couponSortDirection === 'asc' ? valA - valB : valB - valA;
+      } else if (couponSortColumn === 'min_order') {
+        valA = Number(a.min_order || 0);
+        valB = Number(b.min_order || 0);
+        return couponSortDirection === 'asc' ? valA - valB : valB - valA;
+      } else if (couponSortColumn === 'expires') {
+        valA = String(a.end_date || '9999');
+        valB = String(b.end_date || '9999');
+        return couponSortDirection === 'asc' ? valA.localeCompare(valB) : valB.localeCompare(valA);
+      } else if (couponSortColumn === 'is_public') {
+        valA = (a.is_public !== false) ? 1 : 0;
+        valB = (b.is_public !== false) ? 1 : 0;
+        return couponSortDirection === 'asc' ? valB - valA : valA - valB;
+      } else if (couponSortColumn === 'is_active') {
+        valA = a.is_active ? 1 : 0;
+        valB = b.is_active ? 1 : 0;
+        return couponSortDirection === 'asc' ? valB - valA : valA - valB;
+      }
+      return 0;
+    });
+  }
+
   function renderFilteredCoupons() {
     if (!couponsListBody) return;
     const searchVal = (couponSearchInput?.value || '').trim().toUpperCase();
@@ -5524,13 +5569,15 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
 
-    couponsListBody.innerHTML = filtered.map(c => {
+    const sortedList = sortCouponsList(filtered);
+    updateSortIcons();
+    couponsListBody.innerHTML = sortedList.map(c => {
       const discountText = ['percent','cheapest'].includes(c.type) ? c.value + '%' : ['gift','choice','tier'].includes(c.type) ? 'Theo chương trình' : formatCurrency(c.value);
       const minOrderText = (c.min_order && c.min_order > 0) ? formatCurrency(c.min_order) : 'Không yêu cầu';
       const isPublic = c.is_public !== false;
       const publicHtml = isPublic
-        ? '<button type="button" class="btn-toggle-public" data-id="' + escapeHtml(c.id) + '" style="background:#ecfdf5; color:#059669; border:1px solid #a7f3d0; border-radius:20px; padding:3px 10px; font-size:0.75rem; font-weight:600; cursor:pointer; display:inline-flex; align-items:center; gap:4px;" title="Bấm để ẩn khỏi giỏ hàng/landing"><span style="width:6px; height:6px; border-radius:50%; background:#059669;"></span>Công khai (Landing)</button>'
-        : '<button type="button" class="btn-toggle-public" data-id="' + escapeHtml(c.id) + '" style="background:#f8fafc; color:#64748b; border:1px solid #e2e8f0; border-radius:20px; padding:3px 10px; font-size:0.75rem; font-weight:600; cursor:pointer; display:inline-flex; align-items:center; gap:4px;" title="Bấm để hiển thị công khai ngoài giỏ hàng"><span style="width:6px; height:6px; border-radius:50%; background:#94a3b8;"></span>Mã ẩn (Video/Email)</button>';
+        ? '<button type="button" class="btn-toggle-public" data-id="' + escapeHtml(c.id) + '" style="background:transparent; border:none; padding:2px 0; font-size:0.82rem; font-weight:500; cursor:pointer; display:inline-flex; align-items:center; gap:6px; color:#059669;" title="Bấm để đổi trạng thái ẩn/hiện"><span style="width:6px; height:6px; border-radius:50%; background:#059669;"></span>Công khai (Landing)</button>'
+        : '<button type="button" class="btn-toggle-public" data-id="' + escapeHtml(c.id) + '" style="background:transparent; border:none; padding:2px 0; font-size:0.82rem; font-weight:500; cursor:pointer; display:inline-flex; align-items:center; gap:6px; color:#94a3b8;" title="Bấm để đổi trạng thái ẩn/hiện"><span style="width:6px; height:6px; border-radius:50%; background:#cbd5e1;"></span>Mã ẩn (Video/Email)</button>';
 
       const statusHtml = c.is_active
         ? '<span style="display: inline-flex; align-items: center; gap: 6px; color: #059669; font-weight: 600; font-size: 0.82rem;"><span style="width: 7px; height: 7px; border-radius: 50%; background: #059669;"></span>Đang hoạt động</span>'
@@ -5991,6 +6038,34 @@ document.addEventListener('DOMContentLoaded', () => {
       showToast("Lỗi xóa mã: " + err.message);
     }
   }
+
+  function updateSortIcons() {
+    document.querySelectorAll('.th-sortable .sort-icon').forEach(icon => {
+      const col = icon.dataset.sortFor;
+      if (col === couponSortColumn) {
+        icon.textContent = couponSortDirection === 'asc' ? ' ↑' : ' ↓';
+        icon.style.color = '#059669';
+        icon.style.fontWeight = 'bold';
+      } else {
+        icon.textContent = ' ⇅';
+        icon.style.color = '#94a3b8';
+        icon.style.fontWeight = 'normal';
+      }
+    });
+  }
+
+  document.querySelectorAll('.th-sortable').forEach(th => {
+    th.addEventListener('click', () => {
+      const col = th.dataset.sort;
+      if (couponSortColumn === col) {
+        couponSortDirection = couponSortDirection === 'asc' ? 'desc' : 'asc';
+      } else {
+        couponSortColumn = col;
+        couponSortDirection = 'asc';
+      }
+      renderFilteredCoupons();
+    });
+  });
 
   document.getElementById('btnOpenAddCoupon')?.addEventListener('click', openAddCouponModal);
   document.getElementById('btnCloseCouponModal')?.addEventListener('click', closeCouponModal);
