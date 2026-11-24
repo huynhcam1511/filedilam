@@ -1067,6 +1067,45 @@ function escapeHtml(value) {
     // Treo màn hình thanh toán nếu khách có đơn hàng PENDING còn hiệu lực khi vừa tải trang
     restoreActiveOrderModal();
 
+    // Hỗ trợ tự động áp mã, thêm sản phẩm và điền sẵn thông tin từ Email (?add=...&coupon=...&email=...&name=...&phone=...)
+    try {
+      var urlP = new URLSearchParams(window.location.search);
+      var autoAdd = urlP.get("add");
+      var autoCoupon = urlP.get("coupon");
+      var autoEmail = urlP.get("email");
+      var autoName = urlP.get("name");
+      var autoPhone = urlP.get("phone");
+
+      if (autoCoupon) {
+        sessionStorage.setItem("filedilam_auto_coupon", autoCoupon.toUpperCase());
+      }
+      if (autoName || autoEmail || autoPhone) {
+        if (!state.profile) state.profile = {};
+        if (autoName) state.profile.full_name = autoName;
+        if (autoEmail) state.profile.email = autoEmail;
+        if (autoPhone) state.profile.phone = autoPhone;
+      }
+
+      // Nếu có ?add=... -> Tự động thêm sản phẩm vào giỏ, áp mã và mở thẳng màn hình thanh toán!
+      if (autoAdd) {
+        setTimeout(function() {
+          var p = getProductById(autoAdd);
+          if (p) {
+            addToCart(p.id, { openDrawer: false });
+            if (autoCoupon) {
+              setTimeout(function() {
+                applyCheckoutCoupon(autoCoupon);
+              }, 200);
+            }
+            openCheckout();
+            showToast("Đã thêm " + p.name + " vào đơn hàng của bạn!");
+          }
+        }, 500);
+      }
+    } catch(e) {
+      console.warn("Could not parse 1-click checkout params:", e);
+    }
+
     // Hỗ trợ tự động đăng nhập 1-chạm bằng Magic Link (?magic=token) và mở File của tôi
     try {
       var urlParams = new URLSearchParams(window.location.search);

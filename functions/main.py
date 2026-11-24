@@ -522,15 +522,147 @@ def send_single_delivery_email(customer_email, customer_name, order_id, file_ite
 
         return_offers = []
         try:
-            today = (datetime.now(timezone.utc) + timedelta(hours=7)).date().isoformat()
-            for snapshot in get_db().collection("coupons").where("type", "==", "returning").stream():
-                campaign = snapshot.to_dict()
-                if campaign.get("is_active") and (campaign.get("start_date") or "") <= today <= (campaign.get("end_date") or "9999"):
-                    code = escape(str(campaign.get("code") or snapshot.id))
-                    terms = escape(str(campaign.get("description") or ""))
-                    return_offers.append(f"<p>Mã cho lần mua sau <strong>{code}</strong><br>{terms}</p>")
+            # Thuật toán gợi ý 2 file bổ trợ chưa mua (Loại trừ các file trong đơn hàng hiện tại)
+            purchased_ids = set()
+            for ci in (combo_items or []):
+                cid = ci.get("product_id") or ci.get("id")
+                if cid:
+                    purchased_ids.add(str(cid))
+            single_pid = order_data.get("product_id")
+            if single_pid:
+                purchased_ids.add(str(single_pid))
+
+            # Danh mục 8 sản phẩm chuẩn của File Đi Làm
+            CATALOG_PRODS = [
+                {
+                    "id": "PRD-662235",
+                    "name": "Quản Lý Kho & Nhập Xuất Tồn",
+                    "type": "Web App (Apps Script)",
+                    "category": "Kinh doanh",
+                    "price": 49000,
+                    "original_price": 129000,
+                    "sales": 23
+                },
+                {
+                    "id": "PRD-818270",
+                    "name": "Quản Lý Bán Hàng Online",
+                    "type": "Google Sheets",
+                    "category": "Kinh doanh",
+                    "price": 39000,
+                    "original_price": 99000,
+                    "sales": 67
+                },
+                {
+                    "id": "PRD-791771",
+                    "name": "Tính Giá Vốn F&B",
+                    "type": "Web App (Apps Script)",
+                    "category": "Kinh doanh",
+                    "price": 39000,
+                    "original_price": 89000,
+                    "sales": 8
+                },
+                {
+                    "id": "PRD-801788",
+                    "name": "Quản Lý Nhà Trọ",
+                    "type": "Web App (Apps Script)",
+                    "category": "Kinh doanh",
+                    "price": 79000,
+                    "original_price": 299000,
+                    "sales": 1
+                },
+                {
+                    "id": "PRD-506079",
+                    "name": "Quản Lý Tiến Độ Dự Án & Công Việc Đội Nhóm",
+                    "type": "Web App (Apps Script)",
+                    "category": "Công việc",
+                    "price": 69000,
+                    "original_price": 149000,
+                    "sales": 0
+                },
+                {
+                    "id": "PRD-262098",
+                    "name": "Quản Lý Công Việc & Thói Quen",
+                    "type": "Google Sheets",
+                    "category": "Phát triển bản thân",
+                    "price": 29000,
+                    "original_price": 109000,
+                    "sales": 0
+                }
+            ]
+
+            # Lọc bỏ các file khách vừa mua
+            available_prods = [p for p in CATALOG_PRODS if p["id"] not in purchased_ids]
+            # Ưu tiên theo lượt tải
+            available_prods.sort(key=lambda x: x.get("sales", 0), reverse=True)
+            suggested_prods = available_prods[:2]
+
+            import urllib.parse
+            q_name = urllib.parse.quote(str(customer_name or "").strip())
+            q_email = urllib.parse.quote(str(customer_email or "").strip())
+            q_phone = urllib.parse.quote(str(order_data.get("customer_phone") or "").strip())
+            user_params = f"name={q_name}&email={q_email}&phone={q_phone}&coupon=MEMBER30"
+
+            cards_html = []
+            for sp in suggested_prods:
+                p_name = sp["name"]
+                p_type = sp["type"]
+                p_id = sp["id"]
+                p_orig = sp["original_price"]
+                p_price = sp["price"]
+                # Giảm 30% tối đa 20k
+                discount_val = min(int(p_price * 0.3), 20000)
+                member_price = p_price - discount_val
+                orig_fmt = f"{p_orig:,}".replace(",", ".") + " đ"
+                price_fmt = f"{p_price:,}".replace(",", ".") + " đ"
+                member_fmt = f"{member_price:,}".replace(",", ".") + " đ"
+                saved_fmt = f"{discount_val:,}".replace(",", ".") + " đ"
+
+                direct_buy_url = f"https://filedilam.web.app/?add={p_id}&{user_params}"
+
+                cards_html.append(f"""
+                <div style="background-color: #ffffff; border: 1px solid #cbd5e1; border-radius: 8px; padding: 14px 16px; margin-bottom: 12px; text-align: left;">
+                  <div style="font-weight: 700; color: #0f172a; font-size: 14px;">📁 {p_name} <span style="font-size: 11px; font-weight: 500; color: #059669; background: #ecfdf5; padding: 2px 6px; border-radius: 4px; border: 1px solid #a7f3d0;">{p_type}</span></div>
+                  <div style="margin: 6px 0; font-size: 12.5px; color: #64748b; line-height: 1.5;">
+                    Giá gốc: <span style="text-decoration: line-through;">{orig_fmt}</span> &nbsp;&middot;&nbsp; 
+                    Giá niêm yết: <span style="color: #334155; font-weight: 600;">{price_fmt}</span><br>
+                    Ưu đãi thành viên giảm 30%: <strong style="color: #059669; font-size: 13.5px;">{member_fmt}</strong> <span style="color: #d97706; font-size: 11.5px; font-weight: 600;">(Tiết kiệm {saved_fmt})</span>
+                  </div>
+                  <a href="{direct_buy_url}" target="_blank" rel="noopener noreferrer" style="display: block; text-align: center; background-color: #059669; color: #ffffff; text-decoration: none; font-size: 13px; font-weight: 700; padding: 10px 14px; border-radius: 6px; margin-top: 8px;">
+                    👉 Bấm để mua ngay chỉ {member_fmt} (Đã áp mã MEMBER30)
+                  </a>
+                </div>
+                """)
+
+            suggested_box_html = "".join(cards_html)
+            explore_all_url = f"https://filedilam.web.app/?{user_params}"
+
+            gift_card_html = f"""
+            <!-- Khối Quà Tặng Tri Ân Thành Viên Chuẩn Fintech -->
+            <div style="margin: 28px 0 20px 0; padding: 20px 22px; background-color: #f8fafc; border: 1.5px solid #e2e8f0; border-radius: 10px;">
+              <div style="font-size: 14px; font-weight: 700; color: #0f172a; margin-bottom: 6px;">
+                🎁 QUÀ TẶNG TRI ÂN DÀNH RIÊNG CHO THÀNH VIÊN NGƯỜI ĐI LÀM
+              </div>
+              <div style="font-size: 13px; color: #475569; line-height: 1.5; margin-bottom: 14px;">
+                Mã ưu đãi độc quyền: <strong style="font-family: monospace; font-size: 14px; color: #059669; background: #ecfdf5; padding: 2px 8px; border-radius: 4px; border: 1px solid #a7f3d0;">MEMBER30</strong><br>
+                Ưu đãi: Giảm 30% (tối đa 20.000đ) áp dụng cho bất kỳ file nào trên hệ thống.
+              </div>
+
+              <!-- Danh sách file gợi ý mua kèm chưa mua -->
+              <div style="font-size: 12.5px; font-weight: 700; color: #334155; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.3px;">
+                💡 Gợi ý file bổ trợ tốt nhất cho công việc của bạn:
+              </div>
+              {suggested_box_html}
+
+              <div style="text-align: center; margin-top: 10px;">
+                <a href="{explore_all_url}" target="_blank" rel="noopener noreferrer" style="font-size: 12.5px; color: #059669; font-weight: 600; text-decoration: underline;">
+                  Hoặc bấm vào đây để xem toàn bộ kho file (Tự động kích hoạt mã MEMBER30) &rarr;
+                </a>
+              </div>
+            </div>
+            """
+            return_offers.append(gift_card_html)
         except Exception as error:
-            print(f"Không tải được ưu đãi lần sau cho email bàn giao: {error}")
+            print(f"Không tạo được khối quà tặng tri ân MEMBER30: {error}")
 
         parent_combo_name = order_data.get("product_name") if (order_data.get("is_combo") or order_data.get("combo_items")) else None
         combo_row_html = ""
