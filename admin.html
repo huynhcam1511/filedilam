@@ -1546,7 +1546,7 @@
       border-radius: 12px;
       padding: 12px 18px;
       display: grid;
-      grid-template-columns: repeat(5, 1fr);
+      grid-template-columns: repeat(6, 1fr);
       gap: 14px;
       align-items: center;
       box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02);
@@ -1964,6 +1964,13 @@
     #promoLibrary button[data-template] {text-align:left;width:100%;background:white;color:#065f46;border:0;border-bottom:1px solid #e2e8f0;padding:12px 4px;cursor:pointer}
     #promoLibrary button:hover {background:#f8fafc}
     #couponForm [hidden] {display:none}
+    #revenueChartContainer svg:not([width="12"]):not([width="14"]):not([width="16"]):not([width="18"]):not([width="20"]):not([width="24"]):not(.lucide) {
+      width: 100% !important;
+      height: auto !important;
+      max-height: 340px !important;
+      max-width: none !important;
+      display: block;
+    }
   </style>
 </head>
 <body>
@@ -2801,8 +2808,9 @@
         <!-- SAAS ANALYTICS 12-COLUMN DASHBOARD GRID -->
         <div class="saas-dashboard-grid">
           
-          <!-- SECTION 2: SIX KPI BAR (Unified Flat Card Strip giống Phễu chuyển đổi) -->
-          <div class="saas-kpi-bar">
+          <!-- SECTION 2 & 2.5: UNIFIED 6x2 KPI & FUNNEL TABLE -->
+          <div style="grid-column: span 12; background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02); overflow: hidden;">
+            <div class="saas-kpi-bar" style="border: none; border-radius: 0; box-shadow: none;">
             <!-- KPI 1: DOANH THU THUẦN -->
             <div class="saas-kpi-item">
               <div class="saas-kpi-header">Doanh thu thuần</div>
@@ -2850,68 +2858,101 @@
             </div>
           </div>
 
-          <!-- SECTION 2.5: CLEAN MINIMALIST PHỄU CHUYỂN ĐỔI -->
-          <div class="saas-web-behavior-bar" style="padding: 14px 20px;">
-            <div style="grid-column: 1 / -1; display: flex; justify-content: space-between; align-items: center; padding-bottom: 6px; border-bottom: 1px dashed #f1f5f9; margin-bottom: 4px;">
+            <!-- SECTION 2.5: CLEAN MINIMALIST PHỄU CHUYỂN ĐỔI -->
+            <div class="saas-web-behavior-bar" style="padding: 14px 20px; border: none; border-top: 1px solid #f1f5f9; border-radius: 0; box-shadow: none;">
+            <div style="grid-column: 1 / -1; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; padding-bottom: 8px; border-bottom: 1px dashed #f1f5f9; margin-bottom: 4px;">
               <span style="font-size: 0.72rem; font-weight: 700; color: #334155; text-transform: uppercase; letter-spacing: 0.03em;">Hành vi khách hàng & Phễu chuyển đổi</span>
+              <div style="display: flex; align-items: center; gap: 12px; font-size: 0.72rem;">
+                <span id="behaviorCompareLabel" style="color: #64748b;"></span>
+              </div>
             </div>
 
             <!-- BƯỚC 1: LƯỢT MỞ WEB -->
             <div style="border-right: 1px solid #f1f5f9; padding-right: 12px;">
               <div style="font-size: 0.68rem; font-weight: 600; color: #64748b; text-transform: uppercase; letter-spacing: 0.02em;">Lượt mở Web</div>
-              <div style="font-size: 1.25rem; font-weight: 700; color: #0f172a; font-family: monospace; margin-top: 3px;" id="behaviorWebSessions">0 lượt</div>
+              <div style="display: flex; align-items: baseline; gap: 6px; margin-top: 3px; flex-wrap: wrap;">
+                <span style="font-size: 1.25rem; font-weight: 700; color: #0f172a; font-family: monospace;" id="behaviorWebSessions">0 lượt</span>
+                <span id="behaviorWebSessionsDelta" style="font-size: 0.7rem; font-weight: 600; font-family: monospace;"></span>
+              </div>
+              <div id="behaviorWebSessionsSub" style="font-size: 0.7rem; color: #64748b; margin-top: 2px;">Khách thật (Đã trừ Admin)</div>
             </div>
 
             <!-- BƯỚC 2: THỜI GIAN Ở LẠI TB -->
             <div style="border-right: 1px solid #f1f5f9; padding-right: 12px;">
               <div style="font-size: 0.68rem; font-weight: 600; color: #64748b; text-transform: uppercase; letter-spacing: 0.02em;">Thời gian ở lại TB</div>
-              <div style="font-size: 1.25rem; font-weight: 700; color: #0f172a; font-family: monospace; margin-top: 3px;" id="behaviorAvgDwell">0s</div>
+              <div style="display: flex; align-items: baseline; gap: 6px; margin-top: 3px; flex-wrap: wrap;">
+                <span style="font-size: 1.25rem; font-weight: 700; color: #0f172a; font-family: monospace;" id="behaviorAvgDwell">0s</span>
+                <span id="behaviorAvgDwellDelta" style="font-size: 0.7rem; font-weight: 600; font-family: monospace;"></span>
+              </div>
+              <div id="behaviorAvgDwellSub" style="font-size: 0.7rem; color: #64748b; margin-top: 2px;">Thời gian xem thực tế</div>
             </div>
 
             <!-- BƯỚC 3: LƯỢT BẤM MUA NGAY -->
             <div style="border-right: 1px solid #f1f5f9; padding-right: 12px;">
               <div style="font-size: 0.68rem; font-weight: 600; color: #64748b; text-transform: uppercase; letter-spacing: 0.02em;">Lượt bấm Mua ngay</div>
-              <div style="font-size: 1.25rem; font-weight: 700; color: #059669; font-family: monospace; margin-top: 3px;" id="behaviorAddToCart">0 lượt</div>
+              <div style="display: flex; align-items: baseline; gap: 6px; margin-top: 3px; flex-wrap: wrap;">
+                <span style="font-size: 1.25rem; font-weight: 700; color: #059669; font-family: monospace;" id="behaviorAddToCart">0 lượt</span>
+                <span id="behaviorAddToCartDelta" style="font-size: 0.7rem; font-weight: 600; font-family: monospace;"></span>
+              </div>
+              <div id="behaviorAddToCartSub" style="font-size: 0.7rem; color: #64748b; margin-top: 2px;">0% từ mở web</div>
             </div>
 
             <!-- BƯỚC 4: KHỞI TẠO ĐƠN (CHỜ QR) -->
             <div style="border-right: 1px solid #f1f5f9; padding-right: 12px;">
               <div style="font-size: 0.68rem; font-weight: 600; color: #64748b; text-transform: uppercase; letter-spacing: 0.02em;">Khởi tạo đơn (Chờ QR)</div>
-              <div style="font-size: 1.25rem; font-weight: 700; color: #d97706; font-family: monospace; margin-top: 3px;" id="behaviorOrdersCreated">0 đơn</div>
+              <div style="display: flex; align-items: baseline; gap: 6px; margin-top: 3px; flex-wrap: wrap;">
+                <span style="font-size: 1.25rem; font-weight: 700; color: #d97706; font-family: monospace;" id="behaviorOrdersCreated">0 đơn</span>
+                <span id="behaviorOrdersCreatedDelta" style="font-size: 0.7rem; font-weight: 600; font-family: monospace;"></span>
+              </div>
+              <div id="behaviorOrdersCreatedSub" style="font-size: 0.7rem; color: #64748b; margin-top: 2px;">0% từ bấm mua</div>
             </div>
 
             <!-- BƯỚC 5: THANH TOÁN THÀNH CÔNG -->
-            <div>
+            <div style="border-right: 1px solid #f1f5f9; padding-right: 12px;">
               <div style="font-size: 0.68rem; font-weight: 600; color: #64748b; text-transform: uppercase; letter-spacing: 0.02em;">Thanh toán thành công</div>
-              <div style="font-size: 1.25rem; font-weight: 700; color: #059669; font-family: monospace; margin-top: 3px;" id="behaviorOrdersPaid">0 đơn</div>
+              <div style="display: flex; align-items: baseline; gap: 6px; margin-top: 3px; flex-wrap: wrap;">
+                <span style="font-size: 1.25rem; font-weight: 700; color: #059669; font-family: monospace;" id="behaviorOrdersPaid">0 đơn</span>
+                <span id="behaviorOrdersPaidDelta" style="font-size: 0.7rem; font-weight: 600; font-family: monospace;"></span>
+              </div>
+              <div id="behaviorOrdersPaidSub" style="font-size: 0.7rem; color: #64748b; margin-top: 2px;">0% từ tạo đơn</div>
+            </div>
+
+            <!-- BƯỚC 6: CHUYỂN ĐỔI TỔNG -->
+            <div>
+              <div style="font-size: 0.68rem; font-weight: 600; color: #64748b; text-transform: uppercase; letter-spacing: 0.02em;">Chuyển đổi tổng</div>
+              <div style="display: flex; align-items: baseline; gap: 6px; margin-top: 3px; flex-wrap: wrap;">
+                <span style="font-size: 1.25rem; font-weight: 700; color: #059669; font-family: monospace;" id="behaviorOverallConv">0%</span>
+              </div>
+              <div id="behaviorOverallConvSub" style="font-size: 0.7rem; color: #64748b; margin-top: 2px;">Thanh toán / Mở web</div>
+            </div>
             </div>
           </div>
 
-          <!-- SECTION 3: MAIN ANALYTICS VISUALIZATION (8/12) + FILE PERFORMANCE & P&L (4/12) -->
-          <div class="saas-card col-span-8">
+          <!-- SECTION 3: MAIN ANALYTICS VISUALIZATION (12/12) + FILE PERFORMANCE & P&L (12/12) -->
+          <div class="saas-card col-span-12">
             <div class="saas-card-header" style="flex-wrap: wrap;">
               <div>
                 <h3 class="saas-card-title" id="chartTitle">Biểu đồ Doanh thu & Chi phí Marketing</h3>
                 <p class="saas-card-subtitle" id="chartSubTitle">So sánh Doanh thu (Cột Mint), Chi phí Ads (Cột Slate) & Số đơn (Đường Line)</p>
               </div>
               <!-- CHART VIEW SELECTOR (SEGMENTED PILLS) -->
-              <div class="pill-btn-group" id="statsChartViewSelector" style="margin: 0; display: flex; flex-wrap: wrap; gap: 4px;">
+              <div class="pill-btn-group" id="statsChartViewSelector" style="margin: 0; display: flex; flex-wrap: nowrap; overflow-x: auto; white-space: nowrap; max-width: 100%; gap: 4px;">
                 <button type="button" class="pill-btn active" data-view="combo" title="Cột kép Doanh thu & Chi phí Ads">Doanh thu & Ads</button>
                 <button type="button" class="pill-btn" data-view="cashflow" title="Dòng tiền thực thu - chi phí Ads - tích lũy quỹ tiền mặt">Dòng Tiền</button>
                 <button type="button" class="pill-btn" data-view="waterfall" title="Thác nước P&L: Doanh thu niêm yết - Giảm giá - Chi phí Ads = Lợi nhuận">Waterfall P&L</button>
+                <button type="button" class="pill-btn" data-view="lag72h" title="Điểm hòa vốn & Vùng sinh lãi: Phân tích đường cong về bờ, vùng bù lỗ và lãi ròng theo từng File hoặc Chiến dịch Ads">Điểm Hòa Vốn (P&L)</button>
                 <button type="button" class="pill-btn" data-view="funnel" title="Phễu Marketing 7 tầng: Views → Xem sâu → Clicks → Mở Web → Bấm Mua → Tạo đơn → Thanh toán">Phễu Chuyển Đổi</button>
                 <button type="button" class="pill-btn" data-view="velocity" title="Tốc độ chốt đơn: Phân bổ thời gian từ khi tạo đơn đến khi quét VietQR thành công">Tốc Độ Chốt Đơn</button>
                 <button type="button" class="pill-btn" data-view="decision" title="Ma trận 4 góc phân tán: Doanh thu vs Chi phí Ads">Ma Trận Hiệu Quả</button>
-                <button type="button" class="pill-btn" data-view="lag72h" title="Điểm hòa vốn & Vùng sinh lãi: Phân tích đường cong về bờ, vùng bù lỗ và lãi ròng theo từng File hoặc Chiến dịch Ads">Điểm Hòa Vốn (P&L)</button>
                 <button type="button" class="pill-btn" data-view="pareto" title="Quy luật 80/20 đóng góp doanh số">Pareto 80/20</button>
               </div>
             </div>
-            <div id="revenueChartContainer" style="min-height: 320px; display: flex; flex-direction: column; width: 100%; overflow-x: auto;">
+            <div id="revenueChartContainer" style="min-height: 420px; display: flex; flex-direction: column; width: 100%; overflow-x: auto;">
               <div style="margin: auto; color: var(--slate-muted); font-size: 0.85rem;">Đang tải biểu đồ...</div>
             </div>
           </div>
 
-          <div class="saas-card col-span-4">
+          <div class="saas-card col-span-12">
             <div class="saas-card-header" style="display: flex; justify-content: space-between; align-items: flex-start; gap: 8px;">
               <div>
                 <h3 class="saas-card-title" id="bestSellersTitle">Hiệu Quả & P&L Từng File</h3>

@@ -2909,53 +2909,134 @@ document.addEventListener('DOMContentLoaded', () => {
     const cartDropOffRate = effectiveAddToCart > 0 ? Math.round((cartDropOffCount / effectiveAddToCart) * 100) : 0;
     const addToCartRate = effectiveWebSessions > 0 ? ((effectiveAddToCart / effectiveWebSessions) * 100).toFixed(1) : 0;
 
+    // --- SO SÁNH VỚI LẦN MỞ ADMIN TRƯỚC ĐÓ (SINCE LAST VISIT) ---
+    const funnelFilterKey = (statsFilterMonth !== 'ALL' ? 'M_' + statsFilterMonth : 'P_' + statsFilterPeriod);
+    const lsKey = 'fdl_admin_funnel_last_seen_' + funnelFilterKey;
+    if (!window._fdlSessionFunnelPrev) window._fdlSessionFunnelPrev = {};
+
+    // Chỉ đọc mốc cũ & ghi mốc mới 1 lần cho mỗi filterKey trong 1 phiên mở trang
+    if (!window._fdlSessionFunnelPrev[funnelFilterKey] && effectiveWebSessions + ordersCreatedInPeriod + ordersPaidInPeriod > 0) {
+      let storedPrev = null;
+      try {
+        const raw = localStorage.getItem(lsKey);
+        if (raw) storedPrev = JSON.parse(raw);
+      } catch (e) {}
+
+      window._fdlSessionFunnelPrev[funnelFilterKey] = storedPrev || { isFirstVisit: true };
+
+      try {
+        localStorage.setItem(lsKey, JSON.stringify({
+          webSessions: effectiveWebSessions,
+          avgDwell: avgDwellSeconds,
+          addToCart: effectiveAddToCart,
+          ordersCreated: ordersCreatedInPeriod,
+          ordersPaid: ordersPaidInPeriod,
+          savedAt: new Date().toISOString()
+        }));
+      } catch (e) {}
+    }
+
+    const lastSeen = window._fdlSessionFunnelPrev[funnelFilterKey] || { isFirstVisit: true };
+    const hasLastSeen = !lastSeen.isFirstVisit;
+
+    let lastSeenTimeStr = '';
+    if (hasLastSeen && lastSeen.savedAt) {
+      const d = new Date(lastSeen.savedAt);
+      if (!isNaN(d.getTime())) {
+        lastSeenTimeStr = String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0');
+      }
+    }
+
+    const renderSinceLastBadge = (deltaEl, curr, prev) => {
+      if (!deltaEl) return;
+      if (!hasLastSeen || typeof prev !== 'number') {
+        deltaEl.textContent = '';
+        return;
+      }
+      const diff = curr - prev;
+      if (diff > 0) {
+        deltaEl.textContent = '+' + diff.toLocaleString('vi-VN');
+        deltaEl.style.color = '#059669';
+      } else if (diff < 0) {
+        deltaEl.textContent = diff.toLocaleString('vi-VN');
+        deltaEl.style.color = '#e11d48';
+      } else {
+        deltaEl.textContent = '';
+      }
+    };
+
+    const bCompareLabel = document.getElementById('behaviorCompareLabel');
+    const bOverallConv = document.getElementById('behaviorOverallConv');
+    if (bCompareLabel) {
+      bCompareLabel.textContent = hasLastSeen
+        ? ('So với lần mở trước' + (lastSeenTimeStr ? ' (' + lastSeenTimeStr + ')' : ''))
+        : 'Đã ghi nhận mốc hiện tại';
+    }
+    if (bOverallConv) {
+      const overallRate = effectiveWebSessions > 0 ? ((ordersPaidInPeriod / effectiveWebSessions) * 100).toFixed(1) : '0';
+      bOverallConv.textContent = overallRate + '%';
+      const bOverallConvSub = document.getElementById('behaviorOverallConvSub');
+      if (bOverallConvSub) {
+        bOverallConvSub.textContent = ordersPaidInPeriod + '/' + effectiveWebSessions + ' • Thanh toán / Mở web';
+      }
+    }
+
     const bWebSessions = document.getElementById('behaviorWebSessions');
+    const bWebSessionsDelta = document.getElementById('behaviorWebSessionsDelta');
     const bWebSessionsSub = document.getElementById('behaviorWebSessionsSub');
     const bAvgDwell = document.getElementById('behaviorAvgDwell');
+    const bAvgDwellDelta = document.getElementById('behaviorAvgDwellDelta');
     const bAvgDwellSub = document.getElementById('behaviorAvgDwellSub');
     const bCheckoutOpened = document.getElementById('behaviorCheckoutOpened');
     const bCheckoutOpenedSub = document.getElementById('behaviorCheckoutOpenedSub');
     const bAddToCart = document.getElementById('behaviorAddToCart');
+    const bAddToCartDelta = document.getElementById('behaviorAddToCartDelta');
     const bAddToCartSub = document.getElementById('behaviorAddToCartSub');
     const bCartDropRate = document.getElementById('behaviorCartDropRate');
     const bCartDropSub = document.getElementById('behaviorCartDropSub');
     const bOrdersCreated = document.getElementById('behaviorOrdersCreated');
+    const bOrdersCreatedDelta = document.getElementById('behaviorOrdersCreatedDelta');
     const bOrdersCreatedSub = document.getElementById('behaviorOrdersCreatedSub');
     const bOrdersPaid = document.getElementById('behaviorOrdersPaid');
+    const bOrdersPaidDelta = document.getElementById('behaviorOrdersPaidDelta');
     const bOrdersPaidSub = document.getElementById('behaviorOrdersPaidSub');
     const bDropBadge = document.getElementById('behaviorDropBadge');
 
     if (bWebSessions) bWebSessions.textContent = effectiveWebSessions.toLocaleString('vi-VN') + ' lượt';
+    renderSinceLastBadge(bWebSessionsDelta, effectiveWebSessions, lastSeen.webSessions);
     if (bWebSessionsSub) {
-      if (statsFilterMonth === 'ALL' || statsFilterPeriod === 'all') {
-        bWebSessionsSub.textContent = 'Thu thập từ 07/11/2026 (Trước đó chưa gắn tracker)';
-      } else if (effectiveWebSessions === 0) {
-        bWebSessionsSub.textContent = '0 lượt (Đang quét thật, đã trừ Admin)';
-      } else {
-        bWebSessionsSub.textContent = 'Khách thật (Đã trừ thiết bị Admin)';
-      }
+      bWebSessionsSub.textContent = 'Khách thật (Đã trừ Admin)';
     }
+
     if (bAvgDwell) bAvgDwell.textContent = avgDwellSeconds + 's';
+    renderSinceLastBadge(bAvgDwellDelta, avgDwellSeconds, lastSeen.avgDwell);
     if (bAvgDwellSub) {
-      bAvgDwellSub.textContent = avgDwellSeconds > 0 ? 'Thời gian xem thực tế' : 'Đang quét real-time...';
+      bAvgDwellSub.textContent = 'Thời gian xem thực tế';
     }
+
     if (bAddToCart) bAddToCart.textContent = effectiveAddToCart.toLocaleString('vi-VN') + ' lượt';
+    renderSinceLastBadge(bAddToCartDelta, effectiveAddToCart, lastSeen.addToCart);
+    if (bAddToCartSub) {
+      bAddToCartSub.textContent = addToCartRate + '% từ mở web';
+    }
+
     if (bCheckoutOpened) bCheckoutOpened.textContent = effectiveCheckoutOpened.toLocaleString('vi-VN') + ' lượt';
     if (bCheckoutOpenedSub) {
       bCheckoutOpenedSub.textContent = effectiveAddToCart > 0 ? ('Tỉ lệ mở form: ' + checkoutOpenedRate + '%') : '0 lượt mở form';
     }
-    if (bAddToCartSub) {
-      bAddToCartSub.textContent = effectiveAddToCart > 0 ? ('Tỉ lệ click mua: ' + addToCartRate + '%') : '0 lượt bấm mua';
-    }
+
     if (bOrdersCreated) bOrdersCreated.textContent = ordersCreatedInPeriod.toLocaleString('vi-VN') + ' đơn';
+    renderSinceLastBadge(bOrdersCreatedDelta, ordersCreatedInPeriod, lastSeen.ordersCreated);
     if (bOrdersCreatedSub) {
-      const orderCreateRate = effectiveAddToCart > 0 ? Math.round((ordersCreatedInPeriod / effectiveAddToCart) * 100) : 0;
-      bOrdersCreatedSub.textContent = ordersCreatedInPeriod > 0 ? ('Tỉ lệ tạo đơn: ' + orderCreateRate + '% • Chờ quét QR') : 'Chưa có đơn chờ QR';
+      const orderCreateRate = effectiveAddToCart > 0 ? ((ordersCreatedInPeriod / effectiveAddToCart) * 100).toFixed(1) : '0';
+      bOrdersCreatedSub.textContent = orderCreateRate + '% từ bấm mua';
     }
+
     if (bOrdersPaid) bOrdersPaid.textContent = ordersPaidInPeriod.toLocaleString('vi-VN') + ' đơn';
+    renderSinceLastBadge(bOrdersPaidDelta, ordersPaidInPeriod, lastSeen.ordersPaid);
     if (bOrdersPaidSub) {
-      const orderPayRate = ordersCreatedInPeriod > 0 ? Math.round((ordersPaidInPeriod / ordersCreatedInPeriod) * 100) : 0;
-      bOrdersPaidSub.textContent = ordersPaidInPeriod > 0 ? ('Tỉ lệ chốt đơn: ' + orderPayRate + '% • Khớp lệnh tự động') : 'Chưa có đơn thanh toán';
+      const orderPayRate = ordersCreatedInPeriod > 0 ? ((ordersPaidInPeriod / ordersCreatedInPeriod) * 100).toFixed(1) : '0';
+      bOrdersPaidSub.textContent = orderPayRate + '% từ tạo đơn';
     }
     if (bDropBadge) {
       bDropBadge.textContent = 'Chưa tạo đơn: ' + cartDropOffRate + '% (' + cartDropOffCount + ' lượt)';
@@ -3602,6 +3683,22 @@ document.addEventListener('DOMContentLoaded', () => {
         });
         // Sắp xếp theo doanh thu + chi ads giảm dần
         fileAttributionList.sort((a, b) => (b.revenue + b.spent) - (a.revenue + a.spent));
+        if (fileAttributionList.length > 0) {
+          const allRev = fileAttributionList.reduce((s, f) => s + f.revenue, 0);
+          const allSpent = fileAttributionList.reduce((s, f) => s + f.spent, 0);
+          const allOrders = fileAttributionList.reduce((s, f) => s + f.ordersCount, 0);
+          fileAttributionList.unshift({
+            id: 'prod_ALL',
+            pid: 'ALL',
+            type: 'product',
+            title: 'Tất cả File (Tổng hợp)',
+            spent: allSpent,
+            revenue: allRev,
+            ordersCount: allOrders,
+            net: allRev - allSpent,
+            roas: allSpent > 0 ? (allRev / allSpent) : (allRev > 0 ? 999 : 0)
+          });
+        }
 
         // 2. Nhóm Chiến dịch Ads (Theo ngày chạy và độ trễ 72h / 7 ngày)
         const numDays = (statsLagWindowDays === 3) ? 3 : (statsLagWindowDays === 7 ? 7 : 7);
@@ -3797,12 +3894,13 @@ document.addEventListener('DOMContentLoaded', () => {
           const svgH = 200;
           const pL = 60;
           const pR = 40;
-          const pT = 30;
+          const pT = 38;
           const pB = 34;
           const pW = svgW - pL - pR;
           const pH = svgH - pT - pB;
 
-          const maxVal = Math.max(spent, finalRev, 50000);
+          const maxCurveRev = curvePoints.reduce((m, pt) => Math.max(m, pt.rev || 0), 0);
+          const maxVal = Math.max(spent, finalRev, maxCurveRev, 50000) * 1.15;
           const adsY = pT + pH - (spent / maxVal) * pH;
 
           const pts = curvePoints.map((pt, i) => {
