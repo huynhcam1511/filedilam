@@ -4349,7 +4349,7 @@ function escapeHtml(value) {
 
     setCheckoutPackage(state.selectedPackage || "standard", false);
 
-    // Ưu tiên mã đặc quyền từ URL (?coupon=MEMBER30) nếu chưa bị bỏ chọn
+    // Ưu tiên mã đặc quyền từ URL (?coupon=MEMBER40 hoặc MEMBER30) nếu chưa bị bỏ chọn
     var urlAutoCoupon = getActiveUrlAutoCoupon();
     if (urlAutoCoupon && (!state.appliedCoupons || !state.appliedCoupons.length)) {
       var cachedUrlCoupon = findCachedCouponByCode(urlAutoCoupon);
@@ -6763,7 +6763,7 @@ function escapeHtml(value) {
         if (foundCached) coupon = foundCached;
       }
 
-      // 3. Check default fallback if matching FILEDILAM or MEMBER30 (when Firestore is unreachable or offline test)
+      // 3. Check default fallback if matching FILEDILAM, MEMBER40 or MEMBER30 (when Firestore is unreachable or offline test)
       if (!coupon && rawCode === "FILEDILAM") {
         coupon = {
           code: "FILEDILAM",
@@ -6773,6 +6773,19 @@ function escapeHtml(value) {
           max_discount: 0,
           description: "Giảm 10% cho đơn từ 160.000 đ",
           is_active: true
+        };
+      }
+      if (!coupon && rawCode === "MEMBER40") {
+        coupon = {
+          code: "MEMBER40",
+          type: "percent",
+          value: 40,
+          min_order: 0,
+          max_discount: 0,
+          description: "Đặc Quyền Thành Viên Đồng Hành (Giảm 40%)",
+          is_active: true,
+          is_public: false,
+          scope: "all"
         };
       }
       if (!coupon && rawCode === "MEMBER30") {

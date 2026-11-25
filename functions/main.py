@@ -646,7 +646,7 @@ def send_retention_voucher_email(customer_email, customer_name, order_id, order_
     - Tiêu đề: Thư cảm ơn và quà tặng đồng hành gửi bạn [Tên khách] - File Đi Làm
     - Tông giọng: Tự nhiên, chân thành như một người đồng nghiệp/sáng lập gửi hỗ trợ công việc.
     - Tránh các từ ngữ kích hoạt bộ lọc quảng cáo (Voucher, giảm %, khuyến mãi sốc, giá gốc, giá niêm yết).
-    - Đặc quyền: Tài trợ 30% chi phí khi cần thêm giải pháp đồng hành (quy tắc trần 20.000đ áp dụng ở backend/checkout).
+    - Đặc quyền: Tài trợ 40% chi phí khi cần thêm giải pháp đồng hành (quy tắc trần 20.000đ áp dụng ở backend/checkout).
     """
     if not customer_email or "@" not in customer_email:
         return False
@@ -692,7 +692,7 @@ def send_retention_voucher_email(customer_email, customer_name, order_id, order_
         q_name = urllib.parse.quote(clean_name)
         q_email = urllib.parse.quote(str(customer_email or "").strip())
         q_phone = urllib.parse.quote(clean_phone)
-        user_params = f"name={q_name}&email={q_email}&phone={q_phone}&coupon=MEMBER30"
+        user_params = f"name={q_name}&email={q_email}&phone={q_phone}&coupon=MEMBER40"
 
         cards_html = []
         for sp in suggested_prods:
@@ -702,7 +702,7 @@ def send_retention_voucher_email(customer_email, customer_name, order_id, order_
             p_price = sp["price"]
             p_orig = sp.get("original_price") or (p_price * 2)
             # Giảm 30% thẳng cho thành viên (không chặn trần để 79.000đ giảm chuẩn 30% = 55.300đ)
-            discount_val = (p_price * 30 + 50) // 100
+            discount_val = (p_price * 40 + 50) // 100
             member_price = p_price - discount_val
             orig_fmt = f"{p_orig:,}".replace(",", ".") + " đ"
             price_fmt = f"{p_price:,}".replace(",", ".") + " đ"
@@ -740,7 +740,7 @@ def send_retention_voucher_email(customer_email, customer_name, order_id, order_
                 </tr>
                 <tr>
                   <td style="padding: 6px 10px; font-size: 13.5px; color: #059669; font-weight: 700; vertical-align: middle; border-top: 1px solid #cbd5e1;">
-                    Đặc quyền thành viên (-30%):
+                    Đặc quyền thành viên (-40%):
                   </td>
                   <td style="padding: 6px 10px; text-align: right; vertical-align: middle; border-top: 1px solid #cbd5e1;">
                     <strong style="font-size: 15px; color: #059669; font-weight: 800; letter-spacing: -0.2px;">{member_fmt}</strong>
@@ -802,10 +802,10 @@ def send_retention_voucher_email(customer_email, customer_name, order_id, order_
           ĐẶC QUYỀN ĐỒNG HÀNH CÙNG BẠN
         </div>
         <p style="font-size: 13.5px; color: #475569; line-height: 1.65; margin: 0 0 14px 0;">
-          Để đồng hành lâu dài cùng công việc của bạn, hệ thống đã kích hoạt sẵn <strong>Đặc quyền tài trợ 30% chi phí khi cần thêm giải pháp đồng hành</strong>.
+          Để đồng hành lâu dài cùng công việc của bạn, hệ thống đã kích hoạt sẵn <strong>Đặc quyền tài trợ 40% chi phí khi cần thêm giải pháp đồng hành</strong>.
         </p>
         <div style="font-size: 13.5px; color: #334155; margin-bottom: 16px;">
-          Mã đặc quyền của bạn: <span style="font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; font-size: 14.5px; font-weight: 700; color: #059669; background: #ecfdf5; padding: 3px 8px; border-radius: 4px; border: 1px solid #a7f3d0;">MEMBER30</span>
+          Mã đặc quyền của bạn: <span style="font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; font-size: 14.5px; font-weight: 700; color: #059669; background: #ecfdf5; padding: 3px 8px; border-radius: 4px; border: 1px solid #a7f3d0;">MEMBER40</span>
         </div>
 
         <div style="font-size: 12.5px; font-weight: 700; color: #334155; margin-bottom: 12px; text-transform: uppercase; letter-spacing: 0.3px;">
@@ -815,7 +815,7 @@ def send_retention_voucher_email(customer_email, customer_name, order_id, order_
 
         <div style="text-align: center; margin-top: 16px;">
           <a href="{explore_all_url}" target="_blank" rel="noopener noreferrer" style="font-size: 13.5px; color: #059669; font-weight: 600; text-decoration: underline;">
-            Khám phá thêm các giải pháp khác (Đã kích hoạt sẵn MEMBER30) &rarr;
+            Khám phá thêm các giải pháp khác (Đã kích hoạt sẵn MEMBER40) &rarr;
           </a>
         </div>
       </div>
@@ -2750,7 +2750,7 @@ if VN_TZ is not None:
 def process_paid_order_retention_vouchers(db=None, schedule_time=None) -> dict:
     """
     Quét các đơn hàng PAID đã thanh toán từ 30 phút đến 24 giờ trước (retention_voucher_sent_at is None),
-    tự động gửi Thư cảm ơn và quà tặng đồng hành (MEMBER30) sau khi khách đã làm quen với file,
+    tự động gửi Thư cảm ơn và quà tặng đồng hành (MEMBER40) sau khi khách đã làm quen với file,
     giúp tăng tỷ lệ đọc ở tab Primary và trải nghiệm tự nhiên nhất.
     """
     if db is None:
