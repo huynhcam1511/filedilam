@@ -700,39 +700,62 @@ def send_retention_voucher_email(customer_email, customer_name, order_id, order_
             p_type = sp["type"]
             p_id = sp["id"]
             p_price = sp["price"]
-            discount_val = min((p_price * 30 + 50) // 100, 20000)
+            p_orig = sp.get("original_price") or (p_price * 2)
+            # Giảm 30% thẳng cho thành viên (không chặn trần để 79.000đ giảm chuẩn 30% = 55.300đ)
+            discount_val = (p_price * 30 + 50) // 100
             member_price = p_price - discount_val
+            orig_fmt = f"{p_orig:,}".replace(",", ".") + " đ"
             price_fmt = f"{p_price:,}".replace(",", ".") + " đ"
             member_fmt = f"{member_price:,}".replace(",", ".") + " đ"
+            saved_fmt = f"{discount_val:,}".replace(",", ".") + " đ"
 
             direct_buy_url = f"https://filedilam.web.app/?add={p_id}&{user_params}"
 
             cards_html.append(f"""
-            <div style="background-color: #ffffff; border: 1px solid #e2e8f0; border-radius: 8px; padding: 16px 18px; margin-bottom: 12px; text-align: left;">
-              <table style="width: 100%; border-collapse: collapse;">
+            <div style="background-color: #ffffff; border: 1px solid #e2e8f0; border-radius: 10px; padding: 16px 18px; margin-bottom: 14px; text-align: left; box-shadow: 0 1px 3px rgba(0,0,0,0.03);">
+              <div style="font-size: 15px; font-weight: 700; color: #0f172a; margin-bottom: 4px; line-height: 1.35;">
+                {escape(p_name)}
+              </div>
+              <div style="font-size: 12px; color: #059669; font-weight: 600; margin-bottom: 12px;">
+                &bull; {escape(p_type)}
+              </div>
+
+              <!-- Typography 3 Tầng Giá Phẳng & Tinh Tế -->
+              <table style="width: 100%; border-collapse: collapse; margin-bottom: 12px; background-color: #f8fafc; border-radius: 6px; padding: 8px 12px;">
                 <tr>
-                  <td style="vertical-align: top;">
-                    <div style="font-size: 14.5px; font-weight: 700; color: #0f172a; margin-bottom: 4px;">
-                      {escape(p_name)}
-                    </div>
-                    <div style="font-size: 12px; color: #059669; font-weight: 500; margin-bottom: 8px;">
-                      &bull; {escape(p_type)}
-                    </div>
-                    <div style="font-size: 13px; color: #64748b; line-height: 1.6;">
-                      Mức phí: <span>{price_fmt}</span><br>
-                      Đặc quyền thành viên: <strong style="color: #059669; font-size: 14px;">{member_fmt}</strong>
-                    </div>
+                  <td style="padding: 6px 10px; font-size: 12.5px; color: #64748b; vertical-align: middle;">
+                    Giá ban đầu:
+                  </td>
+                  <td style="padding: 6px 10px; text-align: right; vertical-align: middle;">
+                    <span style="font-size: 12.5px; color: #94a3b8; text-decoration: line-through; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">{orig_fmt}</span>
+                  </td>
+                </tr>
+                <tr>
+                  <td style="padding: 4px 10px; font-size: 13px; color: #475569; font-weight: 500; vertical-align: middle; border-top: 1px dashed #e2e8f0;">
+                    Mức phí hiện hành:
+                  </td>
+                  <td style="padding: 4px 10px; text-align: right; vertical-align: middle; border-top: 1px dashed #e2e8f0;">
+                    <span style="font-size: 13px; color: #334155; font-weight: 600;">{price_fmt}</span>
+                  </td>
+                </tr>
+                <tr>
+                  <td style="padding: 6px 10px; font-size: 13.5px; color: #059669; font-weight: 700; vertical-align: middle; border-top: 1px solid #cbd5e1;">
+                    Đặc quyền thành viên (-30%):
+                  </td>
+                  <td style="padding: 6px 10px; text-align: right; vertical-align: middle; border-top: 1px solid #cbd5e1;">
+                    <strong style="font-size: 15px; color: #059669; font-weight: 800; letter-spacing: -0.2px;">{member_fmt}</strong>
+                    <div style="font-size: 11px; color: #d97706; font-weight: 600; margin-top: 1px;">(Tiết kiệm {saved_fmt})</div>
                   </td>
                 </tr>
               </table>
-              <div style="margin-top: 12px;">
+
+              <div>
                 <a href="{direct_buy_url}" target="_blank" rel="noopener noreferrer" style="display: block; text-align: center; background-color: #059669; color: #ffffff; text-decoration: none; font-size: 13.5px; font-weight: 700; padding: 11px 16px; border-radius: 6px; letter-spacing: 0.2px;">
-                  Xem chi tiết &amp; Nhận giải pháp ({member_fmt}) &rarr;
+                  Nhận giải pháp với đặc quyền {member_fmt} &rarr;
                 </a>
               </div>
             </div>
             """)
-
         suggested_box_html = "".join(cards_html)
         explore_all_url = f"https://filedilam.web.app/?{user_params}"
 

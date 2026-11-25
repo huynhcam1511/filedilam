@@ -6781,8 +6781,8 @@ function escapeHtml(value) {
           type: "percent",
           value: 30,
           min_order: 0,
-          max_discount: 20000,
-          description: "Mã Thân Thiết Dành Cho Khách Đã Mua (Giảm 30% max 20K)",
+          max_discount: 0,
+          description: "Đặc Quyền Thành Viên Đồng Hành (Giảm 30%)",
           is_active: true,
           is_public: false,
           scope: "all"

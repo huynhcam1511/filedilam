@@ -4946,6 +4946,16 @@ document.addEventListener('DOMContentLoaded', () => {
             </button>
           </div>
         </div>
+        ${isPaid && (order.email_delivery_status === 'FAILED' || !cleanEmail || !cleanEmail.includes('@') || !cleanEmail.includes('.')) ? `
+        <div style="margin: 8px 0 12px 0; padding: 10px 12px; background-color: #fef2f2; border: 1px solid #fecaca; border-left: 3px solid #ef4444; border-radius: 6px;">
+          <div style="font-size: 0.75rem; font-weight: 700; color: #b91c1c; display: flex; align-items: center; gap: 4px;">
+            <span>⚠️ CHƯA GỬI ĐƯỢC FILE DO EMAIL LỖI</span>
+          </div>
+          <div style="font-size: 0.71rem; color: #991b1b; margin-top: 3px; line-height: 1.4;">
+            Địa chỉ email không tồn tại hoặc lỗi đường truyền. Vui lòng bấm <strong>Nhắn Zalo cho khách</strong> bên dưới để gửi link trực tiếp!
+          </div>
+        </div>
+        ` : ''}
         <div id="inspectorEmailEditForm_${escapeHtml(orderId)}" style="display: none; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; padding: 10px; margin: 6px 0 10px 0;">
           <div style="font-size: 0.75rem; font-weight: 600; color: #334155; margin-bottom: 4px;">Cập nhật Gmail chính xác cho khách:</div>
           <div style="display: flex; gap: 6px;">
@@ -5356,7 +5366,21 @@ document.addEventListener('DOMContentLoaded', () => {
         customerHtml += phoneLineHtml;
       }
       if (cleanEmail) {
-        customerHtml += `<div style="font-size: 0.70rem; color: #94a3b8; margin-top: 1px; max-width: 195px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${escapeHtml(cleanEmail)}">${escapeHtml(cleanEmail)}</div>`;
+        const isDeliveryFailed = isPaid && (order.email_delivery_status === 'FAILED' || !cleanEmail.includes('@') || !cleanEmail.includes('.'));
+        if (isDeliveryFailed) {
+          customerHtml += `
+            <div style="display: flex; align-items: center; gap: 4px; margin-top: 1px;">
+              <span style="font-size: 0.70rem; color: #dc2626; max-width: 125px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-family: ui-monospace, monospace; text-decoration: line-through;" title="Gửi mail thất bại: ${escapeHtml(cleanEmail)}">${escapeHtml(cleanEmail)}</span>
+              <span style="font-size: 0.65rem; font-weight: 700; color: #b91c1c; background: #fef2f2; border: 1px solid #fecaca; padding: 1px 4px; border-radius: 4px; white-space: nowrap;" title="Email lỗi / Chưa nhận được file. Nhắn Zalo ngay!">⚠️ Lỗi mail</span>
+            </div>`;
+        } else {
+          customerHtml += `<div style="font-size: 0.70rem; color: #94a3b8; margin-top: 1px; max-width: 195px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${escapeHtml(cleanEmail)}">${escapeHtml(cleanEmail)}</div>`;
+        }
+      } else if (isPaid) {
+        customerHtml += `
+          <div style="display: flex; align-items: center; gap: 4px; margin-top: 1px;">
+            <span style="font-size: 0.65rem; font-weight: 700; color: #b91c1c; background: #fef2f2; border: 1px solid #fecaca; padding: 1px 4px; border-radius: 4px;" title="Khách chưa nhập email. Nhắn Zalo gửi file ngay!">⚠️ Thiếu email</span>
+          </div>`;
       }
 
       const orderId = order.order_id || '';
