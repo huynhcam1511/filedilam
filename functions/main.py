@@ -677,9 +677,15 @@ def send_retention_voucher_email(customer_email, customer_name, order_id, order_
         available_prods.sort(key=lambda x: x.get("sales", 0), reverse=True)
         suggested_prods = available_prods[:2]
 
-        clean_name = str(customer_name or "").strip()
+        raw_name = str(customer_name or "").strip()
+        clean_name = "" if raw_name.lower() in ("khách hàng", "quý khách") else raw_name
         safe_name_html = escape(clean_name) if clean_name else "bạn"
-        subject_name_part = f"bạn {clean_name}" if clean_name else "bạn"
+        if not clean_name:
+            subject_name_part = "bạn"
+        elif clean_name.lower().startswith("bạn "):
+            subject_name_part = clean_name
+        else:
+            subject_name_part = f"bạn {clean_name}"
         raw_phone = str(order_data.get("customer_phone") or "").strip()
         clean_phone = normalize_vietnam_phone(raw_phone) or raw_phone
 

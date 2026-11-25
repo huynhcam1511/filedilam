@@ -580,6 +580,8 @@ function escapeHtml(value) {
   var URL_AUTO_COUPON_STORAGE_KEY = "filedilam_url_auto_coupon";
   var pendingAutoAddState = null;
   var autoAddPollTimer = null;
+  var pendingHashCheckout = false;
+  var pendingCouponApplyPromises = {};
 
   function saveUrlPrefillProfile(name, email, phone) {
     var cleanName = String(name || "").trim();
@@ -692,8 +694,8 @@ function escapeHtml(value) {
     // (c) & (d) Điền thông tin khách hàng và mở thẳng màn hình Đơn hàng / Thanh toán
     openCheckout();
 
-    // Nếu mã chưa có trong cache lúc vừa mở (hoặc cần xác thực với Firestore), áp dụng bất đồng bộ ngay
-    if (targetCoupon && !state.appliedCoupons.some(function(c) { return c.code === targetCoupon; })) {
+    // Chỉ gọi bổ sung nếu openCheckout chưa khởi tạo áp dụng mã
+    if (targetCoupon && !state.appliedCoupons.some(function(c) { return c.code === targetCoupon; }) && !pendingCouponApplyPromises[targetCoupon]) {
       applyCheckoutCoupon(targetCoupon, { forceApply: true, silentSwitch: true, fromAutoUrl: true });
     }
 
@@ -743,6 +745,8 @@ function escapeHtml(value) {
     getActiveUrlAutoCoupon: getActiveUrlAutoCoupon
   };
 
+  var db = (typeof firebase !== 'undefined' && firebase.firestore) ? firebase.firestore() : null;
+
   renderFolders();
   renderPriceFilter();
   renderProducts();
@@ -752,16 +756,19 @@ function escapeHtml(value) {
   initAuth();
   initTelemetry();
 
-  if (window.location.hash === "#thanh-toan") {
-    window.setTimeout(function () { openCheckout(true); }, 0);
+  if (window.location.hash === "#thanh-toan" && !pendingAutoAddState) {
+    if (isFirestoreProductsLoaded || state.cart.some(function(e) { return !!getProductById(e.productId); })) {
+      window.setTimeout(function () { openCheckout(true); }, 0);
+    } else if (state.cart.length > 0) {
+      pendingHashCheckout = true;
+    }
   }
 
   // Tự động kiểm tra và mở modal chi tiết sản phẩm nếu URL chứa link direct
   checkAndHandleDirectProductHash();
 
   // Load dynamic products from Firestore (Single Source of Truth)
-  if (typeof firebase !== 'undefined' && firebase.firestore) {
-    var db = firebase.firestore();
+  if (db) {
     // Real-time synchronization: Any change in Admin Dashboard reflects immediately on Storefront!
     syncLandingCouponTicket();
     syncHeroCoupons();
@@ -802,29 +809,42 @@ function escapeHtml(value) {
           localStorage.setItem("filedilam_cached_products_v5", JSON.stringify(data.products));
         } catch(e) {}
       }
-      cleanCart();
       isFirestoreProductsLoaded = true;
       hasFreshFirestoreProducts = true;
       window.isFirestoreProductsLoaded = true;
+      cleanCart();
       renderFolders();
       renderProducts();
       renderCart();
       // Kích hoạt link direct & 1-click checkout từ email nếu tải từ Firestore hoàn tất
       processPendingAutoAddCheckout();
+      if (pendingHashCheckout && (!pendingAutoAddState || pendingAutoAddState.handled)) {
+        pendingHashCheckout = false;
+        openCheckout(true);
+      }
       checkAndHandleDirectProductHash();
     }, function(error) {
       console.error("Error listening to Firestore products:", error);
       isFirestoreProductsLoaded = true;
       hasFreshFirestoreProducts = true;
       window.isFirestoreProductsLoaded = true;
+      cleanCart();
       renderProducts();
       processPendingAutoAddCheckout();
+      if (pendingHashCheckout && (!pendingAutoAddState || pendingAutoAddState.handled)) {
+        pendingHashCheckout = false;
+        openCheckout(true);
+      }
       checkAndHandleDirectProductHash();
     });
   } else {
     isFirestoreProductsLoaded = true;
     hasFreshFirestoreProducts = true;
     window.isFirestoreProductsLoaded = true;
+    if (pendingHashCheckout && (!pendingAutoAddState || pendingAutoAddState.handled)) {
+      pendingHashCheckout = false;
+      openCheckout(true);
+    }
   }
 
   function bindEvents() {
@@ -4254,6 +4274,7 @@ function escapeHtml(value) {
   }
 
   function cleanCart() {
+    if (!isFirestoreProductsLoaded) return;
     if (!data.products || !data.products.length) return;
     var valid = state.cart.filter(function (entry) {
       return !!getProductById(entry.productId);
@@ -4385,6 +4406,7 @@ function escapeHtml(value) {
     var bankAmountEl = document.getElementById("bankAmount");
     if (bankAmountEl) bankAmountEl.textContent = formatCurrency(total);
 
+    var urlPrefillProfile = getUrlPrefillProfile();
     var existingActiveOrder = null;
     try {
       var rawActive = localStorage.getItem("filedilam_active_order");
@@ -4392,9 +4414,12 @@ function escapeHtml(value) {
         var pActive = JSON.parse(rawActive);
         var hasCurrentCoupon = state.appliedCoupons.length > 0;
         var hasPendingUrlCoupon = !!urlAutoCoupon && !hasCurrentCoupon;
+        var isSameCustomer = !pActive.customer_email || !urlPrefillProfile || !urlPrefillProfile.email || String(pActive.customer_email).toLowerCase() === String(urlPrefillProfile.email).toLowerCase();
         if (
           !hasPendingUrlCoupon &&
+          isSameCustomer &&
           pActive &&
+          product &&
           String(pActive.product_id || "") === String(product.id) &&
           Boolean(pActive.has_coupon) === hasCurrentCoupon &&
           pActive.amount === total &&
@@ -4460,12 +4485,11 @@ function escapeHtml(value) {
     if (quickEmailGroup) quickEmailGroup.style.display = "flex";
 
     // Tự động điền dữ liệu từ URL (?name=...&email=...&phone=...) hoặc profile đã lưu
-    var urlPrefillProfile = getUrlPrefillProfile();
     if (urlPrefillProfile) {
       state.profile = Object.assign({}, state.profile || {}, urlPrefillProfile);
     }
     if (state.profile) {
-      if (quickName && state.profile.full_name && !quickName.value) quickName.value = state.profile.full_name;
+      if (quickName && state.profile.full_name && (!quickName.value || quickName.value === "Khách hàng")) quickName.value = state.profile.full_name;
       if (quickPhone && state.profile.phone && !quickPhone.value) quickPhone.value = state.profile.phone;
       // Chỉ điền email nếu là email thật của khách (không điền email ảo hệ thống @khachhang.filedilam.vn)
       var savedEmail = state.profile.email || "";
@@ -4834,7 +4858,7 @@ function escapeHtml(value) {
     if (!container) return;
 
     try {
-      if (typeof db === "undefined" || !db.collection) return;
+      if (!db || !db.collection) return;
       var snapshot = await db.collection("coupons").where("is_active", "==", true).get();
       if (snapshot.empty) {
         renderHeroCoupons([]);
@@ -4871,7 +4895,7 @@ function escapeHtml(value) {
     if (!ticketSec) return;
 
     try {
-      if (typeof db === 'undefined' || !db.collection) return;
+      if (!db || !db.collection) return;
 
       var snapshot = await db.collection('coupons').get();
       if (snapshot.empty) return;
@@ -6681,6 +6705,11 @@ function escapeHtml(value) {
       return;
     }
 
+    if (pendingCouponApplyPromises[rawCode]) {
+      return pendingCouponApplyPromises[rawCode];
+    }
+
+    var applyTask = (async function() {
     try {
       var coupon = null;
       if (rawCode === "TRIAN20" || rawCode === "TRIAN") {
@@ -6696,10 +6725,11 @@ function escapeHtml(value) {
       }
 
       // 1. Fetch from Firestore collection 'coupons'
-      if (!coupon && typeof db !== 'undefined' && db.collection) {
+      var activeDb = db || ((typeof firebase !== 'undefined' && firebase.firestore) ? firebase.firestore() : null);
+      if (!coupon && activeDb && activeDb.collection) {
         try {
           var docSnap = await Promise.race([
-            db.collection('coupons').doc(rawCode).get(),
+            activeDb.collection('coupons').doc(rawCode).get(),
             new Promise(function(_, reject) {
               setTimeout(function() { reject(new Error("COUPON_DOC_TIMEOUT")); }, 3000);
             })
@@ -6709,7 +6739,7 @@ function escapeHtml(value) {
             coupon.id = docSnap.id;
           } else {
             var querySnap = await Promise.race([
-              db.collection('coupons').where('code', '==', rawCode).limit(1).get(),
+              activeDb.collection('coupons').where('code', '==', rawCode).limit(1).get(),
               new Promise(function(_, reject) {
                 setTimeout(function() { reject(new Error("COUPON_QUERY_TIMEOUT")); }, 3000);
               })
@@ -6834,7 +6864,12 @@ function escapeHtml(value) {
     } catch (err) {
       console.error("Lỗi áp mã:", err);
       showCouponMessage("Có lỗi khi kiểm tra mã. Vui lòng thử lại.", true);
+    } finally {
+      delete pendingCouponApplyPromises[rawCode];
     }
+    })();
+    pendingCouponApplyPromises[rawCode] = applyTask;
+    return applyTask;
   }
 
   // Bind coupon box events and export functions for testing
@@ -6978,7 +7013,7 @@ function escapeHtml(value) {
     retentionCouponPromise = (async function() {
       try {
         var c = null;
-        if (typeof db !== "undefined" && db.collection) {
+        if (db && db.collection) {
           var docSnap = await db.collection("coupons").doc("TRIAN20").get();
           if (docSnap.exists) {
             c = docSnap.data();
@@ -7021,6 +7056,7 @@ function escapeHtml(value) {
   }
 
   function isExitIntentSuppressed() {
+    if (pendingAutoAddState && !pendingAutoAddState.handled) return true;
     if (cartDrawer && cartDrawer.classList.contains("is-open")) return true;
     if (detailModal && detailModal.classList.contains("is-open")) return true;
     if (checkoutModal && checkoutModal.classList.contains("is-open")) return true;
@@ -7079,7 +7115,7 @@ function escapeHtml(value) {
     closeExitIntentModal();
     // If cart is empty, auto-select product from detail view or first product
     if (!state.cart || !state.cart.length) {
-      var prodId = state.selectedProductId || (state.products && state.products[0] ? state.products[0].id : null);
+      var prodId = state.selectedProductId || (data.products && data.products[0] ? data.products[0].id : null);
       if (prodId) {
         addToCart(prodId, { openDrawer: false });
       }

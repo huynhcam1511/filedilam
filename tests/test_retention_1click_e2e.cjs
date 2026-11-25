@@ -148,6 +148,8 @@ function testEmailTemplateSource() {
   assert(emailTemplateCode.includes('https://filedilam.web.app/?add={p_id}&{user_params}'), 'Must include 1-click direct_buy_url');
   assert(emailTemplateCode.includes('https://filedilam.web.app/?{user_params}'), 'Must include explore_all_url with prefill params');
   assert(emailTemplateCode.includes('{explore_all_url}') && fnBody.includes('plain_text ='), 'plain_text must also use explore_all_url');
+  assert(fnBody.includes('("khách hàng", "quý khách")'), 'Must normalize placeholder customer names like "Khách hàng"');
+  assert(fnBody.includes('clean_name.lower().startswith("bạn ")'), 'Must avoid duplicate "bạn bạn" in subject');
   console.log('PASS: Test 1 - Email template copy, subject, pricing format, and backend cap verified.');
 }
 
@@ -396,12 +398,15 @@ async function testDelayedFirestoreAndEdgeCasesVm() {
             }
             if (name === 'coupons') {
               return {
-                where() { return { onSnapshot(cb) { couponSnapshotCb = cb; }, get: async () => ({ empty: true, forEach() {} }) }; },
+                where() { return { onSnapshot(cb) { couponSnapshotCb = cb; }, limit() { return { get: async () => ({ empty: true, docs: [], forEach() {} }) }; }, get: async () => ({ empty: true, forEach() {} }) }; },
                 doc(id) {
                   return {
                     get: async () => {
                       if (id === 'MEMBER30') {
                         return { exists: true, id: 'MEMBER30', data: () => ({ code: 'MEMBER30', type: 'percent', value: 30, max_discount: 20000, min_order: 0, is_active: true, is_public: false, scope: 'all' }) };
+                      }
+                      if (id === 'TIETKIEM10') {
+                        return { exists: true, id: 'TIETKIEM10', data: () => ({ code: 'TIETKIEM10', type: 'fixed', value: 10000, max_discount: 0, min_order: 65000, is_active: true, is_public: true, scope: 'all' }) };
                       }
                       return { exists: false };
                     }
@@ -506,7 +511,103 @@ async function testDelayedFirestoreAndEdgeCasesVm() {
   assert.strictEqual(s4d.doc.getElementById('checkoutModal').classList.contains('is-open'), false, 'Unknown product must not open empty checkout');
   assert.strictEqual(s4d.intervals.size, 0, 'Polling interval must clean up once fresh Firestore confirms product does not exist');
 
-  console.log('PASS: Test 4 - All delayed Firestore, stale cache, active order isolation, polling, deselect, and unknown product edge cases passed!');
+  // 4e. Returning visitor with cached product and Firestore-only coupon (TIETKIEM10) queries db synchronously on bindEvents()
+  const s4eWin = runVmScenario({
+    search: '?add=PRD-801788&name=Hoa&email=hoa%40gmail.com&phone=0905551111&coupon=TIETKIEM10',
+    staleCache: [{ id: 'PRD-801788', name: 'Quản Lý Nhà Trọ', price: 79000, type: 'apps_script' }]
+  });
+  await new Promise(r => setTimeout(r, 20));
+  assert.strictEqual(s4eWin.doc.getElementById('checkoutModal').classList.contains('is-open'), true, 'Cached product must open checkout immediately');
+  assert.strictEqual(s4eWin.win.state.appliedCoupons[0].code, 'TIETKIEM10', 'Returning visitor with cached product must apply Firestore coupon TIETKIEM10');
+  assert.strictEqual(s4eWin.win.getCartTotal(), 69000, '79.000 - 10.000 = 69.000');
+  // Also test offline/no-firebase environment does not throw when db is null
+  const s4f = (() => {
+    const elements = {};
+    const makeEl = (id = '') => ({
+      id, style: { setProperty() {}, removeProperty() {} },
+      classList: { _s: new Set(), add(c){this._s.add(c);}, remove(c){this._s.delete(c);}, contains(c){return this._s.has(c);}, toggle(c,f){if(f===undefined){if(this.contains(c))this.remove(c);else this.add(c);}else if(f)this.add(c);else this.remove(c);} },
+      attrs: {}, setAttribute(k,v){this.attrs[k]=String(v);}, getAttribute(k){return this.attrs[k]??null;},
+      children: [], appendChild(c){this.children.push(c);return c;}, removeChild(){}, value: '', textContent: '', innerHTML: '',
+      addEventListener(){}, removeEventListener(){}, querySelector(){return null;}, querySelectorAll(){return [];}, closest(){return null;}, focus(){}, scrollTo(){},
+      getBoundingClientRect(){return {top:0,bottom:0,width:0,height:0};}
+    });
+    const doc = { title: '', body: makeEl('body'), getElementById(id){ return elements[id] || (elements[id]=makeEl(id)); }, createElement(){return makeEl('');}, querySelector(){return null;}, querySelectorAll(){return [];}, addEventListener(){} };
+    const win = {
+      innerWidth: 1280, location: { origin: 'https://filedilam.web.app', pathname: '/', search: '?add=PRD-102938&coupon=MEMBER30', hash: '', protocol: 'https:' },
+      history: { pushState(){}, replaceState(){} },
+      localStorage: { length: 0, key(){return null;}, getItem(){return null;}, setItem(){}, removeItem(){} },
+      sessionStorage: { _d:{}, getItem(k){return this._d[k]??null;}, setItem(k,v){this._d[k]=String(v);}, removeItem(k){delete this._d[k];} },
+      addEventListener(){}, scrollTo(){}, setTimeout(){return 1;}, clearTimeout(){}, setInterval(){return 1;}, clearInterval(){}, requestAnimationFrame(){return 1;},
+      StorefrontData: { store: { bankAccount: { bankShortName: 'TPBank', number: '59215112002', owner: 'HUYNH KIEN CAM', notePrefix: 'FILEDILAM' } }, categories: [{ id: 'all', name: 'Tất cả' }], products: [{ id: 'PRD-102938', name: 'Bán hàng online', price: 39000, type: 'google_sheets' }] }
+    };
+    vm.runInContext(storefrontCode, vm.createContext({ window: win, document: doc, navigator: { userAgent: 'node' }, location: win.location, history: win.history, localStorage: win.localStorage, sessionStorage: win.sessionStorage, setTimeout: win.setTimeout, clearTimeout: win.clearTimeout, setInterval: win.setInterval, clearInterval: win.clearInterval, requestAnimationFrame: win.requestAnimationFrame, URLSearchParams, Intl, console }));
+    return { win, doc };
+  })();
+  await new Promise(r => setTimeout(r, 20));
+  assert.strictEqual(s4f.doc.getElementById('checkoutModal').classList.contains('is-open'), true, 'No-firebase offline environment must still open checkout cleanly');
+  assert.strictEqual(s4f.win.state.appliedCoupons[0].code, 'MEMBER30', 'No-firebase offline fallback MEMBER30 must work without db TypeError');
+
+  console.log('PASS: Test 4 - All delayed Firestore, stale cache, active order isolation, polling, deselect, offline null-db, and unknown product edge cases passed!');
+}
+
+async function testBrowserCachedAndReloadEdgeCases() {
+  console.log('\n--- TEST 5: Real Chrome E2E - Cached Returning User (?coupon=TIETKIEM10) & #thanh-toan Reload ---');
+  const url1 = `http://localhost:${PORT}/index.html?add=PRD-801788&name=Hoa&email=hoa%40gmail.com&phone=0905551111&coupon=TIETKIEM10`;
+  const session = await openCdpSession(url1);
+  try {
+    // Wait until products cache is populated in localStorage
+    for (let i = 0; i < 60; i++) {
+      const ready = await session.evaluate(`
+        window.isFirestoreProductsLoaded === true &&
+        !!document.getElementById('checkoutModal') &&
+        document.getElementById('checkoutModal').classList.contains('is-open') &&
+        window.state && window.state.appliedCoupons && window.state.appliedCoupons[0] && window.state.appliedCoupons[0].code === 'TIETKIEM10'
+      `);
+      if (ready) break;
+      await new Promise(r => setTimeout(r, 200));
+    }
+    // Now navigate again with localStorage cache already warm (returning customer)
+    await session.evaluate("localStorage.setItem('fileDiLamCart', '[]');");
+    await session.sendCommand('Page.navigate', { url: url1 });
+    let resCached = null;
+    for (let i = 0; i < 40; i++) {
+      resCached = await session.evaluate(`({
+        isOpen: !!(document.getElementById('checkoutModal') && document.getElementById('checkoutModal').classList.contains('is-open')),
+        code: (window.state && window.state.appliedCoupons && window.state.appliedCoupons[0]) ? window.state.appliedCoupons[0].code : null,
+        grandTotal: document.getElementById('checkoutGrandTotal') ? document.getElementById('checkoutGrandTotal').textContent.trim() : ''
+      })`);
+      if (resCached.isOpen && resCached.code === 'TIETKIEM10') break;
+      await new Promise(r => setTimeout(r, 200));
+    }
+    assert.strictEqual(resCached.isOpen, true, 'Returning user with warm cache must open checkout');
+    assert.strictEqual(resCached.code, 'TIETKIEM10', 'Returning user with warm cache must fetch Firestore coupon TIETKIEM10');
+    assert(resCached.grandTotal.includes('69.000'), `Expected 69.000 total (79k - 10k), got ${resCached.grandTotal}`);
+
+    // Reload #thanh-toan with cleared product cache and Firestore product in cart
+    await session.evaluate(`
+      localStorage.removeItem('filedilam_cached_products_v5');
+      localStorage.setItem('fileDiLamCart', JSON.stringify([{productId:'PRD-662235',quantity:1}]));
+    `);
+    await session.sendCommand('Page.navigate', { url: `http://localhost:${PORT}/index.html?name=Minh&email=minh%40gmail.com&phone=0901234567&coupon=MEMBER30#thanh-toan` });
+    let resReload = null;
+    for (let i = 0; i < 60; i++) {
+      resReload = await session.evaluate(`({
+        isOpen: !!(document.getElementById('checkoutModal') && document.getElementById('checkoutModal').classList.contains('is-open')),
+        cartIds: (window.state && window.state.cart) ? window.state.cart.map(function(c){return c.productId;}) : [],
+        code: (window.state && window.state.appliedCoupons && window.state.appliedCoupons[0]) ? window.state.appliedCoupons[0].code : null,
+        grandTotal: document.getElementById('checkoutGrandTotal') ? document.getElementById('checkoutGrandTotal').textContent.trim() : ''
+      })`);
+      if (resReload.isOpen && resReload.code === 'MEMBER30') break;
+      await new Promise(r => setTimeout(r, 200));
+    }
+    assert.strictEqual(resReload.isOpen, true, 'Reloading #thanh-toan without product cache must wait for Firestore and reopen checkout');
+    assert.strictEqual(resReload.cartIds[0], 'PRD-662235', 'Cart must NOT be wiped by cleanCart before Firestore loads');
+    assert.strictEqual(resReload.code, 'MEMBER30', 'MEMBER30 must still apply after #thanh-toan reload');
+    assert(resReload.grandTotal.includes('34.300'), `Expected 34.300 after reload, got ${resReload.grandTotal}`);
+    console.log('PASS: Test 5 - Warm-cache Firestore coupon lookup & #thanh-toan reload preservation verified.');
+  } finally {
+    await session.close();
+  }
 }
 
 (async () => {
@@ -515,6 +616,7 @@ async function testDelayedFirestoreAndEdgeCasesVm() {
   try {
     await testBrowserDirectBuy1Click();
     await testBrowserExploreAllLink();
+    await testBrowserCachedAndReloadEdgeCases();
   } finally {
     server.close();
   }
