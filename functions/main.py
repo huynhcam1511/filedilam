@@ -703,33 +703,42 @@ def send_retention_voucher_email(customer_email, customer_name, order_id, order_
             p_orig = sp.get("original_price") or (p_price * 2)
             discount_val = (p_price * 40 + 50) // 100
             member_price = p_price - discount_val
+            total_savings = p_orig - member_price
             orig_fmt = f"{p_orig:,}".replace(",", ".") + " đ"
             price_fmt = f"{p_price:,}".replace(",", ".") + " đ"
             member_fmt = f"{member_price:,}".replace(",", ".") + " đ"
-            saved_fmt = f"{discount_val:,}".replace(",", ".") + " đ"
+            saved_fmt = f"{total_savings:,}".replace(",", ".") + " đ"
 
             direct_buy_url = f"https://filedilam.web.app/?add={p_id}&{user_params}"
 
             cards_html.append(f"""
-            <!-- Thẻ sản phẩm tối giản: Chỉ hiển thị giá, không lặp nhãn chữ thừa -->
+            <!-- Thẻ sản phẩm chuẩn Fintech: Đầy đủ 3 tầng giá từ gốc đến đặc quyền -->
             <div style="background-color: #ffffff; border: 1px solid #e2e8f0; border-radius: 8px; padding: 14px 16px; margin-bottom: 12px; text-align: left;">
               <div style="font-size: 14.5px; font-weight: 700; color: #0f172a; line-height: 1.35; margin-bottom: 2px;">
                 {escape(p_name)}
               </div>
-              <div style="font-size: 12px; color: #059669; font-weight: 500; margin-bottom: 8px;">
+              <div style="font-size: 12px; color: #059669; font-weight: 500; margin-bottom: 10px;">
                 &bull; {escape(p_type)}
               </div>
 
-              <!-- Khối giá trực quan: Giá đặc quyền to nổi bật, giá web gạch ngang, không nhãn thừa -->
-              <div style="margin-bottom: 12px; display: flex; align-items: baseline;">
-                <span style="font-size: 18px; font-weight: 800; color: #059669; margin-right: 8px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">{member_fmt}</span>
-                <span style="font-size: 13px; color: #94a3b8; text-decoration: line-through; margin-right: 8px;">{price_fmt}</span>
-                <span style="font-size: 11.5px; font-weight: 700; color: #059669; background-color: #ecfdf5; border: 1px solid #a7f3d0; padding: 1px 6px; border-radius: 4px;">-40%</span>
+              <!-- Dòng 1: Hành trình giá từ niêm yết về web: 89.000 đ -> 39.000 đ -->
+              <div style="font-size: 12.5px; color: #64748b; margin-bottom: 4px; line-height: 1.4;">
+                <span style="color: #94a3b8; text-decoration: line-through;">{orig_fmt}</span>
+                <span style="color: #cbd5e1; margin: 0 4px;">&rarr;</span>
+                <span style="color: #475569; font-weight: 600;">{price_fmt}</span>
+                <span style="font-size: 11px; color: #94a3b8; margin-left: 2px;">(trên web)</span>
+              </div>
+
+              <!-- Dòng 2: Đặc quyền thành viên 40%: 23.400 đ kèm tổng tiết kiệm so với giá gốc -->
+              <div style="margin-bottom: 12px; line-height: 1.4;">
+                <span style="font-size: 18px; font-weight: 800; color: #059669; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">{member_fmt}</span>
+                <span style="font-size: 11px; font-weight: 700; color: #059669; background-color: #ecfdf5; border: 1px solid #a7f3d0; padding: 2px 6px; border-radius: 4px; margin-left: 6px;">MEMBER -40%</span>
+                <span style="font-size: 11.5px; color: #d97706; font-weight: 600; margin-left: 6px;">(Tiết kiệm {saved_fmt})</span>
               </div>
 
               <div>
                 <a href="{direct_buy_url}" target="_blank" rel="noopener noreferrer" style="display: block; text-align: center; background-color: #059669; color: #ffffff; text-decoration: none; font-size: 13.5px; font-weight: 700; padding: 10px 14px; border-radius: 6px; letter-spacing: 0.1px;">
-                  Nhận file ngay ({member_fmt}) &rarr;
+                  Nhận đặc quyền {member_fmt} &rarr;
                 </a>
               </div>
             </div>
