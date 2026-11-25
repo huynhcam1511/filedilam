@@ -1088,6 +1088,85 @@ function escapeHtml(value) {
     if (quickBuyForm) {
       quickBuyForm.addEventListener("submit", handleQuickBuySubmit);
     }
+
+    // Tự động nhận diện khách cũ khi nhập SĐT hoặc Email (Smart Returning Customer Detection)
+    function checkAndApplyReturningMemberDiscount(sourceVal) {
+      if (!sourceVal) return;
+      var rawVal = String(sourceVal).trim();
+      if (!rawVal) return;
+
+      // Đã áp mã MEMBER40 rồi thì thôi
+      var isAlreadyMember = state.appliedCoupons && state.appliedCoupons.some(function(c) {
+        return c.code === "MEMBER40" || c.code === "MEMBER30";
+      });
+      if (isAlreadyMember) return;
+
+      // 1. Kiểm tra nhanh trong danh sách VIP đã lưu trên trình duyệt
+      try {
+        var vipList = JSON.parse(localStorage.getItem("filedilam_vip_identities") || "[]");
+        var isLocalVip = vipList.some(function(id) {
+          return id && (id.toLowerCase() === rawVal.toLowerCase() || (rawVal.length >= 9 && id.endsWith(rawVal.slice(-9))));
+        });
+        if (isLocalVip) {
+          applyCoupon("MEMBER40", { silent: true }).then(function() {
+            showToast("Chào mừng bạn quay lại! Đã kích hoạt Đặc quyền Thành viên (-40%)");
+          });
+          return;
+        }
+      } catch(e) {}
+
+      // 2. Tra cứu nhanh trong Firestore orders (nếu Firestore online)
+      if (typeof db !== "undefined" && db && db.collection) {
+        var cleanPhoneVal = normalizePhone(rawVal) || rawVal;
+        var isEmailVal = rawVal.includes("@") && rawVal.includes(".");
+
+        var queryPromise = null;
+        if (isEmailVal) {
+          queryPromise = db.collection("orders").where("customer_email", "==", rawVal.toLowerCase()).where("status", "==", "PAID").limit(1).get();
+        } else if (cleanPhoneVal && cleanPhoneVal.length >= 9) {
+          queryPromise = db.collection("orders").where("customer_phone", "==", cleanPhoneVal).where("status", "==", "PAID").limit(1).get();
+        }
+
+        if (queryPromise) {
+          queryPromise.then(function(snapshot) {
+            if (snapshot && !snapshot.empty) {
+              // Lưu vào danh sách VIP để lần sau không cần query lại
+              try {
+                localStorage.setItem("filedilam_member_vip", "MEMBER40");
+                var vips = JSON.parse(localStorage.getItem("filedilam_vip_identities") || "[]");
+                if (!vips.includes(rawVal)) vips.push(rawVal);
+                localStorage.setItem("filedilam_vip_identities", JSON.stringify(vips));
+              } catch(e) {}
+
+              // Tự động áp dụng mã MEMBER40 vào giỏ hàng
+              applyCoupon("MEMBER40", { silent: true }).then(function() {
+                showToast("Chào mừng bạn quay lại! File Đi Làm đã tự động áp dụng Đặc quyền Thành viên (-40%)");
+              });
+            }
+          }).catch(function(err) {
+            console.warn("Returning customer lookup notice:", err);
+          });
+        }
+      }
+    }
+
+    if (quickPhone) {
+      quickPhone.addEventListener("blur", function() {
+        checkAndApplyReturningMemberDiscount(quickPhone.value);
+      });
+      quickPhone.addEventListener("change", function() {
+        checkAndApplyReturningMemberDiscount(quickPhone.value);
+      });
+    }
+
+    if (quickEmail) {
+      quickEmail.addEventListener("blur", function() {
+        checkAndApplyReturningMemberDiscount(quickEmail.value);
+      });
+      quickEmail.addEventListener("change", function() {
+        checkAndApplyReturningMemberDiscount(quickEmail.value);
+      });
+    }
     if (btnQuickSubmit) {
       btnQuickSubmit.addEventListener("click", function (e) {
         // Prevent double trigger if submit fires, but ensure execution if submit is swallowed by Safari
@@ -1278,7 +1357,19 @@ function escapeHtml(value) {
       var autoPhone = urlP.get("phone");
 
       if (autoCoupon && String(autoCoupon).trim()) {
-        setUrlAutoCoupon(autoCoupon);
+        var cleanAC = String(autoCoupon).trim().toUpperCase();
+        setUrlAutoCoupon(cleanAC);
+        if (cleanAC === "MEMBER40" || cleanAC === "MEMBER30") {
+          try { localStorage.setItem("filedilam_member_vip", cleanAC); } catch(e) {}
+        }
+      } else {
+        // Tự động nhận diện nếu trình duyệt này đã từng là thành viên VIP
+        try {
+          var vipMemberCode = localStorage.getItem("filedilam_member_vip");
+          if (vipMemberCode && !getActiveUrlAutoCoupon()) {
+            setUrlAutoCoupon(vipMemberCode);
+          }
+        } catch(e) {}
       }
       if (autoName || autoEmail || autoPhone) {
         var prefillProfile = saveUrlPrefillProfile(autoName, autoEmail, autoPhone);
@@ -3497,6 +3588,14 @@ function escapeHtml(value) {
     try {
       localStorage.removeItem("filedilam_pending_order_id");
       localStorage.removeItem("filedilam_active_order");
+      // Đóng dấu thành viên VIP trọn đời (MEMBER40) khi đơn hàng thanh toán thành công
+      localStorage.setItem("filedilam_member_vip", "MEMBER40");
+      if (data && (data.customer_phone || data.customer_email)) {
+        var vipProfiles = JSON.parse(localStorage.getItem("filedilam_vip_identities") || "[]");
+        if (data.customer_phone && !vipProfiles.includes(data.customer_phone)) vipProfiles.push(data.customer_phone);
+        if (data.customer_email && !vipProfiles.includes(data.customer_email)) vipProfiles.push(data.customer_email);
+        localStorage.setItem("filedilam_vip_identities", JSON.stringify(vipProfiles));
+      }
     } catch (e) {}
     currentActiveOrderId = null;
     userClosedCheckout = false;
