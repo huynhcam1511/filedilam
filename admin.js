@@ -6233,7 +6233,7 @@ document.addEventListener('DOMContentLoaded', () => {
 // couponDescInput is readonly & auto-generated
 
   window.seedStandardCoupons = async function() {
-    if (!confirm("Bạn có muốn nạp nhanh bộ 5 mã giảm giá chuẩn chiến lược (FILEDILAM30, TIETKIEM10, VIP20, TIKTOK20, MEMBER30) không?")) {
+    if (!confirm("Bạn có muốn nạp nhanh bộ 5 mã giảm giá chuẩn chiến lược (FILEDILAM30, TIETKIEM10, VIP20, TIKTOK20, MEMBER40) không?")) {
       return;
     }
     const standardCoupons = [
@@ -6298,12 +6298,12 @@ document.addEventListener('DOMContentLoaded', () => {
         updated_at: new Date().toISOString()
       },
       {
-        code: "MEMBER30",
+        code: "MEMBER40",
         type: "percent",
-        value: 30,
+        value: 40,
         min_order: 0,
-        max_discount: 20000,
-        description: "Mã Thân Thiết Dành Cho Khách Đã Mua (Giảm 30% max 20K)",
+        max_discount: 0,
+        description: "Đặc Quyền Thành Viên Đồng Hành (Giảm 40%)",
         is_active: true,
         is_public: false,
         scope: "all",
