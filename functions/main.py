@@ -539,7 +539,7 @@ def send_single_delivery_email(customer_email, customer_name, order_id, file_ite
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Kích hoạt đơn hàng #{order_id} - {product_name} - File Đi Làm</title>
 </head>
-<body style="margin: 0; padding: 32px 16px; background-color: #f8fafc; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; color: #0f172a; line-height: 1.6; -webkit-font-smoothing: antialiased;">
+<body style="margin: 0; padding: 16px 8px; background-color: #f8fafc; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; color: #0f172a; line-height: 1.6; -webkit-font-smoothing: antialiased;">
   <div style="max-width: 580px; margin: 0 auto; background-color: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden;">
     
     <!-- Header: Thanh lịch, chuẩn Fintech kèm Logo chính thức -->
@@ -558,7 +558,7 @@ def send_single_delivery_email(customer_email, customer_name, order_id, file_ite
     </div>
 
     <!-- Body Content -->
-    <div style="padding: 28px 32px 32px 32px;">
+    <div style="padding: 22px 18px 24px 18px;">
       <p style="font-size: 15px; margin: 0 0 16px 0; color: #334155;">
         Xin chào <strong>{customer_name or 'Quý khách'}</strong>,
       </p>
@@ -597,7 +597,7 @@ def send_single_delivery_email(customer_email, customer_name, order_id, file_ite
     </div>
 
     <!-- Footer phẳng, tối giản -->
-    <div style="padding: 16px 32px; background-color: #f8fafc; border-top: 1px solid #f1f5f9; font-size: 12px; color: #94a3b8; text-align: center; line-height: 1.5;">
+    <div style="padding: 14px 18px; background-color: #f8fafc; border-top: 1px solid #f1f5f9; font-size: 12px; color: #94a3b8; text-align: center; line-height: 1.5;">
       File Đi Làm &middot; Hệ thống quản lý và tự động hoá quy trình trên Google Sheets<br>
       Website: <a href="https://filedilam.web.app" target="_blank" style="color: #64748b; text-decoration: underline;">filedilam.web.app</a>
     </div>
@@ -701,7 +701,6 @@ def send_retention_voucher_email(customer_email, customer_name, order_id, order_
             p_id = sp["id"]
             p_price = sp["price"]
             p_orig = sp.get("original_price") or (p_price * 2)
-            # Giảm 30% thẳng cho thành viên (không chặn trần để 79.000đ giảm chuẩn 30% = 55.300đ)
             discount_val = (p_price * 40 + 50) // 100
             member_price = p_price - discount_val
             orig_fmt = f"{p_orig:,}".replace(",", ".") + " đ"
@@ -712,45 +711,30 @@ def send_retention_voucher_email(customer_email, customer_name, order_id, order_
             direct_buy_url = f"https://filedilam.web.app/?add={p_id}&{user_params}"
 
             cards_html.append(f"""
-            <div style="background-color: #ffffff; border: 1px solid #e2e8f0; border-radius: 10px; padding: 16px 18px; margin-bottom: 14px; text-align: left; box-shadow: 0 1px 3px rgba(0,0,0,0.03);">
-              <div style="font-size: 15px; font-weight: 700; color: #0f172a; margin-bottom: 4px; line-height: 1.35;">
+            <!-- Thẻ sản phẩm phẳng chuẩn Fintech (Không lồng bảng con, không lậm card) -->
+            <div style="background-color: #ffffff; border: 1px solid #e2e8f0; border-radius: 8px; padding: 14px 16px; margin-bottom: 12px; text-align: left;">
+              <div style="font-size: 14.5px; font-weight: 700; color: #0f172a; line-height: 1.35; margin-bottom: 3px;">
                 {escape(p_name)}
               </div>
-              <div style="font-size: 12px; color: #059669; font-weight: 600; margin-bottom: 12px;">
+              <div style="font-size: 12px; color: #059669; font-weight: 500; margin-bottom: 10px;">
                 &bull; {escape(p_type)}
               </div>
 
-              <!-- Typography 3 Tầng Giá Phẳng & Tinh Tế -->
-              <table style="width: 100%; border-collapse: collapse; margin-bottom: 12px; background-color: #f8fafc; border-radius: 6px; padding: 8px 12px;">
-                <tr>
-                  <td style="padding: 6px 10px; font-size: 12.5px; color: #64748b; vertical-align: middle;">
-                    Giá ban đầu:
-                  </td>
-                  <td style="padding: 6px 10px; text-align: right; vertical-align: middle;">
-                    <span style="font-size: 12.5px; color: #94a3b8; text-decoration: line-through; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">{orig_fmt}</span>
-                  </td>
-                </tr>
-                <tr>
-                  <td style="padding: 4px 10px; font-size: 13px; color: #475569; font-weight: 500; vertical-align: middle; border-top: 1px dashed #e2e8f0;">
-                    Mức phí hiện hành:
-                  </td>
-                  <td style="padding: 4px 10px; text-align: right; vertical-align: middle; border-top: 1px dashed #e2e8f0;">
-                    <span style="font-size: 13px; color: #334155; font-weight: 600;">{price_fmt}</span>
-                  </td>
-                </tr>
-                <tr>
-                  <td style="padding: 6px 10px; font-size: 13.5px; color: #059669; font-weight: 700; vertical-align: middle; border-top: 1px solid #cbd5e1;">
-                    Đặc quyền thành viên (-40%):
-                  </td>
-                  <td style="padding: 6px 10px; text-align: right; vertical-align: middle; border-top: 1px solid #cbd5e1;">
-                    <strong style="font-size: 15px; color: #059669; font-weight: 800; letter-spacing: -0.2px;">{member_fmt}</strong>
-                    <div style="font-size: 11px; color: #d97706; font-weight: 600; margin-top: 1px;">(Tiết kiệm {saved_fmt})</div>
-                  </td>
-                </tr>
-              </table>
+              <!-- Dòng 1: Giá ban đầu & Mức phí chuẩn web -->
+              <div style="font-size: 12.5px; color: #64748b; margin-bottom: 5px; line-height: 1.5;">
+                Giá ban đầu: <span style="text-decoration: line-through; color: #94a3b8;">{orig_fmt}</span>
+                <span style="color: #cbd5e1; margin: 0 4px;">&bull;</span>
+                Mức phí web: <span style="color: #334155; font-weight: 600;">{price_fmt}</span>
+              </div>
+
+              <!-- Dòng 2: Đặc quyền thành viên 40% -->
+              <div style="font-size: 13.5px; color: #059669; margin-bottom: 12px; line-height: 1.5;">
+                Đặc quyền thành viên (-40%): <strong style="font-size: 15.5px; font-weight: 800; color: #059669;">{member_fmt}</strong>
+                <span style="font-size: 11.5px; color: #d97706; font-weight: 600; margin-left: 4px;">(Tiết kiệm {saved_fmt})</span>
+              </div>
 
               <div>
-                <a href="{direct_buy_url}" target="_blank" rel="noopener noreferrer" style="display: block; text-align: center; background-color: #059669; color: #ffffff; text-decoration: none; font-size: 13.5px; font-weight: 700; padding: 11px 16px; border-radius: 6px; letter-spacing: 0.2px;">
+                <a href="{direct_buy_url}" target="_blank" rel="noopener noreferrer" style="display: block; text-align: center; background-color: #059669; color: #ffffff; text-decoration: none; font-size: 13.5px; font-weight: 700; padding: 10px 14px; border-radius: 6px; letter-spacing: 0.1px;">
                   Nhận giải pháp với đặc quyền {member_fmt} &rarr;
                 </a>
               </div>
@@ -770,7 +754,7 @@ def send_retention_voucher_email(customer_email, customer_name, order_id, order_
   <div style="max-width: 580px; margin: 0 auto; background-color: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden;">
     
     <!-- Header: Thanh lịch kèm Logo chính thức -->
-    <div style="padding: 24px 32px 20px 32px; border-bottom: 1px solid #f1f5f9;">
+    <div style="padding: 18px 18px 14px 18px; border-bottom: 1px solid #f1f5f9;">
       <table style="width: 100%; border-collapse: collapse;">
         <tr>
           <td style="width: 44px; vertical-align: middle;">
@@ -796,25 +780,25 @@ def send_retention_voucher_email(customer_email, customer_name, order_id, order_
         Không biết là bạn đã kịp mở file và bắt đầu thao tác thử chưa? Trong quá trình nhập liệu hoặc vận hành thực tế, nếu gặp bất kỳ vướng mắc nào về cách dùng hoặc cần điều chỉnh thêm theo thói quen làm việc, bạn cứ nhắn tin Zalo cho mình bất cứ lúc nào qua số <strong>0938 134 576</strong> nhé. Đội ngũ luôn sẵn sàng hỗ trợ bạn.
       </p>
 
-      <!-- Khối Quà Tặng Đồng Hành Thiết Kế Phẳng & Tinh Tế -->
-      <div style="margin: 22px 0 24px 0; padding: 22px 24px; background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px;">
+      <!-- Khối Quà Tặng Đồng Hành (Phẳng, không đóng khung bọc ngoài) -->
+      <div style="margin: 24px 0 20px 0; padding-top: 20px; border-top: 1px solid #e2e8f0;">
         <div style="font-size: 14.5px; font-weight: 700; color: #0f172a; margin-bottom: 6px; letter-spacing: -0.2px;">
           ĐẶC QUYỀN ĐỒNG HÀNH CÙNG BẠN
         </div>
-        <p style="font-size: 13.5px; color: #475569; line-height: 1.65; margin: 0 0 14px 0;">
+        <p style="font-size: 13.5px; color: #475569; line-height: 1.65; margin: 0 0 12px 0;">
           Để đồng hành lâu dài cùng công việc của bạn, hệ thống đã kích hoạt sẵn <strong>Đặc quyền tài trợ 40% chi phí khi cần thêm giải pháp đồng hành</strong>.
         </p>
-        <div style="font-size: 13.5px; color: #334155; margin-bottom: 16px;">
+        <div style="font-size: 13.5px; color: #334155; margin-bottom: 14px;">
           Mã đặc quyền của bạn: <span style="font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; font-size: 14.5px; font-weight: 700; color: #059669; background: #ecfdf5; padding: 3px 8px; border-radius: 4px; border: 1px solid #a7f3d0;">MEMBER40</span>
         </div>
 
-        <div style="font-size: 12.5px; font-weight: 700; color: #334155; margin-bottom: 12px; text-transform: uppercase; letter-spacing: 0.3px;">
+        <div style="font-size: 12.5px; font-weight: 700; color: #475569; margin-bottom: 12px; text-transform: uppercase; letter-spacing: 0.3px;">
           2 giải pháp bổ trợ thường được dùng kèm hiệu quả nhất:
         </div>
         {suggested_box_html}
 
-        <div style="text-align: center; margin-top: 16px;">
-          <a href="{explore_all_url}" target="_blank" rel="noopener noreferrer" style="font-size: 13.5px; color: #059669; font-weight: 600; text-decoration: underline;">
+        <div style="text-align: center; margin-top: 14px;">
+          <a href="{explore_all_url}" target="_blank" rel="noopener noreferrer" style="font-size: 13px; color: #059669; font-weight: 600; text-decoration: underline;">
             Khám phá thêm các giải pháp khác (Đã kích hoạt sẵn MEMBER40) &rarr;
           </a>
         </div>
