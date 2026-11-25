@@ -167,6 +167,8 @@ document.addEventListener('DOMContentLoaded', () => {
       loadProducts();
     } else if (tabId === 'ordersTab') {
       loadAdminOrders();
+    } else if (tabId === 'customersTab') {
+      loadCustomersModule();
     } else if (tabId === 'statsTab') {
       loadAdminStats();
     } else if (tabId === 'couponsTab') {
@@ -4934,11 +4936,25 @@ document.addEventListener('DOMContentLoaded', () => {
             ` : ''}
           </div>
         </div>
-        ${order.customer_email ? `
-        <div class="inspector-row">
-          <span class="inspector-label">Email</span>
-          <span class="inspector-val" style="font-size: 0.8rem; color: #64748b; font-weight: 400;">${escapeHtml(order.customer_email)}</span>
-        </div>` : ''}
+        <div class="inspector-row" style="align-items: center;">
+          <span class="inspector-label">Email nhận file</span>
+          <div class="inspector-val" style="display: flex; align-items: center; justify-content: flex-end; gap: 6px;">
+            <span style="font-size: 0.8rem; color: #0f172a; font-weight: 600; font-family: ui-monospace, monospace;" id="inspectorCurrentEmail">${escapeHtml(order.customer_email || 'Chưa có email')}</span>
+            <button type="button" class="btn-edit-order-email" data-order="${escapeHtml(orderId)}" data-email="${escapeHtml(order.customer_email || '')}" style="height: 22px; padding: 0 6px; font-size: 0.72rem; border-radius: 4px; border: 1px solid #cbd5e1; background: #ffffff; color: #0f172a; cursor: pointer; display: inline-flex; align-items: center; gap: 3px;" title="Sửa lại email khi khách nhập sai">
+              <svg width="11" height="11" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
+              <span>Sửa</span>
+            </button>
+          </div>
+        </div>
+        <div id="inspectorEmailEditForm_${escapeHtml(orderId)}" style="display: none; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; padding: 10px; margin: 6px 0 10px 0;">
+          <div style="font-size: 0.75rem; font-weight: 600; color: #334155; margin-bottom: 4px;">Cập nhật Gmail chính xác cho khách:</div>
+          <div style="display: flex; gap: 6px;">
+            <input type="email" id="inputNewOrderEmail_${escapeHtml(orderId)}" value="${escapeHtml(cleanEmail || '')}" placeholder="VD: khachhang@gmail.com" style="flex: 1; height: 30px; font-size: 0.78rem; padding: 0 8px; border: 1px solid #cbd5e1; border-radius: 4px;" />
+            <button type="button" class="btn-save-order-email" data-order="${escapeHtml(orderId)}" style="height: 30px; padding: 0 10px; background: #059669; color: #fff; border: none; border-radius: 4px; font-size: 0.75rem; font-weight: 600; cursor: pointer; white-space: nowrap;">Lưu & Gửi lại</button>
+            <button type="button" class="btn-cancel-edit-email" data-order="${escapeHtml(orderId)}" style="height: 30px; padding: 0 8px; background: #e2e8f0; color: #475569; border: none; border-radius: 4px; font-size: 0.75rem; cursor: pointer;">Hủy</button>
+          </div>
+          <div style="font-size: 0.7rem; color: #64748b; margin-top: 4px;">Hệ thống sẽ cập nhật đơn hàng và tự động gửi lại link file về email mới này.</div>
+        </div>
         <div class="inspector-row">
           <span class="inspector-label">Sản phẩm</span>
           <span class="inspector-val" style="font-weight: 500; color: #1e293b;">${escapeHtml(order.product_name || 'File')}</span>
@@ -4991,6 +5007,10 @@ document.addEventListener('DOMContentLoaded', () => {
               <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
               <span>Mở file Google Sheets / Drive</span>
             </a>` : ''}
+            <button type="button" class="btn-inspector-action btn-inspector-primary btn-resend-paid-email" data-order="${escapeHtml(orderId)}" data-email="${escapeHtml(cleanEmail)}" style="background: #047857;">
+              <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
+              <span>Gửi lại File về Email (${escapeHtml(cleanEmail || 'Chưa có email')})</span>
+            </button>
             <button type="button" class="btn-inspector-action btn-inspector-secondary btn-copy-magic-link" data-uid="${escapeHtml(order.user_id || '')}" data-order="${escapeHtml(orderId)}">
               <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
               <span>Copy link nhận file cho khách</span>
@@ -5022,6 +5042,112 @@ document.addEventListener('DOMContentLoaded', () => {
         </div>
       </div>
     `;
+
+    // Event Handlers Sửa Email trực tiếp trong Inspector
+    contentBox.querySelectorAll('.btn-edit-order-email').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const oId = btn.dataset.order;
+        const form = document.getElementById('inspectorEmailEditForm_' + oId);
+        if (form) {
+          form.style.display = form.style.display === 'none' ? 'block' : 'none';
+          const inp = document.getElementById('inputNewOrderEmail_' + oId);
+          if (inp && form.style.display === 'block') inp.focus();
+        }
+      });
+    });
+
+    contentBox.querySelectorAll('.btn-cancel-edit-email').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const oId = btn.dataset.order;
+        const form = document.getElementById('inspectorEmailEditForm_' + oId);
+        if (form) form.style.display = 'none';
+      });
+    });
+
+    contentBox.querySelectorAll('.btn-save-order-email').forEach(btn => {
+      btn.addEventListener('click', async (e) => {
+        e.stopPropagation();
+        const oId = btn.dataset.order;
+        const inp = document.getElementById('inputNewOrderEmail_' + oId);
+        const newEmail = (inp ? inp.value : '').trim().toLowerCase();
+        if (!newEmail || !newEmail.includes('@') || !newEmail.includes('.')) {
+          showToast('Vui lòng nhập địa chỉ email hợp lệ!', true);
+          return;
+        }
+
+        const originalText = btn.textContent;
+        btn.disabled = true;
+        btn.textContent = 'Đang lưu...';
+
+        try {
+          const res = await adminFetch('/admin/update-order-email', {
+            method: 'POST',
+            body: JSON.stringify({
+              order_id: oId,
+              new_email: newEmail,
+              resend_email: true
+            })
+          });
+
+          if (res && res.success) {
+            showToast('Đã đổi email thành ' + newEmail + ' và gửi lại file thành công!');
+            // Cập nhật lại trong cachedOrders
+            const found = cachedOrders.find(o => String(o.order_id || o.id) === String(oId));
+            if (found) found.customer_email = newEmail;
+            renderOrderDetailInspector(found);
+            renderFilteredOrders();
+          } else {
+            throw new Error(res?.error || 'Không thể cập nhật email');
+          }
+        } catch (err) {
+          console.error('Lỗi cập nhật email đơn hàng:', err);
+          btn.disabled = false;
+          btn.textContent = originalText;
+          showToast('Lỗi: ' + (err.message || 'Cập nhật thất bại'), true);
+        }
+      });
+    });
+
+    contentBox.querySelectorAll('.btn-resend-paid-email').forEach(btn => {
+      btn.addEventListener('click', async (e) => {
+        e.stopPropagation();
+        const oId = btn.dataset.order;
+        const email = btn.dataset.email;
+        if (!email || !email.includes('@')) {
+          showToast('Đơn hàng chưa có email hợp lệ. Vui lòng bấm Sửa email trước!', true);
+          return;
+        }
+
+        const originalText = btn.innerHTML;
+        btn.disabled = true;
+        btn.innerHTML = '<span>Đang gửi lại...</span>';
+
+        try {
+          const res = await adminFetch('/admin/resend-delivery-email', {
+            method: 'POST',
+            body: JSON.stringify({ order_id: oId, email: email })
+          });
+
+          if (res && res.success) {
+            showToast('Đã gửi lại email bàn giao file tới ' + email + '!');
+            btn.innerHTML = '<span>Đã gửi thành công!</span>';
+            setTimeout(() => {
+              btn.disabled = false;
+              btn.innerHTML = originalText;
+            }, 3000);
+          } else {
+            throw new Error(res?.error || 'Gửi lại thất bại');
+          }
+        } catch (err) {
+          console.error('Lỗi gửi lại email:', err);
+          btn.disabled = false;
+          btn.innerHTML = originalText;
+          showToast('Lỗi: ' + (err.message || 'Gửi thất bại'), true);
+        }
+      });
+    });
 
     contentBox.querySelectorAll('.btn-export-single-order').forEach(btn => {
       btn.addEventListener('click', (e) => {
@@ -8140,3 +8266,298 @@ document.addEventListener('click', () => {
 
 
 // =============================================================================
+
+
+  // =========================================================================
+  // MODULE QUẢN LÝ KHÁCH HÀNG (CUSTOMERS MODULE - SỬA EMAIL & CHĂM SÓC)
+  // =========================================================================
+  let cachedCustomersList = [];
+
+  function isSuspectEmail(email) {
+    if (!email) return false;
+    const lower = String(email).trim().toLowerCase();
+    const suspectDomains = ['@gmai.com', '@gamil.com', '@gmail.co', '@gmail.con', '@gmaill.com', '@gmali.com', '@hotmial.com', '@yaho.com'];
+    return suspectDomains.some(d => lower.endsWith(d)) || !lower.includes('@') || !lower.includes('.');
+  }
+
+  async function loadCustomersModule() {
+    const tbody = document.getElementById('customerListBody');
+    if (!tbody) return;
+
+    tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; color: var(--slate-muted); padding: 40px;">Đang tổng hợp dữ liệu khách hàng...</td></tr>';
+
+    try {
+      if (!cachedOrders || cachedOrders.length === 0) {
+        try {
+          cachedOrders = await adminFetch('/admin/orders');
+        } catch (e) {
+          const snap = await db.collection('orders').get();
+          cachedOrders = [];
+          snap.forEach(doc => cachedOrders.push({ order_id: doc.id, ...doc.data() }));
+        }
+      }
+
+      // Gom nhóm khách hàng theo Số điện thoại hoặc Email
+      const customerMap = {};
+
+      cachedOrders.forEach(o => {
+        const rawPhone = String(o.customer_phone || '').trim();
+        const cleanPhone = normalizePhoneNumber(rawPhone) || rawPhone;
+        const rawEmail = String(o.customer_email || '').trim().toLowerCase();
+        const isVirtualEmail = rawEmail.endsWith('@khachhang.filedilam.vn');
+        const cleanEmail = isVirtualEmail ? '' : rawEmail;
+        const name = String(o.customer_name || '').trim();
+
+        // Khóa định danh khách: Ưu tiên SĐT sạch, nếu không có SĐT thì dùng Email
+        const custKey = cleanPhone || cleanEmail || ('ANON_' + (o.order_id || Math.random()));
+
+        if (!customerMap[custKey]) {
+          customerMap[custKey] = {
+            key: custKey,
+            name: name || 'Khách vãng lai',
+            phone: cleanPhone || rawPhone,
+            email: cleanEmail,
+            orders: [],
+            paidOrdersCount: 0,
+            totalSpent: 0,
+            purchasedProducts: new Set(),
+            latestOrderTime: o.created_at || ''
+          };
+        }
+
+        const c = customerMap[custKey];
+        if (name && (!c.name || c.name === 'Khách vãng lai')) c.name = name;
+        if (cleanEmail && (!c.email || isSuspectEmail(c.email))) c.email = cleanEmail;
+        if (cleanPhone && !c.phone) c.phone = cleanPhone;
+
+        c.orders.push(o);
+        const isPaid = (o.status || '').toUpperCase() === 'PAID';
+        if (isPaid) {
+          c.paidOrdersCount++;
+          c.totalSpent += Number(o.amount || 0);
+          if (o.product_name) c.purchasedProducts.add(o.product_name);
+          const items = o.items || o.combo_items || [];
+          if (Array.isArray(items)) {
+            items.forEach(it => {
+              if (it && (it.product_name || it.name)) c.purchasedProducts.add(it.product_name || it.name);
+            });
+          }
+        }
+      });
+
+      cachedCustomersList = Object.values(customerMap);
+      cachedCustomersList.sort((a, b) => b.totalSpent - a.totalSpent || b.orders.length - a.orders.length);
+
+      // Cập nhật số badge sidebar
+      const custBadge = document.getElementById('sidebarCustomerCount');
+      if (custBadge) {
+        custBadge.textContent = cachedCustomersList.length;
+        custBadge.style.display = 'inline-flex';
+      }
+
+      renderCustomersTable();
+    } catch (err) {
+      console.error('Lỗi tải module khách hàng:', err);
+      tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; color: #ef4444; padding: 30px;">Lỗi tải dữ liệu: ' + escapeHtml(err.message) + '</td></tr>';
+    }
+  }
+
+  function renderCustomersTable() {
+    const tbody = document.getElementById('customerListBody');
+    if (!tbody) return;
+
+    const searchKw = (document.getElementById('customerSearchInput')?.value || '').trim().toLowerCase();
+    const filterMode = document.getElementById('customerFilterSelect')?.value || 'ALL';
+
+    let list = cachedCustomersList.filter(c => {
+      if (searchKw) {
+        const matchName = c.name.toLowerCase().includes(searchKw);
+        const matchPhone = c.phone.toLowerCase().includes(searchKw);
+        const matchEmail = (c.email || '').toLowerCase().includes(searchKw);
+        if (!matchName && !matchPhone && !matchEmail) return false;
+      }
+
+      if (filterMode === 'PAID_ONLY') {
+        return c.paidOrdersCount > 0;
+      } else if (filterMode === 'SUSPECT_EMAIL') {
+        return isSuspectEmail(c.email);
+      } else if (filterMode === 'MULTIPLE_ORDERS') {
+        return c.paidOrdersCount >= 2;
+      }
+      return true;
+    });
+
+    // Thống kê nhanh
+    const totalCust = cachedCustomersList.length;
+    const paidCust = cachedCustomersList.filter(c => c.paidOrdersCount > 0).length;
+    const suspectCust = cachedCustomersList.filter(c => isSuspectEmail(c.email)).length;
+
+    const elTotal = document.getElementById('statTotalCustomers');
+    if (elTotal) elTotal.textContent = totalCust;
+    const elPaid = document.getElementById('statPaidCustomers');
+    if (elPaid) elPaid.textContent = paidCust;
+    const elSuspect = document.getElementById('statSuspectCustomers');
+    if (elSuspect) elSuspect.textContent = suspectCust;
+
+    if (list.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; color: var(--slate-muted); padding: 40px;">Không tìm thấy khách hàng nào phù hợp.</td></tr>';
+      return;
+    }
+
+    tbody.innerHTML = list.map(c => {
+      const suspectWarning = isSuspectEmail(c.email)
+        ? '<span style="display: inline-block; font-size: 0.68rem; font-weight: 600; color: #d97706; background: #fef3c7; border: 1px solid #fde68a; padding: 1px 5px; border-radius: 4px; margin-left: 4px;">Sai domain?</span>'
+        : '';
+      const productsStr = Array.from(c.purchasedProducts).join(', ') || '<span style="color:#94a3b8; font-size:0.75rem;">Chưa mua file nào</span>';
+      const cleanPhone = normalizePhoneNumber(c.phone) || c.phone;
+      const latestOrderId = c.orders[0]?.order_id || c.orders[0]?.id || '';
+
+      return `
+        <tr>
+          <td>
+            <div style="font-weight: 600; color: #0f172a; font-size: 0.84rem;">${escapeHtml(c.name)}</div>
+            <div style="font-size: 0.72rem; color: #94a3b8;">${c.orders.length} lần đặt hàng</div>
+          </td>
+          <td>
+            <div style="display: flex; align-items: center; gap: 6px;">
+              <span style="font-family: ui-monospace, monospace; font-size: 0.80rem; font-weight: 600; color: #334155;">${escapeHtml(c.phone || '-')}</span>
+              ${cleanPhone ? `
+                <a href="https://zalo.me/${cleanPhone}" target="_blank" rel="noopener noreferrer" style="font-size: 0.70rem; color: #0068ff; font-weight: 600; background: #eff6ff; border: 1px solid #bfdbfe; padding: 1px 6px; border-radius: 4px; text-decoration: none;" title="Mở Zalo">Zalo</a>
+              ` : ''}
+            </div>
+          </td>
+          <td>
+            <div style="display: flex; align-items: center; gap: 6px;">
+              <span style="font-family: ui-monospace, monospace; font-size: 0.80rem; color: #0f172a; font-weight: 500;" id="custEmailDisplay_${escapeHtml(c.key)}">${escapeHtml(c.email || 'Chưa cung cấp')}</span>
+              ${suspectWarning}
+            </div>
+          </td>
+          <td style="text-align: center;">
+            <span style="font-weight: 700; color: ${c.paidOrdersCount > 0 ? '#059669' : '#94a3b8'}; font-size: 0.84rem;">${c.paidOrdersCount}</span>
+          </td>
+          <td style="text-align: right; font-weight: 700; color: #059669; font-family: ui-monospace, monospace; font-size: 0.84rem;">
+            ${formatCurrency(c.totalSpent)}
+          </td>
+          <td>
+            <div style="font-size: 0.78rem; color: #334155; max-width: 260px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="${escapeHtml(Array.from(c.purchasedProducts).join(', '))}">
+              ${productsStr}
+            </div>
+          </td>
+          <td style="text-align: center;">
+            <div style="display: inline-flex; align-items: center; gap: 6px;">
+              <button type="button" class="btn-quick-edit-customer-email" data-key="${escapeHtml(c.key)}" data-name="${escapeHtml(c.name)}" data-email="${escapeHtml(c.email || '')}" data-latest-order="${escapeHtml(latestOrderId)}" style="height: 26px; padding: 0 8px; font-size: 0.72rem; border-radius: 4px; border: 1px solid #cbd5e1; background: #ffffff; color: #0f172a; cursor: pointer; font-weight: 600;" title="Sửa lại email khi khách báo sai">
+                Sửa Gmail
+              </button>
+              ${c.paidOrdersCount > 0 && latestOrderId ? `
+                <button type="button" class="btn-quick-resend-customer-file" data-order="${escapeHtml(latestOrderId)}" data-email="${escapeHtml(c.email || '')}" style="height: 26px; padding: 0 8px; font-size: 0.72rem; border-radius: 4px; border: 1px solid #a7f3d0; background: #ecfdf5; color: #047857; cursor: pointer; font-weight: 600;" title="Gửi lại toàn bộ file vào email">
+                  Gửi lại File
+                </button>
+              ` : ''}
+            </div>
+          </td>
+        </tr>
+      `;
+    }).join('');
+
+    // Event Handlers cho nút Sửa Gmail trong bảng
+    tbody.querySelectorAll('.btn-quick-edit-customer-email').forEach(btn => {
+      btn.addEventListener('click', async (e) => {
+        e.stopPropagation();
+        const key = btn.dataset.key;
+        const name = btn.dataset.name;
+        const currentEmail = btn.dataset.email || '';
+        const latestOrder = btn.dataset.latestOrder || '';
+
+        const newEmail = prompt('Nhập địa chỉ Gmail mới chính xác cho ' + name + ':\n(Hệ thống sẽ cập nhật và gửi lại file vào mail này)', currentEmail);
+        if (newEmail === null) return;
+        const cleanNewEmail = newEmail.trim().toLowerCase();
+        if (!cleanNewEmail || !cleanNewEmail.includes('@') || !cleanNewEmail.includes('.')) {
+          showToast('Email không hợp lệ!', true);
+          return;
+        }
+
+        if (latestOrder) {
+          try {
+            btn.disabled = true;
+            btn.textContent = 'Đang lưu...';
+            const res = await adminFetch('/admin/update-order-email', {
+              method: 'POST',
+              body: JSON.stringify({
+                order_id: latestOrder,
+                new_email: cleanNewEmail,
+                resend_email: true
+              })
+            });
+
+            if (res && res.success) {
+              showToast('Đã đổi email thành ' + cleanNewEmail + ' và gửi lại file thành công!');
+              // Cập nhật local
+              const cust = cachedCustomersList.find(c => c.key === key);
+              if (cust) cust.email = cleanNewEmail;
+              renderCustomersTable();
+            } else {
+              throw new Error(res?.error || 'Không thể cập nhật email');
+            }
+          } catch (err) {
+            console.error('Lỗi cập nhật email khách:', err);
+            btn.disabled = false;
+            btn.textContent = 'Sửa Gmail';
+            showToast('Lỗi: ' + (err.message || 'Cập nhật thất bại'), true);
+          }
+        } else {
+          showToast('Khách hàng này chưa có đơn hàng để cập nhật email.', true);
+        }
+      });
+    });
+
+    // Event Handlers gửi lại file
+    tbody.querySelectorAll('.btn-quick-resend-customer-file').forEach(btn => {
+      btn.addEventListener('click', async (e) => {
+        e.stopPropagation();
+        const oId = btn.dataset.order;
+        const email = btn.dataset.email;
+        if (!email || !email.includes('@')) {
+          showToast('Khách chưa có email hợp lệ! Vui lòng bấm Sửa Gmail trước.', true);
+          return;
+        }
+
+        if (!confirm('Gửi lại file đơn hàng #' + oId + ' tới email ' + email + '?')) return;
+
+        try {
+          btn.disabled = true;
+          btn.textContent = 'Đang gửi...';
+          const res = await adminFetch('/admin/resend-delivery-email', {
+            method: 'POST',
+            body: JSON.stringify({ order_id: oId, email: email })
+          });
+
+          if (res && res.success) {
+            showToast('Đã gửi lại email bàn giao file tới ' + email + '!');
+            btn.textContent = 'Đã gửi!';
+            setTimeout(() => {
+              btn.disabled = false;
+              btn.textContent = 'Gửi lại File';
+            }, 3000);
+          } else {
+            throw new Error(res?.error || 'Gửi lại thất bại');
+          }
+        } catch (err) {
+          console.error('Lỗi gửi lại file:', err);
+          btn.disabled = false;
+          btn.textContent = 'Gửi lại File';
+          showToast('Lỗi: ' + (err.message || 'Gửi thất bại'), true);
+        }
+      });
+    });
+  }
+
+  // Lắng nghe sự kiện filter và search của Module Khách Hàng
+  document.getElementById('customerSearchInput')?.addEventListener('input', () => {
+    renderCustomersTable();
+  });
+  document.getElementById('customerFilterSelect')?.addEventListener('change', () => {
+    renderCustomersTable();
+  });
+  document.getElementById('refreshCustomersBtn')?.addEventListener('click', () => {
+    loadCustomersModule();
+  });

@@ -1812,6 +1812,104 @@ def api(req: https_fn.Request) -> https_fn.Response:
         res = process_pending_order_reminders(db)
         return json_response({"success": True, "result": res})
 
+    if path == "/admin/update-order-email" and method == "POST":
+        user = require_user(req)
+        if not user or user.get("email") != "huynhkiencam151102@gmail.com":
+            return json_response({"error": "ADMIN_AUTH_REQUIRED"}, 403)
+        data = req.get_json(silent=True) or {}
+        order_id = str(data.get("order_id") or "").strip().upper()
+        new_email = str(data.get("new_email") or "").strip().lower()
+        resend_email = bool(data.get("resend_email", True))
+
+        if not order_id:
+            return json_response({"error": "MISSING_ORDER_ID"}, 400)
+        if not new_email or "@" not in new_email or "." not in new_email:
+            return json_response({"error": "INVALID_EMAIL"}, 400)
+
+        doc_ref = db.collection("orders").document(order_id)
+        doc = doc_ref.get()
+        if not doc.exists:
+            return json_response({"error": "ORDER_NOT_FOUND"}, 404)
+
+        order_data = doc.to_dict()
+        old_email = order_data.get("customer_email") or ""
+        now = datetime.now(timezone.utc)
+
+        update_payload = {
+            "customer_email": new_email,
+            "email_updated_at": now,
+            "email_updated_by": user.get("email"),
+            "previous_email": old_email
+        }
+
+        doc_ref.update(update_payload)
+        order_data["customer_email"] = new_email
+
+        # Đồng thời cập nhật vào customer_profiles nếu có liên kết user_id
+        target_uid = order_data.get("user_id")
+        if target_uid:
+            try:
+                db.collection("customer_profiles").document(target_uid).set({
+                    "email": new_email,
+                    "updated_at": now
+                }, merge=True)
+            except Exception as pe:
+                print(f"[Admin Update Email] Lỗi cập nhật customer_profiles cho {target_uid}: {pe}")
+
+        email_sent = False
+        if resend_email:
+            cust_name = order_data.get("customer_name") or ""
+            is_paid = (order_data.get("status") or "").upper() == "PAID"
+            if is_paid:
+                email_sent = send_order_success_email(new_email, cust_name, order_id, order_data)
+            else:
+                email_sent = send_payment_reminder_email(new_email, cust_name, order_id, order_data)
+
+        return json_response({
+            "success": True,
+            "order_id": order_id,
+            "old_email": old_email,
+            "new_email": new_email,
+            "email_sent": email_sent
+        })
+
+    if path == "/admin/resend-delivery-email" and method == "POST":
+        user = require_user(req)
+        if not user or user.get("email") != "huynhkiencam151102@gmail.com":
+            return json_response({"error": "ADMIN_AUTH_REQUIRED"}, 403)
+        data = req.get_json(silent=True) or {}
+        order_id = str(data.get("order_id") or "").strip().upper()
+        override_email = str(data.get("email") or "").strip().lower()
+
+        if not order_id:
+            return json_response({"error": "MISSING_ORDER_ID"}, 400)
+
+        doc_ref = db.collection("orders").document(order_id)
+        doc = doc_ref.get()
+        if not doc.exists:
+            return json_response({"error": "ORDER_NOT_FOUND"}, 404)
+
+        order_data = doc.to_dict()
+        target_email = override_email or order_data.get("customer_email") or ""
+        if not target_email or "@" not in target_email:
+            return json_response({"error": "INVALID_EMAIL"}, 400)
+
+        cust_name = order_data.get("customer_name") or ""
+        is_paid = (order_data.get("status") or "").upper() == "PAID"
+
+        email_sent = False
+        if is_paid:
+            email_sent = send_order_success_email(target_email, cust_name, order_id, order_data)
+        else:
+            email_sent = send_payment_reminder_email(target_email, cust_name, order_id, order_data)
+
+        return json_response({
+            "success": True,
+            "order_id": order_id,
+            "email": target_email,
+            "email_sent": email_sent
+        })
+
     if path == "/admin/generate-magic-link" and method == "POST":
         user = require_user(req)
         if not user or user.get("email") != "huynhkiencam151102@gmail.com":

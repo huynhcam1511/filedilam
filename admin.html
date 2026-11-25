@@ -2694,6 +2694,69 @@
         </div>
       </div>
 
+      <!-- TAB 3.5: CUSTOMER MANAGEMENT (QUẢN LÝ KHÁCH HÀNG & SỬA GMAIL) -->
+      <div id="customersTab" class="tab-pane">
+        <div class="canvas-header-bar">
+          <div>
+            <h2 class="canvas-title">Quản lý Khách hàng</h2>
+            <p class="canvas-sub">Danh sách khách hàng, lịch sử mua hàng, sửa email sai và gửi lại file 1-chạm.</p>
+          </div>
+          <div class="canvas-actions">
+            <div class="search-box-pill" style="min-width: 240px; max-width: 300px;">
+              <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+              <input type="search" id="customerSearchInput" placeholder="Tìm theo Tên, SĐT, Email..." style="height: 34px; font-size: 0.80rem;" />
+            </div>
+            <select id="customerFilterSelect" class="pill-select">
+              <option value="ALL" selected>Tất cả khách hàng</option>
+              <option value="PAID_ONLY">Đã mua ít nhất 1 đơn</option>
+              <option value="SUSPECT_EMAIL">Có thể sai email (@gmai, @gamil...)</option>
+              <option value="MULTIPLE_ORDERS">Khách hàng thân thiết (&gt;= 2 đơn)</option>
+            </select>
+            <button class="btn-icon-pill" id="refreshCustomersBtn" title="Làm mới danh sách khách hàng" style="width: 34px; height: 34px; border-radius: 6px;">
+              <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+            </button>
+          </div>
+        </div>
+
+        <!-- Thống kê nhanh khách hàng -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; margin-bottom: 20px;">
+          <div style="background: #ffffff; padding: 14px 18px; border-radius: 8px; border: 1px solid #e2e8f0;">
+            <div style="font-size: 0.75rem; color: #64748b; font-weight: 600; text-transform: uppercase;">Tổng số khách hàng</div>
+            <div id="statTotalCustomers" style="font-size: 1.35rem; font-weight: 700; color: #0f172a; margin-top: 4px;">0</div>
+          </div>
+          <div style="background: #ffffff; padding: 14px 18px; border-radius: 8px; border: 1px solid #e2e8f0;">
+            <div style="font-size: 0.75rem; color: #059669; font-weight: 600; text-transform: uppercase;">Khách đã thanh toán</div>
+            <div id="statPaidCustomers" style="font-size: 1.35rem; font-weight: 700; color: #059669; margin-top: 4px;">0</div>
+          </div>
+          <div style="background: #ffffff; padding: 14px 18px; border-radius: 8px; border: 1px solid #e2e8f0;">
+            <div style="font-size: 0.75rem; color: #b45309; font-weight: 600; text-transform: uppercase;">Email cần chú ý</div>
+            <div id="statSuspectCustomers" style="font-size: 1.35rem; font-weight: 700; color: #d97706; margin-top: 4px;">0</div>
+          </div>
+        </div>
+
+        <!-- Bảng danh sách khách hàng phẳng tràn viền -->
+        <div class="data-table-card">
+          <div class="table-responsive">
+            <table class="alocal-table">
+              <thead>
+                <tr>
+                  <th style="width: 170px;">Khách hàng</th>
+                  <th style="width: 130px;">Số điện thoại</th>
+                  <th style="min-width: 220px;">Email nhận file</th>
+                  <th style="text-align: center; width: 90px;">Số đơn</th>
+                  <th style="text-align: right; width: 120px;">Tổng tiền</th>
+                  <th style="min-width: 180px;">Sản phẩm đã mua</th>
+                  <th style="text-align: center; width: 150px;">Thao tác</th>
+                </tr>
+              </thead>
+              <tbody id="customerListBody">
+                <tr><td colspan="7" style="text-align: center; color: var(--slate-muted); padding: 40px;">Đang tải danh sách khách hàng...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
       <!-- TAB 4: REVENUE & ANALYTICS -->
       <div id="statsTab" class="tab-pane active">
 <div class="action-toolbar">
@@ -3230,7 +3293,7 @@
   <script src="/__/firebase/init.js"></script>
   
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-  <script src="./admin.js?v=327"></script>
+  <script src="./admin.js?v=328"></script>
   <!-- Agentation: Visual Feedback & Annotation for AI agents -->
   <script src="./agentation-vanilla.js"></script>
 
