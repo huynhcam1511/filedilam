@@ -8241,33 +8241,6 @@ document.addEventListener('DOMContentLoaded', () => {
   window.exportPostsOnlyToExcel = exportPostsOnlyToExcel;
   window.exportAdsOnlyToExcel = exportAdsOnlyToExcel;
 
-
-
-});
-
-// Global listener to close popovers when clicking outside
-document.addEventListener('click', () => {
-  document.querySelectorAll('.action-dropdown-popover.show').forEach(p => p.classList.remove('show'));
-  document.querySelectorAll('.action-dots-btn.active').forEach(b => b.classList.remove('active'));
-}); // closeAllPopoversListener
-
-
-  
-
-  // Event khi đổi Sản phẩm trong Drawer Ads -> Gợi ý tên chiến dịch nếu chưa nhập
-  document.getElementById('adsProductSelect')?.addEventListener('change', (e) => {
-    const prodId = e.target.value;
-    const titleInp = document.getElementById('adsTitleInput');
-    const prod = (currentProducts || []).find(p => p.id === prodId);
-    if (prod && titleInp && (!titleInp.value.trim() || titleInp.value.startsWith('Ads:'))) {
-      titleInp.value = 'Ads: ' + prod.name;
-    }
-  });
-
-
-// =============================================================================
-
-
   // =========================================================================
   // MODULE QUẢN LÝ KHÁCH HÀNG (CUSTOMERS MODULE - SỬA EMAIL & CHĂM SÓC)
   // =========================================================================
@@ -8561,3 +8534,29 @@ document.addEventListener('click', () => {
   document.getElementById('refreshCustomersBtn')?.addEventListener('click', () => {
     loadCustomersModule();
   });
+
+});
+
+// Global listener to close popovers when clicking outside
+document.addEventListener('click', () => {
+  document.querySelectorAll('.action-dropdown-popover.show').forEach(p => p.classList.remove('show'));
+  document.querySelectorAll('.action-dots-btn.active').forEach(b => b.classList.remove('active'));
+}); // closeAllPopoversListener
+
+
+  
+
+  // Event khi đổi Sản phẩm trong Drawer Ads -> Gợi ý tên chiến dịch nếu chưa nhập
+  document.getElementById('adsProductSelect')?.addEventListener('change', (e) => {
+    const prodId = e.target.value;
+    const titleInp = document.getElementById('adsTitleInput');
+    const prod = (currentProducts || []).find(p => p.id === prodId);
+    if (prod && titleInp && (!titleInp.value.trim() || titleInp.value.startsWith('Ads:'))) {
+      titleInp.value = 'Ads: ' + prod.name;
+    }
+  });
+
+
+// =============================================================================
+
+
