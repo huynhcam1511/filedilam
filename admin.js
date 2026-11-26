@@ -3213,15 +3213,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 '<span style="display: flex; align-items: center; gap: 5px;"><span style="display:inline-block; width:14px; height:2px; background:#059669;"></span><span style="display:inline-block; width:6px; height:6px; border-radius:50%; background:#059669; margin-left:-10px;"></span><span style="margin-left:6px;">Quỹ tiền tích lũy</span></span>' +
               '</div>' +
             '</div>' +
-            '<div style="width: 100%; overflow-x: auto; margin: 0; padding: 0;">' +
-              '<svg viewBox="0 0 ' + svgW + ' ' + svgH + '" style="width: 100%; min-width: ' + Math.min(svgW, 720) + 'px; height: ' + svgH + 'px; display: block;">' +
-                '<text x="' + pL + '" y="' + (pT - 8) + '" text-anchor="start" font-size="8" font-family="sans-serif" font-weight="600" fill="#64748b">(VNĐ)</text>' +
-                gridlinesHtml +
-                '<line x1="' + pL + '" y1="' + (pT + pH) + '" x2="' + (pL + plotW) + '" y2="' + (pT + pH) + '" stroke="#cbd5e1" stroke-width="1.2"></line>' +
-                barsSvgHtml +
-                '<path d="' + linePathD + '" fill="none" stroke="#059669" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"></path>' +
-                lineDotsHtml +
-              '</svg>' +
+            '<div style="position: relative; width: 100%; height: 340px; margin: 6px 0;">' +
+              '<canvas id="cashflowChartCanvas"></canvas>' +
             '</div>' +
             '<div style="display: flex; justify-content: space-between; align-items: center; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; padding: 7px 12px; margin-top: 6px; font-size: 0.72rem; flex-wrap: wrap; gap: 8px;">' +
               '<span>Tiền vào: <b style="color: #059669; font-family: monospace;">+' + formatCurrency(totalRevenue) + '</b></span>' +
@@ -3232,6 +3225,92 @@ document.addEventListener('DOMContentLoaded', () => {
             '</div>' +
           '</div>'
         );
+
+        const cfCanvas = document.getElementById('cashflowChartCanvas');
+        if (cfCanvas && typeof Chart !== 'undefined') {
+          if (window._cashflowChartInstance) {
+            window._cashflowChartInstance.destroy();
+          }
+          window._cashflowChartInstance = new Chart(cfCanvas.getContext('2d'), {
+            type: 'bar',
+            data: {
+              labels: cfData.map(c => c.label || c.date || ('N' + (c.idx + 1))),
+              datasets: [
+                {
+                  type: 'line',
+                  label: 'Quỹ tiền tích lũy',
+                  data: cfData.map(c => c.cumNetCash),
+                  borderColor: '#047857',
+                  backgroundColor: '#047857',
+                  borderWidth: 2.2,
+                  pointRadius: 3,
+                  pointHoverRadius: 5,
+                  tension: 0.25,
+                  order: 1
+                },
+                {
+                  type: 'bar',
+                  label: 'Tiền thu vào (Cash In)',
+                  data: cfData.map(c => c.cashIn),
+                  backgroundColor: '#10b981',
+                  borderRadius: 3,
+                  maxBarThickness: 18,
+                  order: 2
+                },
+                {
+                  type: 'bar',
+                  label: 'Chi phí Ads (Cash Out)',
+                  data: cfData.map(c => -c.cashOut),
+                  backgroundColor: '#f43f5e',
+                  borderRadius: 3,
+                  maxBarThickness: 18,
+                  order: 3
+                }
+              ]
+            },
+            options: {
+              responsive: true,
+              maintainAspectRatio: false,
+              interaction: { mode: 'index', intersect: false },
+              plugins: {
+                legend: { display: false },
+                tooltip: {
+                  callbacks: {
+                    label: function(ctx) {
+                      const val = ctx.parsed.y || 0;
+                      const sign = val > 0 ? '+' : '';
+                      return ctx.dataset.label + ': ' + sign + formatCurrency(val);
+                    }
+                  }
+                }
+              },
+              scales: {
+                x: {
+                  grid: { display: false },
+                  ticks: { font: { size: 11 }, color: '#64748b' }
+                },
+                y: {
+                  grid: {
+                    color: function(ctx) { return ctx.tick && ctx.tick.value === 0 ? '#64748b' : '#f1f5f9'; },
+                    lineWidth: function(ctx) { return ctx.tick && ctx.tick.value === 0 ? 1.5 : 1; }
+                  },
+                  ticks: {
+                    font: { size: 11 },
+                    color: '#64748b',
+                    callback: function(v) {
+                      if (v === 0) return '0';
+                      const abs = Math.abs(v);
+                      const sign = v < 0 ? '-' : '';
+                      if (abs >= 1000000) return sign + (abs / 1000000).toFixed(1).replace('.0', '') + 'M';
+                      if (abs >= 1000) return sign + Math.round(abs / 1000) + 'k';
+                      return sign + abs;
+                    }
+                  }
+                }
+              }
+            }
+          });
+        }
       } else if (statsActiveChartView === 'waterfall') {
         // VIEW: WATERFALL P&L 100% PURE SVG - TUYỆT ĐỐI CHUẨN XÁC, VẠCH NỐI KHỚP TỪNG PIXEL
         const svgW = 680;
@@ -3278,47 +3357,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 '<span style="display: flex; align-items: center; gap: 4px;"><span style="display:inline-block; width:9px; height:8px; background:' + netColor + '; border-radius:2px;"></span>4. Lợi nhuận sau Ads</span>' +
               '</div>' +
             '</div>' +
-            '<div style="width: 100%; overflow-x: auto;">' +
-              '<svg viewBox="0 0 ' + svgW + ' ' + svgH + '" style="width: 100%; min-width: 580px; height: ' + svgH + 'px; display: block;">' +
-                // Đường đáy mờ
-                '<line x1="20" y1="' + baselineY + '" x2="' + (svgW - 20) + '" y2="' + baselineY + '" stroke="#e2e8f0" stroke-width="1"></line>' +
-
-                // 3 VẠCH NỐI NÉT ĐỨT (CONNECTOR LINES) KHỚP CHÍNH XÁC TỪNG PIXEL
-                // Nối 1: Đỉnh Cột 1 -> Đỉnh Cột 2
-                '<line x1="' + (col1X + colW) + '" y1="' + grossY + '" x2="' + col2X + '" y2="' + grossY + '" stroke="#94a3b8" stroke-dasharray="3,3" stroke-width="1.5"></line>' +
-                // Nối 2: Đáy Cột 2 -> Đỉnh Cột 3
-                '<line x1="' + (col2X + colW) + '" y1="' + adsY + '" x2="' + col3X + '" y2="' + adsY + '" stroke="#94a3b8" stroke-dasharray="3,3" stroke-width="1.5"></line>' +
-                // Nối 3: Đáy Cột 3 -> Đỉnh Cột 4 (Khớp tuyệt đối)
-                '<line x1="' + (col3X + colW) + '" y1="' + profitY + '" x2="' + col4X + '" y2="' + profitY + '" stroke="#94a3b8" stroke-dasharray="3,3" stroke-width="1.5"></line>' +
-
-                // CỘT 1: Doanh thu niêm yết
-                '<g style="cursor: pointer;" title="Doanh thu niêm yết: +' + formatCurrency(grossRevenue) + '">' +
-                  '<text x="' + (col1X + colW / 2) + '" y="' + (grossY - 8) + '" text-anchor="middle" font-size="11" font-weight="700" font-family="monospace" fill="#047857">+' + formatCurrency(grossRevenue) + '</text>' +
-                  '<rect x="' + col1X + '" y="' + grossY + '" width="' + colW + '" height="' + grossH + '" rx="4" fill="#6ee7b7" stroke="#34d399" stroke-width="1.2"></rect>' +
-                  '<text x="' + (col1X + colW / 2) + '" y="' + (baselineY + 18) + '" text-anchor="middle" font-size="11" font-weight="700" fill="#0f172a">1. Niêm yết</text>' +
-                '</g>' +
-
-                // CỘT 2: Giảm giá Coupon
-                '<g style="cursor: pointer;" title="Giảm giá Coupon: -' + formatCurrency(totalDiscount) + '">' +
-                  '<text x="' + (col2X + colW / 2) + '" y="' + (discY - 8) + '" text-anchor="middle" font-size="11" font-weight="700" font-family="monospace" fill="#d97706">-' + formatCurrency(totalDiscount) + '</text>' +
-                  '<rect x="' + col2X + '" y="' + discY + '" width="' + colW + '" height="' + discH + '" rx="4" fill="#fde68a" stroke="#fbbf24" stroke-width="1.2"></rect>' +
-                  '<text x="' + (col2X + colW / 2) + '" y="' + (baselineY + 18) + '" text-anchor="middle" font-size="11" font-weight="600" fill="#64748b">2. Giảm giá</text>' +
-                '</g>' +
-
-                // CỘT 3: Chi phí Ads
-                '<g style="cursor: pointer;" title="Chi phí Ads: -' + formatCurrency(totalAdsSpent) + '">' +
-                  '<text x="' + (col3X + colW / 2) + '" y="' + (adsY - 8) + '" text-anchor="middle" font-size="11" font-weight="700" font-family="monospace" fill="#e11d48">-' + formatCurrency(totalAdsSpent) + '</text>' +
-                  '<rect x="' + col3X + '" y="' + adsY + '" width="' + colW + '" height="' + adsH + '" rx="4" fill="#fda4af" stroke="#f43f5e" stroke-width="1.2"></rect>' +
-                  '<text x="' + (col3X + colW / 2) + '" y="' + (baselineY + 18) + '" text-anchor="middle" font-size="11" font-weight="600" fill="#64748b">3. Chi Ads</text>' +
-                '</g>' +
-
-                // CỘT 4: Lợi nhuận sau Ads
-                '<g style="cursor: pointer;" title="Lợi nhuận sau Ads: ' + (netProfit >= 0 ? '+' : '-') + formatCurrency(Math.abs(netProfit)) + '">' +
-                  '<text x="' + (col4X + colW / 2) + '" y="' + (profitY - 8) + '" text-anchor="middle" font-size="11" font-weight="700" font-family="monospace" fill="' + (netProfit >= 0 ? '#047857' : '#e11d48') + '">' + (netProfit >= 0 ? '+' : '-') + formatCurrency(Math.abs(netProfit)) + '</text>' +
-                  '<rect x="' + col4X + '" y="' + profitY + '" width="' + colW + '" height="' + profitH + '" rx="4" fill="' + netColor + '" stroke="' + netStroke + '" stroke-width="1.2"></rect>' +
-                  '<text x="' + (col4X + colW / 2) + '" y="' + (baselineY + 18) + '" text-anchor="middle" font-size="11" font-weight="700" fill="#0f172a">4. Lãi ròng</text>' +
-                '</g>' +
-              '</svg>' +
+            '<div style="position: relative; width: 100%; height: 320px; margin: 6px 0;">' +
+              '<canvas id="waterfallChartCanvas"></canvas>' +
             '</div>' +
             '<div style="display: flex; justify-content: space-around; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; padding: 7px 14px; margin-top: 8px; font-size: 0.73rem; flex-wrap: wrap; gap: 8px;">' +
               '<span>Niêm yết: <b style="font-family: monospace;">' + formatCurrency(grossRevenue) + '</b></span>' +
@@ -3329,7 +3369,74 @@ document.addEventListener('DOMContentLoaded', () => {
             '</div>' +
           '</div>'
         );
+
+        const wfCanvas = document.getElementById('waterfallChartCanvas');
+        if (wfCanvas && typeof Chart !== 'undefined') {
+          if (window._waterfallChartInstance) {
+            window._waterfallChartInstance.destroy();
+          }
+          const afterDisc = grossRevenue - totalDiscount;
+          window._waterfallChartInstance = new Chart(wfCanvas.getContext('2d'), {
+            type: 'bar',
+            data: {
+              labels: ['1. Niêm yết', '2. Giảm giá', '3. Chi Ads', '4. Lãi ròng'],
+              datasets: [{
+                label: 'Giá trị',
+                data: [
+                  [0, grossRevenue],
+                  [afterDisc, grossRevenue],
+                  [netProfit, afterDisc],
+                  [0, netProfit]
+                ],
+                backgroundColor: ['#6ee7b7', '#fde68a', '#fda4af', netColor],
+                borderColor: ['#34d399', '#fbbf24', '#f43f5e', netStroke],
+                borderWidth: 1.5,
+                borderRadius: 6,
+                maxBarThickness: 84
+              }]
+            },
+            options: {
+              responsive: true,
+              maintainAspectRatio: false,
+              plugins: {
+                legend: { display: false },
+                tooltip: {
+                  callbacks: {
+                    label: function(ctx) {
+                      const idx = ctx.dataIndex;
+                      if (idx === 0) return 'Niêm yết: +' + formatCurrency(grossRevenue);
+                      if (idx === 1) return 'Giảm giá: -' + formatCurrency(totalDiscount);
+                      if (idx === 2) return 'Chi Ads: -' + formatCurrency(totalAdsSpent);
+                      return 'Lãi ròng: ' + (netProfit >= 0 ? '+' : '-') + formatCurrency(Math.abs(netProfit));
+                    }
+                  }
+                }
+              },
+              scales: {
+                x: { grid: { display: false }, ticks: { font: { size: 12, weight: '600' }, color: '#0f172a' } },
+                y: {
+                  grid: {
+                    color: function(ctx) { return ctx.tick && ctx.tick.value === 0 ? '#64748b' : '#f1f5f9'; }
+                  },
+                  ticks: {
+                    font: { size: 11 },
+                    color: '#64748b',
+                    callback: function(v) {
+                      if (v === 0) return '0';
+                      const abs = Math.abs(v);
+                      const sign = v < 0 ? '-' : '';
+                      if (abs >= 1000000) return sign + (abs / 1000000).toFixed(1).replace('.0', '') + 'M';
+                      if (abs >= 1000) return sign + Math.round(abs / 1000) + 'k';
+                      return sign + abs;
+                    }
+                  }
+                }
+              }
+            }
+          });
+        }
       } else if (statsActiveChartView === 'funnel') {
+        try {
         // VIEW: PHỄU CHUYỂN ĐỔI 7 TẦNG (TIKTOK ADS → MỞ LINK WEB → BẤM MUA NGAY → TẠO ĐƠN QR → THANH TOÁN)
         const avgCPM = totalAdsViews > 0 ? Math.round((totalAdsSpent / totalAdsViews) * 1000) : 0;
         const totalEngagedViews = filteredAds.reduce((sum, a) => sum + (Number(a.focused_views || a.view_2s || 0) || Math.round((Number(a.views) || 0) * 0.414)), 0);
@@ -3341,8 +3448,8 @@ document.addEventListener('DOMContentLoaded', () => {
         const fClicks = Math.max(totalIntentClicks, 865);
         const fWebOpen = effectiveWebSessions;
         const fCart = effectiveAddToCart;
-        const fOrdersCreated = (typeof ordersCreatedInPeriod !== 'undefined' && ordersInTrackerPeriod && ordersInTrackerPeriod.length > 0) ? ordersCreatedInPeriod : (totalOrdersInFilter > 0 ? totalOrdersInFilter : 0);
-        const fOrdersPaid = (typeof ordersPaidInPeriod !== 'undefined' && ordersInTrackerPeriod && ordersInTrackerPeriod.length > 0) ? ordersPaidInPeriod : (paidCount > 0 ? paidCount : 0);
+        const fOrdersCreated = (typeof ordersCreatedInPeriod !== 'undefined' && typeof ordersInTrackerPeriod !== 'undefined' && ordersInTrackerPeriod && ordersInTrackerPeriod.length > 0) ? ordersCreatedInPeriod : (totalOrdersInFilter > 0 ? totalOrdersInFilter : 0);
+        const fOrdersPaid = (typeof ordersPaidInPeriod !== 'undefined' && typeof ordersInTrackerPeriod !== 'undefined' && ordersInTrackerPeriod && ordersInTrackerPeriod.length > 0) ? ordersPaidInPeriod : (paidCount > 0 ? paidCount : 0);
 
         const pEngaged = Math.round((fEngaged / fViews) * 100);
         const pClicks = fEngaged > 0 ? ((fClicks / fEngaged) * 100).toFixed(1) : 0;
@@ -3373,14 +3480,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const stagesHtml = stages.map((st, idx) => {
           const rowHtml = (
-            '<div style="display: flex; align-items: center; gap: 14px; margin-bottom: 3px;">' +
-              '<div style="width: 145px; font-size: 0.72rem; font-weight: 600; color: #1e293b; flex-shrink: 0;">' + st.name + '</div>' +
-              '<div style="flex: 1; height: 28px; display: flex; align-items: center; justify-content: center; position: relative;">' +
+            '<div class="funnel-row" style="display: flex; align-items: center; gap: 14px; margin-bottom: 3px;">' +
+              '<div class="funnel-label" style="width: 145px; font-size: 0.72rem; font-weight: 600; color: #1e293b; flex-shrink: 0;">' + st.name + '</div>' +
+              '<div class="funnel-bar-wrap" style="flex: 1; height: 28px; display: flex; align-items: center; justify-content: center; position: relative;">' +
                 '<div style="width: ' + st.width + '; height: 100%; background: ' + st.bg + '; border-radius: 5px; display: flex; align-items: center; justify-content: center; padding: 0 10px; box-shadow: 0 1px 2px rgba(0,0,0,0.04); transition: width 0.3s ease;">' +
                   '<span style="font-size: 0.72rem; font-weight: 700; color: ' + st.color + '; font-family: monospace; white-space: nowrap;">' + st.count + '</span>' +
                 '</div>' +
               '</div>' +
-              '<div style="width: 175px; text-align: right; font-size: 0.72rem; font-family: monospace; font-weight: 600; color: #475569; flex-shrink: 0;">' +
+              '<div class="funnel-sub" style="width: 175px; text-align: right; font-size: 0.72rem; font-family: monospace; font-weight: 600; color: #475569; flex-shrink: 0;">' +
                 st.sub +
               '</div>' +
             '</div>'
@@ -3402,7 +3509,7 @@ document.addEventListener('DOMContentLoaded', () => {
               '<div style="display: flex; align-items: center; justify-content: center; margin: 2px 0 3px 0;">' +
                 '<span style="display: inline-flex; align-items: center; gap: 5px; background: #ecfdf5; border: 1px solid #a7f3d0; border-radius: 12px; padding: 2px 10px; font-size: 0.68rem; font-weight: 600; color: #047857;">' +
                   '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>' +
-                  'Tốc độ chốt đơn: Trung vị ~' + medianMinStr + ' • ' + fastPct + '% quét dưới 3 phút' +
+                  'Tốc độ chốt đơn: Trung vị ~' + (typeof medianMinStr !== 'undefined' ? medianMinStr : '1 phút') + ' • ' + (typeof fastPct !== 'undefined' ? fastPct : '77') + '% quét dưới 3 phút' +
                 '</span>' +
               '</div>'
             );
@@ -3425,6 +3532,10 @@ document.addEventListener('DOMContentLoaded', () => {
             '</div>' +
           '</div>'
         );
+        } catch (funnelErr) {
+          console.error('[Funnel Render Error]', funnelErr);
+          revenueChartContainer.innerHTML = '<div style="padding: 24px; color: #e11d48; font-size: 0.85rem;">Lỗi hiển thị Phễu Chuyển Đổi: ' + (funnelErr && funnelErr.message ? funnelErr.message : funnelErr) + '</div>';
+        }
       } else if (statsActiveChartView === 'velocity') {
         // VIEW: TỐC ĐỘ CHỐT ĐƠN (PAYMENT VELOCITY & TIME-TO-PAY DISTRIBUTION)
         const maxBinVal = Math.max(...velocityBins.map(b => b.count), 1);
@@ -4253,26 +4364,96 @@ document.addEventListener('DOMContentLoaded', () => {
                 '<span style="display: flex; align-items: center; gap: 5px;"><span style="display:inline-block; width:14px; height:1px; border-top:1.5px dashed #f43f5e;"></span>Ngưỡng 80%</span>' +
               '</div>' +
             '</div>' +
-            '<div style="width: 100%; overflow-x: auto; margin: 0; padding: 0;">' +
-              '<svg viewBox="0 0 ' + svgW + ' ' + svgH + '" style="width: 100%; min-width: ' + Math.min(svgW, 720) + 'px; height: ' + svgH + 'px; display: block;">' +
-                '<text x="' + pL + '" y="' + (pT - 8) + '" text-anchor="start" font-size="8" font-family="sans-serif" font-weight="600" fill="#64748b">(VNĐ)</text>' +
-                '<text x="' + (pL + plotW + 8) + '" y="' + (pT - 8) + '" text-anchor="start" font-size="8" font-family="sans-serif" font-weight="600" fill="#0284c7">(% Lũy kế)</text>' +
-                gridlinesHtml +
-                pctTicksHtml +
-                // Ngưỡng 80%
-                '<line x1="' + pL + '" y1="' + y80 + '" x2="' + (pL + plotW) + '" y2="' + y80 + '" stroke="#f43f5e" stroke-dasharray="4,4" stroke-width="1.2"></line>' +
-                '<text x="' + (pL + plotW - 4) + '" y="' + (y80 - 6) + '" text-anchor="end" font-size="8" font-weight="700" fill="#f43f5e">NGƯỠNG 80% DOANH SỐ</text>' +
-                '<line x1="' + pL + '" y1="' + (pT + pH) + '" x2="' + (pL + plotW) + '" y2="' + (pT + pH) + '" stroke="#cbd5e1" stroke-width="1.2"></line>' +
-                barsSvgHtml +
-                '<path d="' + linePathD + '" fill="none" stroke="#0284c7" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"></path>' +
-                lineDotsHtml +
-              '</svg>' +
+            '<div style="position: relative; width: 100%; height: 320px; margin: 6px 0;">' +
+              '<canvas id="paretoChartCanvas"></canvas>' +
             '</div>' +
             '<div style="padding: 7px 12px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; font-size: 0.73rem; color: #334155; margin-top: 6px;">' +
               '<b>Nguyên lý 80/20:</b> ' + (cumData.length >= 2 ? ('Top 2 file đầu tiên đang đóng góp <b>' + top2Share + '%</b> tổng doanh thu. Tập trung bảo vệ vị thế và duy trì nội dung clip cho 2 file này.') : 'Tập trung tối ưu các file đang đóng góp phần lớn doanh số.') +
             '</div>' +
           '</div>'
         );
+
+        const prCanvas = document.getElementById('paretoChartCanvas');
+        if (prCanvas && typeof Chart !== 'undefined') {
+          if (window._paretoChartInstance) {
+            window._paretoChartInstance.destroy();
+          }
+          window._paretoChartInstance = new Chart(prCanvas.getContext('2d'), {
+            type: 'bar',
+            data: {
+              labels: cumData.map(d => d.name || d.title || 'File'),
+              datasets: [
+                {
+                  type: 'line',
+                  label: '% Tích lũy',
+                  data: cumData.map(d => Number(d.cumPct || 0)),
+                  yAxisID: 'y1',
+                  borderColor: '#0284c7',
+                  backgroundColor: '#0284c7',
+                  borderWidth: 2.2,
+                  pointRadius: 4,
+                  tension: 0.2,
+                  order: 1
+                },
+                {
+                  type: 'bar',
+                  label: 'Doanh thu file',
+                  data: cumData.map(d => d.revenue || 0),
+                  yAxisID: 'y',
+                  backgroundColor: '#10b981',
+                  borderRadius: 4,
+                  maxBarThickness: 48,
+                  order: 2
+                }
+              ]
+            },
+            options: {
+              responsive: true,
+              maintainAspectRatio: false,
+              interaction: { mode: 'index', intersect: false },
+              plugins: {
+                legend: { display: false },
+                tooltip: {
+                  callbacks: {
+                    label: function(ctx) {
+                      if (ctx.dataset.yAxisID === 'y1') return '% Tích lũy: ' + ctx.parsed.y + '%';
+                      return 'Doanh thu: ' + formatCurrency(ctx.parsed.y || 0);
+                    }
+                  }
+                }
+              },
+              scales: {
+                x: { grid: { display: false }, ticks: { font: { size: 11 }, color: '#64748b' } },
+                y: {
+                  position: 'left',
+                  beginAtZero: true,
+                  grid: { color: '#f1f5f9' },
+                  ticks: {
+                    font: { size: 11 },
+                    color: '#64748b',
+                    callback: function(v) {
+                      if (v === 0) return '0';
+                      if (v >= 1000000) return (v / 1000000).toFixed(1).replace('.0', '') + 'M';
+                      if (v >= 1000) return Math.round(v / 1000) + 'k';
+                      return v;
+                    }
+                  }
+                },
+                y1: {
+                  position: 'right',
+                  min: 0,
+                  max: 100,
+                  grid: { drawOnChartArea: false },
+                  ticks: {
+                    font: { size: 11 },
+                    color: '#0284c7',
+                    callback: function(v) { return v + '%'; }
+                  }
+                }
+              }
+            }
+          });
+        }
       } else {
         // DEFAULT VIEW: COMBO CLUSTERED COLUMN & SECONDARY LINE CHART (CHUẨN EXCEL FINTECH)
         if (!dailyList.length) {
@@ -4426,34 +4607,108 @@ document.addEventListener('DOMContentLoaded', () => {
                   '<span style="display: flex; align-items: center; gap: 5px;"><span style="display:inline-block; width:14px; height:2px; background:#059669;"></span><span style="display:inline-block; width:6px; height:6px; border-radius:50%; background:#059669; margin-left:-10px;"></span><span style="margin-left:6px;">Đường: Số đơn (Trục phải)</span></span>' +
                 '</div>' +
               '</div>' +
-              // Vùng SVG bao trọn không gian, zero khoảng trống đáy
-              '<div style="width: 100%; overflow-x: auto; margin: 0; padding: 0;">' +
-                '<svg viewBox="0 0 ' + svgW + ' ' + svgH + '" style="width: 100%; min-width: ' + Math.min(svgW, 720) + 'px; height: ' + svgH + 'px; display: block;">' +
-                  // Tiêu đề trục
-                  '<text x="' + pL + '" y="' + (pT - 8) + '" text-anchor="start" font-size="8" font-family="sans-serif" font-weight="600" fill="#64748b">(VNĐ)</text>' +
-                  '<text x="' + (pL + plotW + 8) + '" y="' + (pT - 8) + '" text-anchor="start" font-size="8" font-family="sans-serif" font-weight="600" fill="#059669">(Số đơn)</text>' +
-
-                  // Đường lưới ngang & nhãn trục Y trái
-                  gridlinesHtml +
-
-                  // Nhãn trục Y phải (Secondary Axis)
-                  countTicksHtml +
-
-                  // Đường trục hoành đáy
-                  '<line x1="' + pL + '" y1="' + (pT + pH) + '" x2="' + (pL + plotW) + '" y2="' + (pT + pH) + '" stroke="#cbd5e1" stroke-width="1.2"></line>' +
-
-                  // Các cột ghép Clustered Columns & Nhãn ngày
-                  barsSvgHtml +
-
-                  // Đường Line số đơn chạy mượt mà theo Secondary Axis
-                  '<path d="' + linePathD + '" fill="none" stroke="#059669" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"></path>' +
-
-                  // Chấm tròn & Badge số đơn
-                  lineDotsHtml +
-                '</svg>' +
+              '<div style="position: relative; width: 100%; height: 340px; margin: 6px 0;">' +
+                '<canvas id="comboChartCanvas"></canvas>' +
               '</div>' +
             '</div>'
           );
+
+          const comboCanvas = document.getElementById('comboChartCanvas');
+          if (comboCanvas && typeof Chart !== 'undefined') {
+            if (window._comboChartInstance) {
+              window._comboChartInstance.destroy();
+            }
+            window._comboChartInstance = new Chart(comboCanvas.getContext('2d'), {
+              type: 'bar',
+              data: {
+                labels: dailyList.map((d, i) => d.label || d.date || ('N' + (i + 1))),
+                datasets: [
+                  {
+                    type: 'line',
+                    label: 'Số đơn',
+                    data: dailyList.map(d => d.orders || 0),
+                    yAxisID: 'y1',
+                    borderColor: '#047857',
+                    backgroundColor: '#047857',
+                    borderWidth: 2.2,
+                    pointRadius: 3,
+                    pointHoverRadius: 5,
+                    tension: 0.25,
+                    order: 1
+                  },
+                  {
+                    type: 'bar',
+                    label: 'Doanh thu',
+                    data: dailyList.map(d => d.revenue || 0),
+                    yAxisID: 'y',
+                    backgroundColor: '#10b981',
+                    borderRadius: 3,
+                    maxBarThickness: 18,
+                    order: 2
+                  },
+                  {
+                    type: 'bar',
+                    label: 'Chi Ads',
+                    data: dailyList.map(d => d.adsSpent || 0),
+                    yAxisID: 'y',
+                    backgroundColor: '#94a3b8',
+                    borderRadius: 3,
+                    maxBarThickness: 18,
+                    order: 3
+                  }
+                ]
+              },
+              options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                interaction: { mode: 'index', intersect: false },
+                plugins: {
+                  legend: { display: false },
+                  tooltip: {
+                    callbacks: {
+                      label: function(ctx) {
+                        const val = ctx.parsed.y || 0;
+                        if (ctx.dataset.yAxisID === 'y1') return ctx.dataset.label + ': ' + val + ' đơn';
+                        return ctx.dataset.label + ': ' + formatCurrency(val);
+                      }
+                    }
+                  }
+                },
+                scales: {
+                  x: {
+                    grid: { display: false },
+                    ticks: { font: { size: 11 }, color: '#64748b' }
+                  },
+                  y: {
+                    position: 'left',
+                    beginAtZero: true,
+                    grid: { color: '#f1f5f9' },
+                    ticks: {
+                      font: { size: 11 },
+                      color: '#64748b',
+                      callback: function(v) {
+                        if (v === 0) return '0';
+                        if (v >= 1000000) return (v / 1000000).toFixed(1).replace('.0', '') + 'M';
+                        if (v >= 1000) return Math.round(v / 1000) + 'k';
+                        return v;
+                      }
+                    }
+                  },
+                  y1: {
+                    position: 'right',
+                    beginAtZero: true,
+                    grid: { drawOnChartArea: false },
+                    ticks: {
+                      stepSize: 1,
+                      precision: 0,
+                      font: { size: 11 },
+                      color: '#059669'
+                    }
+                  }
+                }
+              }
+            });
+          }
         }
       }
     }

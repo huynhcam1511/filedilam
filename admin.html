@@ -1964,14 +1964,21 @@
     #promoLibrary button[data-template] {text-align:left;width:100%;background:white;color:#065f46;border:0;border-bottom:1px solid #e2e8f0;padding:12px 4px;cursor:pointer}
     #promoLibrary button:hover {background:#f8fafc}
     #couponForm [hidden] {display:none}
-    #revenueChartContainer svg:not([width="12"]):not([width="14"]):not([width="16"]):not([width="18"]):not([width="20"]):not([width="24"]):not(.lucide) {
+    #revenueChartContainer svg:not([width="12"]):not([width="14"]):not([width="15"]):not([width="16"]):not([width="18"]):not([width="20"]):not([width="24"]):not(.lucide) {
       width: 100% !important;
       height: auto !important;
       max-height: 340px !important;
       max-width: none !important;
       display: block;
     }
+    @media (max-width: 768px) {
+      .funnel-row { flex-wrap: wrap !important; gap: 4px !important; margin-bottom: 6px !important; }
+      .funnel-label { width: auto !important; flex: 1; }
+      .funnel-sub { width: auto !important; text-align: right; }
+      .funnel-bar-wrap { order: 3; flex-basis: 100% !important; width: 100% !important; }
+    }
   </style>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
 </head>
 <body>
 
