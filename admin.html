@@ -1632,7 +1632,9 @@
     .col-span-12 { grid-column: span 12; }
     .col-span-8 { grid-column: span 8; }
     .col-span-6 { grid-column: span 6; }
+    .col-span-5 { grid-column: span 5; }
     .col-span-4 { grid-column: span 4; }
+    .col-span-3 { grid-column: span 3; }
 
     .saas-card-header {
       display: flex;
@@ -1676,8 +1678,10 @@
 
     @media (max-width: 1024px) {
       .col-span-8,
+      .col-span-6,
+      .col-span-5,
       .col-span-4,
-      .col-span-6 {
+      .col-span-3 {
         grid-column: span 12;
       }
     }
@@ -2959,7 +2963,7 @@
             </div>
           </div>
 
-          <div class="saas-card col-span-12">
+          <div class="saas-card col-span-4">
             <div class="saas-card-header" style="display: flex; justify-content: space-between; align-items: flex-start; gap: 8px;">
               <div>
                 <h3 class="saas-card-title" id="bestSellersTitle">Hiệu Quả & P&L Từng File</h3>
@@ -2971,13 +2975,13 @@
                 <button type="button" class="pill-btn" data-pnlview="COMBO" style="font-size: 0.68rem; padding: 2px 8px; height: 24px; cursor: pointer;" title="Chỉ hiển thị các gói Combo">File combo</button>
               </div>
             </div>
-            <div id="bestSellersContainer" style="display: flex; flex-direction: column; justify-content: flex-start; min-height: 320px; overflow-y: auto;">
+            <div id="bestSellersContainer" style="display: flex; flex-direction: column; justify-content: flex-start; min-height: 240px; overflow-y: auto;">
               <div style="text-align: center; color: var(--slate-muted); padding: 30px 0; font-size: 0.85rem;">Đang tải xếp hạng...</div>
             </div>
           </div>
 
-          <!-- SECTION 4: PURCHASE TIME HEATMAP (8/12) + CATEGORY COMPOSITION (4/12) -->
-          <div class="saas-card col-span-8">
+          <!-- SECTION 4: PURCHASE TIME HEATMAP (5/12) + CATEGORY COMPOSITION (3/12) -->
+          <div class="saas-card col-span-5">
             <div class="saas-card-header">
               <div>
                 <h3 class="saas-card-title" id="heatmapChartTitle">Ma Trận Giờ & Ngày Mua Hàng Sôi Động Nhất</h3>
@@ -2986,12 +2990,12 @@
               <div id="hourlyChartContainer" style="display:none;"></div>
               <div id="weekdayChartContainer" style="display:none;"></div>
             </div>
-            <div id="dayHourHeatmapContainer" style="min-height: 200px; display: flex; flex-direction: column; justify-content: center; width: 100%;">
+            <div id="dayHourHeatmapContainer" style="min-height: 240px; display: flex; flex-direction: column; justify-content: center; width: 100%; overflow-x: auto;">
               <div style="margin: auto; color: var(--slate-muted); font-size: 0.85rem;">Đang tải ma trận nhiệt...</div>
             </div>
           </div>
 
-          <div class="saas-card col-span-4">
+          <div class="saas-card col-span-3">
             <div class="saas-card-header">
               <div>
                 <h3 class="saas-card-title" id="categoryChartTitle">Cơ Cấu Danh Mục & File Bán Ra</h3>
@@ -3001,7 +3005,7 @@
                 <button type="button" class="pill-btn active" data-catview="donut" style="padding: 2px 9px; font-size: 0.72rem;">Donut</button>
               </div>
             </div>
-            <div id="categoryChartContainer" style="min-height: 200px; display: flex; flex-direction: column; justify-content: center;">
+            <div id="categoryChartContainer" style="min-height: 240px; display: flex; flex-direction: column; justify-content: space-between;">
               <div style="text-align: center; color: var(--slate-muted); padding: 20px 0; font-size: 0.85rem;">Đang tải cơ cấu danh mục...</div>
             </div>
           </div>
@@ -3014,7 +3018,7 @@
                 <p class="saas-card-subtitle">Tỷ lệ thanh toán hoàn tất, khách mua lặp lại & gói Coaching</p>
               </div>
             </div>
-            <div id="conversionContainer" style="display: flex; flex-direction: column; gap: 14px; padding-top: 4px;">
+            <div id="conversionContainer" style="display: flex; flex-direction: column; justify-content: space-evenly; flex: 1; gap: 14px; padding-top: 4px;">
               <div style="text-align: center; color: var(--slate-muted); padding: 20px 0; font-size: 0.85rem;">Đang tính tỷ lệ...</div>
             </div>
           </div>

@@ -3291,8 +3291,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 },
                 y: {
                   grid: {
-                    color: function(ctx) { return ctx.tick && ctx.tick.value === 0 ? '#64748b' : '#f1f5f9'; },
-                    lineWidth: function(ctx) { return ctx.tick && ctx.tick.value === 0 ? 1.5 : 1; }
+                    display: false
                   },
                   ticks: {
                     font: { size: 11 },
@@ -3415,10 +3414,10 @@ document.addEventListener('DOMContentLoaded', () => {
               scales: {
                 x: { grid: { display: false }, ticks: { font: { size: 12, weight: '600' }, color: '#0f172a' } },
                 y: {
-                  grid: {
-                    color: function(ctx) { return ctx.tick && ctx.tick.value === 0 ? '#64748b' : '#f1f5f9'; }
-                  },
+                  grace: '10%',
+                  grid: { display: false },
                   ticks: {
+                    maxTicksLimit: 6,
                     font: { size: 11 },
                     color: '#64748b',
                     callback: function(v) {
@@ -3458,15 +3457,20 @@ document.addEventListener('DOMContentLoaded', () => {
         const pCreated = fCart > 0 ? Math.round((fOrdersCreated / fCart) * 100) : 42;
         const pPaid = fOrdersCreated > 0 ? Math.round((fOrdersPaid / fOrdersCreated) * 100) : 25;
 
-        // Phễu 7 bậc hình thang đối xứng chuẩn tỷ lệ (Proportional Trapezoid Funnel)
+        // Phễu 7 bậc tính độ rộng theo tỷ lệ số thực tế (dùng lũy thừa 0.35 để phản ánh đúng độ rơi mà vẫn đủ chỗ hiển thị chữ)
+        const calcFunnelW = (val) => {
+          if (!fViews || fViews <= 0 || !val || val <= 0) return '12%';
+          const ratio = Math.min(1, Math.max(0, val / fViews));
+          return Math.max(12, Math.round(Math.pow(ratio, 0.35) * 100)) + '%';
+        };
         const stages = [
           { name: '1. Tiếp cận TikTok', count: fViews.toLocaleString('vi-VN') + ' views', sub: 'CPM: ' + (avgCPM > 0 ? formatCurrency(avgCPM) : '4.232 đ'), width: '100%', bg: '#a7f3d0', color: '#065f46', stepRate: pEngaged + '% xem >2s' },
-          { name: '2. Xem sâu (>2s)', count: fEngaged.toLocaleString('vi-VN') + ' lượt', sub: pEngaged + '% giữ chân', width: '85%', bg: '#6ee7b7', color: '#065f46', stepRate: pClicks + '% nhấp link' },
-          { name: '3. Nhấp link (Clicks)', count: fClicks.toLocaleString('vi-VN') + ' click', sub: 'CPC: ' + (avgCPC > 0 ? formatCurrency(avgCPC) : '37 đ'), width: '72%', bg: '#34d399', color: '#064e3b', stepRate: fWebOpen > 0 ? (pWebOpen + '% mở web') : null },
-          { name: '4. Mở link Web', count: fWebOpen > 0 ? (fWebOpen.toLocaleString('vi-VN') + ' lượt') : 'Đang quét thật...', sub: fWebOpen > 0 ? ('TB ở lại ' + avgDwellSeconds + 's') : 'Mới kích hoạt hôm nay', width: '60%', bg: '#10b981', color: '#ffffff', stepRate: fCart > 0 ? (pCart + '% bấm mua') : null },
-          { name: '5. Bấm Mua ngay', count: fCart > 0 ? (fCart.toLocaleString('vi-VN') + ' lượt') : 'Đang quét thật...', sub: fCart > 0 ? (cartDropOffRate + '% chưa tạo đơn') : 'Mới kích hoạt hôm nay', width: '46%', bg: '#059669', color: '#ffffff', stepRate: pCreated + '% tạo đơn' },
-          { name: '6. Khởi tạo đơn (QR)', count: fOrdersCreated + ' đơn tạo', sub: (totalRevenue > 0 ? formatCurrency(grossRevenue) : 'Tạo mã QR'), width: '34%', bg: '#047857', color: '#ffffff', stepRate: pPaid + '% hoàn tất' },
-          { name: '7. Đã thanh toán', count: fOrdersPaid + ' đơn chốt', sub: pPaid + '% hoàn tất (' + formatCurrency(totalRevenue) + ')', width: '24%', bg: '#064e3b', color: '#ffffff', stepRate: null }
+          { name: '2. Xem sâu (>2s)', count: fEngaged.toLocaleString('vi-VN') + ' lượt', sub: pEngaged + '% giữ chân', width: calcFunnelW(fEngaged), bg: '#6ee7b7', color: '#065f46', stepRate: pClicks + '% nhấp link' },
+          { name: '3. Nhấp link (Clicks)', count: fClicks.toLocaleString('vi-VN') + ' click', sub: 'CPC: ' + (avgCPC > 0 ? formatCurrency(avgCPC) : '37 đ'), width: calcFunnelW(fClicks), bg: '#34d399', color: '#064e3b', stepRate: fWebOpen > 0 ? (pWebOpen + '% mở web') : null },
+          { name: '4. Mở link Web', count: fWebOpen > 0 ? (fWebOpen.toLocaleString('vi-VN') + ' lượt') : 'Đang quét thật...', sub: fWebOpen > 0 ? ('TB ở lại ' + avgDwellSeconds + 's') : 'Mới kích hoạt hôm nay', width: calcFunnelW(fWebOpen), bg: '#10b981', color: '#ffffff', stepRate: fCart > 0 ? (pCart + '% bấm mua') : null },
+          { name: '5. Bấm Mua ngay', count: fCart > 0 ? (fCart.toLocaleString('vi-VN') + ' lượt') : 'Đang quét thật...', sub: fCart > 0 ? (cartDropOffRate + '% chưa tạo đơn') : 'Mới kích hoạt hôm nay', width: calcFunnelW(fCart), bg: '#059669', color: '#ffffff', stepRate: pCreated + '% tạo đơn' },
+          { name: '6. Khởi tạo đơn (QR)', count: fOrdersCreated + ' đơn tạo', sub: (totalRevenue > 0 ? formatCurrency(grossRevenue) : 'Tạo mã QR'), width: calcFunnelW(fOrdersCreated), bg: '#047857', color: '#ffffff', stepRate: pPaid + '% hoàn tất' },
+          { name: '7. Đã thanh toán', count: fOrdersPaid + ' đơn chốt', sub: pPaid + '% hoàn tất (' + formatCurrency(totalRevenue) + ')', width: calcFunnelW(fOrdersPaid), bg: '#064e3b', color: '#ffffff', stepRate: null }
         ];
 
         let diagnosisText = 'Tỷ lệ thanh toán đạt ' + pPaid + '%. Tỷ lệ hoàn tất tốt, nên tiếp tục duy trì và tối ưu tốc độ tải trang thanh toán.';
@@ -4155,60 +4159,8 @@ document.addEventListener('DOMContentLoaded', () => {
                   '<span style="display: flex; align-items: center; gap: 4px;"><span style="display:inline-block; width:10px; height:8px; background:rgba(16,185,129,0.3); border:1px solid #10b981; border-radius:2px;"></span>Vùng sinh lãi</span>' +
                 '</div>' +
               '</div>' +
-              // Vùng đồ thị SVG
-              '<div style="width: 100%; overflow-x: auto;">' +
-                '<svg viewBox="0 0 ' + svgW + ' ' + svgH + '" style="width: 100%; min-width: 540px; height: ' + svgH + 'px; display: block;">' +
-                  '<defs>' +
-                    '<linearGradient id="lagLossGrad" x1="0" y1="0" x2="0" y2="1">' +
-                      '<stop offset="0%" stop-color="#f43f5e" stop-opacity="0.22" />' +
-                      '<stop offset="100%" stop-color="#f43f5e" stop-opacity="0.04" />' +
-                    '</linearGradient>' +
-                    '<linearGradient id="lagProfitGrad" x1="0" y1="0" x2="0" y2="1">' +
-                      '<stop offset="0%" stop-color="#10b981" stop-opacity="0.28" />' +
-                      '<stop offset="100%" stop-color="#10b981" stop-opacity="0.06" />' +
-                    '</linearGradient>' +
-                  '</defs>' +
-
-                  // 1. Tô Vùng Bù Lỗ
-                  (lossAreaPath ? '<path d="' + lossAreaPath + '" fill="url(#lagLossGrad)"></path>' : '') +
-
-                  // 2. Tô Vùng Sinh Lãi (nếu đã vượt hòa vốn)
-                  (profitAreaPath ? '<path d="' + profitAreaPath + '" fill="url(#lagProfitGrad)"></path>' : '') +
-
-                  // Đường chi phí Ads mốc ngang
-                  '<line x1="' + pL + '" y1="' + adsY + '" x2="' + (pL + pW) + '" y2="' + adsY + '" stroke="#94a3b8" stroke-dasharray="4,4" stroke-width="1.5"></line>' +
-                  '<text x="' + (pL + pW) + '" y="' + (adsY - 6) + '" text-anchor="end" font-size="8.5" font-family="monospace" font-weight="700" fill="#64748b">' + (spent > 0 ? ('Chi Ads: ' + formatCurrency(spent)) : 'Chi Ads: 0đ (Organic)') + '</text>' +
-
-                  // Đường cong Doanh thu tích lũy
-                  '<path d="' + revLinePath + '" fill="none" stroke="#059669" stroke-width="2.6" stroke-linecap="round"></path>' +
-
-                  // Các điểm mốc thời gian
-                  pts.map(pt => (
-                    '<g>' +
-                      '<circle cx="' + pt.x + '" cy="' + pt.y + '" r="4" fill="#059669" stroke="#ffffff" stroke-width="1.5"></circle>' +
-                      '<text x="' + pt.x + '" y="' + (pt.y - 7) + '" text-anchor="middle" font-size="8" font-family="monospace" font-weight="700" fill="#047857">+' + formatCurrency(pt.rev) + '</text>' +
-                      '<text x="' + pt.x + '" y="' + (svgH - 8) + '" text-anchor="middle" font-size="8" fill="#64748b">' + pt.label + '</text>' +
-                    '</g>'
-                  )).join('') +
-
-                  // Hải đăng / Đèn hiệu Điểm Hòa Vốn (Nếu có)
-                  (crossPt ? (
-                    '<g>' +
-                      '<circle cx="' + crossPt.x + '" cy="' + crossPt.y + '" r="11" fill="none" stroke="#059669" stroke-width="1.5" stroke-dasharray="2,2"></circle>' +
-                      '<circle cx="' + crossPt.x + '" cy="' + crossPt.y + '" r="5.5" fill="#047857" stroke="#ffffff" stroke-width="2"></circle>' +
-                      '<rect x="' + (crossPt.x - 58) + '" y="' + (crossPt.y - 28) + '" width="116" height="19" rx="4" fill="#047857"></rect>' +
-                      '<text x="' + crossPt.x + '" y="' + (crossPt.y - 15) + '" text-anchor="middle" font-size="8.5" font-weight="700" fill="#ffffff">' + crossLabel + '</text>' +
-                    '</g>'
-                  ) : (
-                    (spent > 0 && finalRev < spent) ? (
-                      // Nếu chưa hòa vốn: vạch đo thiếu hụt
-                      '<g>' +
-                        '<line x1="' + pts[pts.length - 1].x + '" y1="' + pts[pts.length - 1].y + '" x2="' + pts[pts.length - 1].x + '" y2="' + adsY + '" stroke="#e11d48" stroke-dasharray="2,2" stroke-width="1.5"></line>' +
-                        '<text x="' + (pts[pts.length - 1].x - 6) + '" y="' + ((pts[pts.length - 1].y + adsY) / 2 + 3) + '" text-anchor="end" font-size="8" font-family="monospace" font-weight="700" fill="#e11d48">Thiếu -' + formatCurrency(spent - finalRev) + '</text>' +
-                      '</g>'
-                    ) : ''
-                  )) +
-                '</svg>' +
+              '<div style="position: relative; width: 100%; height: 290px; margin: 6px 0;">' +
+                '<canvas id="breakevenChartCanvas"></canvas>' +
               '</div>' +
               // Thanh tóm tắt kết quả tài chính
               '<div style="display: flex; justify-content: space-between; align-items: center; background: ' + verdictBg + '; border: 1px solid #e2e8f0; border-radius: 6px; padding: 7px 12px; font-size: 0.73rem; flex-wrap: wrap; gap: 8px;">' +
@@ -4220,6 +4172,82 @@ document.addEventListener('DOMContentLoaded', () => {
               '</div>' +
             '</div>'
           );
+
+          const beCanvas = document.getElementById('breakevenChartCanvas');
+          if (beCanvas && typeof Chart !== 'undefined') {
+            if (window._breakevenChartInstance) {
+              window._breakevenChartInstance.destroy();
+            }
+            let beLabels = pts.map(p => p.label);
+            let beData = pts.map(p => p.rev);
+            if (selectedItem && selectedItem.id === 'prod_ALL' && typeof dailyList !== 'undefined' && dailyList.length > 0) {
+              let runRev = 0;
+              beLabels = dailyList.map((d, i) => d.label || d.date || ('N' + (i + 1)));
+              beData = dailyList.map(d => { runRev += (d.revenue || 0); return runRev; });
+            }
+            window._breakevenChartInstance = new Chart(beCanvas.getContext('2d'), {
+              type: 'line',
+              data: {
+                labels: beLabels,
+                datasets: [
+                  {
+                    label: 'Doanh thu tích lũy',
+                    data: beData,
+                    borderColor: '#059669',
+                    backgroundColor: 'rgba(16, 185, 129, 0.12)',
+                    borderWidth: 2.5,
+                    pointRadius: 3,
+                    pointBackgroundColor: '#059669',
+                    fill: true,
+                    tension: 0.25
+                  },
+                  {
+                    label: 'Ngưỡng Chi phí Ads',
+                    data: beLabels.map(() => spent),
+                    borderColor: '#e11d48',
+                    borderDash: [6, 4],
+                    borderWidth: 1.8,
+                    pointRadius: 0,
+                    fill: false
+                  }
+                ]
+              },
+              options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                interaction: { mode: 'index', intersect: false },
+                plugins: {
+                  legend: { display: false },
+                  tooltip: {
+                    callbacks: {
+                      label: function(ctx) {
+                        return ctx.dataset.label + ': ' + formatCurrency(ctx.parsed.y || 0);
+                      }
+                    }
+                  }
+                },
+                scales: {
+                  x: { grid: { display: false }, ticks: { font: { size: 11 }, color: '#64748b' } },
+                  y: {
+                    beginAtZero: true,
+                    grace: '10%',
+                    grid: { display: false },
+                    ticks: {
+                      maxTicksLimit: 6,
+                      font: { size: 11 },
+                      color: '#64748b',
+                      callback: function(v) {
+                        if (v === 0) return '0';
+                        if (v >= 1000000) return (v / 1000000).toFixed(1).replace('.0', '') + 'M';
+                        if (v >= 1000) return Math.round(v / 1000) + 'k';
+                        return v;
+                      }
+                    }
+                  }
+                }
+              }
+            });
+          }
 
           // Gắn sự kiện chuyển đổi dropdown chiến dịch/file và toggle khung ngày
           setTimeout(() => {
@@ -4427,7 +4455,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 y: {
                   position: 'left',
                   beginAtZero: true,
-                  grid: { color: '#f1f5f9' },
+                  grid: { display: false },
                   ticks: {
                     font: { size: 11 },
                     color: '#64748b',
@@ -4600,11 +4628,11 @@ document.addEventListener('DOMContentLoaded', () => {
             '<div style="width: 100%; height: 100%; display: flex; flex-direction: column; justify-content: space-between;">' +
               // Thanh Legend chuẩn mực
               '<div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.72rem; color: #64748b; margin-bottom: 4px; padding: 0 4px; flex-wrap: wrap; gap: 6px;">' +
-                '<span style="font-weight: 600; color: #1e293b;">Biểu đồ Kết hợp (Cột Doanh thu / Ads & Đường Số đơn)</span>' +
+                '<span style="font-weight: 600; color: #1e293b;">Biểu đồ Kết hợp (Đường Doanh thu / Chi Ads & Cột Số đơn)</span>' +
                 '<div style="display: flex; gap: 14px; align-items: center; flex-wrap: wrap;">' +
-                  '<span style="display: flex; align-items: center; gap: 5px;"><span style="display:inline-block; width:10px; height:8px; background:#10b981; border-radius:2px;"></span>Cột Mint: Doanh thu (Trục trái)</span>' +
-                  '<span style="display: flex; align-items: center; gap: 5px;"><span style="display:inline-block; width:10px; height:8px; background:#94a3b8; border-radius:2px;"></span>Cột Slate: Chi Ads (Trục trái)</span>' +
-                  '<span style="display: flex; align-items: center; gap: 5px;"><span style="display:inline-block; width:14px; height:2px; background:#059669;"></span><span style="display:inline-block; width:6px; height:6px; border-radius:50%; background:#059669; margin-left:-10px;"></span><span style="margin-left:6px;">Đường: Số đơn (Trục phải)</span></span>' +
+                  '<span style="display: flex; align-items: center; gap: 5px;"><span style="display:inline-block; width:14px; height:2px; background:#059669;"></span>Đường Mint: Doanh thu (Trục trái)</span>' +
+                  '<span style="display: flex; align-items: center; gap: 5px;"><span style="display:inline-block; width:14px; height:2px; border-top:2px dashed #f43f5e;"></span>Đường Đỏ: Chi Ads (Trục trái)</span>' +
+                  '<span style="display: flex; align-items: center; gap: 5px;"><span style="display:inline-block; width:10px; height:8px; background:rgba(148,163,184,0.45); border-radius:2px;"></span>Cột nền: Số đơn (Trục phải)</span>' +
                 '</div>' +
               '</div>' +
               '<div style="position: relative; width: 100%; height: 340px; margin: 6px 0;">' +
@@ -4625,35 +4653,43 @@ document.addEventListener('DOMContentLoaded', () => {
                 datasets: [
                   {
                     type: 'line',
-                    label: 'Số đơn',
-                    data: dailyList.map(d => d.orders || 0),
-                    yAxisID: 'y1',
-                    borderColor: '#047857',
-                    backgroundColor: '#047857',
-                    borderWidth: 2.2,
-                    pointRadius: 3,
-                    pointHoverRadius: 5,
+                    label: 'Doanh thu',
+                    data: dailyList.map(d => (d.revenue && d.revenue > 0) ? d.revenue : null),
+                    yAxisID: 'y',
+                    borderColor: '#059669',
+                    backgroundColor: 'rgba(16, 185, 129, 0.10)',
+                    borderWidth: 2.4,
+                    pointRadius: 3.5,
+                    pointHoverRadius: 5.5,
+                    spanGaps: true,
+                    fill: true,
                     tension: 0.25,
                     order: 1
                   },
                   {
-                    type: 'bar',
-                    label: 'Doanh thu',
-                    data: dailyList.map(d => d.revenue || 0),
+                    type: 'line',
+                    label: 'Chi Ads',
+                    data: dailyList.map(d => (d.adsSpent && d.adsSpent > 0) ? d.adsSpent : null),
                     yAxisID: 'y',
-                    backgroundColor: '#10b981',
-                    borderRadius: 3,
-                    maxBarThickness: 18,
+                    borderColor: '#f43f5e',
+                    backgroundColor: '#f43f5e',
+                    borderDash: [5, 4],
+                    borderWidth: 2,
+                    pointRadius: 3,
+                    pointHoverRadius: 5.5,
+                    spanGaps: true,
+                    fill: false,
+                    tension: 0.25,
                     order: 2
                   },
                   {
                     type: 'bar',
-                    label: 'Chi Ads',
-                    data: dailyList.map(d => d.adsSpent || 0),
-                    yAxisID: 'y',
-                    backgroundColor: '#94a3b8',
-                    borderRadius: 3,
-                    maxBarThickness: 18,
+                    label: 'Số đơn',
+                    data: dailyList.map(d => d.count || 0),
+                    yAxisID: 'y1',
+                    backgroundColor: 'rgba(148, 163, 184, 0.28)',
+                    borderRadius: 4,
+                    maxBarThickness: 22,
                     order: 3
                   }
                 ]
@@ -4682,7 +4718,7 @@ document.addEventListener('DOMContentLoaded', () => {
                   y: {
                     position: 'left',
                     beginAtZero: true,
-                    grid: { color: '#f1f5f9' },
+                    grid: { display: false },
                     ticks: {
                       font: { size: 11 },
                       color: '#64748b',
