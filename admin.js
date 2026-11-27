@@ -3242,9 +3242,12 @@ document.addEventListener('DOMContentLoaded', () => {
                   data: cfData.map(c => c.cumNetCash),
                   borderColor: '#047857',
                   backgroundColor: '#047857',
-                  borderWidth: 2.2,
-                  pointRadius: 3,
-                  pointHoverRadius: 5,
+                  borderWidth: 2,
+                  pointRadius: 2,
+                  pointHoverRadius: 4,
+                  pointBackgroundColor: '#047857',
+                  pointBorderColor: '#ffffff',
+                  pointBorderWidth: 1,
                   tension: 0.25,
                   order: 1
                 },
@@ -3291,13 +3294,29 @@ document.addEventListener('DOMContentLoaded', () => {
                 },
                 y: {
                   grid: {
-                    display: false
+                    color: function(ctx) {
+                      if (ctx.tick && ctx.tick.value === 0) {
+                        return '#94a3b8'; // Đường trục 0 hiển thị rõ nét
+                      }
+                      return 'transparent'; // Ẩn các lưới khác
+                    },
+                    lineWidth: function(ctx) {
+                      if (ctx.tick && ctx.tick.value === 0) {
+                        return 1.8;
+                      }
+                      return 0;
+                    }
                   },
                   ticks: {
                     font: { size: 11 },
-                    color: '#64748b',
+                    color: function(ctx) {
+                      if (ctx.tick && ctx.tick.value === 0) {
+                        return '#0f172a'; // Số 0 in đậm rõ
+                      }
+                      return '#64748b';
+                    },
                     callback: function(v) {
-                      if (v === 0) return '0';
+                      if (v === 0) return '0 đ';
                       const abs = Math.abs(v);
                       const sign = v < 0 ? '-' : '';
                       if (abs >= 1000000) return sign + (abs / 1000000).toFixed(1).replace('.0', '') + 'M';
@@ -3551,14 +3570,15 @@ document.addEventListener('DOMContentLoaded', () => {
           const pct = Math.round((bin.count / totalPaidAnalyzed) * 100);
 
           return (
-            '<div style="flex: 1; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; padding: 0 4px;" title="' + bin.label + ' (' + bin.sub + '): ' + bin.count + ' đơn (' + pct + '%)">' +
+            '<div style="flex: 1; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; padding: 0 4px; position: relative;" title="' + bin.label + ' (' + bin.sub + '): ' + bin.count + ' đơn (' + pct + '%)">' +
               '<div style="font-size: 0.74rem; font-weight: 700; color: ' + bin.color + '; font-family: monospace; margin-bottom: 3px;">' +
                 bin.count + ' đơn' +
               '</div>' +
               '<div style="font-size: 0.68rem; font-weight: 600; color: #64748b; font-family: monospace; margin-bottom: 5px;">' +
                 pct + '%' +
               '</div>' +
-              '<div style="width: 100%; max-width: 56px; height: ' + barH + 'px; background: ' + bin.bg + '; border: 1.5px solid ' + bin.border + '; border-radius: 6px 6px 0 0; box-shadow: 0 1px 2px rgba(0,0,0,0.04); transition: height 0.3s ease;"></div>' +
+              '<div style="width: 100%; max-width: 56px; height: ' + barH + 'px; background: ' + bin.bg + '; border: 1.5px solid ' + bin.border + '; border-bottom: none; border-radius: 6px 6px 0 0; box-shadow: 0 1px 2px rgba(0,0,0,0.04); transition: height 0.3s ease;"></div>' +
+              '<div style="width: 100%; height: 2px; background: #cbd5e1;"></div>' +
               '<div style="font-size: 0.74rem; color: #0f172a; font-weight: 700; margin-top: 8px; white-space: nowrap;">' + bin.label + '</div>' +
               '<div style="font-size: 0.68rem; color: ' + bin.color + '; font-weight: 600; margin-top: 2px; white-space: nowrap;">' + bin.sub + '</div>' +
             '</div>'
@@ -3585,9 +3605,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 '<div style="font-size: 0.68rem; color: #b45309; margin-top: 2px;">Khách đắn đo hoặc bận việc gián đoạn</div>' +
               '</div>' +
             '</div>' +
-            // Biểu đồ Cột Phân bổ 5 khoảng thời gian
-            '<div style="flex: 1; min-height: 180px; display: flex; align-items: flex-end; justify-content: space-around; padding: 8px 16px 6px 16px; border-bottom: 1px dashed #e2e8f0;">' +
-              binsHtml +
+            // Biểu đồ Cột Phân bổ 5 khoảng thời gian kèm trục hoành 0 rõ ràng
+            '<div style="flex: 1; min-height: 180px; display: flex; flex-direction: column; justify-content: flex-end; padding: 8px 16px 6px 16px;">' +
+              '<div style="display: flex; align-items: flex-end; justify-content: space-around; width: 100%; height: 100%;">' +
+                binsHtml +
+              '</div>' +
             '</div>' +
             // Khuyến nghị Khung Giờ Vàng
             '<div style="display: flex; align-items: center; gap: 10px; margin-top: 8px; padding: 8px 12px; background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 6px; font-size: 0.73rem; color: #166534;">' +
@@ -3895,7 +3917,7 @@ document.addEventListener('DOMContentLoaded', () => {
             finalRev = selectedItem.revenue;
             finalOrdersCount = selectedItem.ordersCount;
 
-            // Thu thập các đơn hàng đã thanh toán của sản phẩm này theo dòng thời gian
+            // Thu thập các đơn hàng đã thanh toán (của sản phẩm này hoặc toàn bộ file)
             const productOrders = [];
             (cachedOrders || []).forEach(o => {
               if (String(o.status || '').toUpperCase() !== 'PAID') return;
@@ -3903,20 +3925,23 @@ document.addEventListener('DOMContentLoaded', () => {
               if (!od) return;
               const lineItems = resolveOrderLineItems(o, knownProductsMap);
               lineItems.forEach(it => {
+                const isAll = (selectedItem.id === 'prod_ALL' || selectedItem.pid === 'ALL');
                 const matchId = it.productId === selectedItem.pid;
                 const matchName = (it.name || '').toLowerCase().includes(selectedItem.title.toLowerCase()) ||
                                   selectedItem.title.toLowerCase().includes((it.name || '').toLowerCase());
-                if (matchId || matchName) {
+                if (isAll || matchId || matchName) {
                   productOrders.push({
+                    orderId: o.id || o.order_id,
                     time: od.getTime(),
-                    revenue: it.revenue
+                    revenue: it.revenue,
+                    name: it.name || selectedItem.title
                   });
                 }
               });
             });
             productOrders.sort((a, b) => a.time - b.time);
 
-            // Tìm đơn hàng thứ mấy giúp file hòa vốn
+            // Tìm đơn hàng thứ mấy giúp hòa vốn
             if (spent > 0) {
               let runningRev = 0;
               for (let idx = 0; idx < productOrders.length; idx++) {
@@ -3928,56 +3953,26 @@ document.addEventListener('DOMContentLoaded', () => {
               }
             }
 
-            // Xây dựng các mốc tích lũy
-            if (statsLagWindowDays === 3) {
-              // Mô phỏng / phân bổ theo 72 giờ
-              curvePoints = [
-                { label: '0h', rev: 0 },
-                { label: '+12h', rev: Math.round(finalRev * 0.15) },
-                { label: '+24h', rev: Math.round(finalRev * 0.35) },
-                { label: '+48h', rev: Math.round(finalRev * 0.72) },
-                { label: '+72h (3N)', rev: finalRev }
-              ];
-            } else if (statsLagWindowDays === 7) {
-              // Phân bổ theo chu kỳ 7 ngày
-              curvePoints = [
-                { label: 'Ngày 0', rev: 0 },
-                { label: '+24h', rev: Math.round(finalRev * 0.28) },
-                { label: '+48h', rev: Math.round(finalRev * 0.60) },
-                { label: '+72h (3N)', rev: Math.round(finalRev * 0.82) },
-                { label: 'Ngày 5', rev: Math.round(finalRev * 0.92) },
-                { label: 'Ngày 7 (1T)', rev: finalRev }
-              ];
-            } else {
-              // Toàn bộ chu kỳ theo từng đơn hàng thực tế
-              if (productOrders.length === 0) {
-                curvePoints = [
-                  { label: 'Khởi điểm', rev: 0 },
-                  { label: 'Hiện tại', rev: finalRev }
-                ];
-              } else if (productOrders.length <= 5) {
-                curvePoints = [{ label: 'Khởi điểm', rev: 0 }];
-                let cRev = 0;
-                productOrders.forEach((po, idx) => {
-                  cRev += po.revenue;
-                  curvePoints.push({
-                    label: 'Đơn ' + (idx + 1),
-                    rev: cRev
-                  });
-                });
-              } else {
-                curvePoints = [{ label: 'Khởi điểm', rev: 0 }];
-                const step = (productOrders.length - 1) / 4;
-                for (let s = 1; s <= 4; s++) {
-                  const targetIdx = Math.round(s * step);
-                  let cRev = 0;
-                  for (let j = 0; j <= targetIdx; j++) cRev += productOrders[j].revenue;
-                  curvePoints.push({
-                    label: (s === 4 ? ('Tổng ' + productOrders.length + ' đơn') : ('Đơn ' + (targetIdx + 1))),
-                    rev: cRev
-                  });
-                }
+            // Xây dựng danh sách điểm theo từng đơn hàng thực tế
+            curvePoints = [{ label: 'Đầu kỳ (0 đơn)', rev: 0, orderIdx: 0 }];
+            let cumRev = 0;
+            productOrders.forEach((po, idx) => {
+              cumRev += po.revenue;
+              const ordNum = idx + 1;
+              let label = 'Đơn ' + ordNum;
+              if (breakevenOrderIdx && ordNum === breakevenOrderIdx) {
+                label = 'Đơn ' + ordNum + ' (HÒA VỐN)';
               }
+              curvePoints.push({
+                label: label,
+                rev: cumRev,
+                orderIdx: ordNum,
+                isBreakeven: (breakevenOrderIdx && ordNum === breakevenOrderIdx)
+              });
+            });
+
+            if (productOrders.length === 0) {
+              curvePoints.push({ label: 'Chưa có đơn', rev: 0, orderIdx: 1 });
             }
           } else {
             // Chiến dịch Ads: tính theo cửa sổ phân bổ độ trễ
@@ -4178,13 +4173,16 @@ document.addEventListener('DOMContentLoaded', () => {
             if (window._breakevenChartInstance) {
               window._breakevenChartInstance.destroy();
             }
-            let beLabels = pts.map(p => p.label);
-            let beData = pts.map(p => p.rev);
-            if (selectedItem && selectedItem.id === 'prod_ALL' && typeof dailyList !== 'undefined' && dailyList.length > 0) {
-              let runRev = 0;
-              beLabels = dailyList.map((d, i) => d.label || d.date || ('N' + (i + 1)));
-              beData = dailyList.map(d => { runRev += (d.revenue || 0); return runRev; });
-            }
+            let beLabels = curvePoints.map(p => p.label);
+            let beData = curvePoints.map(p => p.rev);
+            
+            // Tùy chỉnh màu sắc và kích thước marker cho từng điểm (đặc biệt điểm hòa vốn)
+            const pointRadiuses = curvePoints.map(p => p.isBreakeven ? 5 : 2);
+            const pointHoverRadiuses = curvePoints.map(p => p.isBreakeven ? 7 : 4);
+            const pointBackgroundColors = curvePoints.map(p => p.isBreakeven ? '#10b981' : '#059669');
+            const pointBorderColors = curvePoints.map(p => p.isBreakeven ? '#047857' : '#ffffff');
+            const pointBorderWidths = curvePoints.map(p => p.isBreakeven ? 2 : 1);
+
             window._breakevenChartInstance = new Chart(beCanvas.getContext('2d'), {
               type: 'line',
               data: {
@@ -4195,11 +4193,14 @@ document.addEventListener('DOMContentLoaded', () => {
                     data: beData,
                     borderColor: '#059669',
                     backgroundColor: 'rgba(16, 185, 129, 0.12)',
-                    borderWidth: 2.5,
-                    pointRadius: 3,
-                    pointBackgroundColor: '#059669',
+                    borderWidth: 2,
+                    pointRadius: pointRadiuses,
+                    pointHoverRadius: pointHoverRadiuses,
+                    pointBackgroundColor: pointBackgroundColors,
+                    pointBorderColor: pointBorderColors,
+                    pointBorderWidth: pointBorderWidths,
                     fill: true,
-                    tension: 0.25
+                    tension: 0.2
                   },
                   {
                     label: 'Ngưỡng Chi phí Ads',
@@ -4418,8 +4419,12 @@ document.addEventListener('DOMContentLoaded', () => {
                   yAxisID: 'y1',
                   borderColor: '#0284c7',
                   backgroundColor: '#0284c7',
-                  borderWidth: 2.2,
-                  pointRadius: 4,
+                  borderWidth: 2,
+                  pointRadius: 2,
+                  pointHoverRadius: 4,
+                  pointBackgroundColor: '#0284c7',
+                  pointBorderColor: '#ffffff',
+                  pointBorderWidth: 1,
                   tension: 0.2,
                   order: 1
                 },
@@ -4658,9 +4663,12 @@ document.addEventListener('DOMContentLoaded', () => {
                     yAxisID: 'y',
                     borderColor: '#059669',
                     backgroundColor: 'rgba(16, 185, 129, 0.10)',
-                    borderWidth: 2.4,
-                    pointRadius: 3.5,
-                    pointHoverRadius: 5.5,
+                    borderWidth: 2.2,
+                    pointRadius: 2,
+                    pointHoverRadius: 4,
+                    pointBackgroundColor: '#059669',
+                    pointBorderColor: '#ffffff',
+                    pointBorderWidth: 1,
                     spanGaps: true,
                     fill: true,
                     tension: 0.25,
@@ -4674,9 +4682,12 @@ document.addEventListener('DOMContentLoaded', () => {
                     borderColor: '#f43f5e',
                     backgroundColor: '#f43f5e',
                     borderDash: [5, 4],
-                    borderWidth: 2,
-                    pointRadius: 3,
-                    pointHoverRadius: 5.5,
+                    borderWidth: 1.8,
+                    pointRadius: 2,
+                    pointHoverRadius: 4,
+                    pointBackgroundColor: '#f43f5e',
+                    pointBorderColor: '#ffffff',
+                    pointBorderWidth: 1,
                     spanGaps: true,
                     fill: false,
                     tension: 0.25,
