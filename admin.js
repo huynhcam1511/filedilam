@@ -7451,12 +7451,30 @@ document.addEventListener('DOMContentLoaded', () => {
     card.className = 'sub-video-card';
     card.style.cssText = 'background: #ffffff; border: 1px solid #e2e8f0; border-radius: 8px; padding: 12px; display: flex; flex-direction: column; gap: 10px; position: relative; box-shadow: 0 1px 2px rgba(0,0,0,0.03);';
 
-    // Build product options
-    let prodOptions = '<option value="">-- Chọn sản phẩm liên kết * --</option>';
-    (currentProducts || []).forEach(p => {
-      const selected = (data.product_id === p.id) ? 'selected' : '';
-      prodOptions += `<option value="${escapeHtml(p.id)}" ${selected}>${escapeHtml(p.name)}</option>`;
-    });
+    // Build social post options (Ưu tiên chọn bài đăng MXH)
+    let postOptions = '<option value="">-- Chọn bài đăng MXH liên kết * --</option>';
+
+    if (currentSocialPosts && currentSocialPosts.length > 0) {
+      postOptions += '<optgroup label="📹 BÀI ĐĂNG MXH / VIDEO ĐÃ ĐĂNG">';
+      currentSocialPosts.forEach(p => {
+        const prodObj = (currentProducts || []).find(pr => pr.id === p.product_id);
+        const prodSuffix = prodObj ? ` (${prodObj.name})` : '';
+        const pfName = p.platform === 'tiktok' ? 'TikTok' : (p.platform === 'facebook' ? 'Facebook' : p.platform);
+        const selected = (data.post_id && data.post_id === p.id) || (!data.post_id && data.product_id && p.product_id === data.product_id) ? 'selected' : '';
+        postOptions += `<option value="${escapeHtml(p.id)}" data-product-id="${escapeHtml(p.product_id || '')}" data-title="${escapeHtml(p.title || '')}" ${selected}>[${pfName}] ${escapeHtml(p.title || p.id)}${escapeHtml(prodSuffix)}</option>`;
+      });
+      postOptions += '</optgroup>';
+    }
+
+    if (currentProducts && currentProducts.length > 0) {
+      postOptions += '<optgroup label="📦 GẮN TRỰC TIẾP SẢN PHẨM (Nếu chưa tạo bài đăng)">';
+      currentProducts.forEach(pr => {
+        const val = 'prod_' + pr.id;
+        const selected = (data.product_id === pr.id && !data.post_id) ? 'selected' : '';
+        postOptions += `<option value="${escapeHtml(val)}" data-product-id="${escapeHtml(pr.id)}" data-title="${escapeHtml(pr.name)}" ${selected}>[Sản phẩm] ${escapeHtml(pr.name)}</option>`;
+      });
+      postOptions += '</optgroup>';
+    }
 
     const titleVal = data.video_title || data.title || '';
     const spentVal = data.spent ? new Intl.NumberFormat('vi-VN').format(data.spent) : '';
@@ -7470,11 +7488,11 @@ document.addEventListener('DOMContentLoaded', () => {
           <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
         </button>
       </div>
-      <div style="display: grid; grid-template-columns: 1.2fr 1fr; gap: 8px;">
+      <div style="display: grid; grid-template-columns: 1.3fr 1fr; gap: 8px;">
         <div>
-          <label style="display: block; font-size: 0.72rem; font-weight: 600; color: #475569; margin-bottom: 3px;">Sản phẩm liên kết <span style="color: #ef4444;">*</span></label>
-          <select class="sub-video-prod" required style="width: 100%; height: 36px; border: 1px solid #cbd5e1; border-radius: 5px; padding: 0 8px; font-size: 0.8rem; color: #0f172a; background: #ffffff; box-sizing: border-box;">
-            ${prodOptions}
+          <label style="display: block; font-size: 0.72rem; font-weight: 600; color: #475569; margin-bottom: 3px;">Bài đăng MXH liên kết <span style="color: #ef4444;">*</span></label>
+          <select class="sub-video-post" required style="width: 100%; height: 36px; border: 1px solid #cbd5e1; border-radius: 5px; padding: 0 8px; font-size: 0.8rem; color: #0f172a; background: #ffffff; box-sizing: border-box;">
+            ${postOptions}
           </select>
         </div>
         <div>
@@ -7497,6 +7515,17 @@ document.addEventListener('DOMContentLoaded', () => {
         </div>
       </div>
     `;
+
+    // Khi chọn bài đăng: tự động điền tiêu đề bài đăng nếu ô tiêu đề đang trống
+    const postSelect = card.querySelector('.sub-video-post');
+    const titleInput = card.querySelector('.sub-video-title');
+    postSelect?.addEventListener('change', () => {
+      const selectedOpt = postSelect.options[postSelect.selectedIndex];
+      const optTitle = selectedOpt?.getAttribute('data-title') || '';
+      if (optTitle && (!titleInput.value.trim() || titleInput.value.startsWith('Ads:'))) {
+        titleInput.value = optTitle;
+      }
+    });
 
     // Listeners for input change to calculate totals
     const spentInp = card.querySelector('.sub-video-spent');
@@ -7618,6 +7647,42 @@ document.addEventListener('DOMContentLoaded', () => {
     return '';
   }
 
+  function matchPostByText(text) {
+    if (!text) return { post_id: '', product_id: '', title: '' };
+    const norm = text.toLowerCase();
+
+    // 1. Quét tìm trong currentSocialPosts
+    if (currentSocialPosts && currentSocialPosts.length) {
+      for (const p of currentSocialPosts) {
+        const pTitle = (p.title || '').toLowerCase();
+        if (pTitle && (norm.includes(pTitle) || pTitle.includes(norm))) {
+          return { post_id: p.id, product_id: p.product_id || '', title: p.title };
+        }
+      }
+      // Quét theo từ khóa cốt lõi
+      const keywords = [
+        { keys: ['chủ trọ', 'nhà trọ', 'phòng trọ'], match: p => (p.title || '').toLowerCase().includes('trọ') },
+        { keys: ['shop nhỏ', 'đơn hàng', 'thu chi, cod', 'bán hàng'], match: p => (p.title || '').toLowerCase().includes('shop') || (p.title || '').toLowerCase().includes('đơn hàng') },
+        { keys: ['thi cử', 'kế hoạch', 'planner', 'routine'], match: p => (p.title || '').toLowerCase().includes('planner') || (p.title || '').toLowerCase().includes('kế hoạch') || (p.title || '').toLowerCase().includes('thi cử') },
+        { keys: ['giá vốn', 'cost', 'f&b', 'trà sữa'], match: p => (p.title || '').toLowerCase().includes('cost') || (p.title || '').toLowerCase().includes('giá vốn') || (p.title || '').toLowerCase().includes('trà sữa') },
+        { keys: ['kho', 'quản lý kho'], match: p => (p.title || '').toLowerCase().includes('kho') }
+      ];
+
+      for (const item of keywords) {
+        if (item.keys.some(k => norm.includes(k))) {
+          const matched = currentSocialPosts.find(item.match);
+          if (matched) {
+            return { post_id: matched.id, product_id: matched.product_id || '', title: matched.title };
+          }
+        }
+      }
+    }
+
+    // 2. Fallback sang tìm sản phẩm
+    const matchedPid = matchProductByText(text);
+    return { post_id: '', product_id: matchedPid, title: text };
+  }
+
   function parseTikTokPromoteVideos(rawText) {
     const lines = rawText.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
     const items = [];
@@ -7653,13 +7718,14 @@ document.addEventListener('DOMContentLoaded', () => {
           }
         }
 
-        const matchedProductId = matchProductByText(title);
+        const matched = matchPostByText(title);
         items.push({
-          title,
+          title: matched.title || title,
           views,
           spent,
           cpc,
-          product_id: matchedProductId
+          post_id: matched.post_id || '',
+          product_id: matched.product_id || ''
         });
       }
     }
@@ -7875,7 +7941,21 @@ document.addEventListener('DOMContentLoaded', () => {
         if (campaignType === 'multi_product') {
           const cards = document.querySelectorAll('.sub-video-card');
           cards.forEach(card => {
-            const pid = card.querySelector('.sub-video-prod')?.value || '';
+            const postSel = card.querySelector('.sub-video-post');
+            const selVal = postSel?.value || '';
+            let postId = '';
+            let pid = '';
+
+            if (selVal.startsWith('prod_')) {
+              pid = selVal.replace('prod_', '');
+            } else if (selVal) {
+              postId = selVal;
+              const postObj = (currentSocialPosts || []).find(p => p.id === postId);
+              if (postObj) {
+                pid = postObj.product_id || '';
+              }
+            }
+
             const vTitle = card.querySelector('.sub-video-title')?.value.trim() || '';
             const sVal = card.querySelector('.sub-video-spent')?.value.replace(/\D/g, '') || '0';
             const sSpent = parseInt(sVal, 10) || 0;
@@ -7884,8 +7964,9 @@ document.addEventListener('DOMContentLoaded', () => {
             const sCpc = parseInt(cpcVal, 10) || 0;
             const prodObj = (currentProducts || []).find(p => p.id === pid);
 
-            if (pid || sSpent > 0 || vViews > 0) {
+            if (postId || pid || sSpent > 0 || vViews > 0) {
               sub_videos.push({
+                post_id: postId,
                 product_id: pid,
                 product_name: prodObj ? prodObj.name : 'Khác',
                 video_title: vTitle,
