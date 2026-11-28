@@ -2527,10 +2527,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
       if (statsFilterProduct && statsFilterProduct !== 'ALL') {
         const matchId = a.product_id === statsFilterProduct;
+        const matchSub = Array.isArray(a.sub_videos) && a.sub_videos.some(sv => sv.product_id === statsFilterProduct);
         const targetProdName = (knownProductsMap[statsFilterProduct]?.name || '').toLowerCase();
         const aName = (a.product_name || a.title || '').toLowerCase();
         const matchName = targetProdName && (aName.includes(targetProdName) || targetProdName.includes(aName));
-        if (!matchId && !matchName) return false;
+        if (!matchId && !matchName && !matchSub) return false;
       }
 
       return true;
@@ -2707,59 +2708,113 @@ document.addEventListener('DOMContentLoaded', () => {
     const productAdsMap = {};
 
     filteredAds.forEach(a => {
-      const spent = Number(a.spent) || 0;
-      totalAdsSpent += spent;
-      totalAdsViews += Number(a.views) || 0;
-      totalAdsClicks += Number(a.button_clicks || a.clicks || 0);
-      totalAdsBio += Number(a.profile_visits || 0);
+      const isMulti = a.campaign_type === 'multi_product' || (Array.isArray(a.sub_videos) && a.sub_videos.length > 0);
+      const isFilteringProduct = statsFilterProduct && statsFilterProduct !== 'ALL';
 
-      // Map vào product_id chuẩn
-      let pid = a.product_id;
-      if (!knownProductsMap[pid]) {
-        for (const k of Object.keys(knownProductsMap)) {
-          const pName = (knownProductsMap[k].name || '').toLowerCase();
-          const aName = (a.product_name || a.title || '').toLowerCase();
-          if (pName && aName && (pName.includes(aName) || aName.includes(pName))) {
-            pid = k;
-            break;
-          }
+      let effectiveSpent = Number(a.spent) || 0;
+      let effectiveViews = Number(a.views) || 0;
+      let effectiveClicks = Number(a.button_clicks || a.clicks || 0);
+
+      if (isMulti) {
+        if (isFilteringProduct) {
+          // Chỉ lấy phần ngân sách của sản phẩm đang lọc
+          const matchingSubs = (a.sub_videos || []).filter(sv => sv.product_id === statsFilterProduct);
+          effectiveSpent = matchingSubs.reduce((sum, sv) => sum + (Number(sv.spent) || 0), 0);
+          effectiveViews = matchingSubs.reduce((sum, sv) => sum + (Number(sv.views) || 0), 0);
+          effectiveClicks = matchingSubs.reduce((sum, sv) => sum + (Number(sv.clicks) || 0), 0);
+        } else {
+          // Xem toàn bộ: duyệt từng sub-video để phân bổ vào đúng productAdsMap của từng sản phẩm
+          (a.sub_videos || []).forEach(sub => {
+            const sPid = sub.product_id;
+            const sSpent = Number(sub.spent) || 0;
+            const sViews = Number(sub.views) || 0;
+            const sClicks = Number(sub.clicks) || 0;
+
+            if (sPid) {
+              if (!productAdsMap[sPid]) {
+                productAdsMap[sPid] = {
+                  id: sPid,
+                  spent: 0,
+                  views: 0,
+                  clicks: 0,
+                  bio: 0,
+                  count: 0,
+                  name: sub.product_name || (knownProductsMap[sPid]?.name || sPid)
+                };
+              }
+              productAdsMap[sPid].spent += sSpent;
+              productAdsMap[sPid].views += sViews;
+              productAdsMap[sPid].clicks += sClicks;
+              productAdsMap[sPid].count += 1;
+
+              // Map danh mục
+              let sCatKey = 'kinh-doanh';
+              if (knownProductsMap[sPid]) {
+                sCatKey = knownProductsMap[sPid].categoryId || resolveProductCategory(knownProductsMap[sPid], knownProductsMap) || 'kinh-doanh';
+              }
+              if (!categoryMap[sCatKey]) {
+                categoryMap[sCatKey] = { key: sCatKey, label: getCategoryLabel(sCatKey), count: 0, revenue: 0, adsSpent: 0 };
+              }
+              categoryMap[sCatKey].adsSpent = (categoryMap[sCatKey].adsSpent || 0) + sSpent;
+            }
+          });
         }
       }
 
-      if (!productAdsMap[pid]) {
-        productAdsMap[pid] = {
-          id: pid,
-          spent: 0,
-          views: 0,
-          clicks: 0,
-          bio: 0,
-          count: 0,
-          name: a.product_name || a.title || (knownProductsMap[pid]?.name || pid)
-        };
-      }
-      productAdsMap[pid].spent += spent;
-      productAdsMap[pid].views += Number(a.views) || 0;
-      productAdsMap[pid].clicks += Number(a.button_clicks || a.clicks || 0);
-      productAdsMap[pid].bio += Number(a.profile_visits || 0);
-      productAdsMap[pid].count += 1;
+      totalAdsSpent += effectiveSpent;
+      totalAdsViews += effectiveViews;
+      totalAdsClicks += effectiveClicks;
+      totalAdsBio += Number(a.profile_visits || 0);
 
-      // Map vào danh mục chuẩn xác (sửa dứt điểm bug knownProductsMap.category -> categoryId)
-      let catKey = 'kinh-doanh';
-      if (knownProductsMap[pid]) {
-        catKey = knownProductsMap[pid].categoryId || resolveProductCategory(knownProductsMap[pid], knownProductsMap) || 'kinh-doanh';
-      } else {
-        catKey = resolveProductCategory({ name: a.product_name || a.title || '' }, knownProductsMap);
+      // Nếu là campaign đơn, hoặc đang lọc 1 sản phẩm cụ thể:
+      if (!isMulti || isFilteringProduct) {
+        let pid = isFilteringProduct ? statsFilterProduct : a.product_id;
+        if (!knownProductsMap[pid]) {
+          for (const k of Object.keys(knownProductsMap)) {
+            const pName = (knownProductsMap[k].name || '').toLowerCase();
+            const aName = (a.product_name || a.title || '').toLowerCase();
+            if (pName && aName && (pName.includes(aName) || aName.includes(pName))) {
+              pid = k;
+              break;
+            }
+          }
+        }
+
+        if (!productAdsMap[pid]) {
+          productAdsMap[pid] = {
+            id: pid,
+            spent: 0,
+            views: 0,
+            clicks: 0,
+            bio: 0,
+            count: 0,
+            name: a.product_name || a.title || (knownProductsMap[pid]?.name || pid)
+          };
+        }
+        productAdsMap[pid].spent += effectiveSpent;
+        productAdsMap[pid].views += effectiveViews;
+        productAdsMap[pid].clicks += effectiveClicks;
+        productAdsMap[pid].bio += Number(a.profile_visits || 0);
+        productAdsMap[pid].count += 1;
+
+        // Map vào danh mục chuẩn xác
+        let catKey = 'kinh-doanh';
+        if (knownProductsMap[pid]) {
+          catKey = knownProductsMap[pid].categoryId || resolveProductCategory(knownProductsMap[pid], knownProductsMap) || 'kinh-doanh';
+        } else {
+          catKey = resolveProductCategory({ name: a.product_name || a.title || '' }, knownProductsMap);
+        }
+        if (!categoryMap[catKey]) {
+          categoryMap[catKey] = {
+            key: catKey,
+            label: getCategoryLabel(catKey),
+            count: 0,
+            revenue: 0,
+            adsSpent: 0
+          };
+        }
+        categoryMap[catKey].adsSpent = (categoryMap[catKey].adsSpent || 0) + effectiveSpent;
       }
-      if (!categoryMap[catKey]) {
-        categoryMap[catKey] = {
-          key: catKey,
-          label: getCategoryLabel(catKey),
-          count: 0,
-          revenue: 0,
-          adsSpent: 0
-        };
-      }
-      categoryMap[catKey].adsSpent = (categoryMap[catKey].adsSpent || 0) + spent;
 
       // Map vào biểu đồ thời gian
       const adDateStr = getAdDate(a);
@@ -2771,10 +2826,10 @@ document.addEventListener('DOMContentLoaded', () => {
           if (!chartDataMap[monthKey]) {
             chartDataMap[monthKey] = { key: monthKey, label: monthLabel, fullDate: 'Tháng ' + mParts[1] + '/' + mParts[0], revenue: 0, adsSpent: 0, count: 0 };
           }
-          chartDataMap[monthKey].adsSpent = (chartDataMap[monthKey].adsSpent || 0) + spent;
+          chartDataMap[monthKey].adsSpent = (chartDataMap[monthKey].adsSpent || 0) + effectiveSpent;
         } else {
           if (chartDataMap[adDateStr]) {
-            chartDataMap[adDateStr].adsSpent = (chartDataMap[adDateStr].adsSpent || 0) + spent;
+            chartDataMap[adDateStr].adsSpent = (chartDataMap[adDateStr].adsSpent || 0) + effectiveSpent;
           }
         }
       }
@@ -7052,14 +7107,22 @@ document.addEventListener('DOMContentLoaded', () => {
         String(a.url || '').toLowerCase().includes(searchVal) ||
         String(a.notes || '').toLowerCase().includes(searchVal);
       const matchChannel = channelVal === 'ALL' || a.channel === channelVal;
-      const matchProduct = productVal === 'ALL' || a.product_id === productVal;
+      const matchProduct = productVal === 'ALL' || 
+        a.product_id === productVal || 
+        (Array.isArray(a.sub_videos) && a.sub_videos.some(sv => sv.product_id === productVal));
       const matchStatus = statusVal === 'ALL' || a.status === statusVal;
 
       return matchSearch && matchChannel && matchProduct && matchStatus;
     });
 
-    // Update total spent
-    const totalSpent = filtered.reduce((sum, a) => sum + (Number(a.spent) || 0), 0);
+    // Update total spent (nếu lọc 1 sản phẩm thì chỉ cộng phần ngân sách của sản phẩm đó trong chiến dịch gộp)
+    const totalSpent = filtered.reduce((sum, a) => {
+      if (productVal !== 'ALL' && (a.campaign_type === 'multi_product' || (Array.isArray(a.sub_videos) && a.sub_videos.length > 0))) {
+        const matchingSub = (a.sub_videos || []).find(sv => sv.product_id === productVal);
+        return sum + (matchingSub ? (Number(matchingSub.spent) || 0) : (Number(a.spent) || 0));
+      }
+      return sum + (Number(a.spent) || 0);
+    }, 0);
     const totalSpentEl = document.getElementById('adsTotalSpent');
     if (totalSpentEl) totalSpentEl.textContent = formatCurrency(totalSpent);
 
@@ -7071,6 +7134,41 @@ document.addEventListener('DOMContentLoaded', () => {
     adsListBody.innerHTML = filtered.map(a => {
       const prod = currentProducts.find(p => p.id === a.product_id);
       const prodName = prod ? prod.name : (a.product_name || a.product_id || 'Chưa gắn file');
+      const isMulti = a.campaign_type === 'multi_product' || (Array.isArray(a.sub_videos) && a.sub_videos.length > 0);
+
+      let prodCellHtml = '';
+      if (isMulti) {
+        const subCount = (a.sub_videos || []).length;
+        const subNames = (a.sub_videos || []).map(sv => {
+          const p = currentProducts.find(pr => pr.id === sv.product_id);
+          return p ? p.name : (sv.product_name || 'Khác');
+        });
+        const shortNames = subNames.slice(0, 2).join(', ') + (subNames.length > 2 ? ` (+${subNames.length - 2})` : '');
+        prodCellHtml = `
+          <div style="display: flex; flex-direction: column; gap: 3px;">
+            <span style="display: inline-flex; align-items: center; gap: 4px; font-size: 0.76rem; font-weight: 700; color: #047857; background: #ecfdf5; border: 1px solid #a7f3d0; padding: 2px 7px; border-radius: 4px; width: fit-content;">
+              <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
+              <span>Gộp ${subCount} video</span>
+            </span>
+            <span style="font-size: 0.73rem; color: #64748b; line-height: 1.3;" title="${escapeHtml(subNames.join('\n• '))}">${escapeHtml(shortNames)}</span>
+          </div>
+        `;
+      } else {
+        prodCellHtml = `<span style="font-size: 0.86rem; color: #334155; font-weight: 500;">${escapeHtml(prodName)}</span>`;
+      }
+
+      let spentCellHtml = `<strong style="color: #0f172a; font-family: monospace; font-size: 0.95rem;">${formatCurrency(a.spent || 0)}</strong>`;
+      if (isMulti && productVal !== 'ALL') {
+        const matchingSub = (a.sub_videos || []).find(sv => sv.product_id === productVal);
+        if (matchingSub) {
+          spentCellHtml = `
+            <div>
+              <strong style="color: #059669; font-family: monospace; font-size: 0.95rem;">${formatCurrency(matchingSub.spent || 0)}</strong>
+              <div style="font-size: 0.7rem; color: #94a3b8; margin-top: 1px;">(Phần của file / Tổng: ${formatCurrency(a.spent || 0)})</div>
+            </div>
+          `;
+        }
+      }
       
       let channelIcon = '';
       let channelLabel = 'Kênh khác';
@@ -7161,10 +7259,10 @@ document.addEventListener('DOMContentLoaded', () => {
               <div style="font-size: 0.72rem; color: #64748b; margin-top: 3px;" title="${escapeHtml(a.title)}">${escapeHtml(a.title)}</div>` : ''}
           </td>
           <td>
-            <span style="font-size: 0.86rem; color: #334155; font-weight: 500;">${escapeHtml(prodName)}</span>
+            ${prodCellHtml}
           </td>
           <td>
-            <strong style="color: #0f172a; font-family: monospace; font-size: 0.95rem;">${formatCurrency(a.spent || 0)}</strong>
+            ${spentCellHtml}
           </td>
           <td>
             ${(() => {
@@ -7291,6 +7389,283 @@ document.addEventListener('DOMContentLoaded', () => {
     el.value = val;
   }
 
+  // ========================================================
+  // SUB-VIDEOS LOGIC: CHIẾN DỊCH GỘP NHIỀU VIDEO SÁNG TẠO (TIKTOK PROMOTE)
+  // ========================================================
+  function setAdsCampaignMode(mode) {
+    const btnSingle = document.getElementById('btnAdsTypeSingle');
+    const btnMulti = document.getElementById('btnAdsTypeMulti');
+    const typeInp = document.getElementById('adsCampaignTypeInput');
+    const singleGroup = document.getElementById('adsSingleProductGroup');
+    const multiGroup = document.getElementById('adsMultiProductGroup');
+    const prodSelect = document.getElementById('adsProductSelect');
+
+    if (typeInp) typeInp.value = mode;
+
+    if (mode === 'multi_product') {
+      if (btnMulti) {
+        btnMulti.classList.add('active');
+        btnMulti.style.borderColor = '#059669';
+        btnMulti.style.background = '#ecfdf5';
+        btnMulti.style.color = '#047857';
+      }
+      if (btnSingle) {
+        btnSingle.classList.remove('active');
+        btnSingle.style.borderColor = '#cbd5e1';
+        btnSingle.style.background = '#ffffff';
+        btnSingle.style.color = '#475569';
+      }
+      if (singleGroup) singleGroup.style.display = 'none';
+      if (multiGroup) multiGroup.style.display = 'flex';
+      if (prodSelect) prodSelect.removeAttribute('required');
+
+      const container = document.getElementById('adsSubVideosContainer');
+      if (container && container.children.length === 0) {
+        addSubVideoRow();
+      }
+    } else {
+      if (btnSingle) {
+        btnSingle.classList.add('active');
+        btnSingle.style.borderColor = '#059669';
+        btnSingle.style.background = '#ecfdf5';
+        btnSingle.style.color = '#047857';
+      }
+      if (btnMulti) {
+        btnMulti.classList.remove('active');
+        btnMulti.style.borderColor = '#cbd5e1';
+        btnMulti.style.background = '#ffffff';
+        btnMulti.style.color = '#475569';
+      }
+      if (singleGroup) singleGroup.style.display = 'flex';
+      if (multiGroup) multiGroup.style.display = 'none';
+      if (prodSelect) prodSelect.setAttribute('required', 'required');
+    }
+  }
+
+  function addSubVideoRow(data = {}) {
+    const container = document.getElementById('adsSubVideosContainer');
+    if (!container) return;
+
+    const rowIdx = container.children.length + 1;
+    const card = document.createElement('div');
+    card.className = 'sub-video-card';
+    card.style.cssText = 'background: #ffffff; border: 1px solid #e2e8f0; border-radius: 8px; padding: 12px; display: flex; flex-direction: column; gap: 10px; position: relative; box-shadow: 0 1px 2px rgba(0,0,0,0.03);';
+
+    // Build product options
+    let prodOptions = '<option value="">-- Chọn sản phẩm liên kết * --</option>';
+    (currentProducts || []).forEach(p => {
+      const selected = (data.product_id === p.id) ? 'selected' : '';
+      prodOptions += `<option value="${escapeHtml(p.id)}" ${selected}>${escapeHtml(p.name)}</option>`;
+    });
+
+    const titleVal = data.video_title || data.title || '';
+    const spentVal = data.spent ? new Intl.NumberFormat('vi-VN').format(data.spent) : '';
+    const viewsVal = data.views || '';
+    const cpcVal = data.cpc ? new Intl.NumberFormat('vi-VN').format(data.cpc) : '';
+
+    card.innerHTML = `
+      <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #f1f5f9; padding-bottom: 6px;">
+        <span style="font-size: 0.76rem; font-weight: 700; color: #047857;" class="sub-video-index-badge">Video #${rowIdx}</span>
+        <button type="button" class="btn-remove-sub-video" style="background: none; border: none; color: #94a3b8; cursor: pointer; padding: 2px 6px; font-size: 0.76rem; border-radius: 4px;" title="Xóa video này">
+          <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+        </button>
+      </div>
+      <div style="display: grid; grid-template-columns: 1.2fr 1fr; gap: 8px;">
+        <div>
+          <label style="display: block; font-size: 0.72rem; font-weight: 600; color: #475569; margin-bottom: 3px;">Sản phẩm liên kết <span style="color: #ef4444;">*</span></label>
+          <select class="sub-video-prod" required style="width: 100%; height: 36px; border: 1px solid #cbd5e1; border-radius: 5px; padding: 0 8px; font-size: 0.8rem; color: #0f172a; background: #ffffff; box-sizing: border-box;">
+            ${prodOptions}
+          </select>
+        </div>
+        <div>
+          <label style="display: block; font-size: 0.72rem; font-weight: 600; color: #475569; margin-bottom: 3px;">Tiêu đề video / Nội dung TikTok</label>
+          <input type="text" class="sub-video-title" value="${escapeHtml(titleVal)}" placeholder="VD: Làm chủ trọ hay làm kế toán..." style="width: 100%; height: 36px; border: 1px solid #cbd5e1; border-radius: 5px; padding: 0 8px; font-size: 0.8rem; color: #0f172a; box-sizing: border-box; background: #ffffff;" />
+        </div>
+      </div>
+      <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px;">
+        <div>
+          <label style="display: block; font-size: 0.72rem; font-weight: 600; color: #059669; margin-bottom: 3px;">Chi phí ads (VND) <span style="color: #ef4444;">*</span></label>
+          <input type="text" class="sub-video-spent" inputmode="numeric" value="${escapeHtml(spentVal)}" placeholder="VD: 31.311" required style="width: 100%; height: 36px; border: 1px solid #cbd5e1; border-radius: 5px; padding: 0 8px; font-size: 0.84rem; font-weight: 700; font-family: monospace; color: #059669; box-sizing: border-box; background: #ffffff;" />
+        </div>
+        <div>
+          <label style="display: block; font-size: 0.72rem; font-weight: 600; color: #475569; margin-bottom: 3px;">Lượt xem (Views)</label>
+          <input type="number" class="sub-video-views" value="${escapeHtml(viewsVal)}" placeholder="VD: 2652" min="0" style="width: 100%; height: 36px; border: 1px solid #cbd5e1; border-radius: 5px; padding: 0 8px; font-size: 0.84rem; font-family: monospace; font-weight: 600; color: #0f172a; box-sizing: border-box; background: #ffffff;" />
+        </div>
+        <div>
+          <label style="display: block; font-size: 0.72rem; font-weight: 600; color: #2563eb; margin-bottom: 3px;">Giá/xem trang đích (đ)</label>
+          <input type="text" class="sub-video-cpc" value="${escapeHtml(cpcVal)}" placeholder="VD: 1.423" style="width: 100%; height: 36px; border: 1px solid #cbd5e1; border-radius: 5px; padding: 0 8px; font-size: 0.84rem; font-family: monospace; color: #2563eb; box-sizing: border-box; background: #ffffff;" />
+        </div>
+      </div>
+    `;
+
+    // Listeners for input change to calculate totals
+    const spentInp = card.querySelector('.sub-video-spent');
+    spentInp?.addEventListener('input', () => {
+      formatNumericInput(spentInp);
+      syncSubVideosSummaryAndForm();
+    });
+
+    const viewsInp = card.querySelector('.sub-video-views');
+    viewsInp?.addEventListener('input', () => {
+      syncSubVideosSummaryAndForm();
+    });
+
+    const btnRemove = card.querySelector('.btn-remove-sub-video');
+    btnRemove?.addEventListener('click', () => {
+      card.remove();
+      updateSubVideosIndices();
+      syncSubVideosSummaryAndForm();
+    });
+
+    container.appendChild(card);
+    updateSubVideosIndices();
+    syncSubVideosSummaryAndForm();
+  }
+
+  function updateSubVideosIndices() {
+    const container = document.getElementById('adsSubVideosContainer');
+    if (!container) return;
+    const cards = container.querySelectorAll('.sub-video-card');
+    cards.forEach((c, idx) => {
+      const badge = c.querySelector('.sub-video-index-badge');
+      if (badge) badge.textContent = `Video #${idx + 1}`;
+    });
+  }
+
+  function syncSubVideosSummaryAndForm() {
+    const typeInp = document.getElementById('adsCampaignTypeInput');
+    if (typeInp?.value !== 'multi_product') return;
+
+    const container = document.getElementById('adsSubVideosContainer');
+    if (!container) return;
+
+    let totalSpent = 0;
+    let totalViews = 0;
+    const cards = container.querySelectorAll('.sub-video-card');
+
+    cards.forEach(c => {
+      const sVal = c.querySelector('.sub-video-spent')?.value.replace(/\D/g, '') || '0';
+      const vVal = c.querySelector('.sub-video-views')?.value || '0';
+      totalSpent += parseInt(sVal, 10) || 0;
+      totalViews += parseInt(vVal, 10) || 0;
+    });
+
+    const countSummary = document.getElementById('adsSubVideosCountSummary');
+    const spentSummary = document.getElementById('adsSubVideosSpentSummary');
+    const viewsSummary = document.getElementById('adsSubVideosViewsSummary');
+
+    if (countSummary) countSummary.textContent = `${cards.length} video`;
+    if (spentSummary) spentSummary.textContent = new Intl.NumberFormat('vi-VN').format(totalSpent) + ' đ';
+    if (viewsSummary) viewsSummary.textContent = new Intl.NumberFormat('vi-VN').format(totalViews);
+
+    // Tự động đồng bộ lên form chính
+    const adsSpentInput = document.getElementById('adsSpentInput');
+    const adsViewsInput = document.getElementById('adsViewsInput');
+    if (adsSpentInput && totalSpent > 0) {
+      adsSpentInput.value = new Intl.NumberFormat('vi-VN').format(totalSpent);
+    }
+    if (adsViewsInput && totalViews > 0) {
+      adsViewsInput.value = totalViews;
+    }
+    calculateCPMAndCPC();
+  }
+
+  function matchProductByText(text) {
+    if (!text || !currentProducts || !currentProducts.length) return '';
+    const norm = text.toLowerCase();
+
+    // Map các keyword đặc thù
+    if (norm.includes('chủ trọ') || norm.includes('nhà trọ') || norm.includes('phòng trọ')) {
+      const p = currentProducts.find(pr => (pr.name || '').toLowerCase().includes('trọ'));
+      if (p) return p.id;
+    }
+    if (norm.includes('shop nhỏ') || norm.includes('đơn hàng') || norm.includes('thu chi, cod') || norm.includes('bán hàng')) {
+      const p = currentProducts.find(pr => (pr.name || '').toLowerCase().includes('shop') || (pr.name || '').toLowerCase().includes('bán hàng'));
+      if (p) return p.id;
+    }
+    if (norm.includes('thi cử') || norm.includes('kế hoạch') || norm.includes('planner') || norm.includes('routine')) {
+      const p = currentProducts.find(pr => (pr.name || '').toLowerCase().includes('planner') || (pr.name || '').toLowerCase().includes('kế hoạch'));
+      if (p) return p.id;
+    }
+    if (norm.includes('giá vốn') || norm.includes('cost') || norm.includes('f&b') || norm.includes('trà sữa')) {
+      const p = currentProducts.find(pr => (pr.name || '').toLowerCase().includes('cost') || (pr.name || '').toLowerCase().includes('giá vốn'));
+      if (p) return p.id;
+    }
+    if (norm.includes('kho') || norm.includes('quản lý kho')) {
+      const p = currentProducts.find(pr => (pr.name || '').toLowerCase().includes('kho'));
+      if (p) return p.id;
+    }
+    if (norm.includes('tài sản') || norm.includes('thiết bị')) {
+      const p = currentProducts.find(pr => (pr.name || '').toLowerCase().includes('tài sản'));
+      if (p) return p.id;
+    }
+    if (norm.includes('công nợ')) {
+      const p = currentProducts.find(pr => (pr.name || '').toLowerCase().includes('công nợ'));
+      if (p) return p.id;
+    }
+
+    // Quét trực tiếp qua tên từng sản phẩm
+    for (const pr of currentProducts) {
+      const pName = (pr.name || '').toLowerCase();
+      const words = pName.split(/\s+/).filter(w => w.length > 2);
+      let matchCount = 0;
+      for (const w of words) {
+        if (norm.includes(w)) matchCount++;
+      }
+      if (matchCount >= 2) return pr.id;
+    }
+
+    return '';
+  }
+
+  function parseTikTokPromoteVideos(rawText) {
+    const lines = rawText.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
+    const items = [];
+
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i];
+      if (line.includes('Số lượt xem video') || line.includes('lượt xem video')) {
+        const viewsMatch = line.match(/([\d\.,]+)/);
+        const views = viewsMatch ? parseInt(viewsMatch[1].replace(/\D/g, ''), 10) : 0;
+
+        let spent = 0;
+        let cpc = 0;
+
+        // Look forward up to 5 lines for spent and cpc
+        for (let j = i + 1; j < Math.min(i + 6, lines.length); j++) {
+          const nextLine = lines[j];
+          if (nextLine.includes('Chi phí quảng cáo') || nextLine.includes('chi phí')) {
+            const spentMatch = nextLine.match(/([\d\.,]+)/);
+            if (spentMatch) spent = parseInt(spentMatch[1].replace(/\D/g, ''), 10);
+          } else if (nextLine.includes('Lượt xem trang đích') || nextLine.includes('Chi phí mỗi')) {
+            const cpcMatch = nextLine.match(/([\d\.,]+)/);
+            if (cpcMatch) cpc = parseInt(cpcMatch[1].replace(/\D/g, ''), 10);
+          }
+        }
+
+        // Title was before this line
+        let title = '';
+        for (let k = i - 1; k >= Math.max(0, i - 4); k--) {
+          const prev = lines[k];
+          if (prev && !prev.includes('Đã hoàn tất') && !prev.includes('Đang chạy') && !prev.includes('Theo video') && !prev.includes('Kết quả quảng bá')) {
+            title = prev;
+            break;
+          }
+        }
+
+        const matchedProductId = matchProductByText(title);
+        items.push({
+          title,
+          views,
+          spent,
+          cpc,
+          product_id: matchedProductId
+        });
+      }
+    }
+    return items;
+  }
+
   function openAddAdsModal() {
     const backdrop = document.getElementById('adsDrawerBackdrop');
     const form = document.getElementById('adsForm');
@@ -7310,6 +7685,11 @@ document.addEventListener('DOMContentLoaded', () => {
     try { populateAdsProductDropdowns(); } catch (e) {}
     try { populateAdsPostDropdown(); } catch (e) {}
 
+    // Reset sub-videos
+    const subContainer = document.getElementById('adsSubVideosContainer');
+    if (subContainer) subContainer.innerHTML = '';
+    setAdsCampaignMode('single');
+
     // Default start and end datetime
     const today = new Date().toISOString().split('T')[0];
     const startInput = document.getElementById('adsStartDateInput');
@@ -7328,8 +7708,6 @@ document.addEventListener('DOMContentLoaded', () => {
     setAdsDuration(24);
     updateCalculatedEndTime();
     calculateCPMAndCPC();
-    
-    
 
     backdrop.style.display = 'flex';
   }
@@ -7365,6 +7743,19 @@ document.addEventListener('DOMContentLoaded', () => {
     setField('adsManagerUrlInput', item.ad_url || item.manager_url || item.url);
     setField('adsSpentInput', item.spent ? new Intl.NumberFormat('vi-VN').format(item.spent) : '');
     setField('adsStatusSelect', item.status || 'ACTIVE');
+
+    // Thiết lập chế độ campaign (Single vs Multi)
+    const subContainer = document.getElementById('adsSubVideosContainer');
+    if (subContainer) subContainer.innerHTML = '';
+
+    const isMulti = item.campaign_type === 'multi_product' || (Array.isArray(item.sub_videos) && item.sub_videos.length > 0);
+    if (isMulti) {
+      setAdsCampaignMode('multi_product');
+      (item.sub_videos || []).forEach(sv => addSubVideoRow(sv));
+      syncSubVideosSummaryAndForm();
+    } else {
+      setAdsCampaignMode('single');
+    }
 
     const startDate = item.start_date || item.date || '';
     const startInput = document.getElementById('adsStartDateInput');
@@ -7404,8 +7795,6 @@ document.addEventListener('DOMContentLoaded', () => {
     setField('adsLikeRateInput', item.like_rate);
     setField('adsNotesInput', item.notes);
 
-    
-
     backdrop.style.display = 'flex';
   }
 
@@ -7440,10 +7829,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
       try {
         const docId = document.getElementById('adsDocId').value.trim();
+        const campaignType = document.getElementById('adsCampaignTypeInput')?.value || 'single';
         const title = document.getElementById('adsTitleInput').value.trim();
         const channel = document.getElementById('adsChannelSelect').value;
         const objective = document.getElementById('adsObjectiveSelect')?.value || 'tiktok_traffic';
-        const product_id = document.getElementById('adsProductSelect').value;
+        let product_id = document.getElementById('adsProductSelect')?.value || '';
         
         const ad_url = document.getElementById('adsManagerUrlInput')?.value.trim() || '';
         const url = ad_url;
@@ -7476,19 +7866,57 @@ document.addEventListener('DOMContentLoaded', () => {
         const view_6s = document.getElementById('adsView6sInput')?.value.trim() || '';
         const watch_full = document.getElementById('adsWatchFullInput')?.value.trim() || '';
         const like_rate = document.getElementById('adsLikeRateInput')?.value.trim() || '';
-        
-        
-        
         const notes = document.getElementById('adsNotesInput').value.trim();
 
-        const prod = currentProducts.find(p => p.id === product_id);
-        const product_name = prod ? prod.name : '';
+        // Xử lý dữ liệu Sub-videos nếu là campaign gộp
+        let sub_videos = [];
+        let product_name = '';
 
-        const finalTitle = title || (product_name ? `Ads: ${product_name}` : 'Chiến dịch');
+        if (campaignType === 'multi_product') {
+          const cards = document.querySelectorAll('.sub-video-card');
+          cards.forEach(card => {
+            const pid = card.querySelector('.sub-video-prod')?.value || '';
+            const vTitle = card.querySelector('.sub-video-title')?.value.trim() || '';
+            const sVal = card.querySelector('.sub-video-spent')?.value.replace(/\D/g, '') || '0';
+            const sSpent = parseInt(sVal, 10) || 0;
+            const vViews = parseInt(card.querySelector('.sub-video-views')?.value, 10) || 0;
+            const cpcVal = card.querySelector('.sub-video-cpc')?.value.replace(/\D/g, '') || '0';
+            const sCpc = parseInt(cpcVal, 10) || 0;
+            const prodObj = (currentProducts || []).find(p => p.id === pid);
+
+            if (pid || sSpent > 0 || vViews > 0) {
+              sub_videos.push({
+                product_id: pid,
+                product_name: prodObj ? prodObj.name : 'Khác',
+                video_title: vTitle,
+                spent: sSpent,
+                views: vViews,
+                cpc: sCpc
+              });
+            }
+          });
+
+          if (sub_videos.length === 0) {
+            throw new Error('Vui lòng thêm ít nhất 1 video sáng tạo cho chiến dịch gộp!');
+          }
+
+          product_id = 'MULTI_PRODUCTS';
+          product_name = `Chiến dịch gộp (${sub_videos.length} video)`;
+        } else {
+          const prod = currentProducts.find(p => p.id === product_id);
+          product_name = prod ? prod.name : '';
+        }
+
+        const finalTitle = title || (campaignType === 'multi_product' 
+          ? `TikTok Promote gộp: ${sub_videos.length} video` 
+          : (product_name ? `Ads: ${product_name}` : 'Chiến dịch'));
+
         const data = {
           title: finalTitle,
           channel,
           objective,
+          campaign_type: campaignType,
+          sub_videos,
           product_id,
           product_name,
           url,
@@ -7543,8 +7971,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-// Ads schedule simplified to clean start and end datetime range
-
+  // Event Listeners cho Ads Campaign Management
   btnOpenAddAds?.addEventListener('click', openAddAdsModal);
   btnCloseAdsModal?.addEventListener('click', closeAdsModal);
   btnCancelAds?.addEventListener('click', closeAdsModal);
@@ -7555,6 +7982,40 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('adsChannelFilter')?.addEventListener('change', renderFilteredAds);
   document.getElementById('adsProductFilter')?.addEventListener('change', renderFilteredAds);
   document.getElementById('adsStatusFilter')?.addEventListener('change', renderFilteredAds);
+
+  // Sub-videos mode switch & parser listeners
+  document.getElementById('btnAdsTypeSingle')?.addEventListener('click', () => setAdsCampaignMode('single'));
+  document.getElementById('btnAdsTypeMulti')?.addEventListener('click', () => setAdsCampaignMode('multi_product'));
+  document.getElementById('btnAddSubVideoRow')?.addEventListener('click', () => addSubVideoRow());
+
+  const pasteBox = document.getElementById('adsTikTokPasteBox');
+  document.getElementById('btnToggleTikTokPaste')?.addEventListener('click', () => {
+    if (!pasteBox) return;
+    pasteBox.style.display = pasteBox.style.display === 'none' ? 'flex' : 'none';
+    if (pasteBox.style.display === 'flex') {
+      document.getElementById('adsTikTokPasteInput')?.focus();
+    }
+  });
+  document.getElementById('btnCancelTikTokPaste')?.addEventListener('click', () => {
+    if (pasteBox) pasteBox.style.display = 'none';
+  });
+  document.getElementById('btnDoParseTikTokPaste')?.addEventListener('click', () => {
+    const rawText = document.getElementById('adsTikTokPasteInput')?.value || '';
+    if (!rawText.trim()) {
+      showToast('Vui lòng dán văn bản từ TikTok Promote vào ô trước!', true);
+      return;
+    }
+    const parsedVideos = parseTikTokPromoteVideos(rawText);
+    if (!parsedVideos.length) {
+      showToast('Không tìm thấy dữ liệu video nào trong văn bản dán. Vui lòng kiểm tra lại!', true);
+      return;
+    }
+    const container = document.getElementById('adsSubVideosContainer');
+    if (container) container.innerHTML = '';
+    parsedVideos.forEach(v => addSubVideoRow(v));
+    if (pasteBox) pasteBox.style.display = 'none';
+    showToast(`Đã tự động trích xuất thành công ${parsedVideos.length} video từ TikTok Promote!`);
+  });
 
   // ========================================================
   // MODULE: QUẢN LÝ BÀI ĐĂNG MXH (SOCIAL MEDIA POSTS & VIDEOS HUB)
@@ -8798,155 +9259,306 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (list.length === 0) {
       tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; color: var(--slate-muted); padding: 40px;">Không tìm thấy khách hàng nào phù hợp.</td></tr>';
+      const mobileContainer = document.getElementById('customerMobileCards');
+      if (mobileContainer) {
+        mobileContainer.innerHTML = '<div style="text-align: center; color: var(--slate-muted); padding: 32px 16px; font-size: 0.85rem;">Không tìm thấy khách hàng nào phù hợp.</div>';
+      }
       return;
     }
 
     tbody.innerHTML = list.map(c => {
       const suspectWarning = isSuspectEmail(c.email)
-        ? '<span style="display: inline-block; font-size: 0.68rem; font-weight: 600; color: #d97706; background: #fef3c7; border: 1px solid #fde68a; padding: 1px 5px; border-radius: 4px; margin-left: 4px;">Sai domain?</span>'
+        ? '<span style="color: #d97706; font-weight: 500; font-size: 0.72rem; margin-left: 6px; white-space: nowrap;">&#9679; Sai domain?</span>'
         : '';
       const productsStr = Array.from(c.purchasedProducts).join(', ') || '<span style="color:#94a3b8; font-size:0.75rem;">Chưa mua file nào</span>';
       const cleanPhone = normalizePhoneNumber(c.phone) || c.phone;
       const latestOrderId = c.orders[0]?.order_id || c.orders[0]?.id || '';
+      const safeKey = escapeHtml(c.key);
 
       return `
-        <tr>
+        <tr class="cust-row-clickable" data-key="${safeKey}" style="cursor: pointer;">
           <td>
-            <div style="font-weight: 600; color: #0f172a; font-size: 0.84rem;">${escapeHtml(c.name)}</div>
-            <div style="font-size: 0.72rem; color: #94a3b8;">${c.orders.length} lần đặt hàng</div>
+            <div style="font-weight: 600; color: #0f172a; font-size: 0.86rem;">${escapeHtml(c.name)}</div>
+            <div style="font-size: 0.74rem; color: #94a3b8;">${c.orders.length} lần đặt hàng</div>
           </td>
           <td>
-            <div style="display: flex; align-items: center; gap: 6px;">
-              <span style="font-family: ui-monospace, monospace; font-size: 0.80rem; font-weight: 600; color: #334155;">${escapeHtml(c.phone || '-')}</span>
-              ${cleanPhone ? `
-                <a href="https://zalo.me/${cleanPhone}" target="_blank" rel="noopener noreferrer" style="font-size: 0.70rem; color: #0068ff; font-weight: 600; background: #eff6ff; border: 1px solid #bfdbfe; padding: 1px 6px; border-radius: 4px; text-decoration: none;" title="Mở Zalo">Zalo</a>
-              ` : ''}
-            </div>
+            ${cleanPhone
+              ? `<a href="tel:${escapeHtml(cleanPhone)}" class="cust-tel-link" onclick="event.stopPropagation();" style="font-family: ui-monospace, monospace; font-size: 0.82rem; font-weight: 600; color: #334155; text-decoration: none;">${escapeHtml(c.phone)}</a>`
+              : '<span style="color: #94a3b8;">-</span>'}
           </td>
           <td>
-            <div style="display: flex; align-items: center; gap: 6px;">
-              <span style="font-family: ui-monospace, monospace; font-size: 0.80rem; color: #0f172a; font-weight: 500;" id="custEmailDisplay_${escapeHtml(c.key)}">${escapeHtml(c.email || 'Chưa cung cấp')}</span>
+            <div style="display: flex; align-items: center; flex-wrap: wrap;">
+              <span style="font-family: ui-monospace, monospace; font-size: 0.82rem; color: ${c.email ? '#0f172a' : '#94a3b8'}; font-weight: 500;" id="custEmailDisplay_${safeKey}">${escapeHtml(c.email || 'Chưa cung cấp')}</span>
               ${suspectWarning}
             </div>
           </td>
           <td style="text-align: center;">
-            <span style="font-weight: 700; color: ${c.paidOrdersCount > 0 ? '#059669' : '#94a3b8'}; font-size: 0.84rem;">${c.paidOrdersCount}</span>
+            <span style="font-weight: 700; color: ${c.paidOrdersCount > 0 ? '#059669' : '#94a3b8'}; font-size: 0.86rem; font-family: ui-monospace, monospace;">${c.paidOrdersCount}</span>
           </td>
-          <td style="text-align: right; font-weight: 700; color: #059669; font-family: ui-monospace, monospace; font-size: 0.84rem;">
+          <td style="text-align: right; font-weight: 700; color: #059669; font-family: ui-monospace, monospace; font-size: 0.86rem;">
             ${formatCurrency(c.totalSpent)}
           </td>
           <td>
-            <div style="font-size: 0.78rem; color: #334155; max-width: 260px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="${escapeHtml(Array.from(c.purchasedProducts).join(', '))}">
+            <div style="font-size: 0.80rem; color: #334155; max-width: 260px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="${escapeHtml(Array.from(c.purchasedProducts).join(', '))}">
               ${productsStr}
             </div>
           </td>
-          <td style="text-align: center;">
-            <div style="display: inline-flex; align-items: center; gap: 6px;">
-              <button type="button" class="btn-quick-edit-customer-email" data-key="${escapeHtml(c.key)}" data-name="${escapeHtml(c.name)}" data-email="${escapeHtml(c.email || '')}" data-latest-order="${escapeHtml(latestOrderId)}" style="height: 26px; padding: 0 8px; font-size: 0.72rem; border-radius: 4px; border: 1px solid #cbd5e1; background: #ffffff; color: #0f172a; cursor: pointer; font-weight: 600;" title="Sửa lại email khi khách báo sai">
-                Sửa Gmail
+          <td style="text-align: right;" onclick="event.stopPropagation();">
+            <div class="action-menu-wrap">
+              <button type="button" class="action-dots-btn btn-cust-dots" data-key="${safeKey}" title="Thao tác">
+                <svg width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="1.5"></circle><circle cx="12" cy="5" r="1.5"></circle><circle cx="12" cy="19" r="1.5"></circle></svg>
               </button>
-              ${c.paidOrdersCount > 0 && latestOrderId ? `
-                <button type="button" class="btn-quick-resend-customer-file" data-order="${escapeHtml(latestOrderId)}" data-email="${escapeHtml(c.email || '')}" style="height: 26px; padding: 0 8px; font-size: 0.72rem; border-radius: 4px; border: 1px solid #a7f3d0; background: #ecfdf5; color: #047857; cursor: pointer; font-weight: 600;" title="Gửi lại toàn bộ file vào email">
-                  Gửi lại File
+              <div class="action-dropdown-popover" id="popover-cust-${safeKey}" style="min-width: 175px;">
+                <button type="button" class="action-dropdown-item btn-open-cust-drawer" data-key="${safeKey}" style="color: #0f172a; font-weight: 600;">
+                  <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
+                  <span>Chi tiết &amp; Sửa Gmail</span>
                 </button>
-              ` : ''}
+                ${c.paidOrdersCount > 0 && latestOrderId ? `
+                <button type="button" class="action-dropdown-item btn-open-cust-drawer" data-key="${safeKey}" style="color: #059669; font-weight: 600;">
+                  <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
+                  <span>Gửi lại File</span>
+                </button>` : ''}
+                ${cleanPhone ? `
+                <a href="https://zalo.me/${escapeHtml(cleanPhone)}" target="_blank" rel="noopener noreferrer" class="action-dropdown-item" style="text-decoration: none; color: #0284c7;">
+                  <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path></svg>
+                  <span>Nhắn Zalo</span>
+                </a>
+                <a href="tel:${escapeHtml(cleanPhone)}" class="action-dropdown-item" style="text-decoration: none; color: #334155;">
+                  <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path></svg>
+                  <span>Gọi điện</span>
+                </a>` : ''}
+              </div>
             </div>
           </td>
         </tr>
       `;
     }).join('');
 
-    // Event Handlers cho nút Sửa Gmail trong bảng
-    tbody.querySelectorAll('.btn-quick-edit-customer-email').forEach(btn => {
-      btn.addEventListener('click', async (e) => {
+    // Render Mobile Table-to-Card
+    const mobileContainer = document.getElementById('customerMobileCards');
+    if (mobileContainer) {
+      mobileContainer.innerHTML = list.map(c => {
+        const cleanPhone = normalizePhoneNumber(c.phone) || c.phone;
+        const safeKey = escapeHtml(c.key);
+        const suspectWarning = isSuspectEmail(c.email)
+          ? '<span style="color: #d97706; font-weight: 500; font-size: 0.72rem; margin-left: 6px;">&#9679; Sai domain?</span>'
+          : '';
+        const productsText = Array.from(c.purchasedProducts).join(', ') || 'Chưa mua file nào';
+
+        return `
+          <div class="cust-mobile-card" data-key="${safeKey}" style="padding: 14px 16px; border-bottom: 1px solid #f1f5f9; display: flex; flex-direction: column; gap: 6px; cursor: pointer;">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 8px;">
+              <div>
+                <div style="font-weight: 600; color: #0f172a; font-size: 0.90rem;">${escapeHtml(c.name)}</div>
+                <div style="font-size: 0.74rem; color: #64748b;">${c.paidOrdersCount}/${c.orders.length} đơn đã thanh toán</div>
+              </div>
+              <div style="font-weight: 700; color: #059669; font-family: ui-monospace, monospace; font-size: 0.90rem;">
+                ${formatCurrency(c.totalSpent)}
+              </div>
+            </div>
+            <div style="font-family: ui-monospace, monospace; font-size: 0.80rem; color: #334155;">
+              ${cleanPhone ? `<a href="tel:${escapeHtml(cleanPhone)}" onclick="event.stopPropagation();" style="color: #334155; text-decoration: none; font-weight: 600;">${escapeHtml(c.phone)}</a>` : '-'}
+              <span style="color: #cbd5e1; margin: 0 6px;">|</span>
+              <span style="color: ${c.email ? '#0f172a' : '#94a3b8'};">${escapeHtml(c.email || 'Chưa cung cấp')}</span>${suspectWarning}
+            </div>
+            <div style="font-size: 0.76rem; color: #64748b; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+              ${escapeHtml(productsText)}
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      mobileContainer.querySelectorAll('.cust-mobile-card').forEach(card => {
+        card.addEventListener('click', () => openCustomerDrawer(card.dataset.key));
+      });
+    }
+
+    // 3-dots popover toggle
+    tbody.querySelectorAll('.btn-cust-dots').forEach(btn => {
+      btn.addEventListener('click', (e) => {
         e.stopPropagation();
-        const key = btn.dataset.key;
-        const name = btn.dataset.name;
-        const currentEmail = btn.dataset.email || '';
-        const latestOrder = btn.dataset.latestOrder || '';
-
-        const newEmail = prompt('Nhập địa chỉ Gmail mới chính xác cho ' + name + ':\n(Hệ thống sẽ cập nhật và gửi lại file vào mail này)', currentEmail);
-        if (newEmail === null) return;
-        const cleanNewEmail = newEmail.trim().toLowerCase();
-        if (!cleanNewEmail || !cleanNewEmail.includes('@') || !cleanNewEmail.includes('.')) {
-          showToast('Email không hợp lệ!', true);
-          return;
-        }
-
-        if (latestOrder) {
-          try {
-            btn.disabled = true;
-            btn.textContent = 'Đang lưu...';
-            const res = await adminFetch('/admin/update-order-email', {
-              method: 'POST',
-              body: JSON.stringify({
-                order_id: latestOrder,
-                new_email: cleanNewEmail,
-                resend_email: true
-              })
-            });
-
-            if (res && res.success) {
-              showToast('Đã đổi email thành ' + cleanNewEmail + ' và gửi lại file thành công!');
-              // Cập nhật local
-              const cust = cachedCustomersList.find(c => c.key === key);
-              if (cust) cust.email = cleanNewEmail;
-              renderCustomersTable();
-            } else {
-              throw new Error(res?.error || 'Không thể cập nhật email');
-            }
-          } catch (err) {
-            console.error('Lỗi cập nhật email khách:', err);
-            btn.disabled = false;
-            btn.textContent = 'Sửa Gmail';
-            showToast('Lỗi: ' + (err.message || 'Cập nhật thất bại'), true);
-          }
-        } else {
-          showToast('Khách hàng này chưa có đơn hàng để cập nhật email.', true);
+        const wrap = btn.closest('.action-menu-wrap');
+        const popover = wrap?.querySelector('.action-dropdown-popover');
+        const isShown = popover?.classList.contains('show');
+        document.querySelectorAll('.action-dropdown-popover.show').forEach(p => p.classList.remove('show'));
+        document.querySelectorAll('.action-dots-btn.active').forEach(b => b.classList.remove('active'));
+        if (!isShown && popover) {
+          popover.classList.add('show');
+          btn.classList.add('active');
         }
       });
     });
 
-    // Event Handlers gửi lại file
-    tbody.querySelectorAll('.btn-quick-resend-customer-file').forEach(btn => {
-      btn.addEventListener('click', async (e) => {
+    // Click row hoặc nút trong menu -> mở Right Drawer
+    tbody.querySelectorAll('.cust-row-clickable').forEach(row => {
+      row.addEventListener('click', () => openCustomerDrawer(row.dataset.key));
+    });
+    tbody.querySelectorAll('.btn-open-cust-drawer').forEach(btn => {
+      btn.addEventListener('click', (e) => {
         e.stopPropagation();
-        const oId = btn.dataset.order;
-        const email = btn.dataset.email;
-        if (!email || !email.includes('@')) {
-          showToast('Khách chưa có email hợp lệ! Vui lòng bấm Sửa Gmail trước.', true);
-          return;
-        }
-
-        if (!confirm('Gửi lại file đơn hàng #' + oId + ' tới email ' + email + '?')) return;
-
-        try {
-          btn.disabled = true;
-          btn.textContent = 'Đang gửi...';
-          const res = await adminFetch('/admin/resend-delivery-email', {
-            method: 'POST',
-            body: JSON.stringify({ order_id: oId, email: email })
-          });
-
-          if (res && res.success) {
-            showToast('Đã gửi lại email bàn giao file tới ' + email + '!');
-            btn.textContent = 'Đã gửi!';
-            setTimeout(() => {
-              btn.disabled = false;
-              btn.textContent = 'Gửi lại File';
-            }, 3000);
-          } else {
-            throw new Error(res?.error || 'Gửi lại thất bại');
-          }
-        } catch (err) {
-          console.error('Lỗi gửi lại file:', err);
-          btn.disabled = false;
-          btn.textContent = 'Gửi lại File';
-          showToast('Lỗi: ' + (err.message || 'Gửi thất bại'), true);
-        }
+        document.querySelectorAll('.action-dropdown-popover.show').forEach(p => p.classList.remove('show'));
+        document.querySelectorAll('.action-dots-btn.active').forEach(b => b.classList.remove('active'));
+        openCustomerDrawer(btn.dataset.key);
       });
     });
   }
+
+  function openCustomerDrawer(custKey) {
+    const cust = cachedCustomersList.find(c => c.key === custKey);
+    const backdrop = document.getElementById('customerDrawerBackdrop');
+    if (!cust || !backdrop) return;
+
+    const cleanPhone = normalizePhoneNumber(cust.phone) || cust.phone;
+    const latestOrderId = cust.orders[0]?.order_id || cust.orders[0]?.id || '';
+
+    document.getElementById('custDrawerTitle').textContent = cust.name;
+    document.getElementById('custDrawerSub').textContent = `${cust.orders.length} lần đặt hàng`;
+    document.getElementById('custDrawerKey').value = cust.key;
+    document.getElementById('custDrawerLatestOrder').value = latestOrderId;
+    document.getElementById('custDrawerEmailInput').value = cust.email || '';
+    document.getElementById('custDrawerPaidStats').textContent = `${cust.paidOrdersCount} đơn — ${formatCurrency(cust.totalSpent)}`;
+
+    const phoneWrap = document.getElementById('custDrawerPhoneWrap');
+    if (phoneWrap) {
+      phoneWrap.innerHTML = cleanPhone
+        ? `<a href="tel:${escapeHtml(cleanPhone)}" style="font-family: ui-monospace, monospace; font-size: 0.86rem; font-weight: 600; color: #0f172a; text-decoration: none;">${escapeHtml(cust.phone)}</a>
+           <a href="https://zalo.me/${escapeHtml(cleanPhone)}" target="_blank" rel="noopener noreferrer" style="font-size: 0.78rem; font-weight: 600; color: #0284c7; text-decoration: none;">Mở Zalo</a>`
+        : '<span style="color: #94a3b8; font-size: 0.84rem;">Chưa có SĐT</span>';
+    }
+
+    const ordersListEl = document.getElementById('custDrawerOrdersList');
+    if (ordersListEl) {
+      if (cust.orders.length === 0) {
+        ordersListEl.innerHTML = '<div style="font-size: 0.82rem; color: #94a3b8;">Chưa có đơn hàng nào.</div>';
+      } else {
+        ordersListEl.innerHTML = cust.orders.map(o => {
+          const oId = o.order_id || o.id || '';
+          const isPaid = (o.status || '').toUpperCase() === 'PAID';
+          const statusHtml = isPaid
+            ? '<span style="color: #059669; font-size: 0.74rem; font-weight: 600;">&#9679; Đã thanh toán</span>'
+            : '<span style="color: #64748b; font-size: 0.74rem; font-weight: 500;">&#9679; Chờ thanh toán</span>';
+          const prodName = o.product_name || (Array.isArray(o.items) && o.items[0]?.product_name) || 'Sản phẩm File Đi Làm';
+
+          return `
+            <div style="padding: 12px 14px; border: 1px solid #e2e8f0; border-radius: 8px; display: flex; flex-direction: column; gap: 6px;">
+              <div style="display: flex; justify-content: space-between; align-items: center;">
+                <span style="font-family: ui-monospace, monospace; font-size: 0.78rem; font-weight: 600; color: #334155;">#${escapeHtml(oId)}</span>
+                ${statusHtml}
+              </div>
+              <div style="font-size: 0.82rem; font-weight: 600; color: #0f172a;">${escapeHtml(prodName)}</div>
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 2px;">
+                <span style="font-family: ui-monospace, monospace; font-size: 0.82rem; font-weight: 700; color: #059669;">${formatCurrency(Number(o.amount || 0))}</span>
+                ${isPaid && oId ? `
+                  <button type="button" class="btn-drawer-resend-order" data-order="${escapeHtml(oId)}"
+                    style="height: 30px; padding: 0 10px; font-size: 0.74rem; font-weight: 600; border-radius: 6px; border: 1px solid #a7f3d0; background: #ecfdf5; color: #047857; cursor: pointer;">
+                    Gửi lại File
+                  </button>` : ''}
+              </div>
+            </div>
+          `;
+        }).join('');
+
+        ordersListEl.querySelectorAll('.btn-drawer-resend-order').forEach(btn => {
+          btn.addEventListener('click', async () => {
+            const oId = btn.dataset.order;
+            const targetEmail = (document.getElementById('custDrawerEmailInput')?.value || cust.email || '').trim().toLowerCase();
+            if (!targetEmail || !targetEmail.includes('@') || !targetEmail.includes('.')) {
+              showToast('Khách chưa có email hợp lệ! Vui lòng nhập Email ở trên trước.', true);
+              document.getElementById('custDrawerEmailInput')?.focus();
+              return;
+            }
+            try {
+              btn.disabled = true;
+              btn.textContent = 'Đang gửi...';
+              const res = await adminFetch('/admin/resend-delivery-email', {
+                method: 'POST',
+                body: JSON.stringify({ order_id: oId, email: targetEmail })
+              });
+              if (res && res.success) {
+                showToast('Đã gửi lại email bàn giao file tới ' + targetEmail);
+                btn.textContent = 'Đã gửi';
+                setTimeout(() => {
+                  btn.disabled = false;
+                  btn.textContent = 'Gửi lại File';
+                }, 2500);
+              } else {
+                throw new Error(res?.error || 'Gửi lại thất bại');
+              }
+            } catch (err) {
+              btn.disabled = false;
+              btn.textContent = 'Gửi lại File';
+              showToast('Lỗi: ' + (err.message || 'Gửi thất bại'), true);
+            }
+          });
+        });
+      }
+    }
+
+    backdrop.style.display = 'flex';
+  }
+
+  function closeCustomerDrawer() {
+    const backdrop = document.getElementById('customerDrawerBackdrop');
+    if (backdrop) backdrop.style.display = 'none';
+  }
+
+  document.getElementById('btnCloseCustomerDrawer')?.addEventListener('click', closeCustomerDrawer);
+  document.getElementById('customerDrawerBackdrop')?.addEventListener('click', (e) => {
+    if (e.target && e.target.id === 'customerDrawerBackdrop') closeCustomerDrawer();
+  });
+
+  document.getElementById('customerEmailForm')?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const key = document.getElementById('custDrawerKey')?.value || '';
+    const latestOrder = document.getElementById('custDrawerLatestOrder')?.value || '';
+    const cleanNewEmail = (document.getElementById('custDrawerEmailInput')?.value || '').trim().toLowerCase();
+    const resendChecked = document.getElementById('custDrawerResendCheck')?.checked !== false;
+    const submitBtn = document.getElementById('btnSaveCustomerEmail');
+
+    if (!cleanNewEmail || !cleanNewEmail.includes('@') || !cleanNewEmail.includes('.')) {
+      showToast('Email không hợp lệ!', true);
+      return;
+    }
+    if (!latestOrder) {
+      showToast('Khách hàng này chưa có đơn hàng để cập nhật email.', true);
+      return;
+    }
+
+    try {
+      if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Đang lưu...';
+      }
+      const res = await adminFetch('/admin/update-order-email', {
+        method: 'POST',
+        body: JSON.stringify({
+          order_id: latestOrder,
+          new_email: cleanNewEmail,
+          resend_email: resendChecked
+        })
+      });
+
+      if (res && res.success) {
+        showToast(resendChecked
+          ? 'Đã đổi email thành ' + cleanNewEmail + ' và gửi lại file thành công!'
+          : 'Đã cập nhật email thành ' + cleanNewEmail);
+        const cust = cachedCustomersList.find(c => c.key === key);
+        if (cust) cust.email = cleanNewEmail;
+        renderCustomersTable();
+        closeCustomerDrawer();
+      } else {
+        throw new Error(res?.error || 'Không thể cập nhật email');
+      }
+    } catch (err) {
+      console.error('Lỗi cập nhật email khách:', err);
+      showToast('Lỗi: ' + (err.message || 'Cập nhật thất bại'), true);
+    } finally {
+      if (submitBtn) {
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Lưu thay đổi Email';
+      }
+    }
+  });
 
   // Lắng nghe sự kiện filter và search của Module Khách Hàng
   document.getElementById('customerSearchInput')?.addEventListener('input', () => {
